@@ -17,14 +17,14 @@ class MasterSlaveConnectionTest extends DbalTestCase
                 'host' => 'master.host',
                 'user' => 'root',
                 'password' => 'password',
-                'port' => '1234',
+                'port' => 1234,
             ],
             'slaves' => [
                 [
                     'host' => 'slave1.host',
                     'user' => 'root',
                     'password' => 'password',
-                    'port' => '1234',
+                    'port' => 1234,
                 ],
             ],
         ];
@@ -33,6 +33,7 @@ class MasterSlaveConnectionTest extends DbalTestCase
 
         $connectionParams = $connection->getParams();
         foreach ($constructionParams as $key => $value) {
+            self::assertArrayHasKey($key, $connectionParams);
             self::assertSame($value, $connectionParams[$key]);
         }
     }

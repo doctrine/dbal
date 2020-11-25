@@ -31,6 +31,9 @@ use function version_compare;
 use const PHP_OS;
 use const PHP_OS_FAMILY;
 
+/**
+ * @psalm-import-type Params from DriverManager
+ */
 class ExceptionTest extends DbalFunctionalTestCase
 {
     protected function setUp(): void
@@ -351,6 +354,8 @@ EOT
      * @param array<string, mixed> $params
      *
      * @dataProvider getConnectionParams
+     *
+     * @psalm-param Params $params
      */
     public function testConnectionException(array $params): void
     {

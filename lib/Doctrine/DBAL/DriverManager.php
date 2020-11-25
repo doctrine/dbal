@@ -27,19 +27,56 @@ use function strpos;
 use function substr;
 
 /**
- * Factory for creating Doctrine\DBAL\Connection instances.
+ * Factory for creating {@link Connection} instances.
+ *
+ * @psalm-type OverrideParams = array{
+ *     charset?: string,
+ *     dbname?: string,
+ *     default_dbname?: string,
+ *     driver?: key-of<self::DRIVER_MAP>,
+ *     driverClass?: class-string<Driver>,
+ *     driverOptions?: array<mixed>,
+ *     host?: string,
+ *     password?: string,
+ *     path?: string,
+ *     pdo?: \PDO,
+ *     platform?: Platforms\AbstractPlatform,
+ *     port?: int,
+ *     user?: string,
+ * }
+ * @psalm-type Params = array{
+ *     charset?: string,
+ *     dbname?: string,
+ *     default_dbname?: string,
+ *     driver?: key-of<self::DRIVER_MAP>,
+ *     driverClass?: class-string<Driver>,
+ *     driverOptions?: array<mixed>,
+ *     host?: string,
+ *     keepSlave?: bool,
+ *     keepReplica?: bool,
+ *     master?: OverrideParams,
+ *     memory?: bool,
+ *     password?: string,
+ *     path?: string,
+ *     pdo?: \PDO,
+ *     platform?: Platforms\AbstractPlatform,
+ *     port?: int,
+ *     primary?: OverrideParams,
+ *     replica?: array<OverrideParams>,
+ *     sharding?: array<string,mixed>,
+ *     slaves?: array<OverrideParams>,
+ *     user?: string,
+ *     wrapperClass?: class-string<Connection>,
+ * }
  */
 final class DriverManager
 {
     /**
      * List of supported drivers and their mappings to the driver classes.
      *
-     * To add your own driver use the 'driverClass' parameter to
-     * {@link DriverManager::getConnection()}.
-     *
-     * @var string[]
+     * To add your own driver use the 'driverClass' parameter to {@link DriverManager::getConnection()}.
      */
-    private static $_driverMap = [
+    private const DRIVER_MAP = [
         'pdo_mysql'          => PDO\MySQL\Driver::class,
         'pdo_sqlite'         => PDO\SQLite\Driver::class,
         'pdo_pgsql'          => PDO\PgSQL\Driver::class,
@@ -86,7 +123,7 @@ final class DriverManager
      *
      * $params must contain at least one of the following.
      *
-     * Either 'driver' with one of the array keys of {@link $_driverMap},
+     * Either 'driver' with one of the array keys of {@link DRIVER_MAP},
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
      *
@@ -113,12 +150,14 @@ final class DriverManager
      * <b>driverClass</b>:
      * The driver class to use.
      *
-     * @param array{wrapperClass?: class-string<T>} $params
-     * @param Configuration|null                    $config       The configuration to use.
-     * @param EventManager|null                     $eventManager The event manager to use.
+     * @param array<string,mixed> $params
+     * @param Configuration|null  $config       The configuration to use.
+     * @param EventManager|null   $eventManager The event manager to use.
      *
      * @throws Exception
      *
+     * @phpstan-param array<string,mixed> $params
+     * @psalm-param Params $params
      * @psalm-return ($params is array{wrapperClass:mixed} ? T : Connection)
      * @template T of Connection
      */
@@ -180,13 +219,9 @@ final class DriverManager
         if (isset($params['pdo'])) {
             $params['pdo']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $params['driver'] = 'pdo_' . $params['pdo']->getAttribute(\PDO::ATTR_DRIVER_NAME);
-        } else {
-            self::_checkParams($params);
         }
 
-        $className = $params['driverClass'] ?? self::$_driverMap[$params['driver']];
-
-        $driver = new $className();
+        $driver = self::createDriver($params);
 
         $wrapperClass = Connection::class;
         if (isset($params['wrapperClass'])) {
@@ -208,38 +243,38 @@ final class DriverManager
      */
     public static function getAvailableDrivers(): array
     {
-        return array_keys(self::$_driverMap);
+        return array_keys(self::DRIVER_MAP);
     }
 
     /**
-     * Checks the list of parameters.
-     *
-     * @param mixed[] $params The list of parameters.
+     * @param array<string,mixed> $params
      *
      * @throws Exception
+     *
+     * @phpstan-param array<string,mixed> $params
+     * @psalm-param Params $params
      */
-    private static function _checkParams(array $params): void
+    private static function createDriver(array $params): Driver
     {
-        // check existence of mandatory parameters
+        if (isset($params['driverClass'])) {
+            if (! in_array(Driver::class, class_implements($params['driverClass'], true))) {
+                throw Exception::invalidDriverClass($params['driverClass']);
+            }
 
-        // driver
-        if (! isset($params['driver']) && ! isset($params['driverClass'])) {
-            throw Exception::driverRequired();
+            return new $params['driverClass']();
         }
 
-        // check validity of parameters
+        if (isset($params['driver'])) {
+            if (! isset(self::DRIVER_MAP[$params['driver']])) {
+                throw Exception::unknownDriver($params['driver'], array_keys(self::DRIVER_MAP));
+            }
 
-        // driver
-        if (isset($params['driver']) && ! isset(self::$_driverMap[$params['driver']])) {
-            throw Exception::unknownDriver($params['driver'], array_keys(self::$_driverMap));
+            $class = self::DRIVER_MAP[$params['driver']];
+
+            return new $class();
         }
 
-        if (
-            isset($params['driverClass'])
-            && ! in_array(Driver::class, class_implements($params['driverClass'], true))
-        ) {
-            throw Exception::invalidDriverClass($params['driverClass']);
-        }
+        throw Exception::driverRequired();
     }
 
     /**
@@ -263,6 +298,11 @@ final class DriverManager
      *                 URL extracted into indidivual parameter parts.
      *
      * @throws Exception
+     *
+     * @phpstan-param array<string,mixed> $params
+     * @phpstan-return array<string,mixed>
+     * @psalm-param Params $params
+     * @psalm-return Params
      */
     private static function parseDatabaseUrl(array $params): array
     {

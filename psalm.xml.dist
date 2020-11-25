@@ -12,6 +12,10 @@
         <directory name="tests/Doctrine/Tests" />
         <ignoreFiles>
             <directory name="vendor" />
+
+            <!-- See https://github.com/doctrine/dbal/pull/3906 -->
+            <directory name="lib/Doctrine/DBAL/Sharding" />
+            <directory name="tests/Doctrine/Tests/DBAL/Sharding" />
         </ignoreFiles>
     </projectFiles>
     <stubs>
@@ -85,10 +89,19 @@
                 <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
+        <InvalidNullableReturnType>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/4082 -->
+                <file name="lib/Doctrine/DBAL/Driver/AbstractSQLiteDriver.php"/>
+            </errorLevel>
+        </InvalidNullableReturnType>
         <InvalidPropertyAssignmentValue>
             <errorLevel type="suppress">
                 <!-- Fixing this issue requires an API change -->
                 <file name="lib/Doctrine/DBAL/Driver/PDOException.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/pull/3548 -->
+                <file name="lib/Doctrine/DBAL/Connection.php"/>
             </errorLevel>
         </InvalidPropertyAssignmentValue>
         <MethodSignatureMismatch>
@@ -128,6 +141,19 @@
                 <file name="lib/Doctrine/DBAL/SQLParserUtils.php"/>
             </errorLevel>
         </PossiblyInvalidOperand>
+        <PossiblyUndefinedArrayOffset>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/3606 -->
+                <file name="lib/Doctrine/DBAL/Driver/AbstractDB2Driver.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/AbstractOracleDriver.php"/>
+
+                <!-- See https://github.com/psalm/psalm-plugin-phpunit/pull/82 -->
+                <file name="tests/Doctrine/Tests/DBAL/Connections/MasterSlaveConnectionTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/MasterSlaveConnectionTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/PrimaryReadReplicaConnectionTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/Schema/PostgreSqlSchemaManagerTest.php"/>
+            </errorLevel>
+        </PossiblyUndefinedArrayOffset>
         <PossiblyNullArgument>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3488 -->
@@ -196,6 +222,13 @@
                 <file name="lib/Doctrine/DBAL/Tools/Dumper.php"/>
             </errorLevel>
         </UndefinedClass>
+        <InvalidArgument>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/3803 -->
+                <file name="tests/Doctrine/Tests/DBAL/ConnectionTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/DriverManagerTest.php"/>
+            </errorLevel>
+        </InvalidArgument>
         <InvalidReturnType>
             <errorLevel type="suppress">
                 <!-- lastInsertId has a return type that does not match the one defined in the interface-->

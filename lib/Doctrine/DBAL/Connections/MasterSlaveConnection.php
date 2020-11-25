@@ -14,6 +14,8 @@ use const E_USER_DEPRECATED;
 
 /**
  * @deprecated Use PrimaryReadReplicaConnection instead
+ *
+ * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
  */
 class MasterSlaveConnection extends PrimaryReadReplicaConnection
 {
@@ -22,9 +24,12 @@ class MasterSlaveConnection extends PrimaryReadReplicaConnection
      *
      * @internal The connection can be only instantiated by the driver manager.
      *
-     * @param mixed[] $params
+     * @param array<string,mixed> $params
      *
      * @throws InvalidArgumentException
+     *
+     * @phpstan-param array<string,mixed> $params
+     * @psalm-param Params $params
      */
     public function __construct(
         array $params,

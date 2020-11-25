@@ -16,6 +16,7 @@ use const CASE_LOWER;
 
 /**
  * @group DBAL-20
+ * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
  */
 class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
 {
@@ -55,6 +56,8 @@ class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
 
     /**
      * @return mixed[]
+     *
+     * @psalm-return Params
      */
     private function createPrimaryReadReplicaConnectionParams(bool $keepReplica = false): array
     {
@@ -77,6 +80,8 @@ class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
         foreach ($charsets as $charset) {
             $params                       = $this->createPrimaryReadReplicaConnectionParams();
             $params['primary']['charset'] = $charset;
+
+            self::assertArrayHasKey('replica', $params);
 
             foreach ($params['replica'] as $index => $replicaParams) {
                 if (! isset($replicaParams['charset'])) {

@@ -52,13 +52,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     public function createDatabase($database)
     {
-        $params  = $this->_conn->getParams();
-        $driver  = $params['driver'];
-        $options = [
-            'driver' => $driver,
-            'path' => $database,
-        ];
-        $conn    = DriverManager::getConnection($options);
+        $params = $this->_conn->getParams();
+
+        $params['path'] = $database;
+        unset($params['memory']);
+
+        $conn = DriverManager::getConnection($params);
         $conn->connect();
         $conn->close();
     }

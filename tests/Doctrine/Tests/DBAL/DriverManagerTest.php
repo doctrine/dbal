@@ -162,7 +162,10 @@ class DriverManagerTest extends DbalTestCase
         ];
 
         foreach ($expected as $key => $value) {
+            self::assertArrayHasKey($key, $params['primary']);
             self::assertEquals($value, $params['primary'][$key]);
+
+            self::assertArrayHasKey($key, $params['replica']['replica1']);
             self::assertEquals($value, $params['replica']['replica1'][$key]);
         }
 
