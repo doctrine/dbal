@@ -111,9 +111,12 @@ class PrimaryReadReplicaConnection extends Connection
             throw new InvalidArgumentException('You have to configure at least one replica.');
         }
 
-        $params['primary']['driver'] = $params['driver'];
-        foreach ($params['replica'] as $replicaKey => $replica) {
-            $params['replica'][$replicaKey]['driver'] = $params['driver'];
+        if (isset($params['driver'])) {
+            $params['primary']['driver'] = $params['driver'];
+
+            foreach ($params['replica'] as $replicaKey => $replica) {
+                $params['replica'][$replicaKey]['driver'] = $params['driver'];
+            }
         }
 
         $this->keepReplica = (bool) ($params['keepReplica'] ?? false);
