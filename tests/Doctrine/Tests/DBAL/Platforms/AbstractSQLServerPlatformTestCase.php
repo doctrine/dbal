@@ -1404,8 +1404,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                     [new Column('removecolumn', Type::getType('string'), ['default' => 'foo'])]
                 ),
                 [
-                    'ALTER TABLE mytable ADD addcolumn NVARCHAR(255) NOT NULL',
-                    "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo' FOR addcolumn",
+                    'ALTER TABLE mytable ADD addcolumn NVARCHAR(255) NOT NULL ' .
+                    "CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo'",
                     'ALTER TABLE mytable DROP COLUMN removecolumn',
                     'ALTER TABLE mytable DROP CONSTRAINT DF_6B2BD609_9BADD926',
                     'ALTER TABLE mytable ALTER COLUMN mycolumn NVARCHAR(255) NOT NULL',
@@ -1428,8 +1428,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                     [new Column('`removecolumn`', Type::getType('string'), ['default' => 'foo'])]
                 ),
                 [
-                    'ALTER TABLE [mytable] ADD [addcolumn] NVARCHAR(255) NOT NULL',
-                    "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo' FOR [addcolumn]",
+                    'ALTER TABLE [mytable] ADD [addcolumn] NVARCHAR(255) NOT NULL ' .
+                    "CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo'",
                     'ALTER TABLE [mytable] DROP COLUMN [removecolumn]',
                     'ALTER TABLE [mytable] DROP CONSTRAINT DF_6B2BD609_9BADD926',
                     'ALTER TABLE [mytable] ALTER COLUMN [mycolumn] NVARCHAR(255) NOT NULL',
@@ -1452,8 +1452,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                     [new Column('drop', Type::getType('string'), ['default' => 'foo'])]
                 ),
                 [
-                    'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL',
-                    "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo' FOR [add]",
+                    'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL ' .
+                    "CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo'",
                     'ALTER TABLE [table] DROP COLUMN [drop]',
                     'ALTER TABLE [table] DROP CONSTRAINT DF_F6298F46_4BF2EAC0',
                     'ALTER TABLE [table] ALTER COLUMN [select] NVARCHAR(255) NOT NULL',
@@ -1476,8 +1476,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                     [new Column('`drop`', Type::getType('string'), ['default' => 'foo'])]
                 ),
                 [
-                    'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL',
-                    "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo' FOR [add]",
+                    'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL ' .
+                    "CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo'",
                     'ALTER TABLE [table] DROP COLUMN [drop]',
                     'ALTER TABLE [table] DROP CONSTRAINT DF_F6298F46_4BF2EAC0',
                     'ALTER TABLE [table] ALTER COLUMN [select] NVARCHAR(255) NOT NULL',
