@@ -432,23 +432,21 @@ class Connection implements DriverConnection
 
                 // The database to connect to might not yet exist.
                 // Retry detection without database name connection parameter.
-                $databaseName           = $this->params['dbname'];
-                $this->params['dbname'] = null;
+                $params = $this->params;
+
+                unset($this->params['dbname']);
 
                 try {
                     $this->connect();
                 } catch (Throwable $fallbackException) {
                     // Either the platform does not support database-less connections
                     // or something else went wrong.
-                    // Reset connection parameters and rethrow the original exception.
-                    $this->params['dbname'] = $databaseName;
-
                     throw $originalException;
+                } finally {
+                    $this->params = $params;
                 }
 
-                // Reset connection parameters.
-                $this->params['dbname'] = $databaseName;
-                $serverVersion          = $this->getServerVersion();
+                $serverVersion = $this->getServerVersion();
 
                 // Close "temporary" connection to allow connecting to the real database again.
                 $this->close();
