@@ -14,6 +14,9 @@ use function sprintf;
 
 use const CASE_LOWER;
 
+/**
+ * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
+ */
 class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 {
     protected function setUp(): void
@@ -52,6 +55,8 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
     /**
      * @return mixed[]
+     *
+     * @psalm-return Params
      */
     private function createMasterSlaveConnectionParams(bool $keepSlave = false): array
     {
@@ -74,6 +79,8 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         foreach ($charsets as $charset) {
             $params                      = $this->createMasterSlaveConnectionParams();
             $params['master']['charset'] = $charset;
+
+            self::assertArrayHasKey('slaves', $params);
 
             foreach ($params['slaves'] as $index => $slaveParams) {
                 if (! isset($slaveParams['charset'])) {

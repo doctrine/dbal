@@ -56,6 +56,7 @@ use function func_get_args;
  *
  * Instantiation through the DriverManager looks like:
  *
+ * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
  * @example
  *
  * $conn = DriverManager::getConnection(array(
@@ -93,9 +94,12 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @internal The connection can be only instantiated by the driver manager.
      *
-     * @param mixed[] $params
+     * @param array<string,mixed> $params
      *
      * @throws InvalidArgumentException
+     *
+     * @phpstan-param array<string,mixed> $params
+     * @psalm-param Params $params
      */
     public function __construct(
         array $params,

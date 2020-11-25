@@ -17,6 +17,7 @@ use Doctrine\DBAL\Types\Types;
 
 use function array_map;
 use function array_pop;
+use function array_unshift;
 use function count;
 use function strtolower;
 
@@ -43,10 +44,15 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testGetSearchPath(): void
     {
+        $expected = ['public'];
+
         $params = $this->connection->getParams();
 
-        $paths = $this->schemaManager->getSchemaSearchPaths();
-        self::assertEquals([$params['user'], 'public'], $paths);
+        if (isset($params['user'])) {
+            array_unshift($expected, $params['user']);
+        }
+
+        self::assertEquals($expected, $this->schemaManager->getSchemaSearchPaths());
     }
 
     public function testGetSchemaNames(): void

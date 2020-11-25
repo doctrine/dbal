@@ -27,15 +27,54 @@ use function strpos;
 use function substr;
 
 /**
- * Factory for creating Doctrine\DBAL\Connection instances.
+ * Factory for creating {@link Connection} instances.
+ *
+ * @psalm-type OverrideParams = array{
+ *     charset?: string,
+ *     dbname?: string,
+ *     default_dbname?: string,
+ *     driver?: key-of<self::DRIVER_MAP>,
+ *     driverClass?: class-string<Driver>,
+ *     driverOptions?: array<mixed>,
+ *     host?: string,
+ *     password?: string,
+ *     path?: string,
+ *     pdo?: \PDO,
+ *     platform?: Platforms\AbstractPlatform,
+ *     port?: int,
+ *     user?: string,
+ * }
+ * @psalm-type Params = array{
+ *     charset?: string,
+ *     dbname?: string,
+ *     default_dbname?: string,
+ *     driver?: key-of<self::DRIVER_MAP>,
+ *     driverClass?: class-string<Driver>,
+ *     driverOptions?: array<mixed>,
+ *     host?: string,
+ *     keepSlave?: bool,
+ *     keepReplica?: bool,
+ *     master?: OverrideParams,
+ *     memory?: bool,
+ *     password?: string,
+ *     path?: string,
+ *     pdo?: \PDO,
+ *     platform?: Platforms\AbstractPlatform,
+ *     port?: int,
+ *     primary?: OverrideParams,
+ *     replica?: array<OverrideParams>,
+ *     sharding?: array<string,mixed>,
+ *     slaves?: array<OverrideParams>,
+ *     user?: string,
+ *     wrapperClass?: class-string<Connection>,
+ * }
  */
 final class DriverManager
 {
     /**
      * List of supported drivers and their mappings to the driver classes.
      *
-     * To add your own driver use the 'driverClass' parameter to
-     * {@link DriverManager::getConnection()}.
+     * To add your own driver use the 'driverClass' parameter to {@link DriverManager::getConnection()}.
      */
     private const DRIVER_MAP = [
         'pdo_mysql'          => PDO\MySQL\Driver::class,
@@ -111,12 +150,14 @@ final class DriverManager
      * <b>driverClass</b>:
      * The driver class to use.
      *
-     * @param array{wrapperClass?: class-string<T>} $params
-     * @param Configuration|null                    $config       The configuration to use.
-     * @param EventManager|null                     $eventManager The event manager to use.
+     * @param array<string,mixed> $params
+     * @param Configuration|null  $config       The configuration to use.
+     * @param EventManager|null   $eventManager The event manager to use.
      *
      * @throws Exception
      *
+     * @phpstan-param array<string,mixed> $params
+     * @psalm-param Params $params
      * @psalm-return ($params is array{wrapperClass:mixed} ? T : Connection)
      * @template T of Connection
      */
@@ -209,6 +250,9 @@ final class DriverManager
      * @param array<string,mixed> $params
      *
      * @throws Exception
+     *
+     * @phpstan-param array<string,mixed> $params
+     * @psalm-param Params $params
      */
     private static function createDriver(array $params): Driver
     {
@@ -254,6 +298,11 @@ final class DriverManager
      *                 URL extracted into indidivual parameter parts.
      *
      * @throws Exception
+     *
+     * @phpstan-param array<string,mixed> $params
+     * @phpstan-return array<string,mixed>
+     * @psalm-param Params $params
+     * @psalm-return Params
      */
     private static function parseDatabaseUrl(array $params): array
     {

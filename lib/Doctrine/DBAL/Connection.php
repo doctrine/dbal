@@ -37,6 +37,8 @@ use function key;
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
  * events, transaction isolation levels, configuration, emulated transaction nesting,
  * lazy connecting and more.
+ *
+ * @psalm-import-type Params from DriverManager
  */
 class Connection implements DriverConnection
 {
@@ -130,9 +132,11 @@ class Connection implements DriverConnection
     /**
      * The parameters used during creation of the Connection instance.
      *
-     * @var mixed[]
+     * @var array<string,mixed>
+     * @phpstan-var array<string,mixed>
+     * @psalm-var Params
      */
-    private $params = [];
+    private $params;
 
     /**
      * The DatabasePlatform object that provides information about the
@@ -171,12 +175,15 @@ class Connection implements DriverConnection
      *
      * @internal The connection can be only instantiated by the driver manager.
      *
-     * @param mixed[]            $params       The connection parameters.
-     * @param Driver             $driver       The driver to use.
-     * @param Configuration|null $config       The configuration, optional.
-     * @param EventManager|null  $eventManager The event manager, optional.
+     * @param array<string,mixed> $params       The connection parameters.
+     * @param Driver              $driver       The driver to use.
+     * @param Configuration|null  $config       The configuration, optional.
+     * @param EventManager|null   $eventManager The event manager, optional.
      *
      * @throws Exception
+     *
+     * @phpstan-param array<string,mixed> $params
+     * @psalm-param Params $params
      */
     public function __construct(
         array $params,
@@ -222,7 +229,10 @@ class Connection implements DriverConnection
      *
      * @internal
      *
-     * @return mixed[]
+     * @return array<string,mixed>
+     *
+     * @phpstan-return array<string,mixed>
+     * @psalm-return Params
      */
     public function getParams()
     {
