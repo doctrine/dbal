@@ -18,6 +18,9 @@ use PHPUnit\Framework\TestCase;
 
 use function array_merge;
 
+/**
+ * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
+ */
 class MySQLInheritCharsetTest extends TestCase
 {
     public function testInheritTableOptionsFromDatabase(): void
@@ -74,11 +77,13 @@ class MySQLInheritCharsetTest extends TestCase
     }
 
     /**
-     * @param string[] $overrideOptions
+     * @param array<string,mixed> $params
      *
      * @return string[]
+     *
+     * @psalm-param Params $params
      */
-    private function getTableOptionsForOverride(array $overrideOptions = []): array
+    private function getTableOptionsForOverride(array $params = []): array
     {
         $eventManager = new EventManager();
 
@@ -86,10 +91,10 @@ class MySQLInheritCharsetTest extends TestCase
         $driverMock->method('connect')
             ->willReturn($this->createMock(DriverConnection::class));
 
-        $platform    = new MySQLPlatform();
-        $connOptions = array_merge(['platform' => $platform], $overrideOptions);
-        $conn        = new Connection($connOptions, $driverMock, new Configuration(), $eventManager);
-        $manager     = new MySQLSchemaManager($conn, $platform);
+        $platform = new MySQLPlatform();
+        $params   = array_merge(['platform' => $platform], $params);
+        $conn     = new Connection($params, $driverMock, new Configuration(), $eventManager);
+        $manager  = new MySQLSchemaManager($conn, $platform);
 
         $schemaConfig = $manager->createSchemaConfig();
 

@@ -9,3 +9,4 @@ vendor/
 /phpunit.xml
 /.phpcs-cache
 /phpstan.neon
+/psalm.xml

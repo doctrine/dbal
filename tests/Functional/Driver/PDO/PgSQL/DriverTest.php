@@ -36,9 +36,17 @@ class DriverTest extends AbstractDriverTest
         ?string $defaultDatabaseName,
         ?string $expectedDatabaseName
     ): void {
-        $params                   = $this->connection->getParams();
-        $params['dbname']         = $databaseName;
-        $params['default_dbname'] = $defaultDatabaseName;
+        $params = $this->connection->getParams();
+
+        if ($databaseName !== null) {
+            $params['dbname'] = $databaseName;
+        } else {
+            unset($params['dbname']);
+        }
+
+        if ($defaultDatabaseName !== null) {
+            $params['default_dbname'] = $defaultDatabaseName;
+        }
 
         $connection = new Connection(
             $params,

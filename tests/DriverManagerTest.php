@@ -26,6 +26,9 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection([]);
     }
 
+    /**
+     * @psalm-suppress InvalidArgument
+     */
     public function testInvalidDriver(): void
     {
         $this->expectException(Exception::class);
@@ -81,6 +84,9 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection($options);
     }
 
+    /**
+     * @psalm-suppress InvalidArgument
+     */
     public function testInvalidDriverClass(): void
     {
         $this->expectException(Exception::class);
@@ -122,7 +128,10 @@ class DriverManagerTest extends TestCase
         ];
 
         foreach ($expected as $key => $value) {
+            self::assertArrayHasKey($key, $params['primary']);
             self::assertEquals($value, $params['primary'][$key]);
+
+            self::assertArrayHasKey($key, $params['replica']['replica1']);
             self::assertEquals($value, $params['replica']['replica1'][$key]);
         }
 

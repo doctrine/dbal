@@ -13,6 +13,9 @@ use function sprintf;
 
 use const CASE_LOWER;
 
+/**
+ * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
+ */
 class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -51,6 +54,8 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
     /**
      * @return mixed[]
+     *
+     * @psalm-return Params
      */
     private function createPrimaryReadReplicaConnectionParams(bool $keepReplica = false): array
     {
@@ -73,6 +78,8 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         foreach ($charsets as $charset) {
             $params                       = $this->createPrimaryReadReplicaConnectionParams();
             $params['primary']['charset'] = $charset;
+
+            self::assertArrayHasKey('replica', $params);
 
             foreach ($params['replica'] as $index => $replicaParams) {
                 if (! isset($replicaParams['charset'])) {

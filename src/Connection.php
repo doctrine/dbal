@@ -35,6 +35,8 @@ use function key;
 /**
  * A database abstraction-level connection that implements features like events, transaction isolation levels,
  * configuration, emulated transaction nesting, lazy connecting and more.
+ *
+ * @psalm-import-type Params from DriverManager
  */
 class Connection
 {
@@ -100,9 +102,11 @@ class Connection
     /**
      * The parameters used during creation of the Connection instance.
      *
-     * @var mixed[]
+     * @var array<string,mixed>
+     * @phpstan-var array<string,mixed>
+     * @psalm-var Params
      */
-    private $params = [];
+    private $params;
 
     /**
      * The DatabasePlatform object that provides information about the
@@ -144,12 +148,15 @@ class Connection
      *
      * @internal The connection can be only instantiated by the driver manager.
      *
-     * @param mixed[]            $params       The connection parameters.
-     * @param Driver             $driver       The driver to use.
-     * @param Configuration|null $config       The configuration, optional.
-     * @param EventManager|null  $eventManager The event manager, optional.
+     * @param array<string,mixed> $params       The connection parameters.
+     * @param Driver              $driver       The driver to use.
+     * @param Configuration|null  $config       The configuration, optional.
+     * @param EventManager|null   $eventManager The event manager, optional.
      *
      * @throws Exception
+     *
+     * @phpstan-param array<string,mixed> $params
+     * @psalm-param Params $params
      */
     public function __construct(
         array $params,
@@ -190,7 +197,10 @@ class Connection
      *
      * @internal
      *
-     * @return mixed[]
+     * @return array<string,mixed>
+     *
+     * @phpstan-return array<string,mixed>
+     * @psalm-return Params
      */
     public function getParams()
     {
@@ -364,23 +374,21 @@ class Connection
 
                 // The database to connect to might not yet exist.
                 // Retry detection without database name connection parameter.
-                $databaseName           = $this->params['dbname'];
-                $this->params['dbname'] = null;
+                $params = $this->params;
+
+                unset($this->params['dbname']);
 
                 try {
                     $this->connect();
                 } catch (Exception $fallbackException) {
                     // Either the platform does not support database-less connections
                     // or something else went wrong.
-                    // Reset connection parameters and rethrow the original exception.
-                    $this->params['dbname'] = $databaseName;
-
                     throw $originalException;
+                } finally {
+                    $this->params = $params;
                 }
 
-                // Reset connection parameters.
-                $this->params['dbname'] = $databaseName;
-                $serverVersion          = $this->getServerVersion();
+                $serverVersion = $this->getServerVersion();
 
                 // Close "temporary" connection to allow connecting to the real database again.
                 $this->close();

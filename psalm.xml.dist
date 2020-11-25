@@ -81,6 +81,13 @@
                 <file name="src/Schema/AbstractSchemaManager.php"/>
             </errorLevel>
         </PossiblyNullArgument>
+        <PossiblyUndefinedArrayOffset>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/psalm/psalm-plugin-phpunit/pull/82 -->
+                <file name="tests/Functional/PrimaryReadReplicaConnectionTest.php"/>
+                <file name="tests/Functional/Schema/PostgreSQLSchemaManagerTest.php"/>
+            </errorLevel>
+        </PossiblyUndefinedArrayOffset>
         <RedundantCondition>
             <errorLevel type="suppress">
                 <!--
