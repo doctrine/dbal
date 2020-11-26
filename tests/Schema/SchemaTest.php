@@ -14,7 +14,7 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
-use function current;
+use function array_shift;
 use function strlen;
 
 class SchemaTest extends TestCase
@@ -185,7 +185,10 @@ class SchemaTest extends TestCase
         $table->addColumn('long_id', 'integer');
         $table->addIndex(['long_id']);
 
-        $index = current($table->getIndexes());
+        $indexes = $table->getIndexes();
+        self::assertCount(1, $indexes);
+
+        $index = array_shift($indexes);
         self::assertEquals(5, strlen($index->getName()));
     }
 
@@ -212,8 +215,9 @@ class SchemaTest extends TestCase
         self::assertNotSame($tableB, $schemaNew->getTable('bar'));
         self::assertNotSame($tableB->getColumn('id'), $schemaNew->getTable('bar')->getColumn('id'));
 
-        $fk = $schemaNew->getTable('bar')->getForeignKeys();
-        $fk = current($fk);
+        $foreignKeys = $schemaNew->getTable('bar')->getForeignKeys();
+        self::assertCount(1, $foreignKeys);
+        $fk = array_shift($foreignKeys);
 
         $re = new ReflectionProperty($fk, '_localTable');
         $re->setAccessible(true);

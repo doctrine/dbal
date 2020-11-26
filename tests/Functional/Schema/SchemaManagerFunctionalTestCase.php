@@ -34,9 +34,9 @@ use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_search;
+use function array_shift;
 use function array_values;
 use function count;
-use function current;
 use function get_class;
 use function in_array;
 use function sprintf;
@@ -411,8 +411,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $fkConstraints = $fkTable->getForeignKeys();
         self::assertEquals(1, count($fkConstraints), "Table 'test_create_fk1' has to have one foreign key.");
 
-        $fkConstraint = current($fkConstraints);
-        self::assertInstanceOf(ForeignKeyConstraint::class, $fkConstraint);
+        $fkConstraint = array_shift($fkConstraints);
         self::assertEquals('test_foreign', strtolower($fkConstraint->getForeignTableName()));
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkConstraint->getColumns()));
         self::assertEquals(['id'], array_map('strtolower', $fkConstraint->getForeignColumns()));
@@ -560,7 +559,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $fks = $table->getForeignKeys();
         self::assertCount(1, $fks);
-        $foreignKey = current($fks);
+        $foreignKey = array_shift($fks);
+
         self::assertEquals('alter_table_foreign', strtolower($foreignKey->getForeignTableName()));
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $foreignKey->getColumns()));
         self::assertEquals(['id'], array_map('strtolower', $foreignKey->getForeignColumns()));
@@ -679,12 +679,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table       = $this->schemaManager->listTableDetails('test_fk_rename');
-        $foreignKeys = $table->getForeignKeys();
-
+        $table = $this->schemaManager->listTableDetails('test_fk_rename');
         self::assertTrue($table->hasColumn('rename_fk_id'));
+
+        $foreignKeys = $table->getForeignKeys();
         self::assertCount(1, $foreignKeys);
-        self::assertSame(['rename_fk_id'], array_map('strtolower', current($foreignKeys)->getColumns()));
+        $foreignKey = array_shift($foreignKeys);
+
+        self::assertSame(['rename_fk_id'], array_map('strtolower', $foreignKey->getColumns()));
     }
 
     public function testRenameIndexUsedInForeignKeyConstraint(): void

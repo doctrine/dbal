@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 
-use function current;
+use function array_shift;
 
 class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -202,11 +202,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $indexes = $this->schemaManager->listTableIndexes('sqlsrv_pk_ordering');
 
         self::assertCount(1, $indexes);
+        $firstIndex = array_shift($indexes);
 
-        $firstIndex = current($indexes);
-        $columns    = $firstIndex->getColumns();
-        self::assertCount(2, $columns);
-        self::assertEquals('colB', $columns[0]);
-        self::assertEquals('colA', $columns[1]);
+        self::assertSame(['colB', 'colA'], $firstIndex->getColumns());
     }
 }

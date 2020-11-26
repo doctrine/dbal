@@ -18,7 +18,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
-use function current;
+use function array_shift;
 
 class TableTest extends TestCase
 {
@@ -324,7 +324,7 @@ class TableTest extends TestCase
 
         $constraints = $table->getForeignKeys();
         self::assertCount(1, $constraints);
-        $constraint = current($constraints);
+        $constraint = array_shift($constraints);
 
         self::assertInstanceOf(ForeignKeyConstraint::class, $constraint);
 
@@ -377,7 +377,7 @@ class TableTest extends TestCase
 
         $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
-        $index = current($indexes);
+        $index = array_shift($indexes);
 
         self::assertTrue($table->hasIndex($index->getName()));
         self::assertEquals(['id'], $index->getColumns());
@@ -431,7 +431,7 @@ class TableTest extends TestCase
 
         $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
-        $index = current($indexes);
+        $index = array_shift($indexes);
 
         $table->addUniqueIndex(['baz']);
         self::assertCount(2, $table->getIndexes());
