@@ -18,19 +18,39 @@ class Configuration
     private $middlewares = [];
 
     /**
-     * The attributes that are contained in the configuration.
-     * Values are default values.
+     * The SQL logger in use. If null, SQL logging is disabled.
      *
-     * @var mixed[]
+     * @var SQLLogger|null
      */
-    protected $_attributes = [];
+    protected $sqlLogger;
+
+    /**
+     * The cache driver implementation that is used for query result caching.
+     *
+     * @var Cache|null
+     */
+    protected $resultCacheImpl;
+
+    /**
+     * The callable to use to filter schema assets.
+     *
+     * @var callable|null
+     */
+    protected $schemaAssetsFilter;
+
+    /**
+     * The default auto-commit mode for connections.
+     *
+     * @var bool
+     */
+    protected $autoCommit = true;
 
     /**
      * Sets the SQL logger to use.
      */
     public function setSQLLogger(?SQLLogger $logger): void
     {
-        $this->_attributes['sqlLogger'] = $logger;
+        $this->sqlLogger = $logger;
     }
 
     /**
@@ -38,7 +58,7 @@ class Configuration
      */
     public function getSQLLogger(): SQLLogger
     {
-        return $this->_attributes['sqlLogger'] ?? $this->_attributes['sqlLogger'] = new NullLogger();
+        return $this->sqlLogger ?? $this->sqlLogger = new NullLogger();
     }
 
     /**
@@ -46,7 +66,7 @@ class Configuration
      */
     public function getResultCacheImpl(): ?Cache
     {
-        return $this->_attributes['resultCacheImpl'] ?? null;
+        return $this->resultCacheImpl;
     }
 
     /**
@@ -54,17 +74,15 @@ class Configuration
      */
     public function setResultCacheImpl(Cache $cacheImpl): void
     {
-        $this->_attributes['resultCacheImpl'] = $cacheImpl;
+        $this->resultCacheImpl = $cacheImpl;
     }
 
     /**
      * Sets the callable to use to filter schema assets.
      */
-    public function setSchemaAssetsFilter(?callable $callable = null): ?callable
+    public function setSchemaAssetsFilter(?callable $callable = null): void
     {
-        $this->_attributes['filterSchemaAssetsExpression'] = null;
-
-        return $this->_attributes['filterSchemaAssetsExpressionCallable'] = $callable;
+        $this->schemaAssetsFilter = $callable;
     }
 
     /**
@@ -72,7 +90,7 @@ class Configuration
      */
     public function getSchemaAssetsFilter(): ?callable
     {
-        return $this->_attributes['filterSchemaAssetsExpressionCallable'] ?? null;
+        return $this->schemaAssetsFilter;
     }
 
     /**
@@ -84,11 +102,11 @@ class Configuration
      *
      * @see getAutoCommit
      *
-     * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
+     * @param bool $autoCommit True to enable auto-commit mode; false to disable it
      */
     public function setAutoCommit(bool $autoCommit): void
     {
-        $this->_attributes['autoCommit'] = $autoCommit;
+        $this->autoCommit = $autoCommit;
     }
 
     /**
@@ -100,7 +118,7 @@ class Configuration
      */
     public function getAutoCommit(): bool
     {
-        return $this->_attributes['autoCommit'] ?? true;
+        return $this->autoCommit;
     }
 
     /**

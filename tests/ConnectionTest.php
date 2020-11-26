@@ -28,13 +28,18 @@ use stdClass;
 
 /**
  * @requires extension pdo_mysql
+ * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
  */
 class ConnectionTest extends TestCase
 {
     /** @var Connection */
     private $connection;
 
-    /** @var array<string,mixed> */
+    /**
+     * @var array<string,mixed>
+     * @phpstan-var array<string,mixed>
+     * @psalm-var Params
+     */
     protected $params = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
@@ -661,6 +666,9 @@ class ConnectionTest extends TestCase
         (new Connection($connectionParams, $driver))->executeCacheQuery($query, [], [], $queryCacheProfileMock);
     }
 
+    /**
+     * @psalm-suppress InvalidArgument
+     */
     public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {
         $connectionParams             = $this->params;

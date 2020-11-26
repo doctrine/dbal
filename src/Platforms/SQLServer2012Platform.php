@@ -473,11 +473,14 @@ SQL
             }
 
             $columnDef    = $column->toArray();
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
-
+            $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
             if (isset($columnDef['default'])) {
-                $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $column);
+                $addColumnSql .= ' CONSTRAINT ' .
+                    $this->generateDefaultConstraintName($diff->name, $column->getQuotedName($this)) .
+                    $this->getDefaultValueDeclarationSQL($columnDef);
             }
+
+            $queryParts[] = $addColumnSql;
 
             $comment = $this->getColumnComment($column);
 

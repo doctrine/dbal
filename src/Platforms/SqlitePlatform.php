@@ -722,8 +722,6 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @param int $createFlags
      */
     public function getCreateTableSQL(
         Table $table,
