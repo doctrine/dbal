@@ -1698,7 +1698,9 @@ class Connection implements DriverConnection
                 $logger->startQuery('"COMMIT"');
             }
 
-            $result = $connection->commit();
+            try {
+                $result = $connection->commit();
+            } catch (\PDOException $e) {}
 
             if ($logger) {
                 $logger->stopQuery();
@@ -1766,8 +1768,13 @@ class Connection implements DriverConnection
             }
 
             $this->transactionNestingLevel = 0;
-            $connection->rollBack();
+
+            try {
+                $connection->rollBack();
+            } catch (\PDOException $e) {}
+
             $this->isRollbackOnly = false;
+            
             if ($logger) {
                 $logger->stopQuery();
             }
