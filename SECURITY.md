@@ -4,7 +4,7 @@ Security
 The Doctrine library is operating very close to your database and as such needs
 to handle and make assumptions about SQL injection vulnerabilities.
 
-It is vital that you understand how Doctrine approaches security, because
+It is vital that you understand how Doctrine approaches security because
 we cannot protect you from SQL injection.
 
 Please read the documentation chapter on Security in Doctrine DBAL to
