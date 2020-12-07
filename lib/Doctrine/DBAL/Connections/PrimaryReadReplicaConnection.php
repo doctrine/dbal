@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 use InvalidArgumentException;
+use Throwable;
 
 use function array_rand;
 use function assert;
@@ -90,6 +91,17 @@ class PrimaryReadReplicaConnection extends Connection
     protected $keepReplica = false;
 
     /**
+     * Should query() method wrap exceptions or throw native driver exceptions?
+     *
+     * For backwards compatibility reasons this bugfix for issue
+     * https://github.com/doctrine/dbal/issues/3118
+     * requires to opt-in in 2.x and 3.x.
+     *
+     * @var bool
+     */
+    protected $wrapNativeExceptionsBugfix = false;
+
+    /**
      * Creates Primary Replica Connection.
      *
      * @internal The connection can be only instantiated by the driver manager.
@@ -123,7 +135,8 @@ class PrimaryReadReplicaConnection extends Connection
             }
         }
 
-        $this->keepReplica = (bool) ($params['keepReplica'] ?? false);
+        $this->keepReplica                = (bool) ($params['keepReplica'] ?? false);
+        $this->wrapNativeExceptionsBugfix = (bool) ($params['optinToWrapNativeExceptionsBugfix'] ?? false);
 
         parent::__construct($params, $driver, $config, $eventManager);
     }
@@ -419,7 +432,15 @@ class PrimaryReadReplicaConnection extends Connection
             $logger->startQuery($args[0]);
         }
 
-        $statement = $this->_conn->query(...$args);
+        try {
+            $statement = $this->_conn->query(...$args);
+        } catch (Throwable $e) {
+            if (! $this->wrapNativeExceptionsBugfix) {
+                throw $e;
+            }
+
+            $this->handleExceptionDuringQuery($e, $args[0]);
+        }
 
         $statement->setFetchMode($this->defaultFetchMode);
 

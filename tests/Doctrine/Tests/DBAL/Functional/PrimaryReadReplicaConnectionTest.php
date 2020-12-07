@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Table;
@@ -242,5 +244,26 @@ class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
         self::assertArrayNotHasKey(0, $data[0]);
 
         self::assertEquals(1, $data[0]['num']);
+    }
+
+    public function testNoOptinToWrapExceptionsBugfixThrowsNativeException(): void
+    {
+        $connection = DriverManager::getConnection($this->createPrimaryReadReplicaConnectionParams());
+
+        $this->expectException(Exception::class);
+
+        $connection->query('lets force an exception');
+    }
+
+    public function testOptinToWrapExceptionsInteadOfNativeExceptions(): void
+    {
+        $params                                      = $this->createPrimaryReadReplicaConnectionParams();
+        $params['optinToWrapNativeExceptionsBugfix'] = true;
+
+        $connection = DriverManager::getConnection($params);
+
+        $this->expectException(DBALException::class);
+
+        $connection->query('lets force an exception');
     }
 }
