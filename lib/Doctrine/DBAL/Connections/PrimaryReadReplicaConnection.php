@@ -16,6 +16,9 @@ use function array_rand;
 use function assert;
 use function count;
 use function func_get_args;
+use function trigger_error;
+
+use const E_USER_DEPRECATED;
 
 /**
  * Primary-Replica Connection
@@ -436,6 +439,13 @@ class PrimaryReadReplicaConnection extends Connection
             $statement = $this->_conn->query(...$args);
         } catch (Throwable $e) {
             if (! $this->wrapNativeExceptionsBugfix) {
+                @trigger_error(
+                    'Throwing native driver exception from PrimaryReplicaConnection is deprecated since ' .
+                    'doctrine/dbal 2.12 and will be removed in 3.0, use with ' .
+                    '"optinToWrapNativeExceptionsBugfix"=true parameter instead.',
+                    E_USER_DEPRECATED
+                );
+
                 throw $e;
             }
 
