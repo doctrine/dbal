@@ -44,7 +44,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     public function getSchemaNames()
     {
         $statement = $this->_conn->executeQuery(
-            "SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'"
+            //"SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'"
+
+            // update time 20201209 for Kingbase（人大金仓数据库）
+            "SELECT nspname FROM sys_namespace WHERE nspname !~ '^sys_.*' AND nspname != 'information_schema'"
+
         );
 
         return $statement->fetchAll(FetchMode::COLUMN);

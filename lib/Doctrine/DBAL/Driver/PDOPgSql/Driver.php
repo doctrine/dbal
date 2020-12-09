@@ -61,7 +61,10 @@ class Driver extends AbstractPostgreSQLDriver
      */
     private function _constructPdoDsn(array $params)
     {
-        $dsn = 'pgsql:';
+        //$dsn = 'pgsql:';
+
+        // update time 20201209 for Kingbase（人大金仓数据库）
+        $dsn = 'kdb:';
 
         if (isset($params['host']) && $params['host'] !== '') {
             $dsn .= 'host=' . $params['host'] . ';';
