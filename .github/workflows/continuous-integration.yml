@@ -28,7 +28,7 @@ jobs:
           - "7.4"
           - "8.0"
         dependencies:
-          - "locked"
+          - "highest"
         include:
           - dependencies: "lowest"
             php-version: "7.3"
