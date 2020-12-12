@@ -27,10 +27,10 @@ jobs:
           - "7.3"
           - "7.4"
           - "8.0"
-        deps:
-          - "fixed"
+        dependencies:
+          - "locked"
         include:
-          - deps: "low"
+          - dependencies: "lowest"
             php-version: "7.3"
 
     steps:
@@ -46,20 +46,10 @@ jobs:
           coverage: "pcov"
           ini-values: "zend.assertions=1"
 
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v2"
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
         with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer install --no-interaction --no-progress --no-suggest"
-        if: "${{ matrix.deps == 'fixed' }}"
-
-      - name: "Install lowest possible dependencies with composer"
-        run: "composer update --no-interaction --no-progress --no-suggest --prefer-dist --prefer-lowest"
-        if: "${{ matrix.deps == 'low' }}"
+          dependency-versions: "${{ matrix.dependencies }}"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/sqlite.xml --coverage-clover=coverage.xml"
@@ -101,15 +91,8 @@ jobs:
           coverage: "pcov"
           ini-values: "zend.assertions=1"
 
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v2"
-        with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer install --no-interaction --no-progress --no-suggest"
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/oci8.xml --coverage-clover=coverage.xml"
@@ -151,15 +134,8 @@ jobs:
           coverage: "pcov"
           ini-values: "zend.assertions=1"
 
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v2"
-        with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer install --no-interaction --no-progress --no-suggest"
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci.xml --coverage-clover=coverage.xml"
@@ -212,15 +188,8 @@ jobs:
           coverage: "pcov"
           ini-values: "zend.assertions=1"
 
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v2"
-        with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer install --no-interaction --no-progress --no-suggest"
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_pgsql.xml --coverage-clover=coverage.xml"
@@ -282,15 +251,8 @@ jobs:
           ini-values: "zend.assertions=1"
           extensions: "${{ matrix.extension }}"
 
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v2"
-        with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer install --no-interaction --no-progress --no-suggest"
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
@@ -377,15 +339,8 @@ jobs:
           ini-values: "zend.assertions=1"
           extensions: "${{ matrix.extension }}"
 
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v2"
-        with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer install --no-interaction --no-progress --no-suggest"
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Copy TLS-related files"
         run: 'docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/ca.pem" . && docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/client-cert.pem" . && docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/client-key.pem" .'
@@ -453,15 +408,8 @@ jobs:
           tools: "pecl"
           extensions: "${{ matrix.extension }}-5.9.0preview1"
 
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v2"
-        with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer install --no-interaction --no-progress --no-suggest"
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
@@ -518,15 +466,8 @@ jobs:
       - name: "Install ibm_db2 extension"
         run: "ci/github/ext/install-ibm_db2.sh ${{ matrix.php-version }}"
 
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v2"
-        with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer install --no-interaction --no-progress --no-suggest"
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
@@ -556,18 +497,13 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
 
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v2"
-        with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
       - name: "Lower minimum stability"
         run: "composer config minimum-stability dev"
 
-      - name: "Install development dependencies with composer"
-        run: "composer update --no-interaction --no-progress --no-suggest --prefer-dist"
+      - name: "Install development dependencies with Composer"
+        uses: "ramsey/composer-install@v1"
+        with:
+          composer-options: "--prefer-dist"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/sqlite.xml"
