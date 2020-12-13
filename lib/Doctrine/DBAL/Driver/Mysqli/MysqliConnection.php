@@ -298,7 +298,7 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
     /**
      * Establish a secure connection
      *
-     * @param mixed[] $params
+     * @param array<string,string> $params
      *
      * @throws MysqliException
      */
@@ -315,11 +315,11 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
         }
 
         $this->conn->ssl_set(
-            $params['ssl_key']    ?? null,
-            $params['ssl_cert']   ?? null,
-            $params['ssl_ca']     ?? null,
-            $params['ssl_capath'] ?? null,
-            $params['ssl_cipher'] ?? null
+            $params['ssl_key']    ?? '',
+            $params['ssl_cert']   ?? '',
+            $params['ssl_ca']     ?? '',
+            $params['ssl_capath'] ?? '',
+            $params['ssl_cipher'] ?? ''
         );
     }
 }
