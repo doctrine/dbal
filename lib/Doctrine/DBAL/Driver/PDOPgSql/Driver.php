@@ -61,8 +61,11 @@ class Driver extends AbstractPostgreSQLDriver
      */
     private function _constructPdoDsn(array $params)
     {
-        $dsn = 'pgsql:';
+        // $dsn = 'pgsql:';
 
+        // update date 20201214
+        // for kingbase
+        $dsn = 'kdb:';
         if (isset($params['host']) && $params['host'] !== '') {
             $dsn .= 'host=' . $params['host'] . ';';
         }
@@ -79,7 +82,13 @@ class Driver extends AbstractPostgreSQLDriver
             // Used for temporary connections to allow operations like dropping the database currently connected to.
             // Connecting without an explicit database does not work, therefore "postgres" database is used
             // as it is mostly present in every server setup.
-            $dsn .= 'dbname=postgres;';
+            // $dsn .= 'dbname=postgres;';
+
+            // update date 20201214
+            // for kingbase
+            // kingbase base database is TEMPLATE1
+            $dsn .= 'dbname=TEMPLATE1;';
+
         }
 
         if (isset($params['sslmode'])) {
