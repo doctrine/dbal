@@ -423,10 +423,11 @@ class Comparator
 
         return $key1->onDelete() !== $key2->onDelete();
     }
-    
+
     private function normalizeNull(?string $value): ?string
     {
         $value = $value === 'NULL' ? null : $value;
+
         return $value;
     }
 
