@@ -425,10 +425,10 @@ class Comparator
     }
 
     /**
-     * @param $value
+     * @param string|null $value
      * @return string|null
      */
-    private function normalizeNull($value)
+    private function normalizeNull(?string $value): ?string
     {
         $value = $value === 'NULL' ? null : $value;
         return $value;
