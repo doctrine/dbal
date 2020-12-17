@@ -425,6 +425,16 @@ class Comparator
     }
 
     /**
+     * @param $value
+     * @return string|null
+     */
+    private function normalizeNull($value)
+    {
+        $value = $value === 'NULL' ? null : $value;
+        return $value;
+    }
+
+    /**
      * Returns the difference between the columns
      *
      * If there are differences this method returns $field2, otherwise the
@@ -461,6 +471,8 @@ class Comparator
 
         // Null values need to be checked additionally as they tell whether to create or drop a default value.
         // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
+        $properties1['default'] = $this->normalizeNull($properties1['default']);
+        $properties2['default'] = $this->normalizeNull($properties2['default']);
         if (
             ($properties1['default'] === null) !== ($properties2['default'] === null)
             || $properties1['default'] != $properties2['default']
