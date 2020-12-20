@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
@@ -16,7 +17,17 @@ class QueryBuilderTest extends DbalTestCase
 
     protected function setUp(): void
     {
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform
+            ->expects($this->any())
+            ->method('getRequestsAdditionalDeleteQueryTableAliasBeforeFrom')
+            ->willReturn(false);
+
         $this->conn = $this->createMock(Connection::class);
+        $this->conn
+            ->expects($this->any())
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
 
         $expressionBuilder = new ExpressionBuilder($this->conn);
 
@@ -462,7 +473,28 @@ class QueryBuilderTest extends DbalTestCase
         self::assertSame($qb2, $qb);
     }
 
-    public function testDelete(): void
+    public function testDeleteOnMysqlPlatforms(): void
+    {
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform
+            ->expects($this->any())
+            ->method('getRequestsAdditionalDeleteQueryTableAliasBeforeFrom')
+            ->willReturn(true);
+
+        $this->conn = $this->createMock(Connection::class);
+        $this->conn
+            ->expects($this->any())
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
+
+        $qb = new QueryBuilder($this->conn);
+        $qb->delete('users', 'u');
+
+        self::assertEquals(QueryBuilder::DELETE, $qb->getType());
+        self::assertEquals('DELETE u FROM users u', (string) $qb);
+    }
+
+    public function testDeleteOnPostgreSQLPlatforms(): void
     {
         $qb = new QueryBuilder($this->conn);
         $qb->delete('users', 'u');

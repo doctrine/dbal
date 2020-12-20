@@ -162,4 +162,12 @@ class SQLServer2012Platform extends SQLServer2008Platform
 
         return true;
     }
+
+    /**
+     * Returns if the table alias has to be defined also in front of the FROM statement
+     */
+    public function getRequestsAdditionalDeleteQueryTableAliasBeforeFrom(): bool
+    {
+        return true;
+    }
 }

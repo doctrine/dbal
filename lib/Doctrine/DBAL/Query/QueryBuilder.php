@@ -1256,10 +1256,14 @@ class QueryBuilder
      */
     private function getSQLForDelete()
     {
-        $table = $this->sqlParts['from']['table']
-            . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $alias = $this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '';
 
-        return 'DELETE FROM ' . $table
+        $preFrom = $this->getConnection()->getDatabasePlatform()->getRequestsAdditionalDeleteQueryTableAliasBeforeFrom()
+            ? $alias
+            : '';
+        $table = $this->sqlParts['from']['table'] . $alias;
+
+        return 'DELETE' . $preFrom . ' FROM ' . $table
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
     }
 
