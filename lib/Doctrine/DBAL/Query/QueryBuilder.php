@@ -1261,7 +1261,7 @@ class QueryBuilder
         $preFrom = $this->getConnection()->getDatabasePlatform()->getRequestsAdditionalDeleteQueryTableAliasBeforeFrom()
             ? $alias
             : '';
-        $table = $this->sqlParts['from']['table'] . $alias;
+        $table   = $this->sqlParts['from']['table'] . $alias;
 
         return 'DELETE' . $preFrom . ' FROM ' . $table
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
