@@ -55,6 +55,11 @@ final class ParameterType
     public const ASCII = 17;
 
     /**
+     * Represents a Character Large Object data type
+     */
+    public const CLOB = 18;
+
+    /**
      * This class cannot be instantiated.
      *
      * @codeCoverageIgnore

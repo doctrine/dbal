@@ -306,6 +306,16 @@ class OCI8Statement implements IteratorAggregate, StatementInterface, Result
             $variable =& $lob;
         }
 
+        if ($type === ParameterType::CLOB) {
+            $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
+
+            assert($lob !== false);
+
+            $lob->writeTemporary($variable, OCI_TEMP_CLOB);
+
+            $variable = $lob;
+        }
+
         $this->boundValues[$param] =& $variable;
 
         return oci_bind_by_name(
@@ -328,6 +338,9 @@ class OCI8Statement implements IteratorAggregate, StatementInterface, Result
 
             case ParameterType::LARGE_OBJECT:
                 return OCI_B_BLOB;
+
+            case ParameterType::CLOB:
+                return OCI_B_CLOB;
 
             default:
                 return SQLT_CHR;
