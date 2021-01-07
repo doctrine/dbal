@@ -102,6 +102,12 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/DriverManager.php
 
+        # Unlike Psalm, PHPStan doesn't understand that $matchesCount cannot be false
+        -
+            message: '~^Only numeric types are allowed in pre\-decrement, int\<1, max\>\|false given\.$~'
+            paths:
+                - %currentWorkingDirectory%/src/Platforms/SQLServer2012Platform.php
+
         # https://github.com/phpstan/phpstan-phpunit/issues/83
         -
             message: '~^Only iterables can be unpacked, array<int, mixed>\|false given in argument #1\.$~'
