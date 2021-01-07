@@ -2,6 +2,9 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -201,5 +204,31 @@ SQL;
         } else {
             self::assertCount(count($expectedResults), $data);
         }
+    }
+
+    public function testLimitWhenOrderByWithSubqueryWithOrderBy(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        if ($platform instanceof DB2Platform) {
+            self::markTestSkipped('DB2 cannot handle ORDER BY in subquery');
+        }
+
+        if ($platform instanceof OraclePlatform) {
+            $this->markTestSkipped('Oracle cannot handle ORDER BY in subquery');
+        }
+
+        $this->connection->insert('modify_limit_table2', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
+
+        $subquery = 'SELECT test_int FROM modify_limit_table2 T2 WHERE T1.id=T2.id ORDER BY test_int';
+
+        if ($platform instanceof SQLServer2012Platform) {
+            $subquery .= ' OFFSET 0 ROWS';
+        }
+
+        $sql = 'SELECT test_int FROM modify_limit_table2 T1 ORDER BY (' . $subquery . ') ASC';
+
+        $this->assertLimitResult([1, 2, 3], $sql, 10, 0);
     }
 }

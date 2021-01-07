@@ -45,4 +45,4 @@ result set is read (the easiest way to ensure this is to use one of the ``fetchA
 
 .. warning::
 
-    When using the cache layer not all fetch modes are supported. See the code of the `ResultCacheStatement <https://github.com/doctrine/dbal/blob/master/src/Cache/ResultCacheStatement.php>`_ for details.
+    When using the cache layer not all fetch modes are supported. See the code of the ``Doctrine\DBAL\Cache\ResultCacheStatement`` for details.

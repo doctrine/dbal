@@ -22,7 +22,7 @@ available methods to learn about your database schema:
     methods are *NOT* quoted automatically! Identifier quoting is
     really difficult to do manually in a consistent way across
     different databases. You have to manually quote the identifiers
-    when you accept data from user- or other sources not under your
+    when you accept data from user or other sources not under your
     control.
 
 listDatabases()
