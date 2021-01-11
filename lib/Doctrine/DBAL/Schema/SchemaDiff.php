@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use function array_merge;
+use function in_array;
 
 /**
  * Schema Diff.
@@ -166,6 +167,7 @@ class SchemaDiff
                 if (in_array($alterTableSQL, $sql)) {
                     continue;
                 }
+
                 $sql[] = $alterTableSQL;
             }
         }

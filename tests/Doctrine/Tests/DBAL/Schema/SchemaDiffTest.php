@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -12,6 +13,8 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
+use function array_unique;
 
 class SchemaDiffTest extends TestCase
 {
@@ -145,27 +148,26 @@ class SchemaDiffTest extends TestCase
      * Schema difference after a name change of a foreign table of
      * a unidirectional one-to-one relationship
      *
-     * @return SchemaDiff
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function createSchemaDiff2(): SchemaDiff
     {
-        $diff                                  = new SchemaDiff();
-        $oldTable                              = new Table('old_name_table');
+        $diff     = new SchemaDiff();
+        $oldTable = new Table('old_name_table');
         $oldTable->addColumn('id', 'integer');
-        $tableToChange                         = new Table('changing_table');
+        $tableToChange = new Table('changing_table');
         $tableToChange->addColumn('foreign_id', 'integer');
         $tableToChange->addForeignKeyConstraint('old_name_table', ['foreign_id'], ['id'], [], 'fk-to-update');
-        $fromSchema                            = new Schema([$oldTable, $tableToChange]);
-        $diff->fromSchema                      = $fromSchema;
-        $newTable                              = new Table('new_name_table');
+        $fromSchema       = new Schema([$oldTable, $tableToChange]);
+        $diff->fromSchema = $fromSchema;
+        $newTable         = new Table('new_name_table');
         $newTable->addColumn('id', 'integer');
-        $diff->newTables['new_name_table']     = $newTable;
-        $tableChange                           = new TableDiff('changing_table');
-        $changedFK                             = new ForeignKeyConstraint(['foreign_id'], 'new_name_table', ['id'], 'fk-to-update');
+        $diff->newTables['new_name_table'] = $newTable;
+        $tableChange                       = new TableDiff('changing_table');
+        $changedFK                         = new ForeignKeyConstraint(['foreign_id'], 'new_name_table', ['id'], 'fk-to-update');
         $changedFK->setLocalTable($tableToChange);
         $tableChange->changedForeignKeys[]     = $changedFK;
-        $tableChange->fromTable = $tableToChange;
+        $tableChange->fromTable                = $tableToChange;
         $diff->changedTables['changing_table'] = $tableChange;
         $diff->removedTables['old_name_table'] = new Table('old_name_table');
         $diff->orphanedForeignKeys[]           = $tableToChange->getForeignKey('fk-to-update');
