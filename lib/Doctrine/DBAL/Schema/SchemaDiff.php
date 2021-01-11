@@ -163,9 +163,10 @@ class SchemaDiff
 
         foreach ($this->changedTables as $tableDiff) {
             foreach ($platform->getAlterTableSQL($tableDiff) as $alterTableSQL) {
-                if (!in_array($alterTableSQL, $sql)) {
-                    $sql[] = $alterTableSQL;
+                if (in_array($alterTableSQL, $sql)) {
+                    continue;
                 }
+                $sql[] = $alterTableSQL;
             }
         }
 
