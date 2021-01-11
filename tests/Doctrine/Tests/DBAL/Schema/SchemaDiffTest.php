@@ -3,7 +3,9 @@
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -31,6 +33,13 @@ class SchemaDiffTest extends TestCase
             'drop_table',
             'alter_table',
         ], $sql);
+
+        $diff     = $this->createSchemaDiff2();
+        $platform = new MySqlPlatform();
+
+        $sql = $diff->toSql($platform);
+
+        self::assertEquals($sql, array_unique($sql));
     }
 
     public function testSchemaDiffToSaveSql(): void
@@ -57,57 +66,57 @@ class SchemaDiffTest extends TestCase
             ->will($this->returnValue('create_schema'));
         if ($unsafe) {
             $platform->expects($this->exactly(1))
-                 ->method('getDropSequenceSql')
-                 ->with($this->isInstanceOf(Sequence::class))
-                 ->will($this->returnValue('drop_seq'));
+                ->method('getDropSequenceSql')
+                ->with($this->isInstanceOf(Sequence::class))
+                ->will($this->returnValue('drop_seq'));
         }
 
         $platform->expects($this->exactly(1))
-                 ->method('getAlterSequenceSql')
-                 ->with($this->isInstanceOf(Sequence::class))
-                 ->will($this->returnValue('alter_seq'));
+            ->method('getAlterSequenceSql')
+            ->with($this->isInstanceOf(Sequence::class))
+            ->will($this->returnValue('alter_seq'));
         $platform->expects($this->exactly(1))
-                 ->method('getCreateSequenceSql')
-                 ->with($this->isInstanceOf(Sequence::class))
-                 ->will($this->returnValue('create_seq'));
+            ->method('getCreateSequenceSql')
+            ->with($this->isInstanceOf(Sequence::class))
+            ->will($this->returnValue('create_seq'));
         if ($unsafe) {
             $platform->expects($this->exactly(1))
-                     ->method('getDropTableSql')
-                     ->with($this->isInstanceOf(Table::class))
-                     ->will($this->returnValue('drop_table'));
+                ->method('getDropTableSql')
+                ->with($this->isInstanceOf(Table::class))
+                ->will($this->returnValue('drop_table'));
         }
 
         $platform->expects($this->exactly(1))
-                 ->method('getCreateTableSql')
-                 ->with($this->isInstanceOf(Table::class))
-                 ->will($this->returnValue(['create_table']));
+            ->method('getCreateTableSql')
+            ->with($this->isInstanceOf(Table::class))
+            ->will($this->returnValue(['create_table']));
         $platform->expects($this->exactly(1))
-                 ->method('getCreateForeignKeySQL')
-                 ->with($this->isInstanceOf(ForeignKeyConstraint::class))
-                 ->will($this->returnValue('create_foreign_key'));
+            ->method('getCreateForeignKeySQL')
+            ->with($this->isInstanceOf(ForeignKeyConstraint::class))
+            ->will($this->returnValue('create_foreign_key'));
         $platform->expects($this->exactly(1))
-                 ->method('getAlterTableSql')
-                 ->with($this->isInstanceOf(TableDiff::class))
-                 ->will($this->returnValue(['alter_table']));
+            ->method('getAlterTableSql')
+            ->with($this->isInstanceOf(TableDiff::class))
+            ->will($this->returnValue(['alter_table']));
         if ($unsafe) {
             $platform->expects($this->exactly(1))
-                     ->method('getDropForeignKeySql')
-                     ->with(
-                         $this->isInstanceOf(ForeignKeyConstraint::class),
-                         $this->isInstanceOf(Table::class)
-                     )
-                     ->will($this->returnValue('drop_orphan_fk'));
+                ->method('getDropForeignKeySql')
+                ->with(
+                    $this->isInstanceOf(ForeignKeyConstraint::class),
+                    $this->isInstanceOf(Table::class)
+                )
+                ->will($this->returnValue('drop_orphan_fk'));
         }
 
         $platform->expects($this->exactly(1))
-                ->method('supportsSchemas')
-                ->will($this->returnValue(true));
+            ->method('supportsSchemas')
+            ->will($this->returnValue(true));
         $platform->expects($this->exactly(1))
-                ->method('supportsSequences')
-                ->will($this->returnValue(true));
+            ->method('supportsSequences')
+            ->will($this->returnValue(true));
         $platform->expects($this->exactly(2))
-                ->method('supportsForeignKeyConstraints')
-                ->will($this->returnValue(true));
+            ->method('supportsForeignKeyConstraints')
+            ->will($this->returnValue(true));
 
         return $platform;
     }
@@ -128,6 +137,38 @@ class SchemaDiffTest extends TestCase
         $fk = new ForeignKeyConstraint(['id'], 'foreign_table', ['id']);
         $fk->setLocalTable(new Table('local_table'));
         $diff->orphanedForeignKeys[] = $fk;
+
+        return $diff;
+    }
+
+    /**
+     * Schema difference after a name change of a foreign table of
+     * a unidirectional one-to-one relationship
+     *
+     * @return SchemaDiff
+     * @throws \Doctrine\DBAL\Exception
+     */
+    public function createSchemaDiff2(): SchemaDiff
+    {
+        $diff                                  = new SchemaDiff();
+        $oldTable                              = new Table('old_name_table');
+        $oldTable->addColumn('id', 'integer');
+        $tableToChange                         = new Table('changing_table');
+        $tableToChange->addColumn('foreign_id', 'integer');
+        $tableToChange->addForeignKeyConstraint('old_name_table', ['foreign_id'], ['id'], [], 'fk-to-update');
+        $fromSchema                            = new Schema([$oldTable, $tableToChange]);
+        $diff->fromSchema                      = $fromSchema;
+        $newTable                              = new Table('new_name_table');
+        $newTable->addColumn('id', 'integer');
+        $diff->newTables['new_name_table']     = $newTable;
+        $tableChange                           = new TableDiff('changing_table');
+        $changedFK                             = new ForeignKeyConstraint(['foreign_id'], 'new_name_table', ['id'], 'fk-to-update');
+        $changedFK->setLocalTable($tableToChange);
+        $tableChange->changedForeignKeys[]     = $changedFK;
+        $tableChange->fromTable = $tableToChange;
+        $diff->changedTables['changing_table'] = $tableChange;
+        $diff->removedTables['old_name_table'] = new Table('old_name_table');
+        $diff->orphanedForeignKeys[]           = $tableToChange->getForeignKey('fk-to-update');
 
         return $diff;
     }

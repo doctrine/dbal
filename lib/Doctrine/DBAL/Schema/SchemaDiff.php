@@ -162,7 +162,11 @@ class SchemaDiff
         }
 
         foreach ($this->changedTables as $tableDiff) {
-            $sql = array_merge($sql, $platform->getAlterTableSQL($tableDiff));
+            foreach ($platform->getAlterTableSQL($tableDiff) as $alterTableSQL) {
+                if (!in_array($alterTableSQL, $sql)) {
+                    $sql[] = $alterTableSQL;
+                }
+            }
         }
 
         return $sql;
