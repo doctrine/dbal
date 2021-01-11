@@ -164,7 +164,8 @@ class SchemaDiffTest extends TestCase
         $newTable->addColumn('id', 'integer');
         $diff->newTables['new_name_table'] = $newTable;
         $tableChange                       = new TableDiff('changing_table');
-        $changedFK                         = new ForeignKeyConstraint(['foreign_id'], 'new_name_table', ['id'], 'fk-to-update');
+
+        $changedFK = new ForeignKeyConstraint(['foreign_id'], 'new_name_table', ['id'], 'fk-to-update');
         $changedFK->setLocalTable($tableToChange);
         $tableChange->changedForeignKeys[]     = $changedFK;
         $tableChange->fromTable                = $tableToChange;
