@@ -53,5 +53,5 @@ jobs:
 
       - name: Psalm
         uses: docker://vimeo/psalm-github-actions:4.1.1
-        env:
-          REQUIRE_DEV: "true"
+        with:
+          composer_require_dev: true
