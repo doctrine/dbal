@@ -338,6 +338,14 @@ class MySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @see https://dev.mysql.com/doc/internals/en/transactions-current-situation.html
+     */
+    public function supportsTransactionalDDL(): bool
+    {
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getListTablesSQL()

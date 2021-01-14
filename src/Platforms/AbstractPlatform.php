@@ -3119,6 +3119,14 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Whether it is safe to wrap DDL statements in transactions
+     */
+    public function supportsTransactionalDDL(): bool
+    {
+        return true;
+    }
+
+    /**
      * Whether the platform supports savepoints.
      *
      * @return bool
