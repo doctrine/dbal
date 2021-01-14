@@ -62,6 +62,12 @@ parameters:
                 - %currentWorkingDirectory%/src/Platforms/*Platform.php
                 - %currentWorkingDirectory%/src/Schema/*SchemaManager.php
 
+        # Fixing the issue may cause a BC break.
+        -
+            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliConnection::lastInsertId\(\) should return string but returns int\|string\.$~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
+
         # In some namespaces, we use array<string,mixed>, some elements of which are actually boolean
         -
             message: '~^Only booleans are allowed in .*, mixed given~'
@@ -95,6 +101,12 @@ parameters:
             message: '~^Parameter #1 \$scheme of static method Doctrine\\DBAL\\DriverManager::parseDatabaseUrlScheme\(\) expects string\|null, int\|string\|null given\.$~'
             paths:
                 - %currentWorkingDirectory%/src/DriverManager.php
+
+        # Unlike Psalm, PHPStan doesn't understand that $matchesCount cannot be false
+        -
+            message: '~^Only numeric types are allowed in pre\-decrement, int\<1, max\>\|false given\.$~'
+            paths:
+                - %currentWorkingDirectory%/src/Platforms/SQLServer2012Platform.php
 
         # https://github.com/phpstan/phpstan-phpunit/issues/83
         -

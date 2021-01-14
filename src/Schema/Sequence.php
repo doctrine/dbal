@@ -67,7 +67,7 @@ class Sequence extends AbstractAsset
     public function setAllocationSize($allocationSize)
     {
         if ($allocationSize > 0) {
-            $this->allocationSize = (int) $allocationSize;
+            $this->allocationSize = $allocationSize;
         } else {
             $this->allocationSize = 1;
         }
@@ -83,7 +83,7 @@ class Sequence extends AbstractAsset
     public function setInitialValue($initialValue)
     {
         if ($initialValue > 0) {
-            $this->initialValue = (int) $initialValue;
+            $this->initialValue = $initialValue;
         } else {
             $this->initialValue = 1;
         }

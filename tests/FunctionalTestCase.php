@@ -26,7 +26,7 @@ abstract class FunctionalTestCase extends TestCase
     /**
      * Shared connection when a TestCase is run alone (outside of it's functional suite)
      *
-     * @var Connection
+     * @var Connection|null
      */
     private static $sharedConnection;
 

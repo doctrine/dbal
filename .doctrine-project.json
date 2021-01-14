@@ -9,12 +9,6 @@
             "name": "3.0",
             "branchName": "3.0.x",
             "slug": "latest",
-            "upcoming": true
-        },
-        {
-            "name": "2.12",
-            "branchName": "2.12.x",
-            "slug": "2.12",
             "current": true,
             "aliases": [
                 "current",
@@ -22,44 +16,42 @@
             ]
         },
         {
+            "name": "2.12",
+            "branchName": "2.12.x",
+            "slug": "2.12"
+        },
+        {
             "name": "2.11",
-            "branchName": "2.11.x",
             "slug": "2.11",
             "maintained": false
         },
         {
             "name": "2.10",
-            "branchName": "2.10.x",
             "slug": "2.10",
             "maintained": false
         },
         {
             "name": "2.9",
-            "branchName": "2.9",
             "slug": "2.9",
             "maintained": false
         },
         {
             "name": "2.8",
-            "branchName": "2.8",
             "slug": "2.8",
             "maintained": false
         },
         {
             "name": "2.7",
-            "branchName": "2.7",
             "slug": "2.7",
             "maintained": false
         },
         {
             "name": "2.6",
-            "branchName": "2.6",
             "slug": "2.6",
             "maintained": false
         },
         {
             "name": "2.5",
-            "branchName": "2.5",
             "slug": "2.5",
             "maintained": false
         }

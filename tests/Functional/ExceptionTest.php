@@ -30,6 +30,9 @@ use function version_compare;
 
 use const PHP_OS_FAMILY;
 
+/**
+ * @psalm-import-type Params from DriverManager
+ */
 class ExceptionTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -353,6 +356,8 @@ class ExceptionTest extends FunctionalTestCase
      * @param array<string, mixed> $params
      *
      * @dataProvider getConnectionParams
+     *
+     * @psalm-param Params $params
      */
     public function testConnectionException(array $params): void
     {
