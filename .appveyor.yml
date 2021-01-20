@@ -37,6 +37,9 @@ init:
 
 ## Install PHP and composer, and run the appropriate composer command
 install:
+    # Upgrade to 0.10.16-beta to benefit from a bugfix for
+    # https://github.com/chocolatey/choco/issues/1843
+    - ps: choco upgrade chocolatey --pre
     - ps: |
         # Check if installation is cached
         if (!(Test-Path c:\tools\php)) {
