@@ -365,7 +365,8 @@ All drivers must implement the `convertException()` method which is now part of 
 
 ## The `PingableConnection` interface is removed
 
-The functionality of pinging the server is no longer supported.
+The functionality of pinging the server is no longer supported. Lost
+connections are now automatically reconnected by Doctrine internally.
 
 ## BC BREAK: Deprecated driver-level classes and interfaces are removed.
 
