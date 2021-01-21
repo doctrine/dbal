@@ -656,7 +656,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $expectedSql = [
             'CREATE TABLE testschema.test (id INT NOT NULL, PRIMARY KEY (id))',
             "EXEC sp_addextendedproperty N'MS_Description', N'This is a comment', "
-                . "N'SCHEMA', 'testschema', N'TABLE', 'test', N'COLUMN', id",
+                . "N'SCHEMA', 'testschema', N'TABLE', 'test', N'COLUMN', 'id'",
         ];
 
         self::assertEquals($expectedSql, $this->platform->getCreateTableSQL($table));
@@ -670,7 +670,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $expectedSql = [
             'ALTER TABLE testschema.mytable ADD quota INT NOT NULL',
             "EXEC sp_addextendedproperty N'MS_Description', N'A comment', "
-                . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota",
+                . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', 'quota'",
         ];
 
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
@@ -688,7 +688,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
         $expectedSql = [
             "EXEC sp_dropextendedproperty N'MS_Description'"
-                . ", N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota",
+                . ", N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', 'quota'",
         ];
 
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
@@ -705,7 +705,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
 
         $expectedSql = ["EXEC sp_updateextendedproperty N'MS_Description', N'B comment', "
-                . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota",
+                . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', 'quota'",
         ];
 
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
@@ -719,7 +719,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         return [
             'CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))',
             "EXEC sp_addextendedproperty N'MS_Description', N'This is a comment', "
-                . "N'SCHEMA', 'dbo', N'TABLE', 'test', N'COLUMN', id",
+                . "N'SCHEMA', 'dbo', N'TABLE', 'test', N'COLUMN', 'id'",
         ];
     }
 
@@ -731,7 +731,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         return [
             'ALTER TABLE mytable ADD quota INT NOT NULL',
             "EXEC sp_addextendedproperty N'MS_Description', N'A comment', "
-                . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', quota",
+                . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'quota'",
         ];
     }
 
@@ -743,7 +743,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         return [
             'CREATE TABLE test (id INT NOT NULL, data VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))',
             "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:array)', "
-                . "N'SCHEMA', 'dbo', N'TABLE', 'test', N'COLUMN', data",
+                . "N'SCHEMA', 'dbo', N'TABLE', 'test', N'COLUMN', 'data'",
         ];
     }
 
@@ -785,26 +785,26 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                     . 'comment_with_string_literal_char NVARCHAR(255) NOT NULL, '
                     . 'PRIMARY KEY (id))',
                 "EXEC sp_addextendedproperty N'MS_Description', "
-                    . "N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_integer_0",
+                    . "N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_integer_0'",
                 "EXEC sp_addextendedproperty N'MS_Description', "
-                    . "N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_float_0",
+                    . "N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_float_0'",
                 "EXEC sp_addextendedproperty N'MS_Description', "
-                    . "N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_string_0",
+                    . "N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_string_0'",
                 "EXEC sp_addextendedproperty N'MS_Description', "
-                    . "N'Doctrine 0wnz you!', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment",
+                    . "N'Doctrine 0wnz you!', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment'",
                 "EXEC sp_addextendedproperty N'MS_Description', "
                     . "N'Doctrine 0wnz comments for explicitly quoted columns!', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [comment_quoted]",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_quoted'",
                 "EXEC sp_addextendedproperty N'MS_Description', "
                     . "N'Doctrine 0wnz comments for reserved keyword columns!', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [create]",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'create'",
                 "EXEC sp_addextendedproperty N'MS_Description', "
-                    . "N'(DC2Type:object)', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type",
+                    . "N'(DC2Type:object)', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'commented_type'",
                 "EXEC sp_addextendedproperty N'MS_Description', "
                     . "N'Doctrine array type.(DC2Type:array)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type_with_comment",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'commented_type_with_comment'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'O''Reilly', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_with_string_literal_char",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_with_string_literal_char'",
             ],
             $this->platform->getCreateTableSQL($table)
         );
@@ -1000,45 +1000,45 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
                 // Added columns.
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment_integer_0",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'added_comment_integer_0'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment_float_0",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'added_comment_float_0'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment_string_0",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'added_comment_string_0'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'added_comment'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'rulez', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [added_comment_quoted]",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'added_comment_quoted'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'666', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [select]",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'select'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_commented_type",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'added_commented_type'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'666(DC2Type:array)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_commented_type_with_comment",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'added_commented_type_with_comment'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'''''', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment_with_string_literal_char",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'added_comment_with_string_literal_char'",
 
                 // Changed columns.
                 "EXEC sp_addextendedproperty N'MS_Description', N'primary', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', id",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'id'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'false', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_false",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_false'",
                 "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_empty_string",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_empty_string'",
                 "EXEC sp_dropextendedproperty N'MS_Description', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_string_0",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_string_0'",
                 "EXEC sp_dropextendedproperty N'MS_Description', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment'",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'Doctrine array.(DC2Type:array)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [comment_quoted]",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_quoted'",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:object)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [create]",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'create'",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'foo', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'commented_type'",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:array)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type_with_comment",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'commented_type_with_comment'",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'''', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_with_string_literal_char",
+                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', 'comment_with_string_literal_char'",
             ],
             $this->platform->getAlterTableSQL($tableDiff)
         );
