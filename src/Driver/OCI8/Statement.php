@@ -89,12 +89,13 @@ class Statement implements StatementInterface
      */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        if (ParameterType::CURSOR === $type) {
+        if ($type === ParameterType::CURSOR) {
             $variable = new Cursor($this->_dbh, $this->executionMode);
-            $stmt = $variable->getStatement();
+            $stmt     = $variable->getStatement();
+
             return oci_bind_by_name(
                 $this->_sth,
-                $param,
+                (string) $param,
                 $stmt,
                 $length ?? -1,
                 $this->convertParameterType($type)

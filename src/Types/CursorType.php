@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use LogicException;
 use PDO;
 
 /**
@@ -15,7 +16,7 @@ class CursorType extends Type
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        throw new \LogicException('Doctrine does not support SQL declarations for cursors.');
+        throw new LogicException('Doctrine does not support SQL declarations for cursors.');
     }
 
     /**
