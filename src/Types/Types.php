@@ -15,6 +15,7 @@ final class Types
     public const BINARY               = 'binary';
     public const BLOB                 = 'blob';
     public const BOOLEAN              = 'boolean';
+    public const CURSOR               = 'cursor';
     public const DATE_MUTABLE         = 'date';
     public const DATE_IMMUTABLE       = 'date_immutable';
     public const DATEINTERVAL         = 'dateinterval';

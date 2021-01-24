@@ -30,6 +30,11 @@ final class ParameterType
     public const LARGE_OBJECT = 3;
 
     /**
+     * Represents a recordset type.
+     */
+    public const CURSOR = 4;
+
+    /**
      * Represents a boolean data type.
      *
      * @see \PDO::PARAM_BOOL

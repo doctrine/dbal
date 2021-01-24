@@ -26,6 +26,7 @@ abstract class Type
         Types::BINARY               => BinaryType::class,
         Types::BLOB                 => BlobType::class,
         Types::BOOLEAN              => BooleanType::class,
+        Types::CURSOR               => CursorType::class,
         Types::DATE_MUTABLE         => DateType::class,
         Types::DATE_IMMUTABLE       => DateImmutableType::class,
         Types::DATEINTERVAL         => DateIntervalType::class,

@@ -20,13 +20,14 @@ use function oci_parse;
 
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
+use const OCI_B_CURSOR;
 use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_D_LOB;
 use const OCI_NO_AUTO_COMMIT;
 use const OCI_TEMP_BLOB;
 use const SQLT_CHR;
 
-final class Statement implements StatementInterface
+class Statement implements StatementInterface
 {
     /** @var resource */
     protected $_dbh;
@@ -35,7 +36,7 @@ final class Statement implements StatementInterface
     protected $_sth;
 
     /** @var ExecutionMode */
-    private $executionMode;
+    protected $executionMode;
 
     /** @var string[] */
     protected $_paramMap = [];
@@ -88,6 +89,18 @@ final class Statement implements StatementInterface
      */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        if (ParameterType::CURSOR === $type) {
+            $variable = new Cursor($this->_dbh, $this->executionMode);
+            $stmt = $variable->getStatement();
+            return oci_bind_by_name(
+                $this->_sth,
+                $param,
+                $stmt,
+                $length ?? -1,
+                $this->convertParameterType($type)
+            );
+        }
+
         if (is_int($param)) {
             if (! isset($this->_paramMap[$param])) {
                 throw UnknownParameterIndex::new($param);
@@ -128,6 +141,9 @@ final class Statement implements StatementInterface
 
             case ParameterType::LARGE_OBJECT:
                 return OCI_B_BLOB;
+
+            case ParameterType::CURSOR:
+                return OCI_B_CURSOR;
 
             default:
                 return SQLT_CHR;
