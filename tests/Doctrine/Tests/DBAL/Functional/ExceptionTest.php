@@ -370,7 +370,7 @@ EOT
         }
 
         if ($platform instanceof PostgreSqlPlatform && isset($params['password'])) {
-            $this->markTestSkipped('Does not work on Travis');
+            $this->markTestSkipped('Does not work on the CI');
         }
 
         if ($platform instanceof MySqlPlatform && isset($params['user'])) {

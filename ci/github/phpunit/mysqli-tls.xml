@@ -16,7 +16,7 @@
         <var name="db_ssl_key" value="client-key.pem"/>
 
         <!-- Use MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT since there's no way to generate a certificate
-        with a proper common name (CN) on Travis. This flag must be not used in production settings. -->
+        with a proper common name (CN) on the CI. This flag must be not used in production settings. -->
         <var name="db_driver_option_flags" value="64"/>
 
         <var name="db_user" value="root"/>
