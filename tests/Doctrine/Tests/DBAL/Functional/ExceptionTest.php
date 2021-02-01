@@ -8,7 +8,6 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\DrizzlePlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -367,10 +366,6 @@ EOT
 
         if ($platform instanceof DrizzlePlatform) {
             $this->markTestSkipped('Drizzle does not always support authentication');
-        }
-
-        if ($platform instanceof PostgreSqlPlatform && isset($params['password'])) {
-            $this->markTestSkipped('Does not work on the CI');
         }
 
         if ($platform instanceof MySqlPlatform && isset($params['user'])) {
