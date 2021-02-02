@@ -243,11 +243,9 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     }
 
     /**
-     * Required by interface IteratorAggregate.
+     * @return Traversable
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
-     *
-     * {@inheritdoc}
      */
     public function getIterator()
     {

@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver;
 
 use IteratorAggregate;
+use Traversable;
 
 /**
  * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn().
@@ -18,7 +19,7 @@ class StatementIterator implements IteratorAggregate
     }
 
     /**
-     * {@inheritdoc}
+     * @return Traversable
      */
     public function getIterator()
     {

@@ -10,6 +10,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
+use Traversable;
 
 use function array_change_key_case;
 use function assert;
@@ -130,7 +131,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     }
 
     /**
-     * {@inheritdoc}
+     * @return Traversable
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */

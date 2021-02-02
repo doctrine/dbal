@@ -17,6 +17,7 @@ use IteratorAggregate;
 use mysqli;
 use mysqli_stmt;
 use PDO;
+use Traversable;
 
 use function array_combine;
 use function array_fill;
@@ -559,7 +560,7 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
     }
 
     /**
-     * {@inheritdoc}
+     * @return Traversable
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */

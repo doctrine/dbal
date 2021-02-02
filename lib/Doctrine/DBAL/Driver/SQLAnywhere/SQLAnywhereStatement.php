@@ -14,6 +14,7 @@ use PDO;
 use ReflectionClass;
 use ReflectionObject;
 use stdClass;
+use Traversable;
 
 use function array_key_exists;
 use function assert;
@@ -316,7 +317,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
     }
 
     /**
-     * {@inheritdoc}
+     * @return Traversable
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */

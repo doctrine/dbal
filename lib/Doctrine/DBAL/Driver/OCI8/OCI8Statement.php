@@ -13,6 +13,7 @@ use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+use Traversable;
 
 use function array_key_exists;
 use function assert;
@@ -425,7 +426,7 @@ class OCI8Statement implements IteratorAggregate, StatementInterface, Result
     }
 
     /**
-     * {@inheritdoc}
+     * @return Traversable
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */

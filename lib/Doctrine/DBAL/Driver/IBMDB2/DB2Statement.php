@@ -18,6 +18,7 @@ use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
 use stdClass;
+use Traversable;
 
 use function array_change_key_case;
 use function assert;
@@ -266,7 +267,7 @@ class DB2Statement implements IteratorAggregate, StatementInterface, Result
     }
 
     /**
-     * {@inheritdoc}
+     * @return Traversable
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */

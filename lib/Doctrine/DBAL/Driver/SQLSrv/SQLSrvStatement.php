@@ -11,6 +11,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
+use Traversable;
 
 use function array_key_exists;
 use function count;
@@ -345,7 +346,7 @@ class SQLSrvStatement implements IteratorAggregate, StatementInterface, Result
     }
 
     /**
-     * {@inheritdoc}
+     * @return Traversable
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */

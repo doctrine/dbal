@@ -10,6 +10,7 @@ use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+use Traversable;
 
 use function array_merge;
 use function array_values;
@@ -91,7 +92,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
-     * {@inheritdoc}
+     * @return Traversable
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
