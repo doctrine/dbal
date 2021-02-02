@@ -4,7 +4,8 @@ about: Have you encountered an issue during an upgrade? 💣
 ---
 
 <!--
-Before reporting a BC break, please consult the upgrading document to make sure it's not an expected change: https://github.com/doctrine/dbal/blob/master/UPGRADE.md
+Before reporting a BC break, please consult the upgrading document (UPGRADE.md)
+corresponding to the version you are using.
 -->
 
 ### BC Break Report
