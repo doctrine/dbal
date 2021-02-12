@@ -41,8 +41,8 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      *
      * @deprecated
      *
-     * @link https://dev.mysql.com/doc/refman/8.0/en/client-error-reference.html
-     * @link https://dev.mysql.com/doc/refman/8.0/en/server-error-reference.html
+     * @link https://dev.mysql.com/doc/mysql-errors/8.0/en/client-error-reference.html
+     * @link https://dev.mysql.com/doc/mysql-errors/8.0/en/server-error-reference.html
      */
     public function convertException($message, DeprecatedDriverException $exception)
     {
