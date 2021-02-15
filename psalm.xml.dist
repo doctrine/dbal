@@ -115,6 +115,15 @@
                 <file name="lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php"/>
             </errorLevel>
         </MethodSignatureMismatch>
+        <NonInvariantDocblockPropertyType>
+            <errorLevel type="suppress">
+                <!--
+                   This suppression should be removed in 3.0.x
+                   https://github.com/doctrine/dbal/pull/4007
+                -->
+                <file name="tests/Doctrine/Tests/DBAL/Functional/Connection/BackwardCompatibility/Statement.php"/>
+            </errorLevel>
+        </NonInvariantDocblockPropertyType>
         <NullableReturnStatement>
             <errorLevel type="suppress">
                 <!--
