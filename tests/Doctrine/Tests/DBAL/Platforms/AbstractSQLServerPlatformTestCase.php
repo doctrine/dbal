@@ -14,11 +14,11 @@ use Doctrine\DBAL\Types\Type;
 
 use function sprintf;
 
+/**
+ * @extends AbstractPlatformTestCase<SQLServerPlatform>
+ */
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
-    /** @var SQLServerPlatform */
-    protected $platform;
-
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255), PRIMARY KEY (id))';

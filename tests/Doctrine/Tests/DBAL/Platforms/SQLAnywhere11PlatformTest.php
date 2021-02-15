@@ -7,9 +7,6 @@ use Doctrine\DBAL\Platforms\SQLAnywhere11Platform;
 
 class SQLAnywhere11PlatformTest extends SQLAnywherePlatformTest
 {
-    /** @var SQLAnywhere11Platform */
-    protected $platform;
-
     public function createPlatform(): AbstractPlatform
     {
         return new SQLAnywhere11Platform();

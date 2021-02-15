@@ -13,11 +13,11 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 
 use function array_shift;
 
+/**
+ * @extends AbstractPlatformTestCase<MySqlPlatform>
+ */
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
-    /** @var MySqlPlatform */
-    protected $platform;
-
     public function testModifyLimitQueryWitoutLimit(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT n FROM Foo', null, 10);
