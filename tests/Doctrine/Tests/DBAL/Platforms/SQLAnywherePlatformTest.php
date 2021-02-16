@@ -23,11 +23,11 @@ use function mt_rand;
 use function strlen;
 use function substr;
 
+/**
+ * @extends AbstractPlatformTestCase<SQLAnywherePlatform>
+ */
 class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 {
-    /** @var SQLAnywherePlatform */
-    protected $platform;
-
     public function createPlatform(): AbstractPlatform
     {
         return new SQLAnywherePlatform();

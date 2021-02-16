@@ -74,7 +74,8 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
         $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
 
-        set_error_handler(static function () {
+        set_error_handler(static function (): bool {
+            return false;
         });
         try {
             if (! $this->conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {

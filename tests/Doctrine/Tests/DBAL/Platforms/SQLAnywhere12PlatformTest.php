@@ -9,9 +9,6 @@ use Doctrine\DBAL\Schema\Sequence;
 
 class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
 {
-    /** @var SQLAnywhere12Platform */
-    protected $platform;
-
     public function createPlatform(): AbstractPlatform
     {
         return new SQLAnywhere12Platform();

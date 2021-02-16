@@ -25,7 +25,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
     /**
      * Shared connection when a TestCase is run alone (outside of it's functional suite)
      *
-     * @var Connection
+     * @var Connection|null
      */
     private static $sharedConnection;
 

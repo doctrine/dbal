@@ -50,6 +50,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Psalm
-        uses: docker://vimeo/psalm-github-actions:4.1.1
+        uses: docker://vimeo/psalm-github-actions:4.5.2
         with:
           composer_require_dev: true

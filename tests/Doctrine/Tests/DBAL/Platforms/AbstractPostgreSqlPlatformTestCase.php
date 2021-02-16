@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -17,16 +16,12 @@ use UnexpectedValueException;
 
 use function sprintf;
 
+/**
+ * @template T of PostgreSqlPlatform
+ * @extends AbstractPlatformTestCase<T>
+ */
 abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCase
 {
-    /** @var PostgreSqlPlatform */
-    protected $platform;
-
-    /**
-     * @return PostgreSqlPlatform
-     */
-    abstract public function createPlatform(): AbstractPlatform;
-
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE test (id SERIAL NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';

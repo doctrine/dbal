@@ -6,6 +6,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\Table;
 
+/**
+ * @extends AbstractPostgreSqlPlatformTestCase<PostgreSqlPlatform>
+ */
 class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform

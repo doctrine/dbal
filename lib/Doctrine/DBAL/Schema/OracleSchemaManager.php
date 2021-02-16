@@ -195,7 +195,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         $options = [
-            'notnull'    => (bool) ($tableColumn['nullable'] === 'N'),
+            'notnull'    => $tableColumn['nullable'] === 'N',
             'fixed'      => (bool) $fixed,
             'unsigned'   => (bool) $unsigned,
             'default'    => $tableColumn['data_default'],

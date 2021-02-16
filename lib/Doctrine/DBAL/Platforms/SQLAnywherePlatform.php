@@ -376,7 +376,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getConcatExpression()
     {
-        return 'STRING(' . implode(', ', (array) func_get_args()) . ')';
+        return 'STRING(' . implode(', ', func_get_args()) . ')';
     }
 
     /**
