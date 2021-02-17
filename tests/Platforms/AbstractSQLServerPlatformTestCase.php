@@ -16,11 +16,11 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
+/**
+ * @extends AbstractPlatformTestCase<SQLServer2012Platform>
+ */
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
-    /** @var SQLServer2012Platform */
-    protected $platform;
-
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255), PRIMARY KEY (id))';

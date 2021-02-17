@@ -130,6 +130,19 @@ parameters:
             message: '~^Call to function iterator_to_array\(\) on a separate line has no effect\.$~'
             paths:
                 - %currentWorkingDirectory%/tests/Functional/Connection/FetchTest.php
+
+        # https://github.com/phpstan/phpstan/issues/4557
+        -
+            message: '~^Parameter #1 \$originalClassName of method PHPUnit\\Framework\\TestCase::createMock\(\) expects class-string<T of Doctrine\\DBAL\\Platforms\\AbstractPlatform>, string given\.$~'
+            paths:
+                - %currentWorkingDirectory%/tests/Platforms/AbstractPlatformTestCase.php
+
+        # https://github.com/phpstan/phpstan/issues/4557
+        -
+            message: '~^Unable to resolve the template type T in call to method PHPUnit\\Framework\\TestCase::createMock\(\)$~'
+            paths:
+                - %currentWorkingDirectory%/tests/Platforms/AbstractPlatformTestCase.php
+
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

@@ -13,14 +13,11 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
+/**
+ * @extends AbstractPlatformTestCase<SqlitePlatform>
+ */
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
-    /** @var SqlitePlatform */
-    protected $platform;
-
-    /**
-     * @return SqlitePlatform
-     */
     public function createPlatform(): AbstractPlatform
     {
         return new SqlitePlatform();
