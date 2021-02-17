@@ -108,9 +108,6 @@ abstract class Type
      */
     abstract public function getName();
 
-    /**
-     * @internal This method is only to be used within DBAL for forward compatibility purposes. Do not use directly.
-     */
     final public static function getTypeRegistry(): TypeRegistry
     {
         if (self::$typeRegistry === null) {

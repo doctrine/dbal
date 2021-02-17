@@ -12,11 +12,11 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
+/**
+ * @extends AbstractPlatformTestCase<DB2Platform>
+ */
 class DB2PlatformTest extends AbstractPlatformTestCase
 {
-    /** @var DB2Platform */
-    protected $platform;
-
     public function createPlatform(): AbstractPlatform
     {
         return new DB2Platform();

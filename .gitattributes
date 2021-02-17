@@ -12,5 +12,4 @@
 /run-all.sh export-ignore
 /SECURITY.md export-ignore
 /tests export-ignore
-/.travis.yml export-ignore
 /UPGRADE.md export-ignore

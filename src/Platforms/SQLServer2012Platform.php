@@ -282,11 +282,11 @@ class SQLServer2012Platform extends AbstractPlatform
 
         return sprintf(
             <<<SQL
-IF EXISTS (SELECT * FROM sysobjects WHERE name = '%s')
-    ALTER TABLE %s DROP CONSTRAINT %s
-ELSE
-    DROP INDEX %s ON %s
-SQL
+                IF EXISTS (SELECT * FROM sysobjects WHERE name = '%s')
+                    ALTER TABLE %s DROP CONSTRAINT %s
+                ELSE
+                    DROP INDEX %s ON %s
+                SQL
             ,
             $index,
             $table,
@@ -1651,10 +1651,10 @@ SQL
     {
         return sprintf(
             <<<'SQL'
-EXEC sys.sp_addextendedproperty @name=N'MS_Description',
-  @value=N%s, @level0type=N'SCHEMA', @level0name=N'dbo',
-  @level1type=N'TABLE', @level1name=N%s
-SQL
+                EXEC sys.sp_addextendedproperty @name=N'MS_Description',
+                  @value=N%s, @level0type=N'SCHEMA', @level0name=N'dbo',
+                  @level1type=N'TABLE', @level1name=N%s
+                SQL
             ,
             $this->quoteStringLiteral((string) $comment),
             $this->quoteStringLiteral($tableName)
@@ -1665,14 +1665,14 @@ SQL
     {
         return sprintf(
             <<<'SQL'
-SELECT
-  p.value AS [table_comment]
-FROM
-  sys.tables AS tbl
-  INNER JOIN sys.extended_properties AS p ON p.major_id=tbl.object_id AND p.minor_id=0 AND p.class=1
-WHERE
-  (tbl.name=N%s and SCHEMA_NAME(tbl.schema_id)=N'dbo' and p.name=N'MS_Description')
-SQL
+                SELECT
+                  p.value AS [table_comment]
+                FROM
+                  sys.tables AS tbl
+                  INNER JOIN sys.extended_properties AS p ON p.major_id=tbl.object_id AND p.minor_id=0 AND p.class=1
+                WHERE
+                  (tbl.name=N%s and SCHEMA_NAME(tbl.schema_id)=N'dbo' and p.name=N'MS_Description')
+                SQL
             ,
             $this->quoteStringLiteral($table)
         );

@@ -25,11 +25,17 @@ use function implode;
 use function sprintf;
 use function str_repeat;
 
+/**
+ * @template T of AbstractPlatform
+ */
 abstract class AbstractPlatformTestCase extends TestCase
 {
-    /** @var AbstractPlatform */
+    /** @var T */
     protected $platform;
 
+    /**
+     * @return T
+     */
     abstract public function createPlatform(): AbstractPlatform;
 
     protected function setUp(): void

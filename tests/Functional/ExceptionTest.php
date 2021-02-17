@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -365,10 +364,6 @@ class ExceptionTest extends FunctionalTestCase
 
         if ($platform instanceof SqlitePlatform) {
             self::markTestSkipped('Only skipped if platform is not sqlite');
-        }
-
-        if ($platform instanceof PostgreSQL94Platform && isset($params['password'])) {
-            self::markTestSkipped('Does not work on Travis');
         }
 
         if ($platform instanceof MySQLPlatform && isset($params['user'])) {

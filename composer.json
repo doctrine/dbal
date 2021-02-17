@@ -44,7 +44,7 @@
         "phpunit/phpunit": "9.5.0",
         "psalm/plugin-phpunit": "0.13.0",
         "symfony/console": "^2.0.5|^3.0|^4.0|^5.0",
-        "vimeo/psalm": "4.3.2"
+        "vimeo/psalm": "4.5.2"
     },
     "suggest": {
         "symfony/console": "For helpful console commands such as SQL execution and import of files."
@@ -61,10 +61,5 @@
     },
     "autoload-dev": {
         "psr-4": { "Doctrine\\DBAL\\Tests\\": "tests" }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "4.0.x-dev"
-        }
     }
 }
