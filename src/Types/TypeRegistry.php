@@ -12,8 +12,6 @@ use function in_array;
 /**
  * The type registry is responsible for holding a map of all known DBAL types.
  * The types are stored using the flyweight pattern so that one type only exists as exactly one instance.
- *
- * @internal TypeRegistry exists for forward compatibility, its API should not be considered stable.
  */
 final class TypeRegistry
 {

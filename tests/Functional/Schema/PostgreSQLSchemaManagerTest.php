@@ -18,15 +18,13 @@ use Doctrine\DBAL\Types\Types;
 use function array_map;
 use function array_pop;
 use function array_unshift;
+use function assert;
 use function count;
 use function preg_match;
 use function strtolower;
 
 class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    /** @var PostgreSQLSchemaManager */
-    protected $schemaManager;
-
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof PostgreSQL94Platform;
@@ -58,6 +56,8 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testGetSchemaNames(): void
     {
+        assert($this->schemaManager instanceof PostgreSQLSchemaManager);
+
         $names = $this->schemaManager->getSchemaNames();
 
         self::assertIsArray($names);
