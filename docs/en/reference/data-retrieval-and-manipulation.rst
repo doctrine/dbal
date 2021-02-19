@@ -309,8 +309,8 @@ Prepare a given SQL statement and return the
 
     <?php
     $statement = $conn->prepare('SELECT * FROM user');
-    $statement->execute();
-    $users = $statement->fetchAllAssociative();
+    $resultSet = $statement->execute();
+    $users = $resultSet->fetchAllAssociative();
 
     /*
     array(
