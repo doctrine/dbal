@@ -316,7 +316,7 @@ Prepare a given SQL statement and return the
     array(
       0 => array(
         'username' => 'jwage',
-        'password' => 'changeme'
+        'email' => 'j.wage@example.com'
       )
     )
     */
@@ -353,7 +353,7 @@ parameters to the execute method, then returning the statement:
     /*
     array(
       0 => 'jwage',
-      1 => 'changeme'
+      1 => 'j.wage@example.com'
     )
     */
 
@@ -376,7 +376,7 @@ Execute the query and fetch all results into an array:
     array(
       0 => array(
         'username' => 'jwage',
-        'password' => 'changeme'
+        'email' => 'j.wage@example.com'
       )
     )
     */
@@ -389,11 +389,11 @@ Execute the query and fetch the first two columns into an associative array as k
 .. code-block:: php
 
     <?php
-    $users = $conn->fetchAllKeyValue('SELECT username, password FROM user');
+    $users = $conn->fetchAllKeyValue('SELECT username, email FROM user');
 
     /*
     array(
-      'jwage' => 'changeme',
+      'jwage' => 'j.wage@example.com',
     )
     */
 
@@ -409,13 +409,13 @@ an associative array of the rest of the columns and their values:
 .. code-block:: php
 
     <?php
-    $users = $conn->fetchAllAssociativeIndexed('SELECT id, username, password FROM user');
+    $users = $conn->fetchAllAssociativeIndexed('SELECT id, username, email FROM user');
 
     /*
     array(
         1 => array(
           'username' => 'jwage',
-          'password' => 'changeme',
+          'email' => 'j.wage@example.com'
         )
     )
     */
@@ -433,7 +433,7 @@ Numeric index retrieval of first result row of the given query:
     /*
     array(
       0 => 'jwage',
-      1 => 'changeme'
+      1 => 'j.wage@example.com'
     )
     */
 
@@ -460,7 +460,7 @@ Retrieve associative array of the first result row.
     /*
     array(
       'username' => 'jwage',
-      'password' => 'changeme'
+      'email' => 'j.wage@example.com'
     )
     */
 
@@ -474,7 +474,7 @@ Execute the query and iterate over the first two columns as keys and values resp
 .. code-block:: php
 
     <?php
-    foreach ($conn->iterateKeyValue('SELECT username, password FROM user') as $username => $password) {
+    foreach ($conn->iterateKeyValue('SELECT username, email FROM user') as $username => $email) {
         // ...
     }
 
@@ -490,7 +490,7 @@ an associative array of the rest of the columns and their values:
 .. code-block:: php
 
     <?php
-    foreach ($conn->iterateAssociativeIndexed('SELECT id, username, password FROM user') as $id => $data) {
+    foreach ($conn->iterateAssociativeIndexed('SELECT id, username, email FROM user') as $id => $data) {
         // ...
     }
 
