@@ -905,12 +905,15 @@ SQL
 
         return $this->doConvertBooleans(
             $item,
-            static function ($boolean) {
-                if ($boolean === null) {
+            /**
+             * @param mixed $value
+             */
+            static function ($value) {
+                if ($value === null) {
                     return 'NULL';
                 }
 
-                return $boolean === true ? 'true' : 'false';
+                return $value === true ? 'true' : 'false';
             }
         );
     }
@@ -926,8 +929,11 @@ SQL
 
         return $this->doConvertBooleans(
             $item,
-            static function ($boolean) {
-                return $boolean === null ? null : (int) $boolean;
+            /**
+             * @param mixed $value
+             */
+            static function ($value) {
+                return $value === null ? null : (int) $value;
             }
         );
     }

@@ -100,17 +100,24 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
             $queries = '';
             $i       = count($this->sqlLoggerStack->queries);
             foreach (array_reverse($this->sqlLoggerStack->queries) as $query) {
-                $params   = array_map(static function ($p) {
-                    if (is_object($p)) {
-                        return get_class($p);
-                    }
+                $params = array_map(
+                    /**
+                     * @param mixed $p
+                     */
+                    static function ($p) {
+                        if (is_object($p)) {
+                            return get_class($p);
+                        }
 
-                    if (is_scalar($p)) {
-                        return "'" . $p . "'";
-                    }
+                        if (is_scalar($p)) {
+                            return "'" . $p . "'";
+                        }
 
-                    return var_export($p, true);
-                }, $query['params'] ?: []);
+                        return var_export($p, true);
+                    },
+                    $query['params'] ?: []
+                );
+
                 $queries .= $i . ". SQL: '" . $query['sql'] . "' Params: " . implode(', ', $params) . PHP_EOL;
                 $i--;
             }
