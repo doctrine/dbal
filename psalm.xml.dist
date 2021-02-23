@@ -169,6 +169,15 @@
                 <file name="lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php"/>
             </errorLevel>
         </PossiblyNullArgument>
+        <RedundantCastGivenDocblockType>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    where we have scalar argument types enforced
+                -->
+                <directory name="lib"/>
+            </errorLevel>
+        </RedundantCastGivenDocblockType>
         <RedundantCondition>
             <errorLevel type="suppress">
                 <!--
