@@ -36,6 +36,46 @@
                 <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
+        <!--
+            The library uses its own deprecated APIs for backward compatibility.
+            This list of suppressed issues should be revisited each major release.
+        -->
+        <DeprecatedClass>
+            <errorLevel type="suppress">
+                <directory name="lib"/>
+                <directory name="tests"/>
+            </errorLevel>
+        </DeprecatedClass>
+        <DeprecatedConstant>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/4082
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php"/>
+                <!--
+                    These suppressions should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/4082
+                -->
+                <file name="lib/Doctrine/DBAL/Schema/PostgreSqlSchemaManager.php"/>
+                <file name="lib/Doctrine/DBAL/Types/JsonArrayType.php"/>
+                <file name="lib/Doctrine/DBAL/Types/Type.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/Schema/PostgreSqlSchemaManagerTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Types/JsonArrayTest.php"/>
+            </errorLevel>
+        </DeprecatedConstant>
+        <DeprecatedInterface>
+            <errorLevel type="suppress">
+                <directory name="lib"/>
+                <directory name="tests"/>
+            </errorLevel>
+        </DeprecatedInterface>
+        <DeprecatedMethod>
+            <errorLevel type="suppress">
+                <directory name="lib"/>
+                <directory name="tests"/>
+            </errorLevel>
+        </DeprecatedMethod>
         <DocblockTypeContradiction>
             <errorLevel type="suppress">
                 <!--
