@@ -169,6 +169,35 @@
                 <file name="lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php"/>
             </errorLevel>
         </PossiblyNullArgument>
+        <PropertyNotSetInConstructor>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
+                <!-- See https://github.com/sebastianbergmann/phpunit/pull/4610 -->
+                <directory name="tests"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4506 -->
+                <file name="lib/Doctrine/DBAL/Schema/ForeignKeyConstraint.php"/>
+                <!--
+                    This suppression should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/3803
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/PDO/SQLSrv/Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDO/Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOSqlsrv/Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatement.php"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3712
+                -->
+                <file name="lib/Doctrine/DBAL/Schema/Column.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Identifier.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Index.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Schema.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Sequence.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Table.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/View.php"/>
+            </errorLevel>
+        </PropertyNotSetInConstructor>
+        <!-- This is necessary pre 4.0  -->
         <RedundantCastGivenDocblockType>
             <errorLevel type="suppress">
                 <!--

@@ -142,7 +142,7 @@ abstract class AbstractPlatform
      */
     protected $doctrineTypeComments;
 
-    /** @var EventManager */
+    /** @var EventManager|null */
     protected $_eventManager;
 
     /**

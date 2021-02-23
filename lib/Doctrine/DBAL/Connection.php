@@ -116,9 +116,9 @@ class Connection implements DriverConnection
     private $transactionNestingLevel = 0;
 
     /**
-     * The currently active transaction isolation level.
+     * The currently active transaction isolation level or NULL before it has been determined.
      *
-     * @var int
+     * @var int|null
      */
     private $transactionIsolationLevel;
 
@@ -139,10 +139,9 @@ class Connection implements DriverConnection
     private $params;
 
     /**
-     * The DatabasePlatform object that provides information about the
-     * database platform used by the connection.
+     * The database platform object used by the connection or NULL before it's initialized.
      *
-     * @var AbstractPlatform
+     * @var AbstractPlatform|null
      */
     private $platform;
 
