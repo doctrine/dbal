@@ -172,7 +172,7 @@ class Statement
 
         try {
             return new Result(
-                $this->stmt->execute($this->$params),
+                $this->stmt->execute($this->params),
                 $this->conn
             );
         } catch (Exception $ex) {
