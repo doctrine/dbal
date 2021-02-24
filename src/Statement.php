@@ -162,7 +162,7 @@ class Statement
     public function execute($params = null): Result
     {
         if ($params !== null) {
-            $this->params = $params;
+            $this->params = array_merge($this->params, $params);
         }
 
         $logger = $this->conn->getConfiguration()->getSQLLogger();
@@ -172,7 +172,7 @@ class Statement
 
         try {
             return new Result(
-                $this->stmt->execute($params),
+                $this->stmt->execute($this->$params),
                 $this->conn
             );
         } catch (Exception $ex) {
