@@ -36,6 +36,36 @@
                 <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
+        <DocblockTypeContradiction>
+            <errorLevel type="suppress">
+                <!--
+                    These issues can be mostly divided in the following categories:
+                      1. Union types not supported at the language level (require dropping PHP 7 support)
+                      2. Associative arrays with typed elements used instead of classes (require breaking API changes)
+                -->
+                <file name="lib/Doctrine/DBAL/Connection.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/IBMDB2/DB2Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/SQLAnywhere/SQLAnywhereStatement.php"/>
+                <file name="lib/Doctrine/DBAL/DriverManager.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/AbstractPlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/DrizzlePlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/MySqlPlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/SQLAnywherePlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/SQLServerPlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/SqlitePlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Column.php"/>
+                <!--
+                    These issues are fixed in 3.0
+                -->
+                <file name="tests/Doctrine/Tests/DBAL/Driver/PDO/ExceptionTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/PortabilityTest.php"/>
+                <!--
+                    This issue is fixed in 4.0
+                -->
+                <file name="lib/Doctrine/DBAL/Schema/Index.php"/>
+            </errorLevel>
+        </DocblockTypeContradiction>
         <DuplicateClass>
             <errorLevel type="suppress">
                 <!-- These files contain a php 7 and a php 8 version of the same trait -->

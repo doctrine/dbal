@@ -29,17 +29,6 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         return $platform instanceof PostgreSQL94Platform;
     }
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        if (! $this->connection) {
-            return;
-        }
-
-        $this->connection->getConfiguration()->setSchemaAssetsFilter(null);
-    }
-
     public function testGetSearchPath(): void
     {
         $expected = ['public'];
