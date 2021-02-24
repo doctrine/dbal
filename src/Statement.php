@@ -6,8 +6,8 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use function array_merge;
 
+use function array_merge;
 use function is_string;
 
 /**
