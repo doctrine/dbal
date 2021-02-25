@@ -186,7 +186,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
              * @param array<string,mixed> $a
              * @param array<string,mixed> $b
              */
-            static function (array $a, array $b) {
+            static function (array $a, array $b): int {
                 if ($a['pk'] === $b['pk']) {
                     return $a['cid'] - $b['cid'];
                 }
