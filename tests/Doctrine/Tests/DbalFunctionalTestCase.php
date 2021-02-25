@@ -32,7 +32,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
     /** @var Connection */
     protected $connection;
 
-    /** @var DebugStack */
+    /** @var DebugStack|null */
     protected $sqlLoggerStack;
 
     /**
@@ -96,7 +96,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
             throw $t;
         }
 
-        if (isset($this->sqlLoggerStack->queries) && count($this->sqlLoggerStack->queries)) {
+        if ($this->sqlLoggerStack !== null && count($this->sqlLoggerStack->queries) > 0) {
             $queries = '';
             $i       = count($this->sqlLoggerStack->queries);
             foreach (array_reverse($this->sqlLoggerStack->queries) as $query) {

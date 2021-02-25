@@ -48,8 +48,6 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $names = $this->schemaManager->getSchemaNames();
 
-        self::assertIsArray($names);
-        self::assertNotEmpty($names);
         self::assertContains('public', $names, 'The public schema should be found.');
     }
 

@@ -47,7 +47,7 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
 
         $tableIndexes = $this->schemaManager->listTableIndexes('test_create_advanced_index');
-        self::assertIsArray($tableIndexes);
+
         self::assertEquals('test', $tableIndexes['test']->getName());
         self::assertEquals(['test'], $tableIndexes['test']->getColumns());
         self::assertTrue($tableIndexes['test']->isUnique());

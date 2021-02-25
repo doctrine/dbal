@@ -169,7 +169,7 @@ abstract class AbstractPlatform
     /**
      * Gets the EventManager used by the Platform.
      *
-     * @return EventManager
+     * @return EventManager|null
      */
     public function getEventManager()
     {

@@ -246,6 +246,29 @@
                 <file name="lib/Doctrine/DBAL/Version.php"/>
             </errorLevel>
         </RedundantCondition>
+        <RedundantConditionGivenDocblockType>
+            <errorLevel type="suppress">
+                <!--
+                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1055
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
+                <!--
+                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1053
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatement.php"/>
+                <!--
+                    Fixing these issues requires support of union types at the language level
+                    or breaking API changes.
+                -->
+                <file name="lib/Doctrine/DBAL/Platforms/DrizzlePlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/MySqlPlatform.php"/>
+                <!--
+                    These issues are fixed in 3.0
+                -->
+                <file name="lib/Doctrine/DBAL/Tools/Console/ConsoleRunner.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/PortabilityTest.php"/>
+            </errorLevel>
+        </RedundantConditionGivenDocblockType>
         <ReservedWord>
             <errorLevel type="suppress">
                 <!-- This file uses the mixed type in a PHP 8 forward compatibility layer. -->
