@@ -123,6 +123,8 @@
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/4082 -->
                 <file name="lib/Doctrine/DBAL/Driver/AbstractSQLiteDriver.php"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
+                <file name="lib/Doctrine/DBAL/Schema/PostgreSqlSchemaManager.php"/>
             </errorLevel>
         </InvalidNullableReturnType>
         <InvalidPropertyAssignmentValue>

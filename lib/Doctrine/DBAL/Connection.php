@@ -336,7 +336,8 @@ class Connection implements DriverConnection
     public function getDatabasePlatform()
     {
         if ($this->platform === null) {
-            $this->detectDatabasePlatform();
+            $this->platform = $this->detectDatabasePlatform();
+            $this->platform->setEventManager($this->_eventManager);
         }
 
         return $this->platform;
@@ -391,19 +392,17 @@ class Connection implements DriverConnection
      *
      * @throws Exception If an invalid platform was specified for this connection.
      */
-    private function detectDatabasePlatform(): void
+    private function detectDatabasePlatform(): AbstractPlatform
     {
         $version = $this->getDatabasePlatformVersion();
 
         if ($version !== null) {
             assert($this->_driver instanceof VersionAwarePlatformDriver);
 
-            $this->platform = $this->_driver->createDatabasePlatformForVersion($version);
-        } else {
-            $this->platform = $this->_driver->getDatabasePlatform();
+            return $this->_driver->createDatabasePlatformForVersion($version);
         }
 
-        $this->platform->setEventManager($this->_eventManager);
+        return $this->_driver->getDatabasePlatform();
     }
 
     /**
