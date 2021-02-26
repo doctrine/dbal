@@ -705,10 +705,10 @@ class Connection implements DriverConnection
     /**
      * Adds condition based on the criteria to the query components
      *
-     * @param mixed[]  $criteria   Map of key columns to their values
-     * @param string[] $columns    Column names
-     * @param mixed[]  $values     Column values
-     * @param string[] $conditions Key conditions
+     * @param array<string,mixed> $criteria   Map of key columns to their values
+     * @param string[]            $columns    Column names
+     * @param mixed[]             $values     Column values
+     * @param string[]            $conditions Key conditions
      *
      * @throws Exception
      */
