@@ -102,6 +102,8 @@ class Connection extends BaseConnection
     /**
      * {@inheritdoc}
      *
+     * @param string $sql
+     *
      * @return Statement
      */
     public function prepare($sql)

@@ -914,6 +914,7 @@ class Connection implements DriverConnection
     /**
      * {@inheritDoc}
      *
+     * @param mixed                $value
      * @param int|string|Type|null $type
      */
     public function quote($value, $type = ParameterType::STRING)
