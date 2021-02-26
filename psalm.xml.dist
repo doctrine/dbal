@@ -341,6 +341,14 @@
                 <file name="lib/Doctrine/DBAL/Tools/Dumper.php"/>
             </errorLevel>
         </UndefinedClass>
+        <UnsafeInstantiation>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/issues/4510 -->
+                <file name="lib/Doctrine/DBAL/Tools/Console/Command/ReservedWordsCommand.php"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4511 -->
+                <file name="lib/Doctrine/DBAL/DriverManager.php"/>
+            </errorLevel>
+        </UnsafeInstantiation>
         <InvalidArgument>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3803 -->
