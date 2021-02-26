@@ -197,8 +197,16 @@
         </PossiblyUndefinedArrayOffset>
         <PossiblyNullArgument>
             <errorLevel type="suppress">
-                <!-- See https://github.com/doctrine/dbal/pull/3488 -->
+                <!--
+                    This suppression should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/3488
+                -->
                 <file name="lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php"/>
+                <!--
+                    This suppression should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/4157
+                -->
+                <file name="lib/Doctrine/DBAL/Portability/Statement.php"/>
             </errorLevel>
         </PossiblyNullArgument>
         <PropertyNotSetInConstructor>

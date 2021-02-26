@@ -82,6 +82,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         } catch (DBALException $e) {
         }
 
+        $this->markConnectionNotReusable();
+
         parent::tearDown();
     }
 
@@ -361,16 +363,12 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             ->expects($this->exactly(7))
             ->method('onSchemaColumnDefinition');
 
-        $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
-
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaColumnDefinition], $listenerMock);
 
         $this->schemaManager->getDatabasePlatform()->setEventManager($eventManager);
 
         $this->schemaManager->listTableColumns('list_table_columns');
-
-        $this->schemaManager->getDatabasePlatform()->setEventManager($oldEventManager);
     }
 
     public function testListTableIndexesDispatchEvent(): void
@@ -386,16 +384,12 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             ->expects($this->exactly(3))
             ->method('onSchemaIndexDefinition');
 
-        $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
-
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaIndexDefinition], $listenerMock);
 
         $this->schemaManager->getDatabasePlatform()->setEventManager($eventManager);
 
         $this->schemaManager->listTableIndexes('list_table_indexes_test');
-
-        $this->schemaManager->getDatabasePlatform()->setEventManager($oldEventManager);
     }
 
     public function testDiffListTableColumns(): void
