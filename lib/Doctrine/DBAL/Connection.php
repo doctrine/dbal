@@ -1803,11 +1803,13 @@ class Connection implements DriverConnection
      */
     public function createSavepoint($savepoint)
     {
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->getWrappedConnection()->exec($this->platform->createSavePoint($savepoint));
+        $this->getWrappedConnection()->exec($platform->createSavePoint($savepoint));
     }
 
     /**
@@ -1821,15 +1823,17 @@ class Connection implements DriverConnection
      */
     public function releaseSavepoint($savepoint)
     {
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
-        if (! $this->platform->supportsReleaseSavepoints()) {
+        if (! $platform->supportsReleaseSavepoints()) {
             return;
         }
 
-        $this->getWrappedConnection()->exec($this->platform->releaseSavePoint($savepoint));
+        $this->getWrappedConnection()->exec($platform->releaseSavePoint($savepoint));
     }
 
     /**
@@ -1843,11 +1847,13 @@ class Connection implements DriverConnection
      */
     public function rollbackSavepoint($savepoint)
     {
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->getWrappedConnection()->exec($this->platform->rollbackSavePoint($savepoint));
+        $this->getWrappedConnection()->exec($platform->rollbackSavePoint($savepoint));
     }
 
     /**
