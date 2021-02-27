@@ -68,7 +68,11 @@ class Connection
     /** @var EventManager */
     protected $_eventManager;
 
-    /** @var ExpressionBuilder */
+    /**
+     * @deprecated Use {@link getExpressionBuilder()} instead.
+     *
+     * @var ExpressionBuilder
+     */
     protected $_expr;
 
     /**
