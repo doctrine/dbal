@@ -176,6 +176,8 @@
                     Fixing this issue requires an API change
                 -->
                 <file name="lib/Doctrine/DBAL/Driver/AbstractSQLiteDriver.php"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
+                <file name="lib/Doctrine/DBAL/Schema/PostgreSqlSchemaManager.php"/>
             </errorLevel>
         </NullableReturnStatement>
         <ParamNameMismatch>
