@@ -129,6 +129,8 @@ class Connection
     /**
      * The schema manager.
      *
+     * @deprecated Use {@link createSchemaManager()} instead.
+     *
      * @var AbstractSchemaManager|null
      */
     protected $_schemaManager;
@@ -1503,8 +1505,24 @@ class Connection
     }
 
     /**
+     * Creates a SchemaManager that can be used to inspect or change the
+     * database schema through the connection.
+     *
+     * @throws Exception
+     */
+    public function createSchemaManager(): AbstractSchemaManager
+    {
+        return $this->_driver->getSchemaManager(
+            $this,
+            $this->getDatabasePlatform()
+        );
+    }
+
+    /**
      * Gets the SchemaManager that can be used to inspect or change the
      * database schema through the connection.
+     *
+     * @deprecated Use {@link createSchemaManager()} instead.
      *
      * @return AbstractSchemaManager
      *
@@ -1513,10 +1531,7 @@ class Connection
     public function getSchemaManager()
     {
         if ($this->_schemaManager === null) {
-            $this->_schemaManager = $this->_driver->getSchemaManager(
-                $this,
-                $this->getDatabasePlatform()
-            );
+            $this->_schemaManager = $this->createSchemaManager();
         }
 
         return $this->_schemaManager;

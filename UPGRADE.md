@@ -1,5 +1,10 @@
 # Upgrade to 3.1
 
+## Deprecated `Connection::$_schemaManager` and `Connection::getSchemaManager()` 
+
+The usage of `Connection::$_schemaManager` and `Connection::getSchemaManager()` are deprecated.
+Use `Connection::createSchemaManager()` instead.
+
 ## Deprecated `Connection::$_expr`
 
 The usage of `Connection::$_expr` by extending classes is deprecated. Use `Connection::getExpressionBuilder()` instead.
