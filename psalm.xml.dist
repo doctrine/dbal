@@ -147,6 +147,20 @@
                 <file name="lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php"/>
             </errorLevel>
         </MethodSignatureMismatch>
+        <MissingConstructor>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 3.1.x
+                    See https://github.com/doctrine/dbal/issues/4512
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/SQLSrv/LastInsertId.php"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3712
+                -->
+                <file name="lib/Doctrine/DBAL/Schema/SchemaConfig.php"/>
+            </errorLevel>
+        </MissingConstructor>
         <NonInvariantDocblockPropertyType>
             <errorLevel type="suppress">
                 <!--

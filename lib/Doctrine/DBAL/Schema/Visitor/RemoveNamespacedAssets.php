@@ -20,7 +20,7 @@ use Doctrine\DBAL\Schema\Table;
  */
 class RemoveNamespacedAssets extends AbstractVisitor
 {
-    /** @var Schema */
+    /** @var Schema|null */
     private $schema;
 
     /**
@@ -36,6 +36,10 @@ class RemoveNamespacedAssets extends AbstractVisitor
      */
     public function acceptTable(Table $table)
     {
+        if ($this->schema === null) {
+            return;
+        }
+
         if ($table->isInDefaultNamespace($this->schema->getName())) {
             return;
         }
@@ -48,6 +52,10 @@ class RemoveNamespacedAssets extends AbstractVisitor
      */
     public function acceptSequence(Sequence $sequence)
     {
+        if ($this->schema === null) {
+            return;
+        }
+
         if ($sequence->isInDefaultNamespace($this->schema->getName())) {
             return;
         }
@@ -60,6 +68,10 @@ class RemoveNamespacedAssets extends AbstractVisitor
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
+        if ($this->schema === null) {
+            return;
+        }
+
         // The table may already be deleted in a previous
         // RemoveNamespacedAssets#acceptTable call. Removing Foreign keys that
         // point to nowhere.
