@@ -1,5 +1,9 @@
 # Upgrade to 4.0
 
+## BC BREAK: Removed `Connection::$_expr` property
+
+The `Connection` and `ExpressionBuilder` classes used to have a reference on each other effectively making a circular reference. Use `getExpressionBuilder()` to instantiate an expression builder.
+
 ## BC BREAK: Removed `ExpressionBuilder` methods
 
 The `andX()` and `orX()` methods of the `ExpressionBuilder` class have been removed. Use `and()` and `or()` instead.

@@ -76,9 +76,6 @@ class Connection
     /** @var EventManager */
     protected $_eventManager;
 
-    /** @var ExpressionBuilder */
-    protected $_expr;
-
     /**
      * The current auto-commit mode of this connection.
      *
@@ -195,8 +192,6 @@ class Connection
         $this->_config       = $config;
         $this->_eventManager = $eventManager;
 
-        $this->_expr = new Query\Expression\ExpressionBuilder($this);
-
         $this->autoCommit = $config->getAutoCommit();
     }
 
@@ -278,7 +273,7 @@ class Connection
      */
     public function getExpressionBuilder(): ExpressionBuilder
     {
-        return $this->_expr;
+        return new ExpressionBuilder($this);
     }
 
     /**
