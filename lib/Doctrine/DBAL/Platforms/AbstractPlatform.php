@@ -3635,6 +3635,8 @@ abstract class AbstractPlatform
      * @return string
      *
      * @throws Exception If not supported on this platform.
+     *
+     * @psalm-return class-string<KeywordList>
      */
     protected function getReservedKeywordsClass()
     {
