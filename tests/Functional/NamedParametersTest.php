@@ -154,7 +154,7 @@ class NamedParametersTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->connection->getSchemaManager()->tableExists('ddc1372_foobar')) {
+        if ($this->connection->createSchemaManager()->tableExists('ddc1372_foobar')) {
             return;
         }
 
@@ -165,7 +165,7 @@ class NamedParametersTest extends FunctionalTestCase
             $table->addColumn('bar', 'string', ['length' => 1]);
             $table->setPrimaryKey(['id']);
 
-            $sm = $this->connection->getSchemaManager();
+            $sm = $this->connection->createSchemaManager();
             $sm->createTable($table);
 
             $this->connection->insert('ddc1372_foobar', [

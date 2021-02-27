@@ -5,15 +5,15 @@ A Schema Manager instance helps you with the abstraction of the
 generation of SQL assets such as Tables, Sequences, Foreign Keys
 and Indexes.
 
-To retrieve the ``SchemaManager`` for your connection you can use
-the ``getSchemaManager()`` method:
+To instantiate a ``SchemaManager`` for your connection you can use
+the ``createSchemaManager()`` method:
 
 .. code-block:: php
 
     <?php
-    $sm = $conn->getSchemaManager();
+    $schemaManager = $conn->createSchemaManager();
 
-Now with the ``SchemaManager`` instance in ``$sm`` you can use the
+Now with the ``SchemaManager`` instance in ``$schemaManager`` you can use the
 available methods to learn about your database schema:
 
 .. note::

@@ -23,7 +23,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
             self::markTestSkipped('Driver does not support special exception handling.');
         }
 
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
 
         $table = new Table('constraint_error_table');
         $table->addColumn('id', 'integer', []);
@@ -43,7 +43,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
     {
         parent::tearDown();
 
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
 
         $schemaManager->dropTable('owning_table');
         $schemaManager->dropTable('constraint_error_table');

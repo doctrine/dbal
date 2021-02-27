@@ -1,5 +1,9 @@
 # Upgrade to 4.0
 
+## BC BREAK: Removed `Connection::$_schemaManager` and `Connection::getSchemaManager()`
+
+The `Connection` and `AbstractSchemaManager` classes used to have a reference on each other effectively making a circular reference. Use `createSchemaManager()` to instantiate a schema manager.
+
 ## BC BREAK: Removed `Connection::$_expr` property
 
 The `Connection` and `ExpressionBuilder` classes used to have a reference on each other effectively making a circular reference. Use `getExpressionBuilder()` to instantiate an expression builder.

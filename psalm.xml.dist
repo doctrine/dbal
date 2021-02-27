@@ -59,15 +59,9 @@
                     See https://github.com/doctrine/dbal/pull/3865
                 -->
                 <file name="src/Query/Expression/CompositeExpression.php"/>
+                <file name="src/Query/QueryBuilder.php"/>
                 <file name="tests/Query/Expression/CompositeExpressionTest.php"/>
                 <file name="tests/Query/Expression/ExpressionBuilderTest.php"/>
-                <!--
-                    This suppression should be removed in 4.0.x
-                    See https://github.com/doctrine/dbal/pull/4518
-                -->
-                <file name="src/Query/QueryBuilder.php"/>
-                <file name="src/Tools/Console/Command/ReservedWordsCommand.php"/>
-                <directory name="tests" />
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

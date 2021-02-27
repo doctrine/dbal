@@ -117,7 +117,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListDatabases(): void
     {
         // We need a privileged connection to create the database.
-        $sm = TestUtil::getPrivilegedConnection()->getSchemaManager();
+        $sm = TestUtil::getPrivilegedConnection()->createSchemaManager();
 
         $sm->dropAndCreateDatabase('c##test_create_database');
 
@@ -248,7 +248,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $otherTable = new Table($table->getName());
         $otherTable->addColumn('id', Types::STRING, ['length' => 32]);
-        TestUtil::getPrivilegedConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
+        TestUtil::getPrivilegedConnection()->createSchemaManager()->dropAndCreateTable($otherTable);
 
         $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getDatabase());
         self::assertCount(7, $columns);

@@ -44,11 +44,11 @@ class NoneTest extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->dropAndCreateTable($table);
+        $this->connection->createSchemaManager()->dropAndCreateTable($table);
 
         $this->connection2 = TestUtil::getConnection();
 
-        if ($this->connection2->getSchemaManager()->tableExists('users')) {
+        if ($this->connection2->createSchemaManager()->tableExists('users')) {
             return;
         }
 
@@ -69,7 +69,7 @@ class NoneTest extends FunctionalTestCase
 
         $this->connection2->close();
 
-        $this->connection->getSchemaManager()->dropTable('users');
+        $this->connection->createSchemaManager()->dropTable('users');
 
         if (! $this->connection->getDatabasePlatform() instanceof SQLServer2012Platform) {
             return;

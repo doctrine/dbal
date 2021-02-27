@@ -36,7 +36,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
             $table->addColumn('test_int', 'integer');
             $table->setPrimaryKey(['test_int']);
 
-            $sm = $this->connection->getSchemaManager();
+            $sm = $this->connection->createSchemaManager();
             $sm->createTable($table);
         } catch (Throwable $e) {
         }

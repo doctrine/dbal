@@ -30,7 +30,7 @@ class WriteTest extends FunctionalTestCase
         ]);
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->dropAndCreateTable($table);
+        $this->connection->createSchemaManager()->dropAndCreateTable($table);
 
         $this->connection->executeStatement('DELETE FROM write_table');
     }
@@ -164,11 +164,11 @@ class WriteTest extends FunctionalTestCase
 
         $sequence = new Sequence('write_table_id_seq');
         try {
-            $this->connection->getSchemaManager()->createSequence($sequence);
+            $this->connection->createSchemaManager()->createSequence($sequence);
         } catch (Throwable $e) {
         }
 
-        $sequences = $this->connection->getSchemaManager()->listSequences();
+        $sequences = $this->connection->createSchemaManager()->listSequences();
         self::assertCount(1, array_filter($sequences, static function ($sequence): bool {
             return strtolower($sequence->getName()) === 'write_table_id_seq';
         }));
@@ -280,7 +280,7 @@ class WriteTest extends FunctionalTestCase
         $table->setPrimaryKey(['id']);
 
         try {
-            $this->connection->getSchemaManager()->dropTable($table->getQuotedName($platform));
+            $this->connection->createSchemaManager()->dropTable($table->getQuotedName($platform));
         } catch (Throwable $e) {
         }
 

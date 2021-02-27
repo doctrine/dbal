@@ -36,7 +36,7 @@ CREATE TABLE dbal752_unsigneds (
 SQL
         );
 
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
 
         $fetchedTable = $schemaManager->listTableDetails('dbal752_unsigneds');
 

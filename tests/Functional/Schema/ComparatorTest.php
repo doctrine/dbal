@@ -21,7 +21,7 @@ class ComparatorTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->schemaManager = $this->connection->getSchemaManager();
+        $this->schemaManager = $this->connection->createSchemaManager();
         $this->comparator    = new Comparator();
     }
 

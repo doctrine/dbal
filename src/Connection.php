@@ -127,15 +127,6 @@ class Connection
     private $parser;
 
     /**
-     * The schema manager.
-     *
-     * @deprecated Use {@link createSchemaManager()} instead.
-     *
-     * @var AbstractSchemaManager|null
-     */
-    protected $_schemaManager;
-
-    /**
      * The used DBAL driver.
      *
      * @var Driver
@@ -1418,23 +1409,6 @@ class Connection
             $this,
             $this->getDatabasePlatform()
         );
-    }
-
-    /**
-     * Gets the SchemaManager that can be used to inspect or change the
-     * database schema through the connection.
-     *
-     * @deprecated Use {@link createSchemaManager()} instead.
-     *
-     * @throws Exception
-     */
-    public function getSchemaManager(): AbstractSchemaManager
-    {
-        if ($this->_schemaManager === null) {
-            $this->_schemaManager = $this->createSchemaManager();
-        }
-
-        return $this->_schemaManager;
     }
 
     /**

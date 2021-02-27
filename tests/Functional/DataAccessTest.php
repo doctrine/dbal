@@ -44,7 +44,7 @@ class DataAccessTest extends FunctionalTestCase
         $table->addColumn('test_datetime', 'datetime', ['notnull' => false]);
         $table->setPrimaryKey(['test_int']);
 
-        $sm = $this->connection->getSchemaManager();
+        $sm = $this->connection->createSchemaManager();
         $sm->createTable($table);
 
         $this->connection->insert('fetch_table', [
@@ -742,7 +742,7 @@ class DataAccessTest extends FunctionalTestCase
         $table->addColumn('test_days', 'integer');
         $table->setPrimaryKey(['test_date']);
 
-        $sm = $this->connection->getSchemaManager();
+        $sm = $this->connection->createSchemaManager();
         $sm->createTable($table);
 
         $this->connection->insert('fetch_table_date_math', ['test_date' => '2010-01-01', 'test_days' => 10]);

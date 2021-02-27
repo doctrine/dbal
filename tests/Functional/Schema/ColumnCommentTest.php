@@ -33,7 +33,7 @@ class ColumnCommentTest extends FunctionalTestCase
             $table->addColumn($name, $type, $options);
         }
 
-        $this->connection->getSchemaManager()
+        $this->connection->createSchemaManager()
             ->dropAndCreateTable($table);
     }
 
@@ -92,7 +92,7 @@ class ColumnCommentTest extends FunctionalTestCase
         $table1 = new Table('column_comments');
         $table1->addColumn('id', 'integer', ['comment' => $comment1]);
 
-        $this->connection->getSchemaManager()
+        $this->connection->createSchemaManager()
             ->dropAndCreateTable($table1);
 
         $table2 = clone $table1;
@@ -101,7 +101,7 @@ class ColumnCommentTest extends FunctionalTestCase
         $diff = (new Comparator())->diffTable($table1, $table2);
         self::assertNotNull($diff);
 
-        $sm = $this->connection->getSchemaManager();
+        $sm = $this->connection->createSchemaManager();
         $sm->alterTable($diff);
 
         $this->assertColumnComment('column_comments', 'id', $comment2);
@@ -125,7 +125,7 @@ class ColumnCommentTest extends FunctionalTestCase
     {
         self::assertSame(
             $expectedComment,
-            $this->connection->getSchemaManager()
+            $this->connection->createSchemaManager()
                 ->listTableDetails($table)
                 ->getColumn($column)
                 ->getComment()

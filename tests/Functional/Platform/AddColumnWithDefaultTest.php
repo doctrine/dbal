@@ -15,7 +15,7 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
 {
     public function testAddColumnWithDefault(): void
     {
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
 
         $table = new Table('add_default_test');
 

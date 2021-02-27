@@ -44,7 +44,7 @@ class TypeConversionTest extends FunctionalTestCase
         $table->setPrimaryKey(['id']);
 
         $this->connection
-            ->getSchemaManager()
+            ->createSchemaManager()
             ->dropAndCreateTable($table);
     }
 

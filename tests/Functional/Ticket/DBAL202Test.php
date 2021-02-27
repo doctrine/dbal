@@ -17,14 +17,14 @@ class DBAL202Test extends FunctionalTestCase
             self::markTestSkipped('OCI8 only test');
         }
 
-        if ($this->connection->getSchemaManager()->tableExists('DBAL202')) {
+        if ($this->connection->createSchemaManager()->tableExists('DBAL202')) {
             $this->connection->executeStatement('DELETE FROM DBAL202');
         } else {
             $table = new Table('DBAL202');
             $table->addColumn('id', 'integer');
             $table->setPrimaryKey(['id']);
 
-            $this->connection->getSchemaManager()->createTable($table);
+            $this->connection->createSchemaManager()->createTable($table);
         }
     }
 
