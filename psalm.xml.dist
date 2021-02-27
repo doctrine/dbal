@@ -225,6 +225,15 @@
                 <file name="lib/Doctrine/DBAL/Portability/Statement.php"/>
             </errorLevel>
         </PossiblyNullArgument>
+        <PossiblyNullIterator>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3712
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
+            </errorLevel>
+        </PossiblyNullIterator>
         <PropertyNotSetInConstructor>
             <errorLevel type="suppress">
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
