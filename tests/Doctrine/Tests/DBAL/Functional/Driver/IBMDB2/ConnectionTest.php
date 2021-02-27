@@ -32,7 +32,9 @@ class ConnectionTest extends DbalFunctionalTestCase
 
     protected function tearDown(): void
     {
-        $this->resetSharedConn();
+        $this->markConnectionNotReusable();
+
+        parent::tearDown();
     }
 
     public function testConnectionFailure(): void

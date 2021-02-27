@@ -21,13 +21,6 @@ class TransactionTest extends DbalFunctionalTestCase
         $this->markTestSkipped('Restricted to MySQL.');
     }
 
-    protected function tearDown(): void
-    {
-        $this->resetSharedConn();
-
-        parent::tearDown();
-    }
-
     public function testCommitFalse(): void
     {
         $this->connection->query('SET SESSION wait_timeout=1');
@@ -42,6 +35,8 @@ class TransactionTest extends DbalFunctionalTestCase
             /* For PDO, we are using ERRMODE EXCEPTION, so this catch should be
              * necessary as the equivalent of the error control operator above.
              * This seems to be the case only since PHP 8 */
+        } finally {
+            $this->connection->close();
         }
     }
 }
