@@ -1,3 +1,10 @@
+# Upgrade to 3.1
+
+## Deprecated `Connection::$_expr`
+
+The usage of `Connection::$_expr` by extending classes is deprecated. Use `Connection::getExpressionBuilder()` instead.
+Do not rely on the same builder instance being returned by each invocation.
+
 # Upgrade to 3.0
 
 ## BC BREAK: leading colon in named parameter names not supported
