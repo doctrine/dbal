@@ -16,22 +16,21 @@ use Doctrine\Tests\Types\MySqlPointType;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    public static function setUpBeforeClass(): void
+    {
+        Type::addType('point', MySqlPointType::class);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->markConnectionNotReusable();
+
+        parent::tearDown();
+    }
+
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof MySqlPlatform;
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        if (Type::hasType('point')) {
-            return;
-        }
-
-        $this->resetSharedConn();
-
-        Type::addType('point', MySqlPointType::class);
     }
 
     public function testSwitchPrimaryKeyColumns(): void

@@ -69,7 +69,9 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
     protected function tearDown(): void
     {
-        parent::tearDown();
+        if ($this->schemaManager->tablesExist(['json_array_test'])) {
+            $this->schemaManager->dropTable('json_array_test');
+        }
 
         $this->schemaManager->tryMethod('dropTable', 'testschema.my_table_in_namespace');
 
@@ -78,8 +80,9 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             //sql server versions below 2016 do not support 'IF EXISTS' so we have to catch the exception here
             $this->connection->exec('DROP SCHEMA testschema');
         } catch (DBALException $e) {
-            return;
         }
+
+        parent::tearDown();
     }
 
     public function testDropsDatabaseWithActiveConnections(): void
@@ -1287,18 +1290,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertCount(2, $indexes);
         self::assertArrayHasKey('explicit_fk1_idx', $indexes);
         self::assertArrayHasKey('idx_3d6c147fdc58d6c', $indexes);
-    }
-
-    /**
-     * @after
-     */
-    public function removeJsonArrayTable(): void
-    {
-        if (! $this->schemaManager->tablesExist(['json_array_test'])) {
-            return;
-        }
-
-        $this->schemaManager->dropTable('json_array_test');
     }
 
     public function testComparatorShouldReturnFalseWhenLegacyJsonArrayColumnHasComment(): void
