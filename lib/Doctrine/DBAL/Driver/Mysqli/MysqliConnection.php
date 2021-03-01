@@ -11,6 +11,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
 
+use function assert;
 use function floor;
 use function func_get_args;
 use function in_array;
@@ -69,7 +70,10 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
 
         $flags = $driverOptions[static::OPTION_FLAGS] ?? null;
 
-        $this->conn = mysqli_init();
+        $conn = mysqli_init();
+        assert($conn !== false);
+
+        $this->conn = $conn;
 
         $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
