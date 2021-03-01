@@ -257,7 +257,9 @@ final class DriverManager
     private static function createDriver(array $params): Driver
     {
         if (isset($params['driverClass'])) {
-            if (! in_array(Driver::class, class_implements($params['driverClass'], true))) {
+            $interfaces = class_implements($params['driverClass'], true);
+
+            if ($interfaces === false || ! in_array(Driver::class, $interfaces)) {
                 throw Exception::invalidDriverClass($params['driverClass']);
             }
 
