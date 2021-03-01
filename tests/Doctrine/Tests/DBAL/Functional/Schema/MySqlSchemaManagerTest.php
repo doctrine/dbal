@@ -111,6 +111,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $indexes = $this->schemaManager->listTableIndexes('spatial_index');
         self::assertArrayHasKey('s_index', $indexes);
         self::assertTrue($indexes['s_index']->hasFlag('spatial'));
+        self::assertSame([0 => null], $indexes['s_index']->getOption('lengths'));
     }
 
     public function testIndexWithLength(): void
