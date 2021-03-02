@@ -2,13 +2,13 @@
 
 ## Deprecated `Connection::$_schemaManager` and `Connection::getSchemaManager()` 
 
-The usage of `Connection::$_schemaManager` and `Connection::getSchemaManager()` are deprecated.
+The usage of `Connection::$_schemaManager` and `Connection::getSchemaManager()` is deprecated.
 Use `Connection::createSchemaManager()` instead.
 
-## Deprecated `Connection::$_expr`
+## Deprecated `Connection::$_expr` and `Connection::getExpressionBuilder()`
 
-The usage of `Connection::$_expr` by extending classes is deprecated. Use `Connection::getExpressionBuilder()` instead.
-Do not rely on the same builder instance being returned by each invocation.
+The usage of `Connection::$_expr` and `Connection::getExpressionBuilder()` is deprecated.
+Use `Connection::createExpressionBuilder()` instead.
 
 # Upgrade to 3.0
 
