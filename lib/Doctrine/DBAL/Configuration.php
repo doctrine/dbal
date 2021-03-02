@@ -102,6 +102,8 @@ class Configuration
 
     /**
      * @param string $filterExpression
+     *
+     * @return callable(string|AbstractAsset)
      */
     private function buildSchemaAssetsFilterFromExpression($filterExpression): callable
     {

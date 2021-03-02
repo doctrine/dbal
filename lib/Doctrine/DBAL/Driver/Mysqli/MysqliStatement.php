@@ -59,7 +59,7 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
     /** @var mixed[] */
     protected $_rowBindedValues = [];
 
-    /** @var mixed[] */
+    /** @var mixed[]|null */
     protected $_bindedValues;
 
     /** @var string */

@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <psalm
-    totallyTyped="false"
-    errorLevel="3"
-    resolveFromConfigFile="true"
+    errorLevel="2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -36,6 +34,76 @@
                 <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
+        <!--
+            The library uses its own deprecated APIs for backward compatibility.
+            This list of suppressed issues should be revisited each major release.
+        -->
+        <DeprecatedClass>
+            <errorLevel type="suppress">
+                <directory name="lib"/>
+                <directory name="tests"/>
+            </errorLevel>
+        </DeprecatedClass>
+        <DeprecatedConstant>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/4082
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php"/>
+                <!--
+                    These suppressions should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/4082
+                -->
+                <file name="lib/Doctrine/DBAL/Schema/PostgreSqlSchemaManager.php"/>
+                <file name="lib/Doctrine/DBAL/Types/JsonArrayType.php"/>
+                <file name="lib/Doctrine/DBAL/Types/Type.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/Schema/PostgreSqlSchemaManagerTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Types/JsonArrayTest.php"/>
+            </errorLevel>
+        </DeprecatedConstant>
+        <DeprecatedInterface>
+            <errorLevel type="suppress">
+                <directory name="lib"/>
+                <directory name="tests"/>
+            </errorLevel>
+        </DeprecatedInterface>
+        <DeprecatedMethod>
+            <errorLevel type="suppress">
+                <directory name="lib"/>
+                <directory name="tests"/>
+            </errorLevel>
+        </DeprecatedMethod>
+        <DocblockTypeContradiction>
+            <errorLevel type="suppress">
+                <!--
+                    These issues can be mostly divided in the following categories:
+                      1. Union types not supported at the language level (require dropping PHP 7 support)
+                      2. Associative arrays with typed elements used instead of classes (require breaking API changes)
+                -->
+                <file name="lib/Doctrine/DBAL/Connection.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/IBMDB2/DB2Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/SQLAnywhere/SQLAnywhereStatement.php"/>
+                <file name="lib/Doctrine/DBAL/DriverManager.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/AbstractPlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/DrizzlePlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/MySqlPlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/SQLAnywherePlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/SQLServerPlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/SqlitePlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Column.php"/>
+                <!--
+                    These issues are fixed in 3.0
+                -->
+                <file name="tests/Doctrine/Tests/DBAL/Driver/PDO/ExceptionTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/PortabilityTest.php"/>
+                <!--
+                    This issue is fixed in 4.0
+                -->
+                <file name="lib/Doctrine/DBAL/Schema/Index.php"/>
+            </errorLevel>
+        </DocblockTypeContradiction>
         <DuplicateClass>
             <errorLevel type="suppress">
                 <!-- These files contain a php 7 and a php 8 version of the same trait -->
@@ -93,6 +161,8 @@
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/4082 -->
                 <file name="lib/Doctrine/DBAL/Driver/AbstractSQLiteDriver.php"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
+                <file name="lib/Doctrine/DBAL/Schema/PostgreSqlSchemaManager.php"/>
             </errorLevel>
         </InvalidNullableReturnType>
         <InvalidPropertyAssignmentValue>
@@ -115,6 +185,20 @@
                 <file name="lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php"/>
             </errorLevel>
         </MethodSignatureMismatch>
+        <MissingConstructor>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 3.1.x
+                    See https://github.com/doctrine/dbal/issues/4512
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/SQLSrv/LastInsertId.php"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3712
+                -->
+                <file name="lib/Doctrine/DBAL/Schema/SchemaConfig.php"/>
+            </errorLevel>
+        </MissingConstructor>
         <NonInvariantDocblockPropertyType>
             <errorLevel type="suppress">
                 <!--
@@ -130,6 +214,8 @@
                     Fixing this issue requires an API change
                 -->
                 <file name="lib/Doctrine/DBAL/Driver/AbstractSQLiteDriver.php"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
+                <file name="lib/Doctrine/DBAL/Schema/PostgreSqlSchemaManager.php"/>
             </errorLevel>
         </NullableReturnStatement>
         <ParamNameMismatch>
@@ -165,10 +251,65 @@
         </PossiblyUndefinedArrayOffset>
         <PossiblyNullArgument>
             <errorLevel type="suppress">
-                <!-- See https://github.com/doctrine/dbal/pull/3488 -->
+                <!--
+                    This suppression should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/3488
+                -->
                 <file name="lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php"/>
+                <!--
+                    This suppression should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/4157
+                -->
+                <file name="lib/Doctrine/DBAL/Portability/Statement.php"/>
             </errorLevel>
         </PossiblyNullArgument>
+        <PossiblyNullIterator>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3712
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
+            </errorLevel>
+        </PossiblyNullIterator>
+        <PropertyNotSetInConstructor>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
+                <!-- See https://github.com/sebastianbergmann/phpunit/pull/4610 -->
+                <directory name="tests"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4506 -->
+                <file name="lib/Doctrine/DBAL/Schema/ForeignKeyConstraint.php"/>
+                <!--
+                    This suppression should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/3803
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/PDO/SQLSrv/Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDO/Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOSqlsrv/Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatement.php"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3712
+                -->
+                <file name="lib/Doctrine/DBAL/Schema/Column.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Identifier.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Index.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Schema.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Sequence.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/Table.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/View.php"/>
+            </errorLevel>
+        </PropertyNotSetInConstructor>
+        <!-- This is necessary pre 4.0  -->
+        <RedundantCastGivenDocblockType>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    where we have scalar argument types enforced
+                -->
+                <directory name="lib"/>
+            </errorLevel>
+        </RedundantCastGivenDocblockType>
         <RedundantCondition>
             <errorLevel type="suppress">
                 <!--
@@ -178,6 +319,38 @@
                 <file name="lib/Doctrine/DBAL/Version.php"/>
             </errorLevel>
         </RedundantCondition>
+        <RedundantConditionGivenDocblockType>
+            <errorLevel type="suppress">
+                <!--
+                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1055
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
+                <!--
+                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1053
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatement.php"/>
+                <!--
+                    Fixing these issues requires support of union types at the language level
+                    or breaking API changes.
+                -->
+                <file name="lib/Doctrine/DBAL/Platforms/DrizzlePlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Platforms/MySqlPlatform.php"/>
+                <!--
+                    These issues are fixed in 3.0
+                -->
+                <file name="lib/Doctrine/DBAL/Tools/Console/ConsoleRunner.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/PortabilityTest.php"/>
+            </errorLevel>
+        </RedundantConditionGivenDocblockType>
+        <ReferenceConstraintViolation>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3836
+                -->
+                <file name="lib/Doctrine/DBAL/Query/QueryBuilder.php"/>
+            </errorLevel>
+        </ReferenceConstraintViolation>
         <ReservedWord>
             <errorLevel type="suppress">
                 <!-- This file uses the mixed type in a PHP 8 forward compatibility layer. -->
@@ -231,6 +404,15 @@
                 <file name="lib/Doctrine/DBAL/Tools/Dumper.php"/>
             </errorLevel>
         </UndefinedClass>
+        <UnsafeInstantiation>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/issues/4510 -->
+                <file name="lib/Doctrine/DBAL/Platforms/AbstractPlatform.php"/>
+                <file name="lib/Doctrine/DBAL/Tools/Console/Command/ReservedWordsCommand.php"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4511 -->
+                <file name="lib/Doctrine/DBAL/DriverManager.php"/>
+            </errorLevel>
+        </UnsafeInstantiation>
         <InvalidArgument>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3803 -->

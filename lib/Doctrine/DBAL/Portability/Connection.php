@@ -41,7 +41,7 @@ class Connection extends BaseConnection
     /** @var int */
     private $portability = self::PORTABILITY_NONE;
 
-    /** @var int */
+    /** @var int|null */
     private $case;
 
     /**
@@ -81,7 +81,7 @@ class Connection extends BaseConnection
     }
 
     /**
-     * @return int
+     * @return int|null
      */
     public function getFetchCase()
     {
@@ -101,6 +101,8 @@ class Connection extends BaseConnection
 
     /**
      * {@inheritdoc}
+     *
+     * @param string $sql
      *
      * @return Statement
      */

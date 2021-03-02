@@ -176,7 +176,7 @@ class ExpressionBuilderTest extends DbalTestCase
     {
         $part = $this->expr->comparison($leftExpr, $operator, $rightExpr);
 
-        self::assertEquals($expected, (string) $part);
+        self::assertEquals($expected, $part);
     }
 
     /**

@@ -88,7 +88,7 @@ final class DB2SchemaManagerTest extends TestCase
     public function testListTableNamesFiltersAssetNamesCorrectlyWithCallable(): void
     {
         $accepted = ['T_FOO', 'T_BAR'];
-        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
+        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function (string $assetName) use ($accepted) {
             return in_array($assetName, $accepted);
         });
         $this->conn->expects($this->any())->method('quote');
@@ -113,7 +113,7 @@ final class DB2SchemaManagerTest extends TestCase
     public function testSettingNullExpressionWillResetCallable(): void
     {
         $accepted = ['T_FOO', 'T_BAR'];
-        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
+        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function (string $assetName) use ($accepted) {
             return in_array($assetName, $accepted);
         });
         $this->conn->expects($this->any())->method('quote');

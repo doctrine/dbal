@@ -289,19 +289,28 @@ EOF
     {
         return [
             'fetch' => [
+                /**
+                 * @return mixed
+                 */
                 static function (Statement $stmt) {
                     return $stmt->fetch();
                 },
                 false,
             ],
+            /**
+             * @return mixed|false
+             */
             'fetch-column' => [
                 static function (Statement $stmt) {
                     return $stmt->fetchColumn();
                 },
                 false,
             ],
+            /**
+             * @return mixed[]
+             */
             'fetch-all' => [
-                static function (Statement $stmt) {
+                static function (Statement $stmt): array {
                     return $stmt->fetchAll();
                 },
                 [],

@@ -83,7 +83,7 @@ class QueryBuilder
     /**
      * The complete SQL string for this query.
      *
-     * @var string
+     * @var string|null
      */
     private $sql;
 
@@ -120,7 +120,7 @@ class QueryBuilder
      *
      * @var int
      */
-    private $firstResult;
+    private $firstResult = 0;
 
     /**
      * The maximum number of results to retrieve or NULL to retrieve all results.
@@ -1219,7 +1219,7 @@ class QueryBuilder
      */
     private function isLimitQuery()
     {
-        return $this->maxResults !== null || $this->firstResult !== null;
+        return $this->maxResults !== null || $this->firstResult !== 0;
     }
 
     /**

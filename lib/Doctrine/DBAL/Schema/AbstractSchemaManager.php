@@ -19,7 +19,6 @@ use function assert;
 use function call_user_func_array;
 use function count;
 use function func_get_args;
-use function is_array;
 use function is_callable;
 use function preg_match;
 use function str_replace;
@@ -598,12 +597,7 @@ abstract class AbstractSchemaManager
      */
     public function alterTable(TableDiff $tableDiff)
     {
-        $queries = $this->_platform->getAlterTableSQL($tableDiff);
-        if (! is_array($queries) || ! count($queries)) {
-            return;
-        }
-
-        foreach ($queries as $ddlQuery) {
+        foreach ($this->_platform->getAlterTableSQL($tableDiff) as $ddlQuery) {
             $this->_execSql($ddlQuery);
         }
     }

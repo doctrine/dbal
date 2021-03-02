@@ -116,9 +116,9 @@ class Connection implements DriverConnection
     private $transactionNestingLevel = 0;
 
     /**
-     * The currently active transaction isolation level.
+     * The currently active transaction isolation level or NULL before it has been determined.
      *
-     * @var int
+     * @var int|null
      */
     private $transactionIsolationLevel;
 
@@ -139,10 +139,9 @@ class Connection implements DriverConnection
     private $params;
 
     /**
-     * The DatabasePlatform object that provides information about the
-     * database platform used by the connection.
+     * The database platform object used by the connection or NULL before it's initialized.
      *
-     * @var AbstractPlatform
+     * @var AbstractPlatform|null
      */
     private $platform;
 
@@ -337,7 +336,8 @@ class Connection implements DriverConnection
     public function getDatabasePlatform()
     {
         if ($this->platform === null) {
-            $this->detectDatabasePlatform();
+            $this->platform = $this->detectDatabasePlatform();
+            $this->platform->setEventManager($this->_eventManager);
         }
 
         return $this->platform;
@@ -392,19 +392,17 @@ class Connection implements DriverConnection
      *
      * @throws Exception If an invalid platform was specified for this connection.
      */
-    private function detectDatabasePlatform(): void
+    private function detectDatabasePlatform(): AbstractPlatform
     {
         $version = $this->getDatabasePlatformVersion();
 
         if ($version !== null) {
             assert($this->_driver instanceof VersionAwarePlatformDriver);
 
-            $this->platform = $this->_driver->createDatabasePlatformForVersion($version);
-        } else {
-            $this->platform = $this->_driver->getDatabasePlatform();
+            return $this->_driver->createDatabasePlatformForVersion($version);
         }
 
-        $this->platform->setEventManager($this->_eventManager);
+        return $this->_driver->getDatabasePlatform();
     }
 
     /**
@@ -707,10 +705,10 @@ class Connection implements DriverConnection
     /**
      * Adds condition based on the criteria to the query components
      *
-     * @param mixed[]  $criteria   Map of key columns to their values
-     * @param string[] $columns    Column names
-     * @param mixed[]  $values     Column values
-     * @param string[] $conditions Key conditions
+     * @param array<string,mixed> $criteria   Map of key columns to their values
+     * @param string[]            $columns    Column names
+     * @param mixed[]             $values     Column values
+     * @param string[]            $conditions Key conditions
      *
      * @throws Exception
      */
@@ -916,6 +914,7 @@ class Connection implements DriverConnection
     /**
      * {@inheritDoc}
      *
+     * @param mixed                $value
      * @param int|string|Type|null $type
      */
     public function quote($value, $type = ParameterType::STRING)
@@ -1804,11 +1803,13 @@ class Connection implements DriverConnection
      */
     public function createSavepoint($savepoint)
     {
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->getWrappedConnection()->exec($this->platform->createSavePoint($savepoint));
+        $this->getWrappedConnection()->exec($platform->createSavePoint($savepoint));
     }
 
     /**
@@ -1822,15 +1823,17 @@ class Connection implements DriverConnection
      */
     public function releaseSavepoint($savepoint)
     {
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
-        if (! $this->platform->supportsReleaseSavepoints()) {
+        if (! $platform->supportsReleaseSavepoints()) {
             return;
         }
 
-        $this->getWrappedConnection()->exec($this->platform->releaseSavePoint($savepoint));
+        $this->getWrappedConnection()->exec($platform->releaseSavePoint($savepoint));
     }
 
     /**
@@ -1844,11 +1847,13 @@ class Connection implements DriverConnection
      */
     public function rollbackSavepoint($savepoint)
     {
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->getWrappedConnection()->exec($this->platform->rollbackSavePoint($savepoint));
+        $this->getWrappedConnection()->exec($platform->rollbackSavePoint($savepoint));
     }
 
     /**
