@@ -193,7 +193,7 @@ class Connection
         $this->_config       = $config;
         $this->_eventManager = $eventManager;
 
-        $this->_expr = new Query\Expression\ExpressionBuilder($this);
+        $this->_expr = $this->createExpressionBuilder();
 
         $this->autoCommit = $config->getAutoCommit();
     }
@@ -280,7 +280,17 @@ class Connection
     }
 
     /**
+     * Creates an expression builder for the connection.
+     */
+    public function createExpressionBuilder(): ExpressionBuilder
+    {
+        return new ExpressionBuilder($this);
+    }
+
+    /**
      * Gets the ExpressionBuilder for the connection.
+     *
+     * @deprecated Use {@link createExpressionBuilder()} instead.
      *
      * @return ExpressionBuilder
      */
