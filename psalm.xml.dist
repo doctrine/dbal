@@ -340,6 +340,10 @@
                 -->
                 <file name="lib/Doctrine/DBAL/Tools/Console/ConsoleRunner.php"/>
                 <file name="tests/Doctrine/Tests/DBAL/Functional/PortabilityTest.php"/>
+                <!--
+                    See https://github.com/vimeo/psalm/issues/5305
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
         <ReferenceConstraintViolation>
