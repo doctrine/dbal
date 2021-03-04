@@ -1,5 +1,9 @@
 # Upgrade to 4.0
 
+## Removed the `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()`
+
+The `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()` has been removed. The specifics of binding a parameter to the statement should be specified using the `$type` argument.
+
 ## BC BREAK: Removed `Connection::$_schemaManager` and `Connection::getSchemaManager()`
 
 The `Connection` and `AbstractSchemaManager` classes used to have a reference on each other effectively making a circular reference. Use `createSchemaManager()` to instantiate a schema manager.

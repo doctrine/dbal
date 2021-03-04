@@ -13,10 +13,6 @@ use PDO;
 use PDOException;
 use PDOStatement;
 
-use function array_slice;
-use function count;
-use function func_get_args;
-
 final class Statement implements StatementInterface
 {
     private const PARAM_TYPE_MAP = [
@@ -56,27 +52,33 @@ final class Statement implements StatementInterface
 
     /**
      * {@inheritDoc}
-     *
-     * @param mixed $param
-     * @param mixed $variable
-     * @param mixed $driverOptions The usage of the argument is deprecated.
      */
-    public function bindParam(
-        $param,
-        &$variable,
-        int $type = ParameterType::STRING,
-        ?int $length = null,
-        $driverOptions = null
-    ): void {
-        $type            = $this->convertParamType($type);
-        $extraParameters = array_slice(func_get_args(), 3);
-
-        if (count($extraParameters) !== 0) {
-            $extraParameters[0] = $extraParameters[0] ?? 0;
-        }
-
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
+    {
         try {
-            $this->stmt->bindParam($param, $variable, $type, ...$extraParameters);
+            if ($length === null) {
+                $this->stmt->bindParam($param, $variable, $this->convertParamType($type));
+            } else {
+                $this->stmt->bindParam($param, $variable, $this->convertParamType($type), $length);
+            }
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
+    }
+
+    /**
+     * @internal Driver options can be only specified by a PDO-based driver.
+     *
+     * @param string|int $param
+     * @param mixed      $variable
+     * @param mixed      $driverOptions
+     *
+     * @throws ExceptionInterface
+     */
+    public function bindParamWithDriverOptions($param, &$variable, int $type, int $length, $driverOptions): void
+    {
+        try {
+            $this->stmt->bindParam($param, $variable, $this->convertParamType($type), $length, $driverOptions);
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
