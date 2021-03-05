@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
@@ -22,6 +21,7 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Logging\EchoSQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
@@ -778,11 +778,11 @@ EOF
             ->will($this->returnValue(['cacheKey', 'realKey']));
 
         $driver = $this->createMock(Driver::class);
+        $result = (new Connection($this->params, $driver))
+            ->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
 
-        self::assertInstanceOf(
-            ArrayStatement::class,
-            (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock)
-        );
+        self::assertInstanceOf(Driver\ResultStatement::class, $result);
+        self::assertInstanceOf(Result::class, $result);
     }
 
     public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void

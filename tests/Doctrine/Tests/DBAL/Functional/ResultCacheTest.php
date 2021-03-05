@@ -4,8 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
-use Doctrine\DBAL\Cache\ResultCacheStatement;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Schema\Table;
@@ -238,25 +237,25 @@ class ResultCacheTest extends DbalFunctionalTestCase
     public static function fetchAllProvider(): iterable
     {
         yield 'fetchAll' => [
-            static function (ResultCacheStatement $statement): void {
+            static function (Driver\ResultStatement $statement): void {
                 $statement->fetchAll();
             },
         ];
 
         yield 'fetchAllAssociative' => [
-            static function (ResultCacheStatement $statement): void {
+            static function (Driver\Result $statement): void {
                 $statement->fetchAllAssociative();
             },
         ];
 
         yield 'fetchAllNumeric' => [
-            static function (ResultCacheStatement $statement): void {
+            static function (Driver\Result $statement): void {
                 $statement->fetchAllNumeric();
             },
         ];
 
         yield 'fetchFirstColumn' => [
-            static function (ResultCacheStatement $result): void {
+            static function (Driver\Result $result): void {
                 $result->fetchFirstColumn();
             },
         ];
@@ -358,7 +357,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
     /**
      * @return array<int, mixed>
      */
-    private function hydrateStmt(ResultStatement $stmt, int $fetchMode = FetchMode::ASSOCIATIVE): array
+    private function hydrateStmt(Driver\ResultStatement $stmt, int $fetchMode = FetchMode::ASSOCIATIVE): array
     {
         $data = [];
 
@@ -372,7 +371,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
     /**
      * @return array<int, mixed>
      */
-    private function hydrateStmtIterator(ResultStatement $stmt, int $fetchMode = FetchMode::ASSOCIATIVE): array
+    private function hydrateStmtIterator(Driver\ResultStatement $stmt, int $fetchMode = FetchMode::ASSOCIATIVE): array
     {
         $data = [];
         $stmt->setFetchMode($fetchMode);

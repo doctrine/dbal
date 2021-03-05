@@ -6,6 +6,7 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Connection as BaseConnection;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
+use Doctrine\DBAL\ForwardCompatibility;
 use PDO;
 
 use function func_get_args;
@@ -96,7 +97,7 @@ class Connection extends BaseConnection
         $stmt = new Statement(parent::executeQuery($sql, $params, $types, $qcp), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
-        return $stmt;
+        return new ForwardCompatibility\Result($stmt);
     }
 
     /**
