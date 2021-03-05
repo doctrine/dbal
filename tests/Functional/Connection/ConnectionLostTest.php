@@ -21,13 +21,6 @@ class ConnectionLostTest extends FunctionalTestCase
         $this->markTestSkipped('Currently only supported with MySQL');
     }
 
-    protected function tearDown(): void
-    {
-        $this->resetSharedConn();
-
-        parent::tearDown();
-    }
-
     public function testConnectionLost(): void
     {
         $this->connection->executeStatement('SET SESSION wait_timeout=1');

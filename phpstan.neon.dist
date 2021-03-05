@@ -113,5 +113,10 @@ parameters:
             message: '~^Only iterables can be unpacked, array<int, mixed>\|false given in argument #1\.$~'
             paths:
                 - %currentWorkingDirectory%/tests/Functional/Platform/DefaultExpressionTest.php
+
+        -
+            message: '~^Instanceof between Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList and Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList will always evaluate to true\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Platforms/AbstractPlatform.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

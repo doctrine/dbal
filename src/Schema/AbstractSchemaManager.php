@@ -646,9 +646,7 @@ abstract class AbstractSchemaManager
      */
     public function alterTable(TableDiff $tableDiff)
     {
-        $queries = $this->_platform->getAlterTableSQL($tableDiff);
-
-        foreach ($queries as $ddlQuery) {
+        foreach ($this->_platform->getAlterTableSQL($tableDiff) as $ddlQuery) {
             $this->_execSql($ddlQuery);
         }
     }

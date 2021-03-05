@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <psalm
-    totallyTyped="false"
-    errorLevel="3"
-    resolveFromConfigFile="true"
+    errorLevel="2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -40,6 +38,60 @@
                 <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
+        <DeprecatedClass>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed once Composer 1
+                    is no longer supported.
+                -->
+                <file name="src/Tools/Console/ConsoleRunner.php"/>
+            </errorLevel>
+        </DeprecatedClass>
+        <DeprecatedMethod>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed after 2022
+                    See https://github.com/doctrine/dbal/pull/4317
+                -->
+                <file name="tests/Functional/LegacyAPITest.php"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3865
+                -->
+                <file name="src/Query/Expression/CompositeExpression.php"/>
+                <file name="tests/Query/Expression/CompositeExpressionTest.php"/>
+                <file name="tests/Query/Expression/ExpressionBuilderTest.php"/>
+            </errorLevel>
+        </DeprecatedMethod>
+        <DocblockTypeContradiction>
+            <errorLevel type="suppress">
+                <!--
+                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/766
+                -->
+                <file name="src/Driver/Mysqli/Result.php"/>
+                <!--
+                    These issues can be mostly divided in the following categories:
+                      1. Union types not supported at the language level (require dropping PHP 7 support)
+                      2. Associative arrays with typed elements used instead of classes (require breaking API changes)
+                -->
+                <file name="src/Connection.php"/>
+                <file name="src/Driver/IBMDB2/Statement.php"/>
+                <file name="src/DriverManager.php"/>
+                <file name="src/Platforms/AbstractPlatform.php"/>
+                <file name="src/Platforms/MySQLPlatform.php"/>
+                <file name="src/Platforms/SQLServer2012Platform.php"/>
+                <file name="src/Platforms/SqlitePlatform.php"/>
+                <file name="src/Schema/Column.php"/>
+                <!--
+                    This issue is fixed in 4.0
+                -->
+                <file name="src/Schema/Index.php"/>
+                <!--
+                    See https://github.com/vimeo/psalm/issues/5325
+                -->
+                <file name="tests/Driver/OCI8/ExecutionModeTest.php"/>
+            </errorLevel>
+        </DocblockTypeContradiction>
         <FalsableReturnStatement>
             <errorLevel type="suppress">
                 <!--
@@ -61,18 +113,40 @@
                 <file name="src/Driver/OCI8/Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
+        <InvalidNullableReturnType>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
+                <file name="src/Schema/PostgreSQLSchemaManager.php"/>
+            </errorLevel>
+        </InvalidNullableReturnType>
         <InvalidPropertyAssignmentValue>
             <errorLevel type="suppress">
                 <!-- Fixing this issue requires an API change -->
                 <file name="src/Driver/PDO/Exception.php"/>
             </errorLevel>
         </InvalidPropertyAssignmentValue>
+        <MissingConstructor>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 3.1.x
+                    See https://github.com/doctrine/dbal/issues/4512
+                -->
+                <file name="src/Driver/SQLSrv/LastInsertId.php"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3712
+                -->
+                <file name="src/Schema/SchemaConfig.php"/>
+            </errorLevel>
+        </MissingConstructor>
         <NullableReturnStatement>
             <errorLevel type="suppress">
                 <!--
                     Fixing this issue requires an API change
                 -->
                 <file name="src/Driver/AbstractSQLiteDriver.php"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
+                <file name="src/Schema/PostgreSQLSchemaManager.php"/>
             </errorLevel>
         </NullableReturnStatement>
         <PossiblyNullArgument>
@@ -88,6 +162,46 @@
                 <file name="tests/Functional/Schema/PostgreSQLSchemaManagerTest.php"/>
             </errorLevel>
         </PossiblyUndefinedArrayOffset>
+        <PossiblyNullIterator>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3712
+                -->
+                <file name="src/Driver/Mysqli/Statement.php"/>
+            </errorLevel>
+        </PossiblyNullIterator>
+        <PropertyNotSetInConstructor>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
+                <!-- See https://github.com/sebastianbergmann/phpunit/pull/4610 -->
+                <directory name="tests"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4506 -->
+                <file name="src/Schema/ForeignKeyConstraint.php"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3712
+                -->
+                <file name="src/Schema/Column.php"/>
+                <file name="src/Schema/Identifier.php"/>
+                <file name="src/Schema/Index.php"/>
+                <file name="src/Schema/Schema.php"/>
+                <file name="src/Schema/Sequence.php"/>
+                <file name="src/Schema/Table.php"/>
+                <file name="src/Schema/UniqueConstraint.php"/>
+                <file name="src/Schema/View.php"/>
+            </errorLevel>
+        </PropertyNotSetInConstructor>
+        <!-- This is necessary pre 4.0  -->
+        <RedundantCastGivenDocblockType>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    where we have scalar argument types enforced
+                -->
+                <directory name="src"/>
+            </errorLevel>
+        </RedundantCastGivenDocblockType>
         <RedundantCondition>
             <errorLevel type="suppress">
                 <!--
@@ -97,6 +211,36 @@
                 <file name="tests/Driver/API/ExceptionConverterTest.php"/>
             </errorLevel>
         </RedundantCondition>
+        <RedundantConditionGivenDocblockType>
+            <errorLevel type="suppress">
+                <!--
+                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1055
+                -->
+                <file name="src/Driver/Mysqli/Result.php"/>
+                <!--
+                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1053
+                -->
+                <file name="src/Driver/PDO/Result.php"/>
+                <!--
+                    Fixing these issues requires support of union types at the language level
+                    or breaking API changes.
+                -->
+                <file name="src/Platforms/MySQLPlatform.php"/>
+                <!--
+                    See https://github.com/vimeo/psalm/issues/5305
+                -->
+                <file name="src/Driver/Mysqli/Connection.php"/>
+            </errorLevel>
+        </RedundantConditionGivenDocblockType>
+        <ReferenceConstraintViolation>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/3836
+                -->
+                <file name="src/Query/QueryBuilder.php"/>
+            </errorLevel>
+        </ReferenceConstraintViolation>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--
@@ -134,6 +278,15 @@
                 <file name="src/Tools/Dumper.php"/>
             </errorLevel>
         </UndefinedClass>
+        <UnsafeInstantiation>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/issues/4510 -->
+                <file name="src/Platforms/AbstractPlatform.php"/>
+                <file name="src/Tools/Console/Command/ReservedWordsCommand.php"/>
+                <!-- See https://github.com/doctrine/dbal/issues/4511 -->
+                <file name="src/DriverManager.php"/>
+            </errorLevel>
+        </UnsafeInstantiation>
         <InvalidReturnType>
             <errorLevel type="suppress">
                 <!-- lastInsertId has a return type that does not match the one defined in the interface-->
