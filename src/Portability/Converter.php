@@ -38,9 +38,17 @@ final class Converter
      */
     public function __construct(bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case)
     {
-        $id = static function ($value) {
-            return $value;
-        };
+        $id =
+            /**
+             * @param T $value
+             *
+             * @return T
+             *
+             * @template T
+             */
+            static function ($value) {
+                return $value;
+            };
 
         $convertValue       = $this->createConvertValue($convertEmptyStringToNull, $rightTrimString);
         $convertNumeric     = $this->createConvertRow($convertValue, null);
@@ -128,23 +136,39 @@ final class Converter
         $functions = [];
 
         if ($convertEmptyStringToNull) {
-            $functions[] = static function ($value) {
-                if ($value === '') {
-                    return null;
-                }
+            $functions[] =
+                /**
+                 * @param T $value
+                 *
+                 * @return T|null
+                 *
+                 * @template T
+                 */
+                static function ($value) {
+                    if ($value === '') {
+                        return null;
+                    }
 
-                return $value;
-            };
+                    return $value;
+                };
         }
 
         if ($rightTrimString) {
-            $functions[] = static function ($value) {
-                if (! is_string($value)) {
-                    return $value;
-                }
+            $functions[] =
+                /**
+                 * @param T $value
+                 *
+                 * @psalm-return (T is string ? string : T)
+                 *
+                 * @template T
+                 */
+                static function ($value) {
+                    if (! is_string($value)) {
+                        return $value;
+                    }
 
-                return rtrim($value);
-            };
+                    return rtrim($value);
+                };
         }
 
         return $this->compose(...$functions);
@@ -188,13 +212,20 @@ final class Converter
             return $id;
         }
 
-        return static function ($value) use ($function) {
-            if ($value === false) {
-                return false;
-            }
+        return /**
+                * @param T $value
+                *
+                * @psalm-return (T is false ? false : T)
+                *
+                * @template T
+                */
+            static function ($value) use ($function) {
+                if ($value === false) {
+                    return false;
+                }
 
-            return $function($value);
-        };
+                return $function($value);
+            };
     }
 
     /**
@@ -228,9 +259,11 @@ final class Converter
     /**
      * Creates a composition of the given set of functions
      *
-     * @param callable ...$functions The functions to compose
+     * @param callable(T):T ...$functions The functions to compose
      *
-     * @return callable|null The composition or NULL if an empty set is provided
+     * @return callable(T):T|null
+     *
+     * @template T
      */
     private function compose(callable ...$functions): ?callable
     {
@@ -239,9 +272,16 @@ final class Converter
                 return $item;
             }
 
-            return static function ($value) use ($carry, $item) {
-                return $item($carry($value));
-            };
+            return /**
+                    * @param T $value
+                    *
+                    * @return T
+                    *
+                    * @template T
+                    */
+                static function ($value) use ($carry, $item) {
+                    return $item($carry($value));
+                };
         });
     }
 }
