@@ -2670,6 +2670,12 @@ abstract class AbstractPlatform
      */
     public function prefersSequences()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4229',
+            'AbstractPlatform::prefersSequences() is deprecated without replacement and removed in DBAL 3.0'
+        );
+
         return false;
     }
 
@@ -3241,6 +3247,12 @@ abstract class AbstractPlatform
      */
     public function supportsForeignKeyOnUpdate()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4229',
+            'AbstractPlatform::supportsForeignKeyOnUpdate() is deprecated without replacement and removed in DBAL 3.0'
+        );
+
         return $this->supportsForeignKeyConstraints();
     }
 
@@ -3496,6 +3508,13 @@ abstract class AbstractPlatform
      */
     public function getSQLResultCasing($column)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4229',
+            'AbstractPlatform::getSQLResultCasing is deprecated without replacement and removed in DBAL 3.' .
+            'Use Portability\Connection with PORTABILITY_FIX_CASE to get portable result cases.'
+        );
+
         return $column;
     }
 

@@ -974,6 +974,12 @@ SQL
      */
     public function prefersSequences()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4229',
+            'AbstractPlatform::prefersSequences() is deprecated without replacement and removed in DBAL 3.0'
+        );
+
         return true;
     }
 
@@ -1142,6 +1148,12 @@ SQL
      */
     public function supportsForeignKeyOnUpdate()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4229',
+            'AbstractPlatform::supportsForeignKeyOnUpdate() is deprecated without replacement and removed in DBAL 3.0'
+        );
+
         return false;
     }
 
