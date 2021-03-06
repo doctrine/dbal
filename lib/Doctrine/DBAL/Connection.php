@@ -1399,6 +1399,12 @@ class Connection implements DriverConnection
      */
     public function query()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4163',
+            'Connection::query() is deprecated, use Connection::executeQuery() instead.'
+        );
+
         $connection = $this->getWrappedConnection();
 
         $args = func_get_args();
@@ -1441,6 +1447,12 @@ class Connection implements DriverConnection
      */
     public function executeUpdate($sql, array $params = [], array $types = [])
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4163',
+            'Connection::executeUpdate() is deprecated, use Connection::executeStatement() instead.'
+        );
+
         return $this->executeStatement($sql, $params, $types);
     }
 
@@ -1519,6 +1531,12 @@ class Connection implements DriverConnection
      */
     public function exec($sql)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4163',
+            'Connection::exec() is deprecated, use Connection::executeStatement() instead.'
+        );
+
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
