@@ -26,6 +26,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -54,9 +55,6 @@ use function strlen;
 use function strpos;
 use function strtolower;
 use function strtoupper;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -301,12 +299,14 @@ abstract class AbstractPlatform
 
         if ($column['length'] > $maxLength) {
             if ($maxLength > 0) {
-                @trigger_error(sprintf(
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/issues/3187',
                     'Binary column length %d is greater than supported by the platform (%d).'
                     . ' Reduce the column length or use a BLOB column instead.',
                     $column['length'],
                     $maxLength
-                ), E_USER_DEPRECATED);
+                );
             }
 
             return $this->getBlobTypeDeclarationSQL($column);
