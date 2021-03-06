@@ -3,12 +3,18 @@
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use Doctrine\Tests\DbalTestCase;
 
 class CompositeExpressionTest extends DbalTestCase
 {
+    use VerifyDeprecations;
+
     public function testCount(): void
     {
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/3844');
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/3864');
+
         $expr = CompositeExpression::or('u.group_id = 1');
 
         self::assertCount(1, $expr);
@@ -20,6 +26,9 @@ class CompositeExpressionTest extends DbalTestCase
 
     public function testAdd(): void
     {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/3864');
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/3844');
+
         $expr = CompositeExpression::or('u.group_id = 1');
 
         self::assertCount(1, $expr);
@@ -68,6 +77,8 @@ class CompositeExpressionTest extends DbalTestCase
      */
     public function testCompositeUsageAndGeneration(string $type, array $parts, string $expects): void
     {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/3864');
+
         $expr = new CompositeExpression($type, $parts);
 
         self::assertEquals($expects, (string) $expr);
