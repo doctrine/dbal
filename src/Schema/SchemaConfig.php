@@ -13,7 +13,7 @@ class SchemaConfig
     /** @var int */
     protected $maxIdentifierLength = 63;
 
-    /** @var string */
+    /** @var string|null */
     protected $name;
 
     /** @var mixed[] */
@@ -58,7 +58,7 @@ class SchemaConfig
     /**
      * Gets the default namespace of schema objects.
      *
-     * @return string
+     * @return string|null
      */
     public function getName()
     {

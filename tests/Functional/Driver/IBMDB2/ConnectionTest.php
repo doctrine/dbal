@@ -29,7 +29,9 @@ class ConnectionTest extends FunctionalTestCase
 
     protected function tearDown(): void
     {
-        $this->resetSharedConn();
+        $this->markConnectionNotReusable();
+
+        parent::tearDown();
     }
 
     public function testConnectionFailure(): void

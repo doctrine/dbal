@@ -11,8 +11,6 @@ use function array_filter;
 use function array_keys;
 use function array_merge;
 use function in_array;
-use function is_numeric;
-use function is_string;
 use function preg_match;
 use function strlen;
 use function strtolower;
@@ -737,7 +735,7 @@ class Table extends AbstractAsset
      */
     private function filterColumns(array $columnNames, bool $reverse = false): array
     {
-        return array_filter($this->_columns, static function ($columnName) use ($columnNames, $reverse): bool {
+        return array_filter($this->_columns, static function (string $columnName) use ($columnNames, $reverse): bool {
             return in_array($columnName, $columnNames, true) !== $reverse;
         }, ARRAY_FILTER_USE_KEY);
     }
@@ -967,11 +965,7 @@ class Table extends AbstractAsset
             throw SchemaException::indexNameInvalid($indexName);
         }
 
-        foreach ($columnNames as $columnName => $indexColOptions) {
-            if (is_numeric($columnName) && is_string($indexColOptions)) {
-                $columnName = $indexColOptions;
-            }
-
+        foreach ($columnNames as $columnName) {
             if (! $this->hasColumn($columnName)) {
                 throw SchemaException::columnDoesNotExist($columnName, $this->_name);
             }

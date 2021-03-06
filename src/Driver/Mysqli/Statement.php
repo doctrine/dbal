@@ -43,7 +43,7 @@ final class Statement implements StatementInterface
     /** @var mysqli_stmt */
     protected $_stmt;
 
-    /** @var mixed[] */
+    /** @var mixed[]|null */
     protected $_bindedValues;
 
     /** @var string */

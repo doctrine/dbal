@@ -161,7 +161,6 @@ class WriteTest extends FunctionalTestCase
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
         $num = $this->lastInsertId();
 
-        self::assertNotNull($num, 'LastInsertId() should not be null.');
         self::assertGreaterThan(0, $num, 'LastInsertId() should be non-negative number.');
     }
 
