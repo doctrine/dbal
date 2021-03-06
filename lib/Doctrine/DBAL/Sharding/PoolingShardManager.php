@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Sharding;
 
 use Doctrine\DBAL\Sharding\ShardChoser\ShardChoser;
+use Doctrine\Deprecations\Deprecation;
 use RuntimeException;
 
 /**
@@ -23,6 +24,12 @@ class PoolingShardManager implements ShardManager
 
     public function __construct(PoolingShardConnection $conn)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3595',
+            'Native Sharding support in DBAL is removed without replacement.'
+        );
+
         $params       = $conn->getParams();
         $this->conn   = $conn;
         $this->choser = $params['shardChoser'];
