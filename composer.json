@@ -35,6 +35,7 @@
         "php": "^7.3 || ^8",
         "ext-pdo": "*",
         "doctrine/cache": "^1.0",
+        "doctrine/deprecations": "^0.5.3",
         "doctrine/event-manager": "^1.0"
     },
     "require-dev": {

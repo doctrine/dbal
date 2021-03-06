@@ -21,6 +21,7 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use Throwable;
 use Traversable;
 
@@ -542,6 +543,12 @@ class Connection implements DriverConnection
      */
     public function setFetchMode($fetchMode)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Default Fetch Mode configuration is deprecated, use explicit Connection::fetch*() APIs instead.'
+        );
+
         $this->defaultFetchMode = $fetchMode;
     }
 
@@ -561,6 +568,12 @@ class Connection implements DriverConnection
      */
     public function fetchAssoc($sql, array $params = [], array $types = [])
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Connection::fetchAssoc() is deprecated, use Connection::fetchAssociative() API instead.'
+        );
+
         return $this->executeQuery($sql, $params, $types)->fetch(FetchMode::ASSOCIATIVE);
     }
 
@@ -578,6 +591,12 @@ class Connection implements DriverConnection
      */
     public function fetchArray($sql, array $params = [], array $types = [])
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Connection::fetchArray() is deprecated, use Connection::fetchNumeric() API instead.'
+        );
+
         return $this->executeQuery($sql, $params, $types)->fetch(FetchMode::NUMERIC);
     }
 
@@ -598,6 +617,12 @@ class Connection implements DriverConnection
      */
     public function fetchColumn($sql, array $params = [], $column = 0, array $types = [])
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Connection::fetchColumn() is deprecated, use Connection::fetchOne() API instead.'
+        );
+
         return $this->executeQuery($sql, $params, $types)->fetchColumn($column);
     }
 

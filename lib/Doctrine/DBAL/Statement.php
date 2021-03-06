@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\NoKeyValue;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use IteratorAggregate;
 use PDO;
 use PDOStatement;
@@ -231,6 +232,12 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Statement::setFetchMode() is deprecated, use explicit Statement::fetch*() APIs instead.'
+        );
+
         if ($arg2 === null) {
             return $this->stmt->setFetchMode($fetchMode);
         }
@@ -251,6 +258,13 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function getIterator()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Statement::getIterator() is deprecated, use Statement::iterateNumeric(), iterateAssociative() ' .
+            'or iterateColumn() instead.'
+        );
+
         return $this->stmt;
     }
 
@@ -261,6 +275,12 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Statement::fetch() is deprecated, use Statement::fetchNumeric(), fetchAssociative() or fetchOne() instead.'
+        );
+
         return $this->stmt->fetch($fetchMode);
     }
 
@@ -271,6 +291,13 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Statement::fetchAll() is deprecated, use Statement::fetchAllNumeric(), fetchAllAssociative() or ' .
+            'fetchFirstColumn() instead.'
+        );
+
         if ($ctorArgs !== null) {
             return $this->stmt->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
         }
@@ -289,6 +316,12 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function fetchColumn($columnIndex = 0)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Statement::fetchColumn() is deprecated, use Statement::fetchOne() instead.'
+        );
+
         return $this->stmt->fetchColumn($columnIndex);
     }
 
