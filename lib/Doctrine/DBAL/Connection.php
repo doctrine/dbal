@@ -2142,6 +2142,12 @@ class Connection implements DriverConnection
      */
     public function ping()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4119',
+            'Retry and reconnecting lost connections now happens automatically, ping() will be removed in DBAL 3.'
+        );
+
         $connection = $this->getWrappedConnection();
 
         if ($connection instanceof PingableConnection) {
