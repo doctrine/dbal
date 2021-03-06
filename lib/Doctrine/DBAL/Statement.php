@@ -212,6 +212,12 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function errorCode()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3507',
+            'Connection::errorCode() is deprecated, use getCode() or getSQLState() on Exception instead.'
+        );
+
         return $this->stmt->errorCode();
     }
 
@@ -222,6 +228,12 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function errorInfo()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3507',
+            'Connection::errorInfo() is deprecated, use getCode() or getSQLState() on Exception instead.'
+        );
+
         return $this->stmt->errorInfo();
     }
 

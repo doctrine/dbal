@@ -1582,6 +1582,12 @@ class Connection implements DriverConnection
      */
     public function errorCode()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3507',
+            'Connection::errorCode() is deprecated, use getCode() or getSQLState() on Exception instead.'
+        );
+
         return $this->getWrappedConnection()->errorCode();
     }
 
@@ -1592,6 +1598,12 @@ class Connection implements DriverConnection
      */
     public function errorInfo()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3507',
+            'Connection::errorInfo() is deprecated, use getCode() or getSQLState() on Exception instead.'
+        );
+
         return $this->getWrappedConnection()->errorInfo();
     }
 
