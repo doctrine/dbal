@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tools\Console\Command;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider;
 use Doctrine\DBAL\Tools\Dumper;
+use Doctrine\Deprecations\Deprecation;
 use Exception;
 use LogicException;
 use RuntimeException;
@@ -18,9 +19,6 @@ use function assert;
 use function is_numeric;
 use function is_string;
 use function stripos;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
  * Task for executing arbitrary SQL that can come from a file or directly from
@@ -39,9 +37,10 @@ class RunSqlCommand extends Command
             return;
         }
 
-        @trigger_error(
-            'Not passing a connection provider as the first constructor argument is deprecated',
-            E_USER_DEPRECATED
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3956',
+            'Not passing a connection provider as the first constructor argument is deprecated'
         );
     }
 
