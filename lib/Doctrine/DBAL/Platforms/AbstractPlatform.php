@@ -3511,6 +3511,12 @@ abstract class AbstractPlatform
      */
     public function fixSchemaElementName($schemaElementName)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4132',
+            'AbstractPlatform::fixSchemaElementName is deprecated with no replacement and removed in DBAL 3.0'
+        );
+
         return $schemaElementName;
     }
 

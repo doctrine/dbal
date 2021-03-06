@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -1104,6 +1105,12 @@ SQL
      */
     public function fixSchemaElementName($schemaElementName)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4132',
+            'AbstractPlatform::fixSchemaElementName is deprecated with no replacement and removed in DBAL 3.0'
+        );
+
         if (strlen($schemaElementName) > 30) {
             // Trim it
             return substr($schemaElementName, 0, 30);

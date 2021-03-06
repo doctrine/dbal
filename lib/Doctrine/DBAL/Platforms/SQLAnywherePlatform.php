@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -72,6 +73,12 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function fixSchemaElementName($schemaElementName)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4132',
+            'AbstractPlatform::fixSchemaElementName is deprecated with no replacement and removed in DBAL 3.0'
+        );
+
         $maxIdentifierLength = $this->getMaxIdentifierLength();
 
         if (strlen($schemaElementName) > $maxIdentifierLength) {
