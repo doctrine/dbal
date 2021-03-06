@@ -1376,6 +1376,12 @@ class Connection implements DriverConnection
      */
     public function project($sql, array $params, Closure $function)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3823',
+            'Connection::project() is deprecated without replacement, implement data projections in your own code.'
+        );
+
         $result = [];
         $stmt   = $this->executeQuery($sql, $params);
 
