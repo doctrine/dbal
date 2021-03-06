@@ -28,7 +28,7 @@ final class Statement implements StatementInterface
      * @param mixed      $variable
      * @param int        $type
      * @param int|null   $length
-     * @param mixed      $driverOptions
+     * @param mixed      $driverOptions The usage of the argument is deprecated.
      */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
