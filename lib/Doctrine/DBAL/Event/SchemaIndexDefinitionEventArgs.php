@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\Deprecations\Deprecation;
 
 /**
  * Event Arguments used when the portable index definition is generated inside {@link AbstractSchemaManager}.
@@ -83,10 +84,19 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
+     * @deprecated Use SchemaIndexDefinitionEventArgs::getConnection() and Connection::getDatabasePlatform() instead.
+     *
      * @return AbstractPlatform
      */
     public function getDatabasePlatform()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'SchemaIndexDefinitionEventArgs::getDatabasePlatform() is deprecated, ' .
+            'use SchemaIndexDefinitionEventArgs::getConnection()->getDatabasePlatform() instead.'
+        );
+
         return $this->connection->getDatabasePlatform();
     }
 }

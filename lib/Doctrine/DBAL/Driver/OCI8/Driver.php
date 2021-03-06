@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Exception;
+use Doctrine\Deprecations\Deprecation;
 
 use const OCI_NO_AUTO_COMMIT;
 
@@ -50,6 +51,12 @@ class Driver extends AbstractOracleDriver
      */
     public function getName()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Driver::getName() is deprecated'
+        );
+
         return 'oci8';
     }
 }

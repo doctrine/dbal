@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\AbstractDB2Driver;
+use Doctrine\Deprecations\Deprecation;
 
 /**
  * IBM DB2 Driver.
@@ -35,6 +36,12 @@ class DB2Driver extends AbstractDB2Driver
      */
     public function getName()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Driver::getName() is deprecated'
+        );
+
         return 'ibm_db2';
     }
 }

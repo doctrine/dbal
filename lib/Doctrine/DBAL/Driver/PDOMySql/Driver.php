@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Driver\PDOMySql;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Exception;
+use Doctrine\Deprecations\Deprecation;
 use PDOException;
 
 /**
@@ -73,6 +74,12 @@ class Driver extends AbstractMySQLDriver
      */
     public function getName()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Driver::getName() is deprecated'
+        );
+
         return 'pdo_mysql';
     }
 }

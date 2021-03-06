@@ -258,6 +258,13 @@ class Connection implements DriverConnection
      */
     public function getHost()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Connection::getHost() is deprecated, get the database server host from application config ' .
+            'or as a last resort from internal Connection::getParams() API.'
+        );
+
         return $this->params['host'] ?? null;
     }
 
@@ -270,6 +277,13 @@ class Connection implements DriverConnection
      */
     public function getPort()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Connection::getPort() is deprecated, get the database server port from application config ' .
+            'or as a last resort from internal Connection::getParams() API.'
+        );
+
         return $this->params['port'] ?? null;
     }
 
@@ -282,6 +296,13 @@ class Connection implements DriverConnection
      */
     public function getUsername()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Connection::getUsername() is deprecated, get the username from application config ' .
+            'or as a last resort from internal Connection::getParams() API.'
+        );
+
         return $this->params['user'] ?? null;
     }
 
@@ -294,6 +315,13 @@ class Connection implements DriverConnection
      */
     public function getPassword()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Connection::getPassword() is deprecated, get the password from application config ' .
+            'or as a last resort from internal Connection::getParams() API.'
+        );
+
         return $this->params['password'] ?? null;
     }
 

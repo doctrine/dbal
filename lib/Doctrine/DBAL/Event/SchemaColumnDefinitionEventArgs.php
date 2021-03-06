@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\Deprecations\Deprecation;
 
 /**
  * Event Arguments used when the portable column definition is generated inside {@link AbstractPlatform}.
@@ -103,6 +104,13 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function getDatabasePlatform()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'SchemaColumnDefinitionEventArgs::getDatabasePlatform() is deprecated, ' .
+            'use SchemaColumnDefinitionEventArgs::getConnection()->getDatabasePlatform() instead.'
+        );
+
         return $this->connection->getDatabasePlatform();
     }
 }
