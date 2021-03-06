@@ -5,6 +5,7 @@ namespace Doctrine\DBAL;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\Schema\AbstractAsset;
+use Doctrine\Deprecations\Deprecation;
 
 use function preg_match;
 
@@ -79,6 +80,12 @@ class Configuration
      */
     public function setFilterSchemaAssetsExpression($filterExpression)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3316',
+            'Configuration::setFilterSchemaAssetsExpression() is deprecated, use setSchemaAssetsFilter() instead.'
+        );
+
         $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
         if ($filterExpression) {
             $this->_attributes['filterSchemaAssetsExpressionCallable']
@@ -97,6 +104,12 @@ class Configuration
      */
     public function getFilterSchemaAssetsExpression()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3316',
+            'Configuration::getFilterSchemaAssetsExpression() is deprecated, use getSchemaAssetsFilter() instead.'
+        );
+
         return $this->_attributes['filterSchemaAssetsExpression'] ?? null;
     }
 
