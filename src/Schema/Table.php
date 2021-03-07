@@ -499,7 +499,7 @@ class Table extends AbstractAsset
 
         $colNames = array_unique(array_merge($pkCols, $fkCols, array_keys($columns)));
 
-        uksort($columns, static function ($a, $b) use ($colNames): int {
+        uksort($columns, static function (string $a, string $b) use ($colNames): int {
             return array_search($a, $colNames, true) <=> array_search($b, $colNames, true);
         });
 
