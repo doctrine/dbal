@@ -315,6 +315,12 @@ abstract class Type
      */
     public function __toString()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3258',
+            'Type::__toString() is deprecated, use Type::getName() or get_class($type) instead.'
+        );
+
         $type     = static::class;
         $position = strrpos($type, '\\');
 
