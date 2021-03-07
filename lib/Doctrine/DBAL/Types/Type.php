@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function get_class;
@@ -173,6 +174,12 @@ abstract class Type
      */
     public function getDefaultLength(AbstractPlatform $platform)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/3255',
+            'Type::getDefaultLength() is deprecated, use AbstractPlatform directly.'
+        );
+
         return null;
     }
 
