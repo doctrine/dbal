@@ -19,9 +19,9 @@ use function array_merge;
 use function assert;
 use function chmod;
 use function exec;
+use function extension_loaded;
 use function file_exists;
 use function posix_geteuid;
-use function posix_getpwuid;
 use function sprintf;
 use function sys_get_temp_dir;
 use function touch;
@@ -185,7 +185,7 @@ class ExceptionTest extends FunctionalTestCase
         touch($filename);
         chmod($filename, $mode);
 
-        if ($this->isLinuxRoot()) {
+        if ($this->isPosixSuperUser()) {
             exec(sprintf('chattr +i %s', $filename));
         }
 
@@ -267,14 +267,14 @@ class ExceptionTest extends FunctionalTestCase
         ];
     }
 
-    private function isLinuxRoot(): bool
+    private function isPosixSuperUser(): bool
     {
-        return PHP_OS_FAMILY !== 'Windows' && posix_getpwuid(posix_geteuid())['name'] === 'root';
+        return extension_loaded('posix') && posix_geteuid() === 0;
     }
 
     private function cleanupReadOnlyFile(string $filename): void
     {
-        if ($this->isLinuxRoot()) {
+        if ($this->isPosixSuperUser()) {
             exec(sprintf('chattr -i %s', $filename));
         }
 
