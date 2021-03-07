@@ -190,6 +190,12 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function closeCursor()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4049',
+            'Statement::closeCursor() is deprecated, use Result::free() instead.'
+        );
+
         return $this->stmt->closeCursor();
     }
 
