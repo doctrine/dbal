@@ -256,6 +256,23 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
   Use binary fields of a size which fits all target platforms, or use blob explicitly instead.
 - Binary fields are no longer represented as streams in PHP. They are represented as strings.
 
+# Upgrade to 3.1
+
+## Deprecated `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()`
+
+The usage of the `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()` is deprecated.
+To define parameter binding type as `ASCII`, `BINARY` or `BLOB`, use the corresponding `ParameterType::*` constant.
+
+## Deprecated `Connection::$_schemaManager` and `Connection::getSchemaManager()`
+
+The usage of `Connection::$_schemaManager` and `Connection::getSchemaManager()` is deprecated.
+Use `Connection::createSchemaManager()` instead.
+
+## Deprecated `Connection::$_expr` and `Connection::getExpressionBuilder()`
+
+The usage of `Connection::$_expr` and `Connection::getExpressionBuilder()` is deprecated.
+Use `Connection::createExpressionBuilder()` instead.
+
 # Upgrade to 3.0
 
 ## BC BREAK: leading colon in named parameter names not supported
@@ -730,7 +747,7 @@ Code that extends either of the classes needs to be adjusted in order to functio
 
 # Upgrade to 2.11
 
-## Deprecated `Abstraction\Result` 
+## Deprecated `Abstraction\Result`
 
 The usage of the `Doctrine\DBAL\Abstraction\Result` interface is deprecated. In DBAL 3.0, the statement result at the wrapper level will be represented by the `Doctrine\DBAL\Result` class.
 
@@ -749,9 +766,9 @@ The usage of the wrapper `Connection` and `Statement` classes as implementations
 
 ## Deprecations in the wrapper `Connection` class
 
-1. The `executeUpdate()` method has been deprecated in favor of `executeStatement()`. 
-2. The `query()` method has been deprecated in favor of `executeQuery()`. 
-3. The `exec()` method has been deprecated in favor of `executeStatement()`. 
+1. The `executeUpdate()` method has been deprecated in favor of `executeStatement()`.
+2. The `query()` method has been deprecated in favor of `executeQuery()`.
+3. The `exec()` method has been deprecated in favor of `executeStatement()`.
 
 Note that `PrimaryReplicaConnection::query()` ensures connection to the primary instance while `executeQuery()` doesn't.
 
@@ -866,7 +883,7 @@ Consumers of the Connection class should not rely on connection parameters store
 ## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants
 
 The platform-specific portability mode flags are meant to be used only by the portability layer internally to optimize
-the user-provided mode for the current database platform. 
+the user-provided mode for the current database platform.
 
 ## Deprecated `MasterSlaveConnection` use `PrimaryReadReplicaConnection`
 

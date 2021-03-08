@@ -13,9 +13,6 @@ use Doctrine\DBAL\ParameterType;
 use function assert;
 use function is_int;
 use function sqlsrv_execute;
-use function sqlsrv_fetch;
-use function sqlsrv_get_field;
-use function sqlsrv_next_result;
 use function SQLSRV_PHPTYPE_STREAM;
 use function SQLSRV_PHPTYPE_STRING;
 use function sqlsrv_prepare;
@@ -64,13 +61,6 @@ final class Statement implements StatementInterface
     private $types = [];
 
     /**
-     * The last insert ID.
-     *
-     * @var LastInsertId|null
-     */
-    private $lastInsertId;
-
-    /**
      * Append to any INSERT query to retrieve the last insert id.
      */
     private const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
@@ -80,7 +70,7 @@ final class Statement implements StatementInterface
      *
      * @param resource $conn
      */
-    public function __construct($conn, string $sql, ?LastInsertId $lastInsertId = null)
+    public function __construct($conn, string $sql)
     {
         $this->conn = $conn;
         $this->sql  = $sql;
@@ -89,8 +79,7 @@ final class Statement implements StatementInterface
             return;
         }
 
-        $this->sql         .= self::LAST_INSERT_ID_SQL;
-        $this->lastInsertId = $lastInsertId;
+        $this->sql .= self::LAST_INSERT_ID_SQL;
     }
 
     /**
@@ -139,12 +128,6 @@ final class Statement implements StatementInterface
 
         if (! sqlsrv_execute($this->stmt)) {
             throw Error::new();
-        }
-
-        if ($this->lastInsertId !== null) {
-            sqlsrv_next_result($this->stmt);
-            sqlsrv_fetch($this->stmt);
-            $this->lastInsertId->setId(sqlsrv_get_field($this->stmt, 0));
         }
 
         return new Result($this->stmt);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -11,30 +12,6 @@ use Throwable;
 
 class TemporaryTableTest extends FunctionalTestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        try {
-            $this->connection->executeStatement(
-                $this->connection->getDatabasePlatform()->getDropTableSQL('nontemporary')
-            );
-        } catch (Throwable $e) {
-        }
-    }
-
-    protected function tearDown(): void
-    {
-        try {
-            $tempTable = $this->connection->getDatabasePlatform()->getTemporaryTableName('my_temporary');
-            $this->connection->executeStatement(
-                $this->connection->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable)
-            );
-        } catch (Throwable $e) {
-        }
-
-        parent::tearDown();
-    }
-
     public function testDropTemporaryTableNotAutoCommitTransaction(): void
     {
         if ($this->connection->getDatabasePlatform()->getName() === 'oracle') {
@@ -60,13 +37,11 @@ class TemporaryTableTest extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->createTable($table);
+        $this->connection->getSchemaManager()->dropAndCreateTable($table);
 
         $this->connection->beginTransaction();
         $this->connection->insert('nontemporary', ['id' => 1]);
-        $this->connection->executeStatement(
-            $platform->getDropTemporaryTableSQL($tempTable)
-        );
+        $this->dropTemporaryTable('my_temporary');
         $this->connection->insert('nontemporary', ['id' => 2]);
 
         $this->connection->rollBack();
@@ -99,11 +74,12 @@ class TemporaryTableTest extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->createTable($table);
+        $this->connection->getSchemaManager()->dropAndCreateTable($table);
 
         $this->connection->beginTransaction();
         $this->connection->insert('nontemporary', ['id' => 1]);
 
+        $this->dropTemporaryTable('my_temporary');
         $this->connection->executeStatement($createTempTableSQL);
         $this->connection->insert('nontemporary', ['id' => 2]);
 
@@ -118,5 +94,18 @@ class TemporaryTableTest extends FunctionalTestCase
 
         // In an event of an error this result has one row, because of an implicit commit
         self::assertEquals([], $this->connection->fetchAllAssociative('SELECT * FROM nontemporary'));
+    }
+
+    private function dropTemporaryTable(string $name): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        $sql      = $platform->getDropTemporaryTableSQL(
+            $platform->getTemporaryTableName($name)
+        );
+
+        try {
+            $this->connection->executeStatement($sql);
+        } catch (Exception $e) {
+        }
     }
 }

@@ -65,7 +65,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     protected function tearDown(): void
     {
-        parent::tearDown();
+        if ($this->schemaManager->tablesExist(['json_array_test'])) {
+            $this->schemaManager->dropTable('json_array_test');
+        }
 
         $this->schemaManager->tryMethod('dropTable', 'testschema.my_table_in_namespace');
 
@@ -74,8 +76,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             //sql server versions below 2016 do not support 'IF EXISTS' so we have to catch the exception here
             $this->connection->executeStatement('DROP SCHEMA testschema');
         } catch (Exception $e) {
-            return;
         }
+
+        $this->markConnectionNotReusable();
+
+        parent::tearDown();
     }
 
     public function testDropAndCreateSequence(): void
@@ -176,8 +181,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $this->createTestTable('list_tables_test');
         $tables = $this->schemaManager->listTables();
-
-        self::assertNotEmpty($tables, "List Tables has to find at least one table named 'list_tables_test'.");
 
         $foundTable = false;
         foreach ($tables as $table) {

@@ -60,7 +60,7 @@ class QueryBuilder
     /**
      * The complete SQL string for this query.
      *
-     * @var string
+     * @var string|null
      */
     private $sql;
 
@@ -243,6 +243,108 @@ class QueryBuilder
     public function getState(): int
     {
         return $this->state;
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the first row of the result
+     * as an associative array.
+     *
+     * @return array<string, mixed>|false False is returned if no rows are found.
+     *
+     * @throws Exception
+     */
+    public function fetchAssociative()
+    {
+        return $this->connection->fetchAssociative($this->getSQL(), $this->params, $this->paramTypes);
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the first row of the result
+     * as a numerically indexed array.
+     *
+     * @return array<int, mixed>|false False is returned if no rows are found.
+     *
+     * @throws Exception
+     */
+    public function fetchNumeric()
+    {
+        return $this->connection->fetchNumeric($this->getSQL(), $this->params, $this->paramTypes);
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the value of a single column
+     * of the first row of the result.
+     *
+     * @return mixed|false False is returned if no rows are found.
+     *
+     * @throws Exception
+     */
+    public function fetchOne()
+    {
+        return $this->connection->fetchOne($this->getSQL(), $this->params, $this->paramTypes);
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
+     *
+     * @return array<int,array<int,mixed>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllNumeric(): array
+    {
+        return $this->connection->fetchAllNumeric($this->getSQL(), $this->params, $this->paramTypes);
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of associative arrays.
+     *
+     * @return array<int,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllAssociative(): array
+    {
+        return $this->connection->fetchAllAssociative($this->getSQL(), $this->params, $this->paramTypes);
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * @return array<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function fetchAllKeyValue(): array
+    {
+        return $this->connection->fetchAllKeyValue($this->getSQL(), $this->params, $this->paramTypes);
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * @return array<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllAssociativeIndexed(): array
+    {
+        return $this->connection->fetchAllAssociativeIndexed($this->getSQL(), $this->params, $this->paramTypes);
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of the first column values.
+     *
+     * @return array<int,mixed>
+     *
+     * @throws Exception
+     */
+    public function fetchFirstColumn(): array
+    {
+        return $this->connection->fetchFirstColumn($this->getSQL(), $this->params, $this->paramTypes);
     }
 
     /**

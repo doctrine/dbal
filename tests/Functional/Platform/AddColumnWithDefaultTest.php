@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -35,7 +34,7 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
         $schemaManager->alterTable($tableDiff);
 
         $query  = 'SELECT original_field, new_field FROM add_default_test';
-        $result = $this->connection->executeQuery($query)->fetch(FetchMode::NUMERIC);
+        $result = $this->connection->fetchNumeric($query);
         self::assertSame(['one', 'DEFAULT'], $result);
     }
 }

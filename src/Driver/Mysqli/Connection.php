@@ -12,6 +12,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use mysqli;
 
+use function assert;
 use function floor;
 use function mysqli_init;
 use function stripos;
@@ -46,6 +47,7 @@ final class Connection implements ServerInfoAwareConnection
         iterable $postInitializers = []
     ) {
         $connection = mysqli_init();
+        assert($connection !== false);
 
         foreach ($preInitializers as $initializer) {
             $initializer->initialize($connection);

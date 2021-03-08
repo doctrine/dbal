@@ -274,17 +274,26 @@ EOF
     {
         return [
             'fetch' => [
+                /**
+                 * @return mixed
+                 */
                 static function (Result $result) {
                     return $result->fetchAssociative();
                 },
                 false,
             ],
+            /**
+             * @return mixed|false
+             */
             'fetch-column' => [
                 static function (Result $result) {
                     return $result->fetchOne();
                 },
                 false,
             ],
+            /**
+             * @return mixed[]
+             */
             'fetch-all' => [
                 static function (Result $result): array {
                     return $result->fetchAllAssociative();

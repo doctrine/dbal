@@ -59,7 +59,7 @@ final class Statement implements StatementInterface
      *
      * @param mixed $param
      * @param mixed $variable
-     * @param mixed $driverOptions
+     * @param mixed $driverOptions The usage of the argument is deprecated.
      */
     public function bindParam(
         $param,

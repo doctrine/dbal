@@ -3119,6 +3119,8 @@ abstract class AbstractPlatform
      * Returns the class name of the reserved keywords list.
      *
      * @throws Exception If not supported on this platform.
+     *
+     * @psalm-return class-string<KeywordList>
      */
     protected function getReservedKeywordsClass(): string
     {

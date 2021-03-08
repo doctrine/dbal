@@ -91,9 +91,9 @@ class Connection
     private $transactionNestingLevel = 0;
 
     /**
-     * The currently active transaction isolation level.
+     * The currently active transaction isolation level or NULL before it has been determined.
      *
-     * @var int
+     * @var int|null
      */
     private $transactionIsolationLevel;
 
@@ -114,10 +114,9 @@ class Connection
     private $params;
 
     /**
-     * The DatabasePlatform object that provides information about the
-     * database platform used by the connection.
+     * The database platform object used by the connection or NULL before it's initialized.
      *
-     * @var AbstractPlatform
+     * @var AbstractPlatform|null
      */
     private $platform;
 
@@ -129,6 +128,8 @@ class Connection
 
     /**
      * The schema manager.
+     *
+     * @deprecated Use {@link createSchemaManager()} instead.
      *
      * @var AbstractSchemaManager|null
      */
@@ -262,14 +263,25 @@ class Connection
     public function getDatabasePlatform(): AbstractPlatform
     {
         if ($this->platform === null) {
-            $this->detectDatabasePlatform();
+            $this->platform = $this->detectDatabasePlatform();
+            $this->platform->setEventManager($this->_eventManager);
         }
 
         return $this->platform;
     }
 
     /**
+     * Creates an expression builder for the connection.
+     */
+    public function createExpressionBuilder(): ExpressionBuilder
+    {
+        return new ExpressionBuilder($this);
+    }
+
+    /**
      * Gets the ExpressionBuilder for the connection.
+     *
+     * @deprecated Use {@link createExpressionBuilder()} instead.
      */
     public function getExpressionBuilder(): ExpressionBuilder
     {
@@ -314,19 +326,17 @@ class Connection
      *
      * @throws Exception If an invalid platform was specified for this connection.
      */
-    private function detectDatabasePlatform(): void
+    private function detectDatabasePlatform(): AbstractPlatform
     {
         $version = $this->getDatabasePlatformVersion();
 
         if ($version !== null) {
             assert($this->_driver instanceof VersionAwarePlatformDriver);
 
-            $this->platform = $this->_driver->createDatabasePlatformForVersion($version);
-        } else {
-            $this->platform = $this->_driver->getDatabasePlatform();
+            return $this->_driver->createDatabasePlatformForVersion($version);
         }
 
-        $this->platform->setEventManager($this->_eventManager);
+        return $this->_driver->getDatabasePlatform();
     }
 
     /**
@@ -802,9 +812,9 @@ class Connection
      * to the first column and the values being an associative array representing the rest of the columns
      * and their values.
      *
-     * @param string                                           $query  SQL query
-     * @param list<mixed>|array<string, mixed>                 $params Query parameters
-     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     * @param string                                                               $query  SQL query
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return array<mixed,array<string,mixed>>
      *
@@ -1333,11 +1343,13 @@ class Connection
      */
     public function createSavepoint(string $savepoint): void
     {
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsSavepoints()) {
             throw SavepointsNotSupported::new();
         }
 
-        $this->executeStatement($this->platform->createSavePoint($savepoint));
+        $this->executeStatement($platform->createSavePoint($savepoint));
     }
 
     /**
@@ -1349,15 +1361,17 @@ class Connection
      */
     public function releaseSavepoint(string $savepoint): void
     {
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsSavepoints()) {
             throw SavepointsNotSupported::new();
         }
 
-        if (! $this->platform->supportsReleaseSavepoints()) {
+        if (! $platform->supportsReleaseSavepoints()) {
             return;
         }
 
-        $this->executeStatement($this->platform->releaseSavePoint($savepoint));
+        $this->executeStatement($platform->releaseSavePoint($savepoint));
     }
 
     /**
@@ -1369,11 +1383,13 @@ class Connection
      */
     public function rollbackSavepoint(string $savepoint): void
     {
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+        $platform = $this->getDatabasePlatform();
+
+        if (! $platform->supportsSavepoints()) {
             throw SavepointsNotSupported::new();
         }
 
-        $this->executeStatement($this->platform->rollbackSavePoint($savepoint));
+        $this->executeStatement($platform->rollbackSavePoint($savepoint));
     }
 
     /**
@@ -1391,18 +1407,31 @@ class Connection
     }
 
     /**
+     * Creates a SchemaManager that can be used to inspect or change the
+     * database schema through the connection.
+     *
+     * @throws Exception
+     */
+    public function createSchemaManager(): AbstractSchemaManager
+    {
+        return $this->_driver->getSchemaManager(
+            $this,
+            $this->getDatabasePlatform()
+        );
+    }
+
+    /**
      * Gets the SchemaManager that can be used to inspect or change the
      * database schema through the connection.
+     *
+     * @deprecated Use {@link createSchemaManager()} instead.
      *
      * @throws Exception
      */
     public function getSchemaManager(): AbstractSchemaManager
     {
         if ($this->_schemaManager === null) {
-            $this->_schemaManager = $this->_driver->getSchemaManager(
-                $this,
-                $this->getDatabasePlatform()
-            );
+            $this->_schemaManager = $this->createSchemaManager();
         }
 
         return $this->_schemaManager;

@@ -32,13 +32,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         return $platform instanceof PostgreSQL94Platform;
     }
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->connection->getConfiguration()->setSchemaAssetsFilter(null);
-    }
-
     public function testGetSearchPath(): void
     {
         $expected = ['public'];
@@ -58,7 +51,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $names = $this->schemaManager->getSchemaNames();
 
-        self::assertNotEmpty($names);
         self::assertContains('public', $names, 'The public schema should be found.');
     }
 

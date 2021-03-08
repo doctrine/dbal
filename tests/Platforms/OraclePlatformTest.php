@@ -369,7 +369,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ];
         $statements = $this->platform->getCreateTableSQL($table);
         //strip all the whitespace from the statements
-        array_walk($statements, static function (&$value): void {
+        array_walk($statements, static function (string &$value): void {
             $value = preg_replace('/\s+/', ' ', $value);
         });
         foreach ($targets as $key => $sql) {

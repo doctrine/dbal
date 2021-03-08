@@ -22,22 +22,21 @@ use Doctrine\DBAL\Types\Types;
 
 class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    public static function setUpBeforeClass(): void
+    {
+        Type::addType('point', PointType::class);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->markConnectionNotReusable();
+
+        parent::tearDown();
+    }
+
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof MySQLPlatform;
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        if (Type::hasType('point')) {
-            return;
-        }
-
-        $this->resetSharedConn();
-
-        Type::addType('point', PointType::class);
     }
 
     public function testSwitchPrimaryKeyColumns(): void
@@ -96,6 +95,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $indexes = $this->schemaManager->listTableIndexes('spatial_index');
         self::assertArrayHasKey('s_index', $indexes);
         self::assertTrue($indexes['s_index']->hasFlag('spatial'));
+        self::assertSame([0 => null], $indexes['s_index']->getOption('lengths'));
     }
 
     public function testIndexWithLength(): void

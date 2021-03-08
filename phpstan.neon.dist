@@ -143,6 +143,10 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/tests/Platforms/AbstractPlatformTestCase.php
 
+        -
+            message: '~^Instanceof between Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList and Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList will always evaluate to true\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Platforms/AbstractPlatform.php
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

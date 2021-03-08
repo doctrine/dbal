@@ -26,7 +26,11 @@ final class Statement implements StatementInterface
     /**
      * {@inheritdoc}
      *
-     * @param mixed $driverOptions
+     * @param string|int $param
+     * @param mixed      $variable
+     * @param int        $type
+     * @param int|null   $length
+     * @param mixed      $driverOptions The usage of the argument is deprecated.
      */
     public function bindParam(
         $param,

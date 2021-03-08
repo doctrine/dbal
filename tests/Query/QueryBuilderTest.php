@@ -9,11 +9,14 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class QueryBuilderTest extends TestCase
 {
-    /** @var Connection */
+    /** @var Connection&MockObject */
     protected $conn;
 
     protected function setUp(): void
@@ -843,5 +846,355 @@ class QueryBuilderTest extends TestCase
         );
 
         $qb->getSQL();
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testFetchAssociative(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn->expects(self::once())
+            ->method('fetchAssociative')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn(['username' => 'jwage', 'password' => 'changeme']);
+
+        $row = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->fetchAssociative();
+
+        self::assertEquals(['username' => 'jwage', 'password' => 'changeme'], $row);
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testFetchNumeric(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn->expects(self::once())
+            ->method('fetchNumeric')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn(['jwage', 'changeme']);
+
+        $row = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->fetchNumeric();
+
+        self::assertEquals(['jwage', 'changeme'], $row);
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testFetchOne(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn->expects(self::once())
+            ->method('fetchOne')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn('jwage');
+
+        $username = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->fetchOne();
+
+        self::assertEquals('jwage', $username);
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testFetchAllAssociative(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn(
+                [
+                    ['username' => 'jwage', 'password' => 'changeme'],
+                    ['username' => 'support', 'password' => 'p@ssword'],
+                ]
+            );
+
+        $results = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->fetchAllAssociative();
+
+        self::assertEquals(
+            [
+                ['username' => 'jwage', 'password' => 'changeme'],
+                ['username' => 'support', 'password' => 'p@ssword'],
+            ],
+            $results
+        );
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testFetchAllNumeric(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn->expects(self::once())
+            ->method('fetchAllNumeric')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn(
+                [
+                    ['jwage', 'changeme'],
+                    ['support', 'p@ssword'],
+                ]
+            );
+
+        $results = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->fetchAllNumeric();
+
+        self::assertEquals(
+            [
+                ['jwage', 'changeme'],
+                ['support', 'p@ssword'],
+            ],
+            $results
+        );
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testFetchAllKeyValue(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn->expects(self::once())
+            ->method('fetchAllKeyValue')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn(
+                [
+                    'jwage' => 'changeme',
+                    'support' => 'p@ssw0rd',
+                ]
+            );
+
+        $results = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->fetchAllKeyValue();
+
+        self::assertEquals(
+            [
+                'jwage' => 'changeme',
+                'support' => 'p@ssw0rd',
+            ],
+            $results
+        );
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testFetchAllAssociativeIndexed(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn->expects(self::once())
+            ->method('fetchAllAssociativeIndexed')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn(
+                [
+                    1 => [
+                        'username' => 'jwage',
+                        'password' => 'changeme',
+                    ],
+                ]
+            );
+
+        $results = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->fetchAllAssociativeIndexed();
+
+        self::assertEquals(
+            [
+                1 => [
+                    'username' => 'jwage',
+                    'password' => 'changeme',
+                ],
+            ],
+            $results
+        );
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testFetchFirstColumn(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn->expects(self::once())
+            ->method('fetchFirstColumn')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn(
+                [
+                    'jwage',
+                    'support',
+                ]
+            );
+
+        $results = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->fetchFirstColumn();
+
+        self::assertEquals(
+            [
+                'jwage',
+                'support',
+            ],
+            $results
+        );
+    }
+
+    /**
+     * @return iterable<
+     *     string,
+     *     array{
+     *          string,
+     *          string,
+     *          string,
+     *          list<mixed>|array<string, mixed>,
+     *          array<int, int|string|Type|null>|array<string, int|string|Type|null>,
+     *          string
+     *  }>
+     */
+    public static function fetchProvider(): iterable
+    {
+        yield 'select *, no parameters' => [
+            '*',
+            'user',
+            'username LIKE "jw*"',
+            [],
+            [],
+            'SELECT * FROM user WHERE username LIKE "jw*"',
+        ];
+
+        yield 'select *, positional parameter' => [
+            '*',
+            'user',
+            'username = ?',
+            ['jwage'],
+            ['username' => Types::STRING],
+            'SELECT * FROM user WHERE username = ?',
+        ];
+
+        yield 'select multiple, named parameter' => [
+            'id, username, password',
+            'user',
+            'username = :username',
+            ['username' => 'jwage'],
+            ['username' => Types::STRING],
+            'SELECT id, username, password FROM user WHERE username = :username',
+        ];
+
+        yield 'select multiple, named parameters' => [
+            'id, username',
+            'user',
+            'password = :password AND username != :username AND id != :id',
+            ['password' => 'changeme', 'username' => 'support', 'id' => 42],
+            ['password' => Types::STRING, 'username' => Types::STRING, 'id' => Types::INTEGER],
+            'SELECT id, username FROM user WHERE password = :password AND username != :username AND id != :id',
+        ];
     }
 }

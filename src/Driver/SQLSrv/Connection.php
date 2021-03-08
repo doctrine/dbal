@@ -25,9 +25,6 @@ final class Connection implements ServerInfoAwareConnection
     /** @var resource */
     private $conn;
 
-    /** @var LastInsertId */
-    private $lastInsertId;
-
     /**
      * @internal The connection can be only instantiated by its driver.
      *
@@ -47,8 +44,7 @@ final class Connection implements ServerInfoAwareConnection
             throw Error::new();
         }
 
-        $this->conn         = $conn;
-        $this->lastInsertId = new LastInsertId();
+        $this->conn = $conn;
     }
 
     public function getServerVersion(): string
@@ -60,7 +56,7 @@ final class Connection implements ServerInfoAwareConnection
 
     public function prepare(string $sql): DriverStatement
     {
-        return new Statement($this->conn, $sql, $this->lastInsertId);
+        return new Statement($this->conn, $sql);
     }
 
     public function query(string $sql): ResultInterface

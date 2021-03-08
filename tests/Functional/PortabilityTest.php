@@ -59,7 +59,9 @@ class PortabilityTest extends FunctionalTestCase
 
     public function tearDown(): void
     {
-        self::resetSharedConn();
+        $this->markConnectionNotReusable();
+
+        parent::tearDown();
     }
 
     public function testFullFetchMode(): void

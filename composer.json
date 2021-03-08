@@ -39,7 +39,7 @@
     "require-dev": {
         "doctrine/coding-standard": "8.2.0",
         "jetbrains/phpstorm-stubs": "2019.3",
-        "phpstan/phpstan": "0.12.57",
+        "phpstan/phpstan": "0.12.80",
         "phpstan/phpstan-phpunit": "0.12.8",
         "phpstan/phpstan-strict-rules": "0.12.2",
         "phpunit/phpunit": "9.5.0",
