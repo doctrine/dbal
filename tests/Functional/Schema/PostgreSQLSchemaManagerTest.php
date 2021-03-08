@@ -62,13 +62,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $createTableSQL = 'CREATE TABLE domain_type_test (id INT PRIMARY KEY, value MyMoney)';
         $this->connection->executeStatement($createTableSQL);
 
-        $table = $this->connection->getSchemaManager()->listTableDetails('domain_type_test');
+        $table = $this->connection->createSchemaManager()->listTableDetails('domain_type_test');
         self::assertInstanceOf(DecimalType::class, $table->getColumn('value')->getType());
 
         Type::addType('MyMoney', MoneyType::class);
         $this->connection->getDatabasePlatform()->registerDoctrineTypeMapping('MyMoney', 'MyMoney');
 
-        $table = $this->connection->getSchemaManager()->listTableDetails('domain_type_test');
+        $table = $this->connection->createSchemaManager()->listTableDetails('domain_type_test');
         self::assertInstanceOf(MoneyType::class, $table->getColumn('value')->getType());
     }
 

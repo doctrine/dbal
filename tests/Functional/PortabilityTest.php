@@ -39,7 +39,7 @@ class PortabilityTest extends FunctionalTestCase
         $table->setPrimaryKey(['Test_Int']);
 
         try {
-            $sm = $this->connection->getSchemaManager();
+            $sm = $this->connection->createSchemaManager();
             $sm->createTable($table);
 
             $this->connection->insert('portability_table', [

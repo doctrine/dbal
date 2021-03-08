@@ -32,7 +32,7 @@ class BinaryTest extends FunctionalTestCase
         $table->addColumn('val', 'binary', ['length' => 64]);
         $table->setPrimaryKey(['id']);
 
-        $sm = $this->connection->getSchemaManager();
+        $sm = $this->connection->createSchemaManager();
         $sm->dropAndCreateTable($table);
     }
 

@@ -35,7 +35,7 @@ class DefaultValueTest extends FunctionalTestCase
             ]);
         }
 
-        $this->connection->getSchemaManager()
+        $this->connection->createSchemaManager()
             ->dropAndCreateTable($table);
 
         $this->connection->insert('default_value', ['id' => 1]);
@@ -49,7 +49,7 @@ class DefaultValueTest extends FunctionalTestCase
         self::assertSame(
             $expectedDefault,
             $this->connection
-                ->getSchemaManager()
+                ->createSchemaManager()
                 ->listTableDetails('default_value')
                 ->getColumn($name)
                 ->getDefault()

@@ -58,7 +58,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->addColumn('id', 'integer', []);
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->createTable($table);
+        $this->connection->createSchemaManager()->createTable($table);
 
         $this->connection->insert('duplicatekey_table', ['id' => 1]);
 
@@ -76,7 +76,7 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testTableExistsException(): void
     {
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $table         = new Table('alreadyexist_table');
         $table->addColumn('id', 'integer', []);
         $table->setPrimaryKey(['id']);
@@ -160,7 +160,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->addColumn('id', 'integer', []);
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->createTable($table);
+        $this->connection->createSchemaManager()->createTable($table);
 
         $sql = 'SELECT id FRO syntax_error_table';
         $this->expectException(Exception\SyntaxErrorException::class);

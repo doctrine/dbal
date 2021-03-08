@@ -25,7 +25,7 @@ class LegacyAPITest extends FunctionalTestCase
         $table->addColumn('test_string', 'string', ['length' => 3]);
         $table->setPrimaryKey(['test_int']);
 
-        $sm = $this->connection->getSchemaManager();
+        $sm = $this->connection->createSchemaManager();
         $sm->dropAndCreateTable($table);
 
         $this->connection->insert('legacy_table', [

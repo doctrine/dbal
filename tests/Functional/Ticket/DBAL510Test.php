@@ -27,9 +27,9 @@ class DBAL510Test extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->createTable($table);
+        $this->connection->createSchemaManager()->createTable($table);
 
-        $onlineTable = $this->connection->getSchemaManager()->listTableDetails('dbal510tbl');
+        $onlineTable = $this->connection->createSchemaManager()->listTableDetails('dbal510tbl');
 
         $comparator = new Comparator();
         $diff       = $comparator->diffTable($onlineTable, $table);

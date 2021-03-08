@@ -236,7 +236,7 @@ SQL;
         $table->addColumn('col2', 'string', ['length' => 16, 'comment' => 'Column #2']);
         $table->addColumn('col3', 'string', ['length' => 16]);
 
-        $sm = $this->connection->getSchemaManager();
+        $sm = $this->connection->createSchemaManager();
         $sm->createTable($table);
 
         self::assertSame('', $sm->listTableDetails('own_column_comment')

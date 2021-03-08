@@ -34,7 +34,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
      */
     public function testAlterPrimaryKeyToAutoIncrementColumn(): void
     {
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $schema        = $schemaManager->createSchema();
 
         $table = $schema->createTable('dbal2807');

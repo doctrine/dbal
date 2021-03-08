@@ -110,11 +110,11 @@ class TestUtil
                 );
             }
 
-            $privConn->getSchemaManager()->dropAndCreateDatabase($dbname);
+            $privConn->createSchemaManager()->dropAndCreateDatabase($dbname);
 
             $privConn->close();
         } else {
-            $sm = $testConn->getSchemaManager();
+            $sm = $testConn->createSchemaManager();
 
             $schema = $sm->createSchema();
             $stmts  = $schema->toDropSql($testConn->getDatabasePlatform());

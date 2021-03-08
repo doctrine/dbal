@@ -34,7 +34,7 @@ class ModifyLimitQueryTest extends FunctionalTestCase
             $table2->addColumn('test_int', 'integer');
             $table2->setPrimaryKey(['id']);
 
-            $sm = $this->connection->getSchemaManager();
+            $sm = $this->connection->createSchemaManager();
             $sm->createTable($table);
             $sm->createTable($table2);
             self::$tableCreated = true;

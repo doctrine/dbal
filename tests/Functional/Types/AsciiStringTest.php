@@ -23,7 +23,7 @@ class AsciiStringTest extends FunctionalTestCase
         $table->addColumn('val', 'ascii_string', ['length' => 4]);
         $table->setPrimaryKey(['id']);
 
-        $sm = $this->connection->getSchemaManager();
+        $sm = $this->connection->createSchemaManager();
         $sm->dropAndCreateTable($table);
     }
 

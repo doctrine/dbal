@@ -560,7 +560,7 @@ SQL;
         unset($params['dbname']);
 
         $connection    = DriverManager::getConnection($params);
-        $schemaManager = $connection->getSchemaManager();
+        $schemaManager = $connection->createSchemaManager();
 
         $this->expectException(DatabaseRequired::class);
         $this->expectExceptionMessage(

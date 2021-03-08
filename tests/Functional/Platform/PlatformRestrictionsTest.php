@@ -27,8 +27,8 @@ class PlatformRestrictionsTest extends FunctionalTestCase
         $table      = new Table($tableName);
         $table->addColumn($columnName, 'integer', ['autoincrement' => true]);
         $table->setPrimaryKey([$columnName]);
-        $this->connection->getSchemaManager()->dropAndCreateTable($table);
-        $createdTable = $this->connection->getSchemaManager()->listTableDetails($tableName);
+        $this->connection->createSchemaManager()->dropAndCreateTable($table);
+        $createdTable = $this->connection->createSchemaManager()->listTableDetails($tableName);
 
         self::assertTrue($createdTable->hasColumn($columnName));
         self::assertTrue($createdTable->hasPrimaryKey());

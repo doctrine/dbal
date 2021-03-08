@@ -27,7 +27,7 @@ class ConnectionTest extends FunctionalTestCase
     public function testLastInsertIdAcceptsFqn(): void
     {
         $platform      = $this->connection->getDatabasePlatform();
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
 
         $table = new Table('DBAL2595');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);

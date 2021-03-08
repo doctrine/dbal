@@ -42,7 +42,7 @@ class ResultCacheTest extends FunctionalTestCase
         ]);
         $table->setPrimaryKey(['test_int']);
 
-        $sm = $this->connection->getSchemaManager();
+        $sm = $this->connection->createSchemaManager();
         $sm->dropAndCreateTable($table);
 
         foreach ($this->expectedResult as $row) {
