@@ -45,6 +45,7 @@ parameters:
         -
             message: '~^Construct empty\(\) is not allowed. Use more strict comparison\.~'
             paths:
+                - %currentWorkingDirectory%/src/Connections/PrimaryReadReplicaConnection.php
                 - %currentWorkingDirectory%/src/Driver/*/Driver.php
                 - %currentWorkingDirectory%/src/Driver/AbstractOracleDriver/EasyConnectString.php
                 - %currentWorkingDirectory%/src/Platforms/*Platform.php

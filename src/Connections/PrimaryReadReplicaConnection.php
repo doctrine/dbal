@@ -126,7 +126,7 @@ class PrimaryReadReplicaConnection extends Connection
             }
         }
 
-        $this->keepReplica = (bool) ($params['keepReplica'] ?? false);
+        $this->keepReplica = ! empty($params['keepReplica']);
 
         parent::__construct($params, $driver, $config, $eventManager);
     }
