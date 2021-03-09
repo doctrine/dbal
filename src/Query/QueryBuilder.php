@@ -216,7 +216,7 @@ class QueryBuilder
      */
     public function expr(): ExpressionBuilder
     {
-        return $this->connection->getExpressionBuilder();
+        return $this->connection->createExpressionBuilder();
     }
 
     /**
