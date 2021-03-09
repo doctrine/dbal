@@ -270,16 +270,6 @@ class Connection
     }
 
     /**
-     * Gets the ExpressionBuilder for the connection.
-     *
-     * @deprecated Use {@link createExpressionBuilder()} instead.
-     */
-    public function getExpressionBuilder(): ExpressionBuilder
-    {
-        return new ExpressionBuilder($this);
-    }
-
-    /**
      * Establishes the connection with the database.
      *
      * @throws Exception

@@ -4,9 +4,9 @@
 
 The `Connection` and `AbstractSchemaManager` classes used to have a reference on each other effectively making a circular reference. Use `createSchemaManager()` to instantiate a schema manager.
 
-## BC BREAK: Removed `Connection::$_expr` property
+## BC BREAK: Removed `Connection::$_expr` and `Connection::getExpressionBuilder()`
 
-The `Connection` and `ExpressionBuilder` classes used to have a reference on each other effectively making a circular reference. Use `getExpressionBuilder()` to instantiate an expression builder.
+The `Connection` and `ExpressionBuilder` classes used to have a reference on each other effectively making a circular reference. Use `createExpressionBuilder()` to instantiate an expression builder.
 
 ## BC BREAK: Removed `ExpressionBuilder` methods
 
