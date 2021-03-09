@@ -34,7 +34,7 @@ jobs:
         uses: "ramsey/composer-install@v1"
 
       - name: "Run a static analysis with phpstan/phpstan"
-        run: "vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr"
+        run: "vendor/bin/phpstan --error-format=checkstyle | cs2pr"
 
   static-analysis-psalm:
     name: "Static Analysis with Psalm"

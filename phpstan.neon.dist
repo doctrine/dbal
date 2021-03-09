@@ -21,7 +21,7 @@ parameters:
         - '~^Property Doctrine\\DBAL\\Schema\\Schema::\$_schemaConfig \(Doctrine\\DBAL\\Schema\\SchemaConfig\) does not accept default value of type false\.\z~'
         - '~^Return type \(int\|false\) of method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection\:\:lastInsertId\(\) should be compatible with return type \(string\) of method Doctrine\\DBAL\\Driver\\Connection::lastInsertId\(\)~'
 
-        # https://github.com/phpstan/phpstan/issues/2857
+        # https://github.com/doctrine/dbal/pull/3836
         - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int\|string> given\.\z~'
 
         # legacy variadic-like signature
@@ -40,11 +40,6 @@ parameters:
 
         # The ReflectionException in the case when the class does not exist is acceptable and does not need to be handled
         - '~^Parameter #1 \$argument of class ReflectionClass constructor expects class-string<T of object>\|T of object, string given\.$~'
-
-        # https://github.com/phpstan/phpstan/issues/3132
-        -
-            message: '~^Call to function in_array\(\) with arguments Doctrine\\DBAL\\Schema\\Column, array<string> and true will always evaluate to false\.$~'
-            path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Schema/Table.php
 
         # Needs Generics
         - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
@@ -103,13 +98,6 @@ parameters:
             message: '~^Parameter \#1 \$how of method PDOStatement\:\:fetchAll\(\) expects int, array\|int\|null given\.$~'
             paths:
                 - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOStatement.php
-
-        # Caused by phpdoc annotations intended for Psalm
-        -
-            message: '~Unable to resolve the template type T in call to method static method Doctrine\\DBAL\\DriverManager::getConnection\(\)~'
-            paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Id/TableGenerator.php
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Schema/SqliteSchemaManager.php
 
         -
             message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns int\|string\|false\|null\.~'
