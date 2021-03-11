@@ -8,6 +8,9 @@ use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Error;
@@ -281,6 +284,18 @@ class ConnectionTest extends DbalFunctionalTestCase
         });
 
         self::assertEquals(42, $res);
+    }
+
+    public function testTransactionalDDL(): void
+    {
+        $this->connection->transactional(static function (Connection $conn): void {
+            $table = new Table('foo', [new Column('bar', Type::getType('string'))]);
+            foreach ($conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
+                $conn->executeStatement($sql);
+            }
+        });
+
+        self::assertTrue($this->connection->getSchemaManager()->tablesExist('foo'));
     }
 
     /**
