@@ -25,37 +25,34 @@ final class Statement implements StatementInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @param string|int $param
-     * @param mixed      $variable
-     * @param int        $type
-     * @param int|null   $length
-     * @param mixed      $driverOptions The usage of the argument is deprecated.
      */
-    public function bindParam(
-        $param,
-        &$variable,
-        int $type = ParameterType::STRING,
-        ?int $length = null,
-        $driverOptions = null
-    ): void {
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
+    {
         switch ($type) {
             case ParameterType::LARGE_OBJECT:
             case ParameterType::BINARY:
-                if ($driverOptions === null) {
-                    $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
-                }
-
+                $this->statement->bindParamWithDriverOptions(
+                    $param,
+                    $variable,
+                    $type,
+                    $length ?? 0,
+                    PDO::SQLSRV_ENCODING_BINARY
+                );
                 break;
 
             case ParameterType::ASCII:
-                $type          = ParameterType::STRING;
-                $length        = 0;
-                $driverOptions = PDO::SQLSRV_ENCODING_SYSTEM;
+                $this->statement->bindParamWithDriverOptions(
+                    $param,
+                    $variable,
+                    ParameterType::STRING,
+                    $length ?? 0,
+                    PDO::SQLSRV_ENCODING_SYSTEM
+                );
                 break;
-        }
 
-        $this->statement->bindParam($param, $variable, $type, $length, $driverOptions);
+            default:
+                $this->statement->bindParam($param, $variable, $type, $length);
+        }
     }
 
     /**
