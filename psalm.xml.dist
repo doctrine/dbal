@@ -341,7 +341,8 @@
                 <file name="lib/Doctrine/DBAL/Tools/Console/ConsoleRunner.php"/>
                 <file name="tests/Doctrine/Tests/DBAL/Functional/PortabilityTest.php"/>
                 <!--
-                    See https://github.com/vimeo/psalm/issues/5305
+                    Requires a release of
+                    https://github.com/JetBrains/phpstorm-stubs/commit/43ce0bb13e927b9eb69cc06c16ab22f548c4735b
                 -->
                 <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php"/>
             </errorLevel>
@@ -381,12 +382,6 @@
                 <file name="lib/Doctrine/DBAL/Schema/SqliteSchemaManager.php"/>
             </errorLevel>
         </TooManyArguments>
-        <TypeDoesNotContainType>
-            <errorLevel type="suppress">
-                <!-- See https://github.com/vimeo/psalm/issues/4274 -->
-                <file name="lib/Doctrine/DBAL/Schema/Index.php"/>
-            </errorLevel>
-        </TypeDoesNotContainType>
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <directory name="lib/Doctrine/DBAL/Driver/SQLAnywhere"/>
