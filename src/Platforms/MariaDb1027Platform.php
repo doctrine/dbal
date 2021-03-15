@@ -21,6 +21,9 @@ final class MariaDb1027Platform extends MySQLPlatform
         return 'LONGTEXT';
     }
 
+    /**
+     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     */
     protected function getReservedKeywordsClass(): string
     {
         return Keywords\MariaDb102Keywords::class;

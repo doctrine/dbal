@@ -1,5 +1,10 @@
 # Upgrade to 3.1
 
+## Deprecated `AbstractPlatform::getReservedKeywordsClass()`
+
+Instead of implementing `getReservedKeywordsClass()`, `AbstractPlatform` subclasses should implement
+`createReservedKeywordsList()`.
+
 ## Deprecated `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()`
 
 The usage of the `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()` is deprecated.
