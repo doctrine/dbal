@@ -269,7 +269,7 @@ class QueryBuilder
      *
      * @param int|string           $key   Parameter position or name
      * @param mixed                $value Parameter value
-     * @param int|string|Type|null $type  One of the {@link ParameterType} constants or DBAL type
+     * @param int|string|Type|null $type  Parameter type
      *
      * @return $this This QueryBuilder instance.
      */
