@@ -73,6 +73,8 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
      *
      * This is a PostgreSQL only function.
      *
+     * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
+     *
      * @return string[]
      */
     public function getExistingSchemaSearchPaths()
@@ -88,6 +90,8 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
      * Sets or resets the order of the existing schemas in the current search path of the user.
      *
      * This is a PostgreSQL only function.
+     *
+     * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
      *
      * @return void
      */

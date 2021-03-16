@@ -1,5 +1,9 @@
 # Upgrade to 3.1
 
+## `PostgreSQLSchemaManager` methods marked internal.
+
+`PostgreSQLSchemaManager::getExistingSchemaSearchPaths()` and `::determineExistingSchemaSearchPaths()` have been marked internal.
+
 ## Deprecated `AbstractPlatform::getReservedKeywordsClass()`
 
 Instead of implementing `getReservedKeywordsClass()`, `AbstractPlatform` subclasses should implement
