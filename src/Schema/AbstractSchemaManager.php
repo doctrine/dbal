@@ -342,6 +342,16 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Drops a schema.
+     *
+     * @throws Exception
+     */
+    public function dropSchema(string $schemaName): void
+    {
+        $this->_execSql($this->_platform->getDropSchemaSQL($schemaName));
+    }
+
+    /**
      * Drops the given table.
      *
      * @param string $name The name of the table to drop.
