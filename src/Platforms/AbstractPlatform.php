@@ -2750,6 +2750,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL statement for retrieving the namespaces defined in the database.
      *
+     * @deprecated Use {@link AbstractSchemaManager::listSchemaNames()} instead.
+     *
      * @return string
      *
      * @throws Exception If not supported on this platform.

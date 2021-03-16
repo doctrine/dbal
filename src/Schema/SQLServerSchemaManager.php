@@ -22,6 +22,20 @@ use function strtok;
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
     /**
+     * {@inheritDoc}
+     */
+    public function listSchemaNames(): array
+    {
+        return $this->_conn->fetchFirstColumn(
+            <<<'SQL'
+SELECT name
+FROM   sys.schemas
+WHERE  name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')
+SQL
+        );
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function _getPortableSequenceDefinition($sequence)
@@ -199,6 +213,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use {@link SQLServerSchemaManager::listSchemaNames()} instead.
      */
     protected function getPortableNamespaceDefinition(array $namespace)
     {

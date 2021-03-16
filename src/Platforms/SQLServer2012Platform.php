@@ -1160,6 +1160,8 @@ class SQLServer2012Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@link SQLServerSchemaManager::listSchemaNames()} instead.
      */
     public function getListNamespacesSQL()
     {
