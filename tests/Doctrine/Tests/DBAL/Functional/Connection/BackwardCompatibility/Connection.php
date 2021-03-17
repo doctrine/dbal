@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Connection\BackwardCompatibility;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection as BaseConnection;
+use Doctrine\DBAL\ForwardCompatibility;
 
 use function func_get_args;
 
@@ -17,7 +18,9 @@ class Connection extends BaseConnection
      */
     public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
-        return new Statement(parent::executeQuery($sql, $params, $types, $qcp));
+        return new ForwardCompatibility\Result(
+            new Statement(parent::executeQuery($sql, $params, $types, $qcp))
+        );
     }
 
     /**

@@ -4,7 +4,6 @@ namespace Doctrine\DBAL;
 
 use Closure;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Abstraction\Result;
 use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
@@ -19,6 +18,7 @@ use Doctrine\DBAL\Exception\NoKeyValue;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result as BaseResult;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
@@ -616,13 +616,11 @@ class Connection implements DriverConnection
     public function fetchAssociative(string $query, array $params = [], array $types = [])
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $stmt = $this->ensureForwardCompatibilityStatement(
+                $this->executeQuery($query, $params, $types)
+            );
 
-            if ($stmt instanceof Result) {
-                return $stmt->fetchAssociative();
-            }
-
-            return $stmt->fetch(FetchMode::ASSOCIATIVE);
+            return $stmt->fetchAssociative();
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
@@ -643,13 +641,11 @@ class Connection implements DriverConnection
     public function fetchNumeric(string $query, array $params = [], array $types = [])
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $stmt = $this->ensureForwardCompatibilityStatement(
+                $this->executeQuery($query, $params, $types)
+            );
 
-            if ($stmt instanceof Result) {
-                return $stmt->fetchNumeric();
-            }
-
-            return $stmt->fetch(FetchMode::NUMERIC);
+            return $stmt->fetchNumeric();
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
@@ -670,13 +666,11 @@ class Connection implements DriverConnection
     public function fetchOne(string $query, array $params = [], array $types = [])
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $stmt = $this->ensureForwardCompatibilityStatement(
+                $this->executeQuery($query, $params, $types)
+            );
 
-            if ($stmt instanceof Result) {
-                return $stmt->fetchOne();
-            }
-
-            return $stmt->fetch(FetchMode::COLUMN);
+            return $stmt->fetchOne();
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
@@ -956,13 +950,11 @@ class Connection implements DriverConnection
     public function fetchAllNumeric(string $query, array $params = [], array $types = []): array
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $stmt = $this->ensureForwardCompatibilityStatement(
+                $this->executeQuery($query, $params, $types)
+            );
 
-            if ($stmt instanceof Result) {
-                return $stmt->fetchAllNumeric();
-            }
-
-            return $stmt->fetchAll(FetchMode::NUMERIC);
+            return $stmt->fetchAllNumeric();
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
@@ -982,13 +974,11 @@ class Connection implements DriverConnection
     public function fetchAllAssociative(string $query, array $params = [], array $types = []): array
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $stmt = $this->ensureForwardCompatibilityStatement(
+                $this->executeQuery($query, $params, $types)
+            );
 
-            if ($stmt instanceof Result) {
-                return $stmt->fetchAllAssociative();
-            }
-
-            return $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+            return $stmt->fetchAllAssociative();
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
@@ -1061,13 +1051,11 @@ class Connection implements DriverConnection
     public function fetchFirstColumn(string $query, array $params = [], array $types = []): array
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $stmt = $this->ensureForwardCompatibilityStatement(
+                $this->executeQuery($query, $params, $types)
+            );
 
-            if ($stmt instanceof Result) {
-                return $stmt->fetchFirstColumn();
-            }
-
-            return $stmt->fetchAll(FetchMode::COLUMN);
+            return $stmt->fetchFirstColumn();
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
@@ -1087,15 +1075,11 @@ class Connection implements DriverConnection
     public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $stmt = $this->ensureForwardCompatibilityStatement(
+                $this->executeQuery($query, $params, $types)
+            );
 
-            if ($stmt instanceof Result) {
-                yield from $stmt->iterateNumeric();
-            } else {
-                while (($row = $stmt->fetch(FetchMode::NUMERIC)) !== false) {
-                    yield $row;
-                }
-            }
+            yield from $stmt->iterateNumeric();
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
@@ -1116,15 +1100,11 @@ class Connection implements DriverConnection
     public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $stmt = $this->ensureForwardCompatibilityStatement(
+                $this->executeQuery($query, $params, $types)
+            );
 
-            if ($stmt instanceof Result) {
-                yield from $stmt->iterateAssociative();
-            } else {
-                while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE)) !== false) {
-                    yield $row;
-                }
-            }
+            yield from $stmt->iterateAssociative();
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
@@ -1189,15 +1169,11 @@ class Connection implements DriverConnection
     public function iterateColumn(string $query, array $params = [], array $types = []): Traversable
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $stmt = $this->ensureForwardCompatibilityStatement(
+                $this->executeQuery($query, $params, $types)
+            );
 
-            if ($stmt instanceof Result) {
-                yield from $stmt->iterateColumn();
-            } else {
-                while (($value = $stmt->fetch(FetchMode::COLUMN)) !== false) {
-                    yield $value;
-                }
-            }
+            yield from $stmt->iterateColumn();
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
@@ -1235,7 +1211,7 @@ class Connection implements DriverConnection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return ResultStatement The executed statement.
+     * @return ResultStatement&BaseResult The executed statement.
      *
      * @throws Exception
      */
@@ -1281,7 +1257,7 @@ class Connection implements DriverConnection
             $logger->stopQuery();
         }
 
-        return $stmt;
+        return $this->ensureForwardCompatibilityStatement($stmt);
     }
 
     /**
@@ -1291,7 +1267,7 @@ class Connection implements DriverConnection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return ResultStatement
+     * @return ResultStatement&BaseResult
      *
      * @throws CacheException
      */
@@ -1332,7 +1308,19 @@ class Connection implements DriverConnection
 
         $stmt->setFetchMode($this->defaultFetchMode);
 
-        return $stmt;
+        return $this->ensureForwardCompatibilityStatement($stmt);
+    }
+
+    /**
+     * @return ResultStatement&BaseResult
+     */
+    private function ensureForwardCompatibilityStatement(ResultStatement $stmt)
+    {
+        if ($stmt instanceof BaseResult) {
+            return $stmt;
+        }
+
+        return new ForwardCompatibility\Result($stmt);
     }
 
     /**
