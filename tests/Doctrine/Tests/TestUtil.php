@@ -120,7 +120,7 @@ class TestUtil
     }
 
     /**
-     * @psalm-return array<string, mixed>
+     * @return array<string,mixed>
      */
     private static function getPrivilegedConnectionParameters(): array
     {
@@ -135,7 +135,7 @@ class TestUtil
     }
 
     /**
-     * @psalm-return array<string, mixed>
+     * @return array<string,mixed>
      */
     public static function getTestConnectionParameters(): array
     {
