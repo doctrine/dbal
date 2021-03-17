@@ -141,7 +141,7 @@ class TestUtil
     {
         if (! isset($GLOBALS['db_driver'])) {
             throw new UnexpectedValueException(
-                'You must provide database connection params including a db_driver value. See phpunit.xml.dist for details'
+                'You must provide db connection params including a db_driver value. See phpunit.xml.dist for details'
             );
         }
 
