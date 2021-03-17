@@ -7,6 +7,12 @@
          failOnRisky="true"
          failOnWarning="true"
 >
+    <php>
+        <!-- use an in-memory sqlite database -->
+        <var name="db_driver" value="pdo_sqlite"/>
+        <var name="db_memory" value="true"/>
+    </php>
+
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
             <directory>../../../tests</directory>

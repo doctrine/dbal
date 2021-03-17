@@ -15,11 +15,11 @@
         <var name="db_dbname" value="XE"/>
         <var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit"/>
 
-        <var name="tmpdb_driver" value="oci8"/>
-        <var name="tmpdb_host" value="localhost"/>
-        <var name="tmpdb_user" value="system"/>
-        <var name="tmpdb_password" value="oracle"/>
-        <var name="tmpdb_dbname" value="XE"/>
+        <var name="privileged_db_driver" value="oci8"/>
+        <var name="privileged_db_host" value="localhost"/>
+        <var name="privileged_db_user" value="system"/>
+        <var name="privileged_db_password" value="oracle"/>
+        <var name="privileged_db_dbname" value="XE"/>
     </php>
 
     <testsuites>

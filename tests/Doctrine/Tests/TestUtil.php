@@ -1,24 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use PHPUnit\Framework\Assert;
+use UnexpectedValueException;
 
 use function array_keys;
 use function array_map;
 use function array_values;
 use function explode;
-use function extension_loaded;
+use function fwrite;
+use function get_class;
 use function implode;
 use function is_string;
+use function sprintf;
 use function strlen;
 use function strpos;
 use function substr;
-use function unlink;
+
+use const STDERR;
 
 /**
  * TestUtil is a class with static utility methods used during tests.
@@ -41,41 +46,27 @@ class TestUtil
      * 'db_dbname':   The name of the database to connect to.
      * 'db_port':     The port of the database to connect to.
      *
-     * Usually these variables of the $GLOBALS array are filled by PHPUnit based
-     * on an XML configuration file. If no such parameters exist, an SQLite
-     * in-memory database is used.
+     * These variables of the $GLOBALS array are filled by PHPUnit based on an XML configuration file.
      *
      * @return Connection The database connection instance.
      */
     public static function getConnection(): Connection
     {
-        if (self::hasRequiredConnectionParams() && ! self::$initialized) {
+        if (! self::$initialized) {
             self::initializeDatabase();
             self::$initialized = true;
         }
 
-        $conn = DriverManager::getConnection(self::getConnectionParams());
+        $conn = DriverManager::getConnection(self::getTestConnectionParameters());
 
         self::addDbEventSubscribers($conn);
 
         return $conn;
     }
 
-    /**
-     * @return mixed[]
-     */
-    public static function getConnectionParams(): array
+    public static function getPrivilegedConnection(): Connection
     {
-        if (self::hasRequiredConnectionParams()) {
-            return self::getTestConnectionParameters();
-        }
-
-        return self::getFallbackConnectionParams();
-    }
-
-    private static function hasRequiredConnectionParams(): bool
-    {
-        return isset($GLOBALS['db_driver']);
+        return DriverManager::getConnection(self::getPrivilegedConnectionParameters());
     }
 
     private static function initializeDatabase(): void
@@ -84,6 +75,10 @@ class TestUtil
         $privConnParams = self::getPrivilegedConnectionParameters();
 
         $testConn = DriverManager::getConnection($testConnParams);
+
+        // Note, writes direct to STDERR to prevent phpunit detecting output - otherwise this would cause either an
+        // "unexpected output" warning or a failure on the first test case to call this method.
+        fwrite(STDERR, sprintf("\nUsing DB driver %s\n", get_class($testConn->getDriver())));
 
         // Connect as a privileged user to create and drop the test database.
         $privConn = DriverManager::getConnection($privConnParams);
@@ -109,28 +104,6 @@ class TestUtil
         }
     }
 
-    /**
-     * @return mixed[]
-     */
-    private static function getFallbackConnectionParams(): array
-    {
-        if (! extension_loaded('pdo_sqlite')) {
-            Assert::markTestSkipped('PDO SQLite extension is not loaded');
-        }
-
-        $params = [
-            'driver' => 'pdo_sqlite',
-            'memory' => true,
-        ];
-
-        if (isset($GLOBALS['db_path'])) {
-            $params['path'] = $GLOBALS['db_path'];
-            unlink($GLOBALS['db_path']);
-        }
-
-        return $params;
-    }
-
     private static function addDbEventSubscribers(Connection $conn): void
     {
         if (! isset($GLOBALS['db_event_subscribers'])) {
@@ -147,12 +120,12 @@ class TestUtil
     }
 
     /**
-     * @return mixed[]
+     * @psalm-return array<string, mixed>
      */
     private static function getPrivilegedConnectionParameters(): array
     {
-        if (isset($GLOBALS['tmpdb_driver'])) {
-            return self::mapConnectionParameters($GLOBALS, 'tmpdb_');
+        if (isset($GLOBALS['privileged_db_driver'])) {
+            return self::mapConnectionParameters($GLOBALS, 'privileged_db_');
         }
 
         $parameters = self::mapConnectionParameters($GLOBALS, 'db_');
@@ -162,10 +135,16 @@ class TestUtil
     }
 
     /**
-     * @return mixed[]
+     * @psalm-return array<string, mixed>
      */
-    private static function getTestConnectionParameters(): array
+    public static function getTestConnectionParameters(): array
     {
+        if (! isset($GLOBALS['db_driver'])) {
+            throw new UnexpectedValueException(
+                'You must provide database connection params including a db_driver value. See phpunit.xml.dist for details'
+            );
+        }
+
         return self::mapConnectionParameters($GLOBALS, 'db_');
     }
 
@@ -187,6 +166,7 @@ class TestUtil
                 'dbname',
                 'port',
                 'server',
+                'memory',
                 'ssl_key',
                 'ssl_cert',
                 'ssl_ca',
@@ -211,11 +191,6 @@ class TestUtil
         }
 
         return $parameters;
-    }
-
-    public static function getPrivilegedConnection(): Connection
-    {
-        return DriverManager::getConnection(self::getPrivilegedConnectionParameters());
     }
 
     /**

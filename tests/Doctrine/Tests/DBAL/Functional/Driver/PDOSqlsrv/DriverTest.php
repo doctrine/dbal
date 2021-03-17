@@ -42,7 +42,7 @@ class DriverTest extends AbstractDriverTest
      */
     private function getConnection(array $driverOptions): Connection
     {
-        $params = TestUtil::getConnectionParams();
+        $params = TestUtil::getTestConnectionParameters();
 
         if (isset($params['driverOptions'])) {
             $driverOptions = array_merge($params['driverOptions'], $driverOptions);

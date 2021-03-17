@@ -66,7 +66,7 @@ class DriverTest extends AbstractDriverTest
      */
     public static function getDatabaseParameter(): iterable
     {
-        $params            = TestUtil::getConnectionParams();
+        $params            = TestUtil::getTestConnectionParameters();
         $realDatabaseName  = $params['dbname'] ?? '';
         $dummyDatabaseName = $realDatabaseName . 'a';
 
