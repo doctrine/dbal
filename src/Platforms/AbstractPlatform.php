@@ -3480,24 +3480,36 @@ abstract class AbstractPlatform
     final public function getReservedKeywordsList()
     {
         // Check for an existing instantiation of the keywords class.
-        if ($this->_keywords !== null) {
-            return $this->_keywords;
+        if ($this->_keywords === null) {
+            // Store the instance so it doesn't need to be generated on every request.
+            $this->_keywords = $this->createReservedKeywordsList();
         }
 
+        return $this->_keywords;
+    }
+
+    /**
+     * Creates an instance of the reserved keyword list of this platform.
+     *
+     * This method will become @abstract in DBAL 4.0.0.
+     *
+     * @throws Exception
+     */
+    protected function createReservedKeywordsList(): KeywordList
+    {
         $class    = $this->getReservedKeywordsClass();
         $keywords = new $class();
         if (! $keywords instanceof KeywordList) {
             throw Exception::notSupported(__METHOD__);
         }
 
-        // Store the instance so it doesn't need to be generated on every request.
-        $this->_keywords = $keywords;
-
         return $keywords;
     }
 
     /**
      * Returns the class name of the reserved keywords list.
+     *
+     * @deprecated Implement {@link createReservedKeywordsList()} instead.
      *
      * @return string
      *

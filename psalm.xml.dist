@@ -55,6 +55,10 @@
                 -->
                 <file name="tests/Functional/LegacyAPITest.php"/>
                 <!--
+                    This suppression should be removed in 4.0.0.
+                -->
+                <file name="src/Platforms/AbstractPlatform.php"/>
+                <!--
                     This suppression should be removed in 4.0.x
                     See https://github.com/doctrine/dbal/pull/3865
                 -->
