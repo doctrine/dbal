@@ -227,6 +227,8 @@ class PostgreSQL94Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@link PostgreSQLSchemaManager::listSchemaNames()} instead.
      */
     public function getListNamespacesSQL()
     {

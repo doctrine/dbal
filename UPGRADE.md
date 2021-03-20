@@ -1,5 +1,21 @@
 # Upgrade to 3.1
 
+## Deprecated schema- and namespace-related methods
+
+The usage of the following schema- and namespace-related methods is deprecated:
+
+- `AbstractPlatform::getListNamespacesSQL()`,
+- `AbstractSchemaManager::listNamespaceNames()`,
+- `AbstractSchemaManager::getPortableNamespacesList()`,
+- `AbstractSchemaManager::getPortableNamespaceDefinition()`,
+- `PostgreSQLSchemaManager::getSchemaNames()`.
+
+Use `AbstractSchemaManager::listSchemaNames()` instead.
+
+## `PostgreSQLSchemaManager` methods marked internal.
+
+`PostgreSQLSchemaManager::getExistingSchemaSearchPaths()` and `::determineExistingSchemaSearchPaths()` have been marked internal.
+
 ## Deprecated `AbstractPlatform::getReservedKeywordsClass()`
 
 Instead of implementing `getReservedKeywordsClass()`, `AbstractPlatform` subclasses should implement

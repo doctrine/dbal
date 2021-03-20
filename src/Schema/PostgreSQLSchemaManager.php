@@ -38,14 +38,29 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
     /**
      * Gets all the existing schema names.
      *
+     * @deprecated Use {@link listSchemaNames()} instead.
+     *
      * @return string[]
      *
      * @throws Exception
      */
     public function getSchemaNames()
     {
+        return $this->listNamespaceNames();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listSchemaNames(): array
+    {
         return $this->_conn->fetchFirstColumn(
-            "SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'"
+            <<<'SQL'
+SELECT schema_name
+FROM   information_schema.schemata
+WHERE  schema_name NOT LIKE 'pg\_%'
+AND    schema_name != 'information_schema'
+SQL
         );
     }
 
@@ -73,6 +88,8 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
      *
      * This is a PostgreSQL only function.
      *
+     * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
+     *
      * @return string[]
      */
     public function getExistingSchemaSearchPaths()
@@ -89,11 +106,13 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
      *
      * This is a PostgreSQL only function.
      *
+     * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
+     *
      * @return void
      */
     public function determineExistingSchemaSearchPaths()
     {
-        $names = $this->getSchemaNames();
+        $names = $this->listSchemaNames();
         $paths = $this->getSchemaSearchPaths();
 
         $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names): bool {
@@ -267,6 +286,8 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use {@link PostgreSQLSchemaManager::listSchemaNames()} instead.
      */
     protected function getPortableNamespaceDefinition(array $namespace)
     {

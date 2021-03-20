@@ -107,6 +107,8 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of all namespaces in the current database.
      *
+     * @deprecated Use {@link listSchemaNames()} instead.
+     *
      * @return string[]
      *
      * @throws Exception
@@ -118,6 +120,18 @@ abstract class AbstractSchemaManager
         $namespaces = $this->_conn->fetchAllAssociative($sql);
 
         return $this->getPortableNamespacesList($namespaces);
+    }
+
+    /**
+     * Returns a list of the names of all schemata in the current database.
+     *
+     * @return list<string>
+     *
+     * @throws Exception
+     */
+    public function listSchemaNames(): array
+    {
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**
@@ -339,6 +353,16 @@ abstract class AbstractSchemaManager
     public function dropDatabase($database)
     {
         $this->_execSql($this->_platform->getDropDatabaseSQL($database));
+    }
+
+    /**
+     * Drops a schema.
+     *
+     * @throws Exception
+     */
+    public function dropSchema(string $schemaName): void
+    {
+        $this->_execSql($this->_platform->getDropSchemaSQL($schemaName));
     }
 
     /**
@@ -691,6 +715,8 @@ abstract class AbstractSchemaManager
     /**
      * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
      *
+     * @deprecated Use {@link listSchemaNames()} instead.
+     *
      * @param array<int, array<string, mixed>> $namespaces The list of namespace names
      *                                                     in the native DBMS data definition.
      *
@@ -719,6 +745,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
+     *
+     * @deprecated Use {@link listSchemaNames()} instead.
      *
      * @param array<string, mixed> $namespace The native DBMS namespace definition.
      *
@@ -1057,10 +1085,10 @@ abstract class AbstractSchemaManager
      */
     public function createSchema()
     {
-        $namespaces = [];
+        $schemaNames = [];
 
         if ($this->_platform->supportsSchemas()) {
-            $namespaces = $this->listNamespaceNames();
+            $schemaNames = $this->listNamespaceNames();
         }
 
         $sequences = [];
@@ -1071,7 +1099,7 @@ abstract class AbstractSchemaManager
 
         $tables = $this->listTables();
 
-        return new Schema($tables, $sequences, $this->createSchemaConfig(), $namespaces);
+        return new Schema($tables, $sequences, $this->createSchemaConfig(), $schemaNames);
     }
 
     /**

@@ -1362,6 +1362,14 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to drop a schema.
+     */
+    public function getDropSchemaSQL(string $schemaName): string
+    {
+        return 'DROP SCHEMA ' . $schemaName;
+    }
+
+    /**
      * Returns the SQL snippet to drop an existing table.
      *
      * @param Table|string $table
@@ -2741,6 +2749,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL statement for retrieving the namespaces defined in the database.
+     *
+     * @deprecated Use {@link AbstractSchemaManager::listSchemaNames()} instead.
      *
      * @return string
      *
