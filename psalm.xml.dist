@@ -362,15 +362,6 @@
                 <file name="lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php"/>
             </errorLevel>
         </ReservedWord>
-        <TooFewArguments>
-            <errorLevel type="suppress">
-                <!--
-                    Requires a release of
-                    https://github.com/JetBrains/phpstorm-stubs/pull/727
-                -->
-                <file name="lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php"/>
-            </errorLevel>
-        </TooFewArguments>
         <TooManyArguments>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3080 -->
@@ -385,11 +376,6 @@
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <directory name="lib/Doctrine/DBAL/Driver/SQLAnywhere"/>
-                <!--
-                    Requires a release of
-                    https://github.com/JetBrains/phpstorm-stubs/pull/732
-                -->
-                <file name="tests/Doctrine/Tests/DBAL/Driver/PDOPgSql/DriverTest.php" />
             </errorLevel>
         </UndefinedConstant>
         <UndefinedFunction>
@@ -403,6 +389,19 @@
                 <file name="lib/Doctrine/DBAL/Tools/Dumper.php"/>
             </errorLevel>
         </UndefinedClass>
+        <UnimplementedInterfaceMethod>
+            <errorLevel type="suppress">
+                <!--
+                    Psalm doesn't support the proprietary annotations used in JeBrains PhpStorm stubs
+                    like #[PhpStormStubsElementAvailable(...)]. This suppression should be removed in 3.0.x,
+                    where https://github.com/doctrine/dbal/pull/4347 is no longer effective
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/PDO/SQLSrv/Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDO/Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOSqlsrv/Statement.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatement.php"/>
+            </errorLevel>
+        </UnimplementedInterfaceMethod>
         <UnsafeInstantiation>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/issues/4510 -->
