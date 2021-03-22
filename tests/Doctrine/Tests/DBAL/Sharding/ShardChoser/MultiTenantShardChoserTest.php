@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Sharding\ShardChoser;
 
 use Doctrine\DBAL\Sharding\PoolingShardConnection;
 use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
+use Doctrine\Tests\DBAL\MockBuilderProxy;
 use PHPUnit\Framework\TestCase;
 
 class MultiTenantShardChoserTest extends TestCase
@@ -19,7 +20,7 @@ class MultiTenantShardChoserTest extends TestCase
 
     private function createConnectionMock(): PoolingShardConnection
     {
-        return $this->getMockBuilder(PoolingShardConnection::class)
+        return (new MockBuilderProxy($this->getMockBuilder(PoolingShardConnection::class)))
             ->onlyMethods(['connect', 'getParams', 'fetchAll'])
             ->disableOriginalConstructor()
             ->getMock();

@@ -343,7 +343,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 'commented_req_change_column',
                 Type::getType('integer'),
                 ['comment' => 'Some comment', 'notnull' => false]
-            ),
+            )
         );
 
         $tableDiff->removedColumns['comment_integer_0']

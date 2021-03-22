@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Tools\Console;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Doctrine\DBAL\Tools\Console\ConsoleRunner;
+use Doctrine\Tests\DBAL\AssertionCompatibility;
 use LogicException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +15,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class RunSqlCommandTest extends TestCase
 {
+    use AssertionCompatibility;
+
     /** @var CommandTester */
     private $commandTester;
     /** @var RunSqlCommand */

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
+use Doctrine\Tests\DBAL\MockBuilderProxy;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,7 +23,7 @@ class DropSchemaSqlCollectorTest extends TestCase
         $keyConstraintOne = $this->getStubKeyConstraint('first');
         $keyConstraintTwo = $this->getStubKeyConstraint('second');
 
-        $platform = $this->getMockBuilder(AbstractPlatform::class)
+        $platform = (new MockBuilderProxy($this->getMockBuilder(AbstractPlatform::class)))
             ->onlyMethods(['getDropForeignKeySQL'])
             ->getMockForAbstractClass();
 

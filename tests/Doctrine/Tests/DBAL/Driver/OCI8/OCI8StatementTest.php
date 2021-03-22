@@ -39,7 +39,7 @@ class OCI8StatementTest extends DbalTestCase
             ->withConsecutive(
                 [1, $params[0]],
                 [2, $params[1]],
-                [3, $params[2]],
+                [3, $params[2]]
             );
 
         // the return value is irrelevant to the test

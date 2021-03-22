@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Sharding;
 use Doctrine\DBAL\Sharding\PoolingShardConnection;
 use Doctrine\DBAL\Sharding\PoolingShardManager;
 use Doctrine\DBAL\Sharding\ShardChoser\ShardChoser;
+use Doctrine\Tests\DBAL\MockBuilderProxy;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +16,7 @@ class PoolingShardManagerTest extends TestCase
      */
     private function createConnectionMock(): PoolingShardConnection
     {
-        return $this->getMockBuilder(PoolingShardConnection::class)
+        return (new MockBuilderProxy($this->getMockBuilder(PoolingShardConnection::class)))
             ->onlyMethods(['connect', 'getParams', 'fetchAllAssociative'])
             ->disableOriginalConstructor()
             ->getMock();
@@ -113,7 +114,7 @@ class PoolingShardManagerTest extends TestCase
              ->with($sql, $params, $types)
              ->willReturnOnConsecutiveCalls(
                  [['id' => 1]],
-                 [['id' => 2]],
+                 [['id' => 2]]
              );
 
         $shardManager = new PoolingShardManager($conn);
@@ -145,7 +146,7 @@ class PoolingShardManagerTest extends TestCase
             ->with($sql, $params, $types)
             ->willReturnOnConsecutiveCalls(
                 [['id' => 1]],
-                [['id' => 2]],
+                [['id' => 2]]
             );
 
         $shardManager = new PoolingShardManager($conn);

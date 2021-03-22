@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Tests\DBAL\MockBuilderProxy;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
@@ -1163,10 +1164,10 @@ class ComparatorTest extends TestCase
     public function testComparesNamespaces(): void
     {
         $comparator = new Comparator();
-        $fromSchema = $this->getMockBuilder(Schema::class)
+        $fromSchema = (new MockBuilderProxy($this->getMockBuilder(Schema::class)))
             ->onlyMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
-        $toSchema   = $this->getMockBuilder(Schema::class)
+        $toSchema   = (new MockBuilderProxy($this->getMockBuilder(Schema::class)))
             ->onlyMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
 
