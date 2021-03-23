@@ -479,6 +479,10 @@ class Comparator
             if ($properties1['fixed'] !== $properties2['fixed']) {
                 $changedProperties[] = 'fixed';
             }
+        } elseif ($properties1['type'] instanceof Types\BlobType) {
+            if ($properties1['length'] !== $properties2['length']) {
+                $changedProperties[] = 'length';
+            }
         } elseif ($properties1['type'] instanceof Types\DecimalType) {
             if (($properties1['precision'] ?? 10) !== ($properties2['precision'] ?? 10)) {
                 $changedProperties[] = 'precision';

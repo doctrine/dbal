@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -1050,6 +1051,31 @@ class ComparatorTest extends TestCase
         self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
 
+    public function testCompareChangedColumnLength(): void
+    {
+        $oldSchema = new Schema();
+
+        $tableFoo = $oldSchema->createTable('foo');
+        $tableFoo->addColumn('id', 'string', ['length' => 127]);
+
+        $newSchema = new Schema();
+        $table     = $newSchema->createTable('foo');
+        $table->addColumn('id', 'string', ['length' => 255]);
+
+        $expected             = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+
+        $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->fromTable = $tableFoo;
+
+        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+
+        $columnDiff->fromColumn        = $tableFoo->getColumn('id');
+        $columnDiff->changedProperties = ['length'];
+
+        self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
+    }
+
     public function testCompareChangedBinaryColumn(): void
     {
         $oldSchema = new Schema();
@@ -1071,6 +1097,31 @@ class ComparatorTest extends TestCase
 
         $columnDiff->fromColumn        = $tableFoo->getColumn('id');
         $columnDiff->changedProperties = ['length', 'fixed'];
+
+        self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
+    }
+
+    public function testCompareChangedBlobColumn(): void
+    {
+        $oldSchema = new Schema();
+
+        $tableFoo = $oldSchema->createTable('foo');
+        $tableFoo->addColumn('id', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
+
+        $newSchema = new Schema();
+        $table     = $newSchema->createTable('foo');
+        $table->addColumn('id', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+
+        $expected             = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+
+        $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->fromTable = $tableFoo;
+
+        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+
+        $columnDiff->fromColumn        = $tableFoo->getColumn('id');
+        $columnDiff->changedProperties = ['length'];
 
         self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }

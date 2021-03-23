@@ -808,6 +808,57 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
+    public function testAlterTableChangeBlobColumnLength(): void
+    {
+        $fromTable = new Table('mytable');
+
+        $fromTable->addColumn('blob1', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $fromTable->addColumn('blob2', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
+        $fromTable->addColumn('blob3', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $fromTable->addColumn('blob4', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
+        $fromTable->addColumn('blob5', 'blob');
+        $fromTable->addColumn('blob6', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $fromTable->addColumn('blob7', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
+        $fromTable->addColumn('blob8', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $fromTable->addColumn('blob9', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
+        $fromTable->addColumn('blob10', 'blob');
+
+        $toTable = new Table('mytable');
+
+        $toTable->addColumn('blob1', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
+        $toTable->addColumn('blob2', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $toTable->addColumn('blob3', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
+        $toTable->addColumn('blob4', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $toTable->addColumn('blob5', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
+        $toTable->addColumn('blob6', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $toTable->addColumn('blob7', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
+        $toTable->addColumn('blob8', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $toTable->addColumn('blob9', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
+        $toTable->addColumn('blob10', 'blob');
+
+        $diff = (new Comparator())->diffTable($fromTable, $toTable);
+        self::assertNotFalse($diff);
+
+        self::assertEquals(
+            $this->getAlterTableChangeBlobColumnLength(),
+            $this->platform->getAlterTableSQL($diff)
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getAlterTableChangeBlobColumnLength(): array
+    {
+        return ['ALTER TABLE mytable ' .
+            'CHANGE blob1 blob1 BLOB NOT NULL, ' .
+            'CHANGE blob2 blob2 MEDIUMBLOB NOT NULL, ' .
+            'CHANGE blob3 blob3 LONGBLOB NOT NULL, ' .
+            'CHANGE blob4 blob4 TINYBLOB NOT NULL, ' .
+            'CHANGE blob5 blob5 BLOB NOT NULL',
+        ];
+    }
+
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
