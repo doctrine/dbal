@@ -480,7 +480,10 @@ class Comparator
                 $changedProperties[] = 'fixed';
             }
         } elseif ($properties1['type'] instanceof Types\BlobType || $properties1['type'] instanceof Types\TextType) {
-            if ($properties1['length'] !== $properties2['length']) {
+            // check if value of length is set at all, default value assumed otherwise.
+            $length1 = $properties1['length'] ?: 0;
+            $length2 = $properties2['length'] ?: 0;
+            if ($length1 !== $length2) {
                 $changedProperties[] = 'length';
             }
         } elseif ($properties1['type'] instanceof Types\DecimalType) {
