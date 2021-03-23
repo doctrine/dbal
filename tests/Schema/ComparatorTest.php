@@ -1126,6 +1126,31 @@ class ComparatorTest extends TestCase
         self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
 
+    public function testCompareChangedTextColumn(): void
+    {
+        $oldSchema = new Schema();
+
+        $tableFoo = $oldSchema->createTable('foo');
+        $tableFoo->addColumn('id', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
+
+        $newSchema = new Schema();
+        $table     = $newSchema->createTable('foo');
+        $table->addColumn('id', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+
+        $expected             = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+
+        $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->fromTable = $tableFoo;
+
+        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+
+        $columnDiff->fromColumn        = $tableFoo->getColumn('id');
+        $columnDiff->changedProperties = ['length'];
+
+        self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
+    }
+
     public function testCompareQuotedAndUnquotedForeignKeyColumns(): void
     {
         $fk1 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'NO ACTION']);

@@ -859,6 +859,57 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
+    public function testAlterTableChangeTextColumnLength(): void
+    {
+        $fromTable = new Table('mytable');
+
+        $fromTable->addColumn('text1', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $fromTable->addColumn('text2', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
+        $fromTable->addColumn('text3', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $fromTable->addColumn('text4', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
+        $fromTable->addColumn('text5', 'text');
+        $fromTable->addColumn('text6', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $fromTable->addColumn('text7', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
+        $fromTable->addColumn('text8', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $fromTable->addColumn('text9', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
+        $fromTable->addColumn('text10', 'text');
+
+        $toTable = new Table('mytable');
+
+        $toTable->addColumn('text1', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
+        $toTable->addColumn('text2', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $toTable->addColumn('text3', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
+        $toTable->addColumn('text4', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $toTable->addColumn('text5', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
+        $toTable->addColumn('text6', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $toTable->addColumn('text7', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
+        $toTable->addColumn('text8', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $toTable->addColumn('text9', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
+        $toTable->addColumn('text10', 'text');
+
+        $diff = (new Comparator())->diffTable($fromTable, $toTable);
+        self::assertNotFalse($diff);
+
+        self::assertEquals(
+            $this->getAlterTableChangeTextColumnLength(),
+            $this->platform->getAlterTableSQL($diff)
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getAlterTableChangeTextColumnLength(): array
+    {
+        return ['ALTER TABLE mytable ' .
+            'CHANGE text1 text1 TEXT NOT NULL, ' .
+            'CHANGE text2 text2 MEDIUMTEXT NOT NULL, ' .
+            'CHANGE text3 text3 LONGTEXT NOT NULL, ' .
+            'CHANGE text4 text4 TINYTEXT NOT NULL, ' .
+            'CHANGE text5 text5 TEXT NOT NULL',
+        ];
+    }
+
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));

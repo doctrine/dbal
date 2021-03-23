@@ -479,7 +479,7 @@ class Comparator
             if ($properties1['fixed'] !== $properties2['fixed']) {
                 $changedProperties[] = 'fixed';
             }
-        } elseif ($properties1['type'] instanceof Types\BlobType) {
+        } elseif ($properties1['type'] instanceof Types\BlobType || $properties1['type'] instanceof Types\TextType) {
             if ($properties1['length'] !== $properties2['length']) {
                 $changedProperties[] = 'length';
             }
