@@ -76,10 +76,6 @@
                 <file name="src/Platforms/SqlitePlatform.php"/>
                 <file name="src/Schema/Column.php"/>
                 <!--
-                    This issue is fixed in 4.0
-                -->
-                <file name="src/Schema/Index.php"/>
-                <!--
                     See https://github.com/vimeo/psalm/issues/5325
                 -->
                 <file name="tests/Driver/OCI8/ExecutionModeTest.php"/>
@@ -127,15 +123,6 @@
                 <file name="src/Driver/PDO/Exception.php"/>
             </errorLevel>
         </InvalidPropertyAssignmentValue>
-        <MissingConstructor>
-            <errorLevel type="suppress">
-                <!--
-                    This suppression should be removed in 4.0.x
-                    See https://github.com/doctrine/dbal/pull/3712
-                -->
-                <file name="src/Schema/SchemaConfig.php"/>
-            </errorLevel>
-        </MissingConstructor>
         <NullableReturnStatement>
             <errorLevel type="suppress">
                 <!--
@@ -161,15 +148,6 @@
                 <file name="tests/Functional/Schema/PostgreSQLSchemaManagerTest.php"/>
             </errorLevel>
         </PossiblyUndefinedArrayOffset>
-        <PossiblyNullIterator>
-            <errorLevel type="suppress">
-                <!--
-                    This suppression should be removed in 4.0.x
-                    See https://github.com/doctrine/dbal/pull/3712
-                -->
-                <file name="src/Driver/Mysqli/Statement.php"/>
-            </errorLevel>
-        </PossiblyNullIterator>
         <PossiblyUndefinedVariable>
             <errorLevel type="suppress">
                 <!--
@@ -185,30 +163,8 @@
                 <directory name="tests"/>
                 <!-- See https://github.com/doctrine/dbal/issues/4506 -->
                 <file name="src/Schema/ForeignKeyConstraint.php"/>
-                <!--
-                    This suppression should be removed in 4.0.x
-                    See https://github.com/doctrine/dbal/pull/3712
-                -->
-                <file name="src/Schema/Column.php"/>
-                <file name="src/Schema/Identifier.php"/>
-                <file name="src/Schema/Index.php"/>
-                <file name="src/Schema/Schema.php"/>
-                <file name="src/Schema/Sequence.php"/>
-                <file name="src/Schema/Table.php"/>
-                <file name="src/Schema/UniqueConstraint.php"/>
-                <file name="src/Schema/View.php"/>
             </errorLevel>
         </PropertyNotSetInConstructor>
-        <!-- This is necessary pre 4.0  -->
-        <RedundantCastGivenDocblockType>
-            <errorLevel type="suppress">
-                <!--
-                    This suppression should be removed in 4.0.x
-                    where we have scalar argument types enforced
-                -->
-                <directory name="src"/>
-            </errorLevel>
-        </RedundantCastGivenDocblockType>
         <RedundantCondition>
             <errorLevel type="suppress">
                 <!--
@@ -239,15 +195,6 @@
                 <file name="src/Driver/Mysqli/Connection.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
-        <ReferenceConstraintViolation>
-            <errorLevel type="suppress">
-                <!--
-                    This suppression should be removed in 4.0.x
-                    See https://github.com/doctrine/dbal/pull/3836
-                -->
-                <file name="src/Query/QueryBuilder.php"/>
-            </errorLevel>
-        </ReferenceConstraintViolation>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--
