@@ -13,6 +13,7 @@ use function array_unique;
 use function assert;
 use function count;
 use function get_class;
+use function max;
 use function strtolower;
 
 /**
@@ -480,9 +481,9 @@ class Comparator
                 $changedProperties[] = 'fixed';
             }
         } elseif ($properties1['type'] instanceof Types\BlobType || $properties1['type'] instanceof Types\TextType) {
-            // check if value of length is set at all, default value assumed otherwise.
-            $length1 = $properties1['length'] ?: 0;
-            $length2 = $properties2['length'] ?: 0;
+            // check if value of length is set at all, -1 gets normalized to 0.
+            $length1 = max(0, $properties1['length'] ?: 0);
+            $length2 = max(0, $properties2['length'] ?: 0);
             if ($length1 !== $length2) {
                 $changedProperties[] = 'length';
             }
