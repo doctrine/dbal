@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
+use Doctrine\Tests\DBAL\MockBuilderProxy;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -29,8 +30,8 @@ final class DB2SchemaManagerTest extends TestCase
         $eventManager  = new EventManager();
         $driverMock    = $this->createMock(Driver::class);
         $platform      = $this->createMock(DB2Platform::class);
-        $this->conn    = $this
-            ->getMockBuilder(Connection::class)
+        $this->conn    = (new MockBuilderProxy($this
+            ->getMockBuilder(Connection::class)))
             ->onlyMethods(['fetchAllAssociative', 'quote'])
             ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
             ->getMock();

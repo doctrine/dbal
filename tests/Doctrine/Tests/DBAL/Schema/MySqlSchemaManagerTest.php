@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
+use Doctrine\Tests\DBAL\MockBuilderProxy;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -32,7 +33,7 @@ class MySqlSchemaManagerTest extends TestCase
         $platform->method('getListTableForeignKeysSQL')
             ->willReturn('');
 
-        $this->conn    = $this->getMockBuilder(Connection::class)
+        $this->conn    = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['fetchAllAssociative'])
             ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
             ->getMock();

@@ -65,7 +65,7 @@ class ConnectionTest extends DbalTestCase
 
         $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
 
-        return $this->getMockBuilder(Connection::class)
+        return (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['executeStatement'])
             ->setConstructorArgs([['platform' => $platform], $driverMock])
             ->getMock();
@@ -528,7 +528,7 @@ EOF
             ->with(FetchMode::ASSOCIATIVE)
             ->will($this->returnValue($result));
 
-        $conn = $this->getMockBuilder(Connection::class)
+        $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
             ->getMock();
@@ -563,7 +563,7 @@ EOF
             ->with(FetchMode::NUMERIC)
             ->will($this->returnValue($result));
 
-        $conn = $this->getMockBuilder(Connection::class)
+        $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
             ->getMock();
@@ -599,7 +599,7 @@ EOF
             ->with($column)
             ->will($this->returnValue($result));
 
-        $conn = $this->getMockBuilder(Connection::class)
+        $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
             ->getMock();
@@ -633,7 +633,7 @@ EOF
             ->method('fetchAll')
             ->will($this->returnValue($result));
 
-        $conn = $this->getMockBuilder(Connection::class)
+        $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
             ->getMock();
@@ -709,9 +709,9 @@ EOF
             ->method('prepare')
             ->will($this->returnValue($stmtMock));
 
-        $conn = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs([['pdo' => $pdoMock, 'platform' => $platformMock], $driverMock])
+        $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['connect'])
+            ->setConstructorArgs([['pdo' => $pdoMock, 'platform' => $platformMock], $driverMock])
             ->getMock();
 
         $conn->expects($this->once())->method('connect');

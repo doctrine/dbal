@@ -22,13 +22,14 @@ use function file_exists;
 use function posix_geteuid;
 use function posix_getpwuid;
 use function sprintf;
+use function strtoupper;
+use function substr;
 use function sys_get_temp_dir;
 use function touch;
 use function unlink;
 use function version_compare;
 
 use const PHP_OS;
-use const PHP_OS_FAMILY;
 
 /**
  * @psalm-import-type Params from DriverManager
@@ -306,7 +307,7 @@ class ExceptionTest extends DbalFunctionalTestCase
         }
 
         // mode 0 is considered read-only on Windows
-        $mode = PHP_OS_FAMILY === 'Windows' ? 0000 : 0444;
+        $mode = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 0000 : 0444;
 
         $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection_' . $mode . '.db');
 

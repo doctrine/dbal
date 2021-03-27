@@ -28,7 +28,7 @@ class StatementTest extends DbalTestCase
 
     protected function setUp(): void
     {
-        $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
+        $this->pdoStatement = (new MockBuilderProxy($this->getMockBuilder(PDOStatement::class)))
             ->onlyMethods(['execute', 'bindParam', 'bindValue', 'fetchAll'])
             ->getMock();
 

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
+use Doctrine\Tests\DBAL\MockBuilderProxy;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -22,7 +23,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     {
         parent::setUp();
 
-        $this->platformMock = $this->getMockBuilder(AbstractPlatform::class)
+        $this->platformMock = (new MockBuilderProxy($this->getMockBuilder(AbstractPlatform::class)))
             ->onlyMethods(
                 [
                     'getCreateForeignKeySQL',

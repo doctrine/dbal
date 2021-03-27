@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureShardManager;
+use Doctrine\Tests\DBAL\MockBuilderProxy;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -120,7 +121,7 @@ class SQLAzureShardManagerTest extends TestCase
      */
     private function createConnection(array $params): Connection
     {
-        $conn = $this->getMockBuilder(Connection::class)
+        $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['getParams', 'exec', 'isTransactionActive'])
             ->disableOriginalConstructor()
             ->getMock();
