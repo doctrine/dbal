@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Driver\PDOPgSql;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Exception;
+use Doctrine\Deprecations\Deprecation;
 use PDOException;
 
 use function defined;
@@ -116,6 +117,12 @@ class Driver extends AbstractPostgreSQLDriver
      */
     public function getName()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Driver::getName() is deprecated'
+        );
+
         return 'pdo_pgsql';
     }
 }

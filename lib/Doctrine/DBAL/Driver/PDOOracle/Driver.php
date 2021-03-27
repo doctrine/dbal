@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Driver\PDOOracle;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Exception;
+use Doctrine\Deprecations\Deprecation;
 use PDOException;
 
 /**
@@ -54,6 +55,12 @@ class Driver extends AbstractOracleDriver
      */
     public function getName()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'Driver::getName() is deprecated'
+        );
+
         return 'pdo_oracle';
     }
 }

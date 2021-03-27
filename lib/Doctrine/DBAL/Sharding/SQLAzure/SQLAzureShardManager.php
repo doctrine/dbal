@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Sharding\ShardManager;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use RuntimeException;
 
 use function sprintf;
@@ -40,6 +41,12 @@ class SQLAzureShardManager implements ShardManager
      */
     public function __construct(Connection $conn)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3595',
+            'Native Sharding support in DBAL is removed without replacement.'
+        );
+
         $this->conn = $conn;
         $params     = $conn->getParams();
 

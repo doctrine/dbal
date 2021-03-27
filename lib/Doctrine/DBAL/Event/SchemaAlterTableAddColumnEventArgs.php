@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function func_get_args;
@@ -67,6 +68,15 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
      */
     public function addSql($sql)
     {
+        if (is_array($sql)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/3580',
+                'Passing multiple SQL statements as an array to SchemaAlterTableAddColumnEventaArrgs::addSql() ' .
+                'is deprecated. Pass each statement as an individual argument instead.'
+            );
+        }
+
         $this->sql = array_merge($this->sql, is_array($sql) ? $sql : func_get_args());
 
         return $this;

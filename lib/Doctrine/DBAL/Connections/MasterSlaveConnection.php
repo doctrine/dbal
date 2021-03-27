@@ -5,12 +5,8 @@ namespace Doctrine\DBAL\Connections;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Driver;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
-
-use function sprintf;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
  * @deprecated Use PrimaryReadReplicaConnection instead
@@ -94,13 +90,12 @@ class MasterSlaveConnection extends PrimaryReadReplicaConnection
 
     private function deprecated(string $thing, string $instead): void
     {
-        @trigger_error(
-            sprintf(
-                '%s is deprecated since doctrine/dbal 2.11 and will be removed in 3.0, use %s instead.',
-                $thing,
-                $instead
-            ),
-            E_USER_DEPRECATED
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4054',
+            '%s is deprecated since doctrine/dbal 2.11 and will be removed in 3.0, use %s instead.',
+            $thing,
+            $instead
         );
     }
 }

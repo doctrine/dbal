@@ -14,6 +14,7 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_diff;
@@ -215,6 +216,12 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function prefersSequences()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4229',
+            'AbstractPlatform::prefersSequences() is deprecated without replacement and removed in DBAL 3.0'
+        );
+
         return true;
     }
 

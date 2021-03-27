@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 use function func_get_args;
@@ -198,6 +199,12 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      */
     public function requiresQueryForServerVersion()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4114',
+            'ServerInfoAwareConnection::requiresQueryForServerVersion() is deprecated and removed in DBAL 3.'
+        );
+
         return true;
     }
 

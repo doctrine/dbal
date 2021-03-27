@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLAnywhere;
 use Doctrine\DBAL\Driver\SQLSrv;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_keys;
 use function array_merge;
@@ -217,6 +218,12 @@ final class DriverManager
         }
 
         if (isset($params['pdo'])) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3554',
+                'Passing a user provided PDO instance directly to Doctrine is deprecated.'
+            );
+
             $params['pdo']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $params['driver'] = 'pdo_' . $params['pdo']->getAttribute(\PDO::ATTR_DRIVER_NAME);
         }

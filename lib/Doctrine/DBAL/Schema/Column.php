@@ -3,14 +3,11 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function is_numeric;
 use function method_exists;
-use function sprintf;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
  * Object representation of a database column.
@@ -80,11 +77,13 @@ class Column extends AbstractAsset
             $method = 'set' . $name;
             if (! method_exists($this, $method)) {
                 // next major: throw an exception
-                @trigger_error(sprintf(
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/2846',
                     'The "%s" column option is not supported,' .
-                    ' setting it is deprecated and will cause an error in Doctrine DBAL 3.0',
+                    ' setting unknown options is deprecated and will cause an error in Doctrine DBAL 3.0',
                     $name
-                ), E_USER_DEPRECATED);
+                );
 
                 continue;
             }

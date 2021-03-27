@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -973,6 +974,12 @@ SQL
      */
     public function prefersSequences()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4229',
+            'AbstractPlatform::prefersSequences() is deprecated without replacement and removed in DBAL 3.0'
+        );
+
         return true;
     }
 
@@ -1104,6 +1111,12 @@ SQL
      */
     public function fixSchemaElementName($schemaElementName)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4132',
+            'AbstractPlatform::fixSchemaElementName is deprecated with no replacement and removed in DBAL 3.0'
+        );
+
         if (strlen($schemaElementName) > 30) {
             // Trim it
             return substr($schemaElementName, 0, 30);
@@ -1135,6 +1148,12 @@ SQL
      */
     public function supportsForeignKeyOnUpdate()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4229',
+            'AbstractPlatform::supportsForeignKeyOnUpdate() is deprecated without replacement and removed in DBAL 3.0'
+        );
+
         return false;
     }
 

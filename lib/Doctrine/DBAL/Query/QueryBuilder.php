@@ -9,6 +9,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_key_exists;
@@ -483,6 +484,15 @@ class QueryBuilder
             return $this;
         }
 
+        if (is_array($select)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/3837',
+                'Passing an array for the first argument to QueryBuilder::select is deprecated, ' .
+                'pass each value as an individual variadic argument instead.'
+            );
+        }
+
         $selects = is_array($select) ? $select : func_get_args();
 
         return $this->add('select', $selects);
@@ -531,6 +541,15 @@ class QueryBuilder
 
         if (empty($select)) {
             return $this;
+        }
+
+        if (is_array($select)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/3837',
+                'Passing an array for the first argument to QueryBuilder::addSelect is deprecated, ' .
+                'pass each value as an individual variadic argument instead.'
+            );
         }
 
         $selects = is_array($select) ? $select : func_get_args();
@@ -911,6 +930,15 @@ class QueryBuilder
             return $this;
         }
 
+        if (is_array($groupBy)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/3837',
+                'Passing an array for the first argument to QueryBuilder::groupBy is deprecated, ' .
+                'pass each value as an individual variadic argument instead.'
+            );
+        }
+
         $groupBy = is_array($groupBy) ? $groupBy : func_get_args();
 
         return $this->add('groupBy', $groupBy, false);
@@ -938,6 +966,15 @@ class QueryBuilder
     {
         if (empty($groupBy)) {
             return $this;
+        }
+
+        if (is_array($groupBy)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/3837',
+                'Passing an array for the first argument to QueryBuilder::addGroupBy is deprecated, ' .
+                'pass each value as an individual variadic argument instead.'
+            );
         }
 
         $groupBy = is_array($groupBy) ? $groupBy : func_get_args();

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use stdClass;
 
 use function assert;
@@ -82,6 +83,12 @@ class DB2Connection implements ConnectionInterface, ServerInfoAwareConnection
      */
     public function requiresQueryForServerVersion()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4114',
+            'ServerInfoAwareConnection::requiresQueryForServerVersion() is deprecated and removed in DBAL 3.'
+        );
+
         return false;
     }
 

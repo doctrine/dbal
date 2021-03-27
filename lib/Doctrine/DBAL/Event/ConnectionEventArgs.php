@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\Deprecations\Deprecation;
 
 /**
  * Event Arguments used when a Driver connection is established inside {@link Connection}.
@@ -36,6 +37,13 @@ class ConnectionEventArgs extends EventArgs
      */
     public function getDriver()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'ConnectionEventArgs::getDriver() is deprecated, ' .
+            'use ConnectionEventArgs::getConnection()->getDriver() instead.'
+        );
+
         return $this->connection->getDriver();
     }
 
@@ -46,6 +54,13 @@ class ConnectionEventArgs extends EventArgs
      */
     public function getDatabasePlatform()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'ConnectionEventArgs::getDatabasePlatform() is deprecated, ' .
+            'use ConnectionEventArgs::getConnection()->getDatabasePlatform() instead.'
+        );
+
         return $this->connection->getDatabasePlatform();
     }
 
@@ -56,6 +71,13 @@ class ConnectionEventArgs extends EventArgs
      */
     public function getSchemaManager()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3580',
+            'ConnectionEventArgs::getSchemaManager() is deprecated, ' .
+            'use ConnectionEventArgs::getConnection()->getSchemaManager() instead.'
+        );
+
         return $this->connection->getSchemaManager();
     }
 }

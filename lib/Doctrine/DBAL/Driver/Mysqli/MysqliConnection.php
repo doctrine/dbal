@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\InvalidOption;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use mysqli;
 
 use function assert;
@@ -135,6 +136,12 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
      */
     public function requiresQueryForServerVersion()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4114',
+            'ServerInfoAwareConnection::requiresQueryForServerVersion() is deprecated and removed in DBAL 3.'
+        );
+
         return false;
     }
 
