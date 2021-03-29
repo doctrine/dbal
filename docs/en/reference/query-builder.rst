@@ -218,7 +218,8 @@ returned.
         ->select('id', 'name')
         ->from('users')
         ->setFirstResult(10)
-        ->setMaxResults(20);
+        ->setMaxResults(20)
+    ;
 
 VALUES Clause
 ~~~~~~~~~~
@@ -336,7 +337,8 @@ Most notably you can use expressions to build nested And-/Or statements:
                 $queryBuilder->expr()->eq('username', '?'),
                 $queryBuilder->expr()->eq('email', '?')
             )
-        );
+        )
+    ;
 
 The ``and()`` and ``or()`` methods accept an arbitrary amount
 of arguments and can be nested in each other.
