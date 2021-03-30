@@ -12,7 +12,7 @@ on:
     - cron: "42 3 * * *"
 
 env:
-  fail-fast: true
+  fail-fast: false
 
 jobs:
   phpunit-smoke-check:

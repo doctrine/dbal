@@ -49,13 +49,7 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function lastInsertId($name = null)
     {
-        if ($name === null) {
-            return $this->connection->lastInsertId($name);
-        }
-
-        return $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?')
-            ->execute([$name])
-            ->fetchOne();
+        return $this->connection->lastInsertId($name);
     }
 
     /**
