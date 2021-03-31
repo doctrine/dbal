@@ -247,7 +247,8 @@
                 -->
                 <file name="src/Platforms/MySQLPlatform.php"/>
                 <!--
-                    See https://github.com/vimeo/psalm/issues/5305
+                    Requires a release of
+                    https://github.com/JetBrains/phpstorm-stubs/commit/43ce0bb13e927b9eb69cc06c16ab22f548c4735b
                 -->
                 <file name="src/Driver/Mysqli/Connection.php"/>
             </errorLevel>
@@ -261,15 +262,6 @@
                 <file name="src/Query/QueryBuilder.php"/>
             </errorLevel>
         </ReferenceConstraintViolation>
-        <TooFewArguments>
-            <errorLevel type="suppress">
-                <!--
-                    Requires a release of
-                    https://github.com/JetBrains/phpstorm-stubs/pull/727
-                -->
-                <file name="src/Driver/SQLSrv/Statement.php"/>
-            </errorLevel>
-        </TooFewArguments>
         <TooManyArguments>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3562 -->

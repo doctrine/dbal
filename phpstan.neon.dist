@@ -16,7 +16,7 @@ parameters:
         - '~^Return type \(int\|false\) of method Doctrine\\DBAL\\Driver\\OCI8\\Connection\:\:lastInsertId\(\) should be compatible with return type \(string\) of method Doctrine\\DBAL\\Driver\\Connection::lastInsertId\(\)~'
         - '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::lastInsertId\(\) should return string but returns int\|string\.$~'
 
-        # https://github.com/phpstan/phpstan/issues/2857
+        # https://github.com/doctrine/dbal/pull/3836
         # TODO: remove in 4.0.0
         - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int\|string> given\.\z~'
 
@@ -29,11 +29,6 @@ parameters:
 
         # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
-
-        # https://github.com/phpstan/phpstan/issues/3132
-        -
-            message: '~^Call to function in_array\(\) with arguments Doctrine\\DBAL\\Schema\\Column, array<string> and true will always evaluate to false\.$~'
-            path: %currentWorkingDirectory%/src/Schema/Table.php
 
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
         -
@@ -88,13 +83,6 @@ parameters:
             message: '~^Only numeric types are allowed in -, int<1, max>\|false given on the left side\.~'
             paths:
                 - %currentWorkingDirectory%/src/Platforms/SQLServer2012Platform.php
-
-        # Caused by phpdoc annotations intended for Psalm
-        -
-            message: '~Unable to resolve the template type T in call to method static method Doctrine\\DBAL\\DriverManager::getConnection\(\)~'
-            paths:
-                - %currentWorkingDirectory%/src/Id/TableGenerator.php
-                - %currentWorkingDirectory%/src/Schema/SqliteSchemaManager.php
 
         # Unlike Psalm, PHPStan doesn't understand the shape of the parse_str() return value
         -
