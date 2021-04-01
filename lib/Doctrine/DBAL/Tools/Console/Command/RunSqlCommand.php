@@ -53,7 +53,7 @@ class RunSqlCommand extends Command
         ->setDefinition([
             new InputOption('connection', null, InputOption::VALUE_REQUIRED, 'The named database connection'),
             new InputArgument('sql', InputArgument::REQUIRED, 'The SQL statement to execute.'),
-            new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'Dumping depth of result set.', 7),
+            new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'Dumping depth of result set.', '7'),
             new InputOption('force-fetch', null, InputOption::VALUE_NONE, 'Forces fetching the result.'),
         ])
         ->setHelp(<<<EOT
