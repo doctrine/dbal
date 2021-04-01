@@ -37,6 +37,8 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use Result::free() instead.
      */
     public function closeCursor()
     {
@@ -53,6 +55,8 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use one of the fetch- or iterate-related methods.
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
@@ -61,6 +65,8 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
@@ -69,6 +75,8 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -77,6 +85,8 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use fetchOne() instead.
      */
     public function fetchColumn($columnIndex = 0)
     {
