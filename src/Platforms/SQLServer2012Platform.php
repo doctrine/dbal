@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -1561,6 +1562,13 @@ class SQLServer2012Platform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4510',
+            'QLServer2012Platform::getReservedKeywordsClass() is deprecated,'
+                . ' use QLServer2012Platform::createReservedKeywordsList() instead.'
+        );
+
         return Keywords\SQLServer2012Keywords::class;
     }
 

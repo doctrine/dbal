@@ -3529,6 +3529,13 @@ abstract class AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4510',
+            'AbstractPlatform::getReservedKeywordsClass() is deprecated,'
+                . ' use AbstractPlatform::createReservedKeywordsList() instead.'
+        );
+
         throw Exception::notSupported(__METHOD__);
     }
 

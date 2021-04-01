@@ -14,6 +14,7 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_diff;
@@ -1181,6 +1182,13 @@ SQL
      */
     protected function getReservedKeywordsClass()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4510',
+            'PostgreSQL94Platform::getReservedKeywordsClass() is deprecated,'
+                . ' use PostgreSQL94Platform::createReservedKeywordsList() instead.'
+        );
+
         return Keywords\PostgreSQL94Keywords::class;
     }
 

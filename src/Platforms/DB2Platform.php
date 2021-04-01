@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function count;
@@ -901,6 +902,13 @@ class DB2Platform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4510',
+            'DB2Platform::getReservedKeywordsClass() is deprecated,'
+                . ' use DB2Platform::createReservedKeywordsList() instead.'
+        );
+
         return Keywords\DB2Keywords::class;
     }
 
