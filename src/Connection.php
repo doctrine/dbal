@@ -70,7 +70,7 @@ class Connection
     protected $_eventManager;
 
     /**
-     * @deprecated Use {@link getExpressionBuilder()} instead.
+     * @deprecated Use {@link createExpressionBuilder()} instead.
      *
      * @var ExpressionBuilder
      */
@@ -297,6 +297,13 @@ class Connection
      */
     public function getExpressionBuilder()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4515',
+            'Connection::getExpressionBuilder() is deprecated,'
+                . ' use Connection::createExpressionBuilder() instead.'
+        );
+
         return $this->_expr;
     }
 
