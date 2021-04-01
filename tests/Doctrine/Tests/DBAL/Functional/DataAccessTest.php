@@ -557,29 +557,34 @@ class DataAccessTest extends DbalFunctionalTestCase
         ];
     }
 
-    public function testDateArithmetics(): void
+    /**
+     * @param array<array-key, mixed> $parameters
+     *
+     * @dataProvider getDateArithmeticInputProvider
+     */
+    public function testDateArithmetics(string $input, array $parameters): void
     {
         $p    = $this->connection->getDatabasePlatform();
         $sql  = 'SELECT ';
-        $sql .= $p->getDateAddSecondsExpression('test_datetime', 1) . ' AS add_seconds, ';
-        $sql .= $p->getDateSubSecondsExpression('test_datetime', 1) . ' AS sub_seconds, ';
-        $sql .= $p->getDateAddMinutesExpression('test_datetime', 5) . ' AS add_minutes, ';
-        $sql .= $p->getDateSubMinutesExpression('test_datetime', 5) . ' AS sub_minutes, ';
-        $sql .= $p->getDateAddHourExpression('test_datetime', 3) . ' AS add_hour, ';
-        $sql .= $p->getDateSubHourExpression('test_datetime', 3) . ' AS sub_hour, ';
-        $sql .= $p->getDateAddDaysExpression('test_datetime', 10) . ' AS add_days, ';
-        $sql .= $p->getDateSubDaysExpression('test_datetime', 10) . ' AS sub_days, ';
-        $sql .= $p->getDateAddWeeksExpression('test_datetime', 1) . ' AS add_weeks, ';
-        $sql .= $p->getDateSubWeeksExpression('test_datetime', 1) . ' AS sub_weeks, ';
-        $sql .= $p->getDateAddMonthExpression('test_datetime', 2) . ' AS add_month, ';
-        $sql .= $p->getDateSubMonthExpression('test_datetime', 2) . ' AS sub_month, ';
-        $sql .= $p->getDateAddQuartersExpression('test_datetime', 3) . ' AS add_quarters, ';
-        $sql .= $p->getDateSubQuartersExpression('test_datetime', 3) . ' AS sub_quarters, ';
-        $sql .= $p->getDateAddYearsExpression('test_datetime', 6) . ' AS add_years, ';
-        $sql .= $p->getDateSubYearsExpression('test_datetime', 6) . ' AS sub_years ';
+        $sql .= $p->getDateAddSecondsExpression($input, 1) . ' AS add_seconds, ';
+        $sql .= $p->getDateSubSecondsExpression($input, 1) . ' AS sub_seconds, ';
+        $sql .= $p->getDateAddMinutesExpression($input, 5) . ' AS add_minutes, ';
+        $sql .= $p->getDateSubMinutesExpression($input, 5) . ' AS sub_minutes, ';
+        $sql .= $p->getDateAddHourExpression($input, 3) . ' AS add_hour, ';
+        $sql .= $p->getDateSubHourExpression($input, 3) . ' AS sub_hour, ';
+        $sql .= $p->getDateAddDaysExpression($input, 10) . ' AS add_days, ';
+        $sql .= $p->getDateSubDaysExpression($input, 10) . ' AS sub_days, ';
+        $sql .= $p->getDateAddWeeksExpression($input, 1) . ' AS add_weeks, ';
+        $sql .= $p->getDateSubWeeksExpression($input, 1) . ' AS sub_weeks, ';
+        $sql .= $p->getDateAddMonthExpression($input, 2) . ' AS add_month, ';
+        $sql .= $p->getDateSubMonthExpression($input, 2) . ' AS sub_month, ';
+        $sql .= $p->getDateAddQuartersExpression($input, 3) . ' AS add_quarters, ';
+        $sql .= $p->getDateSubQuartersExpression($input, 3) . ' AS sub_quarters, ';
+        $sql .= $p->getDateAddYearsExpression($input, 6) . ' AS add_years, ';
+        $sql .= $p->getDateSubYearsExpression($input, 6) . ' AS sub_years ';
         $sql .= 'FROM fetch_table';
 
-        $row = $this->connection->fetchAssoc($sql);
+        $row = $this->connection->fetchAssoc($sql, $parameters);
         self::assertNotFalse($row);
 
         $row = array_change_key_case($row, CASE_LOWER);
@@ -600,6 +605,17 @@ class DataAccessTest extends DbalFunctionalTestCase
         self::assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])));
         self::assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])));
         self::assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])));
+    }
+
+    /**
+     * @return list<array{string, array<array-key, mixed>}>
+     */
+    public function getDateArithmeticInputProvider(): array
+    {
+        return [
+            ['test_datetime', []],
+            [':date', ['date' => '2010-01-01 10:10:10']],
+        ];
     }
 
     public function testSqliteDateArithmeticWithDynamicInterval(): void
