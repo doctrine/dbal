@@ -2758,6 +2758,13 @@ abstract class AbstractPlatform
      */
     public function getListNamespacesSQL()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4503',
+            'AbstractPlatform::getListNamespacesSQL() is deprecated,'
+                . ' use AbstractSchemaManager::listSchemaNames() instead.'
+        );
+
         throw Exception::notSupported(__METHOD__);
     }
 

@@ -1166,6 +1166,13 @@ class SQLServer2012Platform extends AbstractPlatform
      */
     public function getListNamespacesSQL()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4503',
+            'SQLServer2012Platform::getListNamespacesSQL() is deprecated,'
+                . ' use SQLServerSchemaManager::listSchemaNames() instead.'
+        );
+
         return "SELECT name FROM sys.schemas WHERE name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')";
     }
 
