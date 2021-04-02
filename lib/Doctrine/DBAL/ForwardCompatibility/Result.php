@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\ResultStatement as DriverResultStatement;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\NoKeyValue;
 use Doctrine\DBAL\Result as BaseResult;
+use Doctrine\Deprecations\Deprecation;
 use IteratorAggregate;
 use PDO;
 use Traversable;
@@ -70,6 +71,12 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::fetch() is deprecated, use Result::fetchNumeric(), fetchAssociative() or fetchOne() instead.'
+        );
+
         return $this->stmt->fetch($fetchMode, $cursorOrientation, $cursorOffset);
     }
 
@@ -80,6 +87,13 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::fetchAll() is deprecated, use Result::fetchAllNumeric(), fetchAllAssociative() or ' .
+            'fetchFirstColumn() instead.'
+        );
+
         return $this->stmt->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
     }
 
@@ -90,6 +104,12 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
      */
     public function fetchColumn($columnIndex = 0)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::fetchColumn() is deprecated, use Result::fetchOne() instead.'
+        );
+
         return $this->stmt->fetchColumn($columnIndex);
     }
 
