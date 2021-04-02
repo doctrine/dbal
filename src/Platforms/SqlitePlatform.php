@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -586,8 +587,18 @@ class SqlitePlatform extends AbstractPlatform
         ];
     }
 
+    /**
+     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     */
     protected function getReservedKeywordsClass(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4510',
+            'SqlitePlatform::getReservedKeywordsClass() is deprecated,'
+                . ' use SqlitePlatform::createReservedKeywordsList() instead.'
+        );
+
         return Keywords\SQLiteKeywords::class;
     }
 

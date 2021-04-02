@@ -12,6 +12,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
 use function array_filter;
@@ -100,17 +101,38 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of all namespaces in the current database.
      *
+     * @deprecated Use {@link listSchemaNames()} instead.
+     *
      * @return array<int, string>
      *
      * @throws Exception
      */
     public function listNamespaceNames(): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4503',
+            'AbstractSchemaManager::listNamespaceNames() is deprecated,'
+                . ' use AbstractSchemaManager::listSchemaNames() instead.'
+        );
+
         $sql = $this->_platform->getListNamespacesSQL();
 
         $namespaces = $this->_conn->fetchAllAssociative($sql);
 
         return $this->getPortableNamespacesList($namespaces);
+    }
+
+    /**
+     * Returns a list of the names of all schemata in the current database.
+     *
+     * @return list<string>
+     *
+     * @throws Exception
+     */
+    public function listSchemaNames(): array
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**
@@ -321,6 +343,16 @@ abstract class AbstractSchemaManager
     public function dropDatabase(string $database): void
     {
         $this->_execSql($this->_platform->getDropDatabaseSQL($database));
+    }
+
+    /**
+     * Drops a schema.
+     *
+     * @throws Exception
+     */
+    public function dropSchema(string $schemaName): void
+    {
+        $this->_execSql($this->_platform->getDropSchemaSQL($schemaName));
     }
 
     /**
@@ -614,6 +646,8 @@ abstract class AbstractSchemaManager
     /**
      * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
      *
+     * @deprecated Use {@link listSchemaNames()} instead.
+     *
      * @param array<int, array<string, mixed>> $namespaces The list of namespace names
      *                                                     in the native DBMS data definition.
      *
@@ -621,6 +655,13 @@ abstract class AbstractSchemaManager
      */
     protected function getPortableNamespacesList(array $namespaces): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4503',
+            'AbstractSchemaManager::getPortableNamespacesList() is deprecated,'
+                . ' use AbstractSchemaManager::listSchemaNames() instead.'
+        );
+
         $namespacesList = [];
 
         foreach ($namespaces as $namespace) {
@@ -642,6 +683,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
+     *
+     * @deprecated Use {@link listSchemaNames()} instead.
      *
      * @param array<string, mixed> $namespace The native DBMS namespace definition.
      */
@@ -927,10 +970,10 @@ abstract class AbstractSchemaManager
      */
     public function createSchema(): Schema
     {
-        $namespaces = [];
+        $schemaNames = [];
 
         if ($this->_platform->supportsSchemas()) {
-            $namespaces = $this->listNamespaceNames();
+            $schemaNames = $this->listNamespaceNames();
         }
 
         $sequences = [];
@@ -941,7 +984,7 @@ abstract class AbstractSchemaManager
 
         $tables = $this->listTables();
 
-        return new Schema($tables, $sequences, $this->createSchemaConfig(), $namespaces);
+        return new Schema($tables, $sequences, $this->createSchemaConfig(), $schemaNames);
     }
 
     /**

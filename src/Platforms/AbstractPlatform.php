@@ -36,6 +36,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -1194,6 +1195,14 @@ abstract class AbstractPlatform
     public function getDropDatabaseSQL(string $database): string
     {
         return 'DROP DATABASE ' . $database;
+    }
+
+    /**
+     * Returns the SQL snippet to drop a schema.
+     */
+    public function getDropSchemaSQL(string $schemaName): string
+    {
+        return 'DROP SCHEMA ' . $schemaName;
     }
 
     /**
@@ -2499,10 +2508,19 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL statement for retrieving the namespaces defined in the database.
      *
+     * @deprecated Use {@link AbstractSchemaManager::listSchemaNames()} instead.
+     *
      * @throws Exception If not supported on this platform.
      */
     public function getListNamespacesSQL(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4503',
+            'AbstractPlatform::getListNamespacesSQL() is deprecated,'
+                . ' use AbstractSchemaManager::listSchemaNames() instead.'
+        );
+
         throw NotSupported::new(__METHOD__);
     }
 
@@ -3099,18 +3117,28 @@ abstract class AbstractPlatform
     final public function getReservedKeywordsList(): KeywordList
     {
         // Check for an existing instantiation of the keywords class.
-        if ($this->_keywords !== null) {
-            return $this->_keywords;
+        if ($this->_keywords === null) {
+            // Store the instance so it doesn't need to be generated on every request.
+            $this->_keywords = $this->createReservedKeywordsList();
         }
 
+        return $this->_keywords;
+    }
+
+    /**
+     * Creates an instance of the reserved keyword list of this platform.
+     *
+     * This method will become @abstract in DBAL 4.0.0.
+     *
+     * @throws Exception
+     */
+    protected function createReservedKeywordsList(): KeywordList
+    {
         $class    = $this->getReservedKeywordsClass();
         $keywords = new $class();
         if (! $keywords instanceof KeywordList) {
             throw NotSupported::new(__METHOD__);
         }
-
-        // Store the instance so it doesn't need to be generated on every request.
-        $this->_keywords = $keywords;
 
         return $keywords;
     }
@@ -3118,12 +3146,21 @@ abstract class AbstractPlatform
     /**
      * Returns the class name of the reserved keywords list.
      *
+     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     *
      * @throws Exception If not supported on this platform.
      *
      * @psalm-return class-string<KeywordList>
      */
     protected function getReservedKeywordsClass(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4510',
+            'AbstractPlatform::getReservedKeywordsClass() is deprecated,'
+                . ' use AbstractPlatform::createReservedKeywordsList() instead.'
+        );
+
         throw NotSupported::new(__METHOD__);
     }
 

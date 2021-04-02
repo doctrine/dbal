@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 5.7 (5.7.9 GA) database platform.
@@ -56,8 +57,18 @@ class MySQL57Platform extends MySQLPlatform
         return ['ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];
     }
 
+    /**
+     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     */
     protected function getReservedKeywordsClass(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4510',
+            'MySQL57Platform::getReservedKeywordsClass() is deprecated,'
+                . ' use MySQL57Platform::createReservedKeywordsList() instead.'
+        );
+
         return Keywords\MySQL57Keywords::class;
     }
 

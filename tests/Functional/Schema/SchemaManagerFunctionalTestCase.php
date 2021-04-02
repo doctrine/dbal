@@ -38,7 +38,6 @@ use function array_shift;
 use function array_values;
 use function count;
 use function get_class;
-use function in_array;
 use function sprintf;
 use function strcasecmp;
 use function strtolower;
@@ -155,26 +154,40 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertContains('test_create_database', $databases);
     }
 
-    public function testListNamespaceNames(): void
+    /**
+     * @dataProvider listSchemaNamesMethodProvider
+     */
+    public function testListSchemaNames(callable $method): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsSchemas()) {
             self::markTestSkipped('Platform does not support schemas.');
         }
 
-        // Currently dropping schemas is not supported, so we have to workaround here.
-        $namespaces = $this->schemaManager->listNamespaceNames();
-        $namespaces = array_map('strtolower', $namespaces);
+        $this->schemaManager->tryMethod('dropSchema', 'test_create_schema');
 
-        if (! in_array('test_create_schema', $namespaces, true)) {
-            $this->connection->executeStatement(
-                $this->schemaManager->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema')
-            );
+        $this->connection->executeStatement(
+            $this->schemaManager->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema')
+        );
 
-            $namespaces = $this->schemaManager->listNamespaceNames();
-            $namespaces = array_map('strtolower', $namespaces);
-        }
+        self::assertContains('test_create_schema', $method($this->schemaManager));
+    }
 
-        self::assertContains('test_create_schema', $namespaces);
+    /**
+     * @return iterable<list<mixed>>
+     */
+    public static function listSchemaNamesMethodProvider(): iterable
+    {
+        yield [
+            static function (AbstractSchemaManager $schemaManager): array {
+                return $schemaManager->listNamespaceNames();
+            },
+        ];
+
+        yield [
+            static function (AbstractSchemaManager $schemaManager): array {
+                return $schemaManager->listSchemaNames();
+            },
+        ];
     }
 
     public function testListTables(): void

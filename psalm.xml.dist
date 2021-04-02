@@ -54,6 +54,20 @@
                     See https://github.com/doctrine/dbal/pull/4317
                 -->
                 <file name="tests/Functional/LegacyAPITest.php"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/issues/4510
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getReservedKeywordsClass"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/issues/4503
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListNamespacesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::getPortableNamespaceDefinition"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::getPortableNamespacesList"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::listNamespaceNames"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\PostgreSQLSchemaManager::getSchemaNames"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
@@ -190,20 +204,12 @@
                 -->
                 <file name="src/Platforms/MySQLPlatform.php"/>
                 <!--
-                    See https://github.com/vimeo/psalm/issues/5305
+                    Requires a release of
+                    https://github.com/JetBrains/phpstorm-stubs/commit/43ce0bb13e927b9eb69cc06c16ab22f548c4735b
                 -->
                 <file name="src/Driver/Mysqli/Connection.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
-        <TooFewArguments>
-            <errorLevel type="suppress">
-                <!--
-                    Requires a release of
-                    https://github.com/JetBrains/phpstorm-stubs/pull/727
-                -->
-                <file name="src/Driver/SQLSrv/Statement.php"/>
-            </errorLevel>
-        </TooFewArguments>
         <TypeDoesNotContainType>
             <errorLevel type="suppress">
                 <!-- See https://github.com/vimeo/psalm/issues/4274 -->
