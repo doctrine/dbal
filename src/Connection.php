@@ -21,6 +21,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use Throwable;
 use Traversable;
 
@@ -69,7 +70,7 @@ class Connection
     protected $_eventManager;
 
     /**
-     * @deprecated Use {@link getExpressionBuilder()} instead.
+     * @deprecated Use {@link createExpressionBuilder()} instead.
      *
      * @var ExpressionBuilder
      */
@@ -296,6 +297,13 @@ class Connection
      */
     public function getExpressionBuilder()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4515',
+            'Connection::getExpressionBuilder() is deprecated,'
+                . ' use Connection::createExpressionBuilder() instead.'
+        );
+
         return $this->_expr;
     }
 
@@ -1544,6 +1552,12 @@ class Connection
      */
     public function getSchemaManager()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4515',
+            'Connection::getSchemaManager() is deprecated, use Connection::createSchemaManager() instead.'
+        );
+
         if ($this->_schemaManager === null) {
             $this->_schemaManager = $this->createSchemaManager();
         }

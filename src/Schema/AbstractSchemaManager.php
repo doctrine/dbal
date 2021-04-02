@@ -117,6 +117,13 @@ abstract class AbstractSchemaManager
      */
     public function listNamespaceNames()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4503',
+            'AbstractSchemaManager::listNamespaceNames() is deprecated,'
+                . ' use AbstractSchemaManager::listSchemaNames() instead.'
+        );
+
         $sql = $this->_platform->getListNamespacesSQL();
 
         $namespaces = $this->_conn->fetchAllAssociative($sql);
@@ -735,6 +742,13 @@ abstract class AbstractSchemaManager
      */
     protected function getPortableNamespacesList(array $namespaces)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4503',
+            'AbstractSchemaManager::getPortableNamespacesList() is deprecated,'
+                . ' use AbstractSchemaManager::listSchemaNames() instead.'
+        );
+
         $namespacesList = [];
 
         foreach ($namespaces as $namespace) {
@@ -765,6 +779,13 @@ abstract class AbstractSchemaManager
      */
     protected function getPortableNamespaceDefinition(array $namespace)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4503',
+            'AbstractSchemaManager::getPortableNamespaceDefinition() is deprecated,'
+                . ' use AbstractSchemaManager::listSchemaNames() instead.'
+        );
+
         return $namespace;
     }
 
