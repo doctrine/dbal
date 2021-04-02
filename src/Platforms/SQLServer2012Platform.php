@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Platforms\Keywords\KeywordList;
+use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -15,7 +17,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -1374,19 +1375,9 @@ class SQLServer2012Platform extends AbstractPlatform
         return ' ';
     }
 
-    /**
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
-     */
-    protected function getReservedKeywordsClass(): string
+    protected function createReservedKeywordsList(): KeywordList
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4510',
-            'QLServer2012Platform::getReservedKeywordsClass() is deprecated,'
-                . ' use QLServer2012Platform::createReservedKeywordsList() instead.'
-        );
-
-        return Keywords\SQLServer2012Keywords::class;
+        return new SQLServer2012Keywords();
     }
 
     public function quoteSingleIdentifier(string $str): string

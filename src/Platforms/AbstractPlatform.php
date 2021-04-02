@@ -36,7 +36,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -3108,42 +3107,8 @@ abstract class AbstractPlatform
 
     /**
      * Creates an instance of the reserved keyword list of this platform.
-     *
-     * This method will become @abstract in DBAL 4.0.0.
-     *
-     * @throws Exception
      */
-    protected function createReservedKeywordsList(): KeywordList
-    {
-        $class    = $this->getReservedKeywordsClass();
-        $keywords = new $class();
-        if (! $keywords instanceof KeywordList) {
-            throw NotSupported::new(__METHOD__);
-        }
-
-        return $keywords;
-    }
-
-    /**
-     * Returns the class name of the reserved keywords list.
-     *
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
-     *
-     * @throws Exception If not supported on this platform.
-     *
-     * @psalm-return class-string<KeywordList>
-     */
-    protected function getReservedKeywordsClass(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4510',
-            'AbstractPlatform::getReservedKeywordsClass() is deprecated,'
-                . ' use AbstractPlatform::createReservedKeywordsList() instead.'
-        );
-
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract protected function createReservedKeywordsList(): KeywordList;
 
     /**
      * Quotes a literal string.
