@@ -1,5 +1,10 @@
 # Upgrade to 4.0
 
+## `PostgreSQLSchemaManager` methods have been made protected.
+
+`PostgreSQLSchemaManager::getExistingSchemaSearchPaths()` and `::determineExistingSchemaSearchPaths()` have been made protected.
+The former has also been made final.
+
 ## Removed schema- and namespace-related methods
 
 The following schema- and namespace-related methods have been removed:

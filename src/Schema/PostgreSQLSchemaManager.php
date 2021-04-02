@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -70,36 +71,34 @@ SQL
     }
 
     /**
-     * Gets names of all existing schemas in the current users search path.
-     *
-     * This is a PostgreSQL only function.
-     *
-     * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
+     * Gets names of all existing schemas in the current user's search path.
      *
      * @return array<int, string>
+     *
+     * @throws Exception
      */
-    public function getExistingSchemaSearchPaths(): array
+    final protected function getExistingSchemaSearchPaths(): array
     {
         if ($this->existingSchemaPaths === null) {
-            $this->determineExistingSchemaSearchPaths();
+            $this->existingSchemaPaths = $this->determineExistingSchemaSearchPaths();
         }
 
         return $this->existingSchemaPaths;
     }
 
     /**
-     * Sets or resets the order of the existing schemas in the current search path of the user.
+     * Determines the names of all existing schemas in the current user's search path.
      *
-     * This is a PostgreSQL only function.
+     * @return array<int,string>
      *
-     * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
+     * @throws Exception
      */
-    public function determineExistingSchemaSearchPaths(): void
+    protected function determineExistingSchemaSearchPaths(): array
     {
         $names = $this->listSchemaNames();
         $paths = $this->getSchemaSearchPaths();
 
-        $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names): bool {
+        return array_filter($paths, static function ($v) use ($names): bool {
             return in_array($v, $names, true);
         });
     }

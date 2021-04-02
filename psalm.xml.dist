@@ -116,12 +116,6 @@
                 <file name="src/Driver/OCI8/Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
-        <InvalidNullableReturnType>
-            <errorLevel type="suppress">
-                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
-                <file name="src/Schema/PostgreSQLSchemaManager.php"/>
-            </errorLevel>
-        </InvalidNullableReturnType>
         <InvalidPropertyAssignmentValue>
             <errorLevel type="suppress">
                 <!-- Fixing this issue requires an API change -->
@@ -134,8 +128,6 @@
                     Fixing this issue requires an API change
                 -->
                 <file name="src/Driver/AbstractSQLiteDriver.php"/>
-                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
-                <file name="src/Schema/PostgreSQLSchemaManager.php"/>
             </errorLevel>
         </NullableReturnStatement>
         <PossiblyNullArgument>
