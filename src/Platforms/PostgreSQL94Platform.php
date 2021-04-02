@@ -170,24 +170,6 @@ class PostgreSQL94Platform extends AbstractPlatform
         return 'SELECT datname FROM pg_database';
     }
 
-    /**
-     * @deprecated Use {@link PostgreSQLSchemaManager::listSchemaNames()} instead.
-     */
-    public function getListNamespacesSQL(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4503',
-            'PostgreSQL94Platform::getListNamespacesSQL() is deprecated,'
-                . ' use PostgreSQLSchemaManager::listSchemaNames() instead.'
-        );
-
-        return "SELECT schema_name AS nspname
-                FROM   information_schema.schemata
-                WHERE  schema_name NOT LIKE 'pg\_%'
-                AND    schema_name != 'information_schema'";
-    }
-
     public function getListSequencesSQL(string $database): string
     {
         return "SELECT sequence_name AS relname,

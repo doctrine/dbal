@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
 use function array_filter;
@@ -36,27 +34,6 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
     /** @var array<int, string>|null */
     private $existingSchemaPaths;
-
-    /**
-     * Gets all the existing schema names.
-     *
-     * @deprecated Use {@link listSchemaNames()} instead.
-     *
-     * @return array<int, string>
-     *
-     * @throws Exception
-     */
-    public function getSchemaNames(): array
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4503',
-            'PostgreSQLSchemaManager::getSchemaNames() is deprecated,'
-                . ' use PostgreSQLSchemaManager::listSchemaNames() instead.'
-        );
-
-        return $this->listNamespaceNames();
-    }
 
     /**
      * {@inheritDoc}
@@ -281,23 +258,6 @@ SQL
         }
 
         return $list;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use {@link listSchemaNames()} instead.
-     */
-    protected function getPortableNamespaceDefinition(array $namespace): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4503',
-            'PostgreSQLSchemaManager::getPortableNamespaceDefinition() is deprecated,'
-                . ' use PostgreSQLSchemaManager::listSchemaNames() instead.'
-        );
-
-        return $namespace['nspname'];
     }
 
     /**

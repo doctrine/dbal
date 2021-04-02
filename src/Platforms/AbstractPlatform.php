@@ -2506,25 +2506,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL statement for retrieving the namespaces defined in the database.
-     *
-     * @deprecated Use {@link AbstractSchemaManager::listSchemaNames()} instead.
-     *
-     * @throws Exception If not supported on this platform.
-     */
-    public function getListNamespacesSQL(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4503',
-            'AbstractPlatform::getListNamespacesSQL() is deprecated,'
-                . ' use AbstractSchemaManager::listSchemaNames() instead.'
-        );
-
-        throw NotSupported::new(__METHOD__);
-    }
-
-    /**
      * @throws Exception If not supported on this platform.
      */
     public function getListSequencesSQL(string $database): string

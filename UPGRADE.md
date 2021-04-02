@@ -1,5 +1,15 @@
 # Upgrade to 4.0
 
+## Removed schema- and namespace-related methods
+
+The following schema- and namespace-related methods have been removed:
+
+- `AbstractPlatform::getListNamespacesSQL()`,
+- `AbstractSchemaManager::listNamespaceNames()`,
+- `AbstractSchemaManager::getPortableNamespacesList()`,
+- `AbstractSchemaManager::getPortableNamespaceDefinition()`,
+- `PostgreSQLSchemaManager::getSchemaNames()`.
+
 ## Removed the `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()`
 
 The `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()` has been removed. The specifics of binding a parameter to the statement should be specified using the `$type` argument.

@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use PDOException;
 
 use function assert;
@@ -224,23 +223,6 @@ SQL
     protected function _getPortableDatabaseDefinition(array $database): string
     {
         return $database['name'];
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use {@link listSchemaNames()} instead.
-     */
-    protected function getPortableNamespaceDefinition(array $namespace): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4503',
-            'SQLServerSchemaManager::getPortableNamespaceDefinition() is deprecated,'
-                . ' use SQLServerSchemaManager::listSchemaNames() instead.'
-        );
-
-        return $namespace['name'];
     }
 
     /**

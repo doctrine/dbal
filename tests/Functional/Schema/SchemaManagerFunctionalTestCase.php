@@ -154,10 +154,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertContains('test_create_database', $databases);
     }
 
-    /**
-     * @dataProvider listSchemaNamesMethodProvider
-     */
-    public function testListSchemaNames(callable $method): void
+    public function testListSchemaNames(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsSchemas()) {
             self::markTestSkipped('Platform does not support schemas.');
@@ -169,25 +166,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $this->schemaManager->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema')
         );
 
-        self::assertContains('test_create_schema', $method($this->schemaManager));
-    }
-
-    /**
-     * @return iterable<list<mixed>>
-     */
-    public static function listSchemaNamesMethodProvider(): iterable
-    {
-        yield [
-            static function (AbstractSchemaManager $schemaManager): array {
-                return $schemaManager->listNamespaceNames();
-            },
-        ];
-
-        yield [
-            static function (AbstractSchemaManager $schemaManager): array {
-                return $schemaManager->listSchemaNames();
-            },
-        ];
+        self::assertContains('test_create_schema', $this->schemaManager->listSchemaNames());
     }
 
     public function testListTables(): void
