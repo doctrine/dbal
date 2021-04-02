@@ -148,6 +148,8 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * Executes the statement with the currently bound parameters.
      *
+     * @deprecated Statement::execute() is deprecated, use Statement::executeQuery() or executeStatement() instead
+     *
      * @param mixed[]|null $params
      *
      * @return bool TRUE on success, FALSE on failure.
@@ -156,6 +158,12 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function execute($params = null)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4580',
+            'Statement::execute() is deprecated, use Statement::executeQuery() or Statement::executeStatement() instead'
+        );
+
         if (is_array($params)) {
             $this->params = $params;
         }
