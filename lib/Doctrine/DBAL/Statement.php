@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\NoKeyValue;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Result as BaseResult;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use IteratorAggregate;
@@ -179,6 +180,34 @@ class Statement implements IteratorAggregate, DriverStatement, Result
         }
 
         return $stmt;
+    }
+
+    /**
+     * Executes the statement with the currently bound parameters and return result.
+     *
+     * @param mixed[]|null $params
+
+     * @throws Exception
+     */
+    public function executeQuery(?array $params = null): BaseResult
+    {
+        $this->execute($params);
+
+        return new ForwardCompatibility\Result($this);
+    }
+
+    /**
+     * Executes the statement with the currently bound parameters and return affected rows.
+     *
+     * @param mixed[]|null $params
+
+     * @throws Exception
+     */
+    public function executeStatement(?array $params = null): int
+    {
+        $this->execute($params);
+
+        return $this->rowCount();
     }
 
     /**
