@@ -12,7 +12,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
-use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
 use function array_filter;
@@ -96,31 +95,6 @@ abstract class AbstractSchemaManager
         $databases = $this->_conn->fetchAllAssociative($sql);
 
         return $this->_getPortableDatabasesList($databases);
-    }
-
-    /**
-     * Returns a list of all namespaces in the current database.
-     *
-     * @deprecated Use {@link listSchemaNames()} instead.
-     *
-     * @return array<int, string>
-     *
-     * @throws Exception
-     */
-    public function listNamespaceNames(): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4503',
-            'AbstractSchemaManager::listNamespaceNames() is deprecated,'
-                . ' use AbstractSchemaManager::listSchemaNames() instead.'
-        );
-
-        $sql = $this->_platform->getListNamespacesSQL();
-
-        $namespaces = $this->_conn->fetchAllAssociative($sql);
-
-        return $this->getPortableNamespacesList($namespaces);
     }
 
     /**
@@ -644,34 +618,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
-     *
-     * @deprecated Use {@link listSchemaNames()} instead.
-     *
-     * @param array<int, array<string, mixed>> $namespaces The list of namespace names
-     *                                                     in the native DBMS data definition.
-     *
-     * @return array<int, string>
-     */
-    protected function getPortableNamespacesList(array $namespaces): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4503',
-            'AbstractSchemaManager::getPortableNamespacesList() is deprecated,'
-                . ' use AbstractSchemaManager::listSchemaNames() instead.'
-        );
-
-        $namespacesList = [];
-
-        foreach ($namespaces as $namespace) {
-            $namespacesList[] = $this->getPortableNamespaceDefinition($namespace);
-        }
-
-        return $namespacesList;
-    }
-
-    /**
      * @param array<string, string> $database
      */
     protected function _getPortableDatabaseDefinition(array $database): string
@@ -679,18 +625,6 @@ abstract class AbstractSchemaManager
         assert(! empty($database));
 
         return array_shift($database);
-    }
-
-    /**
-     * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
-     *
-     * @deprecated Use {@link listSchemaNames()} instead.
-     *
-     * @param array<string, mixed> $namespace The native DBMS namespace definition.
-     */
-    protected function getPortableNamespaceDefinition(array $namespace): string
-    {
-        return array_shift($namespace);
     }
 
     /**
@@ -973,7 +907,7 @@ abstract class AbstractSchemaManager
         $schemaNames = [];
 
         if ($this->_platform->supportsSchemas()) {
-            $schemaNames = $this->listNamespaceNames();
+            $schemaNames = $this->listSchemaNames();
         }
 
         $sequences = [];

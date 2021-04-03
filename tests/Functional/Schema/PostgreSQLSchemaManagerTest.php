@@ -9,7 +9,6 @@ use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
@@ -20,7 +19,6 @@ use Doctrine\DBAL\Types\Types;
 use function array_map;
 use function array_pop;
 use function array_unshift;
-use function assert;
 use function count;
 use function preg_match;
 use function strtolower;
@@ -47,9 +45,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testGetSchemaNames(): void
     {
-        assert($this->schemaManager instanceof PostgreSQLSchemaManager);
-
-        $names = $this->schemaManager->getSchemaNames();
+        $names = $this->schemaManager->listSchemaNames();
 
         self::assertContains('public', $names, 'The public schema should be found.');
     }

@@ -59,15 +59,6 @@
                     See https://github.com/doctrine/dbal/issues/4510
                 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getReservedKeywordsClass"/>
-                <!--
-                    This suppression should be removed in 4.0.x
-                    See https://github.com/doctrine/dbal/issues/4503
-                -->
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListNamespacesSQL"/>
-                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::getPortableNamespaceDefinition"/>
-                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::getPortableNamespacesList"/>
-                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::listNamespaceNames"/>
-                <referencedMethod name="Doctrine\DBAL\Schema\PostgreSQLSchemaManager::getSchemaNames"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
@@ -125,12 +116,6 @@
                 <file name="src/Driver/OCI8/Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
-        <InvalidNullableReturnType>
-            <errorLevel type="suppress">
-                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
-                <file name="src/Schema/PostgreSQLSchemaManager.php"/>
-            </errorLevel>
-        </InvalidNullableReturnType>
         <InvalidPropertyAssignmentValue>
             <errorLevel type="suppress">
                 <!-- Fixing this issue requires an API change -->
@@ -143,8 +128,6 @@
                     Fixing this issue requires an API change
                 -->
                 <file name="src/Driver/AbstractSQLiteDriver.php"/>
-                <!-- See https://github.com/doctrine/dbal/issues/4503 -->
-                <file name="src/Schema/PostgreSQLSchemaManager.php"/>
             </errorLevel>
         </NullableReturnStatement>
         <PossiblyNullArgument>

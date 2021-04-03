@@ -1050,21 +1050,6 @@ class SQLServer2012Platform extends AbstractPlatform
         return 'SELECT * FROM sys.databases';
     }
 
-    /**
-     * @deprecated Use {@link SQLServerSchemaManager::listSchemaNames()} instead.
-     */
-    public function getListNamespacesSQL(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4503',
-            'SQLServer2012Platform::getListNamespacesSQL() is deprecated,'
-                . ' use SQLServerSchemaManager::listSchemaNames() instead.'
-        );
-
-        return "SELECT name FROM sys.schemas WHERE name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')";
-    }
-
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string
     {
         if ($length === null) {
