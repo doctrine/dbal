@@ -12,6 +12,8 @@ use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
 /**
  * Abstract base implementation of the {@link Driver} interface for Microsoft SQL Server based drivers.
+ *
+ * @implements Driver<SQLServer2012Platform>
  */
 abstract class AbstractSQLServerDriver implements Driver
 {

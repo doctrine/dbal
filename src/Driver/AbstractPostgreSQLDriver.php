@@ -17,6 +17,8 @@ use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Driver} interface for PostgreSQL based drivers.
+ *
+ * @implements VersionAwarePlatformDriver<PostgreSQL94Platform>
  */
 abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
 {

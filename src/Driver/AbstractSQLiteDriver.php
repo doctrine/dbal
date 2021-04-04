@@ -12,6 +12,8 @@ use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SQLite based drivers.
+ *
+ * @implements Driver<SqlitePlatform>
  */
 abstract class AbstractSQLiteDriver implements Driver
 {

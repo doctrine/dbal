@@ -18,7 +18,7 @@ use function strpos;
 use function strtok;
 
 /**
- * SQL Server Schema Manager.
+ * @extends AbstractSchemaManager<SQLServer2012Platform>
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
@@ -315,9 +315,7 @@ SQL
     {
         $table = parent::listTableDetails($name);
 
-        $platform = $this->_platform;
-        assert($platform instanceof SQLServer2012Platform);
-        $sql = $platform->getListTableMetadataSQL($name);
+        $sql = $this->_platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

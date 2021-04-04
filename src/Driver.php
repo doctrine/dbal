@@ -11,6 +11,9 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 /**
  * Driver interface.
  * Interface that all DBAL drivers must implement.
+ *
+ * @template TP of AbstractPlatform
+ * @template-covariant TP
  */
 interface Driver
 {
@@ -29,13 +32,15 @@ interface Driver
      * Gets the DatabasePlatform instance that provides all the metadata about
      * the platform this driver connects to.
      *
-     * @return AbstractPlatform The database platform.
+     * @return TP
      */
     public function getDatabasePlatform();
 
     /**
      * Gets the SchemaManager that can be used to inspect and change the underlying
      * database schema of the platform this driver connects to.
+     *
+     * @param TP $platform
      *
      * @return AbstractSchemaManager
      */

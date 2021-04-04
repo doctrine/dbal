@@ -28,6 +28,8 @@ use function strtolower;
 /**
  * Base class for schema managers. Schema managers are used to inspect and/or
  * modify the database schema/structure.
+ *
+ * @template TP of AbstractPlatform
  */
 abstract class AbstractSchemaManager
 {
@@ -41,10 +43,13 @@ abstract class AbstractSchemaManager
     /**
      * Holds instance of the database platform used for this schema manager.
      *
-     * @var AbstractPlatform
+     * @var TP
      */
     protected $_platform;
 
+    /**
+     * @param TP $platform
+     */
     public function __construct(Connection $connection, AbstractPlatform $platform)
     {
         $this->_conn     = $connection;
@@ -54,7 +59,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns the associated platform.
      *
-     * @return AbstractPlatform
+     * @return TP
      */
     public function getDatabasePlatform()
     {

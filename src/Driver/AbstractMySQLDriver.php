@@ -20,6 +20,8 @@ use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Driver} interface for MySQL based drivers.
+ *
+ * @implements VersionAwarePlatformDriver<MySQLPlatform>
  */
 abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 {
@@ -111,8 +113,6 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 
     /**
      * {@inheritdoc}
-     *
-     * @return MySQLPlatform
      */
     public function getDatabasePlatform()
     {
@@ -121,8 +121,6 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 
     /**
      * {@inheritdoc}
-     *
-     * @return MySQLSchemaManager
      */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform)
     {

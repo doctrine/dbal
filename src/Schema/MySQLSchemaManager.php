@@ -21,7 +21,7 @@ use function strtr;
 use const CASE_LOWER;
 
 /**
- * Schema manager for the MySQL RDBMS.
+ * @extends AbstractSchemaManager<MySQLPlatform>
  */
 class MySQLSchemaManager extends AbstractSchemaManager
 {
@@ -333,9 +333,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     {
         $table = parent::listTableDetails($name);
 
-        $platform = $this->_platform;
-        assert($platform instanceof MySQLPlatform);
-        $sql = $platform->getListTableMetadataSQL($name);
+        $sql = $this->_platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 
