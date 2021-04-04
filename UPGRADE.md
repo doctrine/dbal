@@ -16,6 +16,10 @@ Use `AbstractSchemaManager::listSchemaNames()` instead.
 
 `PostgreSQLSchemaManager::getExistingSchemaSearchPaths()` and `::determineExistingSchemaSearchPaths()` have been marked internal.
 
+## `OracleSchemaManager` methods marked internal.
+
+`OracleSchemaManager::dropAutoincrement()` has been marked internal.
+
 ## Deprecated `AbstractPlatform::getReservedKeywordsClass()`
 
 Instead of implementing `getReservedKeywordsClass()`, `AbstractPlatform` subclasses should implement
