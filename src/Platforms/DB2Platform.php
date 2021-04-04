@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
+use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function count;
@@ -752,19 +753,9 @@ class DB2Platform extends AbstractPlatform
         return false;
     }
 
-    /**
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
-     */
-    protected function getReservedKeywordsClass(): string
+    protected function createReservedKeywordsList(): KeywordList
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4510',
-            'DB2Platform::getReservedKeywordsClass() is deprecated,'
-                . ' use DB2Platform::createReservedKeywordsList() instead.'
-        );
-
-        return Keywords\DB2Keywords::class;
+        return new DB2Keywords();
     }
 
     public function getListTableCommentsSQL(string $table): string

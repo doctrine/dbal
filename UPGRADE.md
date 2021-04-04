@@ -1,5 +1,9 @@
 # Upgrade to 4.0
 
+## Removed `AbstractPlatform::getReservedKeywordsClass()`
+
+Instead of implementing `AbstractPlatform::getReservedKeywordsClass()`, platforms must implement `AbstractPlatform::createReservedKeywordsList()`. The latter has been made abstract. 
+
 ## `PostgreSQLSchemaManager` methods have been made protected.
 
 `PostgreSQLSchemaManager::getExistingSchemaSearchPaths()` and `::determineExistingSchemaSearchPaths()` have been made protected.

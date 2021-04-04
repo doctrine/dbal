@@ -54,11 +54,6 @@
                     See https://github.com/doctrine/dbal/pull/4317
                 -->
                 <file name="tests/Functional/LegacyAPITest.php"/>
-                <!--
-                    This suppression should be removed in 4.0.x
-                    See https://github.com/doctrine/dbal/issues/4510
-                -->
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getReservedKeywordsClass"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
@@ -217,7 +212,6 @@
         <UnsafeInstantiation>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/issues/4510 -->
-                <file name="src/Platforms/AbstractPlatform.php"/>
                 <file name="src/Tools/Console/Command/ReservedWordsCommand.php"/>
                 <!-- See https://github.com/doctrine/dbal/issues/4511 -->
                 <file name="src/DriverManager.php"/>

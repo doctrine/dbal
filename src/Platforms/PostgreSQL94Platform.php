@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\Keywords\KeywordList;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -15,7 +17,6 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_diff;
@@ -993,19 +994,9 @@ SQL
         return true;
     }
 
-    /**
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
-     */
-    protected function getReservedKeywordsClass(): string
+    protected function createReservedKeywordsList(): KeywordList
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4510',
-            'PostgreSQL94Platform::getReservedKeywordsClass() is deprecated,'
-                . ' use PostgreSQL94Platform::createReservedKeywordsList() instead.'
-        );
-
-        return Keywords\PostgreSQL94Keywords::class;
+        return new PostgreSQL94Keywords();
     }
 
     /**
