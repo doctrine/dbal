@@ -25,6 +25,11 @@ Use `AbstractSchemaManager::listSchemaNames()` instead.
 Instead of implementing `getReservedKeywordsClass()`, `AbstractPlatform` subclasses should implement
 `createReservedKeywordsList()`.
 
+## Deprecated `ReservedWordsCommand::setKeywordListClass()`
+
+The usage of `ReservedWordsCommand::setKeywordListClass()` has been deprecated. To add or replace a keyword list,
+use `setKeywordList()` instead.
+
 ## Deprecated `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()`
 
 The usage of the `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()` is deprecated.
