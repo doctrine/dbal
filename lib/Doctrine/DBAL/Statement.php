@@ -193,12 +193,16 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * Executes the statement with the currently bound parameters and return result.
      *
-     * @param mixed[]|null $params
-
+     * @param mixed[] $params
+     *
      * @throws Exception
      */
-    public function executeQuery(?array $params = null): BaseResult
+    public function executeQuery(array $params = []): BaseResult
     {
+        if ($params === []) {
+            $params = null; // Workaround as long execute() exists and used internally.
+        }
+
         $this->execute($params);
 
         return new ForwardCompatibility\Result($this);
@@ -207,12 +211,16 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * Executes the statement with the currently bound parameters and return affected rows.
      *
-     * @param mixed[]|null $params
-
+     * @param mixed[] $params
+     *
      * @throws Exception
      */
-    public function executeStatement(?array $params = null): int
+    public function executeStatement(array $params = []): int
     {
+        if ($params === []) {
+            $params = null; // Workaround as long execute() exists and used internally.
+        }
+
         $this->execute($params);
 
         return $this->rowCount();
