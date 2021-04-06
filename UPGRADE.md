@@ -45,6 +45,23 @@ Use `Connection::createSchemaManager()` instead.
 The usage of `Connection::$_expr` and `Connection::getExpressionBuilder()` is deprecated.
 Use `Connection::createExpressionBuilder()` instead.
 
+## Deprecated `QueryBuilder::execute()`
+
+The usage of `QueryBuilder::execute()` is deprecated. Use either `QueryBuilder::executeQuery()` or
+`QueryBuilder::executeStatement()`, depending on whether the queryBuilder is a query (SELECT) or a statement (INSERT,
+UPDATE, DELETE).
+
+You might also consider the use of the new shortcut methods, such as:
+
+- `fetchAllAssociative()`
+- `fetchAllAssociativeIndexed()`
+- `fetchAllKeyValue()`
+- `fetchAllNumeric()`
+- `fetchAssociative()`
+- `fetchFirstColumn()`
+- `fetchNumeric()`
+- `fetchOne()`
+
 # Upgrade to 3.0
 
 ## BC BREAK: leading colon in named parameter names not supported
