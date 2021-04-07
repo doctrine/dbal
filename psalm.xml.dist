@@ -459,5 +459,15 @@
                 <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php"/>
             </errorLevel>
         </InvalidReturnStatement>
+        <MoreSpecificReturnType>
+            <errorLevel type="suppress">
+                <file name="tests/Doctrine/Tests/TestUtil.php"/>
+            </errorLevel>
+        </MoreSpecificReturnType>
+        <LessSpecificReturnStatement>
+            <errorLevel type="suppress">
+                <file name="tests/Doctrine/Tests/TestUtil.php"/>
+            </errorLevel>
+        </LessSpecificReturnStatement>
     </issueHandlers>
 </psalm>

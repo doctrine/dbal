@@ -27,6 +27,8 @@ use const STDOUT;
 
 /**
  * TestUtil is a class with static utility methods used during tests.
+ *
+ * @psalm-import-type Params from DriverManager
  */
 class TestUtil
 {
@@ -57,7 +59,6 @@ class TestUtil
             self::$initialized = true;
         }
 
-        /** @psalm-suppress ArgumentTypeCoercion */
         $conn = DriverManager::getConnection(self::getTestConnectionParameters());
 
         self::addDbEventSubscribers($conn);
@@ -67,7 +68,6 @@ class TestUtil
 
     public static function getPrivilegedConnection(): Connection
     {
-        /** @psalm-suppress ArgumentTypeCoercion */
         return DriverManager::getConnection(self::getPrivilegedConnectionParameters());
     }
 
@@ -76,7 +76,6 @@ class TestUtil
         $testConnParams = self::getTestConnectionParameters();
         $privConnParams = self::getPrivilegedConnectionParameters();
 
-        /** @psalm-suppress ArgumentTypeCoercion */
         $testConn = DriverManager::getConnection($testConnParams);
 
         // Note, writes direct to STDOUT to prevent phpunit detecting output - otherwise this would cause either an
@@ -84,7 +83,6 @@ class TestUtil
         fwrite(STDOUT, sprintf("\nUsing DB driver %s\n", get_class($testConn->getDriver())));
 
         // Connect as a privileged user to create and drop the test database.
-        /** @psalm-suppress ArgumentTypeCoercion */
         $privConn = DriverManager::getConnection($privConnParams);
 
         $platform = $privConn->getDatabasePlatform();
@@ -125,6 +123,8 @@ class TestUtil
 
     /**
      * @return array<string,mixed>
+     *
+     * @psalm-return Params
      */
     private static function getPrivilegedConnectionParameters(): array
     {
@@ -140,6 +140,8 @@ class TestUtil
 
     /**
      * @return array<string,mixed>
+     *
+     * @psalm-return Params
      */
     public static function getTestConnectionParameters(): array
     {
@@ -156,6 +158,8 @@ class TestUtil
      * @param array<string,mixed> $configuration
      *
      * @return array<string,mixed>
+     *
+     * @psalm-return Params
      */
     private static function mapConnectionParameters(array $configuration, string $prefix): array
     {
