@@ -101,9 +101,9 @@ class TestUtil
 
         $testConn = DriverManager::getConnection($testConnParams);
 
-        // Note, writes direct to STDERR to prevent phpunit detecting output - otherwise this would cause either an
+        // Note, writes direct to STDOUT to prevent phpunit detecting output - otherwise this would cause either an
         // "unexpected output" warning or a failure on the first test case to call this method.
-        fwrite(STDERR, sprintf("\nUsing DB driver %s\n", get_class($testConn->getDriver())));
+        fwrite(STDOUT, sprintf("\nUsing DB driver %s\n", get_class($testConn->getDriver())));
 
         // Connect as a privileged user to create and drop the test database.
         $privConn = DriverManager::getConnection($privConnParams);
