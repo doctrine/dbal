@@ -27,46 +27,6 @@ use const STDOUT;
 
 /**
  * TestUtil is a class with static utility methods used during tests.
- *
- * @psalm-type OverrideParams = array{
- *     charset?: string,
- *     dbname?: string,
- *     default_dbname?: string,
- *     driver?: key-of<\Doctrine\DBAL\DriverManager::DRIVER_MAP>,
- *     driverClass?: class-string<\Doctrine\DBAL\Driver>,
- *     driverOptions?: array<mixed>,
- *     host?: string,
- *     password?: string,
- *     path?: string,
- *     pdo?: \PDO,
- *     platform?: \Doctrine\DBAL\Platforms\AbstractPlatform,
- *     port?: int,
- *     user?: string,
- * }
- * @psalm-type ConnectionParams = array{
- *     charset?: string,
- *     dbname?: string,
- *     default_dbname?: string,
- *     driver?: key-of<\Doctrine\DBAL\DriverManager::DRIVER_MAP>,
- *     driverClass?: class-string<\Doctrine\DBAL\Driver>,
- *     driverOptions?: array<mixed>,
- *     host?: string,
- *     keepSlave?: bool,
- *     keepReplica?: bool,
- *     master?: OverrideParams,
- *     memory?: bool,
- *     password?: string,
- *     path?: string,
- *     pdo?: \PDO,
- *     platform?: \Doctrine\DBAL\Platforms\AbstractPlatform,
- *     port?: int,
- *     primary?: OverrideParams,
- *     replica?: array<OverrideParams>,
- *     sharding?: array<string,mixed>,
- *     slaves?: array<OverrideParams>,
- *     user?: string,
- *     wrapperClass?: class-string<Connection>,
- * }
  */
 class TestUtil
 {
@@ -97,6 +57,7 @@ class TestUtil
             self::$initialized = true;
         }
 
+        /** @psalm-suppress ArgumentTypeCoercion */
         $conn = DriverManager::getConnection(self::getTestConnectionParameters());
 
         self::addDbEventSubscribers($conn);
@@ -106,6 +67,7 @@ class TestUtil
 
     public static function getPrivilegedConnection(): Connection
     {
+        /** @psalm-suppress ArgumentTypeCoercion */
         return DriverManager::getConnection(self::getPrivilegedConnectionParameters());
     }
 
@@ -114,6 +76,7 @@ class TestUtil
         $testConnParams = self::getTestConnectionParameters();
         $privConnParams = self::getPrivilegedConnectionParameters();
 
+        /** @psalm-suppress ArgumentTypeCoercion */
         $testConn = DriverManager::getConnection($testConnParams);
 
         // Note, writes direct to STDOUT to prevent phpunit detecting output - otherwise this would cause either an
@@ -121,6 +84,7 @@ class TestUtil
         fwrite(STDOUT, sprintf("\nUsing DB driver %s\n", get_class($testConn->getDriver())));
 
         // Connect as a privileged user to create and drop the test database.
+        /** @psalm-suppress ArgumentTypeCoercion */
         $privConn = DriverManager::getConnection($privConnParams);
 
         $platform = $privConn->getDatabasePlatform();
@@ -161,8 +125,6 @@ class TestUtil
 
     /**
      * @return array<string,mixed>
-     *
-     * @psalm-return ConnectionParams
      */
     private static function getPrivilegedConnectionParameters(): array
     {
@@ -178,8 +140,6 @@ class TestUtil
 
     /**
      * @return array<string,mixed>
-     *
-     * @psalm-return ConnectionParams
      */
     public static function getTestConnectionParameters(): array
     {
@@ -196,8 +156,6 @@ class TestUtil
      * @param array<string,mixed> $configuration
      *
      * @return array<string,mixed>
-     *
-     * @psalm-return ConnectionParams
      */
     private static function mapConnectionParameters(array $configuration, string $prefix): array
     {
