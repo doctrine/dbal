@@ -23,7 +23,7 @@ use function strlen;
 use function strpos;
 use function substr;
 
-use const STDERR;
+use const STDOUT;
 
 /**
  * TestUtil is a class with static utility methods used during tests.
@@ -161,6 +161,7 @@ class TestUtil
 
     /**
      * @return array<string,mixed>
+     *
      * @psalm-return ConnectionParams
      */
     private static function getPrivilegedConnectionParameters(): array
@@ -177,6 +178,7 @@ class TestUtil
 
     /**
      * @return array<string,mixed>
+     *
      * @psalm-return ConnectionParams
      */
     public static function getTestConnectionParameters(): array
@@ -194,6 +196,7 @@ class TestUtil
      * @param array<string,mixed> $configuration
      *
      * @return array<string,mixed>
+     *
      * @psalm-return ConnectionParams
      */
     private static function mapConnectionParameters(array $configuration, string $prefix): array
