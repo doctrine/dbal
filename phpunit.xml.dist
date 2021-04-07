@@ -28,10 +28,11 @@
         <!-- to use another database driver / credentials, provide them like so:
         <var name="db_driver" value="pdo_mysql"/>
         <var name="db_host" value="localhost" />
+        <var name="db_port" value="3306"/>
         <var name="db_user" value="root" />
         <var name="db_password" value="" />
         <var name="db_dbname" value="doctrine_tests" />
-        <var name="db_port" value="3306"/>-->
+        -->
         <!--<var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit">-->
 
         <!--
