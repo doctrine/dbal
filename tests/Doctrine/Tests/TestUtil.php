@@ -27,6 +27,31 @@ use const STDERR;
 
 /**
  * TestUtil is a class with static utility methods used during tests.
+ *
+ * @psalm-type ConnectionParams = array{
+ *     charset?: string,
+ *     dbname?: string,
+ *     default_dbname?: string,
+ *     driver?: key-of<self::DRIVER_MAP>,
+ *     driverClass?: class-string<Driver>,
+ *     driverOptions?: array<mixed>,
+ *     host?: string,
+ *     keepSlave?: bool,
+ *     keepReplica?: bool,
+ *     master?: OverrideParams,
+ *     memory?: bool,
+ *     password?: string,
+ *     path?: string,
+ *     pdo?: \PDO,
+ *     platform?: Platforms\AbstractPlatform,
+ *     port?: int,
+ *     primary?: OverrideParams,
+ *     replica?: array<OverrideParams>,
+ *     sharding?: array<string,mixed>,
+ *     slaves?: array<OverrideParams>,
+ *     user?: string,
+ *     wrapperClass?: class-string<Connection>,
+ * }
  */
 class TestUtil
 {
@@ -121,6 +146,7 @@ class TestUtil
 
     /**
      * @return array<string,mixed>
+     * @psalm-return ConnectionParams
      */
     private static function getPrivilegedConnectionParameters(): array
     {
@@ -136,6 +162,7 @@ class TestUtil
 
     /**
      * @return array<string,mixed>
+     * @psalm-return ConnectionParams
      */
     public static function getTestConnectionParameters(): array
     {
@@ -152,6 +179,7 @@ class TestUtil
      * @param array<string,mixed> $configuration
      *
      * @return array<string,mixed>
+     * @psalm-return ConnectionParams
      */
     private static function mapConnectionParameters(array $configuration, string $prefix): array
     {
