@@ -28,12 +28,27 @@ use const STDERR;
 /**
  * TestUtil is a class with static utility methods used during tests.
  *
+ * @psalm-type OverrideParams = array{
+ *     charset?: string,
+ *     dbname?: string,
+ *     default_dbname?: string,
+ *     driver?: key-of<\Doctrine\DBAL\DriverManager::DRIVER_MAP>,
+ *     driverClass?: class-string<\Doctrine\DBAL\Driver>,
+ *     driverOptions?: array<mixed>,
+ *     host?: string,
+ *     password?: string,
+ *     path?: string,
+ *     pdo?: \PDO,
+ *     platform?: \Doctrine\DBAL\Platforms\AbstractPlatform,
+ *     port?: int,
+ *     user?: string,
+ * }
  * @psalm-type ConnectionParams = array{
  *     charset?: string,
  *     dbname?: string,
  *     default_dbname?: string,
- *     driver?: key-of<self::DRIVER_MAP>,
- *     driverClass?: class-string<Driver>,
+ *     driver?: key-of<\Doctrine\DBAL\DriverManager::DRIVER_MAP>,
+ *     driverClass?: class-string<\Doctrine\DBAL\Driver>,
  *     driverOptions?: array<mixed>,
  *     host?: string,
  *     keepSlave?: bool,
@@ -43,7 +58,7 @@ use const STDERR;
  *     password?: string,
  *     path?: string,
  *     pdo?: \PDO,
- *     platform?: Platforms\AbstractPlatform,
+ *     platform?: \Doctrine\DBAL\Platforms\AbstractPlatform,
  *     port?: int,
  *     primary?: OverrideParams,
  *     replica?: array<OverrideParams>,
