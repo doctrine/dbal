@@ -628,7 +628,7 @@ class QueryBuilder
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3837',
-                'Passing an array for the first argument to QueryBuilder::select is deprecated, ' .
+                'Passing an array for the first argument to QueryBuilder::select() is deprecated, ' .
                 'pass each value as an individual variadic argument instead.'
             );
         }
@@ -687,7 +687,7 @@ class QueryBuilder
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3837',
-                'Passing an array for the first argument to QueryBuilder::addSelect is deprecated, ' .
+                'Passing an array for the first argument to QueryBuilder::addSelect() is deprecated, ' .
                 'pass each value as an individual variadic argument instead.'
             );
         }
@@ -1068,7 +1068,7 @@ class QueryBuilder
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3837',
-                'Passing an array for the first argument to QueryBuilder::groupBy is deprecated, ' .
+                'Passing an array for the first argument to QueryBuilder::groupBy() is deprecated, ' .
                 'pass each value as an individual variadic argument instead.'
             );
         }
@@ -1106,7 +1106,7 @@ class QueryBuilder
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3837',
-                'Passing an array for the first argument to QueryBuilder::addGroupBy is deprecated, ' .
+                'Passing an array for the first argument to QueryBuilder::addGroupBy() is deprecated, ' .
                 'pass each value as an individual variadic argument instead.'
             );
         }
