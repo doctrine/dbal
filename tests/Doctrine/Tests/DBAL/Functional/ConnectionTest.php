@@ -5,9 +5,11 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Error;
@@ -348,10 +350,13 @@ class ConnectionTest extends DbalFunctionalTestCase
      */
     public function testUserProvidedPDOConnection(): void
     {
-        self::assertTrue(
-            DriverManager::getConnection([
-                'pdo' => new PDO('sqlite::memory:'),
-            ])->ping()
-        );
+        $connection = DriverManager::getConnection([
+            'pdo' => new PDO('sqlite::memory:'),
+        ]);
+
+        $result = $connection->executeQuery('SELECT 1');
+
+        self::assertInstanceOf(ResultStatement::class, $result);
+        self::assertInstanceOf(Result::class, $result);
     }
 }
