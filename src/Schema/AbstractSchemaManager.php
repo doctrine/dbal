@@ -232,7 +232,7 @@ abstract class AbstractSchemaManager
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3580',
-                'The usage of a string $tableNames in AbstractSchemaManager::tablesExist is deprecated. ' .
+                'The usage of a string $tableNames in AbstractSchemaManager::tablesExist() is deprecated. ' .
                 'Pass a one-element array instead.'
             );
         }
