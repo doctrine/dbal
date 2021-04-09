@@ -97,8 +97,7 @@
         <exclude-pattern>tests/Doctrine/Tests/DBAL/Functional/DataAccessTest.php</exclude-pattern>
     </rule>
 
-    <!-- https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
-    <rule ref="Squiz.NamingConventions.ValidVariableName.NotCamelCaps">
+    <rule ref="Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps">
         <!--
             This file uses the return value db2_server_info(), which does not follow conventions
             phpcs wrongly complains about it, and that has been reported here:
@@ -106,11 +105,14 @@
         -->
         <exclude-pattern>lib/Doctrine/DBAL/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
         <exclude-pattern>lib/Doctrine/DBAL/Driver/Mysqli/Exception/ConnectionFailed.php</exclude-pattern>
-        <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
-        <exclude-pattern>lib/Doctrine/DBAL/SQLParserUtils.php</exclude-pattern>
         <exclude-pattern>lib/Doctrine/DBAL/Tools/Dumper.php</exclude-pattern>
-        <exclude-pattern>tests/Doctrine/Tests/DBAL/Driver/StatementIteratorTest.php</exclude-pattern>
         <exclude-pattern>tests/Doctrine/Tests/DBAL/Tools/DumperTest.php</exclude-pattern>
+    </rule>
+
+    <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
+    <rule ref="Squiz.NamingConventions.ValidVariableName.NotCamelCaps">
+        <exclude-pattern>lib/Doctrine/DBAL/SQLParserUtils.php</exclude-pattern>
+        <exclude-pattern>tests/Doctrine/Tests/DBAL/Driver/StatementIteratorTest.php</exclude-pattern>
     </rule>
 
     <!-- some statement classes close cursor using an empty while-loop -->
