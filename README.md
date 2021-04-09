@@ -5,6 +5,7 @@
 | [![GitHub Actions][GA 4.0 image]][GA 4.0] | [![GitHub Actions][GA 3.0 image]][GA 3.0] | [![GitHub Actions][GA 2.12 image]][GA 2.12] |
 | [![AppVeyor][AppVeyor 4.0 image]][AppVeyor 4.0] | [![AppVeyor][AppVeyor 3.0 image]][AppVeyor 3.0] | [![AppVeyor][AppVeyor 2.12 image]][AppVeyor 2.12] |
 | [![Code Coverage][Coverage image]][CodeCov 4.0] | [![Code Coverage][Coverage 3.0 image]][CodeCov 3.0] | [![Code Coverage][Coverage 2.12 image]][CodeCov 2.12] |
+| N/A | N/A | [![Code Coverage][TypeCov 2.12 image]][TypeCov 2.12] |
 
 Powerful database abstraction layer with many features for database schema introspection, schema management and PDO abstraction.
 
@@ -37,3 +38,5 @@ Powerful database abstraction layer with many features for database schema intro
   [AppVeyor 2.12 image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/2.12.x?svg=true
   [GA 2.12]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A2.12.x
   [GA 2.12 image]: https://github.com/doctrine/dbal/workflows/Continuous%20Integration/badge.svg?branch=2.12.x
+  [TypeCov 2.12]: https://shepherd.dev/github/doctrine/dbal
+  [TypeCov 2.12 image]: https://shepherd.dev/github/doctrine/dbal/coverage.svg
