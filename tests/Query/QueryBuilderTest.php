@@ -9,6 +9,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -1196,5 +1197,73 @@ class QueryBuilderTest extends TestCase
             ['password' => Types::STRING, 'username' => Types::STRING, 'id' => Types::INTEGER],
             'SELECT id, username FROM user WHERE password = :password AND username != :username AND id != :id',
         ];
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testExecuteQuery(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = $this->createMock(Result::class);
+
+        $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn($mockedResult);
+
+        $results = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->executeQuery();
+
+        self::assertSame(
+            $mockedResult,
+            $results
+        );
+    }
+
+    public function testExecuteStatement(): void
+    {
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = 123;
+        $expectedSql  = 'UPDATE users SET foo = ?, bar = ? WHERE bar = 1';
+
+        $parameters = [
+            'foo' => 'jwage',
+            'bar' => false,
+        ];
+
+        $parameterTypes = [
+            'foo' => Types::STRING,
+            'bar' => Types::BOOLEAN,
+        ];
+
+        $this->conn->expects(self::once())
+            ->method('executeStatement')
+            ->with($expectedSql, $parameters, $parameterTypes)
+            ->willReturn($mockedResult);
+
+        $results = $qb->update('users')
+            ->set('foo', '?')
+            ->set('bar', '?')
+            ->where('bar = 1')
+            ->setParameters($parameters, $parameterTypes)
+            ->executeStatement();
+
+        self::assertSame(
+            $mockedResult,
+            $results
+        );
     }
 }

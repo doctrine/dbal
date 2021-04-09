@@ -265,6 +265,8 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * @internal The method should be only used from within the OracleSchemaManager class hierarchy.
+     *
      * @throws Exception
      */
     public function dropAutoincrement(string $table): bool

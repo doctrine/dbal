@@ -1,3 +1,11 @@
+Note about upgrading: Doctrine uses static and runtime mechanisms to raise
+awareness about deprecated code.
+
+- Use of `@deprecated` docblock that is detected by IDEs (like PHPStorm) or
+  Static Analysis tools (like Psalm, phpstan)
+- Use of our low-overhead runtime deprecation API, details:
+  https://github.com/doctrine/deprecations/
+
 # Upgrade to 4.0
 
 ## Removed `AbstractPlatform::getReservedKeywordsClass()`
@@ -301,10 +309,19 @@ Use `AbstractSchemaManager::listSchemaNames()` instead.
 
 `PostgreSQLSchemaManager::getExistingSchemaSearchPaths()` and `::determineExistingSchemaSearchPaths()` have been marked internal.
 
+## `OracleSchemaManager` methods marked internal.
+
+`OracleSchemaManager::dropAutoincrement()` has been marked internal.
+
 ## Deprecated `AbstractPlatform::getReservedKeywordsClass()`
 
 Instead of implementing `getReservedKeywordsClass()`, `AbstractPlatform` subclasses should implement
 `createReservedKeywordsList()`.
+
+## Deprecated `ReservedWordsCommand::setKeywordListClass()`
+
+The usage of `ReservedWordsCommand::setKeywordListClass()` has been deprecated. To add or replace a keyword list,
+use `setKeywordList()` instead.
 
 ## Deprecated `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()`
 
@@ -320,6 +337,23 @@ Use `Connection::createSchemaManager()` instead.
 
 The usage of `Connection::$_expr` and `Connection::getExpressionBuilder()` is deprecated.
 Use `Connection::createExpressionBuilder()` instead.
+
+## Deprecated `QueryBuilder::execute()`
+
+The usage of `QueryBuilder::execute()` is deprecated. Use either `QueryBuilder::executeQuery()` or
+`QueryBuilder::executeStatement()`, depending on whether the queryBuilder is a query (SELECT) or a statement (INSERT,
+UPDATE, DELETE).
+
+You might also consider the use of the new shortcut methods, such as:
+
+- `fetchAllAssociative()`
+- `fetchAllAssociativeIndexed()`
+- `fetchAllKeyValue()`
+- `fetchAllNumeric()`
+- `fetchAssociative()`
+- `fetchFirstColumn()`
+- `fetchNumeric()`
+- `fetchOne()`
 
 # Upgrade to 3.0
 

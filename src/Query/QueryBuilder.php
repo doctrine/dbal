@@ -349,7 +349,33 @@ class QueryBuilder
     }
 
     /**
+     * Executes an SQL query (SELECT) and returns a Result.
+     *
+     * @throws Exception
+     */
+    public function executeQuery(): Result
+    {
+        return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
+    }
+
+    /**
+     * Executes an SQL statement and returns the number of affected rows.
+     *
+     * Should be used for INSERT, UPDATE and DELETE
+     *
+     * @return int The number of affected rows.
+     *
+     * @throws Exception
+     */
+    public function executeStatement(): int
+    {
+        return $this->connection->executeStatement($this->getSQL(), $this->params, $this->paramTypes);
+    }
+
+    /**
      * Executes this query using the bound parameters and their types.
+     *
+     * @deprecated Use {@link executeQuery()} or {@link executeStatement()} instead.
      *
      * @return Result|int
      *
@@ -358,8 +384,20 @@ class QueryBuilder
     public function execute()
     {
         if ($this->type === self::SELECT) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/4578',
+                'QueryBuilder::execute() is deprecated, use QueryBuilder::executeQuery() for SQL queries instead.'
+            );
+
             return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4578',
+            'QueryBuilder::execute() is deprecated, use QueryBuilder::executeStatement() for SQL statements instead.'
+        );
 
         return $this->connection->executeStatement($this->getSQL(), $this->params, $this->paramTypes);
     }
