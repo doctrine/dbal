@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\NoKeyValue;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Result as BaseResult;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use IteratorAggregate;
@@ -147,6 +148,8 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * Executes the statement with the currently bound parameters.
      *
+     * @deprecated Statement::execute() is deprecated, use Statement::executeQuery() or executeStatement() instead
+     *
      * @param mixed[]|null $params
      *
      * @return bool TRUE on success, FALSE on failure.
@@ -155,6 +158,12 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     public function execute($params = null)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4580',
+            'Statement::execute() is deprecated, use Statement::executeQuery() or Statement::executeStatement() instead'
+        );
+
         if (is_array($params)) {
             $this->params = $params;
         }
@@ -179,6 +188,42 @@ class Statement implements IteratorAggregate, DriverStatement, Result
         }
 
         return $stmt;
+    }
+
+    /**
+     * Executes the statement with the currently bound parameters and return result.
+     *
+     * @param mixed[] $params
+     *
+     * @throws Exception
+     */
+    public function executeQuery(array $params = []): BaseResult
+    {
+        if ($params === []) {
+            $params = null; // Workaround as long execute() exists and used internally.
+        }
+
+        $this->execute($params);
+
+        return new ForwardCompatibility\Result($this);
+    }
+
+    /**
+     * Executes the statement with the currently bound parameters and return affected rows.
+     *
+     * @param mixed[] $params
+     *
+     * @throws Exception
+     */
+    public function executeStatement(array $params = []): int
+    {
+        if ($params === []) {
+            $params = null; // Workaround as long execute() exists and used internally.
+        }
+
+        $this->execute($params);
+
+        return $this->rowCount();
     }
 
     /**
