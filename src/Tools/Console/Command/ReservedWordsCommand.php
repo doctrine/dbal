@@ -19,7 +19,6 @@ use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -67,23 +66,6 @@ class ReservedWordsCommand extends Command
     public function setKeywordList(string $name, KeywordList $keywordList): void
     {
         $this->keywordLists[$name] = $keywordList;
-    }
-
-    /**
-     * If you want to add or replace a keywords list use this command.
-     *
-     * @param class-string<KeywordList> $class
-     */
-    public function setKeywordListClass(string $name, string $class): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4510',
-            'ReservedWordsCommand::setKeywordListClass() is deprecated,'
-                . ' use ReservedWordsCommand::setKeywordList() instead.'
-        );
-
-        $this->keywordLists[$name] = new $class();
     }
 
     protected function configure(): void
