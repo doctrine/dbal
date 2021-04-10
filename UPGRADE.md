@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed `ReservedWordsCommand::setKeywordListClass()`
+
+To add or replace a keyword list, use `ReservedWordsCommand::setKeywordList()`.
+
 ## Removed `AbstractPlatform::getReservedKeywordsClass()`
 
 Instead of implementing `AbstractPlatform::getReservedKeywordsClass()`, platforms must implement `AbstractPlatform::createReservedKeywordsList()`. The latter has been made abstract. 
