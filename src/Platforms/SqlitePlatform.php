@@ -567,6 +567,7 @@ class SqlitePlatform extends AbstractPlatform
             'image'            => 'string',
             'int'              => 'integer',
             'integer'          => 'integer',
+            'longblob'         => 'blob',
             'longtext'         => 'text',
             'longvarchar'      => 'string',
             'mediumint'        => 'integer',
