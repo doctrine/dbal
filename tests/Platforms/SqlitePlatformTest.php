@@ -308,6 +308,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $diff = new TableDiff('user');
 
         $diff->addedColumns['foo']   = new Column('foo', Type::getType('string'));
+        $diff->addedColumns['bar']   = new Column('bar', Type::getType('blob'));
         $diff->addedColumns['count'] = new Column('count', Type::getType('integer'), [
             'notnull' => false,
             'default' => 1,
@@ -315,6 +316,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
         $expected = [
             'ALTER TABLE user ADD COLUMN foo VARCHAR(255) NOT NULL',
+            'ALTER TABLE user ADD COLUMN bar BLOB NOT NULL',
             'ALTER TABLE user ADD COLUMN count INTEGER DEFAULT 1',
         ];
 
