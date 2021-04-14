@@ -13,6 +13,9 @@ use Generator;
 use function ini_get;
 use function sprintf;
 
+use const E_ALL;
+use const E_WARNING;
+
 /**
  * @requires extension oci8
  */
@@ -65,12 +68,11 @@ class ResultTest extends FunctionalTestCase
         bool $invalidateDataMidFetch
     ): void {
         if ($invalidateDataMidFetch) {
+            // prevent the PHPUnit error handler from handling the warnings that oci_*() functions may trigger
+            $this->iniSet('error_reporting', (string) (E_ALL & ~E_WARNING));
+
             $this->expectException(DriverException::class);
-            $this->expectErrorMessageMatches(
-                '/^An exception occurred in the driver: '
-                . 'There was an error before all rows could be fetched. '
-                . 'Error number: 2, Error String: oci_fetch_array.*/'
-            );
+            $this->expectExceptionCode(4068);
         }
 
         // Create a pipelined funtion that returns 10 rows more than the
@@ -92,7 +94,7 @@ class ResultTest extends FunctionalTestCase
 
         // Access the first result to cause the first X rows to be prefetched
         // as defined by oci8.default_prefetch (often 100 rows)
-        $firstNumber = $result->fetchOne();
+        $result->fetchOne();
 
         if ($invalidateDataMidFetch) {
             // Invalidate the original dataset by changing the pipelined function
@@ -100,7 +102,7 @@ class ResultTest extends FunctionalTestCase
             $this->createOrReplacePipelinedFunction($expectedTotalRowCount + 10);
         }
 
-        while ($number = $result->fetchOne()) {
+        while ($result->fetchOne()) {
             // Attempt to access all remaining rows from the original fetch
             // The rows locally cached from the default prefetch will first be used
             // but when the result attempts to get the remaining 10 rows beyond
