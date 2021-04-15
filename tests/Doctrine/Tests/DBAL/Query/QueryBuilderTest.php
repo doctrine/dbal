@@ -3,15 +3,18 @@
 namespace Doctrine\Tests\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
+use Doctrine\DBAL\Result;
 use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class QueryBuilderTest extends DbalTestCase
 {
-    /** @var Connection */
+    /** @var Connection&MockObject */
     protected $conn;
 
     protected function setUp(): void
@@ -1074,5 +1077,23 @@ class QueryBuilderTest extends DbalTestCase
         $qb->orHaving('', 'c = d');
 
         self::assertSame('SELECT id FROM foo HAVING (a = b) OR (c = d)', $qb->getSQL());
+    }
+
+    public function testExecuteSelect(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn
+            ->expects($this->any())
+            ->method('executeQuery')
+            ->willReturn($this->createMock(Driver\Statement::class));
+
+        $result = $qb
+            ->select('id')
+            ->from('foo')
+            ->execute();
+
+        self::assertInstanceOf(Driver\Statement::class, $result);
+        self::assertInstanceOf(Result::class, $result);
     }
 }

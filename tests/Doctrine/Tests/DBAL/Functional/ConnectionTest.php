@@ -2,11 +2,14 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ForwardCompatibility;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
@@ -356,7 +359,53 @@ class ConnectionTest extends DbalFunctionalTestCase
 
         $result = $connection->executeQuery('SELECT 1');
 
-        self::assertInstanceOf(ResultStatement::class, $result);
+        self::assertInstanceOf(ForwardCompatibility\Result::class, $result);
+    }
+
+    public function testResultCompatibilityWhenExecutingQueryWithoutParam(): void
+    {
+        $result = $this->connection->executeQuery(
+            $this->connection->getDatabasePlatform()->getDummySelectSQL()
+        );
+
         self::assertInstanceOf(Result::class, $result);
+        self::assertInstanceOf(Driver\Statement::class, $result);
+    }
+
+    public function testResultCompatibilityWhenExecutingQueryWithParams(): void
+    {
+        $result = $this->connection->executeQuery(
+            $this->connection->getDatabasePlatform()->getDummySelectSQL(),
+            ['param1' => 'value']
+        );
+
+        self::assertInstanceOf(Result::class, $result);
+        self::assertInstanceOf(Driver\Statement::class, $result);
+    }
+
+    public function testResultCompatibilityWhenExecutingQueryWithQueryCacheParam(): void
+    {
+        $result = $this->connection->executeQuery(
+            $this->connection->getDatabasePlatform()->getDummySelectSQL(),
+            [],
+            [],
+            new QueryCacheProfile(1, 'cacheKey', new ArrayCache())
+        );
+
+        self::assertInstanceOf(Result::class, $result);
+        self::assertInstanceOf(Driver\ResultStatement::class, $result);
+    }
+
+    public function testResultCompatibilityWhenExecutingCacheQuery(): void
+    {
+        $result = $this->connection->executeCacheQuery(
+            $this->connection->getDatabasePlatform()->getDummySelectSQL(),
+            [],
+            [],
+            new QueryCacheProfile(1, 'cacheKey', new ArrayCache())
+        );
+
+        self::assertInstanceOf(Result::class, $result);
+        self::assertInstanceOf(Driver\ResultStatement::class, $result);
     }
 }
