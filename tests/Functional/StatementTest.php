@@ -300,4 +300,42 @@ EOF
 
         self::assertEquals(1, $result);
     }
+
+    public function testExecuteQuery(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL();
+        $result   = $this->connection->prepare($query)->executeQuery()->fetchOne();
+
+        self::assertEquals(1, $result);
+    }
+
+    public function testExecuteQueryWithParams(): void
+    {
+        $this->connection->insert('stmt_test', ['id' => 1]);
+
+        $query  = 'SELECT id FROM stmt_test WHERE id = ?';
+        $result = $this->connection->prepare($query)->executeQuery([1])->fetchOne();
+
+        self::assertEquals(1, $result);
+    }
+
+    public function testExecuteStatement(): void
+    {
+        $this->connection->insert('stmt_test', ['id' => 1]);
+
+        $query = 'UPDATE stmt_test SET name = ? WHERE id = 1';
+        $stmt  = $this->connection->prepare($query);
+
+        $stmt->bindValue(1, 'bar');
+
+        $result = $stmt->executeStatement();
+
+        $this->assertEquals(1, $result);
+
+        $query  = 'UPDATE stmt_test SET name = ? WHERE id = ?';
+        $result = $this->connection->prepare($query)->executeStatement(['foo', 1]);
+
+        $this->assertEquals(1, $result);
+    }
 }

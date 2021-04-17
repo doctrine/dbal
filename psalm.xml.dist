@@ -77,6 +77,7 @@
                 <file name="src/Schema/AbstractSchemaManager.php" />
                 <file name="src/Schema/PostgreSQLSchemaManager.php" />
                 <directory name="tests" />
+                <referencedMethod name="Doctrine\DBAL\Statement::execute"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
