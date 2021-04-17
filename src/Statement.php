@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function is_string;
 
@@ -155,12 +156,20 @@ class Statement
     /**
      * Executes the statement with the currently bound parameters.
      *
+     * @deprecated Statement::execute() is deprecated, use Statement::executeQuery() or executeStatement() instead
+     *
      * @param mixed[]|null $params
      *
      * @throws Exception
      */
     public function execute($params = null): Result
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4580',
+            'Statement::execute() is deprecated, use Statement::executeQuery() or Statement::executeStatement() instead'
+        );
+
         if ($params !== null) {
             $this->params = $params;
         }
@@ -182,6 +191,38 @@ class Statement
                 $logger->stopQuery();
             }
         }
+    }
+
+    /**
+     * Executes the statement with the currently bound parameters and return result.
+     *
+     * @param mixed[] $params
+     *
+     * @throws Exception
+     */
+    public function executeQuery(array $params = []): Result
+    {
+        if ($params === []) {
+            $params = null; // Workaround as long execute() exists and used internally.
+        }
+
+        return $this->execute($params);
+    }
+
+    /**
+     * Executes the statement with the currently bound parameters and return affected rows.
+     *
+     * @param mixed[] $params
+     *
+     * @throws Exception
+     */
+    public function executeStatement(array $params = []): int
+    {
+        if ($params === []) {
+            $params = null; // Workaround as long execute() exists and used internally.
+        }
+
+        return $this->execute($params)->rowCount();
     }
 
     /**

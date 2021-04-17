@@ -61,6 +61,7 @@
                 <file name="src/Query/Expression/CompositeExpression.php"/>
                 <file name="tests/Query/Expression/CompositeExpressionTest.php"/>
                 <file name="tests/Query/Expression/ExpressionBuilderTest.php"/>
+                <referencedMethod name="Doctrine\DBAL\Statement::execute"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>

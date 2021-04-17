@@ -7,11 +7,13 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
+use Doctrine\DBAL\Result;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class QueryBuilderTest extends TestCase
 {
-    /** @var Connection */
+    /** @var Connection&MockObject */
     protected $conn;
 
     protected function setUp(): void
@@ -948,5 +950,22 @@ class QueryBuilderTest extends TestCase
         );
 
         $qb->getSQL();
+    }
+
+    public function testExecuteSelect(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn
+            ->expects($this->any())
+            ->method('executeQuery')
+            ->willReturn($this->createMock(Result::class));
+
+        $result = $qb
+            ->select('id')
+            ->from('foo')
+            ->execute();
+
+        self::assertInstanceOf(Result::class, $result);
     }
 }
