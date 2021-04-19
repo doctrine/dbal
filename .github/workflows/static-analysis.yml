@@ -52,3 +52,4 @@ jobs:
         uses: docker://vimeo/psalm-github-actions:4.6.4
         with:
           composer_require_dev: true
+          args: --shepherd
