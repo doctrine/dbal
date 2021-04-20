@@ -73,7 +73,7 @@ class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
     public function testInheritCharsetFromPrimary(): void
     {
         $charsets = [
-            'utf8',
+            'utf8mb4',
             'latin1',
         ];
 
