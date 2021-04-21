@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 
 use function oci_cancel;
+use function oci_error;
 use function oci_fetch_all;
 use function oci_fetch_array;
 use function oci_num_fields;
@@ -112,13 +115,18 @@ final class Result implements ResultInterface
 
     /**
      * @return mixed|false
+     *
+     * @throws Exception
      */
     private function fetch(int $mode)
     {
-        return oci_fetch_array(
-            $this->statement,
-            $mode | OCI_RETURN_NULLS | OCI_RETURN_LOBS
-        );
+        $result = oci_fetch_array($this->statement, $mode | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
+
+        if ($result === false && oci_error($this->statement) !== false) {
+            throw Error::new($this->statement);
+        }
+
+        return $result;
     }
 
     /**

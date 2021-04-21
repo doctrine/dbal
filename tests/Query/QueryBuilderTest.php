@@ -849,6 +849,23 @@ class QueryBuilderTest extends TestCase
         $qb->getSQL();
     }
 
+    public function testExecuteSelect(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->conn
+            ->expects(self::any())
+            ->method('executeQuery')
+            ->willReturn($this->createMock(Result::class));
+
+        $result = $qb
+            ->select('id')
+            ->from('foo')
+            ->execute();
+
+        self::assertInstanceOf(Result::class, $result);
+    }
+
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
