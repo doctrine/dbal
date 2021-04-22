@@ -137,7 +137,6 @@ interfaces to use. It can be configured in one of three ways:
 -  ``driverClass``: Specifies a custom driver implementation if no
    'driver' is specified. This allows the use of custom drivers that
    are not part of the Doctrine DBAL itself.
--  ``pdo``: Specifies an existing PDO instance to use.
 
 Wrapper Class
 ~~~~~~~~~~~~~
@@ -154,11 +153,6 @@ The connection details identify the database to connect to as well
 as the credentials to use. The connection details can differ
 depending on the used driver. The following sections describe the
 options recognized by each built-in driver.
-
-.. note::
-
-    When using an existing PDO instance through the ``pdo``
-    option, specifying connection details is obviously not necessary.
 
 pdo_sqlite
 ^^^^^^^^^^
