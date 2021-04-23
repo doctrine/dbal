@@ -145,6 +145,25 @@ class NamedParametersTest extends FunctionalTestCase
                     ['id' => 4, 'foo' => 1, 'bar' => 4],
                 ],
             ],
+
+            [
+                'SELECT * FROM ddc1372_foobar WHERE foo = :foo',
+                ['foo' => 'bar'],
+                [
+                    'foo' => ParameterType::INTEGER,
+                ],
+                [],
+            ],
+            [
+                'SELECT * FROM ddc1372_foobar WHERE foo IN (:foos)',
+                [
+                    'foos' => ['bar'],
+                ],
+                [
+                    'foos' => Connection::PARAM_INT_ARRAY,
+                ],
+                [],
+            ],
         ];
     }
 
@@ -195,6 +214,11 @@ class NamedParametersTest extends FunctionalTestCase
                 'id'  => 6,
                 'foo' => 2,
                 'bar' => 2,
+            ]);
+            $this->connection->insert('ddc1372_foobar', [
+                'id'  => 7,
+                'foo' => 'foo',
+                'bar' => 'bar',
             ]);
         } catch (Throwable $e) {
             self::fail($e->getMessage());
