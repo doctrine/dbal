@@ -23,10 +23,9 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\Tests\DbalTestCase;
+use PDO;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
-
-use function call_user_func_array;
 
 /**
  * @requires extension pdo_mysql
@@ -646,11 +645,22 @@ EOF
         self::assertSame($result, $conn->fetchAll($statement, $params, $types));
     }
 
+    public function testConnectionThrowsExceptionWhenInvalidPDOProvided(): void
+    {
+        $driverMock = $this->createMock(Driver::class);
+        $pdo        = $this->createMock(stdClass::class);
+
+        $this->expectException(Exception::class);
+
+        new Connection(['pdo' => $pdo], $driverMock);
+    }
+
     public function testConnectionDoesNotMaintainTwoReferencesToExternalPDO(): void
     {
         $driverMock = $this->createMock(Driver::class);
+        $pdo        = $this->createMock(PDO::class);
 
-        $conn = new Connection(['pdo' => new stdClass()], $driverMock);
+        $conn = new Connection(['pdo' => $pdo], $driverMock);
 
         self::assertArrayNotHasKey('pdo', $conn->getParams());
     }
@@ -658,22 +668,17 @@ EOF
     public function testPassingExternalPDOMeansConnectionIsConnected(): void
     {
         $driverMock = $this->createMock(Driver::class);
+        $pdo        = $this->createMock(PDO::class);
 
-        $conn = new Connection(['pdo' => new stdClass()], $driverMock);
+        $conn = new Connection(['pdo' => $pdo], $driverMock);
 
         self::assertTrue($conn->isConnected(), 'Connection is not connected after passing external PDO');
     }
 
     public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException(): void
     {
-        $driver  = $this->createMock(Driver::class);
-        $pdoMock = $this->createMock(\Doctrine\DBAL\Driver\Connection::class);
-
-        // should never execute queries with invalid arguments
-        $pdoMock->expects($this->never())->method('exec');
-        $pdoMock->expects($this->never())->method('prepare');
-
-        $conn = new Connection(['pdo' => $pdoMock], $driver);
+        $driver = $this->createMock(Driver::class);
+        $conn   = new Connection([], $driver);
 
         $this->expectException(InvalidArgumentException::class);
         $conn->delete('kittens', []);
@@ -700,23 +705,22 @@ EOF
      */
     public function testCallConnectOnce(string $method, array $params): void
     {
-        $driverMock   = $this->createMock(Driver::class);
-        $pdoMock      = $this->createMock(Connection::class);
-        $platformMock = $this->createMock(AbstractPlatform::class);
-        $stmtMock     = $this->createMock(Statement::class);
+        $wrappedConnection = $this->createMock(DriverConnection::class);
+        $driver            = $this->createMock(Driver::class);
+        $stmt              = $this->createMock(Statement::class);
+        $driver->expects(self::once())
+            ->method('connect')
+            ->willReturn($wrappedConnection);
 
-        $pdoMock->expects($this->any())
+        $wrappedConnection
             ->method('prepare')
-            ->will($this->returnValue($stmtMock));
+            ->will($this->returnValue($stmt));
 
-        $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
-            ->onlyMethods(['connect'])
-            ->setConstructorArgs([['pdo' => $pdoMock, 'platform' => $platformMock], $driverMock])
-            ->getMock();
+        $platform = $this->createMock(AbstractPlatform::class);
 
-        $conn->expects($this->once())->method('connect');
+        $conn = new Connection(['platform' => $platform], $driver);
 
-        call_user_func_array([$conn, $method], $params);
+        $conn->$method(...$params);
     }
 
     public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform(): void
