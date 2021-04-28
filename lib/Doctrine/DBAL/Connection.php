@@ -146,13 +146,6 @@ class Connection implements DriverConnection
     private $platform;
 
     /**
-     * The schema manager.
-     *
-     * @var AbstractSchemaManager|null
-     */
-    protected $_schemaManager;
-
-    /**
      * The used DBAL driver.
      *
      * @var Driver
@@ -217,8 +210,6 @@ class Connection implements DriverConnection
 
         $this->_config       = $config;
         $this->_eventManager = $eventManager;
-
-        $this->_expr = new Query\Expression\ExpressionBuilder($this);
 
         $this->autoCommit = $config->getAutoCommit();
     }
@@ -378,7 +369,7 @@ class Connection implements DriverConnection
      */
     public function getExpressionBuilder()
     {
-        return $this->_expr;
+        return new ExpressionBuilder($this);
     }
 
     /**
@@ -1952,11 +1943,7 @@ class Connection implements DriverConnection
      */
     public function getSchemaManager()
     {
-        if ($this->_schemaManager === null) {
-            $this->_schemaManager = $this->_driver->getSchemaManager($this);
-        }
-
-        return $this->_schemaManager;
+        return $this->_driver->getSchemaManager($this);
     }
 
     /**
