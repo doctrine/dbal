@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
@@ -19,8 +21,10 @@ use Error;
 use Exception;
 use PDO;
 use RuntimeException;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Throwable;
 
+use function class_exists;
 use function file_exists;
 use function in_array;
 use function unlink;
@@ -389,7 +393,7 @@ class ConnectionTest extends DbalFunctionalTestCase
             $this->connection->getDatabasePlatform()->getDummySelectSQL(),
             [],
             [],
-            new QueryCacheProfile(1, 'cacheKey', new ArrayCache())
+            new QueryCacheProfile(1, 'cacheKey', $this->getArrayCache())
         );
 
         self::assertInstanceOf(Result::class, $result);
@@ -402,10 +406,23 @@ class ConnectionTest extends DbalFunctionalTestCase
             $this->connection->getDatabasePlatform()->getDummySelectSQL(),
             [],
             [],
-            new QueryCacheProfile(1, 'cacheKey', new ArrayCache())
+            new QueryCacheProfile(1, 'cacheKey', $this->getArrayCache())
         );
 
         self::assertInstanceOf(Result::class, $result);
         self::assertInstanceOf(Driver\ResultStatement::class, $result);
+    }
+
+    private function getArrayCache(): Cache
+    {
+        if (class_exists(DoctrineProvider::class)) {
+            return DoctrineProvider::wrap(new ArrayAdapter());
+        }
+
+        if (class_exists(ArrayCache::class)) {
+            return new ArrayCache();
+        }
+
+        self::fail('Cannot instantiate cache backend.');
     }
 }
