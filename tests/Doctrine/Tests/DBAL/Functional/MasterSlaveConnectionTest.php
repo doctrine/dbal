@@ -72,7 +72,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     public function testInheritCharsetFromMaster(): void
     {
         $charsets = [
-            'utf8',
+            'utf8mb4',
             'latin1',
         ];
 
