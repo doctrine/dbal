@@ -6,6 +6,7 @@ use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Cache\Psr6\CacheAdapter;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use Psr\Cache\CacheItemPoolInterface;
 use TypeError;
 
@@ -43,6 +44,15 @@ class QueryCacheProfile
         if ($resultCache instanceof CacheItemPoolInterface) {
             $this->resultCache = $resultCache;
         } elseif ($resultCache instanceof Cache) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/4620',
+                'Passing an instance of %s to %s as $resultCache is deprecated. Pass an instance of %s instead.',
+                Cache::class,
+                __METHOD__,
+                CacheItemPoolInterface::class
+            );
+
             $this->resultCache = CacheAdapter::wrap($resultCache);
         } elseif ($resultCache !== null) {
             throw new TypeError(sprintf(
@@ -66,6 +76,13 @@ class QueryCacheProfile
      */
     public function getResultCacheDriver()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4620',
+            '%s is deprecated, call getResultCache() instead.',
+            __METHOD__
+        );
+
         return $this->resultCache !== null ? DoctrineProvider::wrap($this->resultCache) : null;
     }
 
@@ -130,6 +147,13 @@ class QueryCacheProfile
      */
     public function setResultCacheDriver(Cache $cache)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4620',
+            '%s is deprecated, call setResultCache() instead.',
+            __METHOD__
+        );
+
         return new QueryCacheProfile($this->lifetime, $this->cacheKey, CacheAdapter::wrap($cache));
     }
 

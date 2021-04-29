@@ -11,8 +11,9 @@ awareness about deprecated code.
 ## Introduction of PSR-6 for result caching
 
 Instead of relying on the deprecated `doctrine/cache` library, a PSR-6 cache
-can now be used for result caching. Please use the following new methods for
-this purpose:
+can now be used for result caching. The usage of Doctrine Cache is deprecated
+in favor of PSR-6. The following methods related to Doctrine Cache have been
+replaced with PSR-6 counterparts:
 
 | class               | old method               | new method         |
 | ------------------- | ------------------------ | ------------------ |
