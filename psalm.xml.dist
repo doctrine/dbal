@@ -45,6 +45,11 @@
                     is no longer supported.
                 -->
                 <file name="src/Tools/Console/ConsoleRunner.php"/>
+                <!--
+                    This suppression should be removed once Doctrine Cache
+                    is no longer supported.
+                -->
+                <file name="tests/Functional/ResultCacheTest.php"/>
             </errorLevel>
         </DeprecatedClass>
         <DeprecatedMethod>
@@ -87,6 +92,12 @@
                     See https://github.com/doctrine/dbal/pull/4518
                 -->
                 <file name="src/Connection.php"/>
+
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/4620
+                -->
+                <file name="src/Configuration.php"/>
             </errorLevel>
         </DeprecatedProperty>
         <DocblockTypeContradiction>
@@ -100,6 +111,7 @@
                       1. Union types not supported at the language level (require dropping PHP 7 support)
                       2. Associative arrays with typed elements used instead of classes (require breaking API changes)
                 -->
+                <file name="src/Cache/QueryCacheProfile.php"/>
                 <file name="src/Connection.php"/>
                 <file name="src/Driver/IBMDB2/Statement.php"/>
                 <file name="src/DriverManager.php"/>

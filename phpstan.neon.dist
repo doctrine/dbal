@@ -106,5 +106,11 @@ parameters:
             message: '~^Instanceof between Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList and Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList will always evaluate to true\.~'
             paths:
                 - %currentWorkingDirectory%/src/Platforms/AbstractPlatform.php
+
+        # We're checking for invalid invalid input
+        -
+            message: "#^Strict comparison using \\!\\=\\= between null and null will always evaluate to false\\.$#"
+            count: 1
+            path: src/Cache/QueryCacheProfile.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

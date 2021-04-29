@@ -6,6 +6,21 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 3.2
+
+## Introduction of PSR-6 for result caching
+
+Instead of relying on the deprecated `doctrine/cache` library, a PSR-6 cache
+can now be used for result caching. Please use the following new methods for
+this purpose:
+
+| class               | old method               | new method         |
+| ------------------- | ------------------------ | ------------------ |
+| `Configuration`     | `setResultCacheImpl()`   | `setResultCache()` |
+| `Configuration`     | `getResultCacheImpl()`   | `getResultCache()` |
+| `QueryCacheProfile` | `setResultCacheDriver()` | `setResultCache()` |
+| `QueryCacheProfile` | `getResultCacheDriver()` | `getResultCache()` |
+
 # Upgrade to 3.1
 
 ## Deprecated schema- and namespace-related methods

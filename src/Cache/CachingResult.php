@@ -2,11 +2,11 @@
 
 namespace Doctrine\DBAL\Cache;
 
-use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Result;
+use Psr\Cache\CacheItemPoolInterface;
 
 use function array_map;
 use function array_values;
@@ -26,7 +26,7 @@ use function array_values;
  */
 class CachingResult implements DriverResult
 {
-    /** @var Cache */
+    /** @var CacheItemPoolInterface */
     private $cache;
 
     /** @var string */
@@ -49,7 +49,7 @@ class CachingResult implements DriverResult
      * @param string $realKey
      * @param int    $lifetime
      */
-    public function __construct(Result $result, Cache $cache, $cacheKey, $realKey, $lifetime)
+    public function __construct(Result $result, CacheItemPoolInterface $cache, $cacheKey, $realKey, $lifetime)
     {
         $this->result   = $result;
         $this->cache    = $cache;
@@ -171,14 +171,15 @@ class CachingResult implements DriverResult
             return;
         }
 
-        $data = $this->cache->fetch($this->cacheKey);
-
-        if ($data === false) {
-            $data = [];
-        }
-
+        $item                 = $this->cache->getItem($this->cacheKey);
+        $data                 = $item->isHit() ? $item->get() : [];
         $data[$this->realKey] = $this->data;
 
-        $this->cache->save($this->cacheKey, $data, $this->lifetime);
+        $item->set($data);
+        if ($this->lifetime > 0) {
+            $item->expiresAfter($this->lifetime);
+        }
+
+        $this->cache->save($item);
     }
 }

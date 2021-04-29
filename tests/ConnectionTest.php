@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Tests;
 
-use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
@@ -22,6 +21,8 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use stdClass;
 
 /**
@@ -628,13 +629,17 @@ class ConnectionTest extends TestCase
 
     public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
-        $resultCacheDriverMock = $this->createMock(Cache::class);
+        $cacheItemMock = $this->createMock(CacheItemInterface::class);
+        $cacheItemMock->method('isHit')->willReturn(true);
+        $cacheItemMock->method('get')->willReturn(['realKey' => []]);
 
-        $resultCacheDriverMock
+        $resultCacheMock = $this->createMock(CacheItemPoolInterface::class);
+
+        $resultCacheMock
             ->expects(self::atLeastOnce())
-            ->method('fetch')
+            ->method('getItem')
             ->with('cacheKey')
-            ->will(self::returnValue(['realKey' => []]));
+            ->willReturn($cacheItemMock);
 
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = [666];
@@ -643,9 +648,8 @@ class ConnectionTest extends TestCase
         $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
 
         $queryCacheProfileMock
-            ->expects(self::any())
-            ->method('getResultCacheDriver')
-            ->will(self::returnValue($resultCacheDriverMock));
+            ->method('getResultCache')
+            ->willReturn($resultCacheMock);
 
         // This is our main expectation
         $queryCacheProfileMock
@@ -661,20 +665,23 @@ class ConnectionTest extends TestCase
 
     public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
-        $resultCacheDriverMock = $this->createMock(Cache::class);
+        $cacheItemMock = $this->createMock(CacheItemInterface::class);
+        $cacheItemMock->method('isHit')->willReturn(true);
+        $cacheItemMock->method('get')->willReturn(['realKey' => []]);
 
-        $resultCacheDriverMock
+        $resultCacheMock = $this->createMock(CacheItemPoolInterface::class);
+
+        $resultCacheMock
             ->expects(self::atLeastOnce())
-            ->method('fetch')
+            ->method('getItem')
             ->with('cacheKey')
-            ->will(self::returnValue(['realKey' => []]));
+            ->willReturn($cacheItemMock);
 
         $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
 
         $queryCacheProfileMock
-            ->expects(self::any())
-            ->method('getResultCacheDriver')
-            ->will(self::returnValue($resultCacheDriverMock));
+            ->method('getResultCache')
+            ->willReturn($resultCacheMock);
 
         $query = 'SELECT 1';
 
@@ -735,18 +742,21 @@ class ConnectionTest extends TestCase
 
         $queryCacheProfile = $this->createMock(QueryCacheProfile::class);
 
-        $resultCacheDriver = $this->createMock(Cache::class);
+        $resultCache = $this->createMock(CacheItemPoolInterface::class);
 
         $queryCacheProfile
-            ->expects(self::any())
-            ->method('getResultCacheDriver')
-            ->will(self::returnValue($resultCacheDriver));
+            ->method('getResultCache')
+            ->willReturn($resultCache);
 
-        $resultCacheDriver
+        $cacheItemMock = $this->createMock(CacheItemInterface::class);
+        $cacheItemMock->method('isHit')->willReturn(true);
+        $cacheItemMock->method('get')->willReturn(['realKey' => []]);
+
+        $resultCache
             ->expects(self::atLeastOnce())
-            ->method('fetch')
+            ->method('getItem')
             ->with('cacheKey')
-            ->will(self::returnValue(['realKey' => []]));
+            ->willReturn($cacheItemMock);
 
         $query = 'SELECT 1';
 

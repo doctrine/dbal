@@ -8,6 +8,7 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 use function array_change_key_case;
 use function array_shift;
@@ -47,8 +48,8 @@ class ResultCacheTest extends FunctionalTestCase
         $config = $this->connection->getConfiguration();
         $config->setSQLLogger($this->sqlLogger = new DebugStack());
 
-        $cache = new ArrayCache();
-        $config->setResultCacheImpl($cache);
+        $cache = new ArrayAdapter();
+        $config->setResultCache($cache);
     }
 
     protected function tearDown(): void
@@ -213,6 +214,25 @@ class ResultCacheTest extends FunctionalTestCase
      */
     public function testFetchingAllRowsSavesCache(callable $fetchAll): void
     {
+        $layerCache = new ArrayAdapter();
+
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(0, 'testcachekey', $layerCache)
+        );
+
+        $fetchAll($result);
+
+        self::assertCount(1, $layerCache->getItem('testcachekey')->get());
+    }
+
+    /**
+     * @dataProvider fetchAllProvider
+     */
+    public function testFetchingAllRowsSavesCacheLegacy(callable $fetchAll): void
+    {
         $layerCache = new ArrayCache();
 
         $result = $this->connection->executeQuery(
@@ -256,7 +276,7 @@ class ResultCacheTest extends FunctionalTestCase
         $query = $this->connection->getDatabasePlatform()
             ->getDummySelectSQL('1');
 
-        $qcp = new QueryCacheProfile(0, null, new ArrayCache());
+        $qcp = new QueryCacheProfile(0, null, new ArrayAdapter());
 
         $result = $this->connection->executeCacheQuery($query, [], [], $qcp);
         $result->fetchFirstColumn();
@@ -323,6 +343,36 @@ class ResultCacheTest extends FunctionalTestCase
     }
 
     public function testChangeCacheImpl(): void
+    {
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey')
+        );
+
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
+        });
+
+        $secondCache = new ArrayAdapter();
+
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey', $secondCache)
+        );
+
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
+        });
+
+        self::assertCount(2, $this->sqlLogger->queries, 'two hits');
+        self::assertCount(1, $secondCache->getItem('emptycachekey')->get());
+    }
+
+    public function testChangeCacheImplLegacy(): void
     {
         $stmt = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
