@@ -7,6 +7,7 @@ use Doctrine\Common\Cache\Psr6\CacheAdapter;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Logging\SQLLogger;
+use Doctrine\Deprecations\Deprecation;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
@@ -85,6 +86,13 @@ class Configuration
      */
     public function getResultCacheImpl(): ?Cache
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4620',
+            '%s is deprecated, call getResultCache() instead.',
+            __METHOD__
+        );
+
         return $this->resultCacheImpl;
     }
 
@@ -104,6 +112,13 @@ class Configuration
      */
     public function setResultCacheImpl(Cache $cacheImpl): void
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4620',
+            '%s is deprecated, call setResultCache() instead.',
+            __METHOD__
+        );
+
         $this->resultCacheImpl = $cacheImpl;
         $this->resultCache     = CacheAdapter::wrap($cacheImpl);
     }
