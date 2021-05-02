@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Logging\DebugStack;
@@ -234,7 +233,8 @@ class ResultCacheTest extends FunctionalTestCase
      */
     public function testFetchingAllRowsSavesCacheLegacy(callable $fetchAll): void
     {
-        $layerCache = $this->getArrayCache();
+        $arrayAdapter = new ArrayAdapter();
+        $layerCache   = DoctrineProvider::wrap($arrayAdapter);
 
         $result = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -245,7 +245,7 @@ class ResultCacheTest extends FunctionalTestCase
 
         $fetchAll($result);
 
-        self::assertCount(1, $layerCache->fetch('testcachekey'));
+        self::assertCount(1, $arrayAdapter->getItem('testcachekey')->get());
     }
 
     /**
@@ -386,7 +386,8 @@ class ResultCacheTest extends FunctionalTestCase
             return $result->fetchAssociative();
         });
 
-        $secondCache = $this->getArrayCache();
+        $arrayAdapter = new ArrayAdapter();
+        $secondCache  = DoctrineProvider::wrap($arrayAdapter);
 
         $stmt = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -400,7 +401,7 @@ class ResultCacheTest extends FunctionalTestCase
         });
 
         self::assertCount(2, $this->sqlLogger->queries, 'two hits');
-        self::assertCount(1, $secondCache->fetch('emptycachekey'));
+        self::assertCount(1, $arrayAdapter->getItem('emptycachekey')->get());
     }
 
     /**
@@ -462,10 +463,5 @@ class ResultCacheTest extends FunctionalTestCase
         }
 
         return $data;
-    }
-
-    private function getArrayCache(): Cache
-    {
-        return DoctrineProvider::wrap(new ArrayAdapter());
     }
 }
