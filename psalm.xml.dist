@@ -45,6 +45,11 @@
                     is no longer supported.
                 -->
                 <file name="src/Tools/Console/ConsoleRunner.php"/>
+                <!--
+                    This suppression should be removed in 4.0.0.
+                    See https://github.com/doctrine/dbal/pull/4626
+                -->
+                <referencedClass name="Doctrine\Common\Cache\ArrayCache"/>
             </errorLevel>
         </DeprecatedClass>
         <DeprecatedMethod>
