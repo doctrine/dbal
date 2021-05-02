@@ -3,15 +3,19 @@
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 use function array_change_key_case;
 use function array_shift;
 use function array_values;
+use function class_exists;
 use function is_array;
 
 use const CASE_LOWER;
@@ -47,7 +51,7 @@ class ResultCacheTest extends FunctionalTestCase
         $config = $this->connection->getConfiguration();
         $config->setSQLLogger($this->sqlLogger = new DebugStack());
 
-        $cache = new ArrayCache();
+        $cache = $this->getArrayCache();
         $config->setResultCacheImpl($cache);
     }
 
@@ -213,7 +217,7 @@ class ResultCacheTest extends FunctionalTestCase
      */
     public function testFetchingAllRowsSavesCache(callable $fetchAll): void
     {
-        $layerCache = new ArrayCache();
+        $layerCache = $this->getArrayCache();
 
         $result = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -256,7 +260,7 @@ class ResultCacheTest extends FunctionalTestCase
         $query = $this->connection->getDatabasePlatform()
             ->getDummySelectSQL('1');
 
-        $qcp = new QueryCacheProfile(0, null, new ArrayCache());
+        $qcp = new QueryCacheProfile(0, null, $this->getArrayCache());
 
         $result = $this->connection->executeCacheQuery($query, [], [], $qcp);
         $result->fetchFirstColumn();
@@ -335,7 +339,7 @@ class ResultCacheTest extends FunctionalTestCase
             return $result->fetchAssociative();
         });
 
-        $secondCache = new ArrayCache();
+        $secondCache = $this->getArrayCache();
 
         $stmt = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -411,5 +415,18 @@ class ResultCacheTest extends FunctionalTestCase
         }
 
         return $data;
+    }
+
+    private function getArrayCache(): Cache
+    {
+        if (class_exists(DoctrineProvider::class)) {
+            return DoctrineProvider::wrap(new ArrayAdapter());
+        }
+
+        if (class_exists(ArrayCache::class)) {
+            return new ArrayCache();
+        }
+
+        self::fail('Cannot instantiate cache backend.');
     }
 }
