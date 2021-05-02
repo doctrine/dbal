@@ -2,7 +2,8 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Result;
@@ -233,7 +234,7 @@ class ResultCacheTest extends FunctionalTestCase
      */
     public function testFetchingAllRowsSavesCacheLegacy(callable $fetchAll): void
     {
-        $layerCache = new ArrayCache();
+        $layerCache = $this->getArrayCache();
 
         $result = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -385,7 +386,7 @@ class ResultCacheTest extends FunctionalTestCase
             return $result->fetchAssociative();
         });
 
-        $secondCache = new ArrayCache();
+        $secondCache = $this->getArrayCache();
 
         $stmt = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -461,5 +462,10 @@ class ResultCacheTest extends FunctionalTestCase
         }
 
         return $data;
+    }
+
+    private function getArrayCache(): Cache
+    {
+        return DoctrineProvider::wrap(new ArrayAdapter());
     }
 }
