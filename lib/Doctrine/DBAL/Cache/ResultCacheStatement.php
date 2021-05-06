@@ -117,6 +117,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      *
      * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
@@ -189,6 +192,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      *
      * @deprecated Use fetchOne() instead.
@@ -202,6 +208,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      */
     public function fetchNumeric()
@@ -216,6 +225,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      */
     public function fetchAssociative()
@@ -224,6 +236,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      */
     public function fetchOne()
