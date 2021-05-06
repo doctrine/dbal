@@ -7,6 +7,7 @@
 >
     <projectFiles>
         <directory name="lib/Doctrine/DBAL" />
+        <directory name="tests/Doctrine/StaticAnalysis" />
         <directory name="tests/Doctrine/Tests" />
         <ignoreFiles>
             <directory name="vendor" />
