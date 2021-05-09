@@ -18,6 +18,8 @@ use Doctrine\Tests\DbalTestCase;
 use PDO;
 use stdClass;
 
+use function array_intersect_key;
+use function array_merge;
 use function extension_loaded;
 use function get_class;
 use function in_array;
@@ -159,18 +161,26 @@ class DriverManagerTest extends DbalTestCase
             'password' => 'bar',
             'host'     => 'localhost',
             'port'     => 11211,
+            'dbname'   => 'baz',
+            'driver'   => 'pdo_mysql',
+            'url'      => 'mysql://foo:bar@localhost:11211/baz',
         ];
 
-        foreach ($expected as $key => $value) {
-            self::assertArrayHasKey($key, $params['primary']);
-            self::assertEquals($value, $params['primary'][$key]);
-
-            self::assertArrayHasKey($key, $params['replica']['replica1']);
-            self::assertEquals($value, $params['replica']['replica1'][$key]);
-        }
-
-        self::assertEquals('baz', $params['primary']['dbname']);
-        self::assertEquals('baz_replica', $params['replica']['replica1']['dbname']);
+        self::assertEquals(
+            [
+                'primary' => $expected,
+                'replica' => [
+                    'replica1' => array_merge(
+                        $expected,
+                        [
+                            'dbname' => 'baz_replica',
+                            'url'    => 'mysql://foo:bar@localhost:11211/baz_replica',
+                        ]
+                    ),
+                ],
+            ],
+            array_intersect_key($params, ['primary' => null, 'replica' => null])
+        );
     }
 
     public function testDatabaseUrlShard(): void
@@ -182,7 +192,7 @@ class DriverManagerTest extends DbalTestCase
             'shards' => [
                 [
                     'id' => 1,
-                    'url' => 'mysql://foo:bar@localhost:11211/baz_slave',
+                    'url' => 'mysql://foo:bar@localhost:11211/baz_replica',
                 ],
             ],
             'wrapperClass' => PoolingShardConnection::class,
@@ -198,15 +208,27 @@ class DriverManagerTest extends DbalTestCase
             'password' => 'bar',
             'host'     => 'localhost',
             'port'     => 11211,
+            'dbname'   => 'baz',
+            'driver'   => 'pdo_mysql',
+            'url'      => 'mysql://foo:bar@localhost:11211/baz',
         ];
 
-        foreach ($expected as $key => $value) {
-            self::assertEquals($value, $params['global'][$key]);
-            self::assertEquals($value, $params['shards'][0][$key]);
-        }
-
-        self::assertEquals('baz', $params['global']['dbname']);
-        self::assertEquals('baz_slave', $params['shards'][0]['dbname']);
+        self::assertEquals(
+            [
+                'global' => $expected,
+                'shards' => [
+                    array_merge(
+                        $expected,
+                        [
+                            'dbname' => 'baz_replica',
+                            'id'     => 1,
+                            'url'    => 'mysql://foo:bar@localhost:11211/baz_replica',
+                        ]
+                    ),
+                ],
+            ],
+            array_intersect_key($params, ['global' => null, 'shards' => null])
+        );
     }
 
     /**
