@@ -28,6 +28,7 @@ use function is_numeric;
 use function is_string;
 use function sprintf;
 use function str_replace;
+use function strcasecmp;
 use function strtoupper;
 use function trim;
 
@@ -335,26 +336,32 @@ SQL
             $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
-        $query = 'CREATE ';
+        $sql = ['CREATE'];
 
         if (! empty($options['temporary'])) {
-            $query .= 'TEMPORARY ';
+            $sql[] = 'TEMPORARY';
         }
 
-        $query .= 'TABLE ' . $name . ' (' . $queryFields . ') ';
-        $query .= $this->buildTableOptions($options);
-        $query .= $this->buildPartitionOptions($options);
+        $sql[] = 'TABLE ' . $name . ' (' . $queryFields . ')';
 
-        $sql    = [$query];
-        $engine = 'INNODB';
+        $tableOptions = $this->buildTableOptions($options);
 
-        if (isset($options['engine'])) {
-            $engine = strtoupper(trim($options['engine']));
+        if ($tableOptions !== '') {
+            $sql[] = $tableOptions;
         }
+
+        if (isset($options['partition_options'])) {
+            $sql[] = $options['partition_options'];
+        }
+
+        $sql = [implode(' ', $sql)];
 
         // Propagate foreign key constraints only for InnoDB.
-        if (isset($options['foreignKeys']) && $engine === 'INNODB') {
-            foreach ((array) $options['foreignKeys'] as $definition) {
+        if (
+            isset($options['foreignKeys'])
+            && (! isset($options['engine']) || strcasecmp($options['engine'], 'InnoDB') === 0)
+        ) {
+            foreach ($options['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
@@ -388,26 +395,17 @@ SQL
 
         $tableOptions = [];
 
-        // Charset
-        if (! isset($options['charset'])) {
-            $options['charset'] = 'utf8';
+        if (isset($options['charset'])) {
+            $tableOptions[] = sprintf('DEFAULT CHARACTER SET %s', $options['charset']);
         }
 
-        $tableOptions[] = sprintf('DEFAULT CHARACTER SET %s', $options['charset']);
-
-        // Collate
-        if (! isset($options['collate'])) {
-            $options['collate'] = $options['charset'] . '_unicode_ci';
+        if (isset($options['collate'])) {
+            $tableOptions[] = $this->getColumnCollationDeclarationSQL($options['collate']);
         }
 
-        $tableOptions[] = $this->getColumnCollationDeclarationSQL($options['collate']);
-
-        // Engine
-        if (! isset($options['engine'])) {
-            $options['engine'] = 'InnoDB';
+        if (isset($options['engine'])) {
+            $tableOptions[] = sprintf('ENGINE = %s', $options['engine']);
         }
-
-        $tableOptions[] = sprintf('ENGINE = %s', $options['engine']);
 
         // Auto increment
         if (isset($options['auto_increment'])) {
@@ -425,18 +423,6 @@ SQL
         }
 
         return implode(' ', $tableOptions);
-    }
-
-    /**
-     * Build SQL for partition options.
-     *
-     * @param mixed[] $options
-     */
-    private function buildPartitionOptions(array $options): string
-    {
-        return isset($options['partition_options'])
-            ? ' ' . $options['partition_options']
-            : '';
     }
 
     /**

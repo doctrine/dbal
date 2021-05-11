@@ -204,7 +204,6 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('test_column_charset');
         $table->addColumn('id', 'integer');
-        $table->addColumn('no_charset', 'text');
         $table->addColumn('foo', 'text')->setPlatformOption('charset', 'ascii');
         $table->addColumn('bar', 'text')->setPlatformOption('charset', 'latin1');
         $this->schemaManager->dropAndCreateTable($table);
@@ -212,7 +211,6 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $columns = $this->schemaManager->listTableColumns('test_column_charset');
 
         self::assertFalse($columns['id']->hasPlatformOption('charset'));
-        self::assertEquals('utf8', $columns['no_charset']->getPlatformOption('charset'));
         self::assertEquals('ascii', $columns['foo']->getPlatformOption('charset'));
         self::assertEquals('latin1', $columns['bar']->getPlatformOption('charset'));
     }

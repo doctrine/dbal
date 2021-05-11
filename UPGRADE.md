@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed defaults for MySQL table charset, collation and engine
+
+The library no longer provides the default values for MySQL table charset, collation and engine.
+If omitted in the table definition, MySQL will derive the values from the database options.
+
 ## Removed `ReservedWordsCommand::setKeywordListClass()`
 
 To add or replace a keyword list, use `ReservedWordsCommand::setKeywordList()`.
