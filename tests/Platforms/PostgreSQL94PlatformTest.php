@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
@@ -78,5 +79,47 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('jsonb'));
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('jsonb'));
+    }
+
+    /**
+     * @dataProvider getDefaultValueDeclarationSQLDateTimeWithExpressions
+     */
+    public function testGetDefaultValueDeclarationSQLDateTimeWithExpressions(
+        string $expression,
+        bool $shouldBeQuoted
+    ): void {
+        foreach (['datetime', 'datetimetz', 'datetime_immutable', 'datetimetz_immutable'] as $type) {
+            $value          = $shouldBeQuoted ? $this->platform->quoteStringLiteral($expression) : $expression;
+            $expectedOutput = ' DEFAULT ' . $value;
+
+            self::assertSame(
+                $expectedOutput,
+                $this->platform->getDefaultValueDeclarationSQL([
+                    'type'    => Type::getType($type),
+                    'default' => $expression,
+                ])
+            );
+        }
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public function getDefaultValueDeclarationSQLDateTimeWithExpressions(): array
+    {
+        return [
+            ['clock_timestamp()', false],
+            ['current_timestamp', false],
+            ['current_timestamp()', false],
+            ['localtimestamp', false],
+            ['localtimestamp()', false],
+            ['now()', false],
+            ['statement_timestamp()', false],
+            ['transaction_timestamp()', false],
+            ['CURRENT_TIMESTAMP', false],
+            ['CURRENT_TIMESTAMP()', false],
+            ['UNSUPPORTED_FUNCTION', true],
+            ['UNSUPPORTED_FUNCTION()', true],
+        ];
     }
 }

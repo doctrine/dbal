@@ -13,6 +13,7 @@ use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\PhpDateTimeMappingType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
@@ -60,6 +61,18 @@ class PostgreSQL94Platform extends AbstractPlatform
             'off',
             '0',
         ],
+    ];
+
+    // Based on https://www.postgresql.org/docs/9.4/functions-datetime.html#FUNCTIONS-DATETIME-TABLE
+    private const ALLOWED_DATETIME_DEFAULT_EXPRESSIONS = [
+        'clock_timestamp()',
+        'current_timestamp',
+        'current_timestamp()',
+        'localtimestamp',
+        'localtimestamp()',
+        'now()',
+        'statement_timestamp()',
+        'transaction_timestamp()',
     ];
 
     /**
@@ -1214,6 +1227,20 @@ SQL
     {
         if ($this->isSerialColumn($column)) {
             return '';
+        }
+
+        if (isset($column['default']) && isset($column['type'])) {
+            $default = $column['default'];
+            $type    = $column['type'];
+
+            $isAllowedExpression = in_array(
+                strtolower(trim($default)),
+                self::ALLOWED_DATETIME_DEFAULT_EXPRESSIONS,
+                true
+            );
+            if ($type instanceof PhpDateTimeMappingType && $isAllowedExpression) {
+                return ' DEFAULT ' . $default;
+            }
         }
 
         return parent::getDefaultValueDeclarationSQL($column);
