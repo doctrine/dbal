@@ -545,14 +545,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testQuoteIdentifier(): void
     {
-        self::assertEquals('[fo][o]', $this->platform->quoteIdentifier('fo]o'));
+        self::assertEquals('[fo]]o]', $this->platform->quoteIdentifier('fo]o'));
         self::assertEquals('[test]', $this->platform->quoteIdentifier('test'));
         self::assertEquals('[test].[test]', $this->platform->quoteIdentifier('test.test'));
     }
 
     public function testQuoteSingleIdentifier(): void
     {
-        self::assertEquals('[fo][o]', $this->platform->quoteSingleIdentifier('fo]o'));
+        self::assertEquals('[fo]]o]', $this->platform->quoteSingleIdentifier('fo]o'));
         self::assertEquals('[test]', $this->platform->quoteSingleIdentifier('test'));
         self::assertEquals('[test.test]', $this->platform->quoteSingleIdentifier('test.test'));
     }

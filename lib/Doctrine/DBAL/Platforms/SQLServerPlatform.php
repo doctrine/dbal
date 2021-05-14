@@ -1610,7 +1610,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function quoteSingleIdentifier($str)
     {
-        return '[' . str_replace(']', '][', $str) . ']';
+        return '[' . str_replace(']', ']]', $str) . ']';
     }
 
     /**
