@@ -14,16 +14,19 @@ To use the result cache, there are three mandatory steps:
 Configuring the result cache
 ----------------------------
 
-Any instance of ``Doctrine\Common\Cache\Cache`` can be used as a result
+Any instance of ``Psr\Cache\CacheItemPoolInterface`` can be used as a result
 cache and can be set on the configuration object (optionally it can also
 be passed at query time):
 
 ::
 
     <?php
-    $cache = new \Doctrine\Common\Cache\ArrayCache();
+    $cache = new \Symfony\Component\Cache\Adapter\ArrayAdapter();
     $config = $conn->getConfiguration();
-    $config->setResultCacheImpl($cache);
+    $config->setResultCache($cache);
+
+Note that this documentation uses Symfony Cache in all examples. Any other cache implementation
+that follows the PSR-6 standard can be used instead.
 
 Providing a cache profile
 -------------------------
@@ -41,14 +44,14 @@ optional argument, whereas it is required when calling the latter:
     $stmt = $conn->executeCacheQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
 
 As stated before, it is also possible to pass in a
-``Doctrine\Common\Cache\Cache`` instance into the constructor of
+``Psr\Cache\CacheItemPoolInterface`` instance into the constructor of
 ``Doctrine\DBAL\Cache\QueryCacheProfile`` in which case it overrides the
 default cache instance:
 
 ::
 
     <?php
-    $cache = new \Doctrine\Common\Cache\FilesystemCache(__DIR__);
+    $cache = new \Symfony\Component\Cache\Adapter\FilesystemAdapter();
     new QueryCacheProfile(0, "some key", $cache);
 
 Reading the entire result set
