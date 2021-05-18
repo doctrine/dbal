@@ -804,7 +804,7 @@ class QueryBuilderTest extends TestCase
             ->from('users', 'u')
             ->where('u.id = :test');
 
-        $qb->setParameter(':test', (object) 1);
+        $qb->bind(':test', (object) 1);
 
         $qbClone = clone $qb;
 
@@ -905,11 +905,11 @@ class QueryBuilderTest extends TestCase
         self::assertNull($qb->getParameterType('name'));
 
         $qb->where('name = :name');
-        $qb->setParameter('name', 'foo');
+        $qb->bind('name', 'foo');
 
         self::assertNull($qb->getParameterType('name'));
 
-        $qb->setParameter('name', 'foo', ParameterType::STRING);
+        $qb->bind('name', 'foo', ParameterType::STRING);
 
         self::assertSame(ParameterType::STRING, $qb->getParameterType('name'));
     }
@@ -923,14 +923,14 @@ class QueryBuilderTest extends TestCase
         self::assertSame([], $qb->getParameterTypes());
 
         $qb->where('name = :name');
-        $qb->setParameter('name', 'foo');
+        $qb->bind('name', 'foo');
 
         self::assertSame([], $qb->getParameterTypes());
 
-        $qb->setParameter('name', 'foo', ParameterType::STRING);
+        $qb->bind('name', 'foo', ParameterType::STRING);
 
         $qb->where('is_active = :isActive');
-        $qb->setParameter('isActive', true, ParameterType::BOOLEAN);
+        $qb->bind('isActive', true, ParameterType::BOOLEAN);
 
         self::assertSame([
             'name'     => ParameterType::STRING,
@@ -995,7 +995,7 @@ class QueryBuilderTest extends TestCase
         $row = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->fetchAssociative();
 
         self::assertEquals(['username' => 'jwage', 'password' => 'changeme'], $row);
@@ -1025,7 +1025,7 @@ class QueryBuilderTest extends TestCase
         $row = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->fetchNumeric();
 
         self::assertEquals(['jwage', 'changeme'], $row);
@@ -1055,7 +1055,7 @@ class QueryBuilderTest extends TestCase
         $username = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->fetchOne();
 
         self::assertEquals('jwage', $username);
@@ -1090,7 +1090,7 @@ class QueryBuilderTest extends TestCase
         $results = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->fetchAllAssociative();
 
         self::assertEquals(
@@ -1131,7 +1131,7 @@ class QueryBuilderTest extends TestCase
         $results = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->fetchAllNumeric();
 
         self::assertEquals(
@@ -1172,7 +1172,7 @@ class QueryBuilderTest extends TestCase
         $results = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->fetchAllKeyValue();
 
         self::assertEquals(
@@ -1215,7 +1215,7 @@ class QueryBuilderTest extends TestCase
         $results = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->fetchAllAssociativeIndexed();
 
         self::assertEquals(
@@ -1258,7 +1258,7 @@ class QueryBuilderTest extends TestCase
         $results = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->fetchFirstColumn();
 
         self::assertEquals(
@@ -1346,7 +1346,7 @@ class QueryBuilderTest extends TestCase
         $results = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->executeQuery();
 
         self::assertSame(
@@ -1380,7 +1380,7 @@ class QueryBuilderTest extends TestCase
             ->set('foo', '?')
             ->set('bar', '?')
             ->where('bar = 1')
-            ->setParameters($parameters, $parameterTypes)
+            ->binds($parameters, $parameterTypes)
             ->executeStatement();
 
         self::assertSame(

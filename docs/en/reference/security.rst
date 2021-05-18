@@ -116,13 +116,13 @@ Following are examples of using prepared statements with SQL and DQL:
     // DQL Prepared Statements: Positional
     $dql = "SELECT u FROM User u WHERE u.username = ?1";
     $query = $em->createQuery($dql);
-    $query->setParameter(1, $_GET['username']);
+    $query->bind(1, $_GET['username']);
     $data = $query->getResult();
 
     // DQL Prepared Statements: Named
     $dql = "SELECT u FROM User u WHERE u.username = :name";
     $query = $em->createQuery($dql);
-    $query->setParameter("name", $_GET['username']);
+    $query->bind("name", $_GET['username']);
     $data = $query->getResult();
 
 You can see this is a bit more tedious to write, but this is the only way to write secure queries. If you

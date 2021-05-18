@@ -405,6 +405,28 @@ class QueryBuilder
      *         ->select('u')
      *         ->from('users', 'u')
      *         ->where('u.id = :user_id')
+     *         ->bind(':user_id', 1);
+     * </code>
+     *
+     * @param int|string           $key   Parameter position or name
+     * @param mixed                $value Parameter value
+     * @param int|string|Type|null $type  Parameter type
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function bind($key, $value, $type = null)
+    {
+        $this->setParameter($key, $value, $type);
+    }
+
+    /**
+     * Sets a query parameter for the query being constructed.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u')
+     *         ->from('users', 'u')
+     *         ->where('u.id = :user_id')
      *         ->setParameter(':user_id', 1);
      * </code>
      *
@@ -423,6 +445,30 @@ class QueryBuilder
         $this->params[$key] = $value;
 
         return $this;
+    }
+
+    /**
+     * Sets a collection of query parameters for the query being constructed.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u')
+     *         ->from('users', 'u')
+     *         ->where('u.id = :user_id1 OR u.id = :user_id2')
+     *         ->binds(array(
+     *             ':user_id1' => 1,
+     *             ':user_id2' => 2
+     *         ));
+     * </code>
+     *
+     * @param list<mixed>|array<string, mixed>                                     $params Parameters to set
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function binds(array $params, array $types = [])
+    {
+        return $this->setParameters($params, $types);
     }
 
     /**

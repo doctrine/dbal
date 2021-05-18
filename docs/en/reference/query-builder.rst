@@ -29,7 +29,8 @@ and are therefore subject to the possibility of SQL injection.
 To safely work with the QueryBuilder you should **NEVER** pass user
 input to any of the methods of the QueryBuilder and use the placeholder
 ``?`` or ``:name`` syntax in combination with
-``$queryBuilder->setParameter($placeholder, $value)`` instead:
+``$queryBuilder->setParameter($placeholder, $value)`` or
+``$queryBuilder->bind($placeholder, $value)`` instead:
 
 .. code-block:: php
 
@@ -40,6 +41,17 @@ input to any of the methods of the QueryBuilder and use the placeholder
         ->from('users')
         ->where('email = ?')
         ->setParameter(0, $userInputEmail)
+    ;
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->select('id', 'name')
+        ->from('users')
+        ->where('email = ?')
+        ->bind(0, $userInputEmail)
     ;
 
 .. note::
@@ -238,8 +250,8 @@ done with the ``values()`` method on the query builder:
                 'password' => '?'
             )
         )
-        ->setParameter(0, $username)
-        ->setParameter(1, $password)
+        ->bind(0, $username)
+        ->bind(1, $password)
     ;
     // INSERT INTO users (name, password) VALUES (?, ?)
 
@@ -255,8 +267,8 @@ Setting single values instead of all at once is also possible with the
         ->insert('users')
         ->setValue('name', '?')
         ->setValue('password', '?')
-        ->setParameter(0, $username)
-        ->setParameter(1, $password)
+        ->bind(0, $username)
+        ->bind(1, $password)
     ;
     // INSERT INTO users (name, password) VALUES (?, ?)
 
@@ -273,14 +285,14 @@ Of course you can also use both methods in combination:
                 'name' => '?'
             )
         )
-        ->setParameter(0, $username)
+        ->bind(0, $username)
     ;
     // INSERT INTO users (name) VALUES (?)
 
     if ($password) {
         $queryBuilder
             ->setValue('password', '?')
-            ->setParameter(1, $password)
+            ->bind(1, $password)
         ;
         // INSERT INTO users (name, password) VALUES (?, ?)
     }
@@ -312,7 +324,7 @@ user-input:
         ->update('users', 'u')
         ->set('u.logins', 'u.logins + 1')
         ->set('u.last_login', '?')
-        ->setParameter(0, $userInputLastLogin)
+        ->bind(0, $userInputLastLogin)
     ;
 
 Building Expressions
