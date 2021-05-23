@@ -12,6 +12,9 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Event\TransactionBeginEventArgs;
+use Doctrine\DBAL\Event\TransactionCommitEventArgs;
+use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -1321,6 +1324,8 @@ class Connection
             }
         }
 
+        $this->getEventManager()->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
+
         return true;
     }
 
@@ -1367,6 +1372,8 @@ class Connection
         }
 
         --$this->transactionNestingLevel;
+
+        $this->getEventManager()->dispatchEvent(Events::onTransactionCommit, new TransactionCommitEventArgs($this));
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
             return $result;
@@ -1443,6 +1450,8 @@ class Connection
             $this->isRollbackOnly = true;
             --$this->transactionNestingLevel;
         }
+
+        $this->getEventManager()->dispatchEvent(Events::onTransactionRollBack, new TransactionRollBackEventArgs($this));
 
         return true;
     }

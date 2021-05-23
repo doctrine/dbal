@@ -30,4 +30,7 @@ final class Events
     public const onSchemaAlterTableRenameColumn = 'onSchemaAlterTableRenameColumn';
     public const onSchemaColumnDefinition       = 'onSchemaColumnDefinition';
     public const onSchemaIndexDefinition        = 'onSchemaIndexDefinition';
+    public const onTransactionBegin             = 'onTransactionBegin';
+    public const onTransactionCommit            = 'onTransactionCommit';
+    public const onTransactionRollBack          = 'onTransactionRollBack';
 }

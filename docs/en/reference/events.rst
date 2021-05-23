@@ -334,3 +334,84 @@ for event listeners.
 
 It allows you to access the table index definitions of the current database, table name, Platform and
 ``Doctrine\DBAL\Connection`` instance. Indexes, that are about to be added, are not listed.
+
+OnTransactionBegin Event
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+``Doctrine\DBAL\Events::onTransactionBegin`` is triggered when ``Doctrine\DBAL\Connection::beginTransaction()``
+is called. An instance of ``Doctrine\DBAL\Event\TransactionBeginEventArgs`` is injected as argument for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onTransactionBegin(TransactionBeginEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onTransactionBegin, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Connection`` instance.
+Please note that this event can be called multiple times, since transactions can be nested.
+
+OnTransactionCommit Event
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``Doctrine\DBAL\Events::onTransactionCommit`` is triggered when ``Doctrine\DBAL\Connection::commit()`` is called.
+An instance of ``Doctrine\DBAL\Event\TransactionCommitEventArgs`` is injected as argument for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onTransactionCommit(TransactionCommitEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onTransactionCommit, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Connection`` instance.
+Please note that this event can be called multiple times, since transactions can be nested.
+If you want to know if a transaction is actually committed, you should rely on
+``TransactionCommitEventArgs::getConnection()->getTransactionNestingLevel() === 0`` or
+``TransactionCommitEventArgs::getConnection()->isTransactionActive()``
+
+OnTransactionRollBack Event
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``Doctrine\DBAL\Events::onTransactionRollBack`` is triggered when ``Doctrine\DBAL\Connection::rollBack()`` is called.
+An instance of ``Doctrine\DBAL\Event\TransactionRollBackEventArgs`` is injected as argument for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onTransactionRollBack(TransactionRollBackEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onTransactionRollBack, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Connection`` instance.
+Please note that this event can be called multiple times, since transactions can be nested.
+If you want to know if a transaction is actually rolled back, you should rely on
+``TransactionCommitRollBackArgs::getConnection()->getTransactionNestingLevel() === 0`` or
+``TransactionCommitRollBackArgs::getConnection()->isTransactionActive()``
