@@ -482,8 +482,8 @@ class Comparator
             }
         } elseif ($properties1['type'] instanceof Types\BlobType || $properties1['type'] instanceof Types\TextType) {
             // check if value of length is set at all, -1 gets normalized to 0.
-            $length1 = max(0, $properties1['length'] ?: 0);
-            $length2 = max(0, $properties2['length'] ?: 0);
+            $length1 = max(0, $properties1['length'] ?? 0);
+            $length2 = max(0, $properties2['length'] ?? 0);
             if ($length1 !== $length2) {
                 $changedProperties[] = 'length';
             }

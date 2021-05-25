@@ -812,28 +812,28 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         $fromTable = new Table('mytable');
 
-        $fromTable->addColumn('blob1', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
-        $fromTable->addColumn('blob2', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
-        $fromTable->addColumn('blob3', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
-        $fromTable->addColumn('blob4', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
+        $fromTable->addColumn('blob1', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $fromTable->addColumn('blob2', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_BLOB]);
+        $fromTable->addColumn('blob3', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $fromTable->addColumn('blob4', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
         $fromTable->addColumn('blob5', 'blob');
-        $fromTable->addColumn('blob6', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
-        $fromTable->addColumn('blob7', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
-        $fromTable->addColumn('blob8', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
-        $fromTable->addColumn('blob9', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
+        $fromTable->addColumn('blob6', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $fromTable->addColumn('blob7', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_BLOB]);
+        $fromTable->addColumn('blob8', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $fromTable->addColumn('blob9', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
         $fromTable->addColumn('blob10', 'blob');
 
         $toTable = new Table('mytable');
 
-        $toTable->addColumn('blob1', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
-        $toTable->addColumn('blob2', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
-        $toTable->addColumn('blob3', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
-        $toTable->addColumn('blob4', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
-        $toTable->addColumn('blob5', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
-        $toTable->addColumn('blob6', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
-        $toTable->addColumn('blob7', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
-        $toTable->addColumn('blob8', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
-        $toTable->addColumn('blob9', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
+        $toTable->addColumn('blob1', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_BLOB]);
+        $toTable->addColumn('blob2', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $toTable->addColumn('blob3', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
+        $toTable->addColumn('blob4', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $toTable->addColumn('blob5', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_BLOB]);
+        $toTable->addColumn('blob6', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $toTable->addColumn('blob7', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_BLOB]);
+        $toTable->addColumn('blob8', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $toTable->addColumn('blob9', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB * 2]);
         $toTable->addColumn('blob10', 'blob');
 
         $diff = (new Comparator())->diffTable($fromTable, $toTable);
@@ -863,28 +863,28 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         $fromTable = new Table('mytable');
 
-        $fromTable->addColumn('text1', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
-        $fromTable->addColumn('text2', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
-        $fromTable->addColumn('text3', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
-        $fromTable->addColumn('text4', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
+        $fromTable->addColumn('text1', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $fromTable->addColumn('text2', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TEXT]);
+        $fromTable->addColumn('text3', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $fromTable->addColumn('text4', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
         $fromTable->addColumn('text5', 'text');
-        $fromTable->addColumn('text6', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
-        $fromTable->addColumn('text7', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
-        $fromTable->addColumn('text8', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
-        $fromTable->addColumn('text9', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
+        $fromTable->addColumn('text6', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $fromTable->addColumn('text7', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TEXT]);
+        $fromTable->addColumn('text8', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $fromTable->addColumn('text9', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
         $fromTable->addColumn('text10', 'text');
 
         $toTable = new Table('mytable');
 
-        $toTable->addColumn('text1', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
-        $toTable->addColumn('text2', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
-        $toTable->addColumn('text3', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
-        $toTable->addColumn('text4', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
-        $toTable->addColumn('text5', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
-        $toTable->addColumn('text6', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
-        $toTable->addColumn('text7', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
-        $toTable->addColumn('text8', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
-        $toTable->addColumn('text9', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
+        $toTable->addColumn('text1', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TEXT]);
+        $toTable->addColumn('text2', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $toTable->addColumn('text3', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
+        $toTable->addColumn('text4', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $toTable->addColumn('text5', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TEXT]);
+        $toTable->addColumn('text6', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $toTable->addColumn('text7', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TEXT]);
+        $toTable->addColumn('text8', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $toTable->addColumn('text9', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT * 2]);
         $toTable->addColumn('text10', 'text');
 
         $diff = (new Comparator())->diffTable($fromTable, $toTable);
