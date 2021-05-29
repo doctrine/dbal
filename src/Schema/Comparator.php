@@ -461,9 +461,12 @@ class Comparator
             $changedProperties[] = $key;
         }
 
-        return array_values(array_filter($changedProperties, function ($property) use ($column1, $column2, $platform): bool {
-            return $this->changedPropertyHasEffect($property, $column1, $column2, $platform);
-        }));
+        return array_values(array_filter(
+            $changedProperties,
+            function ($property) use ($column1, $column2, $platform): bool {
+                return $this->changedPropertyHasEffect($property, $column1, $column2, $platform);
+            }
+        ));
     }
 
     /**
