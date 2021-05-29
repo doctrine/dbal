@@ -2,17 +2,18 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Types;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-use function array_intersect_key;
+use function array_filter;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_merge;
 use function array_unique;
+use function array_values;
 use function assert;
 use function count;
-use function get_class;
+use function implode;
 use function strtolower;
 
 /**
@@ -25,11 +26,11 @@ class Comparator
      *
      * @throws SchemaException
      */
-    public static function compareSchemas(Schema $fromSchema, Schema $toSchema)
+    public static function compareSchemas(Schema $fromSchema, Schema $toSchema, AbstractPlatform $platform)
     {
         $c = new self();
 
-        return $c->compare($fromSchema, $toSchema);
+        return $c->compare($fromSchema, $toSchema, $platform);
     }
 
     /**
@@ -43,7 +44,7 @@ class Comparator
      *
      * @throws SchemaException
      */
-    public function compare(Schema $fromSchema, Schema $toSchema)
+    public function compare(Schema $fromSchema, Schema $toSchema, AbstractPlatform $platform)
     {
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
@@ -73,7 +74,8 @@ class Comparator
             } else {
                 $tableDifferences = $this->diffTable(
                     $fromSchema->getTable($tableName),
-                    $toSchema->getTable($tableName)
+                    $toSchema->getTable($tableName),
+                    $platform
                 );
 
                 if ($tableDifferences !== false) {
@@ -199,7 +201,7 @@ class Comparator
      *
      * @throws SchemaException
      */
-    public function diffTable(Table $fromTable, Table $toTable)
+    public function diffTable(Table $fromTable, Table $toTable, AbstractPlatform $platform)
     {
         $changes                     = 0;
         $tableDifferences            = new TableDiff($fromTable->getName());
@@ -228,7 +230,7 @@ class Comparator
             }
 
             // See if column has changed properties in "to" table.
-            $changedProperties = $this->diffColumn($column, $toTable->getColumn($columnName));
+            $changedProperties = $this->diffColumn($column, $toTable->getColumn($columnName), $platform);
 
             if (count($changedProperties) === 0) {
                 continue;
@@ -241,7 +243,7 @@ class Comparator
             $changes++;
         }
 
-        $this->detectColumnRenamings($tableDifferences);
+        $this->detectColumnRenamings($tableDifferences, $platform);
 
         $fromTableIndexes = $fromTable->getIndexes();
         $toTableIndexes   = $toTable->getIndexes();
@@ -318,12 +320,12 @@ class Comparator
      *
      * @return void
      */
-    private function detectColumnRenamings(TableDiff $tableDifferences)
+    private function detectColumnRenamings(TableDiff $tableDifferences, AbstractPlatform $platform)
     {
         $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
             foreach ($tableDifferences->removedColumns as $removedColumn) {
-                if (count($this->diffColumn($addedColumn, $removedColumn)) !== 0) {
+                if (count($this->diffColumn($addedColumn, $removedColumn, $platform)) !== 0) {
                     continue;
                 }
 
@@ -432,95 +434,73 @@ class Comparator
     /**
      * Returns the difference between the columns
      *
-     * If there are differences this method returns $field2, otherwise the
-     * boolean false.
+     * If there are differences this method returns the changed properties as a
+     * string array, otherwise an empty array gets returned.
      *
      * @return string[]
      */
-    public function diffColumn(Column $column1, Column $column2)
+    public function diffColumn(Column $column1, Column $column2, AbstractPlatform $platform)
     {
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
 
+        // Do not compare the column names
+        unset($properties1['name'], $properties2['name']);
+
         $changedProperties = [];
 
-        if (get_class($properties1['type']) !== get_class($properties2['type'])) {
-            $changedProperties[] = 'type';
-        }
-
-        foreach (['notnull', 'unsigned', 'autoincrement'] as $property) {
-            if ($properties1[$property] === $properties2[$property]) {
-                continue;
-            }
-
-            $changedProperties[] = $property;
-        }
-
-        // Null values need to be checked additionally as they tell whether to create or drop a default value.
-        // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
-        if (
-            ($properties1['default'] === null) !== ($properties2['default'] === null)
-            || $properties1['default'] != $properties2['default']
-        ) {
-            $changedProperties[] = 'default';
-        }
-
-        if (
-            ($properties1['type'] instanceof Types\StringType && ! $properties1['type'] instanceof Types\GuidType) ||
-            $properties1['type'] instanceof Types\BinaryType
-        ) {
-            // check if value of length is set at all, default value assumed otherwise.
-            $length1 = $properties1['length'] ?? 255;
-            $length2 = $properties2['length'] ?? 255;
-            if ($length1 !== $length2) {
-                $changedProperties[] = 'length';
-            }
-
-            if ($properties1['fixed'] !== $properties2['fixed']) {
-                $changedProperties[] = 'fixed';
-            }
-        } elseif ($properties1['type'] instanceof Types\DecimalType) {
-            if (($properties1['precision'] ?? 10) !== ($properties2['precision'] ?? 10)) {
-                $changedProperties[] = 'precision';
-            }
-
-            if ($properties1['scale'] !== $properties2['scale']) {
-                $changedProperties[] = 'scale';
-            }
-        }
-
-        // A null value and an empty string are actually equal for a comment so they should not trigger a change.
-        if (
-            $properties1['comment'] !== $properties2['comment'] &&
-            ! ($properties1['comment'] === null && $properties2['comment'] === '') &&
-            ! ($properties2['comment'] === null && $properties1['comment'] === '')
-        ) {
-            $changedProperties[] = 'comment';
-        }
-
-        $customOptions1 = $column1->getCustomSchemaOptions();
-        $customOptions2 = $column2->getCustomSchemaOptions();
-
-        foreach (array_merge(array_keys($customOptions1), array_keys($customOptions2)) as $key) {
-            if (! array_key_exists($key, $properties1) || ! array_key_exists($key, $properties2)) {
-                $changedProperties[] = $key;
-            } elseif ($properties1[$key] !== $properties2[$key]) {
-                $changedProperties[] = $key;
-            }
-        }
-
-        $platformOptions1 = $column1->getPlatformOptions();
-        $platformOptions2 = $column2->getPlatformOptions();
-
-        foreach (array_keys(array_intersect_key($platformOptions1, $platformOptions2)) as $key) {
-            if ($properties1[$key] === $properties2[$key]) {
+        foreach (array_unique(array_merge(array_keys($properties1), array_keys($properties2))) as $key) {
+            if (
+                array_key_exists($key, $properties1)
+                && array_key_exists($key, $properties2)
+                && $properties1[$key] === $properties2[$key]
+            ) {
                 continue;
             }
 
             $changedProperties[] = $key;
         }
 
-        return array_unique($changedProperties);
+        return array_values(array_filter($changedProperties, function ($property) use ($column1, $column2, $platform): bool {
+            return $this->changedPropertyHasEffect($property, $column1, $column2, $platform);
+        }));
+    }
+
+    /**
+     * Detects if a changed property has an actual effect on the used platform
+     */
+    private function changedPropertyHasEffect(
+        string $property,
+        Column $column1,
+        Column $column2,
+        AbstractPlatform $platform
+    ): bool {
+        $column2WithoutChange = clone $column2;
+
+        if ($column1->hasCustomSchemaOption($property) || $column2->hasCustomSchemaOption($property)) {
+            if (! $column1->hasCustomSchemaOption($property)) {
+                $options = $column2WithoutChange->getCustomSchemaOptions();
+                unset($options[$property]);
+                $column2WithoutChange->setCustomSchemaOptions($options);
+            } else {
+                $column2WithoutChange->setCustomSchemaOption($property, $column1->getCustomSchemaOption($property));
+            }
+        } elseif ($column1->hasPlatformOption($property) || $column2->hasPlatformOption($property)) {
+            if (! $column1->hasPlatformOption($property)) {
+                $options = $column2WithoutChange->getPlatformOptions();
+                unset($options[$property]);
+                $column2WithoutChange->setPlatformOptions($options);
+            } else {
+                $column2WithoutChange->setPlatformOption($property, $column1->getPlatformOption($property));
+            }
+        } else {
+            $column2WithoutChange->{'set' . $property}($column1->{'get' . $property}());
+        }
+
+        $sqlWithChange    = $platform->getCreateTableSQL(new Table('compare_table', [$column2]));
+        $sqlWithoutChange = $platform->getCreateTableSQL(new Table('compare_table', [$column2WithoutChange]));
+
+        return implode("\n", $sqlWithChange) !== implode("\n", $sqlWithoutChange);
     }
 
     /**

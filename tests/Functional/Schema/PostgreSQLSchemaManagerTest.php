@@ -93,7 +93,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column  = $tableTo->addColumn('id', 'integer');
         $column->setAutoincrement(true);
 
-        $diff = (new Comparator())->diffTable($tableFrom, $tableTo);
+        $diff = (new Comparator())->diffTable($tableFrom, $tableTo, $this->schemaManager->getDatabasePlatform());
         self::assertNotFalse($diff);
 
         $sql = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
@@ -120,7 +120,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableTo = new Table('autoinc_table_drop');
         $tableTo->addColumn('id', 'integer');
 
-        $diff = (new Comparator())->diffTable($tableFrom, $tableTo);
+        $diff = (new Comparator())->diffTable($tableFrom, $tableTo, $this->schemaManager->getDatabasePlatform());
         self::assertNotFalse($diff);
 
         self::assertEquals(
@@ -278,7 +278,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $databaseTable = $this->schemaManager->listTableDetails($table->getName());
 
         $c    = new Comparator();
-        $diff = $c->diffTable($table, $databaseTable);
+        $diff = $c->diffTable($table, $databaseTable, $this->schemaManager->getDatabasePlatform());
 
         self::assertFalse($diff);
     }
@@ -319,7 +319,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Schema\Comparator();
 
-        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        self::assertFalse(
+            $comparator->diffTable($offlineTable, $onlineTable, $this->schemaManager->getDatabasePlatform())
+        );
     }
 
     public function testListTableDetailsWhenCurrentSchemaNameQuoted(): void
@@ -374,7 +376,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Schema\Comparator();
 
-        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        self::assertFalse(
+            $comparator->diffTable($offlineTable, $onlineTable, $this->schemaManager->getDatabasePlatform())
+        );
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
         self::assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
         self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
@@ -482,7 +486,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column->setAutoincrement(true);
 
         $c    = new Comparator();
-        $diff = $c->diffTable($tableFrom, $tableTo);
+        $diff = $c->diffTable($tableFrom, $tableTo, $this->schemaManager->getDatabasePlatform());
         self::assertInstanceOf(TableDiff::class, $diff);
         self::assertSame(
             ['ALTER TABLE autoinc_type_modification ALTER id TYPE ' . $expected],

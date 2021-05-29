@@ -579,9 +579,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
-        $diff = (new Comparator())->diffTable($table1, $table2);
-        self::assertNotFalse($diff);
-        self::assertEmpty($this->platform->getAlterTableSQL($diff));
+        $diff = (new Comparator())->diffTable($table1, $table2, $this->platform);
+        self::assertFalse($diff);
     }
 
     public function testUsesSequenceEmulatedIdentityColumns(): void
@@ -780,7 +779,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
 
-        $tableDiff = $comparator->diffTable($table1, $table2);
+        $tableDiff = $comparator->diffTable($table1, $table2, $this->platform);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertSame(

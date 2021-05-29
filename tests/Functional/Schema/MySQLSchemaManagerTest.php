@@ -44,7 +44,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableNew     = clone $tableFetched;
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
-        $diff = (new Comparator())->diffTable($tableFetched, $tableNew);
+        $diff = (new Comparator())->diffTable($tableFetched, $tableNew, $this->schemaManager->getDatabasePlatform());
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -74,7 +74,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->createTable($table);
         $tableFetched = $this->schemaManager->listTableDetails('diffbug_routing_translations');
 
-        $diff = (new Comparator())->diffTable($tableFetched, $table);
+        $diff = (new Comparator())->diffTable($tableFetched, $table, $this->schemaManager->getDatabasePlatform());
 
         self::assertFalse($diff, 'no changes expected.');
     }
@@ -141,7 +141,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = (new Comparator())->diffTable($table, $diffTable, $this->schemaManager->getDatabasePlatform());
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -165,7 +165,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $diffTable->dropPrimaryKey();
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = (new Comparator())->diffTable($table, $diffTable, $this->schemaManager->getDatabasePlatform());
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -201,7 +201,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
 
-        $diff = (new Comparator())->diffTable($table, $onlineTable);
+        $diff = (new Comparator())->diffTable($table, $onlineTable, $this->schemaManager->getDatabasePlatform());
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -245,7 +245,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable = clone $table;
         $diffTable->getColumn('col_text')->setPlatformOption('charset', 'ascii');
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = (new Comparator())->diffTable($table, $diffTable, $this->schemaManager->getDatabasePlatform());
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -366,7 +366,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         self::assertFalse(
-            $comparator->diffTable($offlineTable, $onlineTable),
+            $comparator->diffTable($offlineTable, $onlineTable, $this->schemaManager->getDatabasePlatform()),
             'No differences should be detected with the offline vs online schema.'
         );
     }
@@ -437,7 +437,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $diff = $comparator->diffTable($table, $onlineTable);
+        $diff = $comparator->diffTable($table, $onlineTable, $this->schemaManager->getDatabasePlatform());
         self::assertFalse($diff, 'Tables should be identical with column defaults.');
     }
 
@@ -513,7 +513,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $diff = $comparator->diffTable($table, $onlineTable);
+        $diff = $comparator->diffTable($table, $onlineTable, $this->schemaManager->getDatabasePlatform());
         self::assertFalse($diff, 'Tables should be identical with column defauts time and date.');
     }
 

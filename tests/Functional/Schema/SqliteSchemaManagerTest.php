@@ -55,6 +55,8 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = parent::createListTableColumns();
         $table->getColumn('id')->setAutoincrement(true);
+        $table->getColumn('test')->setPlatformOption('collation', 'BINARY');
+        $table->getColumn('foo')->setPlatformOption('collation', 'BINARY');
 
         return $table;
     }
@@ -167,8 +169,7 @@ SQL;
      */
     public function testDiffListIntegerAutoincrementTableColumns(
         string $integerType,
-        bool $unsigned,
-        bool $expectedComparatorDiff
+        bool $unsigned
     ): void {
         $tableName = 'test_int_autoincrement_table';
 
@@ -180,14 +181,9 @@ SQL;
 
         $onlineTable = $this->schemaManager->listTableDetails($tableName);
 
-        $diff = (new Comparator())->diffTable($offlineTable, $onlineTable);
+        $diff = (new Comparator())->diffTable($offlineTable, $onlineTable, new SqlitePlatform());
 
-        if ($expectedComparatorDiff) {
-            self::assertNotFalse($diff);
-            self::assertEmpty($this->schemaManager->getDatabasePlatform()->getAlterTableSQL($diff));
-        } else {
-            self::assertFalse($diff);
-        }
+        self::assertFalse($diff);
     }
 
     /**
@@ -196,12 +192,12 @@ SQL;
     public static function getDiffListIntegerAutoincrementTableColumnsData(): iterable
     {
         return [
-            ['smallint', false, true],
-            ['smallint', true, true],
-            ['integer', false, false],
-            ['integer', true, true],
-            ['bigint', false, true],
-            ['bigint', true, true],
+            ['smallint', false],
+            ['smallint', true],
+            ['integer', false],
+            ['integer', true],
+            ['bigint', false],
+            ['bigint', true],
         ];
     }
 

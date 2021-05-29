@@ -32,7 +32,7 @@ class MySQLSchemaTest extends TestCase
         $tableOld->setPrimaryKey(['foo_id', 'bar_id']);
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
-        $diff = $this->comparator->diffTable($tableOld, $tableNew);
+        $diff = $this->comparator->diffTable($tableOld, $tableNew, $this->platform);
         self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -75,7 +75,7 @@ class MySQLSchemaTest extends TestCase
 
         $tableNew->setPrimaryKey(['id']);
 
-        $diff = $this->comparator->diffTable($tableOld, $tableNew);
+        $diff = $this->comparator->diffTable($tableOld, $tableNew, $this->platform);
         self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);

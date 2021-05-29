@@ -372,7 +372,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $onlineTable = $this->schemaManager->listTableDetails('list_table_columns');
 
         $comparator = new Comparator();
-        $diff       = $comparator->diffTable($offlineTable, $onlineTable);
+        $diff       = $comparator->diffTable($offlineTable, $onlineTable, $this->schemaManager->getDatabasePlatform());
 
         self::assertFalse($diff, 'No differences should be detected with the offline vs online schema.');
     }
@@ -699,7 +699,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableFKNew->addIndex(['rename_fk_id'], 'fk_idx');
         $tableFKNew->addForeignKeyConstraint('test_fk_base', ['rename_fk_id'], ['id']);
 
-        $diff = (new Comparator())->diffTable($tableFK, $tableFKNew);
+        $diff = (new Comparator())->diffTable($tableFK, $tableFKNew, $this->schemaManager->getDatabasePlatform());
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -739,7 +739,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foreignTable2 = clone $foreignTable;
         $foreignTable2->renameIndex('rename_index_fk_idx', 'renamed_index_fk_idx');
 
-        $diff = (new Comparator())->diffTable($foreignTable, $foreignTable2);
+        $diff = (new Comparator())->diffTable(
+            $foreignTable,
+            $foreignTable2,
+            $this->schemaManager->getDatabasePlatform()
+        );
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -1020,7 +1024,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diffTable->changeColumn('column6', ['default' => 666]);
         $diffTable->changeColumn('column7', ['default' => null]);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = (new Comparator())->diffTable($table, $diffTable, $this->schemaManager->getDatabasePlatform());
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -1185,7 +1189,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $comparator = new Comparator();
 
-        $tableDiff = $comparator->diffTable($offlineTable, $onlineTable);
+        $tableDiff = $comparator->diffTable($offlineTable, $onlineTable, $this->schemaManager->getDatabasePlatform());
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
 
@@ -1259,7 +1263,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addColumn('parameters', 'json');
 
         $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($this->schemaManager->listTableDetails('json_test'), $table);
+        $tableDiff  = $comparator->diffTable(
+            $this->schemaManager->listTableDetails('json_test'),
+            $table,
+            $this->schemaManager->getDatabasePlatform()
+        );
 
         self::assertFalse($tableDiff);
     }
