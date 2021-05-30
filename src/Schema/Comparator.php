@@ -3,13 +3,18 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types;
+use Doctrine\Deprecations\Deprecation;
 
+use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_merge;
+use function array_unique;
 use function assert;
 use function count;
+use function get_class;
 use function strtolower;
 
 /**
@@ -22,7 +27,7 @@ class Comparator
      *
      * @throws SchemaException
      */
-    public static function compareSchemas(Schema $fromSchema, Schema $toSchema, AbstractPlatform $platform)
+    public static function compareSchemas(Schema $fromSchema, Schema $toSchema, ?AbstractPlatform $platform = null)
     {
         $c = new self();
 
@@ -40,8 +45,18 @@ class Comparator
      *
      * @throws SchemaException
      */
-    public function compare(Schema $fromSchema, Schema $toSchema, AbstractPlatform $platform)
+    public function compare(Schema $fromSchema, Schema $toSchema, ?AbstractPlatform $platform = null)
     {
+        if ($platform === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/4659',
+                'Non passing a $platform to %s is deprecated. Pass an instance of %s instead.',
+                __METHOD__,
+                AbstractPlatform::class
+            );
+        }
+
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
@@ -197,8 +212,18 @@ class Comparator
      *
      * @throws SchemaException
      */
-    public function diffTable(Table $fromTable, Table $toTable, AbstractPlatform $platform)
+    public function diffTable(Table $fromTable, Table $toTable, ?AbstractPlatform $platform = null)
     {
+        if ($platform === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/4659',
+                'Non passing a $platform to %s is deprecated. Pass an instance of %s instead.',
+                __METHOD__,
+                AbstractPlatform::class
+            );
+        }
+
         $changes                     = 0;
         $tableDifferences            = new TableDiff($fromTable->getName());
         $tableDifferences->fromTable = $fromTable;
@@ -316,7 +341,7 @@ class Comparator
      *
      * @return void
      */
-    private function detectColumnRenamings(TableDiff $tableDifferences, AbstractPlatform $platform)
+    private function detectColumnRenamings(TableDiff $tableDifferences, ?AbstractPlatform $platform = null)
     {
         $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
@@ -435,8 +460,20 @@ class Comparator
      *
      * @return string[]
      */
-    public function diffColumn(Column $column1, Column $column2, AbstractPlatform $platform)
+    public function diffColumn(Column $column1, Column $column2, ?AbstractPlatform $platform = null)
     {
+        if ($platform === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/4659',
+                'Non passing a $platform to %s is deprecated. Pass an instance of %s instead.',
+                __METHOD__,
+                AbstractPlatform::class
+            );
+
+            return $this->diffColumnDeprecated($column1, $column2);
+        }
+
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
 
@@ -463,6 +500,95 @@ class Comparator
         }
 
         return $changedProperties;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function diffColumnDeprecated(Column $column1, Column $column2): array
+    {
+        $properties1 = $column1->toArray();
+        $properties2 = $column2->toArray();
+
+        $changedProperties = [];
+
+        if (get_class($properties1['type']) !== get_class($properties2['type'])) {
+            $changedProperties[] = 'type';
+        }
+
+        foreach (['notnull', 'unsigned', 'autoincrement'] as $property) {
+            if ($properties1[$property] === $properties2[$property]) {
+                continue;
+            }
+
+            $changedProperties[] = $property;
+        }
+
+        // Null values need to be checked additionally as they tell whether to create or drop a default value.
+        // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
+        if (
+            ($properties1['default'] === null) !== ($properties2['default'] === null)
+            || $properties1['default'] != $properties2['default']
+        ) {
+            $changedProperties[] = 'default';
+        }
+
+        if (
+            ($properties1['type'] instanceof Types\StringType && ! $properties1['type'] instanceof Types\GuidType) ||
+            $properties1['type'] instanceof Types\BinaryType
+        ) {
+            // check if value of length is set at all, default value assumed otherwise.
+            $length1 = $properties1['length'] ?? 255;
+            $length2 = $properties2['length'] ?? 255;
+            if ($length1 !== $length2) {
+                $changedProperties[] = 'length';
+            }
+
+            if ($properties1['fixed'] !== $properties2['fixed']) {
+                $changedProperties[] = 'fixed';
+            }
+        } elseif ($properties1['type'] instanceof Types\DecimalType) {
+            if (($properties1['precision'] ?? 10) !== ($properties2['precision'] ?? 10)) {
+                $changedProperties[] = 'precision';
+            }
+
+            if ($properties1['scale'] !== $properties2['scale']) {
+                $changedProperties[] = 'scale';
+            }
+        }
+
+        // A null value and an empty string are actually equal for a comment so they should not trigger a change.
+        if (
+            $properties1['comment'] !== $properties2['comment'] &&
+            ! ($properties1['comment'] === null && $properties2['comment'] === '') &&
+            ! ($properties2['comment'] === null && $properties1['comment'] === '')
+        ) {
+            $changedProperties[] = 'comment';
+        }
+
+        $customOptions1 = $column1->getCustomSchemaOptions();
+        $customOptions2 = $column2->getCustomSchemaOptions();
+
+        foreach (array_merge(array_keys($customOptions1), array_keys($customOptions2)) as $key) {
+            if (! array_key_exists($key, $properties1) || ! array_key_exists($key, $properties2)) {
+                $changedProperties[] = $key;
+            } elseif ($properties1[$key] !== $properties2[$key]) {
+                $changedProperties[] = $key;
+            }
+        }
+
+        $platformOptions1 = $column1->getPlatformOptions();
+        $platformOptions2 = $column2->getPlatformOptions();
+
+        foreach (array_keys(array_intersect_key($platformOptions1, $platformOptions2)) as $key) {
+            if ($properties1[$key] === $properties2[$key]) {
+                continue;
+            }
+
+            $changedProperties[] = $key;
+        }
+
+        return array_unique($changedProperties);
     }
 
     /**
