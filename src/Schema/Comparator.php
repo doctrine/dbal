@@ -4,16 +4,12 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-use function array_filter;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_merge;
-use function array_unique;
-use function array_values;
 use function assert;
 use function count;
-use function implode;
 use function strtolower;
 
 /**
@@ -445,11 +441,16 @@ class Comparator
         $properties2 = $column2->toArray();
 
         // Do not compare the column names
-        unset($properties1['name'], $properties2['name']);
+        $properties1['name'] = $properties2['name'];
+
+        // Report no difference if the SQL for both columns is equal
+        if ($this->generateColumnSQL($properties1, $platform) === $this->generateColumnSQL($properties2, $platform)) {
+            return [];
+        }
 
         $changedProperties = [];
 
-        foreach (array_unique(array_merge(array_keys($properties1), array_keys($properties2))) as $key) {
+        foreach (array_keys(array_merge($properties1, $properties2)) as $key) {
             if (
                 array_key_exists($key, $properties1)
                 && array_key_exists($key, $properties2)
@@ -461,49 +462,25 @@ class Comparator
             $changedProperties[] = $key;
         }
 
-        return array_values(array_filter(
-            $changedProperties,
-            function ($property) use ($column1, $column2, $platform): bool {
-                return $this->changedPropertyHasEffect($property, $column1, $column2, $platform);
-            }
-        ));
+        return $changedProperties;
     }
 
     /**
-     * Detects if a changed property has an actual effect on the used platform
+     * @param mixed[] $column
      */
-    private function changedPropertyHasEffect(
-        string $property,
-        Column $column1,
-        Column $column2,
-        AbstractPlatform $platform
-    ): bool {
-        $column2WithoutChange = clone $column2;
-
-        if ($column1->hasCustomSchemaOption($property) || $column2->hasCustomSchemaOption($property)) {
-            if (! $column1->hasCustomSchemaOption($property)) {
-                $options = $column2WithoutChange->getCustomSchemaOptions();
-                unset($options[$property]);
-                $column2WithoutChange->setCustomSchemaOptions($options);
-            } else {
-                $column2WithoutChange->setCustomSchemaOption($property, $column1->getCustomSchemaOption($property));
-            }
-        } elseif ($column1->hasPlatformOption($property) || $column2->hasPlatformOption($property)) {
-            if (! $column1->hasPlatformOption($property)) {
-                $options = $column2WithoutChange->getPlatformOptions();
-                unset($options[$property]);
-                $column2WithoutChange->setPlatformOptions($options);
-            } else {
-                $column2WithoutChange->setPlatformOption($property, $column1->getPlatformOption($property));
-            }
-        } else {
-            $column2WithoutChange->{'set' . $property}($column1->{'get' . $property}());
+    private function generateColumnSQL(array $column, AbstractPlatform $platform): string
+    {
+        if ($platform->isCommentedDoctrineType($column['type'])) {
+            $column['comment'] .= $platform->getDoctrineTypeComment($column['type']);
         }
 
-        $sqlWithChange    = $platform->getCreateTableSQL(new Table('compare_table', [$column2]));
-        $sqlWithoutChange = $platform->getCreateTableSQL(new Table('compare_table', [$column2WithoutChange]));
+        $sql = $platform->getColumnDeclarationSQL($column['name'], $column);
 
-        return implode("\n", $sqlWithChange) !== implode("\n", $sqlWithoutChange);
+        if (! $platform->supportsInlineColumnComments()) {
+            $sql .= ' -- ' . $column['comment'];
+        }
+
+        return $sql;
     }
 
     /**

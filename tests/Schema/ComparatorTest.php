@@ -20,7 +20,6 @@ use PHPUnit\Framework\TestCase;
 
 use function array_keys;
 use function get_class;
-use function sort;
 
 class ComparatorTest extends TestCase
 {
@@ -1199,23 +1198,17 @@ class ComparatorTest extends TestCase
     public function testDiffColumnPlatformOptions(): void
     {
         $column1 = new Column('foo', Type::getType('string'), [
-            'platformOptions' => [
-                'foo' => 'foo',
-                'bar' => 'bar',
-            ],
+            'platformOptions' => ['charset' => 'utf8'],
         ]);
 
         $column2 = new Column('foo', Type::getType('string'), [
-            'platformOptions' => [
-                'foo' => 'foo',
-                'foobar' => 'foobar',
-            ],
+            'platformOptions' => ['collation' => 'BINARY'],
         ]);
 
         $column3 = new Column('foo', Type::getType('string'), [
             'platformOptions' => [
-                'foo' => 'foo',
-                'bar' => 'rab',
+                'charset' => 'utf8',
+                'collation' => 'BINARY',
             ],
         ]);
 
@@ -1223,12 +1216,18 @@ class ComparatorTest extends TestCase
 
         $comparator = new Comparator();
 
-        self::assertEquals([], $comparator->diffColumn($column1, $column2, $this->platform));
-        self::assertEquals([], $comparator->diffColumn($column2, $column1, $this->platform));
-        self::assertEquals(['bar'], $comparator->diffColumn($column1, $column3, $this->platform));
-        self::assertEquals(['bar'], $comparator->diffColumn($column3, $column1, $this->platform));
-        self::assertEquals([], $comparator->diffColumn($column1, $column4, $this->platform));
-        self::assertEquals([], $comparator->diffColumn($column4, $column1, $this->platform));
+        $diff1 = $comparator->diffColumn($column1, $column2, $this->platform);
+        $diff2 = $comparator->diffColumn($column2, $column1, $this->platform);
+
+        self::assertContains('charset', $diff1);
+        self::assertContains('charset', $diff2);
+        self::assertContains('collation', $diff1);
+        self::assertContains('collation', $diff2);
+
+        self::assertEquals(['collation'], $comparator->diffColumn($column1, $column3, $this->platform));
+        self::assertEquals(['collation'], $comparator->diffColumn($column3, $column1, $this->platform));
+        self::assertEquals(['charset'], $comparator->diffColumn($column1, $column4, $this->platform));
+        self::assertEquals(['charset'], $comparator->diffColumn($column4, $column1, $this->platform));
     }
 
     public function testComplexDiffColumn(): void
@@ -1296,11 +1295,13 @@ class ComparatorTest extends TestCase
         $diff1 = $comparator->diffColumn($column1, $column2, $this->platform);
         $diff2 = $comparator->diffColumn($column2, $column1, $this->platform);
 
-        sort($diff1);
-        sort($diff2);
+        self::assertContains('notnull', $diff1);
+        self::assertContains('default', $diff1);
+        self::assertContains('comment', $diff1);
 
-        self::assertEquals(['comment', 'default', 'notnull'], $diff1);
-        self::assertEquals(['comment', 'default', 'notnull'], $diff2);
+        self::assertContains('notnull', $diff2);
+        self::assertContains('default', $diff2);
+        self::assertContains('comment', $diff2);
     }
 
     /**
