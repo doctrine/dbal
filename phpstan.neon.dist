@@ -77,7 +77,6 @@ parameters:
             message: '~^Variable method call on .*~'
             paths:
                 - %currentWorkingDirectory%/src/Schema/Column.php
-                - %currentWorkingDirectory%/src/Schema/Comparator.php
 
         # https://github.com/phpstan/phpstan/issues/3146
         -
