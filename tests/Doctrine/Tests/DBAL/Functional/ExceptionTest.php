@@ -352,10 +352,9 @@ EOT
 
     /**
      * @param array<string, mixed> $params
+     * @psalm-param Params $params
      *
      * @dataProvider getConnectionParams
-     *
-     * @psalm-param Params $params
      */
     public function testConnectionException(array $params): void
     {

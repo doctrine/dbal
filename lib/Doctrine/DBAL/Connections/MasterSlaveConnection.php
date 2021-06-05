@@ -5,13 +5,14 @@ namespace Doctrine\DBAL\Connections;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 /**
  * @deprecated Use PrimaryReadReplicaConnection instead
  *
- * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
+ * @psalm-import-type Params from DriverManager
  */
 class MasterSlaveConnection extends PrimaryReadReplicaConnection
 {
@@ -21,11 +22,10 @@ class MasterSlaveConnection extends PrimaryReadReplicaConnection
      * @internal The connection can be only instantiated by the driver manager.
      *
      * @param array<string,mixed> $params
+     * @psalm-param Params $params
+     * @phpstan-param array<string,mixed> $params
      *
      * @throws InvalidArgumentException
-     *
-     * @phpstan-param array<string,mixed> $params
-     * @psalm-param Params $params
      */
     public function __construct(
         array $params,
