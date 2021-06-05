@@ -1284,15 +1284,7 @@ class Connection implements DriverConnection
 
         try {
             if ($params) {
-                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
-
-                $stmt = $connection->prepare($sql);
-                if ($types) {
-                    $this->_bindTypedValues($stmt, $params, $types);
-                    $stmt->execute();
-                } else {
-                    $stmt->execute($params);
-                }
+                $stmt = $this->prepareStatement($sql, $params, $types);
             } else {
                 $stmt = $connection->query($sql);
             }
@@ -1506,16 +1498,7 @@ class Connection implements DriverConnection
 
         try {
             if ($params) {
-                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
-
-                $stmt = $connection->prepare($sql);
-
-                if ($types) {
-                    $this->_bindTypedValues($stmt, $params, $types);
-                    $stmt->execute();
-                } else {
-                    $stmt->execute($params);
-                }
+                $stmt = $this->prepareStatement($sql, $params, $types);
 
                 $result = $stmt->rowCount();
             } else {
@@ -1535,6 +1518,28 @@ class Connection implements DriverConnection
         }
 
         return $result;
+    }
+
+    /**
+     * SQLParserUtils::expandListParameters and self::_bindTypedValues should be refactored in a single
+     * coherent method to handle parameter type expansion and conversion properly.
+     */
+    private function prepareStatement($sql, array $params = [], array $types = [])
+    {
+        $connection = $this->getWrappedConnection();
+
+        [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
+
+        $stmt = $connection->prepare($sql);
+
+        if ($types) {
+            $this->_bindTypedValues($stmt, $params, $types);
+            $stmt->execute();
+        } else {
+            $stmt->execute($params);
+        }
+
+        return $stmt;
     }
 
     /**

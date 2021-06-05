@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Types\ArrayOf;
 use Doctrine\DBAL\Types\Type;
 
 use function array_fill;
@@ -158,7 +159,7 @@ class SQLParserUtils
         foreach ($types as $name => $type) {
             ++$bindIndex;
 
-            if ($type !== Connection::PARAM_INT_ARRAY && $type !== Connection::PARAM_STR_ARRAY) {
+            if (!ArrayOf::requiresParametersExpansion($type)) {
                 continue;
             }
 
@@ -196,13 +197,23 @@ class SQLParserUtils
                     array_slice($params, $needle + 1)
                 );
 
-                $types = array_merge(
-                    array_slice($types, 0, $needle),
-                    $count ?
+                $addedTypes = [];
+                if ($count) {
+                    $type = $types[$needle];
+                    if ($type instanceof ArrayOf) {
+                        $type = $type->getType();
+                    } else {
                         // array needles are at {@link \Doctrine\DBAL\ParameterType} constants
                         // + {@link \Doctrine\DBAL\Connection::ARRAY_PARAM_OFFSET}
-                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) :
-                        [],
+                        $type -= Connection::ARRAY_PARAM_OFFSET;
+                    }
+
+                    $addedTypes = array_fill(0, $count, $type);
+                }
+
+                $types = array_merge(
+                    array_slice($types, 0, $needle),
+                    $addedTypes,
                     array_slice($types, $needle + 1)
                 );
 
@@ -241,7 +252,16 @@ class SQLParserUtils
 
             foreach ($value as $val) {
                 $paramsOrd[] = $val;
-                $typesOrd[]  = static::extractParam($paramName, $types, false) - Connection::ARRAY_PARAM_OFFSET;
+                $type = static::extractParam($paramName, $types, false);
+                if ($type instanceof ArrayOf) {
+                    $type = $type->getType();
+                } else {
+                    // array needles are at {@link \Doctrine\DBAL\ParameterType} constants
+                    // + {@link \Doctrine\DBAL\Connection::ARRAY_PARAM_OFFSET}
+                    $type -= Connection::ARRAY_PARAM_OFFSET;
+                }
+
+                $typesOrd[] = $type;
             }
 
             $pos         += $queryOffset;
