@@ -156,10 +156,6 @@ final class DriverManager
      * @param array<string,mixed> $params
      * @param Configuration|null  $config       The configuration to use.
      * @param EventManager|null   $eventManager The event manager to use.
-     *
-     * @throws Exception
-     *
-     * @phpstan-param array<string,mixed> $params
      * @psalm-param array{
      *     charset?: string,
      *     dbname?: string,
@@ -184,7 +180,12 @@ final class DriverManager
      *     user?: string,
      *     wrapperClass?: class-string<T>,
      * } $params
+     * @phpstan-param array<string,mixed> $params
+     *
      * @psalm-return ($params is array{wrapperClass:mixed} ? T : Connection)
+     *
+     * @throws Exception
+     *
      * @template T of Connection
      */
     public static function getConnection(
@@ -281,11 +282,10 @@ final class DriverManager
 
     /**
      * @param array<string,mixed> $params
+     * @psalm-param Params $params
+     * @phpstan-param array<string,mixed> $params
      *
      * @throws Exception
-     *
-     * @phpstan-param array<string,mixed> $params
-     * @psalm-param Params $params
      */
     private static function createDriver(array $params): Driver
     {
@@ -328,16 +328,15 @@ final class DriverManager
      * updated list of parameters.
      *
      * @param mixed[] $params The list of parameters.
+     * @psalm-param Params $params
+     * @phpstan-param array<string,mixed> $params
      *
      * @return mixed[] A modified list of parameters with info from a database
      *                 URL extracted into indidivual parameter parts.
+     * @psalm-return Params
+     * @phpstan-return array<string,mixed>
      *
      * @throws Exception
-     *
-     * @phpstan-param array<string,mixed> $params
-     * @phpstan-return array<string,mixed>
-     * @psalm-param Params $params
-     * @psalm-return Params
      */
     private static function parseDatabaseUrl(array $params): array
     {

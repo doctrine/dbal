@@ -178,11 +178,10 @@ class Connection implements DriverConnection
      * @param Driver              $driver       The driver to use.
      * @param Configuration|null  $config       The configuration, optional.
      * @param EventManager|null   $eventManager The event manager, optional.
+     * @psalm-param Params $params
+     * @phpstan-param array<string,mixed> $params
      *
      * @throws Exception
-     *
-     * @phpstan-param array<string,mixed> $params
-     * @psalm-param Params $params
      */
     public function __construct(
         array $params,
@@ -229,9 +228,8 @@ class Connection implements DriverConnection
      * @internal
      *
      * @return array<string,mixed>
-     *
-     * @phpstan-return array<string,mixed>
      * @psalm-return Params
+     * @phpstan-return array<string,mixed>
      */
     public function getParams()
     {
@@ -2200,9 +2198,9 @@ class Connection implements DriverConnection
      * @param array<int, mixed>|array<string, mixed>                               $params
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
      *
-     * @throws Exception
-     *
      * @psalm-return never-return
+     *
+     * @throws Exception
      */
     public function handleExceptionDuringQuery(Throwable $e, string $sql, array $params = [], array $types = []): void
     {
@@ -2219,9 +2217,9 @@ class Connection implements DriverConnection
     /**
      * @internal
      *
-     * @throws Exception
-     *
      * @psalm-return never-return
+     *
+     * @throws Exception
      */
     public function handleDriverException(Throwable $e): void
     {
@@ -2236,9 +2234,9 @@ class Connection implements DriverConnection
     /**
      * @internal
      *
-     * @throws Exception
-     *
      * @psalm-return never-return
+     *
+     * @throws Exception
      */
     private function throw(Exception $e): void
     {
