@@ -123,6 +123,18 @@ parameters:
             message: '~^Instanceof between Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList and Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList will always evaluate to true\.~'
             paths:
                 - %currentWorkingDirectory%/src/Platforms/AbstractPlatform.php
+
+        # We're checking for invalid invalid input
+        -
+            message: "#^Strict comparison using \\!\\=\\= between null and null will always evaluate to false\\.$#"
+            count: 1
+            path: src/Cache/QueryCacheProfile.php
+
+        # The Doctrine\Common\Cache\ArrayCache class won't exist if doctrine/cache 2 is installed
+        # TODO: remove by 4.0.0
+        -
+            message: '~^Parameter #3 \$resultCache of class Doctrine\\DBAL\\Cache\\QueryCacheProfile constructor expects Doctrine\\Common\\Cache\\Cache\|Psr\\Cache\\CacheItemPoolInterface\|null, Doctrine\\Common\\Cache\\ArrayCache given\.~'
+            path: tests/Functional/ResultCacheTest.php
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

@@ -15,6 +15,9 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Event\TransactionBeginEventArgs;
+use Doctrine\DBAL\Event\TransactionCommitEventArgs;
+use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DriverException;
@@ -1003,7 +1006,7 @@ class Connection
      */
     public function executeCacheQuery(string $sql, array $params, array $types, QueryCacheProfile $qcp): Result
     {
-        $resultCache = $qcp->getResultCacheDriver() ?? $this->_config->getResultCacheImpl();
+        $resultCache = $qcp->getResultCache() ?? $this->_config->getResultCache();
 
         if ($resultCache === null) {
             throw NoResultDriverConfigured::new();
@@ -1015,9 +1018,10 @@ class Connection
         [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $connectionParams);
 
         // fetch the row pointers entry
-        $data = $resultCache->fetch($cacheKey);
+        $item = $resultCache->getItem($cacheKey);
 
-        if ($data !== false) {
+        if ($item->isHit()) {
+            $data = $item->get();
             // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
             if (isset($data[$realKey])) {
                 $result = new ArrayResult($data[$realKey]);
@@ -1213,6 +1217,8 @@ class Connection
             $this->createSavepoint($this->_getNestedTransactionSavePointName());
             $logger->stopQuery();
         }
+
+        $this->getEventManager()->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
     }
 
     /**
@@ -1247,6 +1253,8 @@ class Connection
         }
 
         --$this->transactionNestingLevel;
+
+        $this->getEventManager()->dispatchEvent(Events::onTransactionCommit, new TransactionCommitEventArgs($this));
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
             return;
@@ -1313,6 +1321,8 @@ class Connection
             $this->isRollbackOnly = true;
             --$this->transactionNestingLevel;
         }
+
+        $this->getEventManager()->dispatchEvent(Events::onTransactionRollBack, new TransactionRollBackEventArgs($this));
     }
 
     /**

@@ -295,6 +295,22 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
   Use binary fields of a size which fits all target platforms, or use blob explicitly instead.
 - Binary fields are no longer represented as streams in PHP. They are represented as strings.
 
+# Upgrade to 3.2
+
+## Introduction of PSR-6 for result caching
+
+Instead of relying on the deprecated `doctrine/cache` library, a PSR-6 cache
+can now be used for result caching. The usage of Doctrine Cache is deprecated
+in favor of PSR-6. The following methods related to Doctrine Cache have been
+replaced with PSR-6 counterparts:
+
+| class               | old method               | new method         |
+| ------------------- | ------------------------ | ------------------ |
+| `Configuration`     | `setResultCacheImpl()`   | `setResultCache()` |
+| `Configuration`     | `getResultCacheImpl()`   | `getResultCache()` |
+| `QueryCacheProfile` | `setResultCacheDriver()` | `setResultCache()` |
+| `QueryCacheProfile` | `getResultCacheDriver()` | `getResultCache()` |
+
 # Upgrade to 3.1
 
 ## Deprecated schema- and namespace-related methods
