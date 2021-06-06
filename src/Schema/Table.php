@@ -686,7 +686,7 @@ class Table extends AbstractAsset
     {
         $name = $this->normalizeIdentifier($name);
 
-        if (! $this->hasForeignKey($name)) {
+        if (! $this->hasUniqueConstraint($name)) {
             throw SchemaException::uniqueConstraintDoesNotExist($name, $this->_name);
         }
 
