@@ -2,7 +2,10 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
+use function key;
 
 class QuotingTest extends FunctionalTestCase
 {
@@ -27,6 +30,43 @@ class QuotingTest extends FunctionalTestCase
         return [
             'backslash' => ['\\'],
             'single-quote' => ["'"],
+        ];
+    }
+
+    /**
+     * @dataProvider identifierProvider
+     */
+    public function testQuoteIdentifier(string $identifier): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        /**
+         * @link https://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
+         */
+        if ($platform instanceof OraclePlatform && $identifier === '"') {
+            self::markTestSkipped('Oracle does not support double quotes in identifiers');
+        }
+
+        $query = $platform->getDummySelectSQL(
+            'NULL AS ' . $platform->quoteIdentifier($identifier)
+        );
+
+        $row = $this->connection->fetchAssociative($query);
+
+        self::assertNotFalse($row);
+        self::assertSame($identifier, key($row));
+    }
+
+    /**
+     * @return iterable<string,array{0:string}>
+     */
+    public static function identifierProvider(): iterable
+    {
+        return [
+            '[' => ['['],
+            ']' => [']'],
+            '"' => ['"'],
+            '`' => ['`'],
         ];
     }
 }

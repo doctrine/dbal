@@ -831,4 +831,25 @@ class TableTest extends TestCase
         $table->setComment('foo');
         self::assertEquals('foo', $table->getComment());
     }
+
+    public function testRemoveUniqueConstraint(): void
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+        $table->addUniqueConstraint(['bar'], 'unique_constraint');
+
+        $table->removeUniqueConstraint('unique_constraint');
+
+        self::assertFalse($table->hasUniqueConstraint('unique_constraint'));
+    }
+
+    public function testRemoveUniqueConstraintUnknownNameThrowsException(): void
+    {
+        $this->expectException(SchemaException::class);
+
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+
+        $table->removeUniqueConstraint('unique_constraint');
+    }
 }
