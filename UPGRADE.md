@@ -300,6 +300,17 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
   Use binary fields of a size which fits all target platforms, or use blob explicitly instead.
 - Binary fields are no longer represented as streams in PHP. They are represented as strings.
 
+## BC BREAK: Removal of Doctrine Cache
+
+The following methods have been removed.
+
+| class               | method                   | replacement        |
+| ------------------- | ------------------------ | ------------------ |
+| `Configuration`     | `setResultCacheImpl()`   | `setResultCache()` |
+| `Configuration`     | `getResultCacheImpl()`   | `getResultCache()` |
+| `QueryCacheProfile` | `setResultCacheDriver()` | `setResultCache()` |
+| `QueryCacheProfile` | `getResultCacheDriver()` | `getResultCache()` |
+
 # Upgrade to 3.2
 
 ## Introduction of PSR-6 for result caching

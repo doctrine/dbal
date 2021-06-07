@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
-use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Cache\Psr6\CacheAdapter;
-use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Logging\NullLogger;
 use Doctrine\DBAL\Logging\SQLLogger;
-use Doctrine\Deprecations\Deprecation;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
@@ -34,15 +30,6 @@ class Configuration
      * @var CacheItemPoolInterface|null
      */
     private $resultCache;
-
-    /**
-     * The cache driver implementation that is used for query result caching.
-     *
-     * @deprecated Use {@see $resultCache} instead.
-     *
-     * @var Cache|null
-     */
-    protected $resultCacheImpl;
 
     /**
      * The callable to use to filter schema assets.
@@ -83,47 +70,11 @@ class Configuration
     }
 
     /**
-     * Gets the cache driver implementation that is used for query result caching.
-     *
-     * @deprecated Use {@see getResultCache()} instead.
-     */
-    public function getResultCacheImpl(): ?Cache
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4620',
-            '%s is deprecated, call getResultCache() instead.',
-            __METHOD__
-        );
-
-        return $this->resultCacheImpl;
-    }
-
-    /**
      * Sets the cache driver implementation that is used for query result caching.
      */
     public function setResultCache(CacheItemPoolInterface $cache): void
     {
-        $this->resultCacheImpl = DoctrineProvider::wrap($cache);
-        $this->resultCache     = $cache;
-    }
-
-    /**
-     * Sets the cache driver implementation that is used for query result caching.
-     *
-     * @deprecated Use {@see setResultCache()} instead.
-     */
-    public function setResultCacheImpl(Cache $cacheImpl): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4620',
-            '%s is deprecated, call setResultCache() instead.',
-            __METHOD__
-        );
-
-        $this->resultCacheImpl = $cacheImpl;
-        $this->resultCache     = CacheAdapter::wrap($cacheImpl);
+        $this->resultCache = $cache;
     }
 
     /**
