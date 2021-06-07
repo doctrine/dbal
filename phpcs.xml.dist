@@ -76,10 +76,6 @@
         <exclude-pattern>src/Events.php</exclude-pattern>
     </rule>
 
-    <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedProperty">
-        <exclude-pattern>tests/Tools/TestAsset/*</exclude-pattern>
-    </rule>
-
     <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2099 -->
     <rule ref="Squiz.Commenting.FunctionComment.InvalidNoReturn">
         <exclude-pattern>src/Platforms/AbstractPlatform.php</exclude-pattern>
@@ -120,11 +116,6 @@
     <rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedWhile">
         <exclude-pattern>src/Driver/SQLSrv/Result.php</exclude-pattern>
         <exclude-pattern>tests/Functional/ResultCacheTest.php</exclude-pattern>
-    </rule>
-
-    <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedMethod">
-        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOConnection.php</exclude-pattern>
-        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOStatement.php</exclude-pattern>
     </rule>
 
     <!-- See https://github.com/slevomat/coding-standard/issues/770 -->

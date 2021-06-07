@@ -3529,10 +3529,9 @@ abstract class AbstractPlatform
      * @deprecated Implement {@link createReservedKeywordsList()} instead.
      *
      * @return string
+     * @psalm-return class-string<KeywordList>
      *
      * @throws Exception If not supported on this platform.
-     *
-     * @psalm-return class-string<KeywordList>
      */
     protected function getReservedKeywordsClass()
     {
