@@ -44,9 +44,6 @@ final class Statement implements DriverStatement
         $this->stmt->bindValue($param, $value, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function execute(?array $params = null): ResultInterface
     {
         return new Result(

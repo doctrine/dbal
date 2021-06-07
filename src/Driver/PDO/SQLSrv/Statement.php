@@ -63,9 +63,6 @@ final class Statement implements StatementInterface
         $this->bindParam($param, $value, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function execute(?array $params = null): Result
     {
         return $this->statement->execute($params);

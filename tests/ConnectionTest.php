@@ -32,7 +32,7 @@ use stdClass;
 
 /**
  * @requires extension pdo_mysql
- * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
+ * @psalm-import-type Params from DriverManager
  */
 class ConnectionTest extends TestCase
 {

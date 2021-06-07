@@ -53,3 +53,9 @@ jobs:
         with:
           composer_require_dev: true
           args: --shepherd
+
+      - name: Psalm type inference tests
+        uses: docker://vimeo/psalm-github-actions:4.6.4
+        with:
+          composer_require_dev: true
+          args: --config=psalm-strict.xml

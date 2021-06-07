@@ -152,11 +152,10 @@ class Connection
      * @param Driver               $driver       The driver to use.
      * @param Configuration|null   $config       The configuration, optional.
      * @param EventManager|null    $eventManager The event manager, optional.
+     * @psalm-param Params $params
+     * @phpstan-param array<string,mixed> $params
      *
      * @throws Exception
-     *
-     * @phpstan-param array<string,mixed> $params
-     * @psalm-param Params $params
      */
     public function __construct(
         array $params,
@@ -196,9 +195,8 @@ class Connection
      * @internal
      *
      * @return array<string,mixed>
-     *
-     * @phpstan-return array<string,mixed>
      * @psalm-return Params
+     * @phpstan-return array<string,mixed>
      */
     public function getParams(): array
     {

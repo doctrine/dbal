@@ -16,7 +16,7 @@ use function sprintf;
 use const CASE_LOWER;
 
 /**
- * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
+ * @psalm-import-type Params from DriverManager
  */
 class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 {
@@ -55,9 +55,8 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
     /**
      * @return array<string,mixed>
-     *
-     * @phpstan-return array<string,mixed>
      * @psalm-return Params
+     * @phpstan-return array<string,mixed>
      */
     private function createPrimaryReadReplicaConnectionParams(bool $keepReplica = false): array
     {

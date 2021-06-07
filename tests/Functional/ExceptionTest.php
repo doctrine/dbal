@@ -216,11 +216,10 @@ class ExceptionTest extends FunctionalTestCase
 
     /**
      * @param array<string, mixed> $params
+     * @psalm-param Params $params
+     * @phpstan-param array<string,mixed> $params
      *
      * @dataProvider getConnectionParams
-     *
-     * @phpstan-param array<string,mixed> $params
-     * @psalm-param Params $params
      */
     public function testConnectionException(array $params): void
     {

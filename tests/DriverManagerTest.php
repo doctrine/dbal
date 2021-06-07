@@ -15,6 +15,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
+use function array_intersect_key;
+use function array_merge;
 use function get_class;
 use function in_array;
 use function is_array;
@@ -127,18 +129,26 @@ class DriverManagerTest extends TestCase
             'password' => 'bar',
             'host'     => 'localhost',
             'port'     => 11211,
+            'dbname'   => 'baz',
+            'driver'   => 'pdo_mysql',
+            'url'      => 'mysql://foo:bar@localhost:11211/baz',
         ];
 
-        foreach ($expected as $key => $value) {
-            self::assertArrayHasKey($key, $params['primary']);
-            self::assertEquals($value, $params['primary'][$key]);
-
-            self::assertArrayHasKey($key, $params['replica']['replica1']);
-            self::assertEquals($value, $params['replica']['replica1'][$key]);
-        }
-
-        self::assertEquals('baz', $params['primary']['dbname']);
-        self::assertEquals('baz_replica', $params['replica']['replica1']['dbname']);
+        self::assertEquals(
+            [
+                'primary' => $expected,
+                'replica' => [
+                    'replica1' => array_merge(
+                        $expected,
+                        [
+                            'dbname' => 'baz_replica',
+                            'url'    => 'mysql://foo:bar@localhost:11211/baz_replica',
+                        ]
+                    ),
+                ],
+            ],
+            array_intersect_key($params, ['primary' => null, 'replica' => null])
+        );
     }
 
     /**

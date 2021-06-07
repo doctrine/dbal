@@ -862,4 +862,25 @@ class TableTest extends TestCase
         self::assertSame($uniqueConstraints[0], $constraints['fk_d87f7e0c341ce00bad15b1b1']);
         self::assertSame($uniqueConstraints[1], $constraints['fk_d87f7e0cda12812744761484']);
     }
+
+    public function testRemoveUniqueConstraint(): void
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+        $table->addUniqueConstraint(['bar'], 'unique_constraint');
+
+        $table->removeUniqueConstraint('unique_constraint');
+
+        self::assertFalse($table->hasUniqueConstraint('unique_constraint'));
+    }
+
+    public function testRemoveUniqueConstraintUnknownNameThrowsException(): void
+    {
+        $this->expectException(SchemaException::class);
+
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+
+        $table->removeUniqueConstraint('unique_constraint');
+    }
 }

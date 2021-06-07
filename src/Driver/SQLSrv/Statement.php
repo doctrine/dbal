@@ -107,9 +107,6 @@ final class Statement implements StatementInterface
         $this->stmt = null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function execute(?array $params = null): ResultInterface
     {
         if ($params !== null) {

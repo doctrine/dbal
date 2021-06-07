@@ -84,9 +84,6 @@ final class Statement implements StatementInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function execute(?array $params = null): ResultInterface
     {
         try {

@@ -115,9 +115,6 @@ final class Statement implements StatementInterface
         $this->types[$param - 1]   = self::$paramTypeMap[$type];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function execute(?array $params = null): ResultInterface
     {
         if ($params !== null && count($params) > 0) {

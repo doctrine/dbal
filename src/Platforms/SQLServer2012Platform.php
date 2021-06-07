@@ -1382,7 +1382,7 @@ class SQLServer2012Platform extends AbstractPlatform
 
     public function quoteSingleIdentifier(string $str): string
     {
-        return '[' . str_replace(']', '][', $str) . ']';
+        return '[' . str_replace(']', ']]', $str) . ']';
     }
 
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
