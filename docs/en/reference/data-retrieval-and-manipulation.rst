@@ -89,7 +89,7 @@ are then replaced by their actual values in a second step (execute).
     $sql = "SELECT * FROM articles WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(1, $id);
-    $stmt->execute();
+    $resultSet = $stmt->executeQuery();
 
 Placeholders in prepared statements are either simple positional question marks (``?``) or named labels starting with
 a colon (e.g. ``:name1``). You cannot mix the positional and the named approach. You have to bind a parameter
@@ -108,7 +108,7 @@ position of the variable to bind into the ``bindValue()`` method:
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(1, $id);
     $stmt->bindValue(2, $status);
-    $stmt->execute();
+    $resultSet = $stmt->executeQuery();
 
 Named parameters have the advantage that their labels can be re-used and only need to be bound once:
 
@@ -120,7 +120,7 @@ Named parameters have the advantage that their labels can be re-used and only ne
     $sql = "SELECT * FROM users WHERE name = :name OR username = :name";
     $stmt = $conn->prepare($sql);
     $stmt->bindValue("name", $name);
-    $stmt->execute();
+    $resultSet = $stmt->executeQuery();
 
 The following section describes the API of Doctrine DBAL with regard to prepared statements.
 
@@ -159,17 +159,28 @@ and methods to retrieve data from a statement.
 -   ``bindParam($pos, &$param, $type)`` - Bind a given reference to the positional or
     named parameter in the prepared statement.
 
-If you are finished with binding parameters you have to call ``execute()`` on the statement, which
-will trigger a query to the database. After the query is finished you can access the results
-of this query using the fetch API of a statement:
+If you are finished with binding parameters you have to call ``executeQuery()`` on the statement,
+which will trigger a query to the database. After the query is finished, a ``Doctrine\DBAL\Result``
+instance is returned and you can access the results of this query using the fetch API of the result:
 
--   ``fetch($fetchStyle)`` - Retrieves the next row from the statement or false if there are none.
+-   ``fetchNumeric()`` - Retrieves the next row from the statement or false if there are none.
+    The row is fetched as an array with numeric keys where the columns appear in the same order as
+    they were specified in the executed ``SELECT`` query.
     Moves the pointer forward one row, so that consecutive calls will always return the next row.
--   ``fetchColumn($column)`` - Retrieves only one column of the next row specified by column index.
+-   ``fetchAssociative()`` - Retrieves the next row from the statement or false if there are none.
+    The row is fetched as an associative array where the keys represent the column names as
+    specified in the executed ``SELECT`` query.
     Moves the pointer forward one row, so that consecutive calls will always return the next row.
--   ``fetchAll($fetchStyle)`` - Retrieves all rows from the statement.
+-   ``fetchOne()`` - Retrieves the value of the first column of the next row from the statement
+    or false if there are none.
+    Moves the pointer forward one row, so that consecutive calls will always return the next row.
+-   ``fetchAllNumeric()`` - Retrieves all rows from the statement as arrays with numeric keys.
+-   ``fetchAllAssociative()`` - Retrieves all rows from the statement as associative arrays.
+-   ``fetchFirstColumn()`` - Retrieves the value of the first column of all rows.
 
-The fetch API of a prepared statement obviously works only for ``SELECT`` queries.
+The fetch API of a prepared statement obviously works only for ``SELECT`` queries. If you want to
+execute a statement that does not yield a result set, like ``INSERT``, ``UPDATE`` or ``DELETE``
+for instance, you might want to call ``executeStatement()`` instead of ``executeQuery()``.
 
 If you find it tedious to write all the prepared statement code you can alternatively use
 the ``Doctrine\DBAL\Connection#executeQuery()`` and ``Doctrine\DBAL\Connection#executeStatement()``
@@ -201,7 +212,7 @@ to the appropriate vendors database format:
     $date = new \DateTime("2011-03-05 14:00:21");
     $stmt = $conn->prepare("SELECT * FROM articles WHERE publish_date > ?");
     $stmt->bindValue(1, $date, "datetime");
-    $stmt->execute();
+    $resultSet = $stmt->executeQuery();
 
 If you take a look at ``Doctrine\DBAL\Types\DateTimeType`` you will see that
 parts of the conversion are delegated to a method on the current database platform,
@@ -238,7 +249,7 @@ Since you are using an ``IN`` expression you would really like to use it in the 
     $stmt = $conn->prepare('SELECT * FROM articles WHERE id IN (?)');
     // THIS WILL NOT WORK:
     $stmt->bindValue(1, array(1, 2, 3, 4, 5, 6));
-    $stmt->execute();
+    $resultSet = $stmt->executeQuery();
 
 Implementing a generic way to handle this kind of query is tedious work. This is why most
 developers fallback to inserting the parameters directly into the query, which can open
@@ -309,7 +320,7 @@ Prepare a given SQL statement and return the
 
     <?php
     $statement = $conn->prepare('SELECT * FROM user');
-    $resultSet = $statement->execute();
+    $resultSet = $statement->executeQuery();
     $users = $resultSet->fetchAllAssociative();
 
     /*
@@ -342,13 +353,13 @@ executeQuery()
 ~~~~~~~~~~~~~~
 
 Creates a prepared statement for the given SQL and passes the
-parameters to the execute method, then returning the statement:
+parameters to the executeQuery method, then returning the result set:
 
 .. code-block:: php
 
     <?php
-    $statement = $conn->executeQuery('SELECT * FROM user WHERE username = ?', array('jwage'));
-    $user = $statement->fetchAssociative();
+    $resultSet = $conn->executeQuery('SELECT * FROM user WHERE username = ?', array('jwage'));
+    $user = $resultSet->fetchAssociative();
 
     /*
     array(
