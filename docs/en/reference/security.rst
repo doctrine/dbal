@@ -105,13 +105,13 @@ Following are examples of using prepared statements with SQL and DQL:
     $sql = "SELECT * FROM users WHERE username = ?";
     $stmt = $connection->prepare($sql);
     $stmt->bindValue(1, $_GET['username']);
-    $stmt->execute();
+    $resultSet = $stmt->executeQuery();
 
     // SQL Prepared Statements: Named
     $sql = "SELECT * FROM users WHERE username = :user";
     $stmt = $connection->prepare($sql);
     $stmt->bindValue("user", $_GET['username']);
-    $stmt->execute();
+    $resultSet = $stmt->executeQuery();
 
     // DQL Prepared Statements: Positional
     $dql = "SELECT u FROM User u WHERE u.username = ?1";
@@ -133,7 +133,7 @@ are using just the DBAL there are also helper methods which simplify the usage q
     <?php
     // bind parameters and execute query at once.
     $sql = "SELECT * FROM users WHERE username = ?";
-    $stmt = $connection->executeQuery($sql, array($_GET['username']));
+    $resultSet = $connection->executeQuery($sql, array($_GET['username']));
 
 There is also ``executeStatement`` which does not return a statement but the number of affected rows.
 
