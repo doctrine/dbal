@@ -196,7 +196,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         );
 
         foreach ($indexArray as $indexColumnRow) {
-            if ($indexColumnRow['pk'] === '0') {
+            if ($indexColumnRow['pk'] === 0 || $indexColumnRow['pk'] === '0') {
                 continue;
             }
 
@@ -247,7 +247,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $autoincrementCount  = 0;
 
         foreach ($tableColumns as $tableColumn) {
-            if ($tableColumn['pk'] === '0') {
+            if ($tableColumn['pk'] === 0 || $tableColumn['pk'] === '0') {
                 continue;
             }
 
