@@ -162,6 +162,8 @@ jobs:
         include:
           - php-version: "8.0"
             postgres-version: "13"
+          - php-version: "8.1"
+            postgres-version: "13"
 
     services:
       postgres:
