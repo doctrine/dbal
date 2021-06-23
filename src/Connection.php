@@ -1209,6 +1209,14 @@ class Connection
      */
     public function lastInsertId($name = null)
     {
+        if ($name !== null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4687',
+                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
+            );
+        }
+
         try {
             return $this->getWrappedConnection()->lastInsertId($name);
         } catch (Driver\Exception $e) {

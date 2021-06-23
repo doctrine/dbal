@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 
 use function is_float;
 use function is_int;
@@ -109,6 +110,12 @@ final class Connection implements ServerInfoAwareConnection
     public function lastInsertId($name = null)
     {
         if ($name !== null) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4687',
+                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
+            );
+
             $result = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?')
                 ->execute([$name]);
         } else {
