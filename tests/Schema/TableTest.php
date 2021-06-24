@@ -852,4 +852,18 @@ class TableTest extends TestCase
 
         $table->removeUniqueConstraint('unique_constraint');
     }
+
+    public function testPrimaryKeyWithCaptialization(): void
+    {
+        $table = new Table('foo');
+        $table->addColumn('fooID', 'integer');
+        $table->addColumn('bar_id', 'integer');
+        $table->setPrimaryKey(['bar_id', 'fooID']);
+
+        $primaryKey = $table->getPrimaryKeyColumns();
+
+        self::assertCount(2, $primaryKey);
+        self::assertArrayHasKey('fooid', $primaryKey);
+        self::assertArrayHasKey('bar_id', $primaryKey);
+    }
 }

@@ -735,6 +735,8 @@ class Table extends AbstractAsset
      */
     private function filterColumns(array $columnNames, bool $reverse = false): array
     {
+        $columnNames = array_map([$this, 'normalizeIdentifier'], $columnNames);
+
         return array_filter($this->_columns, static function (string $columnName) use ($columnNames, $reverse): bool {
             return in_array($columnName, $columnNames, true) !== $reverse;
         }, ARRAY_FILTER_USE_KEY);
