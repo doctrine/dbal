@@ -12,6 +12,7 @@ use Doctrine\DBAL\Driver\OCI8\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function assert;
@@ -101,6 +102,12 @@ final class Connection implements ServerInfoAwareConnection
         if ($name === null) {
             throw IdentityColumnsNotSupported::new();
         }
+
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4687',
+            'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
+        );
 
         $result = $this->query('SELECT ' . $name . '.CURRVAL FROM DUAL')->fetchOne();
 

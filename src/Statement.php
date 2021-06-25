@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
+use function func_num_args;
 use function is_string;
 
 /**
@@ -148,7 +149,11 @@ class Statement
         $this->types[$param]  = $type;
 
         try {
-            $this->stmt->bindParam($param, $variable, $type, $length);
+            if (func_num_args() > 3) {
+                $this->stmt->bindParam($param, $variable, $type, $length);
+            } else {
+                $this->stmt->bindParam($param, $variable, $type);
+            }
         } catch (Exception $e) {
             throw $this->conn->convertException($e);
         }

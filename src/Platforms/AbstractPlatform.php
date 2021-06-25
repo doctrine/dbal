@@ -1567,6 +1567,8 @@ abstract class AbstractPlatform
                     'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
                 );
             }
+        } elseif ($constraint instanceof UniqueConstraint) {
+            $query .= ' UNIQUE';
         } elseif ($constraint instanceof ForeignKeyConstraint) {
             $query .= ' FOREIGN KEY';
 

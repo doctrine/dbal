@@ -32,6 +32,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use Throwable;
 use Traversable;
 
@@ -1118,6 +1119,14 @@ class Connection
      */
     public function lastInsertId(?string $name = null): string
     {
+        if ($name !== null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4687',
+                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
+            );
+        }
+
         try {
             return $this->getWrappedConnection()->lastInsertId($name);
         } catch (Driver\Exception $e) {

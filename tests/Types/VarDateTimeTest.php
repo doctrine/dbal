@@ -21,7 +21,7 @@ class VarDateTimeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->platform = $this->getMockForAbstractClass(AbstractPlatform::class);
         $this->type     = new VarDateTimeType();
     }
 

@@ -154,7 +154,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 $id = $value['id'];
 
                 $tableForeignKeys[$key] = array_merge($tableForeignKeys[$key], [
-                    'constraint_name' => isset($names[$id]) && $names[$id] !== '' ? $names[$id] : $id,
+                    'constraint_name' => isset($names[$id]) && $names[$id] !== '' ? $names[$id] : (string) $id,
                     'deferrable'      => isset($deferrable[$id]) && strtolower($deferrable[$id]) === 'deferrable',
                     'deferred'        => isset($deferred[$id]) && strtolower($deferred[$id]) === 'deferred',
                 ]);
@@ -203,7 +203,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         );
 
         foreach ($indexArray as $indexColumnRow) {
-            if ($indexColumnRow['pk'] === '0') {
+            if ($indexColumnRow['pk'] === 0 || $indexColumnRow['pk'] === '0') {
                 continue;
             }
 
@@ -254,7 +254,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $autoincrementCount  = 0;
 
         foreach ($tableColumns as $tableColumn) {
-            if ($tableColumn['pk'] === '0') {
+            if ($tableColumn['pk'] === 0 || $tableColumn['pk'] === '0') {
                 continue;
             }
 

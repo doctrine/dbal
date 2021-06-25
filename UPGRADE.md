@@ -313,6 +313,12 @@ The following methods have been removed.
 
 # Upgrade to 3.2
 
+## Deprecated `Connection::lastInsertId($name)`
+
+The usage of `Connection::lastInsertId()` with a sequence name is deprecated as unsafe in scenarios with multiple
+concurrent connections. If a newly inserted row needs to be referenced, it is recommended to generate its identifier
+explicitly prior to insertion.
+
 ## Introduction of PSR-6 for result caching
 
 Instead of relying on the deprecated `doctrine/cache` library, a PSR-6 cache

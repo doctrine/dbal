@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
+use Doctrine\Deprecations\Deprecation;
 use PDO;
 
 final class Connection implements ServerInfoAwareConnection
@@ -47,6 +48,12 @@ final class Connection implements ServerInfoAwareConnection
         if ($name === null) {
             return $this->connection->lastInsertId($name);
         }
+
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4687',
+            'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
+        );
 
         return $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?')
             ->execute([$name])

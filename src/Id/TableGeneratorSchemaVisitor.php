@@ -11,7 +11,11 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use Doctrine\Deprecations\Deprecation;
 
+/**
+ * @deprecated
+ */
 final class TableGeneratorSchemaVisitor implements Visitor
 {
     /** @var string */
@@ -19,6 +23,12 @@ final class TableGeneratorSchemaVisitor implements Visitor
 
     public function __construct(string $generatorTableName = 'sequences')
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4681',
+            'The TableGeneratorSchemaVisitor class is is deprecated.',
+        );
+
         $this->generatorTableName = $generatorTableName;
     }
 
