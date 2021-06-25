@@ -8,11 +8,9 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\OCI8\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
-use Doctrine\DBAL\Driver\OCI8\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function assert;
@@ -97,25 +95,9 @@ final class Connection implements ServerInfoAwareConnection
         return $this->prepare($sql)->execute()->rowCount();
     }
 
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(): string
     {
-        if ($name === null) {
-            throw IdentityColumnsNotSupported::new();
-        }
-
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4687',
-            'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
-        );
-
-        $result = $this->query('SELECT ' . $name . '.CURRVAL FROM DUAL')->fetchOne();
-
-        if ($result === false) {
-            throw SequenceDoesNotExist::new();
-        }
-
-        return $result;
+        throw IdentityColumnsNotSupported::new();
     }
 
     public function beginTransaction(): void

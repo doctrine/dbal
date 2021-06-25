@@ -7,13 +7,9 @@ namespace Doctrine\DBAL\Tests\Functional;
 use DateTime;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
-
-use function array_filter;
-use function strtolower;
 
 class WriteTest extends FunctionalTestCase
 {
@@ -151,51 +147,21 @@ class WriteTest extends FunctionalTestCase
         }
 
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
-        $num = $this->lastInsertId();
+        $num = $this->connection->lastInsertId();
 
         self::assertGreaterThan(0, $num, 'LastInsertId() should be non-negative number.');
     }
 
-    public function testLastInsertIdSequence(): void
+    public function testLastInsertIdNotSupported(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
-            self::markTestSkipped('Test only works on platforms with sequences.');
-        }
-
-        $sequence = new Sequence('write_table_id_seq');
-        try {
-            $this->connection->createSchemaManager()->createSequence($sequence);
-        } catch (Throwable $e) {
-        }
-
-        $sequences = $this->connection->createSchemaManager()->listSequences();
-        self::assertCount(1, array_filter($sequences, static function ($sequence): bool {
-            return strtolower($sequence->getName()) === 'write_table_id_seq';
-        }));
-
-        $nextSequenceVal = $this->connection->fetchOne(
-            $this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq')
-        );
-
-        $lastInsertId = $this->lastInsertId('write_table_id_seq');
-
-        self::assertGreaterThan(0, $lastInsertId);
-        self::assertEquals($nextSequenceVal, $lastInsertId);
-    }
-
-    public function testLastInsertIdNoSequenceGiven(): void
-    {
-        if (
-            ! $this->connection->getDatabasePlatform()->supportsSequences()
-            || $this->connection->getDatabasePlatform()->supportsIdentityColumns()
-        ) {
+        if ($this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
             self::markTestSkipped(
-                "Test only works consistently on platforms that support sequences and don't support identity columns."
+                "Test only works consistently on platforms that don't support identity columns."
             );
         }
 
         $this->expectException(DriverException::class);
-        $this->lastInsertId();
+        $this->connection->lastInsertId();
     }
 
     public function testInsertWithKeyValueTypes(): void
@@ -269,9 +235,9 @@ class WriteTest extends FunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if (! ($platform->supportsIdentityColumns() || $platform->usesSequenceEmulatedIdentityColumns())) {
+        if (! $platform->supportsIdentityColumns()) {
             self::markTestSkipped(
-                'Test only works on platforms with identity columns or sequence emulated identity columns.'
+                'Test only works on platforms with identity columns.'
             );
         }
 
@@ -288,19 +254,15 @@ class WriteTest extends FunctionalTestCase
             $this->connection->executeStatement($sql);
         }
 
-        $seqName = $platform->usesSequenceEmulatedIdentityColumns()
-            ? $platform->getIdentitySequenceName('test_empty_identity', 'id')
-            : null;
-
         $sql = $platform->getEmptyIdentityInsertSQL('test_empty_identity', 'id');
 
         $this->connection->executeStatement($sql);
 
-        $firstId = $this->lastInsertId($seqName);
+        $firstId = $this->connection->lastInsertId();
 
         $this->connection->executeStatement($sql);
 
-        $secondId = $this->lastInsertId($seqName);
+        $secondId = $this->connection->lastInsertId();
 
         self::assertGreaterThan($firstId, $secondId);
     }
@@ -344,24 +306,5 @@ class WriteTest extends FunctionalTestCase
         $data = $this->connection->fetchAllAssociative('SELECT * FROM write_table WHERE test_int = 30');
 
         self::assertCount(0, $data);
-    }
-
-    /**
-     * Returns the ID of the last inserted row or skips the test if the currently used driver
-     * doesn't support this feature
-     *
-     * @throws DriverException
-     */
-    private function lastInsertId(?string $name = null): string
-    {
-        try {
-            return $this->connection->lastInsertId($name);
-        } catch (DriverException $e) {
-            if ($e->getSQLState() === 'IM001') {
-                self::markTestSkipped($e->getMessage());
-            }
-
-            throw $e;
-        }
     }
 }

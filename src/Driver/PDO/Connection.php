@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
-use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -89,20 +88,10 @@ final class Connection implements ServerInfoAwareConnection
         return $this->connection->quote($value);
     }
 
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(): string
     {
         try {
-            if ($name === null) {
-                return $this->connection->lastInsertId();
-            }
-
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/4687',
-                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
-            );
-
-            return $this->connection->lastInsertId($name);
+            return $this->connection->lastInsertId();
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
