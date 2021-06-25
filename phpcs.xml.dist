@@ -12,6 +12,8 @@
     <!-- Show progress of the run and show sniff names -->
     <arg value="ps"/>
 
+    <config name="php_version" value="70300"/>
+
     <file>bin</file>
     <file>lib</file>
     <file>tests/Doctrine/Tests</file>
@@ -35,13 +37,6 @@
     <rule ref="Generic.Classes.DuplicateClassName.Found">
         <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php</exclude-pattern>
         <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php</exclude-pattern>
-    </rule>
-
-    <!-- Disable the rules that will require PHP 7.4 -->
-    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint">
-        <properties>
-            <property name="enableNativeTypeHint" value="false"/>
-        </properties>
     </rule>
 
     <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
