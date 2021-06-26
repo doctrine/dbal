@@ -32,7 +32,6 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use Throwable;
 use Traversable;
 
@@ -1104,31 +1103,20 @@ class Connection
     }
 
     /**
-     * Returns the ID of the last inserted row, or the last value from a sequence object,
-     * depending on the underlying driver.
+     * Returns the ID of the last inserted row.
      *
      * Note: This method may not return a meaningful or consistent result across different drivers,
      * because the underlying database may not even support the notion of AUTO_INCREMENT/IDENTITY
-     * columns or sequences.
-     *
-     * @param string|null $name Name of the sequence object from which the ID should be returned.
+     * columns.
      *
      * @return string A string representation of the last inserted ID.
      *
      * @throws Exception
      */
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(): string
     {
-        if ($name !== null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/4687',
-                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
-            );
-        }
-
         try {
-            return $this->getWrappedConnection()->lastInsertId($name);
+            return $this->getWrappedConnection()->lastInsertId();
         } catch (Driver\Exception $e) {
             throw $this->convertException($e);
         }

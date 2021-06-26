@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed support for `Connection::lastInsertId($name)`
+
+The `Connection::lastInsertId()` method no longer accepts a sequence name.
+
 ## Removed defaults for MySQL table charset, collation and engine
 
 The library no longer provides the default values for MySQL table charset, collation and engine.

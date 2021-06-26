@@ -11,7 +11,6 @@ use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\Deprecations\Deprecation;
 use stdClass;
 
 use function assert;
@@ -103,16 +102,8 @@ final class Connection implements ServerInfoAwareConnection
         return db2_num_rows($stmt);
     }
 
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(): string
     {
-        if ($name !== null) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/4687',
-                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
-            );
-        }
-
         return db2_last_insert_id($this->conn);
     }
 

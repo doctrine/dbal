@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\Deprecations\Deprecation;
 
 /**
  * Portability wrapper for a Connection.
@@ -58,17 +57,9 @@ final class Connection implements ConnectionInterface
         return $this->connection->exec($sql);
     }
 
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(): string
     {
-        if ($name !== null) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/4687',
-                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
-            );
-        }
-
-        return $this->connection->lastInsertId($name);
+        return $this->connection->lastInsertId();
     }
 
     public function beginTransaction(): void

@@ -10,7 +10,6 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\Deprecations\Deprecation;
 use mysqli;
 
 use function assert;
@@ -126,16 +125,8 @@ final class Connection implements ServerInfoAwareConnection
         return $this->conn->affected_rows;
     }
 
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(): string
     {
-        if ($name !== null) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/4687',
-                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
-            );
-        }
-
         return (string) $this->conn->insert_id;
     }
 
