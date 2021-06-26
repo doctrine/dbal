@@ -10,6 +10,7 @@ use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
 use PDOStatement;
+use ReturnTypeWillChange;
 
 use function assert;
 
@@ -47,6 +48,7 @@ class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareC
     /**
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function exec($sql)
     {
         try {
@@ -73,6 +75,7 @@ class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareC
      *
      * @return PDOStatement
      */
+    #[ReturnTypeWillChange]
     public function prepare($sql, $driverOptions = [])
     {
         try {
@@ -88,6 +91,7 @@ class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareC
     /**
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function quote($value, $type = ParameterType::STRING)
     {
         return parent::quote($value, $type);
@@ -96,6 +100,7 @@ class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareC
     /**
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function lastInsertId($name = null)
     {
         try {
