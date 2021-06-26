@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed `TableGenerator` component
+
+The `TableGenerator` component has been removed.
+
 ## Removed support for `Connection::lastInsertId($name)`
 
 The `Connection::lastInsertId()` method no longer accepts a sequence name.
