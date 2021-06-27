@@ -9,6 +9,7 @@ use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\PDO\Statement as PDODriverStatement;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -21,6 +22,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
+use PDO;
 use Throwable;
 use Traversable;
 
@@ -193,7 +195,18 @@ class Connection implements DriverConnection
         $this->params  = $params;
 
         if (isset($params['pdo'])) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3554',
+                'Passing a user provided PDO instance directly to Doctrine is deprecated.'
+            );
+
+            if (! $params['pdo'] instanceof PDO) {
+                throw Exception::invalidPdoInstance();
+            }
+
             $this->_conn = $params['pdo'];
+            $this->_conn->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDODriverStatement::class, []]);
             unset($this->params['pdo']);
         }
 

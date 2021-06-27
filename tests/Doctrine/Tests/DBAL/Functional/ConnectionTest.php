@@ -10,6 +10,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDODriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\ForwardCompatibility;
 use Doctrine\DBAL\ParameterType;
@@ -363,7 +364,22 @@ class ConnectionTest extends DbalFunctionalTestCase
 
         $result = $connection->executeQuery('SELECT 1');
 
-        self::assertInstanceOf(ForwardCompatibility\Result::class, $result);
+        self::assertInstanceOf(ForwardCompatibility\DriverResultStatement::class, $result);
+    }
+
+    /**
+     * @requires extension pdo_sqlite
+     */
+    public function testUserProvidedPDOConnectionWithoutDriverManager(): void
+    {
+        $connection = new Connection(
+            ['pdo' => new PDO('sqlite::memory:')],
+            new PDODriver()
+        );
+
+        $result = $connection->executeQuery('SELECT 1');
+
+        self::assertInstanceOf(ForwardCompatibility\DriverResultStatement::class, $result);
     }
 
     public function testResultCompatibilityWhenExecutingQueryWithoutParam(): void
