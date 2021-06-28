@@ -120,3 +120,6 @@ parameters:
             message: '~^Property Doctrine\\DBAL\\Connection::\$_conn \(Doctrine\\DBAL\\Driver\\Connection\|null\) does not accept PDO\.$~'
             paths:
                 - %currentWorkingDirectory%/lib/Doctrine/DBAL/Connection.php
+
+        # The class was added in PHP 8.1
+        - '~^Attribute class ReturnTypeWillChange does not exist.$~'

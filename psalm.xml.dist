@@ -374,6 +374,12 @@
                 <file name="lib/Doctrine/DBAL/Schema/SqliteSchemaManager.php"/>
             </errorLevel>
         </TooManyArguments>
+        <UndefinedAttributeClass>
+            <errorLevel type="suppress">
+                <!-- The class was added in PHP 8.1 -->
+                <referencedClass name="ReturnTypeWillChange"/>
+            </errorLevel>
+        </UndefinedAttributeClass>
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <directory name="lib/Doctrine/DBAL/Driver/SQLAnywhere"/>
