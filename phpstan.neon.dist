@@ -37,6 +37,7 @@ parameters:
 
         # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
+        - '~^Call to method writeTemporary\(\) on an unknown class OCILob\.~'
 
         # The ReflectionException in the case when the class does not exist is acceptable and does not need to be handled
         - '~^Parameter #1 \$argument of class ReflectionClass constructor expects class-string<T of object>\|T of object, string given\.$~'
