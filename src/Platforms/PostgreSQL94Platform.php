@@ -785,6 +785,12 @@ SQL
             }
         }
 
+        if (isset($options['uniqueConstraints'])) {
+            foreach ($options['uniqueConstraints'] as $uniqueConstraint) {
+                $sql[] = $this->getCreateConstraintSQL($uniqueConstraint, $name);
+            }
+        }
+
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $name);
