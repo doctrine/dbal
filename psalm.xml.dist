@@ -236,23 +236,10 @@
         <RedundantConditionGivenDocblockType>
             <errorLevel type="suppress">
                 <!--
-                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1055
-                -->
-                <file name="src/Driver/Mysqli/Result.php"/>
-                <!--
-                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1053
-                -->
-                <file name="src/Driver/PDO/Result.php"/>
-                <!--
                     Fixing these issues requires support of union types at the language level
                     or breaking API changes.
                 -->
                 <file name="src/Platforms/MySQLPlatform.php"/>
-                <!--
-                    Requires a release of
-                    https://github.com/JetBrains/phpstorm-stubs/commit/43ce0bb13e927b9eb69cc06c16ab22f548c4735b
-                -->
-                <file name="src/Driver/Mysqli/Connection.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
         <ReferenceConstraintViolation>
@@ -321,6 +308,9 @@
 
                 <!-- See https://github.com/doctrine/dbal/pull/3574 -->
                 <file name="tests/Query/Expression/ExpressionBuilderTest.php"/>
+
+                <!-- See https://bugs.php.net/bug.php?id=77591 -->
+                <referencedFunction name="db2_autocommit"/>
             </errorLevel>
         </InvalidScalarArgument>
         <InvalidReturnStatement>
