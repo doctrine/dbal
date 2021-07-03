@@ -406,11 +406,11 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getCreateDatabaseSQL($database)
+    public function getCreateDatabaseSQL($name)
     {
-        $database = new Identifier($database);
+        $name = new Identifier($name);
 
-        return "CREATE DATABASE '" . $database->getName() . "'";
+        return "CREATE DATABASE '" . $name->getName() . "'";
     }
 
     /**
@@ -540,11 +540,11 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDropDatabaseSQL($database)
+    public function getDropDatabaseSQL($name)
     {
-        $database = new Identifier($database);
+        $name = new Identifier($name);
 
-        return "DROP DATABASE '" . $database->getName() . "'";
+        return "DROP DATABASE '" . $name->getName() . "'";
     }
 
     /**

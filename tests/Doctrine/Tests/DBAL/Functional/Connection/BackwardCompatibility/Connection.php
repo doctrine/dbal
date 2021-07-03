@@ -26,9 +26,9 @@ class Connection extends BaseConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare($statement)
+    public function prepare($sql)
     {
-        return new Statement(parent::prepare($statement));
+        return new Statement(parent::prepare($sql));
     }
 
     /**
