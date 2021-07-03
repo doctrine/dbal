@@ -2,12 +2,14 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BinaryType;
@@ -753,6 +755,24 @@ SQL
     public function getCreateSchemaSQL($schemaName)
     {
         return 'CREATE SCHEMA ' . $schemaName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDropIndexSQL($index, $table = null)
+    {
+        if ($index instanceof Index && $index->isPrimary()) {
+            if (! ($table instanceof Table || (is_string($table) && $table !== ''))) {
+                throw new InvalidArgumentException(
+                    __METHOD__ . '() expects $table parameter to be nonempty string or ' . Table::class . '.'
+                );
+            }
+
+            return $this->getDropConstraintSQL($index, $table);
+        }
+
+        return parent::getDropIndexSQL($index, $table);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -418,6 +419,63 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test']->getColumns()));
         self::assertTrue($tableIndexes['test']->isUnique());
         self::assertFalse($tableIndexes['test']->isPrimary());
+    }
+
+    public function testDropPrimaryKeyByIndexObject(): void
+    {
+        if ($this->schemaManager->getDatabasePlatform()->getName() === 'sqlite') {
+            self::markTestSkipped('Does not work with SQLite, since it cannot drop primary keys (at the moment).');
+        }
+
+        $table = $this->getTestTable('test_drop_pk');
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $pk = $this->schemaManager->listTableDetails('test_drop_pk')->getPrimaryKey();
+        self::assertNotNull($pk);
+        $this->schemaManager->dropIndex($pk, 'test_drop_pk');
+
+        self::assertFalse($this->schemaManager->listTableDetails('test_drop_pk')->hasPrimaryKey());
+    }
+
+    public function testDropPrimaryKeyByName(): void
+    {
+        if ($this->schemaManager->getDatabasePlatform()->getName() === 'sqlite') {
+            self::markTestSkipped('Does not work with SQLite, since it cannot drop primary keys (at the moment).');
+        }
+
+        $table = $this->getTestTable('test_drop_pk');
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $pk = $this->schemaManager->listTableDetails('test_drop_pk')->getPrimaryKey();
+        self::assertNotNull($pk);
+        $this->schemaManager->dropIndex($pk->getName(), 'test_drop_pk');
+
+        self::assertFalse($this->schemaManager->listTableDetails('test_drop_pk')->hasPrimaryKey());
+    }
+
+    public function testDropPrimaryKeyByDefaultName(): void
+    {
+        if ($this->schemaManager->getDatabasePlatform()->getName() === 'sqlite') {
+            self::markTestSkipped('Does not work with SQLite, since it cannot drop primary keys (at the moment).');
+        }
+
+        $table = $this->getTestTable('test_drop_pk');
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $this->schemaManager->dropIndex('primary', 'test_drop_pk');
+
+        self::assertFalse($this->schemaManager->listTableDetails('test_drop_pk')->hasPrimaryKey());
+    }
+
+    public function testDropIndexWithInvalidName(): void
+    {
+        $table = $this->getTestTable('test_drop_index');
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Index "invalid_name" does not exist on table "test_drop_index"');
+
+        $this->schemaManager->dropIndex('invalid_name', 'test_drop_index');
     }
 
     public function testCreateTableWithForeignKeys(): void

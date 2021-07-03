@@ -2,8 +2,10 @@
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 
@@ -55,6 +57,48 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
             'COLLATE "en_US.UTF-8"',
             $this->platform->getColumnCollationDeclarationSQL('en_US.UTF-8')
         );
+    }
+
+    public function testGetDropIndexSQLWithRegularIndex(): void
+    {
+        $index = new Index('index_name', ['foo']);
+        $this->assertEquals(
+            'DROP INDEX index_name',
+            $this->platform->getDropIndexSQL($index)
+        );
+    }
+
+    public function testGetDropIndexSQLWithPrimaryKeyTableAsString(): void
+    {
+        $index = new Index('index_name', ['foo'], false, true);
+        $this->assertEquals(
+            'ALTER TABLE table_name DROP CONSTRAINT index_name',
+            $this->platform->getDropIndexSQL($index, 'table_name')
+        );
+    }
+
+    public function testGetDropIndexSQLWithPrimaryKeyTableAsObject(): void
+    {
+        $index = new Index('index_name', ['foo'], false, true);
+        $table = new Table('table_name');
+        $this->assertEquals(
+            'ALTER TABLE table_name DROP CONSTRAINT index_name',
+            $this->platform->getDropIndexSQL($index, $table)
+        );
+    }
+
+    public function testGetDropIndexSQLWithPrimaryKeyNoTable(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $index = new Index('index_name', ['foo'], false, true);
+        $this->platform->getDropIndexSQL($index);
+    }
+
+    public function testGetDropIndexSQLWithPrimaryKeyEmptyStringAsTable(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $index = new Index('index_name', ['foo'], false, true);
+        $this->platform->getDropIndexSQL($index, '');
     }
 
     public function testHasNativeJsonType(): void

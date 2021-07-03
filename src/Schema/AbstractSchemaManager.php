@@ -7,6 +7,7 @@ use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
@@ -22,6 +23,7 @@ use function func_get_args;
 use function is_callable;
 use function is_string;
 use function preg_match;
+use function sprintf;
 use function str_replace;
 use function strtolower;
 
@@ -409,8 +411,20 @@ abstract class AbstractSchemaManager
      */
     public function dropIndex($index, $table)
     {
-        if ($index instanceof Index) {
-            $index = $index->getQuotedName($this->_platform);
+        if (is_string($index)) {
+            // Generate Index object, allowing getDropIndexSQL() to distinguish
+            // between a PK and a reqular index and act accordingly.
+            $tableName = $table instanceof Table ? $table->getName() : $table;
+            $indexes   = $this->listTableIndexes($tableName);
+            if (isset($indexes[$index])) {
+                $index = $indexes[$index];
+            } elseif (isset($indexes['primary']) && $indexes['primary']->getName() === $index) {
+                $index = $indexes['primary'];
+            } else {
+                throw new InvalidArgumentException(
+                    sprintf('Index "%s" does not exist on table "%s"', $index, $tableName)
+                );
+            }
         }
 
         $this->_execSql($this->_platform->getDropIndexSQL($index, $table));
