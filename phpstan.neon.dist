@@ -29,6 +29,7 @@ parameters:
 
         # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
+        - '~^Call to method writeTemporary\(\) on an unknown class OCILob\.~'
 
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
         -

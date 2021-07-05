@@ -40,7 +40,7 @@
     },
     "require-dev": {
         "doctrine/coding-standard": "9.0.0",
-        "jetbrains/phpstorm-stubs": "2020.2",
+        "jetbrains/phpstorm-stubs": "2021.1",
         "phpstan/phpstan": "0.12.81",
         "phpstan/phpstan-strict-rules": "^0.12.2",
         "phpunit/phpunit": "9.5.5",
