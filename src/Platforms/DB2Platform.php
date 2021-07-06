@@ -414,17 +414,17 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateDatabaseSQL($database)
+    public function getCreateDatabaseSQL($name)
     {
-        return 'CREATE DATABASE ' . $database;
+        return 'CREATE DATABASE ' . $name;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDropDatabaseSQL($database)
+    public function getDropDatabaseSQL($name)
     {
-        return 'DROP DATABASE ' . $database;
+        return 'DROP DATABASE ' . $name;
     }
 
     /**
