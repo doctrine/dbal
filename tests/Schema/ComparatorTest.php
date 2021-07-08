@@ -501,8 +501,7 @@ class ComparatorTest extends TestCase
 
         $schema2 = new Schema();
 
-        $c          = new Comparator();
-        $diffSchema = $c->compare($schema1, $schema2);
+        $diffSchema = Comparator::compareSchemas($schema1, $schema2);
 
         self::assertCount(1, $diffSchema->removedSequences);
         self::assertSame($seq, $diffSchema->removedSequences[0]);
@@ -515,8 +514,7 @@ class ComparatorTest extends TestCase
         $schema2 = new Schema();
         $seq     = $schema2->createSequence('foo');
 
-        $c          = new Comparator();
-        $diffSchema = $c->compare($schema1, $schema2);
+        $diffSchema = Comparator::compareSchemas($schema1, $schema2);
 
         self::assertCount(1, $diffSchema->newSequences);
         self::assertSame($seq, $diffSchema->newSequences[0]);
@@ -617,8 +615,7 @@ class ComparatorTest extends TestCase
         $schemaB->createTable('Baz');
         $schemaB->createTable('old');
 
-        $c    = new Comparator();
-        $diff = $c->compare($schemaA, $schemaB);
+        $diff = Comparator::compareSchemas($schemaA, $schemaB);
 
         $this->assertSchemaTableChangeCount($diff, 1, 0, 1);
     }
@@ -637,8 +634,7 @@ class ComparatorTest extends TestCase
         $schemaB->createSequence('baz');
         $schemaB->createSequence('old');
 
-        $c    = new Comparator();
-        $diff = $c->compare($schemaA, $schemaB);
+        $diff = Comparator::compareSchemas($schemaA, $schemaB);
 
         $this->assertSchemaSequenceChangeCount($diff, 1, 0, 1);
     }
@@ -851,8 +847,7 @@ class ComparatorTest extends TestCase
         $schemaNew = clone $schema;
         $schemaNew->getSequence('baz')->setAllocationSize(20);
 
-        $c    = new Comparator();
-        $diff = $c->compare($schema, $schemaNew);
+        $diff = Comparator::compareSchemas($schema, $schemaNew);
 
         self::assertSame($diff->changedSequences[0], $schemaNew->getSequence('baz'));
     }
@@ -958,8 +953,7 @@ class ComparatorTest extends TestCase
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
-        $c    = new Comparator();
-        $diff = $c->compare($oldSchema, $newSchema);
+        $diff = Comparator::compareSchemas($oldSchema, $newSchema);
 
         self::assertCount(0, $diff->removedSequences);
     }
@@ -980,8 +974,7 @@ class ComparatorTest extends TestCase
         $table->setPrimaryKey(['id']);
         $newSchema->createSequence('foo_id_seq');
 
-        $c    = new Comparator();
-        $diff = $c->compare($oldSchema, $newSchema);
+        $diff = Comparator::compareSchemas($oldSchema, $newSchema);
 
         self::assertCount(0, $diff->newSequences);
     }
@@ -1018,8 +1011,7 @@ class ComparatorTest extends TestCase
         $tableC = $newSchema->createTable('table_c');
         $tableC->addColumn('id', 'integer');
 
-        $comparator = new Comparator();
-        $schemaDiff = $comparator->compare($oldSchema, $newSchema);
+        $schemaDiff = Comparator::compareSchemas($oldSchema, $newSchema);
 
         self::assertCount(1, $schemaDiff->changedTables['table_c']->removedForeignKeys);
         self::assertCount(1, $schemaDiff->orphanedForeignKeys);
@@ -1162,7 +1154,6 @@ class ComparatorTest extends TestCase
 
     public function testComparesNamespaces(): void
     {
-        $comparator = new Comparator();
         $fromSchema = $this->getMockBuilder(Schema::class)
             ->onlyMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
@@ -1191,7 +1182,7 @@ class ComparatorTest extends TestCase
         $expected->newNamespaces     = ['baz' => 'baz'];
         $expected->removedNamespaces = ['foo' => 'foo'];
 
-        self::assertEquals($expected, $comparator->compare($fromSchema, $toSchema));
+        self::assertEquals($expected, Comparator::compareSchemas($fromSchema, $toSchema));
     }
 
     public function testCompareGuidColumns(): void

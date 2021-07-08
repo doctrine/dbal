@@ -27,9 +27,7 @@ class Comparator
      */
     public static function compareSchemas(Schema $fromSchema, Schema $toSchema)
     {
-        $c = new self();
-
-        return $c->compare($fromSchema, $toSchema);
+        return (new self())->compare($fromSchema, $toSchema);
     }
 
     /**
