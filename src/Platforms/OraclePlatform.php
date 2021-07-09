@@ -1206,4 +1206,12 @@ SQL
             $ownerCondition
         );
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasNativeTimezoneType()
+    {
+        return true;
+    }
 }

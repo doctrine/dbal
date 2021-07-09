@@ -80,4 +80,9 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
 
         return $val;
     }
+
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return ! $platform->hasNativeTimezoneType();
+    }
 }

@@ -1727,4 +1727,12 @@ class SQLServer2012Platform extends AbstractPlatform
 
         return true;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasNativeTimezoneType()
+    {
+        return true;
+    }
 }

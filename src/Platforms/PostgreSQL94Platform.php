@@ -1304,4 +1304,12 @@ SQL
             $this->quoteStringLiteral($table)
         );
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function hasNativeTimezoneType()
+    {
+        return true;
+    }
 }

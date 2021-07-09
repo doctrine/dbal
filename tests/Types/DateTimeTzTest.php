@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Types;
 
 use DateTime;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeTzType;
 
@@ -37,5 +38,17 @@ class DateTimeTzTest extends BaseDateTypeTestCase
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
+    }
+
+    public function testNativeTimezoneSupport(): void
+    {
+        $platform = $this->createMock(AbstractPlatform::class);
+        self::assertTrue($this->type->requiresSQLCommentHint($platform));
+
+        $platform->expects(self::any())
+            ->method('hasNativeTimezoneType')
+            ->will(self::returnValue(true));
+
+        self::assertFalse($this->type->requiresSQLCommentHint($platform));
     }
 }

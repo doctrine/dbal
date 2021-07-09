@@ -3275,6 +3275,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Does this platform have native time type.
+     *
+     * @return bool
+     */
+    public function hasNativeTimezoneType()
+    {
+        return false;
+    }
+
+    /**
      * Whether this platform supports views.
      *
      * @return bool
