@@ -474,14 +474,13 @@ class Comparator
             return $this->diffColumnDeprecated($column1, $column2);
         }
 
-        $properties1 = $column1->toArray();
-        $properties2 = $column2->toArray();
-
         // Report no difference if the SQL for both columns is equal
-        if ($this->generateColumnSQL($properties1, $platform) === $this->generateColumnSQL($properties2, $platform)) {
+        if ($this->generateColumnSQL($column1, $platform) === $this->generateColumnSQL($column2, $platform)) {
             return [];
         }
 
+        $properties1 = $column1->toArray();
+        $properties2 = $column2->toArray();
         $changedProperties = [];
 
         foreach (array_keys(array_merge($properties1, $properties2)) as $key) {
@@ -588,19 +587,17 @@ class Comparator
         return array_unique($changedProperties);
     }
 
-    /**
-     * @param mixed[] $column
-     */
-    private function generateColumnSQL(array $column, AbstractPlatform $platform): string
+    private function generateColumnSQL(Column $column, AbstractPlatform $platform): string
     {
-        if ($platform->isCommentedDoctrineType($column['type'])) {
-            $column['comment'] .= $platform->getDoctrineTypeComment($column['type']);
+        if ($platform->isCommentedDoctrineType($column->getType())) {
+            $column = clone $column;
+            $column->setComment(($column->getComment() ?? '') . $platform->getDoctrineTypeComment($column->getType()));
         }
 
-        $sql = $platform->getColumnDeclarationSQL('name', $column);
+        $sql = $platform->getColumnDeclarationSQL('name', $column->toArray());
 
         if (! $platform->supportsInlineColumnComments()) {
-            $sql .= ' -- ' . $column['comment'];
+            $sql .= ' -- ' . $column->getComment();
         }
 
         return $sql;
