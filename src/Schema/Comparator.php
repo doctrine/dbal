@@ -477,9 +477,6 @@ class Comparator
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
 
-        // Do not compare the column names
-        $properties1['name'] = $properties2['name'];
-
         // Report no difference if the SQL for both columns is equal
         if ($this->generateColumnSQL($properties1, $platform) === $this->generateColumnSQL($properties2, $platform)) {
             return [];
@@ -600,7 +597,7 @@ class Comparator
             $column['comment'] .= $platform->getDoctrineTypeComment($column['type']);
         }
 
-        $sql = $platform->getColumnDeclarationSQL($column['name'], $column);
+        $sql = $platform->getColumnDeclarationSQL('name', $column);
 
         if (! $platform->supportsInlineColumnComments()) {
             $sql .= ' -- ' . $column['comment'];
