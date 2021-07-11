@@ -22,7 +22,7 @@ use function strtolower;
  */
 class Comparator
 {
-    /** @var AbstractPlatform */
+    /** @var ?AbstractPlatform */
     private $platform;
 
     public function __construct(?AbstractPlatform $platform = null)
@@ -248,10 +248,26 @@ class Comparator
             }
 
             // See if column has changed properties in "to" table.
-            $changedProperties = $this->diffColumn($column, $toTable->getColumn($columnName));
-
-            if (count($changedProperties) === 0) {
+            if (! $this->compareColumns($column, $toTable->getColumn($columnName))) {
                 continue;
+            }
+
+            // Backwards compatibility
+            if ($this->platform === null) {
+                $changedProperties = $this->diffColumn($column, $toTable->getColumn($columnName));
+            } else {
+                $properties1 = $column->toArray();
+                $properties2 = $toTable->getColumn($columnName)->toArray();
+
+                $changedProperties = [];
+
+                foreach (array_keys(array_merge($properties1, $properties2)) as $key) {
+                    if (($properties1[$key] ?? null) === ($properties2[$key] ?? null)) {
+                        continue;
+                    }
+
+                    $changedProperties[] = $key;
+                }
             }
 
             $columnDiff = new ColumnDiff($column->getName(), $toTable->getColumn($columnName), $changedProperties);
@@ -343,7 +359,7 @@ class Comparator
         $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
             foreach ($tableDifferences->removedColumns as $removedColumn) {
-                if (count($this->diffColumn($addedColumn, $removedColumn)) !== 0) {
+                if ($this->compareColumns($addedColumn, $removedColumn)) {
                     continue;
                 }
 
@@ -450,48 +466,28 @@ class Comparator
     }
 
     /**
+     * Returns true if there is a difference between the columns
+     */
+    public function compareColumns(Column $column1, Column $column2): bool
+    {
+        if ($this->platform === null) {
+            return count($this->diffColumn($column1, $column2)) !== 0;
+        }
+
+        return $this->generateColumnSQL($column1) !== $this->generateColumnSQL($column2);
+    }
+
+    /**
      * Returns the difference between the columns
      *
      * If there are differences this method returns the changed properties as a
      * string array, otherwise an empty array gets returned.
      *
+     * @deprecated
+     *
      * @return string[]
      */
-    public function diffColumn(Column $column1, Column $column2)
-    {
-        if ($this->platform === null) {
-            return $this->diffColumnDeprecated($column1, $column2);
-        }
-
-        // Report no difference if the SQL for both columns is equal
-        if ($this->generateColumnSQL($column1) === $this->generateColumnSQL($column2)) {
-            return [];
-        }
-
-        $properties1 = $column1->toArray();
-        $properties2 = $column2->toArray();
-
-        $changedProperties = [];
-
-        foreach (array_keys(array_merge($properties1, $properties2)) as $key) {
-            if (
-                array_key_exists($key, $properties1)
-                && array_key_exists($key, $properties2)
-                && $properties1[$key] === $properties2[$key]
-            ) {
-                continue;
-            }
-
-            $changedProperties[] = $key;
-        }
-
-        return $changedProperties;
-    }
-
-    /**
-     * @return string[]
-     */
-    private function diffColumnDeprecated(Column $column1, Column $column2): array
+    public function diffColumn(Column $column1, Column $column2): array
     {
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();

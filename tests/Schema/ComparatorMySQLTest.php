@@ -91,17 +91,11 @@ class ComparatorMySQLTest extends ComparatorTest
 
         $comparator = new Comparator($this->platform);
 
-        $diff1 = $comparator->diffColumn($column1, $column2);
-        $diff2 = $comparator->diffColumn($column2, $column1);
-
-        self::assertContains('charset', $diff1);
-        self::assertContains('charset', $diff2);
-        self::assertContains('collation', $diff1);
-        self::assertContains('collation', $diff2);
-
-        self::assertEquals(['collation'], $comparator->diffColumn($column1, $column3));
-        self::assertEquals(['collation'], $comparator->diffColumn($column3, $column1));
-        self::assertEquals(['charset'], $comparator->diffColumn($column1, $column4));
-        self::assertEquals(['charset'], $comparator->diffColumn($column4, $column1));
+        self::assertTrue($comparator->compareColumns($column1, $column2));
+        self::assertTrue($comparator->compareColumns($column2, $column1));
+        self::assertTrue($comparator->compareColumns($column1, $column3));
+        self::assertTrue($comparator->compareColumns($column3, $column1));
+        self::assertTrue($comparator->compareColumns($column1, $column4));
+        self::assertTrue($comparator->compareColumns($column4, $column1));
     }
 }
