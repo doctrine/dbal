@@ -22,6 +22,24 @@ use function strtolower;
  */
 class Comparator
 {
+    /** @var AbstractPlatform */
+    private $platform;
+
+    public function __construct(?AbstractPlatform $platform = null)
+    {
+        if ($platform === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/4659',
+                'Not passing a $platform to %s is deprecated. Pass an instance of %s instead.',
+                __METHOD__,
+                AbstractPlatform::class
+            );
+        }
+
+        $this->platform = $platform;
+    }
+
     /**
      * @return SchemaDiff
      *
@@ -29,9 +47,9 @@ class Comparator
      */
     public static function compareSchemas(Schema $fromSchema, Schema $toSchema, ?AbstractPlatform $platform = null)
     {
-        $c = new self();
+        $c = new self($platform);
 
-        return $c->compare($fromSchema, $toSchema, $platform);
+        return $c->compare($fromSchema, $toSchema);
     }
 
     /**
@@ -45,18 +63,8 @@ class Comparator
      *
      * @throws SchemaException
      */
-    public function compare(Schema $fromSchema, Schema $toSchema, ?AbstractPlatform $platform = null)
+    public function compare(Schema $fromSchema, Schema $toSchema)
     {
-        if ($platform === null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/4659',
-                'Non passing a $platform to %s is deprecated. Pass an instance of %s instead.',
-                __METHOD__,
-                AbstractPlatform::class
-            );
-        }
-
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
@@ -85,8 +93,7 @@ class Comparator
             } else {
                 $tableDifferences = $this->diffTable(
                     $fromSchema->getTable($tableName),
-                    $toSchema->getTable($tableName),
-                    $platform
+                    $toSchema->getTable($tableName)
                 );
 
                 if ($tableDifferences !== false) {
@@ -212,18 +219,8 @@ class Comparator
      *
      * @throws SchemaException
      */
-    public function diffTable(Table $fromTable, Table $toTable, ?AbstractPlatform $platform = null)
+    public function diffTable(Table $fromTable, Table $toTable)
     {
-        if ($platform === null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/4659',
-                'Non passing a $platform to %s is deprecated. Pass an instance of %s instead.',
-                __METHOD__,
-                AbstractPlatform::class
-            );
-        }
-
         $changes                     = 0;
         $tableDifferences            = new TableDiff($fromTable->getName());
         $tableDifferences->fromTable = $fromTable;
@@ -251,7 +248,7 @@ class Comparator
             }
 
             // See if column has changed properties in "to" table.
-            $changedProperties = $this->diffColumn($column, $toTable->getColumn($columnName), $platform);
+            $changedProperties = $this->diffColumn($column, $toTable->getColumn($columnName));
 
             if (count($changedProperties) === 0) {
                 continue;
@@ -264,7 +261,7 @@ class Comparator
             $changes++;
         }
 
-        $this->detectColumnRenamings($tableDifferences, $platform);
+        $this->detectColumnRenamings($tableDifferences);
 
         $fromTableIndexes = $fromTable->getIndexes();
         $toTableIndexes   = $toTable->getIndexes();
@@ -341,12 +338,12 @@ class Comparator
      *
      * @return void
      */
-    private function detectColumnRenamings(TableDiff $tableDifferences, ?AbstractPlatform $platform = null)
+    private function detectColumnRenamings(TableDiff $tableDifferences)
     {
         $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
             foreach ($tableDifferences->removedColumns as $removedColumn) {
-                if (count($this->diffColumn($addedColumn, $removedColumn, $platform)) !== 0) {
+                if (count($this->diffColumn($addedColumn, $removedColumn)) !== 0) {
                     continue;
                 }
 
@@ -460,27 +457,20 @@ class Comparator
      *
      * @return string[]
      */
-    public function diffColumn(Column $column1, Column $column2, ?AbstractPlatform $platform = null)
+    public function diffColumn(Column $column1, Column $column2)
     {
-        if ($platform === null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/4659',
-                'Non passing a $platform to %s is deprecated. Pass an instance of %s instead.',
-                __METHOD__,
-                AbstractPlatform::class
-            );
-
+        if ($this->platform === null) {
             return $this->diffColumnDeprecated($column1, $column2);
         }
 
         // Report no difference if the SQL for both columns is equal
-        if ($this->generateColumnSQL($column1, $platform) === $this->generateColumnSQL($column2, $platform)) {
+        if ($this->generateColumnSQL($column1) === $this->generateColumnSQL($column2)) {
             return [];
         }
 
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
+
         $changedProperties = [];
 
         foreach (array_keys(array_merge($properties1, $properties2)) as $key) {
@@ -587,16 +577,18 @@ class Comparator
         return array_unique($changedProperties);
     }
 
-    private function generateColumnSQL(Column $column, AbstractPlatform $platform): string
+    private function generateColumnSQL(Column $column): string
     {
-        if ($platform->isCommentedDoctrineType($column->getType())) {
+        if ($this->platform->isCommentedDoctrineType($column->getType())) {
             $column = clone $column;
-            $column->setComment(($column->getComment() ?? '') . $platform->getDoctrineTypeComment($column->getType()));
+            $column->setComment(
+                ($column->getComment() ?? '') . $this->platform->getDoctrineTypeComment($column->getType())
+            );
         }
 
-        $sql = $platform->getColumnDeclarationSQL('name', $column->toArray());
+        $sql = $this->platform->getColumnDeclarationSQL('name', $column->toArray());
 
-        if (! $platform->supportsInlineColumnComments()) {
+        if (! $this->platform->supportsInlineColumnComments()) {
             $sql .= ' -- ' . $column->getComment();
         }
 

@@ -958,7 +958,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         // quoted -> quoted
         $toTable->addColumn('`baz`', 'integer', ['comment' => 'Quoted 3']);
 
-        $diff = (new Comparator())->diffTable($fromTable, $toTable, $this->platform);
+        $diff = (new Comparator($this->platform))->diffTable($fromTable, $toTable);
         self::assertNotFalse($diff);
 
         self::assertEquals(
@@ -996,7 +996,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $toTable->addColumn('table', 'string', ['comment' => 'Reserved keyword 2', 'length' => 255]);
         $toTable->addColumn('select', 'string', ['comment' => 'Reserved keyword 3', 'length' => 255]);
 
-        $diff = (new Comparator())->diffTable($fromTable, $toTable, $this->platform);
+        $diff = (new Comparator($this->platform))->diffTable($fromTable, $toTable);
         self::assertNotFalse($diff);
 
         self::assertEquals(

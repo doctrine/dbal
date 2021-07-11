@@ -575,11 +575,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $table2->addColumn('column_varbinary', 'binary', ['fixed' => true]);
         $table2->addColumn('column_binary', 'binary');
 
-        $comparator = new Comparator();
-
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
-        $diff = (new Comparator())->diffTable($table1, $table2, $this->platform);
+        $diff = (new Comparator($this->platform))->diffTable($table1, $table2);
         self::assertFalse($diff);
     }
 
@@ -777,9 +775,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
 
-        $comparator = new Comparator();
+        $comparator = new Comparator($this->platform);
 
-        $tableDiff = $comparator->diffTable($table1, $table2, $this->platform);
+        $tableDiff = $comparator->diffTable($table1, $table2);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertSame(

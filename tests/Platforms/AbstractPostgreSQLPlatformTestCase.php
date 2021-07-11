@@ -590,7 +590,7 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $oldTable->addColumn('parent_id', 'integer');
         $oldTable->addForeignKeyConstraint('mytable', ['parent_id'], ['id']);
 
-        $diff = (new Comparator())->diffTable($oldTable, $newTable, $this->platform);
+        $diff = (new Comparator($this->platform))->diffTable($oldTable, $newTable);
         self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -666,12 +666,12 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $table2->addColumn('column_binary', 'binary');
         $table2->addColumn('column_blob', 'binary');
 
-        $comparator = new Comparator();
+        $comparator = new Comparator($this->platform);
 
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
         // BLOB      -> VARBINARY
-        $diff = $comparator->diffTable($table1, $table2, $this->platform);
+        $diff = $comparator->diffTable($table1, $table2);
         self::assertFalse($diff);
 
         $table2 = new Table('mytable');
@@ -682,7 +682,7 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         // VARBINARY -> VARBINARY with changed length
         // BINARY    -> BLOB
         // BLOB      -> BINARY
-        $diff = $comparator->diffTable($table1, $table2, $this->platform);
+        $diff = $comparator->diffTable($table1, $table2);
         self::assertFalse($diff);
 
         $table2 = new Table('mytable');
@@ -693,7 +693,7 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         // VARBINARY -> BLOB
         // BINARY    -> BINARY with changed length
         // BLOB      -> BLOB
-        $diff = $comparator->diffTable($table1, $table2, $this->platform);
+        $diff = $comparator->diffTable($table1, $table2);
         self::assertFalse($diff);
     }
 
@@ -860,9 +860,9 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
 
-        $comparator = new Comparator();
+        $comparator = new Comparator($this->platform);
 
-        $tableDiff = $comparator->diffTable($table1, $table2, $this->platform);
+        $tableDiff = $comparator->diffTable($table1, $table2);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertSame(
@@ -876,9 +876,9 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime'))]);
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime_immutable'))]);
 
-        $comparator = new Comparator();
+        $comparator = new Comparator($this->platform);
 
-        $tableDiff = $comparator->diffTable($table1, $table2, $this->platform);
+        $tableDiff = $comparator->diffTable($table1, $table2);
 
         self::assertNotFalse($tableDiff);
         self::assertSame(

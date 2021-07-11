@@ -18,8 +18,8 @@ class MySQLSchemaTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->comparator = new Comparator();
         $this->platform   = new MySQLPlatform();
+        $this->comparator = new Comparator($this->platform);
     }
 
     public function testSwitchPrimaryKeyOrder(): void
@@ -32,7 +32,7 @@ class MySQLSchemaTest extends TestCase
         $tableOld->setPrimaryKey(['foo_id', 'bar_id']);
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
-        $diff = $this->comparator->diffTable($tableOld, $tableNew, $this->platform);
+        $diff = $this->comparator->diffTable($tableOld, $tableNew);
         self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -75,7 +75,7 @@ class MySQLSchemaTest extends TestCase
 
         $tableNew->setPrimaryKey(['id']);
 
-        $diff = $this->comparator->diffTable($tableOld, $tableNew, $this->platform);
+        $diff = $this->comparator->diffTable($tableOld, $tableNew);
         self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);

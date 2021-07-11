@@ -437,8 +437,8 @@ class Schema extends AbstractAsset
      */
     public function getMigrateToSql(Schema $toSchema, AbstractPlatform $platform)
     {
-        $comparator = new Comparator();
-        $schemaDiff = $comparator->compare($this, $toSchema, $platform);
+        $comparator = new Comparator($platform);
+        $schemaDiff = $comparator->compare($this, $toSchema);
 
         return $schemaDiff->toSql($platform);
     }
@@ -450,8 +450,8 @@ class Schema extends AbstractAsset
      */
     public function getMigrateFromSql(Schema $fromSchema, AbstractPlatform $platform)
     {
-        $comparator = new Comparator();
-        $schemaDiff = $comparator->compare($fromSchema, $this, $platform);
+        $comparator = new Comparator($platform);
+        $schemaDiff = $comparator->compare($fromSchema, $this);
 
         return $schemaDiff->toSql($platform);
     }

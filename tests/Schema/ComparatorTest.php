@@ -117,8 +117,8 @@ class ComparatorTest extends TestCase
         $column1 = new Column('foo', Type::getType('integer'), ['autoincrement' => true]);
         $column2 = new Column('foo', Type::getType('integer'), ['autoincrement' => false]);
 
-        $comparator        = new Comparator();
-        $changedProperties = $comparator->diffColumn($column1, $column2, $this->platform);
+        $comparator        = new Comparator($this->platform);
+        $changedProperties = $comparator->diffColumn($column1, $column2);
 
         self::assertEquals(['autoincrement'], $changedProperties);
     }
@@ -203,9 +203,9 @@ class ComparatorTest extends TestCase
         $column1 = new Column('charcolumn1', Type::getType('string'));
         $column2 = new Column('charcolumn1', Type::getType('integer'));
 
-        $c = new Comparator();
-        self::assertEquals(['type'], $c->diffColumn($column1, $column2, $this->platform));
-        self::assertEquals([], $c->diffColumn($column1, $column1, $this->platform));
+        $c = new Comparator($this->platform);
+        self::assertEquals(['type'], $c->diffColumn($column1, $column2));
+        self::assertEquals([], $c->diffColumn($column1, $column1));
     }
 
     public function testCompareColumnsMultipleTypeInstances(): void
@@ -217,8 +217,8 @@ class ComparatorTest extends TestCase
         $column1 = new Column('integercolumn1', $integerType1);
         $column2 = new Column('integercolumn1', $integerType2);
 
-        $c = new Comparator();
-        self::assertEquals([], $c->diffColumn($column1, $column2, $this->platform));
+        $c = new Comparator($this->platform);
+        self::assertEquals([], $c->diffColumn($column1, $column2));
     }
 
     public function testCompareColumnsOverriddenType(): void
@@ -234,8 +234,8 @@ class ComparatorTest extends TestCase
         $column1 = new Column('integercolumn1', $integerType);
         $column2 = new Column('integercolumn1', $overriddenStringType);
 
-        $c = new Comparator();
-        self::assertEquals([], $c->diffColumn($column1, $column2, $this->platform));
+        $c = new Comparator($this->platform);
+        self::assertEquals([], $c->diffColumn($column1, $column2));
     }
 
     public function testCompareChangedColumnsChangeCustomSchemaOption(): void
@@ -249,9 +249,9 @@ class ComparatorTest extends TestCase
         $column1->setCustomSchemaOption('charset', 'utf8');
         $column2->setCustomSchemaOption('check', 'check');
 
-        $c = new Comparator();
-        self::assertEquals(['charset', 'check'], $c->diffColumn($column1, $column2, $this->platform));
-        self::assertEquals([], $c->diffColumn($column1, $column1, $this->platform));
+        $c = new Comparator($this->platform);
+        self::assertEquals(['charset', 'check'], $c->diffColumn($column1, $column2));
+        self::assertEquals([], $c->diffColumn($column1, $column1));
     }
 
     public function testCompareChangeColumnsMultipleNewColumnsRename(): void
@@ -263,7 +263,7 @@ class ComparatorTest extends TestCase
         $tableB->addColumn('new_datecolumn1', 'datetime');
         $tableB->addColumn('new_datecolumn2', 'datetime');
 
-        $tableDiff = (new Comparator())->diffTable($tableA, $tableB, $this->platform);
+        $tableDiff = (new Comparator($this->platform))->diffTable($tableA, $tableB);
         self::assertNotFalse($tableDiff);
 
         self::assertCount(1, $tableDiff->renamedColumns);
@@ -512,8 +512,8 @@ class ComparatorTest extends TestCase
 
         $schema2 = new Schema();
 
-        $c          = new Comparator();
-        $diffSchema = $c->compare($schema1, $schema2, $this->platform);
+        $c          = new Comparator($this->platform);
+        $diffSchema = $c->compare($schema1, $schema2);
 
         self::assertCount(1, $diffSchema->removedSequences);
         self::assertSame($seq, $diffSchema->removedSequences[0]);
@@ -526,8 +526,8 @@ class ComparatorTest extends TestCase
         $schema2 = new Schema();
         $seq     = $schema2->createSequence('foo');
 
-        $c          = new Comparator();
-        $diffSchema = $c->compare($schema1, $schema2, $this->platform);
+        $c          = new Comparator($this->platform);
+        $diffSchema = $c->compare($schema1, $schema2);
 
         self::assertCount(1, $diffSchema->newSequences);
         self::assertSame($seq, $diffSchema->newSequences[0]);
@@ -545,8 +545,8 @@ class ComparatorTest extends TestCase
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign, ['fk'], ['id']);
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($table1, $table2, $this->platform);
+        $c         = new Comparator($this->platform);
+        $tableDiff = $c->diffTable($table1, $table2);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertCount(1, $tableDiff->addedForeignKeys);
@@ -564,8 +564,8 @@ class ComparatorTest extends TestCase
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign, ['fk'], ['id']);
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($table2, $table1, $this->platform);
+        $c         = new Comparator($this->platform);
+        $tableDiff = $c->diffTable($table2, $table1);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertCount(1, $tableDiff->removedForeignKeys);
@@ -584,8 +584,8 @@ class ComparatorTest extends TestCase
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign, ['fk'], ['id'], ['onUpdate' => 'CASCADE']);
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($table1, $table2, $this->platform);
+        $c         = new Comparator($this->platform);
+        $tableDiff = $c->diffTable($table1, $table2);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertCount(1, $tableDiff->changedForeignKeys);
@@ -607,8 +607,8 @@ class ComparatorTest extends TestCase
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign2, ['fk'], ['id']);
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($table1, $table2, $this->platform);
+        $c         = new Comparator($this->platform);
+        $tableDiff = $c->diffTable($table1, $table2);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertCount(1, $tableDiff->changedForeignKeys);
@@ -628,8 +628,8 @@ class ComparatorTest extends TestCase
         $schemaB->createTable('Baz');
         $schemaB->createTable('old');
 
-        $c    = new Comparator();
-        $diff = $c->compare($schemaA, $schemaB, $this->platform);
+        $c    = new Comparator($this->platform);
+        $diff = $c->compare($schemaA, $schemaB);
 
         $this->assertSchemaTableChangeCount($diff, 1, 0, 1);
     }
@@ -648,8 +648,8 @@ class ComparatorTest extends TestCase
         $schemaB->createSequence('baz');
         $schemaB->createSequence('old');
 
-        $c    = new Comparator();
-        $diff = $c->compare($schemaA, $schemaB, $this->platform);
+        $c    = new Comparator($this->platform);
+        $diff = $c->compare($schemaA, $schemaB);
 
         $this->assertSchemaSequenceChangeCount($diff, 1, 0, 1);
     }
@@ -662,8 +662,8 @@ class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('ID', 'integer');
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($tableA, $tableB, $this->platform);
+        $c         = new Comparator($this->platform);
+        $tableDiff = $c->diffTable($tableA, $tableB);
 
         self::assertFalse($tableDiff);
     }
@@ -678,14 +678,14 @@ class ComparatorTest extends TestCase
         $tableB->addColumn('ID', 'integer');
         $tableB->addIndex(['id'], 'bar_foo_idx');
 
-        $c                                        = new Comparator();
+        $c                                        = new Comparator($this->platform);
         $tableDiff                                = new TableDiff('foo');
         $tableDiff->fromTable                     = $tableA;
         $tableDiff->renamedIndexes['foo_bar_idx'] = new Index('bar_foo_idx', ['id']);
 
         self::assertEquals(
             $tableDiff,
-            $c->diffTable($tableA, $tableB, $this->platform)
+            $c->diffTable($tableA, $tableB)
         );
     }
 
@@ -699,8 +699,8 @@ class ComparatorTest extends TestCase
         $tableB->addColumn('ID', 'integer');
         $tableB->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'bar_constraint');
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($tableA, $tableB, $this->platform);
+        $c         = new Comparator($this->platform);
+        $tableDiff = $c->diffTable($tableA, $tableB);
 
         self::assertFalse($tableDiff);
     }
@@ -731,7 +731,7 @@ class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('bar', 'integer');
 
-        $tableDiff = (new Comparator())->diffTable($tableA, $tableB, $this->platform);
+        $tableDiff = (new Comparator($this->platform))->diffTable($tableA, $tableB);
         self::assertNotFalse($tableDiff);
 
         self::assertCount(0, $tableDiff->addedColumns);
@@ -754,7 +754,7 @@ class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('baz', 'integer');
 
-        $tableDiff = (new Comparator())->diffTable($tableA, $tableB, $this->platform);
+        $tableDiff = (new Comparator($this->platform))->diffTable($tableA, $tableB);
         self::assertNotFalse($tableDiff);
 
         self::assertCount(1, $tableDiff->addedColumns);
@@ -776,7 +776,7 @@ class ComparatorTest extends TestCase
 
         $table2->addIndex(['foo'], 'idx_bar');
 
-        $tableDiff = (new Comparator())->diffTable($table1, $table2, $this->platform);
+        $tableDiff = (new Comparator($this->platform))->diffTable($table1, $table2);
         self::assertNotFalse($tableDiff);
 
         self::assertCount(0, $tableDiff->addedIndexes);
@@ -802,7 +802,7 @@ class ComparatorTest extends TestCase
 
         $table2->addIndex(['foo'], 'idx_baz');
 
-        $tableDiff = (new Comparator())->diffTable($table1, $table2, $this->platform);
+        $tableDiff = (new Comparator($this->platform))->diffTable($table1, $table2);
         self::assertNotFalse($tableDiff);
 
         self::assertCount(1, $tableDiff->addedIndexes);
@@ -823,8 +823,8 @@ class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('id', 'integer', ['autoincrement' => true]);
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($tableA, $tableB, $this->platform);
+        $c         = new Comparator($this->platform);
+        $tableDiff = $c->diffTable($tableA, $tableB);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertArrayHasKey('id', $tableDiff->changedColumns);
@@ -845,8 +845,8 @@ class ComparatorTest extends TestCase
         $newtable->addColumn('logged_in_at', 'datetime');
         $newtable->setPrimaryKey(['id']);
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($table, $newtable, $this->platform);
+        $c         = new Comparator($this->platform);
+        $tableDiff = $c->diffTable($table, $newtable);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertEquals(['twitterid', 'displayname'], array_keys($tableDiff->renamedColumns));
@@ -862,8 +862,8 @@ class ComparatorTest extends TestCase
         $schemaNew = clone $schema;
         $schemaNew->getSequence('baz')->setAllocationSize(20);
 
-        $c    = new Comparator();
-        $diff = $c->compare($schema, $schemaNew, $this->platform);
+        $c    = new Comparator($this->platform);
+        $diff = $c->compare($schema, $schemaNew);
 
         self::assertSame($diff->changedSequences[0], $schemaNew->getSequence('baz'));
     }
@@ -878,8 +878,8 @@ class ComparatorTest extends TestCase
 
         $column2 = new Column('foo', Type::getType('decimal'));
 
-        $c = new Comparator();
-        self::assertEquals([], $c->diffColumn($column, $column2, $this->platform));
+        $c = new Comparator($this->platform);
+        self::assertEquals([], $c->diffColumn($column, $column2));
     }
 
     public function testFqnSchemaComparison(): void
@@ -969,8 +969,8 @@ class ComparatorTest extends TestCase
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
-        $c    = new Comparator();
-        $diff = $c->compare($oldSchema, $newSchema, $this->platform);
+        $c    = new Comparator($this->platform);
+        $diff = $c->compare($oldSchema, $newSchema);
 
         self::assertCount(0, $diff->removedSequences);
     }
@@ -991,8 +991,8 @@ class ComparatorTest extends TestCase
         $table->setPrimaryKey(['id']);
         $newSchema->createSequence('foo_id_seq');
 
-        $c    = new Comparator();
-        $diff = $c->compare($oldSchema, $newSchema, $this->platform);
+        $c    = new Comparator($this->platform);
+        $diff = $c->compare($oldSchema, $newSchema);
 
         self::assertCount(0, $diff->newSequences);
     }
@@ -1029,8 +1029,8 @@ class ComparatorTest extends TestCase
         $tableC = $newSchema->createTable('table_c');
         $tableC->addColumn('id', 'integer');
 
-        $comparator = new Comparator();
-        $schemaDiff = $comparator->compare($oldSchema, $newSchema, $this->platform);
+        $comparator = new Comparator($this->platform);
+        $schemaDiff = $comparator->compare($oldSchema, $newSchema);
 
         self::assertCount(1, $schemaDiff->changedTables['table_c']->removedForeignKeys);
         self::assertCount(1, $schemaDiff->orphanedForeignKeys);
@@ -1155,15 +1155,15 @@ class ComparatorTest extends TestCase
             'platformOptions' => ['foo' => 'bar'],
         ]);
 
-        $comparator = new Comparator();
+        $comparator = new Comparator($this->platform);
 
-        self::assertEquals([], $comparator->diffColumn($column1, $column2, $this->platform));
-        self::assertEquals([], $comparator->diffColumn($column2, $column1, $this->platform));
+        self::assertEquals([], $comparator->diffColumn($column1, $column2));
+        self::assertEquals([], $comparator->diffColumn($column2, $column1));
     }
 
     public function testComparesNamespaces(): void
     {
-        $comparator = new Comparator();
+        $comparator = new Comparator($this->platform);
         $fromSchema = $this->getMockBuilder(Schema::class)
             ->onlyMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
@@ -1192,12 +1192,12 @@ class ComparatorTest extends TestCase
         $expected->newNamespaces     = ['baz' => 'baz'];
         $expected->removedNamespaces = ['foo' => 'foo'];
 
-        self::assertEquals($expected, $comparator->compare($fromSchema, $toSchema, $this->platform));
+        self::assertEquals($expected, $comparator->compare($fromSchema, $toSchema));
     }
 
     public function testCompareGuidColumns(): void
     {
-        $comparator = new Comparator();
+        $comparator = new Comparator($this->platform);
 
         $column1 = new Column('foo', Type::getType('guid'), ['comment' => 'GUID 1']);
         $column2 = new Column(
@@ -1206,8 +1206,8 @@ class ComparatorTest extends TestCase
             ['notnull' => false, 'length' => '36', 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.']
         );
 
-        $diff1 = $comparator->diffColumn($column1, $column2, $this->platform);
-        $diff2 = $comparator->diffColumn($column2, $column1, $this->platform);
+        $diff1 = $comparator->diffColumn($column1, $column2);
+        $diff2 = $comparator->diffColumn($column2, $column1);
 
         self::assertContains('notnull', $diff1);
         self::assertContains('default', $diff1);
@@ -1226,15 +1226,15 @@ class ComparatorTest extends TestCase
         $column1 = new Column('foo', Type::getType('integer'), ['comment' => $comment1]);
         $column2 = new Column('foo', Type::getType('integer'), ['comment' => $comment2]);
 
-        $comparator = new Comparator();
+        $comparator = new Comparator($this->platform);
 
         $expectedDiff = $equals ? [] : ['comment'];
 
-        $actualDiff = $comparator->diffColumn($column1, $column2, $this->platform);
+        $actualDiff = $comparator->diffColumn($column1, $column2);
 
         self::assertSame($expectedDiff, $actualDiff);
 
-        $actualDiff = $comparator->diffColumn($column2, $column1, $this->platform);
+        $actualDiff = $comparator->diffColumn($column2, $column1);
 
         self::assertSame($expectedDiff, $actualDiff);
     }

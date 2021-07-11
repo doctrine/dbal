@@ -181,7 +181,7 @@ SQL;
 
         $onlineTable = $this->schemaManager->listTableDetails($tableName);
 
-        $diff = (new Comparator())->diffTable($offlineTable, $onlineTable, new SqlitePlatform());
+        $diff = (new Comparator(new SqlitePlatform()))->diffTable($offlineTable, $onlineTable);
 
         self::assertFalse($diff);
     }

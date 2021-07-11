@@ -22,7 +22,7 @@ class ComparatorTest extends FunctionalTestCase
         parent::setUp();
 
         $this->schemaManager = $this->connection->getSchemaManager();
-        $this->comparator    = new Comparator();
+        $this->comparator    = new Comparator($this->schemaManager->getDatabasePlatform());
     }
 
     /**
@@ -40,7 +40,7 @@ class ComparatorTest extends FunctionalTestCase
         $onlineTable = $this->schemaManager->listTableDetails('default_value');
 
         self::assertFalse(
-            $this->comparator->diffTable($table, $onlineTable, $this->schemaManager->getDatabasePlatform())
+            $this->comparator->diffTable($table, $onlineTable)
         );
     }
 

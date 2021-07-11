@@ -97,7 +97,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->changeColumn('foo', ['notnull' => false]);
         $diffTable->changeColumn('bar', ['length' => 1024]);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable, $this->schemaManager->getDatabasePlatform());
+        $diff = (new Comparator($this->schemaManager->getDatabasePlatform()))->diffTable($table, $diffTable);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
