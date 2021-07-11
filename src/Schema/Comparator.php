@@ -474,7 +474,32 @@ class Comparator
             return count($this->diffColumn($column1, $column2)) !== 0;
         }
 
-        return $this->generateColumnSQL($column1) !== $this->generateColumnSQL($column2);
+        if ($this->platform->getColumnSQL('name', $column1) !== $this->platform->getColumnSQL('name', $column2)) {
+            return true;
+        }
+
+        // If the platform supports inline comments, all comparison is already done by the column SQL
+        if ($this->platform->supportsInlineColumnComments()) {
+            return false;
+        }
+
+        // Compare comments
+        if ($column1->getComment() !== $column2->getComment()) {
+            return true;
+        }
+
+        // Compare type comments
+        if (
+            $column1->getType() !== $column2->getType()
+            && (
+                $this->platform->isCommentedDoctrineType($column1->getType())
+                || $this->platform->isCommentedDoctrineType($column2->getType())
+            )
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -571,24 +596,6 @@ class Comparator
         }
 
         return array_unique($changedProperties);
-    }
-
-    private function generateColumnSQL(Column $column): string
-    {
-        if ($this->platform->isCommentedDoctrineType($column->getType())) {
-            $column = clone $column;
-            $column->setComment(
-                ($column->getComment() ?? '') . $this->platform->getDoctrineTypeComment($column->getType())
-            );
-        }
-
-        $sql = $this->platform->getColumnDeclarationSQL('name', $column->toArray());
-
-        if (! $this->platform->supportsInlineColumnComments()) {
-            $sql .= ' -- ' . $column->getComment();
-        }
-
-        return $sql;
     }
 
     /**

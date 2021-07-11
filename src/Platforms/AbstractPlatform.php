@@ -1566,23 +1566,13 @@ abstract class AbstractPlatform
                 }
             }
 
-            $name = $column->getQuotedName($this);
-
-            $columnData = array_merge($column->toArray(), [
-                'name' => $name,
-                'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
-                'comment' => $this->getColumnComment($column),
-            ]);
-
-            if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
-                $columnData['length'] = 255;
-            }
+            $columnData = $this->_getColumnArrayFromColumn($column);
 
             if (in_array($column->getName(), $options['primary'], true)) {
                 $columnData['primary'] = true;
             }
 
-            $columns[$name] = $columnData;
+            $columns[$columnData['name']] = $columnData;
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
@@ -1614,6 +1604,28 @@ abstract class AbstractPlatform
         }
 
         return array_merge($sql, $columnSql);
+    }
+
+    /**
+     * @return mixed[] An associative array with the name of the properties
+     *                 of the column being declared as array indexes.
+     *                 See getColumnDeclarationSQL() for more information.
+     */
+    protected function _getColumnArrayFromColumn(Column $column): array
+    {
+        $name = $column->getQuotedName($this);
+
+        $columnData = array_merge($column->toArray(), [
+            'name' => $name,
+            'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
+            'comment' => $this->getColumnComment($column),
+        ]);
+
+        if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
+            $columnData['length'] = 255;
+        }
+
+        return $columnData;
     }
 
     protected function getCommentOnTableSQL(string $tableName, ?string $comment): string
@@ -2252,6 +2264,13 @@ abstract class AbstractPlatform
         }
 
         return $name . ' ' . $declaration;
+    }
+
+    public function getColumnSQL(string $name, Column $column): string
+    {
+        $columnData = $this->_getColumnArrayFromColumn($column);
+
+        return $this->getColumnDeclarationSQL($name, $columnData);
     }
 
     /**
