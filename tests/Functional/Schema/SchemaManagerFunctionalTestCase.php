@@ -30,6 +30,7 @@ use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 
+use Doctrine\DBAL\Types\Types;
 use function array_filter;
 use function array_keys;
 use function array_map;
@@ -1413,6 +1414,17 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $table = $this->schemaManager->listTableDetails('table_with_comment');
         self::assertSame('Foo with control characters \'\\', $table->getComment());
+    }
+
+    public function testDatetimeTzColumnType(): void
+    {
+        $table = new Table('test_datetimetz');
+        $table->addColumn('col_datetimetz', 'datetimetz');
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $columns = $this->schemaManager->listTableColumns('test_datetimetz');
+
+        self::assertSame(Types::DATETIMETZ_MUTABLE, $columns['col_datetimetz']->getType()->getName());
     }
 }
 
