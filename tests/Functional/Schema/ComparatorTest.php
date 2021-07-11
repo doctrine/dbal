@@ -39,9 +39,20 @@ class ComparatorTest extends FunctionalTestCase
 
         $onlineTable = $this->schemaManager->listTableDetails('default_value');
 
-        self::assertFalse(
-            $this->comparator->diffTable($table, $onlineTable)
-        );
+        self::assertFalse($this->comparator->diffTable($table, $onlineTable));
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @dataProvider defaultValueProvider
+     */
+    public function testDefaultValueComparisonDeprecatedComparator(string $type, $value): void
+    {
+        // Comparator without platform is deprecated
+        $this->comparator = new Comparator();
+
+        $this->testDefaultValueComparison($type, $value);
     }
 
     /**
