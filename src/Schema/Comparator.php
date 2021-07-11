@@ -489,17 +489,11 @@ class Comparator
         }
 
         // Compare type comments
-        if (
-            $column1->getType() !== $column2->getType()
+        return $column1->getType() !== $column2->getType()
             && (
                 $this->platform->isCommentedDoctrineType($column1->getType())
                 || $this->platform->isCommentedDoctrineType($column2->getType())
-            )
-        ) {
-            return true;
-        }
-
-        return false;
+            );
     }
 
     /**
