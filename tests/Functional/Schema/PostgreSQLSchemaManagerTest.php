@@ -494,6 +494,31 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
+
+    public function testGetDetailsWithTwoSameTablesOnDifferentSchemas(): void
+    {
+        $createTableSQL = 'CREATE TABLE migrations(a text);';
+        $this->connection->executeStatement($createTableSQL);
+        $createTableSQL = 'CREATE TABLE "001_test".migrations(a text);';
+        $this->connection->executeStatement($createTableSQL);
+        $this->connection->executeStatement('SET search_path TO "001_test",public');
+
+        $table = new Table('migrations');
+        $table->addColumn('a', 'text');
+
+        try
+        {
+            $databaseTable = $this->schemaManager->listTableDetails('migrations');
+        } catch (\Exception $e) {
+            $databaseTable = null;
+        }
+
+        $c    = new Comparator();
+        $diff = $c->diffTable($table, $databaseTable);
+
+        self::assertNotFalse($diff);
+    }
+
     /**
      * @return mixed[][]
      */
