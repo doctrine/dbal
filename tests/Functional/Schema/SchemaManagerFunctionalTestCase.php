@@ -29,8 +29,8 @@ use Doctrine\DBAL\Types\ObjectType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
-
 use Doctrine\DBAL\Types\Types;
+
 use function array_filter;
 use function array_keys;
 use function array_map;
