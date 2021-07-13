@@ -694,7 +694,9 @@ abstract class AbstractSchemaManager
      */
     public function migrateSchema(Schema $toSchema): void
     {
-        $this->alterSchema(Comparator::compareSchemas($this->createSchema(), $toSchema));
+        $schemaDiff = (new Comparator())->compareSchemas($this->createSchema(), $toSchema);
+
+        $this->alterSchema($schemaDiff);
     }
 
     /* alterTable() Methods */

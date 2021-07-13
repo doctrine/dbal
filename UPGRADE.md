@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated static calls to `Comparator::compareSchemas($fromSchema, $toSchema)`
+
+The usage of `Comparator::compareSchemas($fromSchema, $toSchema)` statically is
+deprecated in order to provide a more consistent API.
+
+## Deprecated `Comparator::compare($fromSchema, $toSchema)`
+
+The usage of `Comparator::compare($fromSchema, $toSchema)` is deprecated and 
+replaced by `Comparator::compareSchemas($fromSchema, $toSchema)` in order to
+clarify the purpose of the method.
+
 ## Deprecated `Connection::lastInsertId($name)`
 
 The usage of `Connection::lastInsertId()` with a sequence name is deprecated as unsafe in scenarios with multiple

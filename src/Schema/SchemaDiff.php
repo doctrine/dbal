@@ -7,7 +7,10 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function array_merge;
 
 /**
- * Schema Diff.
+ * Differences between two schemas.
+ *
+ * The object contains the operations to change the schema stored in $fromSchema
+ * to a target schema.
  */
 class SchemaDiff
 {
