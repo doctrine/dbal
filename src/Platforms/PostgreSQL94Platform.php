@@ -380,7 +380,7 @@ SQL
             [$schema, $table] = explode('.', $table);
             $schema           = $this->quoteStringLiteral($schema);
         } else {
-            $schema = "ANY(CASE WHEN CURRENT_SCHEMA <> 'public' THEN string_to_array(CURRENT_SCHEMA, ',') ELSE current_schemas(false) END)";
+            $schema = "ANY(string_to_array(CURRENT_SCHEMA, ','))";
         }
 
         $table = new Identifier($table);

@@ -519,6 +519,26 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNotFalse($diff);
     }
 
+    public function testGetDetailsWithTwoSameTablesOnDifferentSchemas2(): void
+    {
+        $this->connection->executeStatement('SET search_path TO public,"001_test"');
+
+        $table = new Table('migrations');
+        $table->addColumn('a', 'text');
+
+        try
+        {
+            $databaseTable = $this->schemaManager->listTableDetails('migrations');
+        } catch (\Exception $e) {
+            $databaseTable = null;
+        }
+
+        $c    = new Comparator();
+        $diff = $c->diffTable($table, $databaseTable);
+
+        self::assertNotFalse($diff);
+    }
+
     /**
      * @return mixed[][]
      */
