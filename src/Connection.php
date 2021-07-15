@@ -1237,6 +1237,8 @@ class Connection
 
             try {
                 $connection->commit();
+            } catch (Driver\Exception $e) {
+                throw $this->convertException($e);
             } finally {
                 $logger->stopQuery();
             }
@@ -1298,6 +1300,8 @@ class Connection
 
             try {
                 $connection->rollBack();
+            } catch (Driver\Exception $e) {
+                throw $this->convertException($e);
             } finally {
                 $this->isRollbackOnly = false;
                 $logger->stopQuery();
