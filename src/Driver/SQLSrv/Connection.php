@@ -64,9 +64,9 @@ final class Connection implements ServerInfoAwareConnection
         return $this->prepare($sql)->execute();
     }
 
-    public function quote(string $input): string
+    public function quote(string $value): string
     {
-        return "'" . str_replace("'", "''", $input) . "'";
+        return "'" . str_replace("'", "''", $value) . "'";
     }
 
     public function exec(string $sql): int

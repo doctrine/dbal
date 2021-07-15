@@ -324,9 +324,9 @@ SQL
                     ORDER BY a.attnum';
     }
 
-    public function getCreateDatabaseSQL(string $database): string
+    public function getCreateDatabaseSQL(string $name): string
     {
-        return 'CREATE DATABASE ' . $database;
+        return 'CREATE DATABASE ' . $name;
     }
 
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
@@ -638,6 +638,12 @@ SQL
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index) {
                 $sql[] = $this->getCreateIndexSQL($index, $name);
+            }
+        }
+
+        if (isset($options['uniqueConstraints'])) {
+            foreach ($options['uniqueConstraints'] as $uniqueConstraint) {
+                $sql[] = $this->getCreateConstraintSQL($uniqueConstraint, $name);
             }
         }
 

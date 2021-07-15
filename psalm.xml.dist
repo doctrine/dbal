@@ -60,6 +60,13 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::execute"/>
                 <referencedMethod name="Doctrine\DBAL\Statement::execute"/>
+                <!--
+                    See https://github.com/doctrine/dbal/pull/4707
+                    TODO: remove in 4.0.0
+                -->
+                <file name="src/Schema/Comparator.php" />
+                <file name="tests/Functional/Platform/NewPrimaryKeyWithNewAutoIncrementColumnTest.php" />
+                <file name="tests/Schema/ComparatorTest.php" />
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
@@ -85,6 +92,8 @@
                     See https://github.com/vimeo/psalm/issues/5325
                 -->
                 <file name="tests/Driver/OCI8/ExecutionModeTest.php"/>
+                <!-- See https://github.com/vimeo/psalm/issues/5472 -->
+                <file name="src/Portability/Converter.php"/>
             </errorLevel>
         </DocblockTypeContradiction>
         <FalsableReturnStatement>
@@ -117,6 +126,12 @@
                 <file name="src/Driver/OCI8/Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
+        <InvalidDocblock>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/5472 -->
+                <file name="src/Portability/Converter.php"/>
+            </errorLevel>
+        </InvalidDocblock>
         <InvalidPropertyAssignmentValue>
             <errorLevel type="suppress">
                 <!-- Fixing this issue requires an API change -->
@@ -175,23 +190,10 @@
         <RedundantConditionGivenDocblockType>
             <errorLevel type="suppress">
                 <!--
-                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1055
-                -->
-                <file name="src/Driver/Mysqli/Result.php"/>
-                <!--
-                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1053
-                -->
-                <file name="src/Driver/PDO/Result.php"/>
-                <!--
                     Fixing these issues requires support of union types at the language level
                     or breaking API changes.
                 -->
                 <file name="src/Platforms/MySQLPlatform.php"/>
-                <!--
-                    Requires a release of
-                    https://github.com/JetBrains/phpstorm-stubs/commit/43ce0bb13e927b9eb69cc06c16ab22f548c4735b
-                -->
-                <file name="src/Driver/Mysqli/Connection.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
         <TypeDoesNotContainType>
@@ -215,6 +217,12 @@
                 <file name="src/Tools/Dumper.php"/>
             </errorLevel>
         </UndefinedClass>
+        <UndefinedDocblockClass>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/5472 -->
+                <referencedClass name="Doctrine\DBAL\Portability\T"/>
+            </errorLevel>
+        </UndefinedDocblockClass>
         <UnsafeInstantiation>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/issues/4511 -->
@@ -231,6 +239,9 @@
             <errorLevel type="suppress">
                 <!-- See https://github.com/vimeo/psalm/issues/4295 -->
                 <file name="src/Exception/DriverException.php"/>
+
+                <!-- See https://bugs.php.net/bug.php?id=77591 -->
+                <referencedFunction name="db2_autocommit"/>
             </errorLevel>
         </InvalidScalarArgument>
         <InvalidReturnStatement>

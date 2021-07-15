@@ -461,6 +461,34 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($schema->hasTable('test_table'));
     }
 
+    public function testMigrateSchema(): void
+    {
+        $this->createTestTable('table_to_alter');
+        $this->createTestTable('table_to_drop');
+
+        $schema = $this->schemaManager->createSchema();
+
+        $tableToAlter = $schema->getTable('table_to_alter');
+        $tableToAlter->dropColumn('foreign_key_test');
+        $tableToAlter->addColumn('number', 'integer');
+
+        $schema->dropTable('table_to_drop');
+
+        $tableToCreate = $schema->createTable('table_to_create');
+        $tableToCreate->addColumn('id', 'integer', ['notnull' => true]);
+        $tableToCreate->setPrimaryKey(['id']);
+
+        $this->schemaManager->migrateSchema($schema);
+
+        $schema = $this->schemaManager->createSchema();
+
+        self::assertTrue($schema->hasTable('table_to_alter'));
+        self::assertFalse($schema->getTable('table_to_alter')->hasColumn('foreign_key_test'));
+        self::assertTrue($schema->getTable('table_to_alter')->hasColumn('number'));
+        self::assertFalse($schema->hasTable('table_to_drop'));
+        self::assertTrue($schema->hasTable('table_to_create'));
+    }
+
     public function testAlterTableScenario(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsAlterTable()) {

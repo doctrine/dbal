@@ -300,14 +300,14 @@ SQL
         );
     }
 
-    public function getCreateDatabaseSQL(string $database): string
+    public function getCreateDatabaseSQL(string $name): string
     {
-        return 'CREATE DATABASE ' . $database;
+        return 'CREATE DATABASE ' . $name;
     }
 
-    public function getDropDatabaseSQL(string $database): string
+    public function getDropDatabaseSQL(string $name): string
     {
-        return 'DROP DATABASE ' . $database;
+        return 'DROP DATABASE ' . $name;
     }
 
     /**

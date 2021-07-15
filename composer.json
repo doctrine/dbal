@@ -39,7 +39,7 @@
     },
     "require-dev": {
         "doctrine/coding-standard": "9.0.0",
-        "jetbrains/phpstorm-stubs": "2020.2",
+        "jetbrains/phpstorm-stubs": "2021.1",
         "phpstan/phpstan": "0.12.81",
         "phpstan/phpstan-phpunit": "0.12.18",
         "phpstan/phpstan-strict-rules": "0.12.2",
@@ -48,7 +48,7 @@
         "squizlabs/php_codesniffer": "3.6.0",
         "symfony/cache": "^5.2|^6.0",
         "symfony/console": "^2.0.5|^3.0|^4.0|^5.0|^6.0",
-        "vimeo/psalm": "4.6.4"
+        "vimeo/psalm": "4.8.1"
     },
     "suggest": {
         "symfony/console": "For helpful console commands such as SQL execution and import of files."

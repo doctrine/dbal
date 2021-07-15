@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_intersect_key;
 use function array_key_exists;
@@ -23,26 +24,15 @@ use function strtolower;
 class Comparator
 {
     /**
+     * Returns a SchemaDiff object containing the differences between the schemas $fromSchema and $toSchema.
+     *
+     * This method should be called non-statically since it will be declared as non-static in the next major release.
+     *
      * @throws SchemaException
      */
     public static function compareSchemas(Schema $fromSchema, Schema $toSchema): SchemaDiff
     {
-        $c = new self();
-
-        return $c->compare($fromSchema, $toSchema);
-    }
-
-    /**
-     * Returns a SchemaDiff object containing the differences between the schemas $fromSchema and $toSchema.
-     *
-     * The returned differences are returned in such a way that they contain the
-     * operations to change the schema stored in $fromSchema to the schema that is
-     * stored in $toSchema.
-     *
-     * @throws SchemaException
-     */
-    public function compare(Schema $fromSchema, Schema $toSchema): SchemaDiff
-    {
+        $comparator       = new self();
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
@@ -69,7 +59,7 @@ class Comparator
             if (! $fromSchema->hasTable($tableName)) {
                 $diff->newTables[$tableName] = $toSchema->getTable($tableName);
             } else {
-                $tableDifferences = $this->diffTable(
+                $tableDifferences = $comparator->diffTable(
                     $fromSchema->getTable($tableName),
                     $toSchema->getTable($tableName)
                 );
@@ -130,18 +120,18 @@ class Comparator
         foreach ($toSchema->getSequences() as $sequence) {
             $sequenceName = $sequence->getShortestName($toSchema->getName());
             if (! $fromSchema->hasSequence($sequenceName)) {
-                if (! $this->isAutoIncrementSequenceInSchema($fromSchema, $sequence)) {
+                if (! $comparator->isAutoIncrementSequenceInSchema($fromSchema, $sequence)) {
                     $diff->newSequences[] = $sequence;
                 }
             } else {
-                if ($this->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
+                if ($comparator->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
                     $diff->changedSequences[] = $toSchema->getSequence($sequenceName);
                 }
             }
         }
 
         foreach ($fromSchema->getSequences() as $sequence) {
-            if ($this->isAutoIncrementSequenceInSchema($toSchema, $sequence)) {
+            if ($comparator->isAutoIncrementSequenceInSchema($toSchema, $sequence)) {
                 continue;
             }
 
@@ -155,6 +145,24 @@ class Comparator
         }
 
         return $diff;
+    }
+
+    /**
+     * @deprecated Use non-static call to {@link compareSchemas()} instead.
+     *
+     * @return SchemaDiff
+     *
+     * @throws SchemaException
+     */
+    public function compare(Schema $fromSchema, Schema $toSchema)
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4707',
+            'Method compare() is deprecated. Use a non-static call to compareSchemas() instead.'
+        );
+
+        return $this->compareSchemas($fromSchema, $toSchema);
     }
 
     private function isAutoIncrementSequenceInSchema(Schema $schema, Sequence $sequence): bool

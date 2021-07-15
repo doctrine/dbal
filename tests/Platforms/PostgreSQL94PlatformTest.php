@@ -21,6 +21,21 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
         self::assertTrue($this->platform->supportsPartialIndexes());
     }
 
+    public function testGetCreateTableSQLWithUniqueConstraints(): void
+    {
+        $table = new Table('foo');
+        $table->addColumn('id', 'string');
+        $table->addUniqueConstraint(['id'], 'test_unique_constraint');
+        self::assertSame(
+            [
+                'CREATE TABLE foo (id VARCHAR NOT NULL)',
+                'ALTER TABLE foo ADD CONSTRAINT test_unique_constraint UNIQUE (id)',
+            ],
+            $this->platform->getCreateTableSQL($table),
+            'Unique constraints are added to table.'
+        );
+    }
+
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');

@@ -703,9 +703,9 @@ SQL
         }
     }
 
-    public function getDropDatabaseSQL(string $database): string
+    public function getDropDatabaseSQL(string $name): string
     {
-        return 'DROP USER ' . $database . ' CASCADE';
+        return 'DROP USER ' . $name . ' CASCADE';
     }
 
     /**

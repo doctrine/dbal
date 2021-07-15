@@ -571,6 +571,28 @@ abstract class AbstractSchemaManager
         $this->createView($view);
     }
 
+    /**
+     * Alters an existing schema.
+     *
+     * @throws Exception
+     */
+    public function alterSchema(SchemaDiff $schemaDiff): void
+    {
+        $this->_execSql($schemaDiff->toSql($this->_platform));
+    }
+
+    /**
+     * Migrates an existing schema to a new schema.
+     *
+     * @throws Exception
+     */
+    public function migrateSchema(Schema $toSchema): void
+    {
+        $schemaDiff = (new Comparator())->compareSchemas($this->createSchema(), $toSchema);
+
+        $this->alterSchema($schemaDiff);
+    }
+
     /* alterTable() Methods */
 
     /**
