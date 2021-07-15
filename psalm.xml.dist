@@ -139,6 +139,8 @@
                     See https://github.com/vimeo/psalm/issues/5325
                 -->
                 <file name="tests/Driver/OCI8/ExecutionModeTest.php"/>
+                <!-- See https://github.com/vimeo/psalm/issues/5472 -->
+                <file name="src/Portability/Converter.php"/>
             </errorLevel>
         </DocblockTypeContradiction>
         <FalsableReturnStatement>
@@ -162,6 +164,12 @@
                 <file name="src/Driver/OCI8/Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
+        <InvalidDocblock>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/5472 -->
+                <file name="src/Portability/Converter.php"/>
+            </errorLevel>
+        </InvalidDocblock>
         <InvalidNullableReturnType>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/issues/4503 -->
@@ -301,6 +309,12 @@
                 <file name="src/Tools/Dumper.php"/>
             </errorLevel>
         </UndefinedClass>
+        <UndefinedDocblockClass>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/5472 -->
+                <referencedClass name="Doctrine\DBAL\Portability\T"/>
+            </errorLevel>
+        </UndefinedDocblockClass>
         <UnsafeInstantiation>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/issues/4510 -->

@@ -38,29 +38,17 @@ final class Converter
      */
     public function __construct(bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case)
     {
-        $id =
-            /**
-             * @param T $value
-             *
-             * @return T
-             *
-             * @template T
-             */
-            static function ($value) {
-                return $value;
-            };
-
         $convertValue       = $this->createConvertValue($convertEmptyStringToNull, $rightTrimString);
         $convertNumeric     = $this->createConvertRow($convertValue, null);
         $convertAssociative = $this->createConvertRow($convertValue, $case);
 
-        $this->convertNumeric     = $this->createConvert($convertNumeric, $id);
-        $this->convertAssociative = $this->createConvert($convertAssociative, $id);
-        $this->convertOne         = $this->createConvert($convertValue, $id);
+        $this->convertNumeric     = $this->createConvert($convertNumeric, [self::class, 'id']);
+        $this->convertAssociative = $this->createConvert($convertAssociative, [self::class, 'id']);
+        $this->convertOne         = $this->createConvert($convertValue, [self::class, 'id']);
 
-        $this->convertAllNumeric     = $this->createConvertAll($convertNumeric, $id);
-        $this->convertAllAssociative = $this->createConvertAll($convertAssociative, $id);
-        $this->convertFirstColumn    = $this->createConvertAll($convertValue, $id);
+        $this->convertAllNumeric     = $this->createConvertAll($convertNumeric, [self::class, 'id']);
+        $this->convertAllAssociative = $this->createConvertAll($convertAssociative, [self::class, 'id']);
+        $this->convertFirstColumn    = $this->createConvertAll($convertValue, [self::class, 'id']);
     }
 
     /**
@@ -124,6 +112,51 @@ final class Converter
     }
 
     /**
+     * @param T $value
+     *
+     * @return T
+     *
+     * @template T
+     */
+    private static function id($value)
+    {
+        return $value;
+    }
+
+    /**
+     * @param T $value
+     *
+     * @return T|null
+     *
+     * @template T
+     */
+    private static function convertEmptyStringToNull($value)
+    {
+        if ($value === '') {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param T $value
+     *
+     * @return T|string
+     * @psalm-return (T is string ? string : T)
+     *
+     * @template T
+     */
+    private static function rightTrimString($value)
+    {
+        if (! is_string($value)) {
+            return $value;
+        }
+
+        return rtrim($value);
+    }
+
+    /**
      * Creates a function that will convert each individual value retrieved from the database
      *
      * @param bool $convertEmptyStringToNull Whether each empty string should be converted to NULL
@@ -136,39 +169,11 @@ final class Converter
         $functions = [];
 
         if ($convertEmptyStringToNull) {
-            $functions[] =
-                /**
-                 * @param T $value
-                 *
-                 * @return T|null
-                 *
-                 * @template T
-                 */
-                static function ($value) {
-                    if ($value === '') {
-                        return null;
-                    }
-
-                    return $value;
-                };
+            $functions[] = [self::class, 'convertEmptyStringToNull'];
         }
 
         if ($rightTrimString) {
-            $functions[] =
-                /**
-                 * @param T $value
-                 *
-                 * @psalm-return (T is string ? string : T)
-                 *
-                 * @template T
-                 */
-                static function ($value) {
-                    if (! is_string($value)) {
-                        return $value;
-                    }
-
-                    return rtrim($value);
-                };
+            $functions[] = [self::class, 'rightTrimString'];
         }
 
         return $this->compose(...$functions);
