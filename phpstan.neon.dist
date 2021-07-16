@@ -143,14 +143,6 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/Driver/OCI8/Statement.php
 
-        # See https://github.com/doctrine/dbal/pull/4707
-        # TODO: remove in 4.0.0
-        -
-            message: '~^Dynamic call to static method Doctrine\\DBAL\\Schema\\Comparator::compareSchemas\(\)\.$~'
-            paths:
-                - %currentWorkingDirectory%/src/Schema/AbstractSchemaManager.php
-                - %currentWorkingDirectory%/src/Schema/Comparator.php
-                - %currentWorkingDirectory%/src/Schema/Schema.php
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

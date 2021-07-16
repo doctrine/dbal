@@ -49,7 +49,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         $newTable->dropPrimaryKey();
         $newTable->setPrimaryKey(['new_id']);
 
-        $diff = (new Comparator())->compare($schema, $newSchema);
+        $diff = (new Comparator())->compareSchemas($schema, $newSchema);
 
         foreach ($diff->toSql($this->getPlatform()) as $sql) {
             $this->connection->executeStatement($sql);
