@@ -157,6 +157,14 @@ class ConnectionTest extends FunctionalTestCase
         $this->connection->setNestTransactionsWithSavepoints(true);
     }
 
+    public function testTransactionIsInactiveAfterConnectionClose(): void
+    {
+        $this->connection->beginTransaction();
+        $this->connection->close();
+
+        self::assertFalse($this->connection->isTransactionActive());
+    }
+
     public function testSetNestedTransactionsThroughSavepointsNotSupportedThrowsException(): void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {

@@ -220,10 +220,10 @@ class ExpressionBuilder
     }
 
     /**
-     * Creates a IN () comparison expression with the given arguments.
+     * Creates an IN () comparison expression with the given arguments.
      *
-     * @param string          $x The field in string format to be inspected by IN() comparison.
-     * @param string|string[] $y The placeholder or the array of values to be used by IN() comparison.
+     * @param string          $x The SQL expression to be matched against the set.
+     * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
      */
     public function in(string $x, $y): string
     {
@@ -233,8 +233,8 @@ class ExpressionBuilder
     /**
      * Creates a NOT IN () comparison expression with the given arguments.
      *
-     * @param string          $x The expression to be inspected by NOT IN() comparison.
-     * @param string|string[] $y The placeholder or the array of values to be used by NOT IN() comparison.
+     * @param string          $x The SQL expression to be matched against the set.
+     * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
      */
     public function notIn(string $x, $y): string
     {
