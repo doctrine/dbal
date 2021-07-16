@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed static keyword from `Comparator::compareSchemas()` signature
+
+The method `Comparator::compareSchemas()` cannot be called statically anymore.
+
+## Removed `Comparator::compare()`
+
+The method `Comparator::compare()` has been removed, use `Comparator::compareSchemas()` instead.
+
 ## Removed `TableGenerator` component
 
 The `TableGenerator` component has been removed.
