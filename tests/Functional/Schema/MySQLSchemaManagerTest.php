@@ -210,16 +210,24 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table('test_column_charset');
         $table->addColumn('id', 'integer');
         $table->addColumn('no_charset', 'text');
-        $table->addColumn('foo', 'text')->setPlatformOption('charset', 'ascii');
-        $table->addColumn('bar', 'text')->setPlatformOption('charset', 'latin1');
+        $table->addColumn('foo', 'text')
+            ->setPlatformOption('charset', 'ascii')
+            ->setPlatformOption('collation', 'ascii_general_ci');
+        $table->addColumn('bar', 'text')
+            ->setPlatformOption('charset', 'latin1')
+            ->setPlatformOption('collation', 'latin1_general_ci');
         $this->schemaManager->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_column_charset');
+        $onlineTable = $this->schemaManager->listTableDetails('test_column_charset');
+        $columns = $onlineTable->getColumns();
 
         self::assertFalse($columns['id']->hasPlatformOption('charset'));
         self::assertEquals('utf8', $columns['no_charset']->getPlatformOption('charset'));
         self::assertEquals('ascii', $columns['foo']->getPlatformOption('charset'));
         self::assertEquals('latin1', $columns['bar']->getPlatformOption('charset'));
+
+        $diff = (new Comparator($this->schemaManager->getDatabasePlatform()))->diffTable($table, $onlineTable);
+        self::assertFalse($diff);
     }
 
     public function testAlterColumnCharset(): void
@@ -242,6 +250,58 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = $this->schemaManager->listTableDetails($tableName);
 
         self::assertEquals('ascii', $table->getColumn('col_text')->getPlatformOption('charset'));
+    }
+
+    public function testAlterColumnCharsetBackToDefault(): void
+    {
+        $table = new Table('test_alter_column_charset_default');
+        $table->addColumn('col_text', 'text');
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $onlineTable = $this->schemaManager->listTableDetails('test_alter_column_charset_default');
+        $columns = $onlineTable->getColumns();
+
+        self::assertEquals('utf8', $columns['col_text']->getPlatformOption('charset'));
+        self::assertEquals('utf8', $columns['col_text']->getPlatformDefault('charset'));
+
+        $diff = (new Comparator($this->schemaManager->getDatabasePlatform()))->diffTable($table, $onlineTable);
+        self::assertFalse($diff);
+
+        $table = new Table('test_alter_column_charset_default');
+        $table->addColumn('col_text', 'text')
+            ->setPlatformOption('charset', 'ascii')
+            ->setPlatformOption('collation', 'ascii_general_ci');
+
+        $diff = (new Comparator($this->schemaManager->getDatabasePlatform()))->diffTable($table, $onlineTable);
+        self::assertNotFalse($diff);
+
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $onlineTable = $this->schemaManager->listTableDetails('test_alter_column_charset_default');
+        $columns = $onlineTable->getColumns();
+
+        self::assertEquals('ascii', $columns['col_text']->getPlatformOption('charset'));
+        self::assertEquals('utf8', $columns['col_text']->getPlatformDefault('charset'));
+
+        $diff = (new Comparator($this->schemaManager->getDatabasePlatform()))->diffTable($table, $onlineTable);
+        self::assertFalse($diff);
+
+        $table = new Table('test_alter_column_charset_default');
+        $table->addColumn('col_text', 'text');
+
+        $diff = (new Comparator($this->schemaManager->getDatabasePlatform()))->diffTable($table, $onlineTable);
+        self::assertNotFalse($diff);
+
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $onlineTable = $this->schemaManager->listTableDetails('test_alter_column_charset_default');
+        $columns = $onlineTable->getColumns();
+
+        self::assertEquals('utf8', $columns['col_text']->getPlatformOption('charset'));
+        self::assertEquals('utf8', $columns['col_text']->getPlatformDefault('charset'));
+
+        $diff = (new Comparator($this->schemaManager->getDatabasePlatform()))->diffTable($table, $onlineTable);
+        self::assertFalse($diff);
     }
 
     public function testColumnCharsetChange(): void
