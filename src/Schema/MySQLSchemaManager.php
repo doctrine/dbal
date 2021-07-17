@@ -235,6 +235,14 @@ class MySQLSchemaManager extends AbstractSchemaManager
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
 
+        if (isset($tableColumn['defaultcharacterset'])) {
+            $column->setPlatformDefault('charset', $tableColumn['defaultcharacterset']);
+        }
+
+        if (isset($tableColumn['defaultcollation'])) {
+            $column->setPlatformDefault('collation', $tableColumn['defaultcollation']);
+        }
+
         return $column;
     }
 

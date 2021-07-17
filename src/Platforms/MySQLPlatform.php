@@ -361,7 +361,19 @@ class MySQLPlatform extends AbstractPlatform
 
         return 'SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ' .
                'COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, ' .
-               'CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation ' .
+               'CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation, ' .
+               'IFNULL(( ' .
+                   'SELECT ( ' .
+                       'SELECT CHARACTER_SET_NAME ' .
+                       'FROM information_schema.COLLATION_CHARACTER_SET_APPLICABILITY ' .
+                       'WHERE COLLATION_NAME = TABLES.TABLE_COLLATION ' .
+                   ') FROM information_schema.TABLES ' .
+                   'WHERE TABLE_SCHEMA = ' . $database . ' AND TABLE_NAME = ' . $table .
+               '), @@character_set_database) AS DefaultCharacterSet, ' .
+               'IFNULL(( ' .
+                   'SELECT TABLE_COLLATION FROM information_schema.TABLES ' .
+                   'WHERE TABLE_SCHEMA = ' . $database . ' AND TABLE_NAME = ' . $table .
+               '), @@collation_database) AS DefaultCollation ' .
                'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $database . ' AND TABLE_NAME = ' . $table .
                ' ORDER BY ORDINAL_POSITION ASC';
     }

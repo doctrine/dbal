@@ -474,6 +474,8 @@ class Comparator
             return count($this->diffColumn($column1, $column2)) !== 0;
         }
 
+        [$column1, $column2] = $this->stripDefaultValuesFromColumns($column1, $column2);
+
         if ($this->platform->getColumnSQL('name', $column1) !== $this->platform->getColumnSQL('name', $column2)) {
             return true;
         }
@@ -494,6 +496,51 @@ class Comparator
                 $this->platform->isCommentedDoctrineType($column1->getType())
                 || $this->platform->isCommentedDoctrineType($column2->getType())
             );
+    }
+
+    /**
+     * Remove platform options from both columns if they match the default from
+     * the table or database.
+     *
+     * @return Column[]
+     */
+    private function stripDefaultValuesFromColumns(Column $column1, Column $column2): array
+    {
+        $defaults1 = $column1->getPlatformDefaults();
+        $defaults2 = $column2->getPlatformDefaults();
+        $options1  = $column1->getPlatformOptions();
+        $options2  = $column2->getPlatformOptions();
+
+        foreach (array_keys(array_merge($defaults1, $defaults2)) as $key) {
+            // If both columns have a set default that is different, the option should stay for the comparison
+            if (isset($defaults1[$key], $defaults2[$key]) && $defaults1[$key] !== $defaults2[$key]) {
+                continue;
+            }
+
+            $defaultValue = $defaults1[$key] ?? $defaults2[$key];
+
+            // Remove the option if it matches the default of the table (or database)
+            if (($options1[$key] ?? null) === $defaultValue) {
+                unset($options1[$key]);
+            }
+
+            // Remove the option if it matches the default of the table (or database)
+            if (($options2[$key] ?? null) === $defaultValue) {
+                unset($options2[$key]);
+            }
+        }
+
+        if ($column1->getPlatformOptions() !== $options1) {
+            $column1 = clone $column1;
+            $column1->setPlatformOptions($options1);
+        }
+
+        if ($column2->getPlatformOptions() !== $options2) {
+            $column2 = clone $column2;
+            $column2->setPlatformOptions($options2);
+        }
+
+        return [$column1, $column2];
     }
 
     /**

@@ -44,6 +44,9 @@ class Column extends AbstractAsset
     /** @var mixed[] */
     protected $_platformOptions = [];
 
+    /** @var mixed[] */
+    protected $_platformDefaults = [];
+
     /** @var string|null */
     protected $_columnDefinition;
 
@@ -222,6 +225,31 @@ class Column extends AbstractAsset
     }
 
     /**
+     * @param mixed[] $platformDefaults
+     *
+     * @return Column
+     */
+    public function setPlatformDefaults(array $platformDefaults)
+    {
+        $this->_platformDefaults = $platformDefaults;
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed  $value
+     *
+     * @return Column
+     */
+    public function setPlatformDefault($name, $value)
+    {
+        $this->_platformDefaults[$name] = $value;
+
+        return $this;
+    }
+
+    /**
      * @param string $value
      *
      * @return Column
@@ -323,6 +351,34 @@ class Column extends AbstractAsset
     public function getPlatformOption($name)
     {
         return $this->_platformOptions[$name];
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function getPlatformDefaults()
+    {
+        return $this->_platformDefaults;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasPlatformDefault($name)
+    {
+        return isset($this->_platformDefaults[$name]);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getPlatformDefault($name)
+    {
+        return $this->_platformDefaults[$name];
     }
 
     /**
@@ -444,6 +500,7 @@ class Column extends AbstractAsset
             'autoincrement' => $this->_autoincrement,
             'columnDefinition' => $this->_columnDefinition,
             'comment' => $this->_comment,
+            'platformDefaults' => $this->_platformDefaults,
         ], $this->_platformOptions, $this->_customSchemaOptions);
     }
 }

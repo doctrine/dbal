@@ -202,18 +202,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
 
         $diff = (new Comparator($this->schemaManager->getDatabasePlatform()))->diffTable($table, $onlineTable);
-        self::assertNotFalse($diff);
-
-        $this->schemaManager->alterTable($diff);
-
-        $onlineTable = $this->schemaManager->listTableDetails('text_blob_default_value');
-
-        self::assertNull($onlineTable->getColumn('def_text')->getDefault());
-        self::assertNull($onlineTable->getColumn('def_text_null')->getDefault());
-        self::assertFalse($onlineTable->getColumn('def_text_null')->getNotnull());
-        self::assertNull($onlineTable->getColumn('def_blob')->getDefault());
-        self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
-        self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
+        self::assertFalse($diff);
     }
 
     public function testColumnCharset(): void

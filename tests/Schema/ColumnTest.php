@@ -56,6 +56,7 @@ class ColumnTest extends TestCase
             'comment' => null,
             'foo' => 'bar',
             'bar' => 'baz',
+            'platformDefaults' => [],
         ];
 
         self::assertEquals($expected, $this->createColumn()->toArray());
