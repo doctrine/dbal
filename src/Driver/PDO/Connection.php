@@ -112,12 +112,20 @@ final class Connection implements ServerInfoAwareConnection
 
     public function commit(): void
     {
-        $this->connection->commit();
+        try {
+            $this->connection->commit();
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
     }
 
     public function rollBack(): void
     {
-        $this->connection->rollBack();
+        try {
+            $this->connection->rollBack();
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
     }
 
     public function getWrappedConnection(): PDO
