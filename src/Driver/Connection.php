@@ -39,9 +39,22 @@ interface Connection
     /**
      * Returns the ID of the last inserted row.
      *
+     * This method returns an integer or a numeric string representing the value of the auto-increment column
+     * from the last row inserted into the database, if any, or throws an exception if a value cannot be returned,
+     * in particular when:
+     *
+     * - the driver does not support identity columns;
+     * - the last statement dit not return an identity (caution: see note below).
+     *
+     * Note: if the last statement was not an INSERT to an autoincrement column, this method MAY return an ID from a
+     * previous statement. DO NOT RELY ON THIS BEHAVIOR which is driver-dependent: always use getLastInsertId() right
+     * after executing an INSERT statement.
+     *
+     * @return int|string The last insert ID, as an integer or a numeric string.
+     *
      * @throws Exception
      */
-    public function lastInsertId(): string;
+    public function lastInsertId();
 
     /**
      * Initiates a transaction.

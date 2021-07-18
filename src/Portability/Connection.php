@@ -57,7 +57,10 @@ final class Connection implements ConnectionInterface
         return $this->connection->exec($sql);
     }
 
-    public function lastInsertId(): string
+    /**
+     * {@inheritDoc}
+     */
+    public function lastInsertId()
     {
         return $this->connection->lastInsertId();
     }

@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
+use Closure;
 use DateTime;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
+use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 use Throwable;
 
 class WriteTest extends FunctionalTestCase
@@ -142,8 +147,8 @@ class WriteTest extends FunctionalTestCase
 
     public function testLastInsertId(): void
     {
-        if (! $this->connection->getDatabasePlatform()->prefersIdentityColumns()) {
-            self::markTestSkipped('Test only works on platforms with identity columns.');
+        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
+            self::markTestSkipped('This test targets platforms that support identity columns.');
         }
 
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
@@ -155,13 +160,25 @@ class WriteTest extends FunctionalTestCase
     public function testLastInsertIdNotSupported(): void
     {
         if ($this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            self::markTestSkipped(
-                "Test only works consistently on platforms that don't support identity columns."
-            );
+            self::markTestSkipped('This test targets platforms that don\'t support identity columns.');
         }
 
-        $this->expectException(DriverException::class);
-        $this->connection->lastInsertId();
+        $this->expectDriverException(IdentityColumnsNotSupported::class, function (): void {
+            $this->connection->lastInsertId();
+        });
+    }
+
+    public function testLastInsertIdNewConnection(): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
+            self::markTestSkipped('This test targets platforms that support identity columns.');
+        }
+
+        $connection = TestUtil::getConnection();
+
+        $this->expectDriverException(NoIdentityValue::class, static function () use ($connection): void {
+            $connection->lastInsertId();
+        });
     }
 
     public function testInsertWithKeyValueTypes(): void
@@ -237,7 +254,7 @@ class WriteTest extends FunctionalTestCase
 
         if (! $platform->supportsIdentityColumns()) {
             self::markTestSkipped(
-                'Test only works on platforms with identity columns.'
+                'Test only works on platforms with native support for identity columns.'
             );
         }
 
@@ -306,5 +323,17 @@ class WriteTest extends FunctionalTestCase
         $data = $this->connection->fetchAllAssociative('SELECT * FROM write_table WHERE test_int = 30');
 
         self::assertCount(0, $data);
+    }
+
+    /**
+     * @param class-string<Driver\Exception> $expectedClass
+     */
+    private function expectDriverException(string $expectedClass, Closure $test): void
+    {
+        try {
+            $test();
+        } catch (DriverException $e) {
+            self::assertInstanceOf($expectedClass, $e->getPrevious());
+        }
     }
 }

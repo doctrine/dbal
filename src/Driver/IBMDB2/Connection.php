@@ -102,9 +102,18 @@ final class Connection implements ServerInfoAwareConnection
         return db2_num_rows($stmt);
     }
 
-    public function lastInsertId(): string
+    /**
+     * {@inheritDoc}
+     */
+    public function lastInsertId()
     {
-        return db2_last_insert_id($this->conn);
+        $lastInsertId = db2_last_insert_id($this->conn);
+
+        if ($lastInsertId === null) {
+            throw Exception\NoIdentityValue::new();
+        }
+
+        return $lastInsertId;
     }
 
     public function beginTransaction(): void
