@@ -726,13 +726,8 @@ abstract class AbstractPlatform
      * @param string      $substring SQL expression producing the substring to locate.
      * @param string|null $start     SQL expression producing the position to start at.
      *                               Defaults to the beginning of the string.
-     *
-     * @throws Exception If not supported on this platform.
      */
-    public function getLocateExpression(string $string, string $substring, ?string $start = null): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getLocateExpression(string $string, string $substring, ?string $start = null): string;
 
     /**
      * Returns the SQL snippet to get the current system date.
@@ -859,13 +854,8 @@ abstract class AbstractPlatform
      * Returns the SQL to calculate the difference in days between the two passed dates.
      *
      * Computes diff = date1 - date2.
-     *
-     * @throws Exception If not supported on this platform.
      */
-    public function getDateDiffExpression(string $date1, string $date2): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getDateDiffExpression(string $date1, string $date2): string;
 
     /**
      * Returns the SQL to add the number of given seconds to a date.
@@ -1084,17 +1074,13 @@ abstract class AbstractPlatform
      *                         into the date.
      * @param string $unit     The unit of the interval that shall be calculated into the date.
      *                         One of the DATE_INTERVAL_UNIT_* constants.
-     *
-     * @throws Exception If not supported on this platform.
      */
-    protected function getDateArithmeticIntervalExpression(
+    abstract protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,
         string $interval,
         string $unit
-    ): string {
-        throw NotSupported::new(__METHOD__);
-    }
+    ): string;
 
     /**
      * Generates the SQL expression which represents the given date interval multiplied by a number
@@ -1717,10 +1703,7 @@ abstract class AbstractPlatform
      *
      * @throws Exception If not supported on this platform.
      */
-    public function getAlterTableSQL(TableDiff $diff): array
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getAlterTableSQL(TableDiff $diff): array;
 
     /**
      * @param mixed[] $columnSql
@@ -2522,21 +2505,9 @@ abstract class AbstractPlatform
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * @throws Exception If not supported on this platform.
-     */
-    public function getListTableColumnsSQL(string $table, ?string $database = null): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getListTableColumnsSQL(string $table, ?string $database = null): string;
 
-    /**
-     * @throws Exception If not supported on this platform.
-     */
-    public function getListTablesSQL(): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getListTablesSQL(): string;
 
     /**
      * @throws Exception If not supported on this platform.
@@ -2548,13 +2519,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to list all views of a database or user.
-     *
-     * @throws Exception If not supported on this platform.
      */
-    public function getListViewsSQL(string $database): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getListViewsSQL(string $database): string;
 
     /**
      * Returns the list of indexes for the current database.
@@ -2565,37 +2531,14 @@ abstract class AbstractPlatform
      * Attention: Some platforms only support currentDatabase when they
      * are connected with that database. Cross-database information schema
      * requests may be impossible.
-     *
-     * @throws Exception If not supported on this platform.
      */
-    public function getListTableIndexesSQL(string $table, ?string $database = null): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getListTableIndexesSQL(string $table, ?string $database = null): string;
 
-    /**
-     * @throws Exception If not supported on this platform.
-     */
-    public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getListTableForeignKeysSQL(string $table, ?string $database = null): string;
 
-    /**
-     * @throws Exception If not supported on this platform.
-     */
-    public function getCreateViewSQL(string $name, string $sql): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getCreateViewSQL(string $name, string $sql): string;
 
-    /**
-     * @throws Exception If not supported on this platform.
-     */
-    public function getDropViewSQL(string $name): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getDropViewSQL(string $name): string;
 
     /**
      * Returns the SQL snippet to drop an existing sequence.
@@ -2631,26 +2574,16 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to set the transaction isolation level.
-     *
-     * @throws Exception If not supported on this platform.
      */
-    public function getSetTransactionIsolationSQL(int $level): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getSetTransactionIsolationSQL(int $level): string;
 
     /**
      * Obtains DBMS specific SQL to be used to create datetime columns in
      * statements like CREATE TABLE.
      *
      * @param mixed[] $column
-     *
-     * @throws Exception If not supported on this platform.
      */
-    public function getDateTimeTypeDeclarationSQL(array $column): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getDateTimeTypeDeclarationSQL(array $column): string;
 
     /**
      * Obtains DBMS specific SQL to be used to create datetime with timezone offset columns.
@@ -2667,26 +2600,16 @@ abstract class AbstractPlatform
      * like CREATE TABLE.
      *
      * @param mixed[] $column
-     *
-     * @throws Exception If not supported on this platform.
      */
-    public function getDateTypeDeclarationSQL(array $column): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getDateTypeDeclarationSQL(array $column): string;
 
     /**
      * Obtains DBMS specific SQL to be used to create time columns in statements
      * like CREATE TABLE.
      *
      * @param mixed[] $column
-     *
-     * @throws Exception If not supported on this platform.
      */
-    public function getTimeTypeDeclarationSQL(array $column): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract public function getTimeTypeDeclarationSQL(array $column): string;
 
     /**
      * @param mixed[] $column
