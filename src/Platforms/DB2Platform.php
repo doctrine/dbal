@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
@@ -203,6 +204,16 @@ class DB2Platform extends AbstractPlatform
         $tableIdentifier = new Identifier($tableName);
 
         return 'TRUNCATE ' . $tableIdentifier->getQuotedName($this) . ' IMMEDIATE';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exception
+     */
+    public function getSetTransactionIsolationSQL(int $level): string
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

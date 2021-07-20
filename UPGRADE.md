@@ -8,6 +8,27 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Abstract methods in the `AbstractPlatform` class have been declared as `abstract`.
+
+The following abstract methods in the `AbstractPlatform` class have been declared as `abstract`:
+
+- `getListTablesSQL()`,
+- `getAlterTableSQL()`,
+- `getListTableColumnsSQL()`,
+- `getListTableIndexesSQL()`,
+- `getListTableForeignKeysSQL()`,
+- `getCreateViewSQL()`,
+- `getListViewsSQL()`,
+- `getDropViewSQL()`,
+- `getDateArithmeticIntervalExpression()`,
+- `getDateDiffExpression()`,
+- `getTimeTypeDeclarationSQL()`,
+- `getDateTimeTypeDeclarationSQL()`,
+- `getLocateExpression()`,
+- `getSetTransactionIsolationSQL()`.
+
+Every non-abstract platform class must implement them in order to satisfy the API.
+
 ## `Connection::lastInsertId()` throws an exception when there's no identity value.
 
 Instead of returning an empty value, `Connection::lastInsertId()` throws an exception when there's no identity value.
