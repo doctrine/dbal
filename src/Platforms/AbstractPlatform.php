@@ -533,49 +533,89 @@ abstract class AbstractPlatform
 
     /**
      * Gets the maximum length of a char column.
+     *
+     * @deprecated
      */
     public function getCharMaxLength(): int
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'AbstractPlatform::getCharMaxLength() is deprecated.'
+        );
+
         return $this->getVarcharMaxLength();
     }
 
     /**
      * Gets the maximum length of a varchar column.
      *
+     * @deprecated
+     *
      * @return int
      */
     public function getVarcharMaxLength()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'AbstractPlatform::getVarcharMaxLength() is deprecated.'
+        );
+
         return 4000;
     }
 
     /**
      * Gets the default length of a varchar column.
      *
+     * @deprecated
+     *
      * @return int
      */
     public function getVarcharDefaultLength()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'Relying on the default varchar column length is deprecated, specify the length explicitly.'
+        );
+
         return 255;
     }
 
     /**
      * Gets the maximum length of a binary column.
      *
+     * @deprecated
+     *
      * @return int
      */
     public function getBinaryMaxLength()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'AbstractPlatform::getBinaryMaxLength() is deprecated.'
+        );
+
         return 4000;
     }
 
     /**
      * Gets the default length of a binary column.
      *
+     * @deprecated
+     *
      * @return int
      */
     public function getBinaryDefaultLength()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'Relying on the default binary column length is deprecated, specify the length explicitly.'
+        );
+
         return 255;
     }
 
@@ -3257,10 +3297,18 @@ abstract class AbstractPlatform
     /**
      * Does this platform have native guid type.
      *
+     * @deprecated
+     *
      * @return bool
      */
     public function hasNativeGuidType()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3167',
+            'AbstractPlatform::hasNativeGuidType() is deprecated.'
+        );
+
         return false;
     }
 

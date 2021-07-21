@@ -8,6 +8,24 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated `AbstractPlatform` methods that describe the default and the maximum column lengths.
+
+Relying on the default and the maximum column lengths provided by the DBAL is deprecated.
+The following `AbstractPlatform` methods and their implementations in specific platforms have been deprecated:
+
+- `getCharMaxLength()`,
+- `getVarcharDefaultLength()`,
+- `getVarcharMaxLength()`,
+- `getBinaryDefaultLength()`,
+- `getBinaryMaxLength()`.
+
+If required by the target platform(s), the column length should be specified based on the application logic.
+
+## Deprecated `AbstractPlatform::hasNativeGuidType()`
+
+The `AbstractPlatform::hasNativeGuidType()` method and its implementations in specific platforms have been deprecated
+since it was only needed to support the Guid data type the support for which was dropped in 3.0.0.
+
 ## Deprecated static calls to `Comparator::compareSchemas($fromSchema, $toSchema)`
 
 The usage of `Comparator::compareSchemas($fromSchema, $toSchema)` statically is
