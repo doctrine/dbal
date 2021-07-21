@@ -119,6 +119,10 @@
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::hasNativeGuidType" />
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getBinaryDefaultLength"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getBinaryMaxLength"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIsNullExpression"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getUniqueFieldDeclarationSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsAlterTable"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsViews"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

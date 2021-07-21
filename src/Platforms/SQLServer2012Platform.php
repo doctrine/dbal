@@ -1388,14 +1388,6 @@ class SQLServer2012Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function supportsLimitOffset()
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function convertBooleans($item)
     {
         if (is_array($item)) {
