@@ -88,11 +88,26 @@
                 <file name="src/Schema/AbstractSchemaManager.php" />
                 <file name="src/Schema/PostgreSQLSchemaManager.php" />
                 <!--
-                    See https://github.com/doctrine/dbal/pull/4707
+                    See https://github.com/doctrine/dbal/pull/4518
                     TODO: remove in 4.0.0
                 -->
-                <file name="src/Schema/Comparator.php" />
-                <directory name="tests" />
+                <referencedMethod name="Doctrine\DBAL\Connection::getSchemaManager"/>
+                <!--
+                    See https://github.com/doctrine/dbal/issues/4503
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::listNamespaceNames"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\PostgreSQLSchemaManager::getSchemaNames"/>
+                <!--
+                    See https://github.com/doctrine/dbal/pull/4722
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\Comparator::compare" />
+                <!--
+                    See https://github.com/doctrine/dbal/pull/4578
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::execute" />
                 <referencedMethod name="Doctrine\DBAL\Statement::execute"/>
             </errorLevel>
         </DeprecatedMethod>
