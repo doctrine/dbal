@@ -203,9 +203,17 @@ class SQLServer2012Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function hasNativeGuidType()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3167',
+            'SQLServer2012::hasNativeGuidType() is deprecated.'
+        );
+
         return true;
     }
 
@@ -1375,14 +1383,6 @@ class SQLServer2012Platform extends AbstractPlatform
         }
 
         return $query;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function supportsLimitOffset()
-    {
-        return true;
     }
 
     /**
