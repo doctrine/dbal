@@ -6,8 +6,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Represents a GUID/UUID datatype (both are actually synonyms) in the database.
- *
- * @deprecated Generate UUIDs on the application side.
  */
 class GuidType extends StringType
 {

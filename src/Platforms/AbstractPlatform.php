@@ -3542,18 +3542,10 @@ abstract class AbstractPlatform
     /**
      * Does this platform have native guid type.
      *
-     * @deprecated
-     *
      * @return bool
      */
     public function hasNativeGuidType()
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/3167',
-            'AbstractPlatform::hasNativeGuidType() is deprecated.'
-        );
-
         return false;
     }
 
