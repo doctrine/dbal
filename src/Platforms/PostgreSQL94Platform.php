@@ -212,17 +212,9 @@ class PostgreSQL94Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated
      */
     public function hasNativeGuidType()
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/3167',
-            'PostgreSQL94Platform::hasNativeGuidType() is deprecated.'
-        );
-
         return true;
     }
 

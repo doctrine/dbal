@@ -67,11 +67,6 @@ The following `AbstractPlatform` methods and their implementations in specific p
 
 If required by the target platform(s), the column length should be specified based on the application logic.
 
-## Deprecated `AbstractPlatform::hasNativeGuidType()`
-
-The `AbstractPlatform::hasNativeGuidType()` method and its implementations in specific platforms have been deprecated
-since it was only needed to support the Guid data type the support for which was dropped in 3.0.0.
-
 ## Deprecated static calls to `Comparator::compareSchemas($fromSchema, $toSchema)`
 
 The usage of `Comparator::compareSchemas($fromSchema, $toSchema)` statically is
