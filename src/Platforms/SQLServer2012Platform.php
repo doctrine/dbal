@@ -1232,11 +1232,6 @@ class SQLServer2012Platform extends AbstractPlatform
         return $query;
     }
 
-    public function supportsLimitOffset(): bool
-    {
-        return true;
-    }
-
     /**
      * {@inheritDoc}
      */

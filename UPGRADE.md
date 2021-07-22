@@ -354,6 +354,65 @@ The following methods have been removed.
 
 # Upgrade to 3.2
 
+## Deprecated redundant `AbstractPlatform` methods.
+
+The following methods implement simple SQL fragments that don't vary across supported platforms. The SQL fragments
+implemented by these methods should be used as is:
+
+- `getSqlCommentStartString()`,
+- `getSqlCommentEndString()`,
+- `getWildcards()`,
+- `getAvgExpression()`,
+- `getCountExpression()`,
+- `getMaxExpression()`,
+- `getMinExpression()`,
+- `getSumExpression()`,
+- `getMd5Expression()`,
+- `getSqrtExpression()`,
+- `getRoundExpression()`,
+- `getRtrimExpression()`,
+- `getLtrimExpression()`,
+- `getUpperExpression()`,
+- `getLowerExpression()`,
+- `getNotExpression()`,
+- `getIsNullExpression()`,
+- `getIsNotNullExpression()`,
+- `getBetweenExpression()`,
+- `getAcosExpression()`,
+- `getSinExpression()`,
+- `getPiExpression()`,
+- `getCosExpression()`,
+- `getTemporaryTableSQL()`,
+- `getUniqueFieldDeclarationSQL()`.
+
+The `getListUsersSQL()` method is not implemented by any of the supported platforms.
+
+The following methods describe the features consistently implemented across all the supported platforms:
+
+- `supportsIndexes()`,
+- `supportsAlterTable()`,
+- `supportsTransactions()`,
+- `supportsPrimaryConstraints()`,
+- `supportsViews()`,
+- `supportsLimitOffset()`.
+
+All 3rd-party platform implementations must implement the support for these features as well.
+
+The `supportsGettingAffectedRows()` method describes a driver-level feature and does not belong to the Platform API.
+
+## Deprecated `AbstractPlatform` methods that describe the default and the maximum column lengths.
+
+Relying on the default and the maximum column lengths provided by the DBAL is deprecated.
+The following `AbstractPlatform` methods and their implementations in specific platforms have been deprecated:
+
+- `getCharMaxLength()`,
+- `getVarcharDefaultLength()`,
+- `getVarcharMaxLength()`,
+- `getBinaryDefaultLength()`,
+- `getBinaryMaxLength()`.
+
+If required by the target platform(s), the column length should be specified based on the application logic.
+
 ## Deprecated static calls to `Comparator::compareSchemas($fromSchema, $toSchema)`
 
 The usage of `Comparator::compareSchemas($fromSchema, $toSchema)` statically is

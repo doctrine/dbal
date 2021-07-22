@@ -60,6 +60,16 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::execute"/>
                 <referencedMethod name="Doctrine\DBAL\Statement::execute"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getBinaryDefaultLength"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getBinaryMaxLength"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIsNullExpression"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getUniqueFieldDeclarationSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsAlterTable"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsLimitOffset"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsViews"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
