@@ -859,8 +859,7 @@ SQL
                 $notnull = $column['notnull'] ? ' NOT NULL' : ' NULL';
             }
 
-            $unique = ! empty($column['unique']) ?
-                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+            $unique = ! empty($column['unique']) ? ' UNIQUE' : '';
 
             $check = ! empty($column['check']) ?
                 ' ' . $column['check'] : '';

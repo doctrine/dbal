@@ -8,6 +8,44 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed redundant `AbstractPlatform` methods.
+
+The following redundant `AbstractPlatform` methods have been removed:
+
+- `getSqlCommentStartString()`,
+- `getSqlCommentEndString()`,
+- `getWildcards()`,
+- `getAvgExpression()`,
+- `getCountExpression()`,
+- `getMaxExpression()`,
+- `getMinExpression()`,
+- `getSumExpression()`,
+- `getMd5Expression()`,
+- `getSqrtExpression()`,
+- `getRoundExpression()`,
+- `getRtrimExpression()`,
+- `getLtrimExpression()`,
+- `getUpperExpression()`,
+- `getLowerExpression()`,
+- `getNotExpression()`,
+- `getIsNullExpression()`,
+- `getIsNotNullExpression()`,
+- `getBetweenExpression()`,
+- `getAcosExpression()`,
+- `getSinExpression()`,
+- `getPiExpression()`,
+- `getCosExpression()`,
+- `getTemporaryTableSQL()`,
+- `getUniqueFieldDeclarationSQL()`,
+- `getListUsersSQL()`,
+- `supportsIndexes()`,
+- `supportsAlterTable()`,
+- `supportsTransactions()`,
+- `supportsPrimaryConstraints()`,
+- `supportsViews()`,
+- `supportsLimitOffset()`.
+- `supportsGettingAffectedRows()`.
+
 ## Abstract methods in the `AbstractPlatform` class have been declared as `abstract`.
 
 The following abstract methods in the `AbstractPlatform` class have been declared as `abstract`:

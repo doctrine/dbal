@@ -491,10 +491,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testAlterTableScenario(): void
     {
-        if (! $this->schemaManager->getDatabasePlatform()->supportsAlterTable()) {
-            self::markTestSkipped('Alter Table is not supported by this platform.');
-        }
-
         $alterTable = $this->createTestTable('alter_table');
         $this->createTestTable('alter_table_foreign');
 
@@ -615,10 +611,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testCreateAndListViews(): void
     {
-        if (! $this->schemaManager->getDatabasePlatform()->supportsViews()) {
-            self::markTestSkipped('Views is not supported by this platform.');
-        }
-
         $this->createTestTable('view_test_table');
 
         $name = 'doctrine_test_view';
