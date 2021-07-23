@@ -457,11 +457,7 @@ class Connection
      */
     public function fetchAssociative(string $query, array $params = [], array $types = [])
     {
-        try {
-            return $this->executeQuery($query, $params, $types)->fetchAssociative();
-        } catch (Driver\Exception $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
-        }
+        return $this->executeQuery($query, $params, $types)->fetchAssociative();
     }
 
     /**
@@ -477,11 +473,7 @@ class Connection
      */
     public function fetchNumeric(string $query, array $params = [], array $types = [])
     {
-        try {
-            return $this->executeQuery($query, $params, $types)->fetchNumeric();
-        } catch (Driver\Exception $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
-        }
+        return $this->executeQuery($query, $params, $types)->fetchNumeric();
     }
 
     /**
@@ -497,11 +489,7 @@ class Connection
      */
     public function fetchOne(string $query, array $params = [], array $types = [])
     {
-        try {
-            return $this->executeQuery($query, $params, $types)->fetchOne();
-        } catch (Driver\Exception $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
-        }
+        return $this->executeQuery($query, $params, $types)->fetchOne();
     }
 
     /**
@@ -744,11 +732,7 @@ class Connection
      */
     public function fetchAllNumeric(string $query, array $params = [], array $types = []): array
     {
-        try {
-            return $this->executeQuery($query, $params, $types)->fetchAllNumeric();
-        } catch (Driver\Exception $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
-        }
+        return $this->executeQuery($query, $params, $types)->fetchAllNumeric();
     }
 
     /**
@@ -763,11 +747,7 @@ class Connection
      */
     public function fetchAllAssociative(string $query, array $params = [], array $types = []): array
     {
-        try {
-            return $this->executeQuery($query, $params, $types)->fetchAllAssociative();
-        } catch (Driver\Exception $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
-        }
+        return $this->executeQuery($query, $params, $types)->fetchAllAssociative();
     }
 
     /**
@@ -816,11 +796,7 @@ class Connection
      */
     public function fetchFirstColumn(string $query, array $params = [], array $types = []): array
     {
-        try {
-            return $this->executeQuery($query, $params, $types)->fetchFirstColumn();
-        } catch (Driver\Exception $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
-        }
+        return $this->executeQuery($query, $params, $types)->fetchFirstColumn();
     }
 
     /**
@@ -835,15 +811,7 @@ class Connection
      */
     public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable
     {
-        try {
-            $result = $this->executeQuery($query, $params, $types);
-
-            while (($row = $result->fetchNumeric()) !== false) {
-                yield $row;
-            }
-        } catch (Driver\Exception $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
-        }
+        return $this->executeQuery($query, $params, $types)->iterateNumeric();
     }
 
     /**
@@ -859,15 +827,7 @@ class Connection
      */
     public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable
     {
-        try {
-            $result = $this->executeQuery($query, $params, $types);
-
-            while (($row = $result->fetchAssociative()) !== false) {
-                yield $row;
-            }
-        } catch (Driver\Exception $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
-        }
+        return $this->executeQuery($query, $params, $types)->iterateAssociative();
     }
 
     /**
@@ -916,15 +876,7 @@ class Connection
      */
     public function iterateColumn(string $query, array $params = [], array $types = []): Traversable
     {
-        try {
-            $result = $this->executeQuery($query, $params, $types);
-
-            while (($value = $result->fetchOne()) !== false) {
-                yield $value;
-            }
-        } catch (Driver\Exception $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
-        }
+        return $this->executeQuery($query, $params, $types)->iterateColumn();
     }
 
     /**
