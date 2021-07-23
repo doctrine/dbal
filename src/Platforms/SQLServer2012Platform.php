@@ -1410,8 +1410,7 @@ class SQLServer2012Platform extends AbstractPlatform
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $unique = ! empty($column['unique']) ?
-                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+            $unique = ! empty($column['unique']) ? ' UNIQUE' : '';
 
             $check = ! empty($column['check']) ?
                 ' ' . $column['check'] : '';

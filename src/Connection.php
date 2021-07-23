@@ -538,11 +538,9 @@ class Connection
         array &$values,
         array &$conditions
     ): void {
-        $platform = $this->getDatabasePlatform();
-
         foreach ($criteria as $columnName => $value) {
             if ($value === null) {
-                $conditions[] = $platform->getIsNullExpression($columnName);
+                $conditions[] = $columnName . ' IS NULL';
                 continue;
             }
 
