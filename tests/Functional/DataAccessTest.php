@@ -12,26 +12,16 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
-use function count;
 use function date;
-use function json_encode;
-use function sprintf;
 use function strtotime;
 
 use const CASE_LOWER;
 
 class DataAccessTest extends FunctionalTestCase
 {
-    /** @var bool */
-    private static $generated = false;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        if (self::$generated !== false) {
-            return;
-        }
 
         $table = new Table('fetch_table');
         $table->addColumn('test_int', 'integer');
@@ -40,15 +30,13 @@ class DataAccessTest extends FunctionalTestCase
         $table->setPrimaryKey(['test_int']);
 
         $sm = $this->connection->getSchemaManager();
-        $sm->createTable($table);
+        $sm->dropAndCreateTable($table);
 
         $this->connection->insert('fetch_table', [
             'test_int' => 1,
             'test_string' => 'foo',
             'test_datetime' => '2010-01-01 10:10:10',
         ]);
-
-        self::$generated = true;
     }
 
     public function testPrepareWithBindValue(): void
@@ -165,13 +153,6 @@ class DataAccessTest extends FunctionalTestCase
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(1, $row['test_int']);
         self::assertStringStartsWith($datetimeString, $row['test_datetime']);
-    }
-
-    public function testFetchNoResult(): void
-    {
-        self::assertFalse(
-            $this->connection->fetchAssociative('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])
-        );
     }
 
     public function testFetchAssociative(): void
@@ -513,95 +494,5 @@ class DataAccessTest extends FunctionalTestCase
         $rows = $this->connection->fetchAllAssociative($sql);
 
         self::assertCount(0, $rows, 'no result should be returned, otherwise SQL injection is possible');
-    }
-
-    public function testBitComparisonExpressionSupport(): void
-    {
-        $this->connection->executeStatement('DELETE FROM fetch_table');
-        $platform = $this->connection->getDatabasePlatform();
-        $bitmap   = [];
-
-        for ($i = 2; $i < 9; $i += 2) {
-            $bitmap[$i] = [
-                'bit_or'    => ($i | 2),
-                'bit_and'   => ($i & 2),
-            ];
-            $this->connection->insert('fetch_table', [
-                'test_int'      => $i,
-                'test_string'   => json_encode($bitmap[$i]),
-                'test_datetime' => '2010-01-01 10:10:10',
-            ]);
-        }
-
-        $sql = sprintf(
-            <<<'SQL'
-SELECT test_int,
-       test_string,
-       %s AS bit_or,
-       %s AS bit_and
-FROM   fetch_table
-SQL
-            ,
-            $platform->getBitOrComparisonExpression('test_int', 2),
-            $platform->getBitAndComparisonExpression('test_int', 2)
-        );
-
-        $data = $this->connection->fetchAllAssociative($sql);
-
-        self::assertCount(4, $data);
-        self::assertEquals(count($bitmap), count($data));
-        foreach ($data as $row) {
-            $row = array_change_key_case($row, CASE_LOWER);
-
-            self::assertArrayHasKey('test_int', $row);
-
-            $id = $row['test_int'];
-
-            self::assertArrayHasKey($id, $bitmap);
-            self::assertArrayHasKey($id, $bitmap);
-
-            self::assertArrayHasKey('bit_or', $row);
-            self::assertArrayHasKey('bit_and', $row);
-
-            self::assertEquals($row['bit_or'], $bitmap[$id]['bit_or']);
-            self::assertEquals($row['bit_and'], $bitmap[$id]['bit_and']);
-        }
-    }
-
-    public function testFetchAllStyleColumn(): void
-    {
-        $sql = 'DELETE FROM fetch_table';
-        $this->connection->executeStatement($sql);
-
-        $this->connection->insert('fetch_table', ['test_int' => 1, 'test_string' => 'foo']);
-        $this->connection->insert('fetch_table', ['test_int' => 10, 'test_string' => 'foo']);
-
-        $sql    = 'SELECT test_int FROM fetch_table';
-        $values = $this->connection->fetchFirstColumn($sql);
-
-        self::assertEquals([1, 10], $values);
-    }
-
-    public function testEmptyFetchOneReturnsFalse(): void
-    {
-        $this->connection->beginTransaction();
-        $this->connection->executeStatement('DELETE FROM fetch_table');
-        self::assertFalse($this->connection->fetchOne('SELECT test_int FROM fetch_table'));
-        $this->connection->rollBack();
-    }
-
-    public function testEmptyParameters(): void
-    {
-        $sql  = 'SELECT * FROM fetch_table WHERE test_int IN (?)';
-        $rows = $this->connection->fetchAllAssociative($sql, [[]], [Connection::PARAM_INT_ARRAY]);
-
-        self::assertEquals([], $rows);
-    }
-
-    public function testFetchOneNoResult(): void
-    {
-        self::assertFalse(
-            $this->connection->fetchOne('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])
-        );
     }
 }

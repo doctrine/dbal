@@ -6,7 +6,6 @@ use Doctrine\DBAL\Id\TableGenerator;
 use Doctrine\DBAL\Id\TableGeneratorSchemaVisitor;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Throwable;
 
 class TableGeneratorTest extends FunctionalTestCase
 {
@@ -22,15 +21,15 @@ class TableGeneratorTest extends FunctionalTestCase
             self::markTestSkipped('TableGenerator does not work with SQLite');
         }
 
-        try {
-            $schema  = new Schema();
-            $visitor = new TableGeneratorSchemaVisitor();
-            $schema->visit($visitor);
+        $this->connection->createSchemaManager()
+            ->tryMethod('dropTable', 'sequences');
 
-            foreach ($schema->toSql($platform) as $sql) {
-                $this->connection->executeStatement($sql);
-            }
-        } catch (Throwable $e) {
+        $schema  = new Schema();
+        $visitor = new TableGeneratorSchemaVisitor();
+        $schema->visit($visitor);
+
+        foreach ($schema->toSql($platform) as $sql) {
+            $this->connection->executeStatement($sql);
         }
 
         $this->generator = new TableGenerator($this->connection);
