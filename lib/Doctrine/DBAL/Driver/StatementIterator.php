@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver;
 
 use IteratorAggregate;
+use ReturnTypeWillChange;
 
 /**
  * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn().
@@ -20,6 +21,7 @@ class StatementIterator implements IteratorAggregate
     /**
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         while (($result = $this->statement->fetch()) !== false) {

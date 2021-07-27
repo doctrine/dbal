@@ -13,6 +13,7 @@ use Doctrine\Deprecations\Deprecation;
 use IteratorAggregate;
 use PDO;
 use PDOStatement;
+use ReturnTypeWillChange;
 use Throwable;
 use Traversable;
 
@@ -319,6 +320,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      *
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         Deprecation::trigger(

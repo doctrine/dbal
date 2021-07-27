@@ -13,6 +13,7 @@ use IteratorAggregate;
 use PDO;
 use ReflectionClass;
 use ReflectionObject;
+use ReturnTypeWillChange;
 use stdClass;
 
 use function array_key_exists;
@@ -320,6 +321,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return new StatementIterator($this);
