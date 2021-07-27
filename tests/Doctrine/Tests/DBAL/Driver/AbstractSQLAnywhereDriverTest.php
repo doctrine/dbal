@@ -75,46 +75,46 @@ class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
     {
         return [
             self::EXCEPTION_CONNECTION => [
-                ['-100', null, null],
-                ['-103', null, null],
-                ['-832', null, null],
+                ['-100', null, ''],
+                ['-103', null, ''],
+                ['-832', null, ''],
             ],
             self::EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION => [
-                ['-198', null, null],
+                ['-198', null, ''],
             ],
             self::EXCEPTION_INVALID_FIELD_NAME => [
-                ['-143', null, null],
+                ['-143', null, ''],
             ],
             self::EXCEPTION_NON_UNIQUE_FIELD_NAME => [
-                ['-144', null, null],
+                ['-144', null, ''],
             ],
             self::EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION => [
-                ['-184', null, null],
-                ['-195', null, null],
+                ['-184', null, ''],
+                ['-195', null, ''],
             ],
             self::EXCEPTION_SYNTAX_ERROR => [
-                ['-131', null, null],
+                ['-131', null, ''],
             ],
             self::EXCEPTION_TABLE_EXISTS => [
-                ['-110', null, null],
+                ['-110', null, ''],
             ],
             self::EXCEPTION_TABLE_NOT_FOUND => [
-                ['-141', null, null],
-                ['-1041', null, null],
+                ['-141', null, ''],
+                ['-1041', null, ''],
             ],
             self::EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION => [
-                ['-193', null, null],
-                ['-196', null, null],
+                ['-193', null, ''],
+                ['-196', null, ''],
             ],
             self::EXCEPTION_DEADLOCK => [
-                ['-306', null, null],
-                ['-307', null, null],
-                ['-684', null, null],
+                ['-306', null, ''],
+                ['-307', null, ''],
+                ['-684', null, ''],
             ],
             self::EXCEPTION_LOCK_WAIT_TIMEOUT => [
-                ['-210', null, null],
-                ['-1175', null, null],
-                ['-1281', null, null],
+                ['-210', null, ''],
+                ['-1175', null, ''],
+                ['-1281', null, ''],
             ],
         ];
     }
