@@ -132,8 +132,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectWithAndWhereConditions(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -145,8 +144,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectWithOrWhereConditions(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -158,8 +156,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectWithOrOrWhereConditions(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -171,8 +168,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectWithAndOrWhereConditions(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -190,8 +186,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectGroupBy(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -202,8 +197,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectEmptyGroupBy(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->groupBy([])
@@ -214,8 +208,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectEmptyAddGroupBy(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->addGroupBy([])
@@ -226,8 +219,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectAddGroupBy(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -239,8 +231,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectAddGroupBys(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -252,8 +243,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectHaving(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -265,8 +255,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectAndHaving(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -278,8 +267,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectHavingAndHaving(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -295,8 +283,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectHavingOrHaving(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -312,8 +299,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectOrHavingOrHaving(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -329,8 +315,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectHavingAndOrHaving(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -347,8 +332,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectOrderBy(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -359,8 +343,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectAddOrderBy(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -372,8 +355,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectAddAddOrderBy(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -394,8 +376,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectAddSelect(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')
            ->addSelect('p.*')
@@ -415,8 +396,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectMultipleFrom(): void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')
            ->addSelect('p.*')
