@@ -8,7 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
-## BC BREAK: Deprecated reference from `ForeignKeyConstraint` to its local (referencing) `Table`.
+## BC BREAK: Removed `AbstractPlatform::getNowExpression()`.
+
+The `AbstractPlatform::getNowExpression()` method has been removed.
+
+## BC BREAK: Removed reference from `ForeignKeyConstraint` to its local (referencing) `Table`.
 
 Reference from `ForeignKeyConstraint` to its local (referencing) `Table` is removed as well as the following methods:
 
