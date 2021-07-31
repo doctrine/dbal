@@ -358,8 +358,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             sprintf(
                 'CREATE TRIGGER %s_AI_PK BEFORE INSERT ON %s FOR EACH ROW DECLARE last_Sequence NUMBER;'
                 . ' last_InsertID NUMBER;'
-                . ' BEGIN SELECT %s_SEQ.NEXTVAL'
-                . ' INTO :NEW.%s FROM DUAL;'
+                . ' BEGIN'
                 . ' IF (:NEW.%s IS NULL OR :NEW.%s = 0)'
                 . ' THEN SELECT %s_SEQ.NEXTVAL INTO :NEW.%s FROM DUAL;'
                 . ' ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence'
@@ -368,18 +367,18 @@ class OraclePlatformTest extends AbstractPlatformTestCase
                 . ' WHILE (last_InsertID > last_Sequence) LOOP'
                 . ' SELECT %s_SEQ.NEXTVAL INTO last_Sequence FROM DUAL;'
                 . ' END LOOP;'
+                . ' SELECT %s_SEQ.NEXTVAL INTO last_Sequence FROM DUAL;'
                 . ' END IF;'
                 . ' END;',
                 $tableName,
                 $tableName,
-                $tableName,
                 $columnName,
-                $columnName,
-                $columnName,
-                $tableName,
                 $columnName,
                 $tableName,
                 $columnName,
+                $tableName,
+                $columnName,
+                $tableName,
                 $tableName
             ),
         ];
@@ -811,7 +810,6 @@ DECLARE
    last_Sequence NUMBER;
    last_InsertID NUMBER;
 BEGIN
-   SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
    IF (:NEW."id" IS NULL OR :NEW."id" = 0) THEN
       SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
    ELSE
@@ -822,6 +820,7 @@ BEGIN
       WHILE (last_InsertID > last_Sequence) LOOP
          SELECT "test_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
+      SELECT "test_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
    END IF;
 END;
 EOD;
