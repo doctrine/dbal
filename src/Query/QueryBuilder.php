@@ -53,17 +53,13 @@ class QueryBuilder
 
     /**
      * The DBAL Connection.
-     *
-     * @var Connection
      */
-    private $connection;
+    private Connection $connection;
 
     /**
      * The complete SQL string for this query.
-     *
-     * @var string|null
      */
-    private $sql;
+    private ?string $sql = null;
 
     /**
      * The query parameters.
@@ -77,84 +73,70 @@ class QueryBuilder
      *
      * @var array<int, int|string|Type|null>|array<string, int|string|Type|null>
      */
-    private $paramTypes = [];
+    private array $paramTypes = [];
 
     /**
      * The type of query this is. Can be select, update or delete.
-     *
-     * @var int
      */
-    private $type = self::SELECT;
+    private int $type = self::SELECT;
 
     /**
      * The state of the query object. Can be dirty or clean.
-     *
-     * @var int
      */
-    private $state = self::STATE_CLEAN;
+    private int $state = self::STATE_CLEAN;
 
     /**
      * The index of the first result to retrieve.
-     *
-     * @var int
      */
-    private $firstResult = 0;
+    private int $firstResult = 0;
 
     /**
      * The maximum number of results to retrieve or NULL to retrieve all results.
-     *
-     * @var int|null
      */
-    private $maxResults;
+    private ?int $maxResults = null;
 
     /**
      * The counter of bound parameters used with {@see bindValue).
-     *
-     * @var int
      */
-    private $boundCounter = 0;
+    private int $boundCounter = 0;
 
     /**
      * The SELECT parts of the query.
      *
      * @var string[]
      */
-    private $select = [];
+    private array $select = [];
 
     /**
      * Whether this is a SELECT DISTINCT query.
-     *
-     * @var bool
      */
-    private $distinct = false;
+    private bool $distinct = false;
 
     /**
      * The FROM parts of a SELECT query.
      *
      * @var From[]
      */
-    private $from = [];
+    private array $from = [];
 
     /**
      * The table name for an INSERT, UPDATE or DELETE query.
-     *
-     * @var string|null
      */
-    private $table;
+    private ?string $table = null;
 
     /**
      * The list of joins, indexed by from alias.
      *
      * @var array<string, Join[]>
      */
-    private $join = [];
+    private array $join = [];
 
     /**
      * The SET parts of an UPDATE query.
      *
      * @var string[]
      */
-    private $set = [];
+    private array $set = [];
 
     /**
      * The WHERE part of a SELECT, UPDATE or DELETE query.
@@ -168,7 +150,7 @@ class QueryBuilder
      *
      * @var string[]
      */
-    private $groupBy = [];
+    private array $groupBy = [];
 
     /**
      * The HAVING part of a SELECT query.
@@ -182,14 +164,14 @@ class QueryBuilder
      *
      * @var string[]
      */
-    private $orderBy = [];
+    private array $orderBy = [];
 
     /**
      * The values of an INSERT query.
      *
      * @var array<string, mixed>
      */
-    private $values = [];
+    private array $values = [];
 
     /**
      * Initializes a new <tt>QueryBuilder</tt>.

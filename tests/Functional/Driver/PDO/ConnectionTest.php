@@ -19,10 +19,8 @@ class ConnectionTest extends FunctionalTestCase
 {
     /**
      * The PDO driver connection under test.
-     *
-     * @var Connection
      */
-    protected $driverConnection;
+    protected Connection $driverConnection;
 
     protected function setUp(): void
     {

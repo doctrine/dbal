@@ -6,12 +6,9 @@ namespace Doctrine\DBAL\Tests\Functional\DataAccess;
 
 class FetchClass
 {
-    /** @var int */
-    public $test_int;
+    public int $test_int;
 
-    /** @var string */
-    public $test_string;
+    public string $test_string;
 
-    /** @var string */
-    public $test_datetime;
+    public string $test_datetime;
 }

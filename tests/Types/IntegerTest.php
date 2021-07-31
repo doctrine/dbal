@@ -14,8 +14,7 @@ class IntegerTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var IntegerType */
-    private $type;
+    private IntegerType $type;
 
     protected function setUp(): void
     {

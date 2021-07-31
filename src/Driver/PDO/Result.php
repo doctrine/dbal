@@ -14,8 +14,7 @@ use function is_array;
 
 final class Result implements ResultInterface
 {
-    /** @var PDOStatement */
-    private $statement;
+    private PDOStatement $statement;
 
     /**
      * @internal The result can be only instantiated by its driver connection or statement.

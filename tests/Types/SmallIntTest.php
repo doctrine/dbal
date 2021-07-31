@@ -14,8 +14,7 @@ class SmallIntTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var SmallIntType */
-    private $type;
+    private SmallIntType $type;
 
     protected function setUp(): void
     {

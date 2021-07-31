@@ -18,8 +18,7 @@ class ObjectTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var ObjectType */
-    private $type;
+    private ObjectType $type;
 
     protected function setUp(): void
     {

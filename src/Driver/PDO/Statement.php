@@ -25,8 +25,7 @@ final class Statement implements StatementInterface
         ParameterType::BOOLEAN      => PDO::PARAM_BOOL,
     ];
 
-    /** @var PDOStatement */
-    private $stmt;
+    private PDOStatement $stmt;
 
     /**
      * @internal The statement can be only instantiated by its driver connection.

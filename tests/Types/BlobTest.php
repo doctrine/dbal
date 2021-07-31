@@ -14,8 +14,7 @@ class BlobTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     protected $platform;
 
-    /** @var BlobType */
-    protected $type;
+    protected BlobType $type;
 
     protected function setUp(): void
     {

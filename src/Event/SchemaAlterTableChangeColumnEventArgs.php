@@ -15,17 +15,14 @@ use function array_merge;
  */
 class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
 {
-    /** @var ColumnDiff */
-    private $columnDiff;
+    private ColumnDiff $columnDiff;
 
-    /** @var TableDiff */
-    private $tableDiff;
+    private TableDiff $tableDiff;
 
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
     /** @var array<int, string> */
-    private $sql = [];
+    private array $sql = [];
 
     public function __construct(ColumnDiff $columnDiff, TableDiff $tableDiff, AbstractPlatform $platform)
     {

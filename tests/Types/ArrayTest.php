@@ -17,8 +17,7 @@ class ArrayTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var ArrayType */
-    private $type;
+    private ArrayType $type;
 
     protected function setUp(): void
     {

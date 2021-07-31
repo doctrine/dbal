@@ -14,8 +14,7 @@ class DecimalTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var DecimalType */
-    private $type;
+    private DecimalType $type;
 
     protected function setUp(): void
     {

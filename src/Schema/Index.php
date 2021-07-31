@@ -21,20 +21,18 @@ class Index extends AbstractAsset implements Constraint
      *
      * @var array<string, Identifier>
      */
-    protected $_columns = [];
+    protected array $_columns = [];
 
-    /** @var bool */
-    protected $_isUnique = false;
+    protected bool $_isUnique = false;
 
-    /** @var bool */
-    protected $_isPrimary = false;
+    protected bool $_isPrimary = false;
 
     /**
      * Platform specific flags for indexes.
      *
      * @var array<string, true>
      */
-    protected $_flags = [];
+    protected array $_flags = [];
 
     /**
      * Platform specific options
@@ -42,7 +40,7 @@ class Index extends AbstractAsset implements Constraint
      * @todo $_flags should eventually be refactored into options
      * @var array<string, mixed>
      */
-    private $options = [];
+    private array $options = [];
 
     /**
      * @param array<int, string>   $columns

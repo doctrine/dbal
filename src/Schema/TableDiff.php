@@ -11,91 +11,88 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class TableDiff
 {
-    /** @var string */
-    public $name;
+    public string $name;
 
-    /** @var string|null */
-    public $newName = null;
+    public ?string $newName = null;
 
     /**
      * All added columns
      *
      * @var array<string, Column>
      */
-    public $addedColumns;
+    public array $addedColumns;
 
     /**
      * All changed columns
      *
      * @var array<string, ColumnDiff>
      */
-    public $changedColumns = [];
+    public array $changedColumns = [];
 
     /**
      * All removed columns
      *
      * @var array<string, Column>
      */
-    public $removedColumns = [];
+    public array $removedColumns = [];
 
     /**
      * Columns that are only renamed from key to column instance name.
      *
      * @var array<string, Column>
      */
-    public $renamedColumns = [];
+    public array $renamedColumns = [];
 
     /**
      * All added indexes.
      *
      * @var array<string, Index>
      */
-    public $addedIndexes = [];
+    public array $addedIndexes = [];
 
     /**
      * All changed indexes.
      *
      * @var array<string, Index>
      */
-    public $changedIndexes = [];
+    public array $changedIndexes = [];
 
     /**
      * All removed indexes
      *
      * @var array<string, Index>
      */
-    public $removedIndexes = [];
+    public array $removedIndexes = [];
 
     /**
      * Indexes that are only renamed but are identical otherwise.
      *
      * @var array<string, Index>
      */
-    public $renamedIndexes = [];
+    public array $renamedIndexes = [];
 
     /**
      * All added foreign key definitions
      *
      * @var array<int, ForeignKeyConstraint>
      */
-    public $addedForeignKeys = [];
+    public array $addedForeignKeys = [];
 
     /**
      * All changed foreign keys
      *
      * @var array<int, ForeignKeyConstraint>
      */
-    public $changedForeignKeys = [];
+    public array $changedForeignKeys = [];
 
     /**
      * All removed foreign keys
      *
      * @var array<int, ForeignKeyConstraint>
      */
-    public $removedForeignKeys = [];
+    public array $removedForeignKeys = [];
 
-    /** @var Table|null */
-    public $fromTable;
+    public ?Table $fromTable = null;
 
     /**
      * Constructs an TableDiff object.

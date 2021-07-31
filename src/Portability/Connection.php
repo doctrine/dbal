@@ -19,11 +19,9 @@ final class Connection implements ConnectionInterface
     public const PORTABILITY_EMPTY_TO_NULL = 4;
     public const PORTABILITY_FIX_CASE      = 8;
 
-    /** @var ConnectionInterface */
-    private $connection;
+    private ConnectionInterface $connection;
 
-    /** @var Converter */
-    private $converter;
+    private Converter $converter;
 
     public function __construct(ConnectionInterface $connection, Converter $converter)
     {

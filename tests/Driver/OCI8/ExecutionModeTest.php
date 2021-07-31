@@ -9,8 +9,7 @@ use PHPStan\Testing\TestCase;
 
 final class ExecutionModeTest extends TestCase
 {
-    /** @var ExecutionMode */
-    private $mode;
+    private ExecutionMode $mode;
 
     protected function setUp(): void
     {

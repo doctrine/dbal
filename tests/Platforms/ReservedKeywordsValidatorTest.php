@@ -11,8 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class ReservedKeywordsValidatorTest extends TestCase
 {
-    /** @var ReservedKeywordsValidator */
-    private $validator;
+    private ReservedKeywordsValidator $validator;
 
     protected function setUp(): void
     {

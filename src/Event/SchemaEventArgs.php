@@ -11,8 +11,7 @@ use Doctrine\Common\EventArgs;
  */
 class SchemaEventArgs extends EventArgs
 {
-    /** @var bool */
-    private $preventDefault = false;
+    private bool $preventDefault = false;
 
     /**
      * @return $this

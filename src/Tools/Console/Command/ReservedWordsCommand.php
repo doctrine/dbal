@@ -36,10 +36,9 @@ use function sprintf;
 class ReservedWordsCommand extends Command
 {
     /** @var array<string,KeywordList> */
-    private $keywordLists;
+    private array $keywordLists;
 
-    /** @var ConnectionProvider */
-    private $connectionProvider;
+    private ConnectionProvider $connectionProvider;
 
     public function __construct(ConnectionProvider $connectionProvider)
     {

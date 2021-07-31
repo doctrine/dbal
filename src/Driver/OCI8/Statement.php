@@ -36,11 +36,10 @@ final class Statement implements StatementInterface
     /** @var resource */
     private $statement;
 
-    /** @var ExecutionMode */
-    private $executionMode;
+    private ExecutionMode $executionMode;
 
     /** @var string[] */
-    private $parameterMap = [];
+    private array $parameterMap = [];
 
     /**
      * Holds references to bound parameter values.
@@ -49,7 +48,7 @@ final class Statement implements StatementInterface
      *
      * @var mixed[]
      */
-    private $boundValues = [];
+    private array $boundValues = [];
 
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.

@@ -22,8 +22,7 @@ use Doctrine\DBAL\Schema\Table;
  */
 final class RemoveNamespacedAssets extends AbstractVisitor
 {
-    /** @var Schema|null */
-    private $schema;
+    private ?Schema $schema = null;
 
     public function acceptSchema(Schema $schema): void
     {

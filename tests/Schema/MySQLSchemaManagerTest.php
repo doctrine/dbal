@@ -18,8 +18,7 @@ use function array_map;
 
 class MySQLSchemaManagerTest extends TestCase
 {
-    /** @var AbstractSchemaManager */
-    private $manager;
+    private AbstractSchemaManager $manager;
 
     /** @var Connection&MockObject */
     private $conn;

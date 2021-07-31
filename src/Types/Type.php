@@ -49,8 +49,7 @@ abstract class Type
         Types::TIME_IMMUTABLE       => TimeImmutableType::class,
     ];
 
-    /** @var TypeRegistry|null */
-    private static $typeRegistry;
+    private static ?TypeRegistry $typeRegistry = null;
 
     /**
      * @internal Do not instantiate directly - use {@see Type::addType()} method instead.

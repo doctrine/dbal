@@ -20,21 +20,21 @@ class UniqueConstraint extends AbstractAsset implements Constraint
      *
      * @var array<string, Identifier>
      */
-    protected $columns = [];
+    protected array $columns = [];
 
     /**
      * Platform specific flags
      *
      * @var array<string, true>
      */
-    protected $flags = [];
+    protected array $flags = [];
 
     /**
      * Platform specific options
      *
      * @var array<string, mixed>
      */
-    private $options = [];
+    private array $options = [];
 
     /**
      * @param array<string>        $columns

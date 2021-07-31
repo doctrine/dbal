@@ -14,19 +14,18 @@ use function array_merge;
 class CreateSchemaSqlCollector extends AbstractVisitor
 {
     /** @var array<string> */
-    private $createNamespaceQueries = [];
+    private array $createNamespaceQueries = [];
 
     /** @var array<string> */
-    private $createTableQueries = [];
+    private array $createTableQueries = [];
 
     /** @var array<string> */
-    private $createSequenceQueries = [];
+    private array $createSequenceQueries = [];
 
     /** @var array<string> */
-    private $createFkConstraintQueries = [];
+    private array $createFkConstraintQueries = [];
 
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
     public function __construct(AbstractPlatform $platform)
     {

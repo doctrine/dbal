@@ -13,8 +13,7 @@ use function sprintf;
 
 class ColumnCommentTest extends FunctionalTestCase
 {
-    /** @var bool */
-    private static $initialized = false;
+    private static bool $initialized = false;
 
     protected function setUp(): void
     {

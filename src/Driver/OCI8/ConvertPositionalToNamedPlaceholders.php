@@ -23,7 +23,7 @@ final class ConvertPositionalToNamedPlaceholders implements Visitor
     private $buffer = [];
 
     /** @var array<int,string> */
-    private $parameterMap = [];
+    private array $parameterMap = [];
 
     public function acceptOther(string $sql): void
     {

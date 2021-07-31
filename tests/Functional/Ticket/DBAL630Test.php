@@ -13,8 +13,7 @@ use PDO;
 
 class DBAL630Test extends FunctionalTestCase
 {
-    /** @var bool */
-    private $running = false;
+    private bool $running = false;
 
     protected function setUp(): void
     {

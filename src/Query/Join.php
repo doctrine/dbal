@@ -9,17 +9,13 @@ namespace Doctrine\DBAL\Query;
  */
 final class Join
 {
-    /** @var string */
-    public $type;
+    public string $type;
 
-    /** @var string */
-    public $table;
+    public string $table;
 
-    /** @var string */
-    public $alias;
+    public string $alias;
 
-    /** @var string|null */
-    public $condition;
+    public ?string $condition = null;
 
     private function __construct(string $type, string $table, string $alias, ?string $condition)
     {

@@ -13,11 +13,9 @@ use Doctrine\DBAL\ParameterType;
  */
 final class Statement implements DriverStatement
 {
-    /** @var DriverStatement */
-    private $stmt;
+    private DriverStatement $stmt;
 
-    /** @var Converter */
-    private $converter;
+    private Converter $converter;
 
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.

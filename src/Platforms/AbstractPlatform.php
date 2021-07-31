@@ -77,7 +77,7 @@ abstract class AbstractPlatform
     public const CREATE_FOREIGNKEYS = 2;
 
     /** @var string[]|null */
-    protected $doctrineTypeMapping;
+    protected ?array $doctrineTypeMapping = null;
 
     /**
      * Contains a list of all columns that should generate parseable column comments for type-detection
@@ -85,17 +85,14 @@ abstract class AbstractPlatform
      *
      * @var string[]|null
      */
-    protected $doctrineTypeComments;
+    protected ?array $doctrineTypeComments = null;
 
-    /** @var EventManager|null */
-    protected $_eventManager;
+    protected ?EventManager $_eventManager = null;
 
     /**
      * Holds the KeywordList instance for the current platform.
-     *
-     * @var KeywordList|null
      */
-    protected $_keywords;
+    protected ?KeywordList $_keywords = null;
 
     /**
      * Sets the EventManager used by the Platform.

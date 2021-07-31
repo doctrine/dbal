@@ -16,20 +16,16 @@ final class DebugStack implements SQLLogger
      *
      * @var array<int, array<string, mixed>>
      */
-    public $queries = [];
+    public array $queries = [];
 
     /**
      * If Debug Stack is enabled (log queries) or not.
-     *
-     * @var bool
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
-    /** @var float|null */
-    public $start = null;
+    public ?float $start = null;
 
-    /** @var int */
-    public $currentQuery = 0;
+    public int $currentQuery = 0;
 
     /**
      * {@inheritdoc}

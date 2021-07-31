@@ -18,8 +18,7 @@ use function strtolower;
  */
 class Graphviz extends AbstractVisitor
 {
-    /** @var string */
-    private $output = '';
+    private string $output = '';
 
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void
     {

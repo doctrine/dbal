@@ -36,15 +36,14 @@ use stdClass;
  */
 class ConnectionTest extends TestCase
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @var array<string,mixed>
      * @phpstan-var array<string,mixed>
      * @psalm-var Params
      */
-    protected $params = [
+    protected array $params = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
         'user' => 'root',

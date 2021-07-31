@@ -29,8 +29,7 @@ final class Connection implements ServerInfoAwareConnection
     /** @var resource */
     private $connection;
 
-    /** @var ExecutionMode */
-    private $executionMode;
+    private ExecutionMode $executionMode;
 
     /**
      * Creates a Connection to an Oracle Database using oci8 extension.

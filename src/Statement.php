@@ -20,45 +20,37 @@ class Statement
 {
     /**
      * The SQL statement.
-     *
-     * @var string
      */
-    protected $sql;
+    protected string $sql;
 
     /**
      * The bound parameters.
      *
      * @var mixed[]
      */
-    protected $params = [];
+    protected array $params = [];
 
     /**
      * The parameter types.
      *
      * @var int[]|string[]|Type[]
      */
-    protected $types = [];
+    protected array $types = [];
 
     /**
      * The underlying driver statement.
-     *
-     * @var DriverStatement
      */
-    protected $stmt;
+    protected DriverStatement $stmt;
 
     /**
      * The underlying database platform.
-     *
-     * @var AbstractPlatform
      */
-    protected $platform;
+    protected AbstractPlatform $platform;
 
     /**
      * The connection this statement is bound to and executed on.
-     *
-     * @var Connection
      */
-    protected $conn;
+    protected Connection $conn;
 
     /**
      * Creates a new <tt>Statement</tt> for the given SQL and <tt>Connection</tt>.

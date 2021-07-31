@@ -44,8 +44,7 @@ use function strtolower;
 
 abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 {
-    /** @var AbstractSchemaManager */
-    protected $schemaManager;
+    protected AbstractSchemaManager $schemaManager;
 
     abstract protected function supportsPlatform(AbstractPlatform $platform): bool;
 

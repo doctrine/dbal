@@ -22,10 +22,8 @@ abstract class AbstractDriverTest extends TestCase
 {
     /**
      * The driver mock under test.
-     *
-     * @var Driver
      */
-    protected $driver;
+    protected Driver $driver;
 
     protected function setUp(): void
     {

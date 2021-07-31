@@ -27,8 +27,7 @@ use const CASE_LOWER;
 
 class DataAccessTest extends FunctionalTestCase
 {
-    /** @var bool */
-    private static $generated = false;
+    private static bool $generated = false;
 
     protected function setUp(): void
     {

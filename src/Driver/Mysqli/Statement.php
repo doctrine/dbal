@@ -29,7 +29,7 @@ use function str_repeat;
 final class Statement implements StatementInterface
 {
     /** @var string[] */
-    private static $paramTypeMap = [
+    private static array $paramTypeMap = [
         ParameterType::ASCII        => 's',
         ParameterType::STRING       => 's',
         ParameterType::BINARY       => 's',
@@ -39,24 +39,21 @@ final class Statement implements StatementInterface
         ParameterType::LARGE_OBJECT => 'b',
     ];
 
-    /** @var mysqli */
-    private $conn;
+    private mysqli $conn;
 
-    /** @var mysqli_stmt */
-    private $stmt;
+    private mysqli_stmt $stmt;
 
     /** @var mixed[] */
-    private $boundValues = [];
+    private array $boundValues;
 
-    /** @var string */
-    private $types;
+    private string $types;
 
     /**
      * Contains ref values for bindValue().
      *
      * @var mixed[]
      */
-    private $values = [];
+    private array $values = [];
 
     /**
      * @internal The statement can be only instantiated by its driver connection.
@@ -76,9 +73,6 @@ final class Statement implements StatementInterface
         $this->stmt = $stmt;
 
         $paramCount = $this->stmt->param_count;
-        if (0 >= $paramCount) {
-            return;
-        }
 
         $this->types       = str_repeat('s', $paramCount);
         $this->boundValues = array_fill(1, $paramCount, null);

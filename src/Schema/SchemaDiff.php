@@ -16,55 +16,54 @@ use function array_merge;
  */
 class SchemaDiff
 {
-    /** @var Schema|null */
-    public $fromSchema;
+    public ?Schema $fromSchema = null;
 
     /**
      * All added namespaces.
      *
      * @var array<string, string>
      */
-    public $newNamespaces = [];
+    public array $newNamespaces = [];
 
     /**
      * All removed namespaces.
      *
      * @var array<string, string>
      */
-    public $removedNamespaces = [];
+    public array $removedNamespaces = [];
 
     /**
      * All added tables.
      *
      * @var array<string, Table>
      */
-    public $newTables = [];
+    public array $newTables = [];
 
     /**
      * All changed tables.
      *
      * @var array<string, TableDiff>
      */
-    public $changedTables = [];
+    public array $changedTables = [];
 
     /**
      * All removed tables.
      *
      * @var array<string, Table>
      */
-    public $removedTables = [];
+    public array $removedTables = [];
 
     /** @var array<int, Sequence> */
-    public $newSequences = [];
+    public array $newSequences = [];
 
     /** @var array<int, Sequence> */
-    public $changedSequences = [];
+    public array $changedSequences = [];
 
     /** @var array<int, Sequence> */
-    public $removedSequences = [];
+    public array $removedSequences = [];
 
     /** @var array<string|int, ForeignKeyConstraint> */
-    public $orphanedForeignKeys = [];
+    public array $orphanedForeignKeys = [];
 
     /**
      * Constructs an SchemaDiff object.

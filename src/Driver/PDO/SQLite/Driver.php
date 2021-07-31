@@ -14,7 +14,7 @@ use function array_merge;
 final class Driver extends AbstractSQLiteDriver
 {
     /** @var mixed[] */
-    private $userDefinedFunctions = [
+    private array $userDefinedFunctions = [
         'sqrt' => ['callback' => [SqlitePlatform::class, 'udfSqrt'], 'numArgs' => 1],
         'mod'  => ['callback' => [SqlitePlatform::class, 'udfMod'], 'numArgs' => 2],
         'locate'  => ['callback' => [SqlitePlatform::class, 'udfLocate'], 'numArgs' => -1],

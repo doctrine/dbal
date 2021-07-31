@@ -28,23 +28,18 @@ use function array_values;
  */
 final class CachingResult implements DriverResult
 {
-    /** @var CacheItemPoolInterface */
-    private $cache;
+    private CacheItemPoolInterface $cache;
 
-    /** @var string */
-    private $cacheKey;
+    private string $cacheKey;
 
-    /** @var string */
-    private $realKey;
+    private string $realKey;
 
-    /** @var int */
-    private $lifetime;
+    private int $lifetime;
 
-    /** @var Result */
-    private $result;
+    private Result $result;
 
     /** @var array<int,array<string,mixed>>|null */
-    private $data;
+    private ?array $data = null;
 
     public function __construct(
         Result $result,

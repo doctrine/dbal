@@ -41,11 +41,10 @@ use function trim;
  */
 class PostgreSQL94Platform extends AbstractPlatform
 {
-    /** @var bool */
-    private $useBooleanTrueFalseStrings = true;
+    private bool $useBooleanTrueFalseStrings = true;
 
     /** @var string[][] PostgreSQL booleans literals */
-    private $booleanLiterals = [
+    private array $booleanLiterals = [
         'true' => [
             't',
             'true',

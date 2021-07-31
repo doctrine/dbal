@@ -20,8 +20,7 @@ class JsonTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     protected $platform;
 
-    /** @var JsonType */
-    protected $type;
+    protected JsonType $type;
 
     protected function setUp(): void
     {

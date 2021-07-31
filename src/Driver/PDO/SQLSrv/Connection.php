@@ -12,8 +12,7 @@ use PDO;
 
 final class Connection implements ServerInfoAwareConnection
 {
-    /** @var PDOConnection */
-    private $connection;
+    private PDOConnection $connection;
 
     public function __construct(PDOConnection $connection)
     {

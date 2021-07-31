@@ -14,8 +14,7 @@ class StringTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var StringType */
-    private $type;
+    private StringType $type;
 
     protected function setUp(): void
     {

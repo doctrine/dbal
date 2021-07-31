@@ -18,14 +18,11 @@ class TypeRegistryTest extends TestCase
     private const TEST_TYPE_NAME       = 'test';
     private const OTHER_TEST_TYPE_NAME = 'other';
 
-    /** @var TypeRegistry */
-    private $registry;
+    private TypeRegistry $registry;
 
-    /** @var BlobType */
-    private $testType;
+    private BlobType $testType;
 
-    /** @var BinaryType */
-    private $otherTestType;
+    private BinaryType $otherTestType;
 
     protected function setUp(): void
     {
