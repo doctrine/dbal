@@ -180,14 +180,6 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTriggerDefinition($trigger)
-    {
-        return $trigger['trigger_name'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function _getPortableViewDefinition($view)
     {
         return new View($view['schemaname'] . '.' . $view['viewname'], $view['definition']);

@@ -812,37 +812,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param mixed[][] $triggers
-     *
-     * @return mixed[][]
-     */
-    protected function _getPortableTriggersList($triggers)
-    {
-        $list = [];
-        foreach ($triggers as $value) {
-            $value = $this->_getPortableTriggerDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
-        }
-
-        return $list;
-    }
-
-    /**
-     * @param mixed[] $trigger
-     *
-     * @return mixed
-     */
-    protected function _getPortableTriggerDefinition($trigger)
-    {
-        return $trigger;
-    }
-
-    /**
      * @param mixed[][] $sequences
      *
      * @return Sequence[]
