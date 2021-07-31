@@ -8,7 +8,7 @@ namespace Doctrine\DBAL\Logging;
 class LoggerChain implements SQLLogger
 {
     /** @var iterable<SQLLogger> */
-    private $loggers = [];
+    private $loggers;
 
     /**
      * @param iterable<SQLLogger> $loggers
