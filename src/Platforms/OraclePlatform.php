@@ -63,12 +63,20 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated Generate dates within the application.
+     *
      * @param string $type
      *
      * @return string
      */
     public function getNowExpression($type = 'timestamp')
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4753',
+            'OraclePlatform::getNowExpression() is deprecated. Generate dates within the application.'
+        );
+
         switch ($type) {
             case 'date':
             case 'time':

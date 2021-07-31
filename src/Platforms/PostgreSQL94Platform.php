@@ -91,9 +91,17 @@ class PostgreSQL94Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Generate dates within the application.
      */
     public function getNowExpression()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4753',
+            'PostgreSQL94Platform::getNowExpression() is deprecated. Generate dates within the application.'
+        );
+
         return 'LOCALTIMESTAMP(0)';
     }
 

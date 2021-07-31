@@ -993,10 +993,18 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to get the current system date.
      *
+     * @deprecated Generate dates within the application.
+     *
      * @return string
      */
     public function getNowExpression()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4753',
+            'AbstractPlatform::getNowExpression() is deprecated. Generate dates within the application.'
+        );
+
         return 'NOW()';
     }
 
