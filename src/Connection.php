@@ -760,7 +760,7 @@ class Connection
     {
         $typeValues = [];
 
-        foreach ($columnList as $columnIndex => $columnName) {
+        foreach ($columnList as $columnName) {
             $typeValues[] = $types[$columnName] ?? ParameterType::STRING;
         }
 

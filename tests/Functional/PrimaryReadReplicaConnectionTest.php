@@ -140,7 +140,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
     public function testKeepReplicaBeginTransactionStaysOnPrimary(): void
     {
-        $conn = $this->createPrimaryReadReplicaConnection($keepReplica = true);
+        $conn = $this->createPrimaryReadReplicaConnection(true);
         $conn->ensureConnectedToReplica();
 
         $conn->beginTransaction();
@@ -158,7 +158,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
     public function testKeepReplicaInsertStaysOnPrimary(): void
     {
-        $conn = $this->createPrimaryReadReplicaConnection($keepReplica = true);
+        $conn = $this->createPrimaryReadReplicaConnection(true);
         $conn->ensureConnectedToReplica();
 
         $conn->insert('primary_replica_table', ['test_int' => 30]);
