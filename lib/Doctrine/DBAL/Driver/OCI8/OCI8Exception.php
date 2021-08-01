@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Driver\AbstractDriverException;
 
 /**
- * @deprecated Use {@link Exception} instead
+ * @deprecated Use {@link \Doctrine\DBAL\Driver\Exception} instead
  *
  * @psalm-immutable
  */
