@@ -280,7 +280,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testColumnCollation(): void
     {
         $table = new Table('test_collation');
-        $table->addOption('collate', $collation = 'latin1_swedish_ci');
+        $table->addOption('collate', 'latin1_swedish_ci');
         $table->addOption('charset', 'latin1');
         $table->addColumn('id', 'integer');
         $table->addColumn('text', 'text');

@@ -442,9 +442,7 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testConvertBooleanAsLiteralStrings(
         $databaseValue,
-        string $preparedStatementValue,
-        ?int $integerValue,
-        ?bool $booleanValue
+        string $preparedStatementValue
     ): void {
         $platform = $this->createPlatform();
 

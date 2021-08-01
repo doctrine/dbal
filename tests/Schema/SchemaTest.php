@@ -62,7 +62,7 @@ class SchemaTest extends TestCase
         $table     = new Table($tableName);
         $tables    = [$table, $table];
 
-        $schema = new Schema($tables);
+        new Schema($tables);
     }
 
     public function testRenameTable(): void
@@ -171,7 +171,7 @@ class SchemaTest extends TestCase
 
         $sequence = new Sequence('a_seq', 1, 1);
 
-        $schema = new Schema([], [$sequence, $sequence]);
+        new Schema([], [$sequence, $sequence]);
     }
 
     public function testConfigMaxIdentifierLength(): void

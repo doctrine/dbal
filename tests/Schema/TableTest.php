@@ -108,7 +108,7 @@ class TableTest extends TestCase
         $columns   = [];
         $columns[] = new Column('foo', $type);
         $columns[] = new Column('foo', $type);
-        $table     = new Table('foo', $columns, [], []);
+        new Table('foo', $columns, [], []);
     }
 
     public function testCreateIndex(): void
@@ -181,7 +181,7 @@ class TableTest extends TestCase
             new Index('the_primary', ['foo'], true, true),
             new Index('other_primary', ['bar'], true, true),
         ];
-        $table   = new Table('foo', $columns, $indexes, [], []);
+        new Table('foo', $columns, $indexes, [], []);
     }
 
     public function testAddTwoIndexesWithSameNameThrowsException(): void
@@ -194,7 +194,7 @@ class TableTest extends TestCase
             new Index('an_idx', ['foo'], false, false),
             new Index('an_idx', ['bar'], false, false),
         ];
-        $table   = new Table('foo', $columns, $indexes, [], []);
+        new Table('foo', $columns, $indexes, [], []);
     }
 
     public function testConstraints(): void
