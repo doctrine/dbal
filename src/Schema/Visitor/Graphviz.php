@@ -23,7 +23,7 @@ class Graphviz extends AbstractVisitor
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void
     {
         $this->output .= $this->createNodeRelation(
-            $fkConstraint->getLocalTableName() . ':col' . current($fkConstraint->getLocalColumns()) . ':se',
+            $localTable->getName() . ':col' . current($fkConstraint->getLocalColumns()) . ':se',
             $fkConstraint->getForeignTableName() . ':col' . current($fkConstraint->getForeignColumns()) . ':se',
             [
                 'dir'       => 'back',

@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Deprecated reference from `ForeignKeyConstraint` to its local (referencing) `Table`.
+
+Reference from `ForeignKeyConstraint` to its local (referencing) `Table` is removed as well as the following methods:
+
+- `setLocalTable()`,
+- `getLocalTable()`,
+- `getLocalTableName()`.
+
+The type of `SchemaDiff::$orphanedForeignKeys` has changed from list of foreign keys (list<ForeignKeyConstraint>)
+to map of referencing tables to their list of foreign keys (array<string,list<ForeignKeyConstraint>>).
+
 ## BC BREAK: Removed redundant `AbstractPlatform` methods.
 
 The following redundant `AbstractPlatform` methods have been removed:

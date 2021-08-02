@@ -19,11 +19,6 @@ use function substr;
 class ForeignKeyConstraint extends AbstractAsset implements Constraint
 {
     /**
-     * Instance of the referencing table the foreign key constraint is associated with.
-     */
-    protected Table $_localTable;
-
-    /**
      * Asset identifier instances of the referencing table column names the foreign key constraint is associated with.
      *
      * @var array<string, Identifier>
@@ -95,29 +90,6 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         }
 
         return $identifiers;
-    }
-
-    /**
-     * Returns the name of the referencing table
-     * the foreign key constraint is associated with.
-     */
-    public function getLocalTableName(): string
-    {
-        return $this->_localTable->getName();
-    }
-
-    /**
-     * Sets the Table instance of the referencing table
-     * the foreign key constraint is associated with.
-     */
-    public function setLocalTable(Table $table): void
-    {
-        $this->_localTable = $table;
-    }
-
-    public function getLocalTable(): Table
-    {
-        return $this->_localTable;
     }
 
     /**

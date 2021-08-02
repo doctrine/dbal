@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\AbstractVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 
 use function array_shift;
 use function strlen;
@@ -214,15 +213,6 @@ class SchemaTest extends TestCase
 
         self::assertNotSame($tableB, $schemaNew->getTable('bar'));
         self::assertNotSame($tableB->getColumn('id'), $schemaNew->getTable('bar')->getColumn('id'));
-
-        $foreignKeys = $schemaNew->getTable('bar')->getForeignKeys();
-        self::assertCount(1, $foreignKeys);
-        $fk = array_shift($foreignKeys);
-
-        $re = new ReflectionProperty($fk, '_localTable');
-        $re->setAccessible(true);
-
-        self::assertSame($schemaNew->getTable('bar'), $re->getValue($fk));
     }
 
     public function testHasTableForQuotedAsset(): void

@@ -94,10 +94,6 @@ class SchemaDiffTest extends TestCase
         if ($unsafe) {
             $platform->expects(self::exactly(1))
                      ->method('getDropForeignKeySql')
-                     ->with(
-                         self::isInstanceOf(ForeignKeyConstraint::class),
-                         self::isInstanceOf(Table::class)
-                     )
                      ->will(self::returnValue('drop_orphan_fk'));
         }
 
@@ -127,9 +123,11 @@ class SchemaDiffTest extends TestCase
         $diff->changedTables['baz_table']  = new TableDiff('baz_table');
         $diff->newTables['foo_table']->addColumn('foreign_id', 'integer');
         $diff->newTables['foo_table']->addForeignKeyConstraint('foreign_table', ['foreign_id'], ['id']);
-        $fk = new ForeignKeyConstraint(['id'], 'foreign_table', ['id']);
-        $fk->setLocalTable(new Table('local_table'));
-        $diff->orphanedForeignKeys[] = $fk;
+        $diff->orphanedForeignKeys['local_table'][] = new ForeignKeyConstraint(
+            ['id'],
+            'foreign_table',
+            ['id']
+        );
 
         return $diff;
     }
