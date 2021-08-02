@@ -15,20 +15,18 @@ class QueryCacheProfileTest extends TestCase
     private const LIFETIME  = 3600;
     private const CACHE_KEY = 'user_specified_cache_key';
 
-    /** @var QueryCacheProfile */
-    private $queryCacheProfile;
+    private QueryCacheProfile $queryCacheProfile;
 
-    /** @var string */
-    private $query = 'SELECT * FROM foo WHERE bar = ?';
+    private string $query = 'SELECT * FROM foo WHERE bar = ?';
 
     /** @var int[] */
-    private $params = [666];
+    private array $params = [666];
 
     /** @var int[] */
-    private $types = [ParameterType::INTEGER];
+    private array $types = [ParameterType::INTEGER];
 
     /** @var string[] */
-    private $connectionParams = [
+    private array $connectionParams = [
         'dbname'   => 'database_name',
         'user'     => 'database_user',
         'password' => 'database_password',

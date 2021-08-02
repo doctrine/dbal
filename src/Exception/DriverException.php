@@ -19,10 +19,8 @@ class DriverException extends Exception implements Driver\Exception
 {
     /**
      * The query that triggered the exception, if any.
-     *
-     * @var Query|null
      */
-    private $query;
+    private ?Query $query = null;
 
     /**
      * @internal

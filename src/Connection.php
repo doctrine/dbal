@@ -68,44 +68,32 @@ class Connection
 
     /**
      * The wrapped driver connection.
-     *
-     * @var \Doctrine\DBAL\Driver\Connection|null
      */
-    protected $_conn;
+    protected ?DriverConnection $_conn = null;
 
-    /** @var Configuration */
-    protected $_config;
+    protected Configuration $_config;
 
-    /** @var EventManager */
-    protected $_eventManager;
+    protected EventManager $_eventManager;
 
     /**
      * The current auto-commit mode of this connection.
-     *
-     * @var bool
      */
-    private $autoCommit = true;
+    private bool $autoCommit = true;
 
     /**
      * The transaction nesting level.
-     *
-     * @var int
      */
-    private $transactionNestingLevel = 0;
+    private int $transactionNestingLevel = 0;
 
     /**
      * The currently active transaction isolation level or NULL before it has been determined.
-     *
-     * @var int|null
      */
-    private $transactionIsolationLevel;
+    private ?int $transactionIsolationLevel = null;
 
     /**
      * If nested transactions should use savepoints.
-     *
-     * @var bool
      */
-    private $nestTransactionsWithSavepoints = false;
+    private bool $nestTransactionsWithSavepoints = false;
 
     /**
      * The parameters used during creation of the Connection instance.
@@ -114,34 +102,26 @@ class Connection
      * @phpstan-var array<string,mixed>
      * @psalm-var Params
      */
-    private $params;
+    private array $params;
 
     /**
      * The database platform object used by the connection or NULL before it's initialized.
-     *
-     * @var AbstractPlatform|null
      */
-    private $platform;
+    private ?AbstractPlatform $platform = null;
 
-    /** @var ExceptionConverter|null */
-    private $exceptionConverter;
+    private ?ExceptionConverter $exceptionConverter = null;
 
-    /** @var Parser|null */
-    private $parser;
+    private ?Parser $parser = null;
 
     /**
      * The used DBAL driver.
-     *
-     * @var Driver
      */
-    protected $_driver;
+    protected Driver $_driver;
 
     /**
      * Flag that indicates whether the current transaction is marked for rollback only.
-     *
-     * @var bool
      */
-    private $isRollbackOnly = false;
+    private bool $isRollbackOnly = false;
 
     /**
      * Initializes a new instance of the Connection class.

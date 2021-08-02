@@ -29,7 +29,7 @@ use const CASE_UPPER;
 class OracleSessionInit implements EventSubscriber
 {
     /** @var array<string, string> */
-    protected $_defaultSessionVars = [
+    protected array $_defaultSessionVars = [
         'NLS_TIME_FORMAT' => 'HH24:MI:SS',
         'NLS_DATE_FORMAT' => 'YYYY-MM-DD HH24:MI:SS',
         'NLS_TIMESTAMP_FORMAT' => 'YYYY-MM-DD HH24:MI:SS',

@@ -23,8 +23,7 @@ use function get_class;
 
 class ComparatorTest extends TestCase
 {
-    /** @var Comparator */
-    private $comparator;
+    private Comparator $comparator;
 
     protected function setUp(): void
     {

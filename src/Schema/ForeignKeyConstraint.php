@@ -20,17 +20,15 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
 {
     /**
      * Instance of the referencing table the foreign key constraint is associated with.
-     *
-     * @var Table
      */
-    protected $_localTable;
+    protected Table $_localTable;
 
     /**
      * Asset identifier instances of the referencing table column names the foreign key constraint is associated with.
      *
      * @var array<string, Identifier>
      */
-    protected $_localColumnNames;
+    protected array $_localColumnNames;
 
     /**
      * Table or asset identifier instance of the referenced table name the foreign key constraint is associated with.
@@ -44,14 +42,14 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      *
      * @var array<string, Identifier>
      */
-    protected $_foreignColumnNames;
+    protected array $_foreignColumnNames;
 
     /**
      * Options associated with the foreign key constraint.
      *
      * @var array<string, mixed>
      */
-    protected $_options;
+    protected array $_options;
 
     /**
      * Initializes the foreign key constraint.

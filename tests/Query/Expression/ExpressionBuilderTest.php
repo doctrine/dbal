@@ -11,8 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class ExpressionBuilderTest extends TestCase
 {
-    /** @var ExpressionBuilder */
-    protected $expr;
+    protected ExpressionBuilder $expr;
 
     protected function setUp(): void
     {

@@ -50,16 +50,15 @@ class Schema extends AbstractAsset
      *
      * @var array<string, string>
      */
-    private $namespaces = [];
+    private array $namespaces = [];
 
     /** @var array<string, Table> */
-    protected $_tables = [];
+    protected array $_tables = [];
 
     /** @var array<string, Sequence> */
-    protected $_sequences = [];
+    protected array $_sequences = [];
 
-    /** @var SchemaConfig */
-    protected $_schemaConfig;
+    protected SchemaConfig $_schemaConfig;
 
     /**
      * @param array<Table>    $tables

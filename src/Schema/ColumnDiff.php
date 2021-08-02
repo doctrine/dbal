@@ -11,17 +11,14 @@ use function in_array;
  */
 class ColumnDiff
 {
-    /** @var string */
-    public $oldColumnName;
+    public string $oldColumnName;
 
-    /** @var Column */
-    public $column;
+    public Column $column;
 
     /** @var array<int, string> */
-    public $changedProperties = [];
+    public array $changedProperties = [];
 
-    /** @var Column|null */
-    public $fromColumn;
+    public ?Column $fromColumn = null;
 
     /**
      * @param array<string> $changedProperties

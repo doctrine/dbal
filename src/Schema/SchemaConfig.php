@@ -9,17 +9,14 @@ namespace Doctrine\DBAL\Schema;
  */
 class SchemaConfig
 {
-    /** @var bool */
-    protected $hasExplicitForeignKeyIndexes = false;
+    protected bool $hasExplicitForeignKeyIndexes = false;
 
-    /** @var int */
-    protected $maxIdentifierLength = 63;
+    protected int $maxIdentifierLength = 63;
 
-    /** @var string|null */
-    protected $name;
+    protected ?string $name = null;
 
     /** @var array<string, mixed> */
-    protected $defaultTableOptions = [];
+    protected array $defaultTableOptions = [];
 
     public function hasExplicitForeignKeyIndexes(): bool
     {

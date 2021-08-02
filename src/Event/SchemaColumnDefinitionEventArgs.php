@@ -12,24 +12,20 @@ use Doctrine\DBAL\Schema\Column;
  */
 class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
 {
-    /** @var Column|null */
-    private $column;
+    private ?Column $column = null;
 
     /**
      * Raw column data as fetched from the database.
      *
      * @var array<string, mixed>
      */
-    private $tableColumn;
+    private array $tableColumn;
 
-    /** @var string */
-    private $table;
+    private string $table;
 
-    /** @var string */
-    private $database;
+    private string $database;
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     /**
      * @param array<string, mixed> $tableColumn

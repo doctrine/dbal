@@ -17,8 +17,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platformMock;
 
-    /** @var CreateSchemaSqlCollector */
-    private $visitor;
+    private CreateSchemaSqlCollector $visitor;
 
     protected function setUp(): void
     {

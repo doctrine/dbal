@@ -20,8 +20,7 @@ class DateTimeTzImmutableTypeTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var DateTimeTzImmutableType */
-    private $type;
+    private DateTimeTzImmutableType $type;
 
     protected function setUp(): void
     {

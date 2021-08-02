@@ -11,8 +11,7 @@ use function sprintf;
 
 class DefaultValueTest extends FunctionalTestCase
 {
-    /** @var bool */
-    private static $initialized = false;
+    private static bool $initialized = false;
 
     protected function setUp(): void
     {

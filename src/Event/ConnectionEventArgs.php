@@ -12,8 +12,7 @@ use Doctrine\DBAL\Connection;
  */
 class ConnectionEventArgs extends EventArgs
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

@@ -18,8 +18,7 @@ class VarDateTimeImmutableTypeTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var VarDateTimeImmutableType */
-    private $type;
+    private VarDateTimeImmutableType $type;
 
     protected function setUp(): void
     {

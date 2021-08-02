@@ -25,7 +25,7 @@ final class TypeRegistry
      *
      * @var array<string, Type>
      */
-    private $instances;
+    private array $instances;
 
     /**
      * @param array<string, Type> $instances

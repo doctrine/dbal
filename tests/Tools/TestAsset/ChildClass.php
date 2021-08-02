@@ -6,12 +6,9 @@ namespace Doctrine\DBAL\Tests\Tools\TestAsset;
 
 final class ChildClass extends ParentClass
 {
-    /** @var int */
-    public $childPublicAttribute = 4;
+    public int $childPublicAttribute = 4;
 
-    /** @var int */
-    protected $childProtectedAttribute = 5;
+    protected int $childProtectedAttribute = 5;
 
-    /** @var int */
-    private $childPrivateAttribute = 6;
+    private int $childPrivateAttribute = 6;
 }

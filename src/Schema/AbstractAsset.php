@@ -25,18 +25,14 @@ use function substr;
  */
 abstract class AbstractAsset
 {
-    /** @var string */
-    protected $_name = '';
+    protected string $_name = '';
 
     /**
      * Namespace of the asset. If none isset the default namespace is assumed.
-     *
-     * @var string|null
      */
-    protected $_namespace;
+    protected ?string $_namespace = null;
 
-    /** @var bool */
-    protected $_quoted = false;
+    protected bool $_quoted = false;
 
     /**
      * Sets the name of this asset.

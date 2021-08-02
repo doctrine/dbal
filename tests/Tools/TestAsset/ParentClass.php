@@ -6,12 +6,9 @@ namespace Doctrine\DBAL\Tests\Tools\TestAsset;
 
 abstract class ParentClass
 {
-    /** @var int */
-    public $parentPublicAttribute = 1;
+    public int $parentPublicAttribute = 1;
 
-    /** @var int */
-    protected $parentProtectedAttribute = 2;
+    protected int $parentProtectedAttribute = 2;
 
-    /** @var int */
-    private $parentPrivateAttribute = 3;
+    private int $parentPrivateAttribute = 3;
 }

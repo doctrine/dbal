@@ -41,8 +41,7 @@ final class Parser
     private const MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
     private const OTHER                = '((?!' . self::SPECIAL . ')' . self::ANY . ')+';
 
-    /** @var string */
-    private $sqlPattern;
+    private string $sqlPattern;
 
     public function __construct(bool $mySQLStringEscaping)
     {

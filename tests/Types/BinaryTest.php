@@ -23,8 +23,7 @@ class BinaryTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     protected $platform;
 
-    /** @var BinaryType */
-    protected $type;
+    protected BinaryType $type;
 
     protected function setUp(): void
     {

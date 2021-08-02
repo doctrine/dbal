@@ -82,15 +82,13 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @var array<string, DriverConnection|null>
      */
-    protected $connections = ['primary' => null, 'replica' => null];
+    protected array $connections = ['primary' => null, 'replica' => null];
 
     /**
      * You can keep the replica connection and then switch back to it
      * during the request if you know what you are doing.
-     *
-     * @var bool
      */
-    protected $keepReplica = false;
+    protected bool $keepReplica = false;
 
     /**
      * Creates Primary Replica Connection.

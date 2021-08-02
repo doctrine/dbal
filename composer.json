@@ -31,7 +31,7 @@
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
     ],
     "require": {
-        "php": "^7.3 || ^8.0",
+        "php": "^7.4 || ^8.0",
         "composer/package-versions-deprecated": "^1.11.99",
         "doctrine/deprecations": "^0.5.3",
         "doctrine/event-manager": "^1.0",
@@ -56,7 +56,7 @@
     "bin": ["bin/doctrine-dbal"],
     "config": {
         "platform": {
-            "php": "7.3.0"
+            "php": "7.4.0"
         },
         "sort-packages": true
     },

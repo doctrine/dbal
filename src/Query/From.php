@@ -9,11 +9,9 @@ namespace Doctrine\DBAL\Query;
  */
 final class From
 {
-    /** @var string */
-    public $table;
+    public string $table;
 
-    /** @var string|null */
-    public $alias;
+    public ?string $alias = null;
 
     public function __construct(string $table, ?string $alias = null)
     {

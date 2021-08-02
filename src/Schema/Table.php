@@ -36,30 +36,28 @@ use const ARRAY_FILTER_USE_KEY;
 class Table extends AbstractAsset
 {
     /** @var Column[] */
-    protected $_columns = [];
+    protected array $_columns = [];
 
     /** @var Index[] */
-    private $implicitIndexes = [];
+    private array $implicitIndexes = [];
 
     /** @var Index[] */
-    protected $_indexes = [];
+    protected array $_indexes = [];
 
-    /** @var string|null */
-    protected $_primaryKeyName;
+    protected ?string $_primaryKeyName = null;
 
     /** @var UniqueConstraint[] */
-    protected $uniqueConstraints = [];
+    protected array $uniqueConstraints = [];
 
     /** @var ForeignKeyConstraint[] */
-    protected $_fkConstraints = [];
+    protected array $_fkConstraints = [];
 
     /** @var mixed[] */
-    protected $_options = [
+    protected array $_options = [
         'create_options' => [],
     ];
 
-    /** @var SchemaConfig|null */
-    protected $_schemaConfig;
+    protected ?SchemaConfig $_schemaConfig = null;
 
     /**
      * @param array<Column>               $columns

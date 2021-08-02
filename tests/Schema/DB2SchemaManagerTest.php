@@ -24,8 +24,7 @@ final class DB2SchemaManagerTest extends TestCase
     /** @var Connection&MockObject */
     private $conn;
 
-    /** @var DB2SchemaManager */
-    private $manager;
+    private DB2SchemaManager $manager;
 
     protected function setUp(): void
     {

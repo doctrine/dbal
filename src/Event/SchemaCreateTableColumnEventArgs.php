@@ -15,17 +15,14 @@ use function array_merge;
  */
 class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 {
-    /** @var Column */
-    private $column;
+    private Column $column;
 
-    /** @var Table */
-    private $table;
+    private Table $table;
 
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
     /** @var array<int, string> */
-    private $sql = [];
+    private array $sql = [];
 
     public function __construct(Column $column, Table $table, AbstractPlatform $platform)
     {

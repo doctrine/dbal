@@ -14,8 +14,7 @@ use function array_merge;
 
 abstract class ExceptionConverterTest extends TestCase
 {
-    /** @var ExceptionConverter */
-    private $converter;
+    private ExceptionConverter $converter;
 
     protected function setUp(): void
     {

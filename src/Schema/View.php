@@ -9,8 +9,7 @@ namespace Doctrine\DBAL\Schema;
  */
 class View extends AbstractAsset
 {
-    /** @var string */
-    private $sql;
+    private string $sql;
 
     public function __construct(string $name, string $sql)
     {

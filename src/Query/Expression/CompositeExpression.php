@@ -29,17 +29,15 @@ class CompositeExpression implements Countable
 
     /**
      * The instance type of composite expression.
-     *
-     * @var string
      */
-    private $type;
+    private string $type;
 
     /**
      * Each expression part of the composite expression.
      *
      * @var array<int, self|string>
      */
-    private $parts = [];
+    private array $parts = [];
 
     /**
      * @internal Use the and() / or() factory methods.

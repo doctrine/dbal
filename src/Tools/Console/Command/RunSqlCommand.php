@@ -28,8 +28,7 @@ use function stripos;
  */
 class RunSqlCommand extends Command
 {
-    /** @var ConnectionProvider */
-    private $connectionProvider;
+    private ConnectionProvider $connectionProvider;
 
     public function __construct(ConnectionProvider $connectionProvider)
     {

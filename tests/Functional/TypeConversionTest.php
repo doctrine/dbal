@@ -15,8 +15,7 @@ use function str_repeat;
 
 class TypeConversionTest extends FunctionalTestCase
 {
-    /** @var int */
-    private static $typeCounter = 0;
+    private static int $typeCounter = 0;
 
     protected function setUp(): void
     {

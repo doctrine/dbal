@@ -8,11 +8,9 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 
 final class Result implements ResultInterface
 {
-    /** @var ResultInterface */
-    private $result;
+    private ResultInterface $result;
 
-    /** @var Converter */
-    private $converter;
+    private Converter $converter;
 
     /**
      * @internal The result can be only instantiated by the portability connection or statement.

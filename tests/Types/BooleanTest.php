@@ -14,8 +14,7 @@ class BooleanTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var BooleanType */
-    private $type;
+    private BooleanType $type;
 
     protected function setUp(): void
     {

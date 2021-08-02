@@ -27,8 +27,7 @@ class ResultCacheTest extends FunctionalTestCase
         ['test_int' => 300, 'test_string' => 'baz'],
     ];
 
-    /** @var DebugStack */
-    private $sqlLogger;
+    private DebugStack $sqlLogger;
 
     protected function setUp(): void
     {

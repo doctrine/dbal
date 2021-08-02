@@ -14,20 +14,18 @@ use function array_merge;
  */
 class SchemaCreateTableEventArgs extends SchemaEventArgs
 {
-    /** @var Table */
-    private $table;
+    private Table $table;
 
     /** @var array<int, array<string, mixed>> */
-    private $columns;
+    private array $columns;
 
     /** @var array<string, mixed> */
-    private $options;
+    private array $options;
 
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
     /** @var array<int, string> */
-    private $sql = [];
+    private array $sql = [];
 
     /**
      * @param array<int, array<string, mixed>> $columns

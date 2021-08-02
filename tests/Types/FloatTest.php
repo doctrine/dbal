@@ -14,8 +14,7 @@ class FloatTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var FloatType */
-    private $type;
+    private FloatType $type;
 
     protected function setUp(): void
     {

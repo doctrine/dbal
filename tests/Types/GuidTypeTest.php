@@ -14,8 +14,7 @@ class GuidTypeTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var GuidType */
-    private $type;
+    private GuidType $type;
 
     protected function setUp(): void
     {

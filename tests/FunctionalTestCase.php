@@ -11,20 +11,15 @@ abstract class FunctionalTestCase extends TestCase
 {
     /**
      * Shared connection when a TestCase is run alone (outside of it's functional suite)
-     *
-     * @var Connection|null
      */
-    private static $sharedConnection;
+    private static ?Connection $sharedConnection = null;
 
-    /** @var Connection */
-    protected $connection;
+    protected Connection $connection;
 
     /**
      * Whether the shared connection could be reused by subsequent tests.
-     *
-     * @var bool
      */
-    private $isConnectionReusable = true;
+    private bool $isConnectionReusable = true;
 
     /**
      * Mark shared connection not reusable for subsequent tests.

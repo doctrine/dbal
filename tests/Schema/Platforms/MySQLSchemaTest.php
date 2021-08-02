@@ -12,11 +12,9 @@ use PHPUnit\Framework\TestCase;
 
 class MySQLSchemaTest extends TestCase
 {
-    /** @var Comparator */
-    private $comparator;
+    private Comparator $comparator;
 
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
     protected function setUp(): void
     {

@@ -15,21 +15,17 @@ use Psr\Cache\CacheItemPoolInterface;
 class Configuration
 {
     /** @var Middleware[] */
-    private $middlewares = [];
+    private array $middlewares = [];
 
     /**
      * The SQL logger in use. If null, SQL logging is disabled.
-     *
-     * @var SQLLogger|null
      */
-    protected $sqlLogger;
+    protected ?SQLLogger $sqlLogger = null;
 
     /**
      * The cache driver implementation that is used for query result caching.
-     *
-     * @var CacheItemPoolInterface|null
      */
-    private $resultCache;
+    private ?CacheItemPoolInterface $resultCache = null;
 
     /**
      * The callable to use to filter schema assets.
@@ -40,10 +36,8 @@ class Configuration
 
     /**
      * The default auto-commit mode for connections.
-     *
-     * @var bool
      */
-    protected $autoCommit = true;
+    protected bool $autoCommit = true;
 
     /**
      * Sets the SQL logger to use.

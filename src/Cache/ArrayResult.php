@@ -17,13 +17,11 @@ use function reset;
 final class ArrayResult implements Result
 {
     /** @var mixed[] */
-    private $data;
+    private array $data;
 
-    /** @var int */
-    private $columnCount = 0;
+    private int $columnCount = 0;
 
-    /** @var int */
-    private $num = 0;
+    private int $num = 0;
 
     /**
      * @param mixed[] $data

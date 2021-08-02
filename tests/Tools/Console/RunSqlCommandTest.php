@@ -16,10 +16,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class RunSqlCommandTest extends TestCase
 {
-    /** @var CommandTester */
-    private $commandTester;
-    /** @var RunSqlCommand */
-    private $command;
+    private CommandTester $commandTester;
+    private RunSqlCommand $command;
 
     /** @var Connection&MockObject */
     private $connectionMock;

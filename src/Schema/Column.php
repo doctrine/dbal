@@ -15,44 +15,34 @@ use function method_exists;
  */
 class Column extends AbstractAsset
 {
-    /** @var Type */
-    protected $_type;
+    protected Type $_type;
 
-    /** @var int|null */
-    protected $_length;
+    protected ?int $_length = null;
 
-    /** @var int|null */
-    protected $_precision;
+    protected ?int $_precision = null;
 
-    /** @var int */
-    protected $_scale = 0;
+    protected int $_scale = 0;
 
-    /** @var bool */
-    protected $_unsigned = false;
+    protected bool $_unsigned = false;
 
-    /** @var bool */
-    protected $_fixed = false;
+    protected bool $_fixed = false;
 
-    /** @var bool */
-    protected $_notnull = true;
+    protected bool $_notnull = true;
 
     /** @var mixed */
     protected $_default;
 
-    /** @var bool */
-    protected $_autoincrement = false;
+    protected bool $_autoincrement = false;
 
     /** @var array<string, mixed> */
-    protected $_platformOptions = [];
+    protected array $_platformOptions = [];
 
-    /** @var string|null */
-    protected $_columnDefinition;
+    protected ?string $_columnDefinition = null;
 
-    /** @var string */
-    protected $_comment = '';
+    protected string $_comment = '';
 
     /** @var array<string, mixed> */
-    protected $_customSchemaOptions = [];
+    protected array $_customSchemaOptions = [];
 
     /**
      * Creates a new Column.

@@ -17,8 +17,7 @@ use function array_map;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    /** @var bool */
-    private static $privilegesGranted = false;
+    private static bool $privilegesGranted = false;
 
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {

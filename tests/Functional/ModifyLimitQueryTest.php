@@ -17,8 +17,7 @@ use const CASE_LOWER;
 
 class ModifyLimitQueryTest extends FunctionalTestCase
 {
-    /** @var bool */
-    private static $tableCreated = false;
+    private static bool $tableCreated = false;
 
     protected function setUp(): void
     {

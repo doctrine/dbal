@@ -18,14 +18,11 @@ use const CASE_UPPER;
 
 final class Driver implements DriverInterface
 {
-    /** @var DriverInterface */
-    private $driver;
+    private DriverInterface $driver;
 
-    /** @var int */
-    private $mode;
+    private int $mode;
 
-    /** @var int */
-    private $case;
+    private int $case;
 
     public function __construct(DriverInterface $driver, int $mode, int $case)
     {

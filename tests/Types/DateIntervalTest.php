@@ -18,8 +18,7 @@ final class DateIntervalTest extends TestCase
     /** @var AbstractPlatform&MockObject */
     private $platform;
 
-    /** @var DateIntervalType */
-    private $type;
+    private DateIntervalType $type;
 
     protected function setUp(): void
     {

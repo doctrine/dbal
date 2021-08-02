@@ -11,11 +11,9 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 class ComparatorTest extends FunctionalTestCase
 {
-    /** @var AbstractSchemaManager */
-    private $schemaManager;
+    private AbstractSchemaManager $schemaManager;
 
-    /** @var Comparator */
-    private $comparator;
+    private Comparator $comparator;
 
     protected function setUp(): void
     {

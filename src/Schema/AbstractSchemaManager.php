@@ -32,17 +32,13 @@ abstract class AbstractSchemaManager
 {
     /**
      * Holds instance of the Doctrine connection for this schema manager.
-     *
-     * @var Connection
      */
-    protected $_conn;
+    protected Connection $_conn;
 
     /**
      * Holds instance of the database platform used for this schema manager.
-     *
-     * @var AbstractPlatform
      */
-    protected $_platform;
+    protected AbstractPlatform $_platform;
 
     public function __construct(Connection $connection, AbstractPlatform $platform)
     {

@@ -11,8 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class AsciiStringTest extends TestCase
 {
-    /** @var AsciiStringType */
-    private $type;
+    private AsciiStringType $type;
 
     protected function setUp(): void
     {

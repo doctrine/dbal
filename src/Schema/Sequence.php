@@ -14,14 +14,11 @@ use function sprintf;
  */
 class Sequence extends AbstractAsset
 {
-    /** @var int */
-    protected $allocationSize = 1;
+    protected int $allocationSize = 1;
 
-    /** @var int */
-    protected $initialValue = 1;
+    protected int $initialValue = 1;
 
-    /** @var int|null */
-    protected $cache;
+    protected ?int $cache = null;
 
     public function __construct(string $name, int $allocationSize = 1, int $initialValue = 1, ?int $cache = null)
     {
