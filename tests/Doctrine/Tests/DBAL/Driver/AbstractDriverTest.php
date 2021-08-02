@@ -75,7 +75,7 @@ abstract class AbstractDriverTest extends DbalTestCase
      *
      * @dataProvider exceptionConversionProvider
      */
-    public function testConvertsException($errorCode, ?string $sqlState, ?string $message, string $expectedClass): void
+    public function testConvertsException($errorCode, ?string $sqlState, string $message, string $expectedClass): void
     {
         if (! $this->driver instanceof ExceptionConverterDriver) {
             $this->markTestSkipped('This test is only intended for exception converter drivers.');
