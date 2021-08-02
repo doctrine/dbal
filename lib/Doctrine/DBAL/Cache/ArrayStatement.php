@@ -10,6 +10,7 @@ use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+use ReturnTypeWillChange;
 
 use function array_merge;
 use function array_values;
@@ -95,6 +96,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, Result
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         $data = $this->fetchAll();

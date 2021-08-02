@@ -17,6 +17,7 @@ use PDO;
 use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
+use ReturnTypeWillChange;
 use stdClass;
 
 use function array_change_key_case;
@@ -270,6 +271,7 @@ class DB2Statement implements IteratorAggregate, StatementInterface, Result
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return new StatementIterator($this);

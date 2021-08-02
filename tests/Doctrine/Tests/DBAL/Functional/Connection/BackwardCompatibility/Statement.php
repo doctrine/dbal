@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement as BaseStatement;
 use PDO;
+use Traversable;
 
 use function assert;
 
@@ -112,7 +113,7 @@ class Statement extends BaseStatement
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new StatementIterator($this);
     }

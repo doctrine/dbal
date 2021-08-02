@@ -9,6 +9,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
 use IteratorAggregate;
 use PDO;
+use ReturnTypeWillChange;
 use Traversable;
 
 use function array_shift;
@@ -40,6 +41,7 @@ class Result implements IteratorAggregate, DriverStatement, DriverResultStatemen
     /**
      * @return Driver\ResultStatement
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return $this->stmt;
