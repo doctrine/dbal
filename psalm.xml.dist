@@ -118,6 +118,13 @@
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getUniqueFieldDeclarationSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsAlterTable"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsViews"/>
+                <!--
+                    See https://github.com/doctrine/dbal/pull/4742
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::getLocalTable"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::getLocalTableName"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::setLocalTable"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
