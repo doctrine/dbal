@@ -105,6 +105,8 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * Returns the name of the referencing table
      * the foreign key constraint is associated with.
      *
+     * @deprecated Use the table that contains the foreign key as part of its {@link Table::$_fkConstraints} instead.
+     *
      * @return string
      */
     public function getLocalTableName()
@@ -116,6 +118,8 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * Sets the Table instance of the referencing table
      * the foreign key constraint is associated with.
      *
+     * @deprecated Use the table that contains the foreign key as part of its {@link Table::$_fkConstraints} instead.
+     *
      * @param Table $table Instance of the referencing table.
      *
      * @return void
@@ -126,6 +130,8 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     }
 
     /**
+     * @deprecated Use the table that contains the foreign key as part of its {@link Table::$_fkConstraints} instead.
+     *
      * @return Table
      */
     public function getLocalTable()

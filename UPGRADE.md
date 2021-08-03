@@ -8,6 +8,18 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated reference from `ForeignKeyConstraint` to its local (referencing) `Table`.
+
+Reference from `ForeignKeyConstraint` to its local (referencing) `Table` is deprecated as well as the following methods:
+
+- `setLocalTable()`,
+- `getLocalTable()`,
+- `getLocalTableName()`.
+
+When a foreign key is used as part of the `Table` definition, the table should be used directly. When a foreign key is
+used as part of another collection (e.g. `SchemaDiff`), the collection should store the reference to the key's
+referencing table separately.
+
 ## Deprecated redundant `AbstractPlatform` methods.
 
 The following methods implement simple SQL fragments that don't vary across supported platforms. The SQL fragments
