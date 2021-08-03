@@ -1266,7 +1266,7 @@ class ComparatorTest extends TestCase
 
         self::assertArrayHasKey('table2', $actual->changedTables);
         self::assertCount(1, $actual->orphanedForeignKeys);
-        self::assertEquals('fk_table2_table1', $actual->orphanedForeignKeys[0]->getName());
+        self::assertEquals('fk_table2_table1', $actual->orphanedForeignKeys['table1'][0]->getName());
         self::assertCount(1, $actual->changedTables['table2']->addedForeignKeys, 'FK to table3 should be added.');
         self::assertEquals('table3', $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
     }

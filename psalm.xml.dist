@@ -171,8 +171,6 @@
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
                 <!-- See https://github.com/sebastianbergmann/phpunit/pull/4610 -->
                 <directory name="tests"/>
-                <!-- See https://github.com/doctrine/dbal/issues/4506 -->
-                <file name="src/Schema/ForeignKeyConstraint.php"/>
             </errorLevel>
         </PropertyNotSetInConstructor>
         <RedundantCondition>

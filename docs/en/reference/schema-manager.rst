@@ -119,7 +119,7 @@ object:
 
     <?php
     foreach ($foreignKeys as $foreignKey) {
-        echo $foreignKey->getName() . ': ' . $foreignKey->getLocalTableName() ."\n";
+        echo $foreignKey->getName() ."\n";
     }
 
 listTableIndexes()

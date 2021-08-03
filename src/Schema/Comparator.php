@@ -32,7 +32,11 @@ class Comparator
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
+        /** @var array<string,list<ForeignKeyConstraint>> $foreignKeysToTable */
         $foreignKeysToTable = [];
+
+        /** @var array<string,array<string,null>> $localTablesByForeignTable */
+        $localTablesByForeignTable = [];
 
         foreach ($toSchema->getNamespaces() as $namespace) {
             if ($fromSchema->hasNamespace($namespace)) {
@@ -78,11 +82,9 @@ class Comparator
             // also remember all foreign keys that point to a specific table
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $foreignTable = strtolower($foreignKey->getForeignTableName());
-                if (! isset($foreignKeysToTable[$foreignTable])) {
-                    $foreignKeysToTable[$foreignTable] = [];
-                }
 
-                $foreignKeysToTable[$foreignTable][] = $foreignKey;
+                $foreignKeysToTable[$foreignTable][]                  = $foreignKey;
+                $localTablesByForeignTable[$foreignTable][$tableName] = null;
             }
         }
 
@@ -91,13 +93,13 @@ class Comparator
                 continue;
             }
 
-            $diff->orphanedForeignKeys = array_merge($diff->orphanedForeignKeys, $foreignKeysToTable[$tableName]);
+            foreach ($foreignKeysToTable[$tableName] as $foreignKey) {
+                $diff->orphanedForeignKeys[$tableName][] = $foreignKey;
+            }
 
             // deleting duplicated foreign keys present on both on the orphanedForeignKey
             // and the removedForeignKeys from changedTables
-            foreach ($foreignKeysToTable[$tableName] as $foreignKey) {
-                // strtolower the table name to make if compatible with getShortestName
-                $localTableName = strtolower($foreignKey->getLocalTableName());
+            foreach ($localTablesByForeignTable[$tableName] as $localTableName => $_) {
                 if (! isset($diff->changedTables[$localTableName])) {
                     continue;
                 }

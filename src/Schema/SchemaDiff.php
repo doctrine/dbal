@@ -62,7 +62,11 @@ class SchemaDiff
     /** @var array<int, Sequence> */
     public array $removedSequences = [];
 
-    /** @var array<string|int, ForeignKeyConstraint> */
+    /**
+     * Map of table names to their list of orphaned foreign keys.
+     *
+     * @var array<string,list<ForeignKeyConstraint>>
+     */
     public array $orphanedForeignKeys = [];
 
     /**
@@ -122,8 +126,10 @@ class SchemaDiff
         }
 
         if ($platform->supportsForeignKeyConstraints() && $saveMode === false) {
-            foreach ($this->orphanedForeignKeys as $orphanedForeignKey) {
-                $sql[] = $platform->getDropForeignKeySQL($orphanedForeignKey, $orphanedForeignKey->getLocalTable());
+            foreach ($this->orphanedForeignKeys as $localTableName => $tableOrphanedForeignKey) {
+                foreach ($tableOrphanedForeignKey as $orphanedForeignKey) {
+                    $sql[] = $platform->getDropForeignKeySQL($orphanedForeignKey, $localTableName);
+                }
             }
         }
 

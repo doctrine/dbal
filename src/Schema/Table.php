@@ -692,7 +692,6 @@ class Table extends AbstractAsset
 
         foreach ($this->_fkConstraints as $k => $fk) {
             $this->_fkConstraints[$k] = clone $fk;
-            $this->_fkConstraints[$k]->setLocalTable($this);
         }
     }
 
@@ -795,8 +794,6 @@ class Table extends AbstractAsset
 
     protected function _addForeignKeyConstraint(ForeignKeyConstraint $constraint): self
     {
-        $constraint->setLocalTable($this);
-
         $name = $constraint->getName() !== ''
             ? $constraint->getName()
             : $this->_generateIdentifierName(
