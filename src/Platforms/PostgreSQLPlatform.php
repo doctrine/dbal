@@ -575,16 +575,9 @@ SQL
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropSequenceSQL($sequence): string
+    public function getDropSequenceSQL(string $name): string
     {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
+        return 'DROP SEQUENCE ' . $name . ' CASCADE';
     }
 
     public function getCreateSchemaSQL(string $schemaName): string
@@ -592,10 +585,7 @@ SQL
         return 'CREATE SCHEMA ' . $schemaName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropForeignKeySQL($foreignKey, $table): string
+    public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
         return $this->getDropConstraintSQL($foreignKey, $table);
     }

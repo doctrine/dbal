@@ -11,11 +11,9 @@ use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use InvalidArgumentException;
 
@@ -31,7 +29,6 @@ use function in_array;
 use function is_array;
 use function is_bool;
 use function is_numeric;
-use function is_string;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
@@ -149,16 +146,9 @@ class SQLServerPlatform extends AbstractPlatform
             ' MINVALUE ' . $sequence->getInitialValue();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDropSequenceSQL($sequence): string
+    public function getDropSequenceSQL(string $name): string
     {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence;
+        return 'DROP SEQUENCE ' . $name;
     }
 
     public function getListSequencesSQL(string $database): string
@@ -203,46 +193,13 @@ class SQLServerPlatform extends AbstractPlatform
         return 'CREATE SCHEMA ' . $schemaName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropForeignKeySQL($foreignKey, $table): string
+    public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
-        if (! $foreignKey instanceof ForeignKeyConstraint) {
-            $foreignKey = new Identifier($foreignKey);
-        }
-
-        if (! $table instanceof Table) {
-            $table = new Identifier($table);
-        }
-
-        $foreignKey = $foreignKey->getQuotedName($this);
-        $table      = $table->getQuotedName($this);
-
-        return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
+        return $this->getDropConstraintSQL($foreignKey, $table);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropIndexSQL($index, $table = null): string
+    public function getDropIndexSQL(string $name, string $table): string
     {
-        if ($index instanceof Index) {
-            $index = $index->getQuotedName($this);
-        } elseif (! is_string($index)) {
-            throw new InvalidArgumentException(
-                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
-            );
-        }
-
-        if (! isset($table)) {
-            return 'DROP INDEX ' . $index;
-        }
-
-        if ($table instanceof Table) {
-            $table = $table->getQuotedName($this);
-        }
-
         return sprintf(
             <<<SQL
                 IF EXISTS (SELECT * FROM sysobjects WHERE name = '%s')
@@ -251,10 +208,10 @@ class SQLServerPlatform extends AbstractPlatform
                     DROP INDEX %s ON %s
                 SQL
             ,
-            $index,
+            $name,
             $table,
-            $index,
-            $index,
+            $name,
+            $name,
             $table
         );
     }
@@ -336,18 +293,9 @@ class SQLServerPlatform extends AbstractPlatform
         return array_merge($sql, $commentsSql, $defaultConstraintsSql);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreatePrimaryKeySQL(Index $index, $table): string
+    public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
-        if ($table instanceof Table) {
-            $identifier = $table->getQuotedName($this);
-        } else {
-            $identifier = $table;
-        }
-
-        $sql = 'ALTER TABLE ' . $identifier . ' ADD PRIMARY KEY';
+        $sql = 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY';
 
         if ($index->hasFlag('nonclustered')) {
             $sql .= ' NONCLUSTERED';
@@ -416,10 +364,7 @@ class SQLServerPlatform extends AbstractPlatform
             ' FOR ' . $columnName->getQuotedName($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateIndexSQL(Index $index, $table): string
+    public function getCreateIndexSQL(Index $index, string $table): string
     {
         $constraint = parent::getCreateIndexSQL($index, $table);
 

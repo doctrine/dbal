@@ -920,27 +920,11 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL snippet to drop an existing table.
-     *
-     * @param Table|string $table
-     *
-     * @throws InvalidArgumentException
      */
-    public function getDropTableSQL($table): string
+    public function getDropTableSQL(string $table): string
     {
-        $tableArg = $table;
-
-        if ($table instanceof Table) {
-            $table = $table->getQuotedName($this);
-        }
-
-        if (! is_string($table)) {
-            throw new InvalidArgumentException(
-                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
-            );
-        }
-
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
-            $eventArgs = new SchemaDropTableEventArgs($tableArg, $this);
+            $eventArgs = new SchemaDropTableEventArgs($table, $this);
             $this->_eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
 
             if ($eventArgs->isDefaultPrevented()) {
@@ -961,76 +945,33 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to safely drop a temporary table WITHOUT implicitly committing an open transaction.
-     *
-     * @param Table|string $table
      */
-    public function getDropTemporaryTableSQL($table): string
+    public function getDropTemporaryTableSQL(string $table): string
     {
         return $this->getDropTableSQL($table);
     }
 
     /**
      * Returns the SQL to drop an index from a table.
-     *
-     * @param Index|string $index
-     * @param Table|string $table
-     *
-     * @throws InvalidArgumentException
      */
-    public function getDropIndexSQL($index, $table = null): string
+    public function getDropIndexSQL(string $name, string $table): string
     {
-        if ($index instanceof Index) {
-            $index = $index->getQuotedName($this);
-        } elseif (! is_string($index)) {
-            throw new InvalidArgumentException(
-                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
-            );
-        }
-
-        return 'DROP INDEX ' . $index;
+        return 'DROP INDEX ' . $name;
     }
 
     /**
      * Returns the SQL to drop a constraint.
-     *
-     * @param Constraint|string $constraint
-     * @param Table|string      $table
      */
-    public function getDropConstraintSQL($constraint, $table): string
+    public function getDropConstraintSQL(string $name, string $table): string
     {
-        if (! $constraint instanceof Constraint) {
-            $constraint = new Identifier($constraint);
-        }
-
-        if (! $table instanceof Table) {
-            $table = new Identifier($table);
-        }
-
-        $constraint = $constraint->getQuotedName($this);
-        $table      = $table->getQuotedName($this);
-
-        return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $constraint;
+        return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $name;
     }
 
     /**
      * Returns the SQL to drop a foreign key.
-     *
-     * @param ForeignKeyConstraint|string $foreignKey
-     * @param Table|string                $table
      */
-    public function getDropForeignKeySQL($foreignKey, $table): string
+    public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
-        if (! $foreignKey instanceof ForeignKeyConstraint) {
-            $foreignKey = new Identifier($foreignKey);
-        }
-
-        if (! $table instanceof Table) {
-            $table = new Identifier($table);
-        }
-
-        $foreignKey = $foreignKey->getQuotedName($this);
-        $table      = $table->getQuotedName($this);
-
         return 'ALTER TABLE ' . $table . ' DROP FOREIGN KEY ' . $foreignKey;
     }
 
@@ -1252,16 +1193,10 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to create a constraint on a table on this platform.
      *
-     * @param Table|string $table
-     *
      * @throws InvalidArgumentException
      */
-    public function getCreateConstraintSQL(Constraint $constraint, $table): string
+    public function getCreateConstraintSQL(Constraint $constraint, string $table): string
     {
-        if ($table instanceof Table) {
-            $table = $table->getQuotedName($this);
-        }
-
         $query = 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $constraint->getQuotedName($this);
 
         $columnList = '(' . implode(', ', $constraint->getQuotedColumns($this)) . ')';
@@ -1294,16 +1229,10 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to create an index on a table on this platform.
      *
-     * @param Table|string $table The name of the table on which the index is to be created.
-     *
      * @throws InvalidArgumentException
      */
-    public function getCreateIndexSQL(Index $index, $table): string
+    public function getCreateIndexSQL(Index $index, string $table): string
     {
-        if ($table instanceof Table) {
-            $table = $table->getQuotedName($this);
-        }
-
         $name    = $index->getQuotedName($this);
         $columns = $index->getColumns();
 
@@ -1343,15 +1272,9 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create an unnamed primary key constraint.
-     *
-     * @param Table|string $table
      */
-    public function getCreatePrimaryKeySQL(Index $index, $table): string
+    public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
-        if ($table instanceof Table) {
-            $table = $table->getQuotedName($this);
-        }
-
         return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
     }
 
@@ -1407,14 +1330,10 @@ abstract class AbstractPlatform
      * Returns the SQL to create a new foreign key.
      *
      * @param ForeignKeyConstraint $foreignKey The foreign key constraint.
-     * @param Table|string         $table      The name of the table on which the foreign key is to be created.
+     * @param string               $table      The name of the table on which the foreign key is to be created.
      */
-    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table): string
+    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $table): string
     {
-        if ($table instanceof Table) {
-            $table = $table->getQuotedName($this);
-        }
-
         return 'ALTER TABLE ' . $table . ' ADD ' . $this->getForeignKeyDeclarationSQL($foreignKey);
     }
 
@@ -1548,20 +1467,20 @@ abstract class AbstractPlatform
         $sql = [];
         if ($this->supportsForeignKeyConstraints()) {
             foreach ($diff->removedForeignKeys as $foreignKey) {
-                $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
+                $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableName);
             }
 
             foreach ($diff->changedForeignKeys as $foreignKey) {
-                $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
+                $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableName);
             }
         }
 
         foreach ($diff->removedIndexes as $index) {
-            $sql[] = $this->getDropIndexSQL($index, $tableName);
+            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableName);
         }
 
         foreach ($diff->changedIndexes as $index) {
-            $sql[] = $this->getDropIndexSQL($index, $tableName);
+            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableName);
         }
 
         return $sql;
@@ -2227,11 +2146,9 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to drop an existing sequence.
      *
-     * @param Sequence|string $sequence
-     *
      * @throws Exception If not supported on this platform.
      */
-    public function getDropSequenceSQL($sequence): string
+    public function getDropSequenceSQL(string $name): string
     {
         throw NotSupported::new(__METHOD__);
     }

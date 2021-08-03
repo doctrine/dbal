@@ -128,7 +128,10 @@ class SchemaDiff
         if ($platform->supportsForeignKeyConstraints() && $saveMode === false) {
             foreach ($this->orphanedForeignKeys as $localTableName => $tableOrphanedForeignKey) {
                 foreach ($tableOrphanedForeignKey as $orphanedForeignKey) {
-                    $sql[] = $platform->getDropForeignKeySQL($orphanedForeignKey, $localTableName);
+                    $sql[] = $platform->getDropForeignKeySQL(
+                        $orphanedForeignKey->getQuotedName($platform),
+                        $localTableName
+                    );
                 }
             }
         }
@@ -140,7 +143,7 @@ class SchemaDiff
 
             if ($saveMode === false) {
                 foreach ($this->removedSequences as $sequence) {
-                    $sql[] = $platform->getDropSequenceSQL($sequence);
+                    $sql[] = $platform->getDropSequenceSQL($sequence->getQuotedName($platform));
                 }
             }
 
@@ -161,7 +164,7 @@ class SchemaDiff
             }
 
             foreach ($table->getForeignKeys() as $foreignKey) {
-                $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table);
+                $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table->getQuotedName($platform));
             }
         }
 
@@ -169,7 +172,7 @@ class SchemaDiff
 
         if ($saveMode === false) {
             foreach ($this->removedTables as $table) {
-                $sql[] = $platform->getDropTableSQL($table);
+                $sql[] = $platform->getDropTableSQL($table->getQuotedName($platform));
             }
         }
 

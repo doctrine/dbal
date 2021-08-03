@@ -374,7 +374,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addUniqueIndex(['test'], 'test');
         $this->schemaManager->dropAndCreateTable($table);
 
-        $this->schemaManager->dropAndCreateIndex($table->getIndex('test'), $table);
+        $platform = $this->schemaManager->getDatabasePlatform();
+        $this->schemaManager->dropAndCreateIndex($table->getIndex('test'), $table->getQuotedName($platform));
         $tableIndexes = $this->schemaManager->listTableIndexes('test_create_index');
 
         self::assertEquals('test', strtolower($tableIndexes['test']->getName()));

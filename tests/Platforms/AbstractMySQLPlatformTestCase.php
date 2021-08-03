@@ -684,16 +684,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    protected function getQuotesDropForeignKeySQL(): string
-    {
-        return 'ALTER TABLE `table` DROP FOREIGN KEY `select`';
-    }
-
-    protected function getQuotesDropConstraintSQL(): string
-    {
-        return 'ALTER TABLE `table` DROP CONSTRAINT `select`';
-    }
-
     public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void
     {
         $table = new Table('text_blob_default_value');

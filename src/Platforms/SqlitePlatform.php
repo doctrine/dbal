@@ -595,7 +595,7 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = $this->getDropIndexSQL($index, $diff->name);
+            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $diff->name);
         }
 
         return $sql;
@@ -675,34 +675,22 @@ class SqlitePlatform extends AbstractPlatform
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreatePrimaryKeySQL(Index $index, $table): string
+    public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
         throw new Exception('Sqlite platform does not support alter primary key.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table): string
+    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $table): string
     {
         throw new Exception('Sqlite platform does not support alter foreign key.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDropForeignKeySQL($foreignKey, $table): string
+    public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
         throw new Exception('Sqlite platform does not support alter foreign key.');
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateConstraintSQL(Constraint $constraint, $table): string
+    public function getCreateConstraintSQL(Constraint $constraint, string $table): string
     {
         throw new Exception('Sqlite platform does not support alter constraint.');
     }
@@ -832,7 +820,7 @@ class SqlitePlatform extends AbstractPlatform
                 implode(', ', $oldColumnNames),
                 $table->getQuotedName($this)
             );
-            $sql[] = $this->getDropTableSQL($fromTable);
+            $sql[] = $this->getDropTableSQL($fromTable->getQuotedName($this));
 
             $sql   = array_merge($sql, $this->getCreateTableSQL($newTable));
             $sql[] = sprintf(
@@ -842,7 +830,7 @@ class SqlitePlatform extends AbstractPlatform
                 implode(', ', $oldColumnNames),
                 $dataTable->getQuotedName($this)
             );
-            $sql[] = $this->getDropTableSQL($dataTable);
+            $sql[] = $this->getDropTableSQL($dataTable->getQuotedName($this));
 
             $newName = $diff->getNewName();
 

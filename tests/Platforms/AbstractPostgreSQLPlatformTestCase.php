@@ -770,11 +770,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    protected function getQuotesDropForeignKeySQL(): string
-    {
-        return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
-    }
-
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('UUID', $this->platform->getGuidTypeDeclarationSQL([]));

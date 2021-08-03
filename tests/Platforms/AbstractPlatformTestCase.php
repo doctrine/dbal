@@ -1159,46 +1159,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         ];
     }
 
-    public function testQuotesDropForeignKeySQL(): void
-    {
-        if (! $this->platform->supportsForeignKeyConstraints()) {
-            self::markTestSkipped(
-                sprintf('%s does not support foreign key constraints.', get_class($this->platform))
-            );
-        }
-
-        $tableName      = 'table';
-        $table          = new Table($tableName);
-        $foreignKeyName = 'select';
-        $foreignKey     = new ForeignKeyConstraint([], 'foo', [], 'select');
-        $expectedSql    = $this->getQuotesDropForeignKeySQL();
-
-        self::assertSame($expectedSql, $this->platform->getDropForeignKeySQL($foreignKeyName, $tableName));
-        self::assertSame($expectedSql, $this->platform->getDropForeignKeySQL($foreignKey, $table));
-    }
-
-    protected function getQuotesDropForeignKeySQL(): string
-    {
-        return 'ALTER TABLE "table" DROP FOREIGN KEY "select"';
-    }
-
-    public function testQuotesDropConstraintSQL(): void
-    {
-        $tableName      = 'table';
-        $table          = new Table($tableName);
-        $constraintName = 'select';
-        $constraint     = new ForeignKeyConstraint([], 'foo', [], 'select');
-        $expectedSql    = $this->getQuotesDropConstraintSQL();
-
-        self::assertSame($expectedSql, $this->platform->getDropConstraintSQL($constraintName, $tableName));
-        self::assertSame($expectedSql, $this->platform->getDropConstraintSQL($constraint, $table));
-    }
-
-    protected function getQuotesDropConstraintSQL(): string
-    {
-        return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
-    }
-
     protected function getStringLiteralQuoteCharacter(): string
     {
         return "'";

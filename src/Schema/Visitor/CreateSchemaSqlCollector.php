@@ -52,7 +52,10 @@ class CreateSchemaSqlCollector extends AbstractVisitor
             return;
         }
 
-        $this->createFkConstraintQueries[] = $this->platform->getCreateForeignKeySQL($fkConstraint, $localTable);
+        $this->createFkConstraintQueries[] = $this->platform->getCreateForeignKeySQL(
+            $fkConstraint,
+            $localTable->getQuotedName($this->platform)
+        );
     }
 
     public function acceptSequence(Sequence $sequence): void

@@ -11,7 +11,6 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use SplObjectStorage;
 
-use function assert;
 use function strlen;
 
 /**
@@ -19,10 +18,13 @@ use function strlen;
  */
 class DropSchemaSqlCollector extends AbstractVisitor
 {
+    /** @var SplObjectStorage<ForeignKeyConstraint,Table> */
     private SplObjectStorage $constraints;
 
+    /** @var SplObjectStorage<Sequence,null> */
     private SplObjectStorage $sequences;
 
+    /** @var SplObjectStorage<Table,null> */
     private SplObjectStorage $tables;
 
     private AbstractPlatform $platform;
@@ -65,19 +67,19 @@ class DropSchemaSqlCollector extends AbstractVisitor
         $sql = [];
 
         foreach ($this->constraints as $fkConstraint) {
-            assert($fkConstraint instanceof ForeignKeyConstraint);
             $localTable = $this->constraints[$fkConstraint];
-            $sql[]      = $this->platform->getDropForeignKeySQL($fkConstraint, $localTable);
+            $sql[]      = $this->platform->getDropForeignKeySQL(
+                $fkConstraint->getQuotedName($this->platform),
+                $localTable->getQuotedName($this->platform)
+            );
         }
 
         foreach ($this->sequences as $sequence) {
-            assert($sequence instanceof Sequence);
-            $sql[] = $this->platform->getDropSequenceSQL($sequence);
+            $sql[] = $this->platform->getDropSequenceSQL($sequence->getQuotedName($this->platform));
         }
 
         foreach ($this->tables as $table) {
-            assert($table instanceof Table);
-            $sql[] = $this->platform->getDropTableSQL($table);
+            $sql[] = $this->platform->getDropTableSQL($table->getQuotedName($this->platform));
         }
 
         return $sql;

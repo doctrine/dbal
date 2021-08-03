@@ -619,7 +619,7 @@ class DB2Platform extends AbstractPlatform
                 } elseif ($remIndex->isUnique()) {
                     $sql[] = 'ALTER TABLE ' . $table . ' DROP UNIQUE ' . $remIndex->getQuotedName($this);
                 } else {
-                    $sql[] = $this->getDropIndexSQL($remIndex, $table);
+                    $sql[] = $this->getDropIndexSQL($remIndex->getQuotedName($this), $table);
                 }
 
                 $sql[] = $this->getCreateIndexSQL($addIndex, $table);

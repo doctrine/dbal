@@ -53,7 +53,7 @@ class MySQLSchemaTest extends TestCase
 
         $sqls = [];
         foreach ($tableOld->getForeignKeys() as $fk) {
-            $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld);
+            $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld->getQuotedName($this->platform));
         }
 
         self::assertEquals(
