@@ -575,11 +575,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $table2->addColumn('column_varbinary', 'binary', ['fixed' => true]);
         $table2->addColumn('column_binary', 'binary');
 
-        // VARBINARY -> BINARY
-        // BINARY    -> VARBINARY
-        $diff = (new Comparator())->diffTable($table1, $table2);
-        self::assertNotFalse($diff);
-        self::assertEmpty($this->platform->getAlterTableSQL($diff));
+        self::assertFalse((new Comparator($this->platform))->diffTable($table1, $table2));
     }
 
     public function testUsesSequenceEmulatedIdentityColumns(): void

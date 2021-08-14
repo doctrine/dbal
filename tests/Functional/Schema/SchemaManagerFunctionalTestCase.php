@@ -33,6 +33,7 @@ use Doctrine\DBAL\Types\Type;
 use function array_filter;
 use function array_keys;
 use function array_map;
+use function array_merge;
 use function array_search;
 use function array_values;
 use function count;
@@ -359,11 +360,16 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->listTableIndexes('list_table_indexes_test');
     }
 
-    public function testDiffListTableColumns(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testDiffListTableColumns(callable $comparatorFactory): void
     {
         if ($this->schemaManager->getDatabasePlatform()->getName() === 'oracle') {
             self::markTestSkipped(
-                'Does not work with Oracle, since it cannot detect DateTime, Date and Time differenecs (at the moment).'
+                'Does not work with Oracle, since it cannot detect DateTime, Date and Time differences (at the moment).'
             );
         }
 
@@ -371,8 +377,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->dropAndCreateTable($offlineTable);
         $onlineTable = $this->schemaManager->listTableDetails('list_table_columns');
 
-        $comparator = new Comparator();
-        $diff       = $comparator->diffTable($offlineTable, $onlineTable);
+        $diff = $comparatorFactory($this->schemaManager)->diffTable($onlineTable, $offlineTable);
 
         self::assertFalse($diff, 'No differences should be detected with the offline vs online schema.');
     }
@@ -698,9 +703,16 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertFalse($inferredTable->getColumn('id')->getAutoincrement());
     }
 
-    public function testUpdateSchemaWithForeignKeyRenaming(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testUpdateSchemaWithForeignKeyRenaming(callable $comparatorFactory): void
     {
-        if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        $platform = $this->schemaManager->getDatabasePlatform();
+
+        if (! $platform->supportsForeignKeyConstraints()) {
             self::markTestSkipped('This test is only supported on platforms that have foreign keys.');
         }
 
@@ -730,7 +742,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableFKNew->addIndex(['rename_fk_id'], 'fk_idx');
         $tableFKNew->addForeignKeyConstraint('test_fk_base', ['rename_fk_id'], ['id']);
 
-        $diff = (new Comparator())->diffTable($tableFK, $tableFKNew);
+        $diff = $comparatorFactory($this->schemaManager)->diffTable($tableFK, $tableFKNew);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -743,9 +755,16 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertSame(['rename_fk_id'], array_map('strtolower', current($foreignKeys)->getColumns()));
     }
 
-    public function testRenameIndexUsedInForeignKeyConstraint(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testRenameIndexUsedInForeignKeyConstraint(callable $comparatorFactory): void
     {
-        if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        $platform = $this->schemaManager->getDatabasePlatform();
+
+        if (! $platform->supportsForeignKeyConstraints()) {
             self::markTestSkipped('This test is only supported on platforms that have foreign keys.');
         }
 
@@ -773,7 +792,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foreignTable2 = clone $foreignTable;
         $foreignTable2->renameIndex('rename_index_fk_idx', 'renamed_index_fk_idx');
 
-        $diff = (new Comparator())->diffTable($foreignTable, $foreignTable2);
+        $diff = $comparatorFactory($this->schemaManager)->diffTable($foreignTable, $foreignTable2);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -1018,7 +1037,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(['id', 'other_id'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
     }
 
-    public function testColumnDefaultLifecycle(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testColumnDefaultLifecycle(callable $comparatorFactory): void
     {
         $table = new Table('col_def_lifecycle');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -1054,7 +1078,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diffTable->changeColumn('column6', ['default' => 666]);
         $diffTable->changeColumn('column7', ['default' => null]);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $comparatorFactory($this->schemaManager)->diffTable($table, $diffTable);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -1182,18 +1206,23 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     }
 
     /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
      * @dataProvider getAlterColumnComment
      */
     public function testAlterColumnComment(
+        callable $comparatorFactory,
         ?string $comment1,
         ?string $expectedComment1,
         ?string $comment2,
         ?string $expectedComment2
     ): void {
+        $platform = $this->schemaManager->getDatabasePlatform();
+
         if (
-            ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-            ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            ! $platform->supportsInlineColumnComments() &&
+            ! $platform->supportsCommentOnStatement() &&
+            $platform->getName() !== 'mssql'
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }
@@ -1217,9 +1246,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $onlineTable->changeColumn('no_comment1', ['comment' => $comment1]);
         $onlineTable->changeColumn('no_comment2', ['comment' => $comment2]);
 
-        $comparator = new Comparator();
-
-        $tableDiff = $comparator->diffTable($offlineTable, $onlineTable);
+        $tableDiff = $comparatorFactory($this->schemaManager)->diffTable($offlineTable, $onlineTable);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
 
@@ -1234,24 +1261,30 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     }
 
     /**
-     * @return mixed[][]
+     * @return iterable<mixed[]>
      */
     public static function getAlterColumnComment(): iterable
     {
-        return [
-            [null, null, ' ', ' '],
-            [null, null, '0', '0'],
-            [null, null, 'foo', 'foo'],
+        foreach (ComparatorTestUtils::comparatorProvider() as $comparatorArguments) {
+            foreach (
+                [
+                    [null, null, ' ', ' '],
+                    [null, null, '0', '0'],
+                    [null, null, 'foo', 'foo'],
 
-            ['', null, ' ', ' '],
-            ['', null, '0', '0'],
-            ['', null, 'foo', 'foo'],
+                    ['', null, ' ', ' '],
+                    ['', null, '0', '0'],
+                    ['', null, 'foo', 'foo'],
 
-            [' ', ' ', '0', '0'],
-            [' ', ' ', 'foo', 'foo'],
+                    [' ', ' ', '0', '0'],
+                    [' ', ' ', 'foo', 'foo'],
 
-            ['0', '0', 'foo', 'foo'],
-        ];
+                    ['0', '0', 'foo', 'foo'],
+                ] as $testArguments
+            ) {
+                yield array_merge($comparatorArguments, $testArguments);
+            }
+        }
     }
 
     public function testDoesNotListIndexesImplicitlyCreatedByForeignKeys(): void
@@ -1281,9 +1314,16 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertArrayHasKey('idx_3d6c147fdc58d6c', $indexes);
     }
 
-    public function testComparatorShouldNotAddCommentToJsonTypeSinceItIsTheDefaultNow(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testComparatorShouldNotAddCommentToJsonTypeSinceItIsTheDefaultNow(callable $comparatorFactory): void
     {
-        if (! $this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
+        $platform = $this->schemaManager->getDatabasePlatform();
+
+        if (! $platform->hasNativeJsonType()) {
             self::markTestSkipped('This test is only supported on platforms that have native JSON type.');
         }
 
@@ -1293,8 +1333,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table = new Table('json_test');
         $table->addColumn('parameters', 'json');
 
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($this->schemaManager->listTableDetails('json_test'), $table);
+        $tableDiff = $comparatorFactory($this->schemaManager)
+            ->diffTable($this->schemaManager->listTableDetails('json_test'), $table);
 
         self::assertFalse($tableDiff);
     }
@@ -1362,9 +1402,16 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals($sequence2InitialValue, $actualSequence2->getInitialValue());
     }
 
-    public function testComparisonWithAutoDetectedSequenceDefinition(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testComparisonWithAutoDetectedSequenceDefinition(callable $comparatorFactory): void
     {
-        if (! $this->schemaManager->getDatabasePlatform()->supportsSequences()) {
+        $platform = $this->schemaManager->getDatabasePlatform();
+
+        if (! $platform->supportsSequences()) {
             self::markTestSkipped('This test is only supported on platforms that support sequences.');
         }
 
@@ -1386,8 +1433,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         self::assertNotNull($createdSequence);
 
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffSequence($createdSequence, $sequence);
+        $tableDiff = $comparatorFactory($this->schemaManager)->diffSequence($createdSequence, $sequence);
 
         self::assertFalse($tableDiff);
     }

@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Types\Type;
 
@@ -349,6 +350,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
             $table->addOption('collation', $tableOptions['TABLE_COLLATION']);
         }
 
+        $table->addOption('charset', $tableOptions['CHARACTER_SET_NAME']);
+
         if ($tableOptions['AUTO_INCREMENT'] !== null) {
             $table->addOption('autoincrement', $tableOptions['AUTO_INCREMENT']);
         }
@@ -357,6 +360,11 @@ class MySQLSchemaManager extends AbstractSchemaManager
         $table->addOption('create_options', $this->parseCreateOptions($tableOptions['CREATE_OPTIONS']));
 
         return $table;
+    }
+
+    public function createComparator(): Comparator
+    {
+        return new MySQL\Comparator($this->getDatabasePlatform());
     }
 
     /**

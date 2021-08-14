@@ -431,6 +431,8 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * @deprecated
+     *
      * @return string[]
      *
      * @throws SchemaException
@@ -443,6 +445,8 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * @deprecated
+     *
      * @return string[]
      *
      * @throws SchemaException

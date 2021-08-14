@@ -4,8 +4,9 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BinaryType;
@@ -75,7 +76,12 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
-    public function testAlterTableColumnNotNull(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testAlterTableColumnNotNull(callable $comparatorFactory): void
     {
         $tableName = 'list_table_column_notnull';
         $table     = new Table($tableName);
@@ -97,7 +103,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->changeColumn('foo', ['notnull' => false]);
         $diffTable->changeColumn('bar', ['length' => 1024]);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $comparatorFactory($this->schemaManager)->diffTable($table, $diffTable);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -262,7 +268,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // Adding a primary key on already indexed columns
         // Oracle will reuse the unique index, which cause a constraint name differing from the index name
         $this->schemaManager->createConstraint(
-            new Schema\Index('id_pk_id_index', ['id'], true, true),
+            new Index('id_pk_id_index', ['id'], true, true),
             'list_table_indexes_pk_id_test'
         );
 

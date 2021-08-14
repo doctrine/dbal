@@ -1795,23 +1795,13 @@ abstract class AbstractPlatform
                 }
             }
 
-            $name = $column->getQuotedName($this);
-
-            $columnData = array_merge($column->toArray(), [
-                'name' => $name,
-                'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
-                'comment' => $this->getColumnComment($column),
-            ]);
-
-            if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
-                $columnData['length'] = 255;
-            }
+            $columnData = $this->columnToArray($column);
 
             if (in_array($column->getName(), $options['primary'], true)) {
                 $columnData['primary'] = true;
             }
 
-            $columns[$name] = $columnData;
+            $columns[$columnData['name']] = $columnData;
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
@@ -3902,6 +3892,27 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @return array<string,mixed> An associative array with the name of the properties
+     *                             of the column being declared as array indexes.
+     */
+    private function columnToArray(Column $column): array
+    {
+        $name = $column->getQuotedName($this);
+
+        $columnData = array_merge($column->toArray(), [
+            'name' => $name,
+            'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
+            'comment' => $this->getColumnComment($column),
+        ]);
+
+        if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
+            $columnData['length'] = 255;
+        }
+
+        return $columnData;
+    }
+
+    /**
      * @internal
      */
     public function createSQLParser(): Parser
@@ -3912,5 +3923,31 @@ abstract class AbstractPlatform
     protected function getLikeWildcardCharacters(): string
     {
         return '%_';
+    }
+
+    /**
+     * Compares the definitions of the given columns in the context of this platform.
+     *
+     * @throws Exception
+     */
+    public function columnsEqual(Column $column1, Column $column2): bool
+    {
+        if (
+            $this->getColumnDeclarationSQL('', $this->columnToArray($column1))
+            !== $this->getColumnDeclarationSQL('', $this->columnToArray($column2))
+        ) {
+            return false;
+        }
+
+        // If the platform supports inline comments, all comparison is already done above
+        if ($this->supportsInlineColumnComments()) {
+            return true;
+        }
+
+        if ($column1->getComment() !== $column2->getComment()) {
+            return false;
+        }
+
+        return $column1->getType() === $column2->getType();
     }
 }

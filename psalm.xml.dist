@@ -139,6 +139,10 @@
                 <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::getLocalTable"/>
                 <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::getLocalTableName"/>
                 <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::setLocalTable"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\Schema::getMigrateToSql"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
@@ -331,6 +335,8 @@
                 <!-- See https://github.com/doctrine/dbal/pull/3562 -->
                 <file name="src/Schema/AbstractSchemaManager.php"/>
                 <file name="src/Schema/SqliteSchemaManager.php"/>
+                <!-- See https://github.com/doctrine/dbal/pull/3498 -->
+                <file name="tests/Platforms/AbstractMySQLPlatformTestCase.php"/>
             </errorLevel>
         </TooManyArguments>
         <TypeDoesNotContainType>

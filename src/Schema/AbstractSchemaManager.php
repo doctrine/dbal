@@ -699,7 +699,8 @@ abstract class AbstractSchemaManager
      */
     public function migrateSchema(Schema $toSchema): void
     {
-        $schemaDiff = (new Comparator())->compareSchemas($this->createSchema(), $toSchema);
+        $schemaDiff = $this->createComparator()
+            ->compareSchemas($this->createSchema(), $toSchema);
 
         $this->alterSchema($schemaDiff);
     }
@@ -1217,5 +1218,10 @@ abstract class AbstractSchemaManager
         }
 
         return str_replace('(DC2Type:' . $type . ')', '', $comment);
+    }
+
+    public function createComparator(): Comparator
+    {
+        return new Comparator($this->getDatabasePlatform());
     }
 }

@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
@@ -570,5 +571,10 @@ SQL
         }
 
         return $table;
+    }
+
+    public function createComparator(): Comparator
+    {
+        return new SQLite\Comparator($this->getDatabasePlatform());
     }
 }

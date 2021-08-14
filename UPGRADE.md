@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated schema comparison APIs that don't account for the current database connection and the database platform
+
+1. Instantiation of the `Comparator` class outside the DBAL is deprecated. Use `SchemaManager::createComparator()`
+   to create the comparator specific to the current database connection and the database platform.
+2. The `Schema::getMigrateFromSql()` and `::getMigrateToSql()` methods are deprecated. Compare the schemas using the
+   connection-aware comparator and produce the SQL by passing the resulting diff to the target platform.
+
 ## Deprecated driver-level APIs that don't take the server version into account.
 
 The `ServerInfoAwareConnection` and `VersionAwarePlatformDriver` interfaces are deprecated. In the next major version,

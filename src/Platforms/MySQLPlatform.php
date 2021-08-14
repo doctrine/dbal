@@ -370,8 +370,15 @@ class MySQLPlatform extends AbstractPlatform
     {
         return sprintf(
             <<<'SQL'
-SELECT ENGINE, AUTO_INCREMENT, TABLE_COLLATION, TABLE_COMMENT, CREATE_OPTIONS
-FROM information_schema.TABLES
+SELECT t.ENGINE,
+       t.AUTO_INCREMENT,
+       t.TABLE_COMMENT,
+       t.CREATE_OPTIONS,
+       t.TABLE_COLLATION,
+       ccsa.CHARACTER_SET_NAME
+FROM information_schema.TABLES t
+    INNER JOIN information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` ccsa
+        ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
 WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = %s AND TABLE_NAME = %s
 SQL
             ,
