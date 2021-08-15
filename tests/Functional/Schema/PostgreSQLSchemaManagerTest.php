@@ -83,9 +83,12 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testAlterTableAutoIncrementAdd(): void
     {
+        // see https://github.com/doctrine/dbal/issues/4745
+        $this->schemaManager->tryMethod('dropSequence', 'autoinc_table_add_id_seq');
+
         $tableFrom = new Table('autoinc_table_add');
         $tableFrom->addColumn('id', 'integer');
-        $this->schemaManager->createTable($tableFrom);
+        $this->schemaManager->dropAndCreateTable($tableFrom);
         $tableFrom = $this->schemaManager->listTableDetails('autoinc_table_add');
         self::assertFalse($tableFrom->getColumn('id')->getAutoincrement());
 
@@ -113,7 +116,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableFrom = new Table('autoinc_table_drop');
         $column    = $tableFrom->addColumn('id', 'integer');
         $column->setAutoincrement(true);
-        $this->schemaManager->createTable($tableFrom);
+        $this->schemaManager->dropAndCreateTable($tableFrom);
         $tableFrom = $this->schemaManager->listTableDetails('autoinc_table_drop');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
@@ -273,7 +276,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->addColumn('checked', 'boolean', ['default' => false]);
 
-        $this->schemaManager->createTable($table);
+        $this->schemaManager->dropAndCreateTable($table);
 
         $databaseTable = $this->schemaManager->listTableDetails($table->getName());
 

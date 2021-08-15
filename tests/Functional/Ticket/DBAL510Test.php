@@ -25,7 +25,7 @@ class DBAL510Test extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->createTable($table);
+        $this->connection->getSchemaManager()->dropAndCreateTable($table);
 
         $onlineTable = $this->connection->getSchemaManager()->listTableDetails('dbal510tbl');
 

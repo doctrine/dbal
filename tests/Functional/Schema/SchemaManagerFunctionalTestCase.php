@@ -716,6 +716,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableFK->addIndex(['fk_id'], 'fk_idx');
         $tableFK->addForeignKeyConstraint('test_fk_base', ['fk_id'], ['id']);
 
+        $this->schemaManager->tryMethod('dropTable', $tableFK);
+        $this->schemaManager->tryMethod('dropTable', $table);
+
         $this->schemaManager->createTable($table);
         $this->schemaManager->createTable($tableFK);
 
@@ -761,8 +764,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             'fk_constraint'
         );
 
-        $this->schemaManager->dropAndCreateTable($primaryTable);
-        $this->schemaManager->dropAndCreateTable($foreignTable);
+        $this->schemaManager->tryMethod('dropTable', $foreignTable);
+        $this->schemaManager->tryMethod('dropTable', $primaryTable);
+
+        $this->schemaManager->createTable($primaryTable);
+        $this->schemaManager->createTable($foreignTable);
 
         $foreignTable2 = clone $foreignTable;
         $foreignTable2->renameIndex('rename_index_fk_idx', 'renamed_index_fk_idx');
@@ -1281,6 +1287,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('This test is only supported on platforms that have native JSON type.');
         }
 
+        $this->schemaManager->tryMethod('dropTable', 'json_test');
         $this->connection->executeQuery('CREATE TABLE json_test (parameters JSON NOT NULL)');
 
         $table = new Table('json_test');
