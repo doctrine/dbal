@@ -1006,7 +1006,7 @@ SQL
      */
     public function getName()
     {
-        return 'oracle';
+        return Family::ORACLE;
     }
 
     /**

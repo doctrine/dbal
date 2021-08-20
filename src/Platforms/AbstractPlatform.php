@@ -337,7 +337,7 @@ abstract class AbstractPlatform
     /**
      * Gets the name of the platform.
      *
-     * @return string
+     * @return Family::*
      */
     abstract public function getName();
 

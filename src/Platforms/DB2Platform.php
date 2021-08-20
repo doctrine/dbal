@@ -135,7 +135,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getName()
     {
-        return 'db2';
+        return Family::DB2;
     }
 
     /**

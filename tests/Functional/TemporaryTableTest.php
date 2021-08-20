@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\Family;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -12,7 +13,7 @@ class TemporaryTableTest extends FunctionalTestCase
 {
     public function testDropTemporaryTableNotAutoCommitTransaction(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'oracle') {
+        if ($this->connection->getDatabasePlatform()->getName() === Family::ORACLE) {
             self::markTestSkipped('Test does not work on Oracle.');
         }
 
@@ -43,7 +44,7 @@ class TemporaryTableTest extends FunctionalTestCase
 
     public function testCreateTemporaryTableNotAutoCommitTransaction(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'oracle') {
+        if ($this->connection->getDatabasePlatform()->getName() === Family::ORACLE) {
             self::markTestSkipped('Test does not work on Oracle.');
         }
 

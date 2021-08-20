@@ -12,6 +12,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Family;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Table;
@@ -93,7 +94,7 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testTransactionNestingLevelIsResetOnReconnect(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'sqlite') {
+        if ($this->connection->getDatabasePlatform()->getName() === Family::SQLITE) {
             $params           = $this->connection->getParams();
             $params['memory'] = false;
             $params['path']   = '/tmp/test_nesting.sqlite';
@@ -322,7 +323,13 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testConnectWithoutExplicitDatabaseName(): void
     {
-        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+        if (
+            in_array(
+                $this->connection->getDatabasePlatform()->getName(),
+                [Family::DB2, Family::ORACLE],
+                true
+            )
+        ) {
             self::markTestSkipped('Platform does not support connecting without database name.');
         }
 
@@ -342,7 +349,13 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase(): void
     {
-        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+        if (
+            in_array(
+                $this->connection->getDatabasePlatform()->getName(),
+                [Family::DB2, Family::ORACLE],
+                true
+            )
+        ) {
             self::markTestSkipped('Platform does not support connecting without database name.');
         }
 

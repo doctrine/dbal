@@ -6,6 +6,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Family;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -361,7 +362,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testDiffListTableColumns(): void
     {
-        if ($this->schemaManager->getDatabasePlatform()->getName() === 'oracle') {
+        if ($this->schemaManager->getDatabasePlatform()->getName() === Family::ORACLE) {
             self::markTestSkipped(
                 'Does not work with Oracle, since it cannot detect DateTime, Date and Time differenecs (at the moment).'
             );
@@ -784,7 +785,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (
             ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
              ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            $this->connection->getDatabasePlatform()->getName() !== Family::MSSQL
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }
@@ -827,7 +828,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (
             ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
              ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            $this->connection->getDatabasePlatform()->getName() !== Family::MSSQL
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }
@@ -854,7 +855,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (
             ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            $this->connection->getDatabasePlatform()->getName() !== Family::MSSQL
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }
@@ -1130,7 +1131,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (
             ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            $this->connection->getDatabasePlatform()->getName() !== Family::MSSQL
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }
@@ -1187,7 +1188,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (
             ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            $this->connection->getDatabasePlatform()->getName() !== Family::MSSQL
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }

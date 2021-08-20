@@ -1450,7 +1450,7 @@ class SQLServer2012Platform extends AbstractPlatform
      */
     public function getName()
     {
-        return 'mssql';
+        return Family::MSSQL;
     }
 
     /**

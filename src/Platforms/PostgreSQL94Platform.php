@@ -1064,7 +1064,7 @@ SQL
      */
     public function getName()
     {
-        return 'postgresql';
+        return Family::POSTGRESQL;
     }
 
     /**

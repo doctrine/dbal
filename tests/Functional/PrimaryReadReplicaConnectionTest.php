@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\Family;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
@@ -25,7 +26,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         $platformName = $this->connection->getDatabasePlatform()->getName();
 
         // This is a MySQL specific test, skip other vendors.
-        if ($platformName !== 'mysql') {
+        if ($platformName !== Family::MYSQL) {
             self::markTestSkipped(sprintf('Test does not work on %s.', $platformName));
         }
 

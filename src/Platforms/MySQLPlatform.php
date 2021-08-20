@@ -1038,7 +1038,7 @@ SQL
      */
     public function getName()
     {
-        return 'mysql';
+        return Family::MYSQL;
     }
 
     /**

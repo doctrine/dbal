@@ -558,7 +558,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getName()
     {
-        return 'sqlite';
+        return Family::SQLITE;
     }
 
     /**
