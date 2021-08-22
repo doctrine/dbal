@@ -8,7 +8,6 @@ use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function array_values;
-use function assert;
 use function is_string;
 use function preg_match;
 use function str_replace;
@@ -20,6 +19,8 @@ use const CASE_LOWER;
 
 /**
  * Oracle Schema Manager.
+ *
+ * @extends AbstractSchemaManager<OraclePlatform>
  */
 class OracleSchemaManager extends AbstractSchemaManager
 {
@@ -277,8 +278,6 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function dropAutoincrement($table)
     {
-        assert($this->_platform instanceof OraclePlatform);
-
         $sql = $this->_platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
             $this->_conn->executeStatement($query);
@@ -323,9 +322,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $table = parent::listTableDetails($name);
 
-        $platform = $this->_platform;
-        assert($platform instanceof OraclePlatform);
-        $sql = $platform->getListTableCommentsSQL($name);
+        $sql = $this->_platform->getListTableCommentsSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

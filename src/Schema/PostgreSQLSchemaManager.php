@@ -30,6 +30,8 @@ use const CASE_LOWER;
 
 /**
  * PostgreSQL Schema Manager.
+ *
+ * @extends AbstractSchemaManager<PostgreSQL94Platform>
  */
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
@@ -536,9 +538,7 @@ SQL
     {
         $table = parent::listTableDetails($name);
 
-        $platform = $this->_platform;
-        assert($platform instanceof PostgreSQL94Platform);
-        $sql = $platform->getListTableMetadataSQL($name);
+        $sql = $this->_platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 
