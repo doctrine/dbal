@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `ServerInfoAwareConnection` interface.
+
+The `ServerInfoAwareConnection` interface has been removed. The `getServerVersion()` method has been made
+part of the driver-level `Connection` interface.
+
 ## BC BREAK: Removed `AbstractPlatform::getName()`
 
 The `AbstractPlatform::getName()` method has been removed.

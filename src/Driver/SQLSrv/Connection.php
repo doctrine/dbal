@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 
@@ -21,7 +21,7 @@ use function sqlsrv_rows_affected;
 use function sqlsrv_server_info;
 use function str_replace;
 
-final class Connection implements ServerInfoAwareConnection
+final class Connection implements ConnectionInterface
 {
     /** @var resource */
     private $conn;

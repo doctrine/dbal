@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use stdClass;
 
@@ -30,7 +30,7 @@ use function error_get_last;
 use const DB2_AUTOCOMMIT_OFF;
 use const DB2_AUTOCOMMIT_ON;
 
-final class Connection implements ServerInfoAwareConnection
+final class Connection implements ConnectionInterface
 {
     /** @var resource */
     private $conn;

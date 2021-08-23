@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use mysqli;
 
@@ -20,7 +20,7 @@ use function stripos;
 
 use const MYSQLI_REPORT_OFF;
 
-final class Connection implements ServerInfoAwareConnection
+final class Connection implements ConnectionInterface
 {
     /**
      * Name of the option to set connection flags

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use PDO;
 
-final class Connection implements ServerInfoAwareConnection
+final class Connection implements ConnectionInterface
 {
     private PDOConnection $connection;
 

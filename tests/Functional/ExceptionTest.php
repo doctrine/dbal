@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\IBMDB2;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
@@ -16,7 +15,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function array_merge;
-use function assert;
 use function chmod;
 use function exec;
 use function extension_loaded;
@@ -231,7 +229,6 @@ class ExceptionTest extends FunctionalTestCase
 
         if ($platform instanceof MySQLPlatform && isset($params['user'])) {
             $wrappedConnection = $this->connection->getWrappedConnection();
-            assert($wrappedConnection instanceof ServerInfoAwareConnection);
 
             if (version_compare($wrappedConnection->getServerVersion(), '8', '>=')) {
                 self::markTestIncomplete('PHP currently does not completely support MySQL 8');

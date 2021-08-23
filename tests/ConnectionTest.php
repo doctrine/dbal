@@ -11,7 +11,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Event\TransactionBeginEventArgs;
 use Doctrine\DBAL\Event\TransactionCommitEventArgs;
@@ -697,7 +696,7 @@ class ConnectionTest extends TestCase
     {
         $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
-        $driverConnectionMock = $this->createMock(ServerInfoAwareConnection::class);
+        $driverConnectionMock = $this->createMock(DriverConnection::class);
 
         $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
 

@@ -13,7 +13,6 @@ use Doctrine\DBAL\Cache\Exception\NoResultDriverConfigured;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Event\TransactionBeginEventArgs;
 use Doctrine\DBAL\Event\TransactionCommitEventArgs;
@@ -32,14 +31,12 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use Throwable;
 use Traversable;
 
 use function array_key_exists;
 use function assert;
 use function count;
-use function get_class;
 use function implode;
 use function is_int;
 use function is_string;
@@ -365,28 +362,15 @@ class Connection
      *
      * @throws Exception
      */
-    private function getServerVersion(): ?string
+    private function getServerVersion(): string
     {
         $connection = $this->getWrappedConnection();
 
-        // Automatic platform version detection.
-        if ($connection instanceof ServerInfoAwareConnection) {
-            try {
-                return $connection->getServerVersion();
-            } catch (Driver\Exception $e) {
-                throw $this->convertException($e);
-            }
+        try {
+            return $connection->getServerVersion();
+        } catch (Driver\Exception $e) {
+            throw $this->convertException($e);
         }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pulls/4750',
-            'Not implementing the ServerInfoAwareConnection interface in %s is deprecated',
-            get_class($connection)
-        );
-
-        // Unable to detect platform version.
-        return null;
     }
 
     /**

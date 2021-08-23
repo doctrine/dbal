@@ -76,4 +76,11 @@ interface Connection
      * @throws Exception
      */
     public function rollBack(): void;
+
+    /**
+     * Returns the version number of the database server connected to.
+     *
+     * @throws Exception
+     */
+    public function getServerVersion(): string;
 }
