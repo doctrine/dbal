@@ -4,14 +4,16 @@ namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Result as DriverResult;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
+use LogicException;
 
 /**
  * Portability wrapper for a Connection.
  */
-final class Connection implements ConnectionInterface
+final class Connection implements ServerInfoAwareConnection
 {
     public const PORTABILITY_ALL           = 255;
     public const PORTABILITY_NONE          = 0;
@@ -98,5 +100,17 @@ final class Connection implements ConnectionInterface
     public function rollBack()
     {
         return $this->connection->rollBack();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getServerVersion()
+    {
+        if (! $this->connection instanceof ServerInfoAwareConnection) {
+            throw new LogicException('The underlying connection is not a ServerInfoAwareConnection');
+        }
+
+        return $this->connection->getServerVersion();
     }
 }
