@@ -99,7 +99,7 @@ class DumperTest extends DbalTestCase
         $var = (array) $var;
         unset($var['__CLASS__']);
 
-        self::assertSame($expected, $var);
+        self::assertEquals($expected, $var);
     }
 
     /**
