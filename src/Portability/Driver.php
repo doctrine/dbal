@@ -12,6 +12,7 @@ use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\ServerVersionProvider;
 
 use const CASE_LOWER;
 use const CASE_UPPER;
@@ -39,7 +40,7 @@ final class Driver implements DriverInterface
         $connection = $this->driver->connect($params);
 
         $portability = (new OptimizeFlags())(
-            $this->getDatabasePlatform(),
+            $this->getDatabasePlatform($connection),
             $this->mode
         );
 
@@ -68,9 +69,9 @@ final class Driver implements DriverInterface
         );
     }
 
-    public function getDatabasePlatform(): AbstractPlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
     {
-        return $this->driver->getDatabasePlatform();
+        return $this->driver->getDatabasePlatform($versionProvider);
     }
 
     public function getSchemaManager(DBALConnection $conn, AbstractPlatform $platform): AbstractSchemaManager

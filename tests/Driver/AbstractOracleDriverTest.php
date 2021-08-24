@@ -42,6 +42,11 @@ class AbstractOracleDriverTest extends AbstractDriverTest
         return new OCI\ExceptionConverter();
     }
 
+    public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
+    {
+        self::markTestSkipped('Oracle drivers do not use server version to instantiate platform');
+    }
+
     /**
      * {@inheritDoc}
      */

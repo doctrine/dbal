@@ -106,6 +106,7 @@
 
     <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
     <rule ref="Squiz.NamingConventions.ValidVariableName.NotCamelCaps">
+        <exclude-pattern>src/Connection.php</exclude-pattern>
         <exclude-pattern>src/Schema/Comparator.php</exclude-pattern>
         <exclude-pattern>src/SQLParserUtils.php</exclude-pattern>
     </rule>

@@ -31,15 +31,17 @@ class AbstractDB2DriverTest extends AbstractDriverTest
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        return new DB2SchemaManager(
-            $connection,
-            $this->createPlatform()
-        );
+        return new DB2SchemaManager($connection, new DB2Platform());
     }
 
     protected function createExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();
+    }
+
+    public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
+    {
+        self::markTestSkipped('IBM DB2 drivers do not use server version to instantiate platform');
     }
 
     /**

@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
+use Doctrine\DBAL\ServerVersionProvider;
 
 use function assert;
 
@@ -20,7 +21,7 @@ use function assert;
  */
 abstract class AbstractSQLServerDriver implements Driver
 {
-    public function getDatabasePlatform(): AbstractPlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
     {
         return new SQLServerPlatform();
     }

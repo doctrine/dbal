@@ -42,6 +42,11 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
         $this->driver->connect(['port' => 1433]);
     }
 
+    public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
+    {
+        self::markTestSkipped('SQL Server drivers do not use server version to instantiate platform');
+    }
+
     /**
      * {@inheritDoc}
      */
