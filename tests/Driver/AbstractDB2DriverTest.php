@@ -41,4 +41,12 @@ class AbstractDB2DriverTest extends AbstractDriverTest
     {
         return new ExceptionConverter();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function platformVersionProvider(): array
+    {
+        self::markTestSkipped('IBM DB2 drivers use one platform implementation for all server versions');
+    }
 }

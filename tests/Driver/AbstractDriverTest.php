@@ -16,7 +16,6 @@ use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
 use function get_class;
-use function sprintf;
 
 /**
  * @template P of AbstractPlatform
@@ -35,37 +34,18 @@ abstract class AbstractDriverTest extends TestCase
         $this->driver = $this->createDriver();
     }
 
-    public function testCreatesDatabasePlatformForVersion(): void
+    /**
+     * @dataProvider platformVersionProvider
+     */
+    public function testCreatesDatabasePlatformForVersion(string $version, string $expectedClass): void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
             self::markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
-        $data = $this->getDatabasePlatformsForVersions();
+        $generatedClass = get_class($this->driver->createDatabasePlatformForVersion($version));
 
-        self::assertNotEmpty(
-            $data,
-            sprintf(
-                'No test data found for test %s. You have to return test data from %s.',
-                static::class . '::' . __FUNCTION__,
-                static::class . '::getDatabasePlatformsForVersions'
-            )
-        );
-
-        foreach ($data as $item) {
-            $generatedVersion = get_class($this->driver->createDatabasePlatformForVersion($item[0]));
-
-            self::assertSame(
-                $item[1],
-                $generatedVersion,
-                sprintf(
-                    'Expected platform for version "%s" should be "%s", "%s" given',
-                    $item[0],
-                    $item[1],
-                    $generatedVersion
-                )
-            );
-        }
+        self::assertSame($expectedClass, $generatedClass);
     }
 
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
@@ -142,8 +122,5 @@ abstract class AbstractDriverTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    protected function getDatabasePlatformsForVersions(): array
-    {
-        return [];
-    }
+    abstract public static function platformVersionProvider(): array;
 }

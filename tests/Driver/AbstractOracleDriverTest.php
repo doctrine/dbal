@@ -41,4 +41,12 @@ class AbstractOracleDriverTest extends AbstractDriverTest
     {
         return new OCI\ExceptionConverter();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function platformVersionProvider(): array
+    {
+        self::markTestSkipped('Oracle drivers use one platform implementation for all server versions');
+    }
 }

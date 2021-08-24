@@ -36,19 +36,17 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
         return new ExceptionConverter();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function getDatabasePlatformsForVersions(): array
-    {
-        return [
-            ['12', SQLServerPlatform::class],
-        ];
-    }
-
     public function testPortWithoutHost(): void
     {
         $this->expectException(PortWithoutHost::class);
         $this->driver->connect(['port' => 1433]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function platformVersionProvider(): array
+    {
+        self::markTestSkipped('SQL Server drivers use one platform implementation for all server versions');
     }
 }
