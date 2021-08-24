@@ -18,7 +18,7 @@ class DBAL510Test extends FunctionalTestCase
             return;
         }
 
-        self::markTestSkipped('PostgreSQL Only test');
+        self::markTestSkipped('PostgreSQL only test');
     }
 
     /**

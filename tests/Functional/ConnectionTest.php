@@ -12,6 +12,8 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
@@ -23,7 +25,6 @@ use PDO;
 use Throwable;
 
 use function file_exists;
-use function in_array;
 use function unlink;
 
 class ConnectionTest extends FunctionalTestCase
@@ -93,7 +94,7 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testTransactionNestingLevelIsResetOnReconnect(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'sqlite') {
+        if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
             $params           = $this->connection->getParams();
             $params['memory'] = false;
             $params['path']   = '/tmp/test_nesting.sqlite';
@@ -322,7 +323,9 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testConnectWithoutExplicitDatabaseName(): void
     {
-        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof OraclePlatform || $platform instanceof DB2Platform) {
             self::markTestSkipped('Platform does not support connecting without database name.');
         }
 
@@ -342,7 +345,9 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase(): void
     {
-        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof OraclePlatform || $platform instanceof DB2Platform) {
             self::markTestSkipped('Platform does not support connecting without database name.');
         }
 

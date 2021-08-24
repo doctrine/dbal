@@ -135,6 +135,12 @@ class DB2Platform extends AbstractPlatform
      */
     public function getName()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4749',
+            'DB2Platform::getName() is deprecated. Identify platforms by their class.'
+        );
+
         return 'db2';
     }
 
