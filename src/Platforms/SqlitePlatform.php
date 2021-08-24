@@ -116,6 +116,10 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
+        if (! is_numeric($interval)) {
+            $interval = "' || " . $interval . " || '";
+        }
+
         switch ($unit) {
             case DateIntervalUnit::SECOND:
             case DateIntervalUnit::MINUTE:
@@ -133,10 +137,6 @@ class SqlitePlatform extends AbstractPlatform
                 $interval *= 3;
                 $unit      = DateIntervalUnit::MONTH;
                 break;
-        }
-
-        if (! is_numeric($interval)) {
-            $interval = "' || " . $interval . " || '";
         }
 
         return 'DATE(' . $date . ",'" . $operator . $interval . ' ' . $unit . "')";

@@ -761,6 +761,22 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testDateAddStaticNumberOfMinutes(): void
+    {
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+12 MINUTE')",
+            $this->platform->getDateAddMinutesExpression('rentalBeginsOn', 12)
+        );
+    }
+
+    public function testDateAddNumberOfMinutesFromColumn(): void
+    {
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+' || duration || ' MINUTE')",
+            $this->platform->getDateAddMinutesExpression('rentalBeginsOn', 'duration')
+        );
+    }
+
     public function testDateAddStaticNumberOfDays(): void
     {
         self::assertSame(
