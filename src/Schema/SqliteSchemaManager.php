@@ -126,7 +126,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     '#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?
                     (?:FOREIGN\s+KEY[^\)]+\)\s*)?
-                    REFERENCES\s+[^\s]+\s+(?:\([^\)]+\))?
+                    REFERENCES\s+[^\s]+\s+(?:\([^)]+\))?
                     (?:
                         [^,]*?
                         (NOT\s+DEFERRABLE|DEFERRABLE)

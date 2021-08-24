@@ -180,14 +180,6 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTriggerDefinition($trigger)
-    {
-        return $trigger['trigger_name'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function _getPortableViewDefinition($view)
     {
         return new View($view['schemaname'] . '.' . $view['viewname'], $view['definition']);
@@ -453,7 +445,7 @@ SQL
 
                 if (
                     preg_match(
-                        '([A-Za-z]+\(([0-9]+)\,([0-9]+)\))',
+                        '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
                         $tableColumn['complete_type'],
                         $match
                     ) === 1
