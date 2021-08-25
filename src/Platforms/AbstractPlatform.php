@@ -3118,6 +3118,14 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Whether the platform supports operator classes for indexes.
+     */
+    public function supportsIndexOperatorClasses(): bool
+    {
+        return false;
+    }
+
+    /**
      * Whether the platform supports altering tables.
      *
      * @return bool

@@ -504,6 +504,19 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'bigint->int' => ['bigint', 'integer', 'INT'],
         ];
     }
+
+    public function testIndexWithOpClass(): void
+    {
+        $table = new Table('index_op_class');
+        $table->addColumn('text', 'string');
+        $table->addIndex(['text'], 'text_index', [], ['operator_classes' => ['text_pattern_ops']]);
+
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $indexes = $this->schemaManager->listTableIndexes('index_op_class');
+        self::assertArrayHasKey('text_index', $indexes);
+        self::assertSame(['text_pattern_ops'], $indexes['text_index']->getOption('operator_classes'));
+    }
 }
 
 class MoneyType extends Type

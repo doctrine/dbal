@@ -936,6 +936,10 @@ abstract class AbstractSchemaManager
                     $options['where'] = $tableIndex['where'];
                 }
 
+                if (isset($tableIndex['operator_classes'])) {
+                    $options['operator_classes'] = $tableIndex['operator_classes'];
+                }
+
                 $result[$keyName] = [
                     'name' => $indexName,
                     'columns' => [],

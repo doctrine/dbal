@@ -24,6 +24,7 @@ use function str_replace;
 use function strlen;
 use function strpos;
 use function strtolower;
+use function substr;
 use function trim;
 
 use const CASE_LOWER;
@@ -241,12 +242,19 @@ SQL
                         continue;
                     }
 
+                    $operatorClasses = [];
+                    if ($row['op_class'] !== null) {
+                        // result is in the form of '{foo_ops,bar_ops}'
+                        $operatorClasses = explode(',', substr($row['op_class'], 1, -1));
+                    }
+
                     $buffer[] = [
                         'key_name' => $row['relname'],
                         'column_name' => trim($colRow['attname']),
                         'non_unique' => ! $row['indisunique'],
                         'primary' => $row['indisprimary'],
                         'where' => $row['where'],
+                        'operator_classes' => $operatorClasses,
                     ];
                 }
             }

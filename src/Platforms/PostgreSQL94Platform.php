@@ -186,6 +186,11 @@ class PostgreSQL94Platform extends AbstractPlatform
         return true;
     }
 
+    public function supportsIndexOperatorClasses(): bool
+    {
+        return true;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -356,14 +361,18 @@ SQL
     {
         return 'SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
                        pg_index.indkey, pg_index.indrelid,
-                       pg_get_expr(indpred, indrelid) AS where
-                 FROM pg_class, pg_index
-                 WHERE oid IN (
+                       pg_get_expr(indpred, indrelid) AS where,
+                       array_agg(pg_opclass.opcname) FILTER ( WHERE pg_opclass.opcdefault = false ) as op_class
+                 FROM pg_class, pg_index, pg_opclass
+                 WHERE pg_class.oid IN (
                     SELECT indexrelid
                     FROM pg_index si, pg_class sc, pg_namespace sn
                     WHERE ' . $this->getTableWhereClause($table, 'sc', 'sn') . '
                     AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
-                 ) AND pg_index.indexrelid = oid';
+                 )
+                 AND pg_index.indexrelid = pg_class.oid
+                 AND pg_opclass.oid IN (SELECT unnest(pg_index.indclass))
+                 GROUP BY indexrelid, relname, indisunique, indisprimary, indkey, indrelid, indpred';
     }
 
     /**

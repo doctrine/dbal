@@ -98,18 +98,25 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getQuotedColumns(AbstractPlatform $platform)
     {
-        $subParts = $platform->supportsColumnLengthIndexes() && $this->hasOption('lengths')
+        $lengthParts  = $platform->supportsColumnLengthIndexes() && $this->hasOption('lengths')
             ? $this->getOption('lengths') : [];
+        $opClassParts = $platform->supportsIndexOperatorClasses() && $this->hasOption('operator_classes')
+            ? $this->getOption('operator_classes') : [];
 
         $columns = [];
 
         foreach ($this->_columns as $column) {
-            $length = array_shift($subParts);
+            $length  = array_shift($lengthParts);
+            $opClass = array_shift($opClassParts);
 
             $quotedColumn = $column->getQuotedName($platform);
 
             if ($length !== null) {
                 $quotedColumn .= '(' . $length . ')';
+            }
+
+            if ($opClass !== null) {
+                $quotedColumn .= ' ' . $opClass;
             }
 
             $columns[] = $quotedColumn;
