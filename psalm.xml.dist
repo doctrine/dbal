@@ -56,8 +56,22 @@
                 -->
                 <referencedClass name="Doctrine\DBAL\Id\TableGenerator"/>
                 <referencedClass name="Doctrine\DBAL\Id\TableGeneratorSchemaVisitor"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Driver\ServerInfoAwareConnection"/>
+                <referencedClass name="Doctrine\DBAL\VersionAwarePlatformDriver"/>
             </errorLevel>
         </DeprecatedClass>
+        <DeprecatedInterface>
+            <errorLevel type="suppress">
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Driver\ServerInfoAwareConnection"/>
+                <referencedClass name="Doctrine\DBAL\VersionAwarePlatformDriver"/>
+            </errorLevel>
+        </DeprecatedInterface>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!--
