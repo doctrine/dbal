@@ -156,7 +156,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table = new Table('test');
 
         $this->expectException(Exception::class);
-        $sql = $this->platform->getCreateTableSQL($table);
+        $this->platform->getCreateTableSQL($table);
     }
 
     public function testGeneratesTableCreationSql(): void
@@ -218,22 +218,22 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $expected = ' WHERE ' . $where;
 
-        $actuals = [];
+        $indexes = [];
 
         if ($this->supportsInlineIndexDeclaration()) {
-            $actuals[] = $this->platform->getIndexDeclarationSQL('name', $indexDef);
+            $indexes[] = $this->platform->getIndexDeclarationSQL('name', $indexDef);
         }
 
         $uniqueConstraintSQL = $this->platform->getUniqueConstraintDeclarationSQL('name', $uniqueConstraint);
-        $indexSQL            = $this->platform->getCreateIndexSQL($indexDef, 'table');
-
         $this->assertStringEndsNotWith($expected, $uniqueConstraintSQL, 'WHERE clause should NOT be present');
 
-        foreach ($actuals as $actual) {
+        $indexes[] = $this->platform->getCreateIndexSQL($indexDef, 'table');
+
+        foreach ($indexes as $index) {
             if ($this->platform->supportsPartialIndexes()) {
-                self::assertStringEndsWith($expected, $indexSQL, 'WHERE clause should be present');
+                self::assertStringEndsWith($expected, $index, 'WHERE clause should be present');
             } else {
-                self::assertStringEndsNotWith($expected, $indexSQL, 'WHERE clause should NOT be present');
+                self::assertStringEndsNotWith($expected, $index, 'WHERE clause should NOT be present');
             }
         }
     }

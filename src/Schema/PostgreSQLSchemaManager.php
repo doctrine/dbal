@@ -133,11 +133,8 @@ SQL
      */
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
-        $onUpdate       = null;
-        $onDelete       = null;
-        $localColumns   = [];
-        $foreignColumns = [];
-        $foreignTable   = null;
+        $onUpdate = null;
+        $onDelete = null;
 
         if (
             preg_match(
