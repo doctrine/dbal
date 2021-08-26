@@ -8,6 +8,15 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated `AbstractPlatform::getName()`
+
+Relying on the name of the platform is discouraged. To identify the platform, use its class name.
+
+## Deprecated versioned platform classes that represent the lowest supported version:
+
+1. `PostgreSQL94Platform` and `PostgreSQL94Keywords`. Use `PostgreSQLPlatform` and `PostgreSQLKeywords` instead.
+2. `SQLServer2012Platform` and `SQLServer2012Keywords`. Use `SQLServerPlatform` and `SQLServerKeywords` instead.
+
 ## Deprecated schema comparison APIs that don't account for the current database connection and the database platform
 
 1. Instantiation of the `Comparator` class outside the DBAL is deprecated. Use `SchemaManager::createComparator()`

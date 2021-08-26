@@ -1014,6 +1014,12 @@ SQL
      */
     public function getName()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4749',
+            'OraclePlatform::getName() is deprecated. Identify platforms by their class.'
+        );
+
         return 'oracle';
     }
 

@@ -337,6 +337,8 @@ abstract class AbstractPlatform
     /**
      * Gets the name of the platform.
      *
+     * @deprecated Identify platforms by their class.
+     *
      * @return string
      */
     abstract public function getName();
@@ -3690,7 +3692,7 @@ abstract class AbstractPlatform
      */
     public function supportsLimitOffset()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
             'AbstractPlatform::supportsViews() is deprecated.'

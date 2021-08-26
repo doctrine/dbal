@@ -7,9 +7,9 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 
 final class OptimizeFlags
 {
@@ -20,11 +20,11 @@ final class OptimizeFlags
      * @var array<string,int>
      */
     private static $platforms = [
-        DB2Platform::class           => 0,
-        OraclePlatform::class        => Connection::PORTABILITY_EMPTY_TO_NULL,
-        PostgreSQL94Platform::class  => 0,
-        SqlitePlatform::class        => 0,
-        SQLServer2012Platform::class => 0,
+        DB2Platform::class        => 0,
+        OraclePlatform::class     => Connection::PORTABILITY_EMPTY_TO_NULL,
+        PostgreSQLPlatform::class => 0,
+        SqlitePlatform::class     => 0,
+        SQLServerPlatform::class  => 0,
     ];
 
     public function __invoke(AbstractPlatform $platform, int $flags): int

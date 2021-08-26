@@ -50,12 +50,12 @@ Oracle
 Microsoft SQL Server
 ^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLServer2012Platform`` for version 2012 and above.
+-  ``SQLServerPlatform`` for version 2012 and above.
 
 PostgreSQL
 ^^^^^^^^^^
 
--  ``PostgreSQL94Platform`` for version 9.4 and above.
+-  ``PostgreSQLPlatform`` for version 9.4 and above.
 -  ``PostgreSQL100Platform`` for version 10.0 and above.
 
 SQLite

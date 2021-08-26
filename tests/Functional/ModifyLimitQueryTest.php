@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -223,7 +223,7 @@ SQL;
 
         $subquery = 'SELECT test_int FROM modify_limit_table2 T2 WHERE T1.id=T2.id ORDER BY test_int';
 
-        if ($platform instanceof SQLServer2012Platform) {
+        if ($platform instanceof SQLServerPlatform) {
             $subquery .= ' OFFSET 0 ROWS';
         }
 

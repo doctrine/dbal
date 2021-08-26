@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -29,7 +29,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
-        return $platform instanceof PostgreSQL94Platform;
+        return $platform instanceof PostgreSQLPlatform;
     }
 
     public function testGetSearchPath(): void
@@ -403,7 +403,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testJsonbColumn(): void
     {
-        if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQL94Platform) {
+        if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQLPlatform) {
             $this->markTestSkipped('Requires PostgresSQL 9.4+');
 
             return;

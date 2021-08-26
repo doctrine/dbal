@@ -6,6 +6,8 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -90,9 +92,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $platform->supportsSequences()) {
-            self::markTestSkipped(
-                sprintf('The "%s" platform does not support sequences.', $platform->getName())
-            );
+            self::markTestSkipped('The platform does not support sequences.');
         }
 
         $name = 'dropcreate_sequences_test_seq';
@@ -122,9 +122,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $platform->supportsSequences()) {
-            self::markTestSkipped(
-                sprintf('The "%s" platform does not support sequences.', $platform->getName())
-            );
+            self::markTestSkipped('The platform does not support sequences.');
         }
 
         $this->schemaManager->createSequence(
@@ -367,7 +365,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
      */
     public function testDiffListTableColumns(callable $comparatorFactory): void
     {
-        if ($this->schemaManager->getDatabasePlatform()->getName() === 'oracle') {
+        if ($this->schemaManager->getDatabasePlatform() instanceof OraclePlatform) {
             self::markTestSkipped(
                 'Does not work with Oracle, since it cannot detect DateTime, Date and Time differences (at the moment).'
             );
@@ -806,10 +804,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testGetColumnComment(): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+
         if (
-            ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            ! $platform->supportsInlineColumnComments() &&
+            ! $platform->supportsCommentOnStatement() &&
+            ! $platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }
@@ -849,10 +849,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testAutomaticallyAppendCommentOnMarkedColumns(): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+
         if (
-            ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            ! $platform->supportsInlineColumnComments() &&
+            ! $platform->supportsCommentOnStatement() &&
+            ! $platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }
@@ -876,10 +878,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testCommentHintOnDateIntervalTypeColumn(): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+
         if (
-            ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-            ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            ! $platform->supportsInlineColumnComments() &&
+            ! $platform->supportsCommentOnStatement() &&
+            ! $platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }
@@ -1157,10 +1161,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testCommentStringsAreQuoted(): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+
         if (
-            ! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-            ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql'
+            ! $platform->supportsInlineColumnComments() &&
+            ! $platform->supportsCommentOnStatement() &&
+            ! $platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }
@@ -1222,7 +1228,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (
             ! $platform->supportsInlineColumnComments() &&
             ! $platform->supportsCommentOnStatement() &&
-            $platform->getName() !== 'mssql'
+            ! $platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped('Database does not support column comments.');
         }

@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Id\TableGenerator;
 use Doctrine\DBAL\Id\TableGeneratorSchemaVisitor;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -17,7 +18,7 @@ class TableGeneratorTest extends FunctionalTestCase
         parent::setUp();
 
         $platform = $this->connection->getDatabasePlatform();
-        if ($platform->getName() === 'sqlite') {
+        if ($platform instanceof SqlitePlatform) {
             self::markTestSkipped('TableGenerator does not work with SQLite');
         }
 
