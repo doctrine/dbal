@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Ticket;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PDO;
 
@@ -18,7 +18,7 @@ class DBAL630Test extends FunctionalTestCase
     {
         parent::setUp();
 
-        if (! $this->connection->getDatabasePlatform() instanceof PostgreSQL94Platform) {
+        if (! $this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
             self::markTestSkipped('Currently restricted to PostgreSQL');
         }
 

@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
@@ -31,7 +31,7 @@ use const CASE_LOWER;
 /**
  * PostgreSQL Schema Manager.
  *
- * @extends AbstractSchemaManager<PostgreSQL94Platform>
+ * @extends AbstractSchemaManager<PostgreSQLPlatform>
  */
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {

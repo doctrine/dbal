@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
@@ -13,7 +14,7 @@ class DBAL510Test extends FunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->connection->getDatabasePlatform()->getName() === 'postgresql') {
+        if ($this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
             return;
         }
 
