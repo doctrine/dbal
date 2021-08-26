@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
@@ -14,7 +14,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
 /**
- * @extends AbstractPlatformTestCase<SQLServer2012Platform>
+ * @extends AbstractPlatformTestCase<SQLServerPlatform>
  */
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {

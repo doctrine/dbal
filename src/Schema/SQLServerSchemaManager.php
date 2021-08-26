@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use PDOException;
@@ -21,7 +21,7 @@ use function strtok;
 /**
  * SQL Server Schema Manager.
  *
- * @extends AbstractSchemaManager<SQLServer2012Platform>
+ * @extends AbstractSchemaManager<SQLServerPlatform>
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {

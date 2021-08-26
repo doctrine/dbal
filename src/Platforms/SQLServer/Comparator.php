@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms\SQLServer;
 
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\Table;
 
@@ -19,7 +19,7 @@ class Comparator extends BaseComparator
     /**
      * @internal The comparator can be only instantiated by a schema manager.
      */
-    public function __construct(SQLServer2012Platform $platform, string $databaseCollation)
+    public function __construct(SQLServerPlatform $platform, string $databaseCollation)
     {
         parent::__construct($platform);
 

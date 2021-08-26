@@ -11,6 +11,7 @@ awareness about deprecated code.
 ## Deprecated versioned platform classes that represent the lowest supported version:
 
 1. `PostgreSQL94Platform` and `PostgreSQL94Keywords`. Use `PostgreSQLPlatform` and `PostgreSQLKeywords` instead.
+2. `SQLServer2012Platform` and `SQLServer2012Keywords`. Use `SQLServerPlatform` and `SQLServerKeywords` instead.
 
 ## Deprecated schema comparison APIs that don't account for the current database connection and the database platform
 

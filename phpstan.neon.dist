@@ -83,7 +83,7 @@ parameters:
         -
             message: '~^Only numeric types are allowed in -, int<1, max>\|false given on the left side\.~'
             paths:
-                - %currentWorkingDirectory%/src/Platforms/SQLServer2012Platform.php
+                - %currentWorkingDirectory%/src/Platforms/SQLServerPlatform.php
 
         # Unlike Psalm, PHPStan doesn't understand the shape of the parse_str() return value
         -
@@ -95,7 +95,7 @@ parameters:
         -
             message: '~^Only numeric types are allowed in pre\-decrement, int\<1, max\>\|false given\.$~'
             paths:
-                - %currentWorkingDirectory%/src/Platforms/SQLServer2012Platform.php
+                - %currentWorkingDirectory%/src/Platforms/SQLServerPlatform.php
 
         # https://github.com/phpstan/phpstan-phpunit/issues/83
         -

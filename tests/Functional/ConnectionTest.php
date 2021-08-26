@@ -13,7 +13,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -369,7 +369,7 @@ class ConnectionTest extends FunctionalTestCase
 
         if (
             $platform instanceof SqlitePlatform
-            || $platform instanceof SQLServer2012Platform
+            || $platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped('The platform does not support persistent connections');
         }
