@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -29,11 +30,17 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
      * Before the fix for this problem this resulted in a database error: (at least on mysql)
      * SQLSTATE[42000]: Syntax error or access violation: 1075 Incorrect table definition; there can be only one auto
      * column and it must be defined as a key
+     *
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
      */
-    public function testAlterPrimaryKeyToAutoIncrementColumn(): void
+    public function testAlterPrimaryKeyToAutoIncrementColumn(callable $comparatorFactory): void
     {
         $schemaManager = $this->connection->getSchemaManager();
-        $schema        = $schemaManager->createSchema();
+        $schemaManager->tryMethod('dropTable', 'dbal2807');
+
+        $schema = $schemaManager->createSchema();
 
         $table = $schema->createTable('dbal2807');
         $table->addColumn('initial_id', 'integer');
@@ -47,11 +54,10 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         $newTable->dropPrimaryKey();
         $newTable->setPrimaryKey(['new_id']);
 
-        $diff = (new Comparator())->compare($schema, $newSchema);
+        $diff = $comparatorFactory($schemaManager)
+            ->compare($schema, $newSchema);
 
-        foreach ($diff->toSql($this->getPlatform()) as $sql) {
-            $this->connection->executeStatement($sql);
-        }
+        $schemaManager->alterSchema($diff);
 
         $validationSchema = $schemaManager->createSchema();
         $validationTable  = $validationSchema->getTable($table->getName());

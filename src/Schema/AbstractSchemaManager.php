@@ -28,6 +28,8 @@ use function strtolower;
 /**
  * Base class for schema managers. Schema managers are used to inspect and/or
  * modify the database schema/structure.
+ *
+ * @template T of AbstractPlatform
  */
 abstract class AbstractSchemaManager
 {
@@ -41,10 +43,13 @@ abstract class AbstractSchemaManager
     /**
      * Holds instance of the database platform used for this schema manager.
      *
-     * @var AbstractPlatform
+     * @var T
      */
     protected $_platform;
 
+    /**
+     * @param T $platform
+     */
     public function __construct(Connection $connection, AbstractPlatform $platform)
     {
         $this->_conn     = $connection;
@@ -54,7 +59,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns the associated platform.
      *
-     * @return AbstractPlatform
+     * @return T
      */
     public function getDatabasePlatform()
     {
@@ -694,7 +699,8 @@ abstract class AbstractSchemaManager
      */
     public function migrateSchema(Schema $toSchema): void
     {
-        $schemaDiff = (new Comparator())->compareSchemas($this->createSchema(), $toSchema);
+        $schemaDiff = $this->createComparator()
+            ->compareSchemas($this->createSchema(), $toSchema);
 
         $this->alterSchema($schemaDiff);
     }
@@ -1212,5 +1218,10 @@ abstract class AbstractSchemaManager
         }
 
         return str_replace('(DC2Type:' . $type . ')', '', $comment);
+    }
+
+    public function createComparator(): Comparator
+    {
+        return new Comparator($this->getDatabasePlatform());
     }
 }

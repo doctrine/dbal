@@ -1625,6 +1625,16 @@ class SQLServer2012Platform extends AbstractPlatform
         return $name . ' ' . $columnDef;
     }
 
+    public function columnsEqual(Column $column1, Column $column2): bool
+    {
+        if (! parent::columnsEqual($column1, $column2)) {
+            return false;
+        }
+
+        return $this->getDefaultValueDeclarationSQL($column1->toArray())
+            === $this->getDefaultValueDeclarationSQL($column2->toArray());
+    }
+
     protected function getLikeWildcardCharacters(): string
     {
         return parent::getLikeWildcardCharacters() . '[]^';

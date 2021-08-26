@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -19,17 +20,23 @@ class DBAL510Test extends FunctionalTestCase
         self::markTestSkipped('PostgreSQL Only test');
     }
 
-    public function testSearchPathSchemaChanges(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testSearchPathSchemaChanges(callable $comparatorFactory): void
     {
         $table = new Table('dbal510tbl');
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->createTable($table);
+        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager->dropAndCreateTable($table);
 
-        $onlineTable = $this->connection->getSchemaManager()->listTableDetails('dbal510tbl');
+        $onlineTable = $schemaManager->listTableDetails('dbal510tbl');
 
-        $comparator = new Comparator();
+        $comparator = $comparatorFactory($schemaManager);
         $diff       = $comparator->diffTable($onlineTable, $table);
 
         self::assertFalse($diff);

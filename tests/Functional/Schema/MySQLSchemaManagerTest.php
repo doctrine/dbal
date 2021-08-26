@@ -6,7 +6,6 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
@@ -44,7 +43,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableNew     = clone $tableFetched;
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
-        $diff = (new Comparator())->diffTable($tableFetched, $tableNew);
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable($tableFetched, $tableNew);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -74,7 +74,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->createTable($table);
         $tableFetched = $this->schemaManager->listTableDetails('diffbug_routing_translations');
 
-        $diff = (new Comparator())->diffTable($tableFetched, $table);
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable($tableFetched, $table);
 
         self::assertFalse($diff, 'no changes expected.');
     }
@@ -141,7 +142,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable($table, $diffTable);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -165,7 +167,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $diffTable->dropPrimaryKey();
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable($table, $diffTable);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -201,7 +204,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
 
-        $diff = (new Comparator())->diffTable($table, $onlineTable);
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable($table, $onlineTable);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -245,7 +249,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable = clone $table;
         $diffTable->getColumn('col_text')->setPlatformOption('charset', 'ascii');
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable($table, $diffTable);
         self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -363,10 +368,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $onlineTable = $this->schemaManager->listTableDetails('list_guid_table_column');
 
-        $comparator = new Comparator();
-
         self::assertFalse(
-            $comparator->diffTable($offlineTable, $onlineTable),
+            $this->schemaManager->createComparator()->diffTable($onlineTable, $offlineTable),
             'No differences should be detected with the offline vs online schema.'
         );
     }
@@ -435,9 +438,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $onlineTable);
+        $diff = $this->schemaManager->createComparator()->diffTable($table, $onlineTable);
         self::assertFalse($diff, 'Tables should be identical with column defaults.');
     }
 
@@ -511,9 +512,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
         self::assertSame($currentTimeSql, $onlineTable->getColumn('col_time')->getDefault());
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $onlineTable);
+        $diff = $this->schemaManager->createComparator()->diffTable($table, $onlineTable);
         self::assertFalse($diff, 'Tables should be identical with column defauts time and date.');
     }
 

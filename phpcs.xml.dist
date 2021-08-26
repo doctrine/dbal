@@ -129,4 +129,9 @@
     <rule ref="Squiz.PHP.LowercasePHPFunctions">
         <exclude-pattern>src/Driver/SQLSrv/Statement.php</exclude-pattern>
     </rule>
+
+    <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/3035 -->
+    <rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
+        <exclude-pattern>src/Platforms/*/Comparator.php</exclude-pattern>
+    </rule>
 </ruleset>
