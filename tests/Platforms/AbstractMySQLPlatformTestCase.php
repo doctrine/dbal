@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -156,19 +157,22 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }
 
-    public function testUniquePrimaryKey(): void
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testUniquePrimaryKey(Comparator $comparator): void
     {
         $keyTable = new Table('foo');
         $keyTable->addColumn('bar', 'integer');
-        $keyTable->addColumn('baz', 'string');
+        $keyTable->addColumn('baz', 'string', ['length' => 32]);
         $keyTable->setPrimaryKey(['bar']);
         $keyTable->addUniqueIndex(['baz']);
 
         $oldTable = new Table('foo');
         $oldTable->addColumn('bar', 'integer');
-        $oldTable->addColumn('baz', 'string');
+        $oldTable->addColumn('baz', 'string', ['length' => 32]);
 
-        $diff = (new Comparator())->diffTable($oldTable, $keyTable);
+        $diff = $comparator->diffTable($oldTable, $keyTable);
         self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -360,7 +364,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('LONGBLOB', $this->platform->getBlobTypeDeclarationSQL([]));
     }
 
-    public function testAlterTableAddPrimaryKey(): void
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testAlterTableAddPrimaryKey(Comparator $comparator): void
     {
         $table = new Table('alter_table_add_pk');
         $table->addColumn('id', 'integer');
@@ -372,7 +379,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $comparator->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertEquals(
@@ -381,7 +388,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    public function testAlterPrimaryKeyWithAutoincrementColumn(): void
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testAlterPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('alter_primary_key');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -393,7 +403,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['foo']);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $comparator->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertEquals(
@@ -406,7 +416,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    public function testDropPrimaryKeyWithAutoincrementColumn(): void
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testDropPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('drop_primary_key');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -418,7 +431,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $diffTable->dropPrimaryKey();
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $comparator->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertEquals(
@@ -430,8 +443,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn(): void
-    {
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn(
+        Comparator $comparator
+    ): void {
         $table = new Table('tbl');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
@@ -443,7 +460,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id']);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $comparator->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertSame(
@@ -456,7 +473,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn(): void
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('tbl');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -469,7 +489,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id', 'foo']);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $comparator->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertSame(
@@ -482,17 +502,20 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    public function testAddAutoIncrementPrimaryKey(): void
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testAddAutoIncrementPrimaryKey(Comparator $comparator): void
     {
         $keyTable = new Table('foo');
         $keyTable->addColumn('id', 'integer', ['autoincrement' => true]);
-        $keyTable->addColumn('baz', 'string');
+        $keyTable->addColumn('baz', 'string', ['length' => 32]);
         $keyTable->setPrimaryKey(['id']);
 
         $oldTable = new Table('foo');
-        $oldTable->addColumn('baz', 'string');
+        $oldTable->addColumn('baz', 'string', ['length' => 32]);
 
-        $diff = (new Comparator())->diffTable($oldTable, $keyTable);
+        $diff = $comparator->diffTable($oldTable, $keyTable);
         self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -513,7 +536,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ], $sql);
     }
 
-    public function testAlterPrimaryKeyWithNewColumn(): void
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testAlterPrimaryKeyWithNewColumn(Comparator $comparator): void
     {
         $table = new Table('yolo');
         $table->addColumn('pkc1', 'integer');
@@ -526,7 +552,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['pkc1', 'pkc2']);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
+        $diff = $comparator->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertSame(
@@ -699,7 +725,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         return 'ALTER TABLE `table` DROP CONSTRAINT `select`';
     }
 
-    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
+    public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void
     {
         $table = new Table('text_blob_default_value');
         $table->addColumn('def_text', 'text', ['default' => 'def']);
@@ -724,10 +750,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->changeColumn('def_blob', ['default' => null]);
         $diffTable->changeColumn('def_blob_null', ['default' => null]);
 
-        $diff = (new Comparator())->diffTable($table, $diffTable);
-        self::assertNotNull($diff);
-
-        self::assertEmpty($this->platform->getAlterTableSQL($diff));
+        self::assertNull((new MySQL\Comparator($this->platform))->diffTable($table, $diffTable));
     }
 
     /**
@@ -972,5 +995,19 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             ],
             $this->platform->getCreateTableSQL($table)
         );
+    }
+
+    /**
+     * @return iterable<string,array{Comparator}>
+     */
+    public static function comparatorProvider(): iterable
+    {
+        yield 'Generic comparator' => [
+            new Comparator(),
+        ];
+
+        yield 'MySQL comparator' => [
+            new MySQL\Comparator(new MySQLPlatform()),
+        ];
     }
 }

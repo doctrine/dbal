@@ -122,7 +122,7 @@ final class Statement implements StatementInterface
 
             $params = [];
 
-            foreach ($this->bindParam as $column => $value) {
+            foreach ($this->bindParam as $value) {
                 $params[] = $value;
             }
         }

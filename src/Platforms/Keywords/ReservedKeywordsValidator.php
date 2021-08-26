@@ -19,7 +19,7 @@ use function str_replace;
 class ReservedKeywordsValidator implements Visitor
 {
     /** @var KeywordList[] */
-    private array $keywordLists = [];
+    private array $keywordLists;
 
     /** @var string[] */
     private array $violations = [];

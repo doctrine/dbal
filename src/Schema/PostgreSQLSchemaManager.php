@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -30,6 +30,8 @@ use const CASE_LOWER;
 
 /**
  * PostgreSQL Schema Manager.
+ *
+ * @extends AbstractSchemaManager<PostgreSQLPlatform>
  */
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
@@ -108,11 +110,8 @@ SQL
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
-        $onUpdate       = null;
-        $onDelete       = null;
-        $localColumns   = [];
-        $foreignColumns = [];
-        $foreignTable   = null;
+        $onUpdate = null;
+        $onDelete = null;
 
         if (
             preg_match(
@@ -407,7 +406,7 @@ SQL
 
                 if (
                     preg_match(
-                        '([A-Za-z]+\(([0-9]+)\,([0-9]+)\))',
+                        '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
                         $tableColumn['complete_type'],
                         $match
                     ) === 1
@@ -499,9 +498,7 @@ SQL
     {
         $table = parent::listTableDetails($name);
 
-        $platform = $this->_platform;
-        assert($platform instanceof PostgreSQL94Platform);
-        $sql = $platform->getListTableMetadataSQL($name);
+        $sql = $this->_platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

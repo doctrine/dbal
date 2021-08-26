@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_diff_key;
@@ -290,8 +291,15 @@ class MySQLPlatform extends AbstractPlatform
     {
         return sprintf(
             <<<'SQL'
-SELECT ENGINE, AUTO_INCREMENT, TABLE_COLLATION, TABLE_COMMENT, CREATE_OPTIONS
-FROM information_schema.TABLES
+SELECT t.ENGINE,
+       t.AUTO_INCREMENT,
+       t.TABLE_COMMENT,
+       t.CREATE_OPTIONS,
+       t.TABLE_COLLATION,
+       ccsa.CHARACTER_SET_NAME
+FROM information_schema.TABLES t
+    INNER JOIN information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` ccsa
+        ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
 WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = %s AND TABLE_NAME = %s
 SQL
             ,
@@ -910,6 +918,12 @@ SQL
 
     public function getName(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4749',
+            'MySQLPlatform::getName() is deprecated. Identify platforms by their class.'
+        );
+
         return 'mysql';
     }
 

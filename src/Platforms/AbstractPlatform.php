@@ -36,6 +36,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -329,6 +330,8 @@ abstract class AbstractPlatform
 
     /**
      * Gets the name of the platform.
+     *
+     * @deprecated Identify platforms by their class.
      */
     abstract public function getName(): string;
 
@@ -558,9 +561,17 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL snippet to get the current system date.
+     *
+     * @deprecated Generate dates within the application.
      */
     public function getNowExpression(): string
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4753',
+            'AbstractPlatform::getNowExpression() is deprecated. Generate dates within the application.'
+        );
+
         return 'NOW()';
     }
 
@@ -1111,11 +1122,7 @@ abstract class AbstractPlatform
                 }
             }
 
-            $columnData = array_merge($column->toArray(), [
-                'name' => $column->getQuotedName($this),
-                'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
-                'comment' => $this->getColumnComment($column),
-            ]);
+            $columnData = $this->columnToArray($column);
 
             if (in_array($column->getName(), $options['primary'], true)) {
                 $columnData['primary'] = true;
@@ -2720,6 +2727,19 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @return array<string,mixed> An associative array with the name of the properties
+     *                             of the column being declared as array indexes.
+     */
+    private function columnToArray(Column $column): array
+    {
+        return array_merge($column->toArray(), [
+            'name' => $column->getQuotedName($this),
+            'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
+            'comment' => $this->getColumnComment($column),
+        ]);
+    }
+
+    /**
      * @internal
      */
     public function createSQLParser(): Parser
@@ -2730,5 +2750,31 @@ abstract class AbstractPlatform
     protected function getLikeWildcardCharacters(): string
     {
         return '%_';
+    }
+
+    /**
+     * Compares the definitions of the given columns in the context of this platform.
+     *
+     * @throws Exception
+     */
+    public function columnsEqual(Column $column1, Column $column2): bool
+    {
+        if (
+            $this->getColumnDeclarationSQL('', $this->columnToArray($column1))
+            !== $this->getColumnDeclarationSQL('', $this->columnToArray($column2))
+        ) {
+            return false;
+        }
+
+        // If the platform supports inline comments, all comparison is already done above
+        if ($this->supportsInlineColumnComments()) {
+            return true;
+        }
+
+        if ($column1->getComment() !== $column2->getComment()) {
+            return false;
+        }
+
+        return $column1->getType() === $column2->getType();
     }
 }

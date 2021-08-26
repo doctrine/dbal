@@ -6,12 +6,12 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
 
 use function array_change_key_case;
-use function sprintf;
 
 use const CASE_LOWER;
 
@@ -24,11 +24,8 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $platformName = $this->connection->getDatabasePlatform()->getName();
-
-        // This is a MySQL specific test, skip other vendors.
-        if ($platformName !== 'mysql') {
-            self::markTestSkipped(sprintf('Test does not work on %s.', $platformName));
+        if (! $this->connection->getDatabasePlatform() instanceof MySQLPlatform) {
+            self::markTestSkipped('Test works only on MySQL.');
         }
 
         try {
@@ -142,7 +139,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
     public function testKeepReplicaBeginTransactionStaysOnPrimary(): void
     {
-        $conn = $this->createPrimaryReadReplicaConnection($keepReplica = true);
+        $conn = $this->createPrimaryReadReplicaConnection(true);
         $conn->ensureConnectedToReplica();
 
         $conn->beginTransaction();
@@ -160,7 +157,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
     public function testKeepReplicaInsertStaysOnPrimary(): void
     {
-        $conn = $this->createPrimaryReadReplicaConnection($keepReplica = true);
+        $conn = $this->createPrimaryReadReplicaConnection(true);
         $conn->ensureConnectedToReplica();
 
         $conn->insert('primary_replica_table', ['test_int' => 30]);

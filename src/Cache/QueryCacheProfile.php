@@ -21,7 +21,7 @@ class QueryCacheProfile
 {
     private ?CacheItemPoolInterface $resultCache = null;
 
-    private int $lifetime = 0;
+    private int $lifetime;
 
     private ?string $cacheKey = null;
 

@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
@@ -23,7 +24,7 @@ use function get_class;
 
 class ComparatorTest extends TestCase
 {
-    private Comparator $comparator;
+    protected Comparator $comparator;
 
     protected function setUp(): void
     {
@@ -808,13 +809,13 @@ class ComparatorTest extends TestCase
         $table = new Table('twitter_users');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('twitterId', 'integer');
-        $table->addColumn('displayName', 'string');
+        $table->addColumn('displayName', 'string', ['length' => 32]);
         $table->setPrimaryKey(['id']);
 
         $newtable = new Table('twitter_users');
         $newtable->addColumn('id', 'integer', ['autoincrement' => true]);
         $newtable->addColumn('twitter_id', 'integer');
-        $newtable->addColumn('display_name', 'string');
+        $newtable->addColumn('display_name', 'string', ['length' => 32]);
         $newtable->addColumn('logged_in_at', 'datetime');
         $newtable->setPrimaryKey(['id']);
 
@@ -1012,7 +1013,7 @@ class ComparatorTest extends TestCase
 
         $newSchema = new Schema();
         $table     = $newSchema->createTable('foo');
-        $table->addColumn('id', 'string');
+        $table->addColumn('id', 'string', ['length' => 32]);
 
         $expected             = new SchemaDiff();
         $expected->fromSchema = $oldSchema;
@@ -1033,7 +1034,7 @@ class ComparatorTest extends TestCase
         $oldSchema = new Schema();
 
         $tableFoo = $oldSchema->createTable('foo');
-        $tableFoo->addColumn('id', 'binary');
+        $tableFoo->addColumn('id', 'binary', ['length' => 32]);
 
         $newSchema = new Schema();
         $table     = $newSchema->createTable('foo');
@@ -1218,6 +1219,14 @@ class ComparatorTest extends TestCase
 
             ['0', 'foo', false],
         ];
+    }
+
+    public function testCompareCommentedTypes(): void
+    {
+        $column1 = new Column('foo', Type::getType(Types::ARRAY));
+        $column2 = new Column('foo', Type::getType(Types::OBJECT));
+
+        self::assertFalse($this->comparator->columnsEqual($column1, $column2));
     }
 
     public function testForeignKeyRemovalWithRenamedLocalColumn(): void

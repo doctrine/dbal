@@ -137,5 +137,6 @@
          see https://github.com/squizlabs/PHP_CodeSniffer/issues/3035 -->
     <rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
         <exclude-pattern>src/Platforms/SqlitePlatform.php</exclude-pattern>
+        <exclude-pattern>src/Platforms/*/Comparator.php</exclude-pattern>
     </rule>
 </ruleset>

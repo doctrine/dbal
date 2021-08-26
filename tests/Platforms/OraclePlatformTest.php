@@ -576,18 +576,20 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType(): void
     {
         $table1 = new Table('mytable');
-        $table1->addColumn('column_varbinary', 'binary');
-        $table1->addColumn('column_binary', 'binary', ['fixed' => true]);
+        $table1->addColumn('column_varbinary', 'binary', ['length' => 32]);
+        $table1->addColumn('column_binary', 'binary', [
+            'fixed' => true,
+            'length' => 32,
+        ]);
 
         $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', 'binary', ['fixed' => true]);
-        $table2->addColumn('column_binary', 'binary');
+        $table2->addColumn('column_varbinary', 'binary', [
+            'fixed' => true,
+            'length' => 32,
+        ]);
+        $table2->addColumn('column_binary', 'binary', ['length' => 32]);
 
-        // VARBINARY -> BINARY
-        // BINARY    -> VARBINARY
-        $diff = (new Comparator())->diffTable($table1, $table2);
-        self::assertNotNull($diff);
-        self::assertEmpty($this->platform->getAlterTableSQL($diff));
+        self::assertNull((new Comparator($this->platform))->diffTable($table1, $table2));
     }
 
     public function testUsesSequenceEmulatedIdentityColumns(): void

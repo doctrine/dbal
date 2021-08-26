@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_intersect_key;
 use function array_key_exists;
@@ -22,6 +25,26 @@ use function strtolower;
  */
 class Comparator
 {
+    private ?AbstractPlatform $platform;
+
+    /**
+     * @internal The comparator can be only instantiated by a schema manager.
+     */
+    public function __construct(?AbstractPlatform $platform = null)
+    {
+        if ($platform === null) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/4659',
+                'Not passing a $platform to %s is deprecated.'
+                    . ' Use AbstractSchemaManager::createComparator() to instantiate the comparator.',
+                __METHOD__
+            );
+        }
+
+        $this->platform = $platform;
+    }
+
     /**
      * Returns a SchemaDiff object containing the differences between the schemas $fromSchema and $toSchema.
      *
@@ -170,7 +193,7 @@ class Comparator
      *
      * If there are no differences this method returns null.
      *
-     * @throws SchemaException
+     * @throws Exception
      */
     public function diffTable(Table $fromTable, Table $toTable): ?TableDiff
     {
@@ -200,14 +223,20 @@ class Comparator
                 continue;
             }
 
-            // See if column has changed properties in "to" table.
-            $changedProperties = $this->diffColumn($column, $toTable->getColumn($columnName));
+            $toColumn = $toTable->getColumn($columnName);
 
-            if (count($changedProperties) === 0) {
+            // See if column has changed properties in "to" table.
+            $changedProperties = $this->diffColumn($column, $toColumn);
+
+            if ($this->platform !== null) {
+                if ($this->columnsEqual($column, $toColumn)) {
+                    continue;
+                }
+            } elseif (count($changedProperties) === 0) {
                 continue;
             }
 
-            $columnDiff = new ColumnDiff($column->getName(), $toTable->getColumn($columnName), $changedProperties);
+            $columnDiff = new ColumnDiff($column->getName(), $toColumn, $changedProperties);
 
             $columnDiff->fromColumn                               = $column;
             $tableDifferences->changedColumns[$column->getName()] = $columnDiff;
@@ -294,7 +323,7 @@ class Comparator
         $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
             foreach ($tableDifferences->removedColumns as $removedColumn) {
-                if (count($this->diffColumn($addedColumn, $removedColumn)) !== 0) {
+                if (! $this->columnsEqual($addedColumn, $removedColumn)) {
                     continue;
                 }
 
@@ -396,10 +425,24 @@ class Comparator
     }
 
     /**
+     * Compares the definitions of the given columns
+     *
+     * @throws Exception
+     */
+    public function columnsEqual(Column $column1, Column $column2): bool
+    {
+        if ($this->platform === null) {
+            return $this->diffColumn($column1, $column2) === [];
+        }
+
+        return $this->platform->columnsEqual($column1, $column2);
+    }
+
+    /**
      * Returns the difference between the columns
      *
-     * If there are differences this method returns $field2, otherwise the
-     * boolean false.
+     * If there are differences this method returns the changed properties as a
+     * string array, otherwise an empty array gets returned.
      *
      * @return array<int, string>
      */

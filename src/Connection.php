@@ -32,12 +32,14 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use Throwable;
 use Traversable;
 
 use function array_key_exists;
 use function assert;
 use function count;
+use function get_class;
 use function implode;
 use function is_int;
 use function is_string;
@@ -375,6 +377,13 @@ class Connection
                 throw $this->convertException($e);
             }
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pulls/4750',
+            'Not implementing the ServerInfoAwareConnection interface in %s is deprecated',
+            get_class($connection)
+        );
 
         // Unable to detect platform version.
         return null;

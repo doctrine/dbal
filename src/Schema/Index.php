@@ -40,7 +40,7 @@ class Index extends AbstractAsset implements Constraint
      * @todo $_flags should eventually be refactored into options
      * @var array<string, mixed>
      */
-    private array $options = [];
+    private array $options;
 
     /**
      * @param array<int, string>   $columns

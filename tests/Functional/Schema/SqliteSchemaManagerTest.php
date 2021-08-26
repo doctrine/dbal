@@ -7,8 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Schema;
-use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
@@ -75,21 +74,21 @@ EOS
         );
 
         $expected = [
-            new Schema\ForeignKeyConstraint(
+            new ForeignKeyConstraint(
                 ['log'],
                 'log',
                 [],
                 'FK_3',
                 ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false]
             ),
-            new Schema\ForeignKeyConstraint(
+            new ForeignKeyConstraint(
                 ['parent'],
                 'user',
                 ['id'],
                 '1',
                 ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false]
             ),
-            new Schema\ForeignKeyConstraint(
+            new ForeignKeyConstraint(
                 ['page'],
                 'page',
                 ['key'],
@@ -103,7 +102,7 @@ EOS
 
     public function testColumnCollation(): void
     {
-        $table = new Schema\Table('test_collation');
+        $table = new Table('test_collation');
         $table->addColumn('id', 'integer');
         $table->addColumn('text', 'text');
         $table->addColumn('foo', 'text')->setPlatformOption('collation', 'BINARY');
@@ -164,52 +163,9 @@ SQL;
         self::assertSame(100, $columns['bar']->getLength());
     }
 
-    /**
-     * @dataProvider getDiffListIntegerAutoincrementTableColumnsData
-     */
-    public function testDiffListIntegerAutoincrementTableColumns(
-        string $integerType,
-        bool $unsigned,
-        bool $expectedComparatorDiff
-    ): void {
-        $tableName = 'test_int_autoincrement_table';
-
-        $offlineTable = new Table($tableName);
-        $offlineTable->addColumn('id', $integerType, ['autoincrement' => true, 'unsigned' => $unsigned]);
-        $offlineTable->setPrimaryKey(['id']);
-
-        $this->schemaManager->dropAndCreateTable($offlineTable);
-
-        $onlineTable = $this->schemaManager->listTableDetails($tableName);
-
-        $diff = (new Comparator())->diffTable($offlineTable, $onlineTable);
-
-        if ($expectedComparatorDiff) {
-            self::assertNotNull($diff);
-            self::assertEmpty($this->schemaManager->getDatabasePlatform()->getAlterTableSQL($diff));
-        } else {
-            self::assertNull($diff);
-        }
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function getDiffListIntegerAutoincrementTableColumnsData(): iterable
-    {
-        return [
-            ['smallint', false, true],
-            ['smallint', true, true],
-            ['integer', false, false],
-            ['integer', true, true],
-            ['bigint', false, true],
-            ['bigint', true, true],
-        ];
-    }
-
     public function testPrimaryKeyNoAutoIncrement(): void
     {
-        $table = new Schema\Table('test_pk_auto_increment');
+        $table = new Table('test_pk_auto_increment');
         $table->addColumn('id', 'integer');
         $table->addColumn('text', 'text');
         $table->setPrimaryKey(['id']);

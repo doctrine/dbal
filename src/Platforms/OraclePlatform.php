@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -57,8 +58,17 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
+    /**
+     * @deprecated Generate dates within the application.
+     */
     public function getNowExpression(string $type = 'timestamp'): string
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4753',
+            'OraclePlatform::getNowExpression() is deprecated. Generate dates within the application.'
+        );
+
         switch ($type) {
             case 'date':
             case 'time':
@@ -912,6 +922,12 @@ SQL
 
     public function getName(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4749',
+            'OraclePlatform::getName() is deprecated. Identify platforms by their class.'
+        );
+
         return 'oracle';
     }
 

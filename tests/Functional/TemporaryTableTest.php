@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -14,11 +15,12 @@ class TemporaryTableTest extends FunctionalTestCase
 {
     public function testDropTemporaryTableNotAutoCommitTransaction(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'oracle') {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof OraclePlatform) {
             self::markTestSkipped('Test does not work on Oracle.');
         }
 
-        $platform          = $this->connection->getDatabasePlatform();
         $columnDefinitions = [
             [
                 'name' => 'id',
@@ -52,11 +54,12 @@ class TemporaryTableTest extends FunctionalTestCase
 
     public function testCreateTemporaryTableNotAutoCommitTransaction(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'oracle') {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof OraclePlatform) {
             self::markTestSkipped('Test does not work on Oracle.');
         }
 
-        $platform          = $this->connection->getDatabasePlatform();
         $columnDefinitions = [
             [
                 'name' => 'id',

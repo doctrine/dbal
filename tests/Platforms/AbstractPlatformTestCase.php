@@ -9,6 +9,7 @@ use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -46,7 +47,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuoteIdentifier(): void
     {
-        if ($this->platform->getName() === 'mssql') {
+        if ($this->platform instanceof SQLServerPlatform) {
             self::markTestSkipped('Not working this way on mssql.');
         }
 
@@ -58,7 +59,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuoteSingleIdentifier(): void
     {
-        if ($this->platform->getName() === 'mssql') {
+        if ($this->platform instanceof SQLServerPlatform) {
             self::markTestSkipped('Not working this way on mssql.');
         }
 
@@ -219,20 +220,23 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $expected = ' WHERE ' . $where;
 
-        $actuals = [];
+        $indexes = [];
 
         if ($this->supportsInlineIndexDeclaration()) {
-            $actuals[] = $this->platform->getIndexDeclarationSQL('name', $indexDef);
+            $indexes[] = $this->platform->getIndexDeclarationSQL('name', $indexDef);
         }
 
         $uniqueConstraintSQL = $this->platform->getUniqueConstraintDeclarationSQL('name', $uniqueConstraint);
-        $indexSQL            = $this->platform->getCreateIndexSQL($indexDef, 'table');
-
         self::assertStringEndsNotWith($expected, $uniqueConstraintSQL, 'WHERE clause should NOT be present');
-        if ($this->platform->supportsPartialIndexes()) {
-            self::assertStringEndsWith($expected, $indexSQL, 'WHERE clause should be present');
-        } else {
-            self::assertStringEndsNotWith($expected, $indexSQL, 'WHERE clause should NOT be present');
+
+        $indexes[] = $this->platform->getCreateIndexSQL($indexDef, 'table');
+
+        foreach ($indexes as $index) {
+            if ($this->platform->supportsPartialIndexes()) {
+                self::assertStringEndsWith($expected, $index, 'WHERE clause should be present');
+            } else {
+                self::assertStringEndsNotWith($expected, $index, 'WHERE clause should NOT be present');
+            }
         }
     }
 

@@ -164,8 +164,7 @@ class ResultCacheTest extends FunctionalTestCase
             new QueryCacheProfile(0, 'testcachekey')
         );
 
-        while (($row = $result->fetchAssociative()) !== false) {
-        }
+        $result->fetchAllAssociative();
 
         $result = $this->connection->executeQuery(
             'SELECT * FROM caching ORDER BY test_int ASC',
@@ -174,8 +173,7 @@ class ResultCacheTest extends FunctionalTestCase
             new QueryCacheProfile(0, 'testcachekey')
         );
 
-        while (($row = $result->fetchNumeric()) !== false) {
-        }
+        $result->fetchAllNumeric();
 
         self::assertCount(1, $this->sqlLogger->queries, 'Only one query has hit the database.');
     }

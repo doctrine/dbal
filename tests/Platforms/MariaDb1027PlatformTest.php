@@ -36,14 +36,8 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
         self::assertSame(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
     }
 
-    /**
-     * Overrides and skips AbstractMySQLPlatformTestCase test regarding propagation
-     * of unsupported default values for Blob and Text columns.
-     *
-     * @see AbstractMySQLPlatformTestCase::testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
-     */
-    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
+    public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void
     {
-        self::markTestSkipped('MariaDB102Platform support propagation of default values for BLOB and TEXT columns');
+        self::markTestSkipped('MariaDb1027Platform supports default values for BLOB and TEXT columns');
     }
 }

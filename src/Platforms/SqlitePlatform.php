@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -41,8 +42,17 @@ class SqlitePlatform extends AbstractPlatform
         return 'REGEXP';
     }
 
+    /**
+     * @deprecated Generate dates within the application.
+     */
     public function getNowExpression(string $type = 'timestamp'): string
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4753',
+            'SqlitePlatform::getNowExpression() is deprecated. Generate dates within the application.'
+        );
+
         switch ($type) {
             case 'time':
                 return 'time(\'now\')';
@@ -484,6 +494,12 @@ class SqlitePlatform extends AbstractPlatform
 
     public function getName(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4749',
+            'SqlitePlatform::getName() is deprecated. Identify platforms by their class.'
+        );
+
         return 'sqlite';
     }
 

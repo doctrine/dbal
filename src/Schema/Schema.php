@@ -381,6 +381,8 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * @deprecated
+     *
      * @return array<int, string>
      *
      * @throws SchemaException
@@ -393,6 +395,8 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * @deprecated
+     *
      * @return array<int, string>
      *
      * @throws SchemaException
