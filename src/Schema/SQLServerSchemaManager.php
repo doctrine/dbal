@@ -79,6 +79,13 @@ SQL
                 }
 
                 break;
+
+            case 'varbinary':
+                if ($length === -1) {
+                    $dbType = 'blob';
+                }
+
+                break;
         }
 
         if ($dbType === 'char' || $dbType === 'nchar' || $dbType === 'binary') {

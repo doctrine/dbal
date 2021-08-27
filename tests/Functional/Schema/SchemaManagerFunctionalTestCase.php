@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DateIntervalType;
 use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\DecimalType;
@@ -885,17 +886,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testListTableWithBlob(): void
     {
         $table = new Table('test_blob_table');
-        $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
         $table->addColumn('binarydata', 'blob', []);
-        $table->setPrimaryKey(['id']);
 
         $this->schemaManager->createTable($table);
 
         $created = $this->schemaManager->listTableDetails('test_blob_table');
 
-        self::assertTrue($created->hasColumn('id'));
         self::assertTrue($created->hasColumn('binarydata'));
-        self::assertTrue($created->hasPrimaryKey());
+        self::assertInstanceOf(BlobType::class, $created->getColumn('binarydata')->getType());
     }
 
     /**

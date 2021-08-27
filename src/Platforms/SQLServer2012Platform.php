@@ -1470,6 +1470,7 @@ class SQLServer2012Platform extends AbstractPlatform
             'bigint'           => 'bigint',
             'binary'           => 'binary',
             'bit'              => 'boolean',
+            'blob'             => 'blob',
             'char'             => 'string',
             'date'             => 'date',
             'datetime'         => 'datetime',
