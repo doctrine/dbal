@@ -75,17 +75,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         $this->useBooleanTrueFalseStrings = $flag;
     }
 
-    public function getNowExpression(): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4753',
-            'PostgreSQLPlatform::getNowExpression() is deprecated. Generate dates within the application.'
-        );
-
-        return 'LOCALTIMESTAMP(0)';
-    }
-
     public function getRegexpExpression(): string
     {
         return 'SIMILAR TO';

@@ -42,30 +42,6 @@ class SqlitePlatform extends AbstractPlatform
         return 'REGEXP';
     }
 
-    /**
-     * @deprecated Generate dates within the application.
-     */
-    public function getNowExpression(string $type = 'timestamp'): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4753',
-            'SqlitePlatform::getNowExpression() is deprecated. Generate dates within the application.'
-        );
-
-        switch ($type) {
-            case 'time':
-                return 'time(\'now\')';
-
-            case 'date':
-                return 'date(\'now\')';
-
-            case 'timestamp':
-            default:
-                return 'datetime(\'now\')';
-        }
-    }
-
     public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
     {
         switch ($mode) {

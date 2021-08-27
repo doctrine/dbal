@@ -58,26 +58,6 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
-    /**
-     * @deprecated Generate dates within the application.
-     */
-    public function getNowExpression(string $type = 'timestamp'): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4753',
-            'OraclePlatform::getNowExpression() is deprecated. Generate dates within the application.'
-        );
-
-        switch ($type) {
-            case 'date':
-            case 'time':
-            case 'timestamp':
-            default:
-                return 'TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD HH24:MI:SS\')';
-        }
-    }
-
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null) {

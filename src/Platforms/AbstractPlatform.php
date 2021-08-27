@@ -36,7 +36,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -558,22 +557,6 @@ abstract class AbstractPlatform
      *                               Defaults to the beginning of the string.
      */
     abstract public function getLocateExpression(string $string, string $substring, ?string $start = null): string;
-
-    /**
-     * Returns the SQL snippet to get the current system date.
-     *
-     * @deprecated Generate dates within the application.
-     */
-    public function getNowExpression(): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4753',
-            'AbstractPlatform::getNowExpression() is deprecated. Generate dates within the application.'
-        );
-
-        return 'NOW()';
-    }
 
     /**
      * Returns an SQL snippet to get a substring inside the string.
