@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
+use Doctrine\DBAL\ServerVersionProvider;
 
 use function assert;
 
@@ -20,7 +21,7 @@ use function assert;
  */
 abstract class AbstractDB2Driver implements Driver
 {
-    public function getDatabasePlatform(): AbstractPlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
     {
         return new DB2Platform();
     }

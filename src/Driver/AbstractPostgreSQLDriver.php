@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\API\PostgreSQL;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -13,7 +14,7 @@ use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
-use Doctrine\DBAL\VersionAwarePlatformDriver;
+use Doctrine\DBAL\ServerVersionProvider;
 
 use function assert;
 use function preg_match;
@@ -22,10 +23,12 @@ use function version_compare;
 /**
  * Abstract base implementation of the {@link Driver} interface for PostgreSQL based drivers.
  */
-abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
+abstract class AbstractPostgreSQLDriver implements Driver
 {
-    public function createDatabasePlatformForVersion(string $version): AbstractPlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
     {
+        $version = $versionProvider->getServerVersion();
+
         if (preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts) === 0) {
             throw InvalidPlatformVersion::new(
                 $version,
@@ -42,11 +45,6 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
             return new PostgreSQL100Platform();
         }
 
-        return new PostgreSQLPlatform();
-    }
-
-    public function getDatabasePlatform(): AbstractPlatform
-    {
         return new PostgreSQLPlatform();
     }
 

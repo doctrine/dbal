@@ -11,7 +11,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Event\TransactionBeginEventArgs;
 use Doctrine\DBAL\Event\TransactionCommitEventArgs;
@@ -23,7 +22,7 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\VersionAwarePlatformDriver;
+use Doctrine\DBAL\ServerVersionProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
@@ -693,30 +692,50 @@ class ConnectionTest extends TestCase
         $conn->connect();
     }
 
-    public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform(): void
+    public function testPlatformDetectionTriggersConnectionIfRequiredByTheDriver(): void
     {
-        $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
-
-        $driverConnectionMock = $this->createMock(ServerInfoAwareConnection::class);
-
-        $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
-
-        $connection = new Connection([], $driverMock);
-
-        $driverMock->expects(self::once())
-            ->method('connect')
-            ->will(self::returnValue($driverConnectionMock));
-
-        $driverConnectionMock->expects(self::once())
+        $driverConnection = $this->createMock(DriverConnection::class);
+        $driverConnection->expects(self::once())
             ->method('getServerVersion')
-            ->will(self::returnValue('6.6.6'));
+            ->willReturn('6.6.6');
 
-        $driverMock->expects(self::once())
-            ->method('createDatabasePlatformForVersion')
-            ->with('6.6.6')
-            ->will(self::returnValue($platformMock));
+        $platform = $this->createMock(AbstractPlatform::class);
 
-        self::assertSame($platformMock, $connection->getDatabasePlatform());
+        $driver = $this->createMock(Driver::class);
+        $driver->expects(self::once())
+            ->method('connect')
+            ->willReturn($driverConnection);
+        $driver->expects(self::once())
+            ->method('getDatabasePlatform')
+            ->willReturnCallback(static function (ServerVersionProvider $versionProvider) use ($platform) {
+                self::assertSame('6.6.6', $versionProvider->getServerVersion());
+
+                return $platform;
+            });
+
+        $connection = new Connection([], $driver);
+
+        self::assertSame($platform, $connection->getDatabasePlatform());
+    }
+
+    public function testPlatformDetectionDoesNotTriggerConnectionIfNotRequiredByTheDriver(): void
+    {
+        $driverConnection = $this->createMock(DriverConnection::class);
+        $driverConnection->expects(self::never())
+            ->method('getServerVersion');
+
+        $platform = $this->createMock(AbstractPlatform::class);
+
+        $driver = $this->createMock(Driver::class);
+        $driver->expects(self::never())
+            ->method('connect');
+        $driver->expects(self::once())
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
+
+        $connection = new Connection([], $driver);
+
+        self::assertSame($platform, $connection->getDatabasePlatform());
     }
 
     public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery(): void
@@ -805,25 +824,6 @@ class ConnectionTest extends TestCase
         $this->expectException(Exception::class);
 
         new Connection($connectionParams, $driver);
-    }
-
-    public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase(): void
-    {
-        $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
-
-        $connection        = new Connection(['dbname' => 'foo'], $driverMock);
-        $originalException = new \Exception('Original exception');
-        $fallbackException = new \Exception('Fallback exception');
-
-        $driverMock->method('connect')
-            ->will(self::onConsecutiveCalls(
-                self::throwException($originalException),
-                self::throwException($fallbackException)
-            ));
-
-        $this->expectExceptionMessage($originalException->getMessage());
-
-        $connection->getDatabasePlatform();
     }
 
     public function testExecuteCacheQueryStripsPlatformFromConnectionParamsBeforeGeneratingCacheKeys(): void

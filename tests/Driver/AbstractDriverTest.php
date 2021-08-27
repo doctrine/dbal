@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Connection\StaticServerVersionProvider;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\VersionAwarePlatformDriver;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
 use function get_class;
-use function sprintf;
 
 /**
  * @template P of AbstractPlatform
@@ -35,52 +34,24 @@ abstract class AbstractDriverTest extends TestCase
         $this->driver = $this->createDriver();
     }
 
-    public function testCreatesDatabasePlatformForVersion(): void
+    /**
+     * @dataProvider platformVersionProvider
+     */
+    public function testCreatesDatabasePlatformForVersion(string $version, string $expectedClass): void
     {
-        if (! $this->driver instanceof VersionAwarePlatformDriver) {
-            self::markTestSkipped('This test is only intended for version aware platform drivers.');
-        }
-
-        $data = $this->getDatabasePlatformsForVersions();
-
-        self::assertNotEmpty(
-            $data,
-            sprintf(
-                'No test data found for test %s. You have to return test data from %s.',
-                static::class . '::' . __FUNCTION__,
-                static::class . '::getDatabasePlatformsForVersions'
-            )
+        $platform = $this->driver->getDatabasePlatform(
+            new StaticServerVersionProvider($version)
         );
 
-        foreach ($data as $item) {
-            $generatedVersion = get_class($this->driver->createDatabasePlatformForVersion($item[0]));
-
-            self::assertSame(
-                $item[1],
-                $generatedVersion,
-                sprintf(
-                    'Expected platform for version "%s" should be "%s", "%s" given',
-                    $item[0],
-                    $item[1],
-                    $generatedVersion
-                )
-            );
-        }
+        self::assertSame($expectedClass, get_class($platform));
     }
 
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
     {
-        if (! $this->driver instanceof VersionAwarePlatformDriver) {
-            self::markTestSkipped('This test is only intended for version aware platform drivers.');
-        }
-
         $this->expectException(Exception::class);
-        $this->driver->createDatabasePlatformForVersion('foo');
-    }
-
-    public function testReturnsDatabasePlatform(): void
-    {
-        self::assertEquals($this->createPlatform(), $this->driver->getDatabasePlatform());
+        $this->driver->getDatabasePlatform(
+            new StaticServerVersionProvider('foo')
+        );
     }
 
     public function testReturnsSchemaManager(): void
@@ -142,8 +113,5 @@ abstract class AbstractDriverTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    protected function getDatabasePlatformsForVersions(): array
-    {
-        return [];
-    }
+    abstract public static function platformVersionProvider(): array;
 }

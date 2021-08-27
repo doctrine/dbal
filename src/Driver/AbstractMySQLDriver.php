@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\API\MySQL;
 use Doctrine\DBAL\Exception;
@@ -16,7 +17,7 @@ use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
-use Doctrine\DBAL\VersionAwarePlatformDriver;
+use Doctrine\DBAL\ServerVersionProvider;
 
 use function assert;
 use function preg_match;
@@ -26,15 +27,18 @@ use function version_compare;
 /**
  * Abstract base implementation of the {@link Driver} interface for MySQL based drivers.
  */
-abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
+abstract class AbstractMySQLDriver implements Driver
 {
     /**
      * {@inheritdoc}
      *
+     * @return MySQLPlatform
+     *
      * @throws Exception
      */
-    public function createDatabasePlatformForVersion(string $version): AbstractPlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
     {
+        $version = $versionProvider->getServerVersion();
         $mariadb = stripos($version, 'mariadb') !== false;
         if ($mariadb && version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
             return new MariaDb1027Platform();
@@ -51,7 +55,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
             }
         }
 
-        return $this->getDatabasePlatform();
+        return new MySQLPlatform();
     }
 
     /**
@@ -112,16 +116,6 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
         }
 
         return $versionParts['major'] . '.' . $versionParts['minor'] . '.' . $versionParts['patch'];
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return MySQLPlatform
-     */
-    public function getDatabasePlatform(): AbstractPlatform
-    {
-        return new MySQLPlatform();
     }
 
     /**

@@ -8,6 +8,15 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed driver-level APIs that don't take the server version into account.
+
+The `ServerInfoAwareConnection` interface has been removed. The `getServerVersion()` method has been made
+part of the driver-level `Connection` interface.
+
+The `VersionAwarePlatformDriver` interface has been removed. The `Driver::getDatabasePlatform()` method now accepts
+a `ServerVersionProvider` argument that will provide the server version, if the driver relies on the server version
+to instantiate a database platform.
+
 ## BC BREAK: Removed `AbstractPlatform::getName()`
 
 The `AbstractPlatform::getName()` method has been removed.

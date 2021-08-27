@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\ServerVersionProvider;
+
 /**
  * Connection interface.
  * Driver connections must implement this interface.
  */
-interface Connection
+interface Connection extends ServerVersionProvider
 {
     /**
      * Prepares a statement for execution and returns a Statement object.

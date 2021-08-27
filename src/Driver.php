@@ -33,7 +33,7 @@ interface Driver
      *
      * @return AbstractPlatform The database platform.
      */
-    public function getDatabasePlatform(): AbstractPlatform;
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform;
 
     /**
      * Gets the SchemaManager that can be used to inspect and change the underlying

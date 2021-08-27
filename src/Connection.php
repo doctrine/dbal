@@ -11,9 +11,9 @@ use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\CachingResult;
 use Doctrine\DBAL\Cache\Exception\NoResultDriverConfigured;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
+use Doctrine\DBAL\Connection\StaticServerVersionProvider;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Event\TransactionBeginEventArgs;
 use Doctrine\DBAL\Event\TransactionCommitEventArgs;
@@ -32,14 +32,12 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use Throwable;
 use Traversable;
 
 use function array_key_exists;
 use function assert;
 use function count;
-use function get_class;
 use function implode;
 use function is_int;
 use function is_string;
@@ -51,7 +49,7 @@ use function key;
  *
  * @psalm-import-type Params from DriverManager
  */
-class Connection
+class Connection implements ServerVersionProvider
 {
     /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.
@@ -237,7 +235,13 @@ class Connection
     public function getDatabasePlatform(): AbstractPlatform
     {
         if ($this->platform === null) {
-            $this->platform = $this->detectDatabasePlatform();
+            $versionProvider = $this;
+
+            if (isset($this->params['serverVersion'])) {
+                $versionProvider = new StaticServerVersionProvider($this->params['serverVersion']);
+            }
+
+            $this->platform = $this->_driver->getDatabasePlatform($versionProvider);
             $this->platform->setEventManager($this->_eventManager);
         }
 
@@ -282,111 +286,52 @@ class Connection
     }
 
     /**
-     * Detects and sets the database platform.
-     *
-     * Evaluates custom platform class and version in order to set the correct platform.
-     *
-     * @throws Exception If an invalid platform was specified for this connection.
-     */
-    private function detectDatabasePlatform(): AbstractPlatform
-    {
-        $version = $this->getDatabasePlatformVersion();
-
-        if ($version !== null) {
-            assert($this->_driver instanceof VersionAwarePlatformDriver);
-
-            return $this->_driver->createDatabasePlatformForVersion($version);
-        }
-
-        return $this->_driver->getDatabasePlatform();
-    }
-
-    /**
-     * Returns the version of the related platform if applicable.
-     *
-     * Returns null if either the driver is not capable to create version
-     * specific platform instances, no explicit server version was specified
-     * or the underlying driver connection cannot determine the platform
-     * version without having to query it (performance reasons).
-     *
-     * @throws Throwable
-     */
-    private function getDatabasePlatformVersion(): ?string
-    {
-        // Driver does not support version specific platforms.
-        if (! $this->_driver instanceof VersionAwarePlatformDriver) {
-            return null;
-        }
-
-        // Explicit platform version requested (supersedes auto-detection).
-        if (isset($this->params['serverVersion'])) {
-            return $this->params['serverVersion'];
-        }
-
-        // If not connected, we need to connect now to determine the platform version.
-        if ($this->_conn === null) {
-            try {
-                $this->connect();
-            } catch (Exception $originalException) {
-                if (! isset($this->params['dbname'])) {
-                    throw $originalException;
-                }
-
-                // The database to connect to might not yet exist.
-                // Retry detection without database name connection parameter.
-                $params = $this->params;
-
-                unset($this->params['dbname']);
-
-                try {
-                    $this->connect();
-                } catch (Exception $fallbackException) {
-                    // Either the platform does not support database-less connections
-                    // or something else went wrong.
-                    throw $originalException;
-                } finally {
-                    $this->params = $params;
-                }
-
-                $serverVersion = $this->getServerVersion();
-
-                // Close "temporary" connection to allow connecting to the real database again.
-                $this->close();
-
-                return $serverVersion;
-            }
-        }
-
-        return $this->getServerVersion();
-    }
-
-    /**
-     * Returns the database server version if the underlying driver supports it.
+     * {@inheritDoc}
      *
      * @throws Exception
      */
-    private function getServerVersion(): ?string
+    public function getServerVersion(): string
     {
-        $connection = $this->getWrappedConnection();
+        $connection = $this->getServerVersionConnection();
 
-        // Automatic platform version detection.
-        if ($connection instanceof ServerInfoAwareConnection) {
+        try {
+            return $connection->getServerVersion();
+        } catch (Driver\Exception $e) {
+            throw $this->convertException($e);
+        }
+    }
+
+    /**
+     * Returns the driver-level connection for server version detection.
+     *
+     * @throws Exception
+     */
+    private function getServerVersionConnection(): DriverConnection
+    {
+        try {
+            return $this->getWrappedConnection();
+        } catch (Exception $e) {
+            if (! isset($this->params['dbname'])) {
+                throw $e;
+            }
+
+            // The database to connect to might not yet exist.
+            // Retry detection without database name connection parameter.
+            $params = $this->params;
+
+            unset($this->params['dbname']);
+
             try {
-                return $connection->getServerVersion();
-            } catch (Driver\Exception $e) {
-                throw $this->convertException($e);
+                return $this->getWrappedConnection();
+            } catch (Exception $_) {
+                // Either the platform does not support database-less connections
+                // or something else went wrong.
+                throw $e;
+            } finally {
+                $this->close();
+                $this->params = $params;
             }
         }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pulls/4750',
-            'Not implementing the ServerInfoAwareConnection interface in %s is deprecated',
-            get_class($connection)
-        );
-
-        // Unable to detect platform version.
-        return null;
     }
 
     /**

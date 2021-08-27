@@ -48,7 +48,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected function getDatabasePlatformsForVersions(): array
+    public static function platformVersionProvider(): array
     {
         return [
             ['5.6.9', MySQLPlatform::class],

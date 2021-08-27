@@ -41,4 +41,17 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
     {
         return new SQLite\ExceptionConverter();
     }
+
+    public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
+    {
+        self::markTestSkipped('SQLite drivers do not use server version to instantiate platform');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function platformVersionProvider(): array
+    {
+        self::markTestSkipped('SQLite drivers use one platform implementation for all server versions');
+    }
 }
