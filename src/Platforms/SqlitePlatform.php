@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -466,17 +465,6 @@ class SqlitePlatform extends AbstractPlatform
     public function supportsInlineColumnComments(): bool
     {
         return true;
-    }
-
-    public function getName(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4749',
-            'SqlitePlatform::getName() is deprecated. Identify platforms by their class.'
-        );
-
-        return 'sqlite';
     }
 
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string

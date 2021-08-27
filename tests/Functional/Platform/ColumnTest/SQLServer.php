@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
 
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
 
 final class SQLServer extends ColumnTest
@@ -13,7 +13,7 @@ final class SQLServer extends ColumnTest
     {
         parent::setUp();
 
-        $this->requirePlatform(SQLServer2012Platform::class);
+        $this->requirePlatform(SQLServerPlatform::class);
     }
 
     public function testVariableLengthStringNoLength(): void

@@ -328,13 +328,6 @@ abstract class AbstractPlatform
     abstract public function getBlobTypeDeclarationSQL(array $column): string;
 
     /**
-     * Gets the name of the platform.
-     *
-     * @deprecated Identify platforms by their class.
-     */
-    abstract public function getName(): string;
-
-    /**
      * Registers a doctrine type to be used in conjunction with a column type of this platform.
      *
      * @throws Exception If the type is not found.

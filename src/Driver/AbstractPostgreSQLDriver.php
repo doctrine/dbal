@@ -10,7 +10,7 @@ use Doctrine\DBAL\Driver\API\PostgreSQL;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -42,17 +42,17 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
             return new PostgreSQL100Platform();
         }
 
-        return new PostgreSQL94Platform();
+        return new PostgreSQLPlatform();
     }
 
     public function getDatabasePlatform(): AbstractPlatform
     {
-        return new PostgreSQL94Platform();
+        return new PostgreSQLPlatform();
     }
 
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager
     {
-        assert($platform instanceof PostgreSQL94Platform);
+        assert($platform instanceof PostgreSQLPlatform);
 
         return new PostgreSQLSchemaManager($conn, $platform);
     }

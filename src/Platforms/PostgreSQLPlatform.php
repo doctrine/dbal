@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
-use Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -17,7 +17,6 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_diff;
@@ -911,17 +910,6 @@ SQL
         return 'TEXT';
     }
 
-    public function getName(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4749',
-            'PostgreSQLPlatform::getName() is deprecated. Identify platforms by their class.'
-        );
-
-        return 'postgresql';
-    }
-
     public function getDateTimeTzFormatString(): string
     {
         return 'Y-m-d H:i:sO';
@@ -1003,7 +991,7 @@ SQL
 
     protected function createReservedKeywordsList(): KeywordList
     {
-        return new PostgreSQL94Keywords();
+        return new PostgreSQLKeywords();
     }
 
     /**

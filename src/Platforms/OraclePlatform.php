@@ -16,7 +16,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -898,17 +897,6 @@ SQL
     public function supportsCommentOnStatement(): bool
     {
         return true;
-    }
-
-    public function getName(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4749',
-            'OraclePlatform::getName() is deprecated. Identify platforms by their class.'
-        );
-
-        return 'oracle';
     }
 
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string

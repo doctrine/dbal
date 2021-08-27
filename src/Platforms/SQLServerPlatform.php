@@ -8,7 +8,7 @@ use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
-use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -17,7 +17,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -1284,17 +1283,6 @@ class SQLServerPlatform extends AbstractPlatform
         return 'Y-m-d H:i:s.u P';
     }
 
-    public function getName(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4749',
-            'SQLServerPlatform::getName() is deprecated. Identify platforms by their class.'
-        );
-
-        return 'mssql';
-    }
-
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -1380,7 +1368,7 @@ class SQLServerPlatform extends AbstractPlatform
 
     protected function createReservedKeywordsList(): KeywordList
     {
-        return new SQLServer2012Keywords();
+        return new SQLServerKeywords();
     }
 
     public function quoteSingleIdentifier(string $str): string

@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
@@ -116,7 +116,7 @@ class ColumnTest extends TestCase
 
         $column = new Column('[bar]', $string);
 
-        $sqlServerPlatform = new SQLServer2012Platform();
+        $sqlServerPlatform = new SQLServerPlatform();
 
         self::assertEquals('bar', $column->getName());
         self::assertEquals('[bar]', $column->getQuotedName($sqlServerPlatform));
