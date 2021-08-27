@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed versioned platform classes that represent the lowest supported version.
+
+The following platform-related classes have been removed:
+
+1. `PostgreSQL94Platform` and `PostgreSQL94Keywords`.
+2. `SQLServer2012Platform` and `SQLServer2012Keywords`.
+
 ## BC BREAK: Removed `AbstractPlatform::getNowExpression()`.
 
 The `AbstractPlatform::getNowExpression()` method has been removed.

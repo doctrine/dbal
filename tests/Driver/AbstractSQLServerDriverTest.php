@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\AbstractSQLServerDriver\Exception\PortWithoutHost;
 use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\SQLSrv\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
@@ -21,7 +20,7 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
 {
     protected function createPlatform(): AbstractPlatform
     {
-        return new SQLServer2012Platform();
+        return new SQLServerPlatform();
     }
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
@@ -43,7 +42,7 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
     protected function getDatabasePlatformsForVersions(): array
     {
         return [
-            ['12', SQLServer2012Platform::class],
+            ['12', SQLServerPlatform::class],
         ];
     }
 

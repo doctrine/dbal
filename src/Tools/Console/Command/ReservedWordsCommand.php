@@ -14,10 +14,10 @@ use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
-use Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
-use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
@@ -52,10 +52,10 @@ class ReservedWordsCommand extends Command
             'mysql57'    => new MySQL57Keywords(),
             'mysql80'    => new MySQL80Keywords(),
             'oracle'     => new OracleKeywords(),
-            'pgsql'      => new PostgreSQL94Keywords(),
+            'pgsql'      => new PostgreSQLKeywords(),
             'pgsql100'   => new PostgreSQL100Keywords(),
             'sqlite'     => new SQLiteKeywords(),
-            'sqlserver'  => new SQLServer2012Keywords(),
+            'sqlserver'  => new SQLServerKeywords(),
         ];
     }
 

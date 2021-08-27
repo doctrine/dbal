@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
-use Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -1003,7 +1003,7 @@ SQL
 
     protected function createReservedKeywordsList(): KeywordList
     {
-        return new PostgreSQL94Keywords();
+        return new PostgreSQLKeywords();
     }
 
     /**
