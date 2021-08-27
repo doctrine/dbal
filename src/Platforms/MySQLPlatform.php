@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_diff_key;
@@ -914,17 +913,6 @@ SQL
     public function getSetTransactionIsolationSQL(int $level): string
     {
         return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
-    }
-
-    public function getName(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4749',
-            'MySQLPlatform::getName() is deprecated. Identify platforms by their class.'
-        );
-
-        return 'mysql';
     }
 
     public function getReadLockSQL(): string

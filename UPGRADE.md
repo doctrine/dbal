@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `AbstractPlatform::getName()`
+
+The `AbstractPlatform::getName()` method has been removed.
+
 ## BC BREAK: Removed versioned platform classes that represent the lowest supported version.
 
 The following platform-related classes have been removed:

@@ -17,7 +17,6 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_diff;
@@ -909,17 +908,6 @@ SQL
     public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'TEXT';
-    }
-
-    public function getName(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4749',
-            'PostgreSQLPlatform::getName() is deprecated. Identify platforms by their class.'
-        );
-
-        return 'postgresql';
     }
 
     public function getDateTimeTzFormatString(): string

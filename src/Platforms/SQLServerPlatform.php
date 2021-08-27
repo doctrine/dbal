@@ -17,7 +17,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -1282,17 +1281,6 @@ class SQLServerPlatform extends AbstractPlatform
     public function getDateTimeTzFormatString(): string
     {
         return 'Y-m-d H:i:s.u P';
-    }
-
-    public function getName(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4749',
-            'SQLServerPlatform::getName() is deprecated. Identify platforms by their class.'
-        );
-
-        return 'mssql';
     }
 
     protected function initializeDoctrineTypeMappings(): void

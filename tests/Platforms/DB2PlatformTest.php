@@ -171,11 +171,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function testHasCorrectPlatformName(): void
-    {
-        self::assertEquals('db2', $this->platform->getName());
-    }
-
     public function testGeneratesCreateTableSQLWithCommonIndexes(): void
     {
         $table = new Table('test');
