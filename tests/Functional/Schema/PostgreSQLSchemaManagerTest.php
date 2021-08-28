@@ -283,25 +283,20 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($diff);
     }
 
-    public function testListTableWithBinary(): void
+    /**
+     * PostgreSQL stores BINARY columns as BLOB
+     */
+    protected function assertBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
     {
-        $tableName = 'test_binary_table';
+        self::assertInstanceOf(BlobType::class, $table->getColumn($columnName)->getType());
+    }
 
-        $table = new Table($tableName);
-        $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', []);
-        $table->addColumn('column_binary', 'binary', ['fixed' => true]);
-        $table->setPrimaryKey(['id']);
-
-        $this->schemaManager->createTable($table);
-
-        $table = $this->schemaManager->listTableDetails($tableName);
-
-        self::assertInstanceOf(BlobType::class, $table->getColumn('column_varbinary')->getType());
-        self::assertFalse($table->getColumn('column_varbinary')->getFixed());
-
-        self::assertInstanceOf(BlobType::class, $table->getColumn('column_binary')->getType());
-        self::assertFalse($table->getColumn('column_binary')->getFixed());
+    /**
+     * PostgreSQL stores VARBINARY columns as BLOB
+     */
+    protected function assertVarBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
+    {
+        self::assertInstanceOf(BlobType::class, $table->getColumn($columnName)->getType());
     }
 
     public function testListQuotedTable(): void
