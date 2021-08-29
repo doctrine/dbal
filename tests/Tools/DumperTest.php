@@ -99,7 +99,7 @@ class DumperTest extends TestCase
         $var = (array) $var;
         unset($var['__CLASS__']);
 
-        self::assertSame($expected, $var);
+        self::assertEquals($expected, $var);
     }
 
     /**
