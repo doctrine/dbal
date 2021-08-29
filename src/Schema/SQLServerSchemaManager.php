@@ -107,7 +107,7 @@ SQL
             'comment'       => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
         ];
 
-        if ($length !== 0 && ($type === 'text' || $type === 'string')) {
+        if ($length !== 0 && ($type === 'text' || $type === 'string' || $type === 'binary')) {
             $options['length'] = $length;
         }
 
