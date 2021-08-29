@@ -31,6 +31,8 @@ use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Driver} interface for SAP Sybase SQL Anywhere based drivers.
+ *
+ * @deprecated Support for SQLAnywhere will be removed in 3.0.
  */
 abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {

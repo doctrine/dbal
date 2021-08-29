@@ -14,6 +14,8 @@ use function sasql_stmt_error;
 /**
  * SAP Sybase SQL Anywhere driver exception.
  *
+ * @deprecated Support for SQLAnywhere will be removed in 3.0.
+ *
  * @psalm-immutable
  */
 class SQLAnywhereException extends AbstractDriverException

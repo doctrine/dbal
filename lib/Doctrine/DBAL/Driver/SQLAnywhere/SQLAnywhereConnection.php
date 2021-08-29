@@ -28,6 +28,8 @@ use function sasql_set_option;
 
 /**
  * SAP Sybase SQL Anywhere implementation of the Connection interface.
+ *
+ * @deprecated Support for SQLAnywhere will be removed in 3.0.
  */
 class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 {
@@ -46,6 +48,12 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      */
     public function __construct($dsn, $persistent = false)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4077',
+            'The SQLAnywhere driver is deprecated'
+        );
+
         $this->connection = $persistent ? @sasql_pconnect($dsn) : @sasql_connect($dsn);
 
         if (! is_resource($this->connection)) {

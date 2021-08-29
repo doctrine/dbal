@@ -45,6 +45,8 @@ use const SASQL_BOTH;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
+ *
+ * @deprecated Support for SQLAnywhere will be removed in 3.0.
  */
 class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
 {
