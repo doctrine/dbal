@@ -6,6 +6,12 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 2.13
+
+## Deprecated SQLAnywhere drivers
+
+The `SQLAnywhere` driver has been deprecated and will be removed from DBAL. 
+
 # Upgrade to 2.12
 
 ## Deprecated non-zero based positional parameter keys

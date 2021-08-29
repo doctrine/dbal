@@ -9,7 +9,7 @@ use Doctrine\DBAL\Schema\Sequence;
  * The SQLAnywhere12Platform provides the behavior, features and SQL dialect of the
  * SAP Sybase SQL Anywhere 12 database platform.
  *
- * @deprecated Use SQLAnywhere 16 or newer
+ * @deprecated Support for SQLAnywhere will be removed in 3.0.
  */
 class SQLAnywhere12Platform extends SQLAnywhere11Platform
 {
