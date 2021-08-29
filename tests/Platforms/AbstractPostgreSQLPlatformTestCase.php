@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -561,7 +560,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $oldTable->addColumn('parent_id', 'integer');
         $oldTable->addForeignKeyConstraint('mytable', ['parent_id'], ['id']);
 
-        $diff = (new Comparator())->diffTable($oldTable, $newTable);
+        $diff = $this->createComparator()
+            ->diffTable($oldTable, $newTable);
         self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -636,7 +636,7 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $table2->addColumn('column_binary', 'binary');
         $table2->addColumn('column_blob', 'binary');
 
-        $comparator = new Comparator();
+        $comparator = $this->createComparator();
 
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
@@ -821,9 +821,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
 
-        $comparator = new Comparator();
-
-        $tableDiff = $comparator->diffTable($table1, $table2);
+        $tableDiff = $this->createComparator()
+            ->diffTable($table1, $table2);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertSame(
@@ -837,9 +836,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime'))]);
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime_immutable'))]);
 
-        $comparator = new Comparator();
-
-        $tableDiff = $comparator->diffTable($table1, $table2);
+        $tableDiff = $this->createComparator()
+            ->diffTable($table1, $table2);
 
         self::assertNotNull($tableDiff);
         self::assertSame(

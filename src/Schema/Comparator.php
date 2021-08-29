@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_intersect_key;
 use function array_key_exists;
@@ -25,23 +24,13 @@ use function strtolower;
  */
 class Comparator
 {
-    private ?AbstractPlatform $platform;
+    private AbstractPlatform $platform;
 
     /**
      * @internal The comparator can be only instantiated by a schema manager.
      */
-    public function __construct(?AbstractPlatform $platform = null)
+    public function __construct(AbstractPlatform $platform)
     {
-        if ($platform === null) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/4659',
-                'Not passing a $platform to %s is deprecated.'
-                    . ' Use AbstractSchemaManager::createComparator() to instantiate the comparator.',
-                __METHOD__
-            );
-        }
-
         $this->platform = $platform;
     }
 
@@ -225,16 +214,11 @@ class Comparator
 
             $toColumn = $toTable->getColumn($columnName);
 
-            // See if column has changed properties in "to" table.
-            $changedProperties = $this->diffColumn($column, $toColumn);
-
-            if ($this->platform !== null) {
-                if ($this->columnsEqual($column, $toColumn)) {
-                    continue;
-                }
-            } elseif (count($changedProperties) === 0) {
+            if ($this->columnsEqual($column, $toColumn)) {
                 continue;
             }
+
+            $changedProperties = $this->diffColumn($column, $toColumn);
 
             $columnDiff = new ColumnDiff($column->getName(), $toColumn, $changedProperties);
 
@@ -431,10 +415,6 @@ class Comparator
      */
     public function columnsEqual(Column $column1, Column $column2): bool
     {
-        if ($this->platform === null) {
-            return $this->diffColumn($column1, $column2) === [];
-        }
-
         return $this->platform->columnsEqual($column1, $column2);
     }
 

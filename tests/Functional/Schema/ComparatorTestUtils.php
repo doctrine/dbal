@@ -40,22 +40,4 @@ final class ComparatorTestUtils
 
         TestCase::assertNull(self::diffOnlineAndOfflineTable($schemaManager, $comparator, $table));
     }
-
-    /**
-     * @return iterable<string,array<callable(AbstractSchemaManager):Comparator>>
-     */
-    public static function comparatorProvider(): iterable
-    {
-        yield 'Generic comparator' => [
-            static function (): Comparator {
-                return new Comparator();
-            },
-        ];
-
-        yield 'Platform-specific comparator' => [
-            static function (AbstractSchemaManager $schemaManager): Comparator {
-                return $schemaManager->createComparator();
-            },
-        ];
-    }
 }

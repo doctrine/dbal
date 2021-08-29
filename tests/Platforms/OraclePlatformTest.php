@@ -10,7 +10,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -589,7 +588,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ]);
         $table2->addColumn('column_binary', 'binary', ['length' => 32]);
 
-        self::assertNull((new Comparator($this->platform))->diffTable($table1, $table2));
+        self::assertNull(
+            $this->createComparator()
+                ->diffTable($table1, $table2)
+        );
     }
 
     public function testUsesSequenceEmulatedIdentityColumns(): void
@@ -786,11 +788,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
 
-        $comparator = new Comparator();
+        $tableDiff = $this->createComparator()
+            ->diffTable($table1, $table2);
 
-        $tableDiff = $comparator->diffTable($table1, $table2);
-
-        self::assertInstanceOf(TableDiff::class, $tableDiff);
+        self::assertNotNull($tableDiff);
         self::assertSame(
             ['COMMENT ON COLUMN "foo"."bar" IS \'baz\''],
             $this->platform->getAlterTableSQL($tableDiff)

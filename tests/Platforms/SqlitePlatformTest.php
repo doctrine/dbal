@@ -6,8 +6,10 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -21,6 +23,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function createPlatform(): AbstractPlatform
     {
         return new SqlitePlatform();
+    }
+
+    protected function createComparator(): Comparator
+    {
+        return new SQLite\Comparator($this->platform);
     }
 
     public function getGenerateTableSql(): string

@@ -6,8 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -80,12 +78,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
-    /**
-     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
-     *
-     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
-     */
-    public function testAlterTableColumnNotNull(callable $comparatorFactory): void
+    public function testAlterTableColumnNotNull(): void
     {
         $tableName = 'list_table_column_notnull';
         $table     = new Table($tableName);
@@ -107,7 +100,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->changeColumn('foo', ['notnull' => false]);
         $diffTable->changeColumn('bar', ['length' => 1024]);
 
-        $diff = $comparatorFactory($this->schemaManager)->diffTable($table, $diffTable);
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);

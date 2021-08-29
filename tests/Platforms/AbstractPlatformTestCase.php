@@ -45,6 +45,11 @@ abstract class AbstractPlatformTestCase extends TestCase
         $this->platform = $this->createPlatform();
     }
 
+    protected function createComparator(): Comparator
+    {
+        return new Comparator($this->platform);
+    }
+
     public function testQuoteIdentifier(): void
     {
         if ($this->platform instanceof SQLServerPlatform) {
@@ -1038,7 +1043,8 @@ abstract class AbstractPlatformTestCase extends TestCase
         // quoted -> quoted
         $toTable->addColumn('`baz`', 'integer', ['comment' => 'Quoted 3']);
 
-        $diff = (new Comparator())->diffTable($fromTable, $toTable);
+        $diff = $this->createComparator()
+            ->diffTable($fromTable, $toTable);
         self::assertNotNull($diff);
 
         self::assertEquals(
@@ -1076,7 +1082,8 @@ abstract class AbstractPlatformTestCase extends TestCase
         $toTable->addColumn('table', 'string', ['comment' => 'Reserved keyword 2', 'length' => 255]);
         $toTable->addColumn('select', 'string', ['comment' => 'Reserved keyword 3', 'length' => 255]);
 
-        $diff = (new Comparator())->diffTable($fromTable, $toTable);
+        $diff = $this->createComparator()
+            ->diffTable($fromTable, $toTable);
         self::assertNotNull($diff);
 
         self::assertEquals(

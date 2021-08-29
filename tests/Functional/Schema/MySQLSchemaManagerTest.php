@@ -255,7 +255,12 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $fromSchema = new Schema([$table]);
         $toSchema   = new Schema([$diffTable]);
 
-        $diff = $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
+        $diff = $this->schemaManager->createComparator()
+            ->compareSchemas($fromSchema, $toSchema)
+            ->toSql(
+                $this->connection->getDatabasePlatform()
+            );
+
         self::assertContains(
             'ALTER TABLE test_column_charset_change CHANGE col_string'
                 . ' col_string VARCHAR(100) CHARACTER SET ascii NOT NULL',

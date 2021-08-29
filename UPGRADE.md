@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed schema comparison APIs that don't account for the current database connection and the database platform
+
+The `Schema::getMigrateFromSql()` and `::getMigrateToSql()` methods have been removed.
+
 ## BC BREAK: Removed driver-level APIs that don't take the server version into account.
 
 The `ServerInfoAwareConnection` interface has been removed. The `getServerVersion()` method has been made

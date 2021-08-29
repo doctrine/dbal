@@ -20,10 +20,7 @@ class MySQLSchemaTest extends TestCase
         $this->platform = new MySQLPlatform();
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
-    public function testSwitchPrimaryKeyOrder(Comparator $comparator): void
+    public function testSwitchPrimaryKeyOrder(): void
     {
         $tableOld = new Table('test');
         $tableOld->addColumn('foo_id', 'integer');
@@ -33,7 +30,8 @@ class MySQLSchemaTest extends TestCase
         $tableOld->setPrimaryKey(['foo_id', 'bar_id']);
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
-        $diff = $comparator->diffTable($tableOld, $tableNew);
+        $diff = $this->createComparator()
+            ->diffTable($tableOld, $tableNew);
         self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -67,10 +65,7 @@ class MySQLSchemaTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
-    public function testClobNoAlterTable(Comparator $comparator): void
+    public function testClobNoAlterTable(): void
     {
         $tableOld = new Table('test');
         $tableOld->addColumn('id', 'integer');
@@ -79,7 +74,8 @@ class MySQLSchemaTest extends TestCase
 
         $tableNew->setPrimaryKey(['id']);
 
-        $diff = $comparator->diffTable($tableOld, $tableNew);
+        $diff = $this->createComparator()
+            ->diffTable($tableOld, $tableNew);
         self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -90,17 +86,8 @@ class MySQLSchemaTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string,array{Comparator}>
-     */
-    public static function comparatorProvider(): iterable
+    private function createComparator(): Comparator
     {
-        yield 'Generic comparator' => [
-            new Comparator(),
-        ];
-
-        yield 'MySQL comparator' => [
-            new MySQL\Comparator(new MySQLPlatform()),
-        ];
+        return new MySQL\Comparator(new MySQLPlatform());
     }
 }
