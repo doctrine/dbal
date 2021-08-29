@@ -125,5 +125,8 @@ parameters:
             message: '~^Strict comparison using !== between OCILob\|null and false will always evaluate to true\.$~'
             paths:
                 - %currentWorkingDirectory%/src/Driver/OCI8/Statement.php
+
+        # This class has been added in PHP 8.1
+        - '/^Attribute class ReturnTypeWillChange does not exist\.$/'
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
