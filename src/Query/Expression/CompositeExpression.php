@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Query\Expression;
 
 use Countable;
 use Doctrine\Deprecations\Deprecation;
+use ReturnTypeWillChange;
 
 use function array_merge;
 use function count;
@@ -149,6 +150,7 @@ class CompositeExpression implements Countable
      *
      * @return int
      */
+    #[ReturnTypeWillChange]
     public function count()
     {
         return count($this->parts);

@@ -33,8 +33,6 @@ use function trim;
  * The MySQLPlatform provides the behavior, features and SQL dialect of the
  * MySQL database platform. This platform represents a MySQL 5.0 or greater platform that
  * uses the InnoDB storage engine.
- *
- * @todo   Rename: MySQLPlatform
  */
 class MySQLPlatform extends AbstractPlatform
 {
