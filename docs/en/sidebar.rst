@@ -21,3 +21,5 @@
     reference/testing
 
     explanation/implicit-indexes
+
+    how-to/postgresql-identity-migration
