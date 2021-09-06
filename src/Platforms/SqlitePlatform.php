@@ -748,8 +748,8 @@ class SqlitePlatform extends AbstractPlatform
         $newColumnNames = [];
         $columnSql      = [];
 
-        foreach ($table->getColumns() as $columnName => $column) {
-            $columnName                  = strtolower($columnName);
+        foreach ($table->getColumns() as $column) {
+            $columnName                  = strtolower($column->getName());
             $columns[$columnName]        = $column;
             $oldColumnNames[$columnName] = $newColumnNames[$columnName] = $column->getQuotedName($this);
         }
@@ -988,8 +988,9 @@ class SqlitePlatform extends AbstractPlatform
     {
         $columns = [];
 
-        foreach ($fromTable->getColumns() as $columnName => $column) {
-            $columns[strtolower($columnName)] = $column->getName();
+        foreach ($fromTable->getColumns() as $column) {
+            $columnName                       = $column->getName();
+            $columns[strtolower($columnName)] = $columnName;
         }
 
         foreach ($diff->removedColumns as $columnName => $column) {
