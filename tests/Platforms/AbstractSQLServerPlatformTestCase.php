@@ -73,7 +73,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
 
         self::assertEquals(
-            '(column1 + column2 + column3)',
+            'CONCAT(column1, column2, column3)',
             $this->platform->getConcatExpression('column1', 'column2', 'column3')
         );
     }

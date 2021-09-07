@@ -1148,7 +1148,7 @@ class SQLServer2012Platform extends AbstractPlatform
     {
         $args = func_get_args();
 
-        return '(' . implode(' + ', $args) . ')';
+        return 'CONCAT(' . implode(', ', $args) . ')';
     }
 
     /**
