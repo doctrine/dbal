@@ -502,12 +502,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->connection->executeStatement($createTableSQL);
         $this->connection->executeStatement('SET search_path TO "001_test",public');
 
-        try
-        {
-            $databaseTable = $this->schemaManager->listTableDetails('migrations');
-        } catch (\Exception $e) {
-            $databaseTable = null;
-        }
+        $databaseTable = $this->schemaManager->listTableDetails('migrations');
 
         self::assertNotNull($databaseTable);
     }
@@ -520,12 +515,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->connection->executeStatement($createTableSQL);
         $this->connection->executeStatement('SET search_path TO "001_test",public');
 
-        try
-        {
-            $databaseTable = $this->schemaManager->listTableDetails('migrations');
-        } catch (\Exception $e) {
-            $databaseTable = null;
-        }
+        $databaseTable = $this->schemaManager->listTableDetails('migrations');
 
         self::assertNotNull($databaseTable);
     }
@@ -538,12 +528,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->connection->executeStatement($createTableSQL);
         $this->connection->executeStatement('SET search_path TO "001_test",public');
 
-        try
-        {
-            $databaseTable = $this->schemaManager->listTableDetails('migrations');
-        } catch (\Exception $e) {
-            $databaseTable = null;
-        }
+        $databaseTable = $this->schemaManager->listTableDetails('migrations');
 
         self::assertNotNull($databaseTable);
     }
