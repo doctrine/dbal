@@ -494,12 +494,12 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
-    public function testGetDetailsWithTwoSameTablesOnDifferentSchemas(): void
+    public function testListTableDetailsWithTwoSameTablesOnDifferentSchemas(): void
     {
-        $createTableSQL = 'CREATE TABLE migrations(a text);';
-        $this->connection->executeStatement($createTableSQL);
-        $createTableSQL = 'CREATE TABLE "001_test".migrations(a text);';
-        $this->connection->executeStatement($createTableSQL);
+        $sql = 'CREATE TABLE migrations(a text);';
+        $this->connection->executeStatement($sql);
+        $sql = 'CREATE TABLE "001_test".migrations(a text);';
+        $this->connection->executeStatement($sql);
         $this->connection->executeStatement('SET search_path TO "001_test",public');
 
         $databaseTable = $this->schemaManager->listTableDetails('migrations');
@@ -507,12 +507,12 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNotNull($databaseTable);
     }
 
-    public function testGetDetailsStillWorkingWithOneTable(): void
+    public function testListTableDetailsWithTwoSameTablesOnDifferentSchemasUsingNonPublicSchema(): void
     {
-        $createTableSQL = 'DROP TABLE IF EXISTS migrations;';
-        $this->connection->executeStatement($createTableSQL);
-        $createTableSQL = 'CREATE TABLE IF NOT EXISTS "001_test".migrations(a text);';
-        $this->connection->executeStatement($createTableSQL);
+        $sql = 'CREATE TABLE IF NOT EXISTS migrations(a text);';
+        $this->connection->executeStatement($sql);
+        $sql = 'CREATE TABLE IF NOT EXISTS "001_test".migrations(a text);';
+        $this->connection->executeStatement($sql);
         $this->connection->executeStatement('SET search_path TO "001_test",public');
 
         $databaseTable = $this->schemaManager->listTableDetails('"001_test".migrations');
@@ -520,12 +520,25 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNotNull($databaseTable);
     }
 
-    public function testGetDetailsStillWorkingWithOneTable2(): void
+    public function testListTableDetailsWithOneTableOnNonPublicDifferentSchema(): void
     {
-        $createTableSQL = 'DROP TABLE IF EXISTS migrations;';
-        $this->connection->executeStatement($createTableSQL);
-        $createTableSQL = 'CREATE TABLE IF NOT EXISTS "001_test".migrations(a text);';
-        $this->connection->executeStatement($createTableSQL);
+        $sql = 'DROP TABLE IF EXISTS migrations;';
+        $this->connection->executeStatement($sql);
+        $sql = 'CREATE TABLE IF NOT EXISTS "001_test".migrations(a text);';
+        $this->connection->executeStatement($sql);
+        $this->connection->executeStatement('SET search_path TO "001_test",public');
+
+        $databaseTable = $this->schemaManager->listTableDetails('"001_test".migrations');
+
+        self::assertNotNull($databaseTable);
+    }
+
+    public function testListTableDetailsWithOneTableOnNonPublicSchemaCanStillBeFound(): void
+    {
+        $sql = 'DROP TABLE IF EXISTS migrations;';
+        $this->connection->executeStatement($sql);
+        $sql = 'CREATE TABLE IF NOT EXISTS "001_test".migrations(a text);';
+        $this->connection->executeStatement($sql);
         $this->connection->executeStatement('SET search_path TO "001_test",public');
 
         $databaseTable = $this->schemaManager->listTableDetails('migrations');
@@ -533,12 +546,29 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNotNull($databaseTable);
     }
 
-    public function testGetDetailsStillWorkingWithOneTable3(): void
+    public function testListTableDetailsWithOneTableOnPublicSchema(): void
     {
-        $createTableSQL = 'CREATE TABLE IF NOT EXISTS migrations(a text);';
-        $this->connection->executeStatement($createTableSQL);
-        $createTableSQL = 'DROP TABLE IF EXISTS "001_test".migrations;';
-        $this->connection->executeStatement($createTableSQL);
+        $sql = 'CREATE TABLE IF NOT EXISTS migrations(a text);';
+        $this->connection->executeStatement($sql);
+        $sql = 'DROP TABLE IF EXISTS "001_test".migrations;';
+        $this->connection->executeStatement($sql);
+        $this->connection->executeStatement('SET search_path TO "001_test",public');
+
+        $databaseTable = $this->schemaManager->listTableDetails('migrations');
+
+        self::assertNotNull($databaseTable);
+    }
+
+    public function testListTableDetailsWithTwoSameTablesWithoutColumns(): void
+    {
+        $sql = 'DROP TABLE IF EXISTS migrations;';
+        $this->connection->executeStatement($sql);
+        $sql = 'DROP TABLE IF EXISTS "001_test".migrations;';
+        $this->connection->executeStatement($sql);
+        $sql = 'CREATE TABLE IF NOT EXISTS migrations();';
+        $this->connection->executeStatement($sql);
+        $sql = 'CREATE TABLE IF NOT EXISTS "001_test".migrations();';
+        $this->connection->executeStatement($sql);
         $this->connection->executeStatement('SET search_path TO "001_test",public');
 
         $databaseTable = $this->schemaManager->listTableDetails('migrations');
