@@ -777,9 +777,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testAlterTableChangeQuotedColumn(): void
     {
-        $tableDiff                        = new TableDiff('mytable');
-        $tableDiff->fromTable             = new Table('mytable');
-        $tableDiff->changedColumns['foo'] = new ColumnDiff(
+        $table = new Table('mytable');
+        $table->addColumn('select', 'integer');
+
+        $tableDiff                           = new TableDiff('mytable');
+        $tableDiff->fromTable                = $table;
+        $tableDiff->changedColumns['select'] = new ColumnDiff(
             'select',
             new Column(
                 'select',
