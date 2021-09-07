@@ -380,7 +380,7 @@ SQL
             [$schema, $table] = explode('.', $table);
             $schema           = $this->quoteStringLiteral($schema);
         } else {
-            $schema = "CURRENT_SCHEMA";
+            $schema = 'CURRENT_SCHEMA';
         }
 
         $table = new Identifier($table);
