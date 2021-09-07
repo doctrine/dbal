@@ -515,12 +515,25 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->connection->executeStatement($createTableSQL);
         $this->connection->executeStatement('SET search_path TO "001_test",public');
 
-        $databaseTable = $this->schemaManager->listTableDetails('migrations');
+        $databaseTable = $this->schemaManager->listTableDetails('"001_test".migrations');
 
         self::assertNotNull($databaseTable);
     }
 
     public function testGetDetailsStillWorkingWithOneTable2(): void
+    {
+        $createTableSQL = 'DROP TABLE IF EXISTS migrations;';
+        $this->connection->executeStatement($createTableSQL);
+        $createTableSQL = 'CREATE TABLE IF NOT EXISTS "001_test".migrations(a text);';
+        $this->connection->executeStatement($createTableSQL);
+        $this->connection->executeStatement('SET search_path TO "001_test",public');
+
+        $databaseTable = $this->schemaManager->listTableDetails('migrations');
+
+        self::assertNotNull($databaseTable);
+    }
+
+    public function testGetDetailsStillWorkingWithOneTable3(): void
     {
         $createTableSQL = 'CREATE TABLE IF NOT EXISTS migrations(a text);';
         $this->connection->executeStatement($createTableSQL);
