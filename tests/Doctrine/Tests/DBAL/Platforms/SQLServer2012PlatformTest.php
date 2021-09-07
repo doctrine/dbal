@@ -189,6 +189,19 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         );
     }
 
+    public function testGeneratesSqlSnippets(): void
+    {
+        self::assertEquals('CONVERT(date, GETDATE())', $this->platform->getCurrentDateSQL());
+        self::assertEquals('CONVERT(time, GETDATE())', $this->platform->getCurrentTimeSQL());
+        self::assertEquals('CURRENT_TIMESTAMP', $this->platform->getCurrentTimestampSQL());
+        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
+
+        self::assertEquals(
+            'CONCAT(column1, column2, column3)',
+            $this->platform->getConcatExpression('column1', 'column2', 'column3')
+        );
+    }
+
     public function testModifyLimitQueryWithExtraLongQuery(): void
     {
         $expected = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, '

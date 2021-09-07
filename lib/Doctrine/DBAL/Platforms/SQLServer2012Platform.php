@@ -92,6 +92,16 @@ class SQLServer2012Platform extends SQLServer2008Platform
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getConcatExpression()
+    {
+        $args = func_get_args();
+
+        return 'CONCAT(' . implode(', ', $args) . ')';
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
