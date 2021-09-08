@@ -22,14 +22,9 @@ use PHPUnit\Framework\TestCase;
 use function array_keys;
 use function get_class;
 
-class ComparatorTest extends TestCase
+abstract class ComparatorTest extends TestCase
 {
     protected Comparator $comparator;
-
-    protected function setUp(): void
-    {
-        $this->comparator = new Comparator();
-    }
 
     public function testCompareSame1(): void
     {

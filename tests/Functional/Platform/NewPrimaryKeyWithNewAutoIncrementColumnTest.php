@@ -6,8 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function count;
@@ -32,12 +30,8 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
      * Before the fix for this problem this resulted in a database error: (at least on mysql)
      * SQLSTATE[42000]: Syntax error or access violation: 1075 Incorrect table definition; there can be only one auto
      * column and it must be defined as a key
-     *
-     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
-     *
-     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
      */
-    public function testAlterPrimaryKeyToAutoIncrementColumn(callable $comparatorFactory): void
+    public function testAlterPrimaryKeyToAutoIncrementColumn(): void
     {
         $schemaManager = $this->connection->createSchemaManager();
         $schemaManager->tryMethod('dropTable', 'dbal2807');
@@ -56,7 +50,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         $newTable->dropPrimaryKey();
         $newTable->setPrimaryKey(['new_id']);
 
-        $diff = $comparatorFactory($schemaManager)
+        $diff = $schemaManager->createComparator()
             ->compareSchemas($schema, $newSchema);
 
         $schemaManager->alterSchema($diff);

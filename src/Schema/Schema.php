@@ -380,34 +380,6 @@ class Schema extends AbstractAsset
         return $dropSqlCollector->getQueries();
     }
 
-    /**
-     * @deprecated
-     *
-     * @return array<int, string>
-     *
-     * @throws SchemaException
-     */
-    public function getMigrateToSql(Schema $toSchema, AbstractPlatform $platform): array
-    {
-        $schemaDiff = (new Comparator())->compareSchemas($this, $toSchema);
-
-        return $schemaDiff->toSql($platform);
-    }
-
-    /**
-     * @deprecated
-     *
-     * @return array<int, string>
-     *
-     * @throws SchemaException
-     */
-    public function getMigrateFromSql(Schema $fromSchema, AbstractPlatform $platform): array
-    {
-        $schemaDiff = (new Comparator())->compareSchemas($fromSchema, $this);
-
-        return $schemaDiff->toSql($platform);
-    }
-
     public function visit(Visitor $visitor): void
     {
         $visitor->acceptSchema($this);

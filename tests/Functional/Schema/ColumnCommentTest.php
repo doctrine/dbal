@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -91,17 +90,17 @@ class ColumnCommentTest extends FunctionalTestCase
         $table1 = new Table('column_comments');
         $table1->addColumn('id', 'integer', ['comment' => $comment1]);
 
-        $this->connection->createSchemaManager()
-            ->dropAndCreateTable($table1);
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->dropAndCreateTable($table1);
 
         $table2 = clone $table1;
         $table2->getColumn('id')->setComment($comment2);
 
-        $diff = (new Comparator())->diffTable($table1, $table2);
+        $diff = $schemaManager->createComparator()
+            ->diffTable($table1, $table2);
         self::assertNotNull($diff);
 
-        $sm = $this->connection->createSchemaManager();
-        $sm->alterTable($diff);
+        $schemaManager->alterTable($diff);
 
         $this->assertColumnComment('column_comments', 'id', $comment2);
     }

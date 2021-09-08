@@ -6,9 +6,11 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -21,6 +23,11 @@ use Doctrine\DBAL\Types\Type;
  */
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
+    protected function createComparator(): Comparator
+    {
+        return new SQLServer\Comparator($this->platform, '');
+    }
+
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255), PRIMARY KEY (id))';
