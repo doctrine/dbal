@@ -404,4 +404,11 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('colB', $columns[0]);
         self::assertEquals('colA', $columns[1]);
     }
+
+    public function testConcat(): void
+    {
+        $result = $this->connection->fetchOne('SELECT CONCAT(1, 2, 3)');
+
+        self::assertEquals('123', $result);
+    }
 }
