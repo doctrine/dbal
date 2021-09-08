@@ -1146,9 +1146,7 @@ class SQLServer2012Platform extends AbstractPlatform
      */
     public function getConcatExpression()
     {
-        $args = func_get_args();
-
-        return 'CONCAT(' . implode(', ', $args) . ')';
+        return sprintf('CONCAT(%s)', implode(', ', func_get_args()));
     }
 
     /**
