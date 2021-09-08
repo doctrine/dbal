@@ -201,6 +201,12 @@
                 <file name="src/Schema/Index.php"/>
             </errorLevel>
         </TypeDoesNotContainType>
+        <UndefinedAttributeClass>
+            <errorLevel type="suppress">
+                <!-- This class has been added in PHP 8.1 -->
+                <referencedClass name="ReturnTypeWillChange"/>
+            </errorLevel>
+        </UndefinedAttributeClass>
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <!--

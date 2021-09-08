@@ -54,28 +54,14 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertHasTable($tables);
     }
 
-    public function testListTableWithBinary(): void
+    /**
+     * Oracle currently stores VARBINARY columns as RAW (fixed-size)
+     */
+    protected function assertVarBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
     {
-        $tableName = 'test_binary_table';
-
-        $table = new Table($tableName);
-        $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', ['length' => 32]);
-        $table->addColumn('column_binary', 'binary', [
-            'length' => 32,
-            'fixed' => true,
-        ]);
-        $table->setPrimaryKey(['id']);
-
-        $this->schemaManager->createTable($table);
-
-        $table = $this->schemaManager->listTableDetails($tableName);
-
-        self::assertInstanceOf(BinaryType::class, $table->getColumn('column_varbinary')->getType());
-        self::assertFalse($table->getColumn('column_varbinary')->getFixed());
-
-        self::assertInstanceOf(BinaryType::class, $table->getColumn('column_binary')->getType());
-        self::assertFalse($table->getColumn('column_binary')->getFixed());
+        $column = $table->getColumn($columnName);
+        self::assertInstanceOf(BinaryType::class, $column->getType());
+        self::assertSame($expectedLength, $column->getLength());
     }
 
     public function testAlterTableColumnNotNull(): void

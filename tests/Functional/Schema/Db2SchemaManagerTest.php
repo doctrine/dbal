@@ -13,9 +13,4 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         return $platform instanceof DB2Platform;
     }
-
-    public function testListTableWithBinary(): void
-    {
-        self::markTestSkipped('Binary data type is currently not supported on DB2 LUW');
-    }
 }

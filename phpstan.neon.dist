@@ -148,6 +148,9 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/Driver/OCI8/Statement.php
 
+        # This class has been added in PHP 8.1
+        - '/^Attribute class ReturnTypeWillChange does not exist\.$/'
+
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

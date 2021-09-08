@@ -24,6 +24,7 @@ jobs:
         php-version:
           - "7.4"
           - "8.0"
+          - "8.1"
         dependencies:
           - "highest"
         include:
@@ -42,6 +43,10 @@ jobs:
           php-version: "${{ matrix.php-version }}"
           coverage: "pcov"
           ini-values: "zend.assertions=1"
+
+      - name: "Adjust dependencies"
+        if: "${{ matrix.php-version == '8.1' }}"
+        run: composer config platform.php 8.0.99
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"

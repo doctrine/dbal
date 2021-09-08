@@ -160,6 +160,11 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $length = (int) $tableColumn['char_length'];
                 break;
 
+            case 'raw':
+                $length = (int) $tableColumn['data_length'];
+                $fixed  = true;
+                break;
+
             case 'char':
             case 'nchar':
                 $length = (int) $tableColumn['char_length'];

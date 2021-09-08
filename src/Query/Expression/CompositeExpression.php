@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Expression;
 
 use Countable;
+use ReturnTypeWillChange;
 
 use function array_merge;
 use function count;
@@ -87,6 +88,7 @@ class CompositeExpression implements Countable
     /**
      * Retrieves the amount of expressions on composite expression.
      */
+    #[ReturnTypeWillChange]
     public function count(): int
     {
         return count($this->parts);

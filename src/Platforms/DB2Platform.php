@@ -232,6 +232,7 @@ class DB2Platform extends AbstractPlatform
                  c.colname,
                  c.colno,
                  c.typename,
+                 c.codepage,
                  c.nulls,
                  c.length,
                  c.scale,
