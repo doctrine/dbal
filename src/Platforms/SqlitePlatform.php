@@ -3,17 +3,22 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\Deprecations\Deprecation;
 
+use function array_combine;
+use function array_keys;
 use function array_merge;
+use function array_search;
 use function array_unique;
 use function array_values;
 use function implode;
@@ -915,12 +920,7 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $oldColumnName = strtolower($oldColumnName);
-            if (isset($columns[$oldColumnName])) {
-                unset($columns[$oldColumnName]);
-            }
-
-            $columns[strtolower($column->getName())] = $column;
+            $columns = $this->replaceColumn($diff->name, $columns, $oldColumnName, $column);
 
             if (! isset($newColumnNames[$oldColumnName])) {
                 continue;
@@ -934,11 +934,7 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            if (isset($columns[$oldColumnName])) {
-                unset($columns[$oldColumnName]);
-            }
-
-            $columns[strtolower($columnDiff->column->getName())] = $columnDiff->column;
+            $columns = $this->replaceColumn($diff->name, $columns, $oldColumnName, $columnDiff->column);
 
             if (! isset($newColumnNames[$oldColumnName])) {
                 continue;
@@ -1004,6 +1000,34 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * Replace the column with the given name with the new column.
+     *
+     * @param string               $tableName
+     * @param array<string,Column> $columns
+     * @param string               $columnName
+     *
+     * @return array<string,Column>
+     *
+     * @throws Exception
+     */
+    private function replaceColumn($tableName, array $columns, $columnName, Column $column): array
+    {
+        $keys  = array_keys($columns);
+        $index = array_search($columnName, $keys, true);
+
+        if ($index === false) {
+            throw SchemaException::columnDoesNotExist($columnName, $tableName);
+        }
+
+        $values = array_values($columns);
+
+        $keys[$index]   = strtolower($column->getName());
+        $values[$index] = $column;
+
+        return array_combine($keys, $values);
     }
 
     /**

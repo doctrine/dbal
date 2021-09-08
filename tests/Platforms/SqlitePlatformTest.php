@@ -347,6 +347,19 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->platform->getAlterTableSQL($diff);
     }
 
+    public function testRenameNonExistingColumn(): void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+
+        $tableDiff                          = new TableDiff('test');
+        $tableDiff->fromTable               = $table;
+        $tableDiff->renamedColumns['value'] = new Column('data', Type::getType('string'));
+
+        $this->expectException(Exception::class);
+        $this->platform->getAlterTableSQL($tableDiff);
+    }
+
     /**
      * @return mixed[][]
      */
