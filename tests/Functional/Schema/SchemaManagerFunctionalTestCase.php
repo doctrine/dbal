@@ -1101,20 +1101,30 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableName = 'test_binary_table';
 
         $table = new Table($tableName);
-        $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', []);
-        $table->addColumn('column_binary', 'binary', ['fixed' => true]);
-        $table->setPrimaryKey(['id']);
+        $table->addColumn('column_binary', 'binary', ['length' => 16, 'fixed' => true]);
+        $table->addColumn('column_varbinary', 'binary', ['length' => 32]);
 
         $this->schemaManager->createTable($table);
 
         $table = $this->schemaManager->listTableDetails($tableName);
+        $this->assertBinaryColumnIsValid($table, 'column_binary', 16);
+        $this->assertVarBinaryColumnIsValid($table, 'column_varbinary', 32);
+    }
 
-        self::assertInstanceOf(BinaryType::class, $table->getColumn('column_varbinary')->getType());
-        self::assertFalse($table->getColumn('column_varbinary')->getFixed());
+    protected function assertBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
+    {
+        $column = $table->getColumn($columnName);
+        self::assertInstanceOf(BinaryType::class, $column->getType());
+        self::assertSame($expectedLength, $column->getLength());
+        self::assertTrue($column->getFixed());
+    }
 
-        self::assertInstanceOf(BinaryType::class, $table->getColumn('column_binary')->getType());
-        self::assertTrue($table->getColumn('column_binary')->getFixed());
+    protected function assertVarBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
+    {
+        $column = $table->getColumn($columnName);
+        self::assertInstanceOf(BinaryType::class, $column->getType());
+        self::assertSame($expectedLength, $column->getLength());
+        self::assertFalse($column->getFixed());
     }
 
     public function testListTableDetailsWithFullQualifiedTableName(): void
