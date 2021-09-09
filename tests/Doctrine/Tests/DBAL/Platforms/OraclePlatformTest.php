@@ -15,8 +15,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
-use function array_walk;
-use function preg_replace;
 use function sprintf;
 use function strtoupper;
 use function uniqid;
@@ -335,20 +333,24 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $table      = new Table($tableName);
         $column     = $table->addColumn($columnName, 'integer');
         $column->setAutoincrement(true);
-        $targets    = [
+
+        self::assertSame([
             sprintf('CREATE TABLE %s (%s NUMBER(10) NOT NULL)', $tableName, $columnName),
             sprintf(
-                'DECLARE constraints_Count NUMBER;'
-                    . ' BEGIN'
-                    . ' SELECT COUNT(CONSTRAINT_NAME)'
-                    . ' INTO constraints_Count'
-                    . ' FROM USER_CONSTRAINTS'
-                    . " WHERE TABLE_NAME = '%s' AND CONSTRAINT_TYPE = 'P';"
-                    . " IF constraints_Count = 0 OR constraints_Count = ''"
-                    . ' THEN EXECUTE IMMEDIATE'
-                    . " 'ALTER TABLE %s ADD CONSTRAINT %s_AI_PK PRIMARY KEY (%s)';"
-                    . ' END IF;'
-                    . ' END;',
+                <<<'SQL'
+DECLARE
+  constraints_Count NUMBER;
+BEGIN
+  SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count
+    FROM USER_CONSTRAINTS
+   WHERE TABLE_NAME = '%s'
+     AND CONSTRAINT_TYPE = 'P';
+  IF constraints_Count = 0 OR constraints_Count = '' THEN
+    EXECUTE IMMEDIATE 'ALTER TABLE %s ADD CONSTRAINT %s_AI_PK PRIMARY KEY (%s)';
+  END IF;
+END;
+SQL
+                ,
                 $tableName,
                 $tableName,
                 $tableName,
@@ -356,20 +358,30 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             ),
             sprintf('CREATE SEQUENCE %s_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1', $tableName),
             sprintf(
-                'CREATE TRIGGER %s_AI_PK BEFORE INSERT ON %s FOR EACH ROW DECLARE last_Sequence NUMBER;'
-                . ' last_InsertID NUMBER;'
-                . ' BEGIN SELECT %s_SEQ.NEXTVAL'
-                . ' INTO :NEW.%s FROM DUAL;'
-                . ' IF (:NEW.%s IS NULL OR :NEW.%s = 0)'
-                . ' THEN SELECT %s_SEQ.NEXTVAL INTO :NEW.%s FROM DUAL;'
-                . ' ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence'
-                . " FROM User_Sequences WHERE Sequence_Name = '%s_SEQ';"
-                . ' SELECT :NEW.%s INTO last_InsertID FROM DUAL;'
-                . ' WHILE (last_InsertID > last_Sequence) LOOP'
-                . ' SELECT %s_SEQ.NEXTVAL INTO last_Sequence FROM DUAL;'
-                . ' END LOOP;'
-                . ' END IF;'
-                . ' END;',
+                <<<SQL
+CREATE TRIGGER %s_AI_PK
+   BEFORE INSERT
+   ON %s
+   FOR EACH ROW
+DECLARE
+   last_Sequence NUMBER;
+   last_InsertID NUMBER;
+BEGIN
+   SELECT %s_SEQ.NEXTVAL INTO :NEW.%s FROM DUAL;
+   IF (:NEW.%s IS NULL OR :NEW.%s = 0) THEN
+      SELECT %s_SEQ.NEXTVAL INTO :NEW.%s FROM DUAL;
+   ELSE
+      SELECT NVL(Last_Number, 0) INTO last_Sequence
+        FROM User_Sequences
+       WHERE Sequence_Name = '%s_SEQ';
+      SELECT :NEW.%s INTO last_InsertID FROM DUAL;
+      WHILE (last_InsertID > last_Sequence) LOOP
+         SELECT %s_SEQ.NEXTVAL INTO last_Sequence FROM DUAL;
+      END LOOP;
+   END IF;
+END;
+SQL
+                ,
                 $tableName,
                 $tableName,
                 $tableName,
@@ -382,16 +394,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
                 $columnName,
                 $tableName
             ),
-        ];
-        $statements = $this->platform->getCreateTableSQL($table);
-        //strip all the whitespace from the statements
-        array_walk($statements, static function (string &$value): void {
-            $value = preg_replace('/\s+/', ' ', $value);
-        });
-        foreach ($targets as $key => $sql) {
-            self::assertArrayHasKey($key, $statements);
-            self::assertEquals($sql, $statements[$key]);
-        }
+        ], $this->platform->getCreateTableSQL($table));
     }
 
     /**
