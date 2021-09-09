@@ -227,7 +227,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             ));
 
             foreach ($indexArray as $indexColumnRow) {
-                $idx['column_name'] = $indexColumnRow['name'];
+                $idx['column_name'] = $indexColumnRow['name'] ?: $this->_parseIndexExpressionFromSqliteMaster($tableName, $keyName);
                 $indexBuffer[]      = $idx;
             }
         }
@@ -567,5 +567,22 @@ SQL
         }
 
         return $table;
+    }
+
+    /**
+     * @param string $tableName
+     * @param string $keyName
+     * @return string
+     * @throws Exception
+     */
+    protected function _parseIndexExpressionFromSqliteMaster($tableName, $keyName): string
+    {
+        $sql = $this->_conn->fetchOne(
+            'SELECT sql FROM sqlite_master WHERE type = ? AND tbl_name = ? AND name = ?',
+            ['index', $tableName, $keyName]
+        );
+        preg_match('/\((?<column>.+)\)$/i', $sql, $match);
+
+        return $match['column'];
     }
 }

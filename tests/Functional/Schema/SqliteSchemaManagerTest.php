@@ -236,4 +236,23 @@ SQL;
             ->getColumn('col1')
             ->getComment());
     }
+    
+    public function testListTableIndexesWithIndexExpression(): void
+    {
+        $sql = <<<SQL
+CREATE TABLE company (
+    com_id int(4),
+    com_name text(15)
+);
+CREATE INDEX com_id_index ON company (com_id);
+CREATE INDEX com_name_5_index ON company (substr(com_name, 0, 5))
+SQL;
+
+        $this->connection->executeStatement($sql);
+
+        $indexes = $this->schemaManager->listTableIndexes('company');
+
+        self::assertArrayHasKey('com_id_index', $indexes);
+        self::assertEquals('substr(com_name, 0, 5)', $indexes['com_name_5_index']->getColumns()[0]);
+    }
 }
