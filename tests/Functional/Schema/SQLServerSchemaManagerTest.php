@@ -411,9 +411,9 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertSame([
             'ALTER TABLE test_save_mode_orphan_fk_foreign DROP CONSTRAINT FK_52D644CEA81E660E',
-            "IF EXISTS (SELECT * FROM sysobjects WHERE name = 'UNIQ_52D644CEA81E660E')\n
-    ALTER TABLE test_save_mode_orphan_fk_foreign DROP CONSTRAINT UNIQ_52D644CEA81E660E\n
-ELSE\n
+            "IF EXISTS (SELECT * FROM sysobjects WHERE name = 'UNIQ_52D644CEA81E660E')
+    ALTER TABLE test_save_mode_orphan_fk_foreign DROP CONSTRAINT UNIQ_52D644CEA81E660E
+ELSE
     DROP INDEX UNIQ_52D644CEA81E660E ON test_save_mode_orphan_fk_foreign",
         ], $diff->toSaveSql($this->schemaManager->getDatabasePlatform()));
     }
