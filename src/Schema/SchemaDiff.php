@@ -163,7 +163,7 @@ class SchemaDiff
 
         foreach ($this->changedTables as $tableDiff) {
             // make sure to drop related orphan foreign keys before dropping indexes that are related to FKs
-            if ($saveMode === true && $platform->supportsForeignKeyConstraints() && null !== $tableDiff->fromTable) {
+            if ($saveMode === true && $platform->supportsForeignKeyConstraints() && $tableDiff->fromTable !== null) {
                 foreach ($this->orphanedForeignKeys as $orphanedForeignKey) {
                     if ($orphanedForeignKey->getLocalTable()->getName() !== $tableDiff->fromTable->getName()) {
                         continue;
