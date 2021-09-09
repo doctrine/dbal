@@ -404,4 +404,14 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('colB', $columns[0]);
         self::assertEquals('colA', $columns[1]);
     }
+
+    public function testSaveModeHandleOrphanForeignKeysBeforeIndexDrop(): void
+    {
+        $diff = $this->diffSaveModeHandleOrphanForeignKeysBeforeIndexDrop();
+
+        $this->assertSame([
+            'ALTER TABLE test_save_mode_orphan_fk_foreign DROP CONSTRAINT FK_52D644CEA81E660E',
+            'ALTER TABLE test_save_mode_orphan_fk_foreign DROP CONSTRAINT UNIQ_52D644CEA81E660E',
+        ], $diff->toSaveSql($this->schemaManager->getDatabasePlatform()));
+    }
 }

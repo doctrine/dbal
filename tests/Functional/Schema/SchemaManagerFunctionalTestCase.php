@@ -1424,7 +1424,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertSame('Foo with control characters \'\\', $table->getComment());
     }
 
-    public function testSaveModeHandleOrphanForeignKeysBeforeIndexDrop(): void
+    protected function diffSaveModeHandleOrphanForeignKeysBeforeIndexDrop(): SchemaDiff
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
@@ -1433,6 +1433,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $primaryTable = new Table('test_save_mode_orphan_fk_primary');
         $primaryTable->addColumn('id', 'integer');
         $primaryTable->setPrimaryKey(['id']);
+        $primaryTable->addColumn('self', 'integer');
+        $primaryTable->addForeignKeyConstraint('test_save_mode_orphan_fk_primary', ['self'], ['id']);
 
         $foreignTable = new Table('test_save_mode_orphan_fk_foreign');
         $foreignTable->addColumn('fk', 'integer');
@@ -1445,9 +1447,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $fromSchema = new Schema([$primaryTable, $foreignTable]);
         $toSchema   = new Schema([$toSchemaForeignTable]);
 
-        $diff = Comparator::compareSchemas($fromSchema, $toSchema);
-
-        $this->assertCount(2, $diff->toSaveSql($this->schemaManager->getDatabasePlatform()));
+        return Comparator::compareSchemas($fromSchema, $toSchema);
     }
 }
 
