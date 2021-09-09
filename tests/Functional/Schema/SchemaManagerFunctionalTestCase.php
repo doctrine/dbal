@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -1421,6 +1422,32 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $table = $this->schemaManager->listTableDetails('table_with_comment');
         self::assertSame('Foo with control characters \'\\', $table->getComment());
+    }
+
+    public function testSaveModeHandleOrphanForeignKeysBeforeIndexDrop(): void
+    {
+        if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
+        }
+
+        $primaryTable = new Table('test_save_mode_orphan_fk_primary');
+        $primaryTable->addColumn('id', 'integer');
+        $primaryTable->setPrimaryKey(['id']);
+
+        $foreignTable = new Table('test_save_mode_orphan_fk_foreign');
+        $foreignTable->addColumn('fk', 'integer');
+        $foreignTable->addUniqueIndex(['fk']);
+        $foreignTable->addForeignKeyConstraint('test_save_mode_orphan_fk_primary', ['fk'], ['id']);
+
+        $toSchemaForeignTable = new Table('test_save_mode_orphan_fk_foreign');
+        $toSchemaForeignTable->addColumn('fk', 'integer');
+
+        $fromSchema = new Schema([$primaryTable, $foreignTable]);
+        $toSchema   = new Schema([$toSchemaForeignTable]);
+
+        $diff = Comparator::compareSchemas($fromSchema, $toSchema);
+
+        $this->assertCount(2, $diff->toSaveSql($this->schemaManager->getDatabasePlatform()));
     }
 }
 
