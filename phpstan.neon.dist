@@ -124,3 +124,9 @@ parameters:
 
         # The class was added in PHP 8.1
         - '~^Attribute class ReturnTypeWillChange does not exist.$~'
+
+        # https://github.com/phpstan/phpstan/issues/5608
+        -
+            message: '~^Circular definition detected in type alias (Override)?Params\.$~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/DriverManager.php
