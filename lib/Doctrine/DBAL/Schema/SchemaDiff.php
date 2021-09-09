@@ -162,6 +162,15 @@ class SchemaDiff
         }
 
         foreach ($this->changedTables as $tableDiff) {
+            // make sure to drop related orphan foreign keys before dropping indexes that are related to FKs
+            if ($saveMode === true && $platform->supportsForeignKeyConstraints() && $tableDiff->fromTable) {
+                foreach ($this->orphanedForeignKeys as $orphanedForeignKey) {
+                    if ($orphanedForeignKey->getLocalTable()->getName() === $tableDiff->fromTable->getName()) {
+                        $sql[] = $platform->getDropForeignKeySQL($orphanedForeignKey, $orphanedForeignKey->getLocalTable());
+                    }
+                }
+            }
+
             $sql = array_merge($sql, $platform->getAlterTableSQL($tableDiff));
         }
 
