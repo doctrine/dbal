@@ -515,25 +515,15 @@ class SQLServerPlatform extends AbstractPlatform
             $comment    = $this->getColumnComment($column);
             $hasComment = $comment !== '';
 
-            if ($columnDiff->fromColumn instanceof Column) {
-                $fromComment    = $this->getColumnComment($columnDiff->fromColumn);
-                $hasFromComment = $fromComment !== '';
+            $fromComment    = $this->getColumnComment($columnDiff->fromColumn);
+            $hasFromComment = $fromComment !== '';
 
-                if ($hasFromComment && $hasComment && $fromComment !== $comment) {
-                    $commentsSql[] = $this->getAlterColumnCommentSQL(
-                        $diff->name,
-                        $column->getQuotedName($this),
-                        $comment
-                    );
-                } elseif ($hasFromComment && ! $hasComment) {
-                    $commentsSql[] = $this->getDropColumnCommentSQL($diff->name, $column->getQuotedName($this));
-                } elseif (! $hasFromComment && $hasComment) {
-                    $commentsSql[] = $this->getCreateColumnCommentSQL(
-                        $diff->name,
-                        $column->getQuotedName($this),
-                        $comment
-                    );
-                }
+            if ($hasFromComment && $hasComment && $fromComment !== $comment) {
+                $commentsSql[] = $this->getAlterColumnCommentSQL($diff->name, $column->getQuotedName($this), $comment);
+            } elseif ($hasFromComment && ! $hasComment) {
+                $commentsSql[] = $this->getDropColumnCommentSQL($diff->name, $column->getQuotedName($this));
+            } elseif (! $hasFromComment && $hasComment) {
+                $commentsSql[] = $this->getCreateColumnCommentSQL($diff->name, $column->getQuotedName($this), $comment);
             }
 
             // Do not add query part if only comment has changed.
@@ -671,12 +661,6 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function alterColumnRequiresDropDefaultConstraint(ColumnDiff $columnDiff): bool
     {
-        // We can only decide whether to drop an existing default constraint
-        // if we know the original default value.
-        if (! $columnDiff->fromColumn instanceof Column) {
-            return false;
-        }
-
         // We only need to drop an existing default constraint if we know the
         // column was defined with a default value before.
         if ($columnDiff->fromColumn->getDefault() === null) {

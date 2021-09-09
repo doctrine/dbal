@@ -1016,10 +1016,12 @@ abstract class ComparatorTest extends TestCase
         $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
         $tableDiff->fromTable = $tableFoo;
 
-        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
-
-        $columnDiff->fromColumn        = $tableFoo->getColumn('id');
-        $columnDiff->changedProperties = ['type'];
+        $tableDiff->changedColumns['id'] = new ColumnDiff(
+            'id',
+            $table->getColumn('id'),
+            ['type'],
+            $tableFoo->getColumn('id')
+        );
 
         self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
     }
@@ -1041,10 +1043,12 @@ abstract class ComparatorTest extends TestCase
         $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
         $tableDiff->fromTable = $tableFoo;
 
-        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
-
-        $columnDiff->fromColumn        = $tableFoo->getColumn('id');
-        $columnDiff->changedProperties = ['length', 'fixed'];
+        $tableDiff->changedColumns['id'] = new ColumnDiff(
+            'id',
+            $table->getColumn('id'),
+            ['length', 'fixed'],
+            $tableFoo->getColumn('id')
+        );
 
         self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
     }

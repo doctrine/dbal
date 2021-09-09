@@ -224,7 +224,7 @@ class Comparator
 
             $changedProperties = $this->diffColumn($column, $toColumn);
 
-            $columnDiff = new ColumnDiff($column->getName(), $toColumn, $changedProperties);
+            $columnDiff = new ColumnDiff($column->getName(), $toColumn, $changedProperties, $column);
 
             $columnDiff->fromColumn                               = $column;
             $tableDifferences->changedColumns[$column->getName()] = $columnDiff;

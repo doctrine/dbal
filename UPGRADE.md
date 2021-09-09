@@ -8,6 +8,8 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: The `$fromColumn` parameter of the `ColumnDiff` constructor made required
+
 ## BC BREAK: Changes in the return value of `Table::getColumns()`
 
 1. The columns are returned as a list, not as an associative array.

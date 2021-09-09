@@ -509,7 +509,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
                 Type::getType('decimal'),
                 ['precision' => 16, 'scale' => 6]
             ),
-            ['precision']
+            ['precision'],
+            $table->getColumn('dfoo1')
         );
         $tableDiff->changedColumns['dloo2'] = new ColumnDiff(
             'dloo2',
@@ -518,7 +519,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
                 Type::getType('decimal'),
                 ['precision' => 10, 'scale' => 4]
             ),
-            ['scale']
+            ['scale'],
+            $table->getColumn('dfoo2')
         );
         $tableDiff->changedColumns['dloo3'] = new ColumnDiff(
             'dloo3',
@@ -527,7 +529,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
                 Type::getType('decimal'),
                 ['precision' => 10, 'scale' => 6]
             ),
-            []
+            [],
+            $table->getColumn('dfoo3')
         );
         $tableDiff->changedColumns['dloo4'] = new ColumnDiff(
             'dloo4',
@@ -536,7 +539,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
                 Type::getType('decimal'),
                 ['precision' => 16, 'scale' => 8]
             ),
-            ['precision', 'scale']
+            ['precision', 'scale'],
+            $table->getColumn('dfoo4')
         );
 
         $sql = $this->platform->getAlterTableSQL($tableDiff);

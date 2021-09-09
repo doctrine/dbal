@@ -896,7 +896,6 @@ class SqlitePlatform extends AbstractPlatform
         // Suppress changes on integer type autoincrement columns.
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
             if (
-                $columnDiff->fromColumn === null ||
                 ! $columnDiff->column->getAutoincrement() ||
                 ! $columnDiff->column->getType() instanceof Types\IntegerType
             ) {

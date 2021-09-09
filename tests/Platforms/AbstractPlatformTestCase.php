@@ -360,7 +360,8 @@ abstract class AbstractPlatformTestCase extends TestCase
                     'default' => 'def',
                 ]
             ),
-            ['type', 'notnull', 'default']
+            ['type', 'notnull', 'default'],
+            $table->getColumn('bar')
         );
 
         $tableDiff->changedColumns['bloo'] = new ColumnDiff(
@@ -370,7 +371,8 @@ abstract class AbstractPlatformTestCase extends TestCase
                 Type::getType('boolean'),
                 ['default' => false]
             ),
-            ['type', 'notnull', 'default']
+            ['type', 'notnull', 'default'],
+            $table->getColumn('bloo')
         );
 
         $sql = $this->platform->getAlterTableSQL($tableDiff);
@@ -468,7 +470,9 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->removedColumns['removed'] = new Column('removed', Type::getType('integer'), []);
         $tableDiff->changedColumns['changed'] = new ColumnDiff(
             'changed',
-            new Column('changed2', Type::getType('string'), ['length' => 255])
+            new Column('changed2', Type::getType('string'), ['length' => 255]),
+            [],
+            $table->getColumn('changed')
         );
         $tableDiff->renamedColumns['renamed'] = new Column('renamed2', Type::getType('integer'));
 
@@ -486,21 +490,16 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testAlterTableColumnComments(): void
     {
+        $foo = new Column('foo', Type::getType('string'), ['length' => 255]);
+        $bar = new Column('baz', Type::getType('string'), [
+            'length'  => 255,
+            'comment' => 'B comment',
+        ]);
+
         $tableDiff                        = new TableDiff('mytable');
         $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['comment' => 'A comment']);
-        $tableDiff->changedColumns['foo'] = new ColumnDiff(
-            'foo',
-            new Column('foo', Type::getType('string'), ['length' => 255]),
-            ['comment']
-        );
-        $tableDiff->changedColumns['bar'] = new ColumnDiff(
-            'bar',
-            new Column('baz', Type::getType('string'), [
-                'length'  => 255,
-                'comment' => 'B comment',
-            ]),
-            ['comment']
-        );
+        $tableDiff->changedColumns['foo'] = new ColumnDiff('foo', $foo, ['comment'], $foo);
+        $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $bar, ['comment'], $bar);
 
         self::assertEquals($this->getAlterTableColumnCommentsSQL(), $this->platform->getAlterTableSQL($tableDiff));
     }
@@ -791,7 +790,8 @@ abstract class AbstractPlatformTestCase extends TestCase
                 Type::getType('string'),
                 ['length' => 255]
             ),
-            ['type']
+            ['type'],
+            $table->getColumn('select')
         );
 
         self::assertStringContainsString(
@@ -1440,7 +1440,8 @@ abstract class AbstractPlatformTestCase extends TestCase
                 Type::getType('string'),
                 ['fixed' => true, 'length' => 2]
             ),
-            ['fixed']
+            ['fixed'],
+            $table->getColumn('name')
         );
 
         $sql = $this->platform->getAlterTableSQL($tableDiff);
