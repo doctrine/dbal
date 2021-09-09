@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated not passing the `$fromColumn` argument to the `ColumnDiff` constructor.
+
+Not passing the `$fromColumn` argument to the `ColumnDiff` constructor is deprecated.
+
 ## Deprecated `AbstractPlatform::getName()`
 
 Relying on the name of the platform is discouraged. To identify the platform, use its class name.
