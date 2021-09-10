@@ -105,7 +105,7 @@ class SchemaDiffTest extends TestCase
         $platform->expects(self::exactly(1))
                 ->method('supportsSequences')
                 ->will(self::returnValue(true));
-        $platform->expects(self::atLeastOnce())
+        $platform->expects(self::any())
                 ->method('supportsForeignKeyConstraints')
                 ->will(self::returnValue(true));
 

@@ -560,16 +560,6 @@ SQL;
         self::assertEquals([], $onlineTable->getOption('create_options'));
     }
 
-    public function testSaveModeHandleOrphanForeignKeysBeforeIndexDrop(): void
-    {
-        $diff = $this->diffSaveModeHandleOrphanForeignKeysBeforeIndexDrop();
-
-        $this->assertSame([
-            'ALTER TABLE test_save_mode_orphan_fk_foreign DROP FOREIGN KEY FK_52D644CEA81E660E',
-            'DROP INDEX UNIQ_52D644CEA81E660E ON test_save_mode_orphan_fk_foreign',
-        ], $diff->toSaveSql($this->schemaManager->getDatabasePlatform()));
-    }
-
     public function testParseNullCreateOptions(): void
     {
         $table = $this->schemaManager->listTableDetails('sys.processlist');

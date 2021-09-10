@@ -285,14 +285,4 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
             "Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0."
         );
     }
-
-    public function testSaveModeHandleOrphanForeignKeysBeforeIndexDrop(): void
-    {
-        $diff = $this->diffSaveModeHandleOrphanForeignKeysBeforeIndexDrop();
-
-        $this->assertSame([
-            'ALTER TABLE test_save_mode_orphan_fk_foreign DROP CONSTRAINT FK_52D644CEA81E660E',
-            'DROP INDEX UNIQ_52D644CEA81E660E',
-        ], $diff->toSaveSql($this->schemaManager->getDatabasePlatform()));
-    }
 }

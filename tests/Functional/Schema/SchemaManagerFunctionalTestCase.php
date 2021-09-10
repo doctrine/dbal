@@ -1424,7 +1424,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertSame('Foo with control characters \'\\', $table->getComment());
     }
 
-    protected function diffSaveModeHandleOrphanForeignKeysBeforeIndexDrop(): SchemaDiff
+    public function testSaveModeHandleOrphanForeignKeysBeforeIndexDrop(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
@@ -1435,11 +1435,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $primaryTable->setPrimaryKey(['id']);
         $primaryTable->addColumn('self', 'integer');
         $primaryTable->addForeignKeyConstraint('test_save_mode_orphan_fk_primary', ['self'], ['id']);
+        $this->schemaManager->dropAndCreateTable($primaryTable);
 
         $foreignTable = new Table('test_save_mode_orphan_fk_foreign');
         $foreignTable->addColumn('fk', 'integer');
         $foreignTable->addUniqueIndex(['fk']);
         $foreignTable->addForeignKeyConstraint('test_save_mode_orphan_fk_primary', ['fk'], ['id']);
+        $this->schemaManager->dropAndCreateTable($foreignTable);
 
         $toSchemaForeignTable = new Table('test_save_mode_orphan_fk_foreign');
         $toSchemaForeignTable->addColumn('fk', 'integer');
@@ -1447,7 +1449,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $fromSchema = new Schema([$primaryTable, $foreignTable]);
         $toSchema   = new Schema([$toSchemaForeignTable]);
 
-        return Comparator::compareSchemas($fromSchema, $toSchema);
+        $diff = Comparator::compareSchemas($fromSchema, $toSchema);
+        foreach ($diff->toSaveSql($this->schemaManager->getDatabasePlatform()) as $sql) {
+            $this->connection->executeStatement($sql);
+        }
+
+        self::assertContains('test_save_mode_orphan_fk_primary', $this->schemaManager->listTableNames());
+        self::assertContains('test_save_mode_orphan_fk_foreign', $this->schemaManager->listTableNames());
     }
 }
 
