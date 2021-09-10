@@ -479,6 +479,12 @@ The constructor of `Doctrine\DBAL\Exception\DriverException` is now `@internal`.
 - `Configuration::setSchemaAssetsFilter()` now returns `void`
 - `Configuration::$_attributes` has been removed; use individual properties in subclasses instead
 
+# Upgrade to 2.13
+
+## Deprecated SQLAnywhere drivers
+
+The `SQLAnywhere` driver has been deprecated and will be removed from DBAL.
+
 # Upgrade to 2.12
 
 ## Deprecated non-zero based positional parameter keys
