@@ -1430,20 +1430,20 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
         }
 
-        $primaryTable = new Table('test_save_mode_orphan_fk_primary');
+        $primaryTable = new Table('test_save_mode_orphan_fk_a');
         $primaryTable->addColumn('id', 'integer');
         $primaryTable->setPrimaryKey(['id']);
         $primaryTable->addColumn('self', 'integer');
-        $primaryTable->addForeignKeyConstraint('test_save_mode_orphan_fk_primary', ['self'], ['id']);
+        $primaryTable->addForeignKeyConstraint('test_save_mode_orphan_fk_a', ['self'], ['id']);
         $this->schemaManager->dropAndCreateTable($primaryTable);
 
-        $foreignTable = new Table('test_save_mode_orphan_fk_foreign');
+        $foreignTable = new Table('test_save_mode_orphan_fk_b');
         $foreignTable->addColumn('fk', 'integer');
         $foreignTable->addUniqueIndex(['fk']);
-        $foreignTable->addForeignKeyConstraint('test_save_mode_orphan_fk_primary', ['fk'], ['id']);
+        $foreignTable->addForeignKeyConstraint('test_save_mode_orphan_fk_a', ['fk'], ['id']);
         $this->schemaManager->dropAndCreateTable($foreignTable);
 
-        $toSchemaForeignTable = new Table('test_save_mode_orphan_fk_foreign');
+        $toSchemaForeignTable = new Table('test_save_mode_orphan_fk_b');
         $toSchemaForeignTable->addColumn('fk', 'integer');
 
         $fromSchema = new Schema([$primaryTable, $foreignTable]);
@@ -1454,10 +1454,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $this->connection->executeStatement($sql);
         }
 
-        self::assertContains('test_save_mode_orphan_fk_primary', $this->schemaManager->listTableNames());
-        self::assertContains('test_save_mode_orphan_fk_foreign', $this->schemaManager->listTableNames());
+        self::assertContains('test_save_mode_orphan_fk_b', $this->schemaManager->listTableNames());
+        self::assertContains('test_save_mode_orphan_fk_a', $this->schemaManager->listTableNames());
 
-        $unmappedTable = $this->schemaManager->listTableDetails('test_save_mode_orphan_fk_primary');
+        $unmappedTable = $this->schemaManager->listTableDetails('test_save_mode_orphan_fk_a');
         // make sure orphan FKs not referenced are not deleted
         self::assertArrayHasKey('self', $unmappedTable->getForeignKeyColumns());
     }
