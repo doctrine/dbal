@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Changes in the return value of `Table::getColumns()`
+
+1. The columns are returned as a list, not as an associative array.
+2. The columns are no longer sorted based on whether they belong to the primary key or a foreign key.
+
 ## BC BREAK: Removed schema comparison APIs that don't account for the current database connection and the database platform
 
 The `Schema::getMigrateFromSql()` and `::getMigrateToSql()` methods have been removed.

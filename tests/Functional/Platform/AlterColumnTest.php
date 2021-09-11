@@ -9,8 +9,6 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
-use function array_keys;
-
 class AlterColumnTest extends FunctionalTestCase
 {
     public function testColumnPositionRetainedAfterAltering(): void
@@ -32,7 +30,11 @@ class AlterColumnTest extends FunctionalTestCase
         self::assertNotNull($diff);
         $sm->alterTable($diff);
 
-        $table = $sm->listTableDetails('test_alter');
-        self::assertEquals(['c1', 'c2'], array_keys($table->getColumns()));
+        $table   = $sm->listTableDetails('test_alter');
+        $columns = $table->getColumns();
+
+        self::assertCount(2, $columns);
+        self::assertEqualsIgnoringCase('c1', $columns[0]->getName());
+        self::assertEqualsIgnoringCase('c2', $columns[1]->getName());
     }
 }

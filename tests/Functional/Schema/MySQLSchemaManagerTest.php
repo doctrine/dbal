@@ -306,41 +306,40 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->dropAndCreateTable($table);
 
-        $platform       = $this->schemaManager->getDatabasePlatform();
-        $offlineColumns = $table->getColumns();
-        $onlineColumns  = $this->schemaManager->listTableColumns($tableName);
+        $platform      = $this->schemaManager->getDatabasePlatform();
+        $onlineColumns = $this->schemaManager->listTableColumns($tableName);
 
         self::assertSame(
-            $platform->getClobTypeDeclarationSQL($offlineColumns['col_tinytext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($table->getColumn('col_tinytext')->toArray()),
             $platform->getClobTypeDeclarationSQL($onlineColumns['col_tinytext']->toArray())
         );
         self::assertSame(
-            $platform->getClobTypeDeclarationSQL($offlineColumns['col_text']->toArray()),
+            $platform->getClobTypeDeclarationSQL($table->getColumn('col_text')->toArray()),
             $platform->getClobTypeDeclarationSQL($onlineColumns['col_text']->toArray())
         );
         self::assertSame(
-            $platform->getClobTypeDeclarationSQL($offlineColumns['col_mediumtext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($table->getColumn('col_mediumtext')->toArray()),
             $platform->getClobTypeDeclarationSQL($onlineColumns['col_mediumtext']->toArray())
         );
         self::assertSame(
-            $platform->getClobTypeDeclarationSQL($offlineColumns['col_longtext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($table->getColumn('col_longtext')->toArray()),
             $platform->getClobTypeDeclarationSQL($onlineColumns['col_longtext']->toArray())
         );
 
         self::assertSame(
-            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_tinyblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($table->getColumn('col_tinyblob')->toArray()),
             $platform->getBlobTypeDeclarationSQL($onlineColumns['col_tinyblob']->toArray())
         );
         self::assertSame(
-            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_blob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($table->getColumn('col_blob')->toArray()),
             $platform->getBlobTypeDeclarationSQL($onlineColumns['col_blob']->toArray())
         );
         self::assertSame(
-            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_mediumblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($table->getColumn('col_mediumblob')->toArray()),
             $platform->getBlobTypeDeclarationSQL($onlineColumns['col_mediumblob']->toArray())
         );
         self::assertSame(
-            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_longblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($table->getColumn('col_longblob')->toArray()),
             $platform->getBlobTypeDeclarationSQL($onlineColumns['col_longblob']->toArray())
         );
     }

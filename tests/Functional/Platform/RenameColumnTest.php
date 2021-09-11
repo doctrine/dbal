@@ -7,8 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-use function array_keys;
-
 class RenameColumnTest extends FunctionalTestCase
 {
     public function testColumnPositionRetainedAfterRenaming(): void
@@ -29,7 +27,11 @@ class RenameColumnTest extends FunctionalTestCase
         self::assertNotNull($diff);
         $sm->alterTable($diff);
 
-        $table = $sm->listTableDetails('test_rename');
-        self::assertSame(['c1_x', 'c2'], array_keys($table->getColumns()));
+        $table   = $sm->listTableDetails('test_rename');
+        $columns = $table->getColumns();
+
+        self::assertCount(2, $columns);
+        self::assertEqualsIgnoringCase('c1_x', $columns[0]->getName());
+        self::assertEqualsIgnoringCase('c2', $columns[1]->getName());
     }
 }

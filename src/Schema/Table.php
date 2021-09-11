@@ -17,16 +17,13 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
 
 use function array_filter;
-use function array_keys;
 use function array_merge;
-use function array_search;
-use function array_unique;
+use function array_values;
 use function in_array;
 use function is_string;
 use function preg_match;
 use function sprintf;
 use function strtolower;
-use function uksort;
 
 use const ARRAY_FILTER_USE_KEY;
 
@@ -474,34 +471,13 @@ class Table extends AbstractAsset
     }
 
     /**
-     * Returns ordered list of columns (primary keys are first, then foreign keys, then the rest)
+     * Returns the list of table columns.
      *
-     * @return array<string, Column>
+     * @return list<Column>
      */
     public function getColumns(): array
     {
-        $columns = $this->_columns;
-        $pkCols  = [];
-        $fkCols  = [];
-
-        $primaryKey = $this->getPrimaryKey();
-
-        if ($primaryKey !== null) {
-            $pkCols = $primaryKey->getColumns();
-        }
-
-        foreach ($this->getForeignKeys() as $fk) {
-            /** @var ForeignKeyConstraint $fk */
-            $fkCols = array_merge($fkCols, $fk->getColumns());
-        }
-
-        $colNames = array_unique(array_merge($pkCols, $fkCols, array_keys($columns)));
-
-        uksort($columns, static function (string $a, string $b) use ($colNames): int {
-            return array_search($a, $colNames, true) <=> array_search($b, $colNames, true);
-        });
-
-        return $columns;
+        return array_values($this->_columns);
     }
 
     /**

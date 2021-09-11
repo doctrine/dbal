@@ -194,7 +194,9 @@ class Comparator
         $toTableColumns   = $toTable->getColumns();
 
         /* See if all the columns in "from" table exist in "to" table */
-        foreach ($toTableColumns as $columnName => $column) {
+        foreach ($toTableColumns as $column) {
+            $columnName = strtolower($column->getName());
+
             if ($fromTable->hasColumn($columnName)) {
                 continue;
             }
@@ -204,7 +206,9 @@ class Comparator
         }
 
         /* See if there are any removed columns in "to" table */
-        foreach ($fromTableColumns as $columnName => $column) {
+        foreach ($fromTableColumns as $column) {
+            $columnName = strtolower($column->getName());
+
             // See if column is removed in "to" table.
             if (! $toTable->hasColumn($columnName)) {
                 $tableDifferences->removedColumns[$columnName] = $column;
