@@ -1456,6 +1456,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         self::assertContains('test_save_mode_orphan_fk_primary', $this->schemaManager->listTableNames());
         self::assertContains('test_save_mode_orphan_fk_foreign', $this->schemaManager->listTableNames());
+
+        $unmappedTable = $this->schemaManager->listTableDetails('test_save_mode_orphan_fk_primary');
+        // make sure orphan FKs not referenced are not deleted
+        self::assertArrayHasKey('self', $unmappedTable->getForeignKeyColumns());
     }
 }
 
