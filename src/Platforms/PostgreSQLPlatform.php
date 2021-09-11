@@ -449,12 +449,9 @@ SQL
             }
 
             $newComment = $this->getColumnComment($column);
-            $oldComment = $this->getOldColumnComment($columnDiff);
+            $oldComment = $this->getColumnComment($columnDiff->fromColumn);
 
-            if (
-                $columnDiff->hasChanged('comment')
-                || ($columnDiff->fromColumn !== null && $oldComment !== $newComment)
-            ) {
+            if ($columnDiff->hasChanged('comment') || $oldComment !== $newComment) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
@@ -528,23 +525,13 @@ SQL
             return false;
         }
 
-        $fromColumn = $columnDiff->fromColumn;
+        $fromColumnType = $columnDiff->fromColumn->getType();
 
-        if ($fromColumn !== null) {
-            $fromColumnType = $fromColumn->getType();
-
-            if (! $fromColumnType instanceof BinaryType && ! $fromColumnType instanceof BlobType) {
-                return false;
-            }
-
-            return count(array_diff($columnDiff->changedProperties, ['type', 'length', 'fixed'])) === 0;
-        }
-
-        if ($columnDiff->hasChanged('type')) {
+        if (! $fromColumnType instanceof BinaryType && ! $fromColumnType instanceof BlobType) {
             return false;
         }
 
-        return count(array_diff($columnDiff->changedProperties, ['length', 'fixed'])) === 0;
+        return count(array_diff($columnDiff->changedProperties, ['type', 'length', 'fixed'])) === 0;
     }
 
     /**
@@ -1051,10 +1038,6 @@ SQL
      */
     private function typeChangeBreaksDefaultValue(ColumnDiff $columnDiff): bool
     {
-        if ($columnDiff->fromColumn === null) {
-            return $columnDiff->hasChanged('type');
-        }
-
         $oldTypeIsNumeric = $this->isNumericType($columnDiff->fromColumn->getType());
         $newTypeIsNumeric = $this->isNumericType($columnDiff->column->getType());
 
@@ -1066,15 +1049,6 @@ SQL
     private function isNumericType(Type $type): bool
     {
         return $type instanceof IntegerType || $type instanceof BigIntType;
-    }
-
-    private function getOldColumnComment(ColumnDiff $columnDiff): ?string
-    {
-        if ($columnDiff->fromColumn === null) {
-            return null;
-        }
-
-        return $this->getColumnComment($columnDiff->fromColumn);
     }
 
     public function getListTableMetadataSQL(string $table, ?string $schema = null): string

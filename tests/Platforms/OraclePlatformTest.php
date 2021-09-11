@@ -474,45 +474,59 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $tableDiff = new TableDiff('mytable');
 
-        $tableDiff->changedColumns['foo'] = new ColumnDiff(
+        $foo = new Column(
             'foo',
-            new Column(
-                'foo',
-                Type::getType('string'),
-                [
-                    'length' => 255,
-                    'default' => 'bla',
-                    'notnull' => true,
-                ]
-            ),
-            ['type']
+            Type::getType('string'),
+            [
+                'length' => 255,
+                'default' => 'bla',
+                'notnull' => true,
+            ]
         );
 
-        $tableDiff->changedColumns['bar'] = new ColumnDiff(
-            'bar',
-            new Column(
-                'baz',
-                Type::getType('string'),
-                [
-                    'length' => 255,
-                    'default' => 'bla',
-                    'notnull' => true,
-                ]
-            ),
-            ['type', 'notnull']
+        $bar = new Column(
+            'baz',
+            Type::getType('string'),
+            [
+                'length' => 255,
+                'default' => 'bla',
+                'notnull' => true,
+            ]
         );
+
+        $baz = new Column(
+            'baz',
+            Type::getType('string'),
+            [
+                'length' => 255,
+                'default' => 'bla',
+                'notnull' => true,
+            ]
+        );
+
+        $metar = new Column(
+            'metar',
+            Type::getType('string'),
+            [
+                'length' => 2000,
+                'notnull' => false,
+            ]
+        );
+
+        $tableDiff->changedColumns['foo'] = new ColumnDiff(
+            'foo',
+            $foo,
+            ['type'],
+            $foo
+        );
+
+        $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $bar, ['type', 'notnull'], $baz);
 
         $tableDiff->changedColumns['metar'] = new ColumnDiff(
             'metar',
-            new Column(
-                'metar',
-                Type::getType('string'),
-                [
-                    'length' => 2000,
-                    'notnull' => false,
-                ]
-            ),
-            ['notnull']
+            $metar,
+            ['notnull'],
+            $metar
         );
 
         $expectedSql = [

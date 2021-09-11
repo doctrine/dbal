@@ -17,9 +17,6 @@ class ColumnDiffTest extends TestCase
         $fromColumn = new Column('"foo"', Type::getType(Types::INTEGER));
         $toColumn   = new Column('bar', Type::getType(Types::INTEGER));
 
-        $columnDiff = new ColumnDiff('"foo"', $toColumn, []);
-        self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
-
         $columnDiff = new ColumnDiff('"foo"', $toColumn, [], $fromColumn);
         self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
 

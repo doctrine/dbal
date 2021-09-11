@@ -16,9 +16,9 @@ class ColumnDiff
     public Column $column;
 
     /** @var array<int, string> */
-    public array $changedProperties = [];
+    public array $changedProperties;
 
-    public ?Column $fromColumn = null;
+    public Column $fromColumn;
 
     /**
      * @param array<string> $changedProperties
@@ -26,8 +26,8 @@ class ColumnDiff
     public function __construct(
         string $oldColumnName,
         Column $column,
-        array $changedProperties = [],
-        ?Column $fromColumn = null
+        array $changedProperties,
+        Column $fromColumn
     ) {
         $this->oldColumnName     = $oldColumnName;
         $this->column            = $column;
@@ -42,8 +42,6 @@ class ColumnDiff
 
     public function getOldColumnName(): Identifier
     {
-        $quote = $this->fromColumn !== null && $this->fromColumn->isQuoted();
-
-        return new Identifier($this->oldColumnName, $quote);
+        return new Identifier($this->oldColumnName, $this->fromColumn->isQuoted());
     }
 }
