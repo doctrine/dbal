@@ -271,10 +271,13 @@ class Comparator
                 continue;
             }
 
-            $columnDiff = new ColumnDiff($column->getName(), $toColumn, $changedProperties);
+            $tableDifferences->changedColumns[$column->getName()] = new ColumnDiff(
+                $column->getName(),
+                $toColumn,
+                $changedProperties,
+                $column
+            );
 
-            $columnDiff->fromColumn                               = $column;
-            $tableDifferences->changedColumns[$column->getName()] = $columnDiff;
             $changes++;
         }
 
