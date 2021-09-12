@@ -311,15 +311,6 @@
                 <directory name="lib"/>
             </errorLevel>
         </RedundantCastGivenDocblockType>
-        <RedundantCondition>
-            <errorLevel type="suppress">
-                <!--
-                    This suppression should be removed in 3.0.x
-                    See https://github.com/doctrine/dbal/pull/3860
-                -->
-                <file name="lib/Doctrine/DBAL/Version.php"/>
-            </errorLevel>
-        </RedundantCondition>
         <RedundantConditionGivenDocblockType>
             <errorLevel type="suppress">
                 <!--
