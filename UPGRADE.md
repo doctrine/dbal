@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated features of `Table::getColumns()`
+
+1. Using the returned array keys as column names is deprecated. Retrieve the name from the column
+   via `Column::getName()` instead. In order to retrieve a column by name, use `Table::getColumn()`.
+2. Relying on the columns being sorted based on whether they belong to the primary key or a foreign key is deprecated.
+   If necessary, maintain the column order explicitly.
+
 ## Deprecated not passing the `$fromColumn` argument to the `ColumnDiff` constructor.
 
 Not passing the `$fromColumn` argument to the `ColumnDiff` constructor is deprecated.
