@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL;
 
 use function str_replace;
-use function strtolower;
 use function version_compare;
 
 /**
@@ -17,7 +16,7 @@ class Version
     /**
      * Current Doctrine Version.
      */
-    public const VERSION = '2.12.2-DEV';
+    public const VERSION = '2.13.3';
 
     /**
      * Compares a Doctrine version with the current one.
@@ -28,7 +27,7 @@ class Version
      */
     public static function compare($version)
     {
-        $currentVersion = str_replace(' ', '', strtolower(self::VERSION));
+        $currentVersion = str_replace(' ', '', self::VERSION);
         $version        = str_replace(' ', '', $version);
 
         return version_compare($version, $currentVersion);
