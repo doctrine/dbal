@@ -18,6 +18,15 @@ class MySQLKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
+    public function isKeyword($word)
+    {
+        return parent::isKeyword($word) ||  preg_match('/^\d+$/', $word) ||
+            preg_match('/[^\w$\x{0080}-\x{FFFF}]+/u', $word);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getKeywords()
     {
         return [
