@@ -329,7 +329,6 @@ class Table extends AbstractAsset
      *
      * Name is inferred from the local columns.
      *
-     * @param Table|string         $foreignTable       Table schema instance or table name
      * @param array<int, string>   $localColumnNames
      * @param array<int, string>   $foreignColumnNames
      * @param array<string, mixed> $options
@@ -337,7 +336,7 @@ class Table extends AbstractAsset
      * @throws SchemaException
      */
     public function addForeignKeyConstraint(
-        $foreignTable,
+        string $foreignTableName,
         array $localColumnNames,
         array $foreignColumnNames,
         array $options = [],
@@ -351,14 +350,6 @@ class Table extends AbstractAsset
             );
         }
 
-        if ($foreignTable instanceof Table) {
-            foreach ($foreignColumnNames as $columnName) {
-                if (! $foreignTable->hasColumn($columnName)) {
-                    throw ColumnDoesNotExist::new($columnName, $foreignTable->getName());
-                }
-            }
-        }
-
         foreach ($localColumnNames as $columnName) {
             if (! $this->hasColumn($columnName)) {
                 throw ColumnDoesNotExist::new($columnName, $this->_name);
@@ -367,7 +358,7 @@ class Table extends AbstractAsset
 
         $constraint = new ForeignKeyConstraint(
             $localColumnNames,
-            $foreignTable,
+            $foreignTableName,
             $foreignColumnNames,
             $name,
             $options

@@ -149,7 +149,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column            = $nestedSchemaTable->addColumn('id', 'integer');
         $column->setAutoincrement(true);
         $nestedSchemaTable->setPrimaryKey(['id']);
-        $nestedSchemaTable->addForeignKeyConstraint($nestedRelatedTable, ['id'], ['id']);
+        $nestedSchemaTable->addForeignKeyConstraint($nestedRelatedTable->getName(), ['id'], ['id']);
 
         $this->schemaManager->createTable($nestedRelatedTable);
         $this->schemaManager->createTable($nestedSchemaTable);
@@ -309,7 +309,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlineTable->addColumn('username', 'string');
         $offlineTable->addColumn('fk', 'integer');
         $offlineTable->setPrimaryKey(['id']);
-        $offlineTable->addForeignKeyConstraint($offlineTable, ['fk'], ['id']);
+        $offlineTable->addForeignKeyConstraint($offlineTable->getName(), ['fk'], ['id']);
 
         $this->schemaManager->dropAndCreateTable($offlineTable);
 

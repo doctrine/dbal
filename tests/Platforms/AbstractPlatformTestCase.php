@@ -665,7 +665,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $foreignTable->addColumn('`foo-bar`', 'string');
 
         $table->addForeignKeyConstraint(
-            $foreignTable,
+            $foreignTable->getQuotedName($this->platform),
             ['create', 'foo', '`bar`'],
             ['create', 'bar', '`foo-bar`'],
             [],
@@ -685,7 +685,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $foreignTable->addColumn('`foo-bar`', 'string');
 
         $table->addForeignKeyConstraint(
-            $foreignTable,
+            $foreignTable->getQuotedName($this->platform),
             ['create', 'foo', '`bar`'],
             ['create', 'bar', '`foo-bar`'],
             [],
@@ -705,7 +705,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $foreignTable->addColumn('`foo-bar`', 'string');
 
         $table->addForeignKeyConstraint(
-            $foreignTable,
+            $foreignTable->getQuotedName($this->platform),
             ['create', 'foo', '`bar`'],
             ['create', 'bar', '`foo-bar`'],
             [],
@@ -1468,8 +1468,8 @@ abstract class AbstractPlatformTestCase extends TestCase
         $primaryTable->addColumn('baz', 'integer');
         $primaryTable->addIndex(['foo'], 'idx_foo');
         $primaryTable->addIndex(['bar'], 'idx_bar');
-        $primaryTable->addForeignKeyConstraint($foreignTable, ['foo'], ['id'], [], 'fk_foo');
-        $primaryTable->addForeignKeyConstraint($foreignTable, ['bar'], ['id'], [], 'fk_bar');
+        $primaryTable->addForeignKeyConstraint($foreignTable->getName(), ['foo'], ['id'], [], 'fk_foo');
+        $primaryTable->addForeignKeyConstraint($foreignTable->getName(), ['bar'], ['id'], [], 'fk_bar');
 
         $tableDiff                            = new TableDiff('mytable');
         $tableDiff->fromTable                 = $primaryTable;

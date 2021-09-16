@@ -526,7 +526,7 @@ abstract class ComparatorTest extends TestCase
 
         $table2 = new Table('foo');
         $table2->addColumn('fk', 'integer');
-        $table2->addForeignKeyConstraint($tableForeign, ['fk'], ['id']);
+        $table2->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
         $tableDiff = $this->comparator->diffTable($table1, $table2);
 
@@ -544,7 +544,7 @@ abstract class ComparatorTest extends TestCase
 
         $table2 = new Table('foo');
         $table2->addColumn('fk', 'integer');
-        $table2->addForeignKeyConstraint($tableForeign, ['fk'], ['id']);
+        $table2->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
         $tableDiff = $this->comparator->diffTable($table2, $table1);
 
@@ -559,11 +559,11 @@ abstract class ComparatorTest extends TestCase
 
         $table1 = new Table('foo');
         $table1->addColumn('fk', 'integer');
-        $table1->addForeignKeyConstraint($tableForeign, ['fk'], ['id']);
+        $table1->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
         $table2 = new Table('foo');
         $table2->addColumn('fk', 'integer');
-        $table2->addForeignKeyConstraint($tableForeign, ['fk'], ['id'], ['onUpdate' => 'CASCADE']);
+        $table2->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id'], ['onUpdate' => 'CASCADE']);
 
         $tableDiff = $this->comparator->diffTable($table1, $table2);
 
@@ -581,11 +581,11 @@ abstract class ComparatorTest extends TestCase
 
         $table1 = new Table('foo');
         $table1->addColumn('fk', 'integer');
-        $table1->addForeignKeyConstraint($tableForeign, ['fk'], ['id']);
+        $table1->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
         $table2 = new Table('foo');
         $table2->addColumn('fk', 'integer');
-        $table2->addForeignKeyConstraint($tableForeign2, ['fk'], ['id']);
+        $table2->addForeignKeyConstraint($tableForeign2->getName(), ['fk'], ['id']);
 
         $tableDiff = $this->comparator->diffTable($table1, $table2);
 
@@ -982,8 +982,8 @@ abstract class ComparatorTest extends TestCase
         $tableC->addColumn('table_a_id', 'integer');
         $tableC->addColumn('table_b_id', 'integer');
 
-        $tableC->addForeignKeyConstraint($tableA, ['table_a_id'], ['id']);
-        $tableC->addForeignKeyConstraint($tableB, ['table_b_id'], ['id']);
+        $tableC->addForeignKeyConstraint($tableA->getName(), ['table_a_id'], ['id']);
+        $tableC->addForeignKeyConstraint($tableB->getName(), ['table_b_id'], ['id']);
 
         $newSchema = new Schema();
 
