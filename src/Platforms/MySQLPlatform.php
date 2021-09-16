@@ -894,12 +894,6 @@ SQL
             );
         }
 
-        if ($index instanceof Index && $index->isPrimary()) {
-            // MySQL primary keys are always named "PRIMARY",
-            // so we cannot use them in statements because of them being keyword.
-            return $this->getDropPrimaryKeySQL($table);
-        }
-
         return 'DROP INDEX ' . $indexName . ' ON ' . $table;
     }
 
