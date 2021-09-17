@@ -48,14 +48,6 @@
         <exclude-pattern>*/src/Tools/Console/Helper/ConnectionHelper.php</exclude-pattern>
     </rule>
 
-    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
-        <exclude-pattern>*/src/*</exclude-pattern>
-    </rule>
-
-    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint">
-        <exclude-pattern>*/src/*</exclude-pattern>
-    </rule>
-
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
         <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php</exclude-pattern>
         <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php</exclude-pattern>

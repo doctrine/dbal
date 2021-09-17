@@ -1473,10 +1473,7 @@ class SQLServerPlatform extends AbstractPlatform
         );
     }
 
-    /**
-     * @param string $query
-     */
-    private function shouldAddOrderBy($query): bool
+    private function shouldAddOrderBy(string $query): bool
     {
         // Find the position of the last instance of ORDER BY and ensure it is not within a parenthetical statement
         // but can be in a newline
