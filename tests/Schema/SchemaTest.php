@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\AbstractVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use Doctrine\DBAL\Tests\TestUtil;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
@@ -36,7 +37,7 @@ class SchemaTest extends TestCase
 
     public function testGetTableNames(): void
     {
-        $conn = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $conn = DriverManager::getConnection(TestUtil::getConnectionParams());
 
         $schema = new Schema([], [], $conn->createSchemaManager()->createSchemaConfig());
         $schema->createTable('foo');
