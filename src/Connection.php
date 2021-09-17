@@ -619,7 +619,7 @@ class Connection implements ServerVersionProvider
      *
      * @return array<int, int|string|Type|null>|array<string, int|string|Type|null>
      */
-    private function extractTypeValues(array $columnList, array $types)
+    private function extractTypeValues(array $columnList, array $types): array
     {
         $typeValues = [];
 

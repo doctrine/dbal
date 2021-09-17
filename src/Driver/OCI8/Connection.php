@@ -94,6 +94,9 @@ final class Connection implements ConnectionInterface
         return $this->prepare($sql)->execute()->rowCount();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function lastInsertId()
     {
         throw IdentityColumnsNotSupported::new();
