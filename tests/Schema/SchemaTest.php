@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\SchemaException;
@@ -31,6 +32,17 @@ class SchemaTest extends TestCase
         self::assertSame($table, $tables[$tableName]);
         self::assertSame($table, $schema->getTable($tableName));
         self::assertTrue($schema->hasTable($tableName));
+    }
+
+    public function testGetTableNames(): void
+    {
+        $conn = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+
+        $schema = new Schema([], [], $conn->createSchemaManager()->createSchemaConfig());
+        $schema->createTable('foo');
+
+        $tableNames = $schema->getTableNames();
+        self::assertEquals(['foo'], $tableNames);
     }
 
     public function testTableMatchingCaseInsensitive(): void
