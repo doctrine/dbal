@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use InvalidArgumentException;
 
 class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
 {
@@ -40,5 +41,11 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
     public function testGeneratesTypeDeclarationForDateTimeTz(): void
     {
         self::assertEquals('DATETIMEOFFSET(6)', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
+    }
+
+    public function testDropIndexSQLRequiresTable(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->platform->getDropIndexSQL('foo');
     }
 }
