@@ -274,28 +274,15 @@ class SQLServerPlatform extends AbstractPlatform
             );
         }
 
-        if (! isset($table)) {
-            return 'DROP INDEX ' . $index;
-        }
-
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
+        } elseif (! is_string($table)) {
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
+            );
         }
 
-        return sprintf(
-            <<<SQL
-                IF EXISTS (SELECT * FROM sysobjects WHERE name = '%s')
-                    ALTER TABLE %s DROP CONSTRAINT %s
-                ELSE
-                    DROP INDEX %s ON %s
-                SQL
-            ,
-            $index,
-            $table,
-            $index,
-            $index,
-            $table
-        );
+        return 'DROP INDEX ' . $index . ' ON ' . $table;
     }
 
     /**

@@ -1656,8 +1656,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to drop an index from a table.
      *
-     * @param Index|string $index
-     * @param Table|string $table
+     * @param Index|string      $index
+     * @param Table|string|null $table
      *
      * @return string
      *
