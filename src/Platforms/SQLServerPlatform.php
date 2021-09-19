@@ -170,18 +170,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDropSequenceSQL($sequence): string
-    {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getListSequencesSQL($database)
     {
         return 'SELECT seq.name,

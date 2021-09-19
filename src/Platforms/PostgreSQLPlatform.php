@@ -724,11 +724,7 @@ SQL
      */
     public function getDropSequenceSQL($sequence)
     {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
+        return parent::getDropSequenceSQL($sequence) . ' CASCADE';
     }
 
     /**

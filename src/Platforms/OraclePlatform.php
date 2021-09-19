@@ -711,18 +711,6 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDropSequenceSQL($sequence)
-    {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         if (! $foreignKey instanceof ForeignKeyConstraint) {

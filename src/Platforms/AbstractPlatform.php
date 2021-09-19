@@ -1948,6 +1948,28 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to drop an existing sequence.
+     *
+     * @param Sequence|string $sequence
+     *
+     * @return string
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    public function getDropSequenceSQL($sequence)
+    {
+        if (! $this->supportsSequences()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        if ($sequence instanceof Sequence) {
+            $sequence = $sequence->getQuotedName($this);
+        }
+
+        return 'DROP SEQUENCE ' . $sequence;
+    }
+
+    /**
      * Returns the SQL to create a constraint on a table on this platform.
      *
      * @param Table|string $table
@@ -3137,20 +3159,6 @@ abstract class AbstractPlatform
     public function getDropViewSQL($name)
     {
         return 'DROP VIEW ' . $name;
-    }
-
-    /**
-     * Returns the SQL snippet to drop an existing sequence.
-     *
-     * @param Sequence|string $sequence
-     *
-     * @return string
-     *
-     * @throws Exception If not supported on this platform.
-     */
-    public function getDropSequenceSQL($sequence)
-    {
-        throw Exception::notSupported(__METHOD__);
     }
 
     /**
