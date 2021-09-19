@@ -69,7 +69,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function initializeDoctrineTypeMappings()
+    protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = [
             'bigint'    => 'bigint',

@@ -289,50 +289,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL($fullColumnDef));
     }
 
-    public function testInitializesDoctrineTypeMappings(): void
-    {
-        $this->platform->initializeDoctrineTypeMappings();
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smallint'));
-        self::assertSame('smallint', $this->platform->getDoctrineTypeMapping('smallint'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('bigint'));
-        self::assertSame('bigint', $this->platform->getDoctrineTypeMapping('bigint'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('integer'));
-        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('integer'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('time'));
-        self::assertSame('time', $this->platform->getDoctrineTypeMapping('time'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('date'));
-        self::assertSame('date', $this->platform->getDoctrineTypeMapping('date'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('varchar'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('varchar'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('character'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('character'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('clob'));
-        self::assertSame('text', $this->platform->getDoctrineTypeMapping('clob'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('blob'));
-        self::assertSame('blob', $this->platform->getDoctrineTypeMapping('blob'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('decimal'));
-        self::assertSame('decimal', $this->platform->getDoctrineTypeMapping('decimal'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('double'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('double'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('real'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('real'));
-
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('timestamp'));
-        self::assertSame('datetime', $this->platform->getDoctrineTypeMapping('timestamp'));
-    }
-
     /**
      * {@inheritDoc}
      */
