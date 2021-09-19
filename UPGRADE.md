@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## `SQLServerPlatform` methods marked internal.
+
+The following `SQLServerPlatform` methods have been marked internal:
+- `getDefaultConstraintDeclarationSQL()`,
+- `getAddExtendedPropertySQL()`,
+- `getDropExtendedPropertySQL()`,
+- `getUpdateExtendedPropertySQL()`.
+
 ## `OraclePlatform` methods marked internal.
 
 The `OraclePlatform::getCreateAutoincrementSql()` and `::getDropAutoincrementSql()` have been marked internal.

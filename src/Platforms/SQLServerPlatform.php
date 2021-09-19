@@ -438,6 +438,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL snippet for declaring a default constraint.
      *
+     * @internal The method should be only used from within the SQLServerPlatform class hierarchy.
+     *
      * @param string  $table  Name of the table to return the default constraint declaration for.
      * @param mixed[] $column Column definition.
      *
@@ -843,6 +845,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL statement for adding an extended property to a database object.
      *
+     * @internal The method should be only used from within the SQLServerPlatform class hierarchy.
+     *
      * @link http://msdn.microsoft.com/en-us/library/ms180047%28v=sql.90%29.aspx
      *
      * @param string      $name       The name of the property to add.
@@ -876,6 +880,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL statement for dropping an extended property from a database object.
      *
+     * @internal The method should be only used from within the SQLServerPlatform class hierarchy.
+     *
      * @link http://technet.microsoft.com/en-gb/library/ms178595%28v=sql.90%29.aspx
      *
      * @param string      $name       The name of the property to drop.
@@ -906,6 +912,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * Returns the SQL statement for updating an extended property of a database object.
+     *
+     * @internal The method should be only used from within the SQLServerPlatform class hierarchy.
      *
      * @link http://msdn.microsoft.com/en-us/library/ms186885%28v=sql.90%29.aspx
      *
