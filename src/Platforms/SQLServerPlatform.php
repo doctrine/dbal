@@ -252,8 +252,8 @@ class SQLServerPlatform extends AbstractPlatform
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $constraintName => $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($constraintName, $definition);
+            foreach ($options['uniqueConstraints'] as $definition) {
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
             }
         }
 
