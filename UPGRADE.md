@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## `OraclePlatform` methods marked internal.
+
+The `OraclePlatform::getCreateAutoincrementSql()` and `::getDropAutoincrementSql()` have been marked internal.
+
 ## Deprecated `OraclePlatform::assertValidIdentifier()`
 
 The `OraclePlatform::assertValidIdentifier()` method has been deprecated.
