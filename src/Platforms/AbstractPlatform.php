@@ -2266,21 +2266,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Gets the sequence name prefix based on table information.
-     */
-    public function getSequencePrefix(string $tableName, ?string $schemaName = null): string
-    {
-        if ($schemaName === null) {
-            return $tableName;
-        }
-
-        // Prepend the schema name to the table name if there is one
-        return ! $this->supportsSchemas() && $this->canEmulateSchemas()
-            ? $schemaName . '__' . $tableName
-            : $schemaName . '.' . $tableName;
-    }
-
-    /**
      * Returns the name of the sequence for a particular identity column in a particular table.
      *
      * @see usesSequenceEmulatedIdentityColumns
