@@ -3123,24 +3123,20 @@ abstract class AbstractPlatform
      * @param string $sql
      *
      * @return string
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getCreateViewSQL($name, $sql)
     {
-        throw Exception::notSupported(__METHOD__);
+        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
     /**
      * @param string $name
      *
      * @return string
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDropViewSQL($name)
     {
-        throw Exception::notSupported(__METHOD__);
+        return 'DROP VIEW ' . $name;
     }
 
     /**
