@@ -33,8 +33,8 @@ class DropSchemaSqlCollectorTest extends TestCase
         $platform->expects(self::exactly(2))
             ->method('getDropForeignKeySQL')
             ->withConsecutive(
-                [$keyConstraintOne, $tableOne],
-                [$keyConstraintTwo, $tableTwo]
+                [$keyConstraintOne->getQuotedName($platform), $tableOne->getQuotedName($platform)],
+                [$keyConstraintTwo->getQuotedName($platform), $tableTwo->getQuotedName($platform)]
             );
 
         $collector->acceptForeignKey($tableOne, $keyConstraintOne);

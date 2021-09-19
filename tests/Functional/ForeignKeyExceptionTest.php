@@ -33,7 +33,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         $owningTable->addColumn('id', 'integer', []);
         $owningTable->addColumn('constraint_id', 'integer', []);
         $owningTable->setPrimaryKey(['id']);
-        $owningTable->addForeignKeyConstraint($table, ['constraint_id'], ['id']);
+        $owningTable->addForeignKeyConstraint($table->getName(), ['constraint_id'], ['id']);
 
         $schemaManager->createTable($table);
         $schemaManager->createTable($owningTable);

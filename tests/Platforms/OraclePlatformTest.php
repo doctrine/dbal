@@ -705,11 +705,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    protected function getQuotesDropForeignKeySQL(): string
-    {
-        return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
-    }
-
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));

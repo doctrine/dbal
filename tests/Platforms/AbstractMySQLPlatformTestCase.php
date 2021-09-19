@@ -402,7 +402,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(
             [
                 'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
-                'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON alter_primary_key',
                 'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)',
             ],
             $this->platform->getAlterTableSQL($diff)
@@ -428,7 +428,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(
             [
                 'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
-                'ALTER TABLE drop_primary_key DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON drop_primary_key',
             ],
             $this->platform->getAlterTableSQL($diff)
         );
@@ -454,7 +454,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame(
             [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
-                'ALTER TABLE tbl DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON tbl',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id)',
             ],
             $this->platform->getAlterTableSQL($diff)
@@ -481,7 +481,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame(
             [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
-                'ALTER TABLE tbl DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON tbl',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id, foo)',
             ],
             $this->platform->getAlterTableSQL($diff)
@@ -507,19 +507,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(['ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)'], $sql);
     }
 
-    public function testNamedPrimaryKey(): void
-    {
-        $diff                              = new TableDiff('mytable');
-        $diff->changedIndexes['foo_index'] = new Index('foo_index', ['foo'], true, true);
-
-        $sql = $this->platform->getAlterTableSQL($diff);
-
-        self::assertEquals([
-            'ALTER TABLE mytable DROP PRIMARY KEY',
-            'ALTER TABLE mytable ADD PRIMARY KEY (foo)',
-        ], $sql);
-    }
-
     public function testAlterPrimaryKeyWithNewColumn(): void
     {
         $table = new Table('yolo');
@@ -539,7 +526,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertSame(
             [
-                'ALTER TABLE yolo DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON yolo',
                 'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ],
@@ -695,16 +682,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             'DROP INDEX `foo` ON `schema`.`table`',
             'CREATE INDEX `bar` ON `schema`.`table` (id)',
         ];
-    }
-
-    protected function getQuotesDropForeignKeySQL(): string
-    {
-        return 'ALTER TABLE `table` DROP FOREIGN KEY `select`';
-    }
-
-    protected function getQuotesDropConstraintSQL(): string
-    {
-        return 'ALTER TABLE `table` DROP CONSTRAINT `select`';
     }
 
     public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void

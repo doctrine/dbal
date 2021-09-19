@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
@@ -625,35 +624,14 @@ SQL
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropSequenceSQL($sequence): string
+    public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence;
+        return $this->getDropConstraintSQL($foreignKey, $table);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropForeignKeySQL($foreignKey, $table): string
+    public function getDropSequenceSQL(string $name): string
     {
-        if (! $foreignKey instanceof ForeignKeyConstraint) {
-            $foreignKey = new Identifier($foreignKey);
-        }
-
-        if (! $table instanceof Table) {
-            $table = new Identifier($table);
-        }
-
-        $foreignKey = $foreignKey->getQuotedName($this);
-        $table      = $table->getQuotedName($this);
-
-        return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
+        return 'DROP SEQUENCE ' . $name;
     }
 
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string

@@ -1218,16 +1218,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    protected function getQuotesDropForeignKeySQL(): string
-    {
-        return 'ALTER TABLE [table] DROP CONSTRAINT [select]';
-    }
-
-    protected function getQuotesDropConstraintSQL(): string
-    {
-        return 'ALTER TABLE [table] DROP CONSTRAINT [select]';
-    }
-
     /**
      * @param mixed[] $column
      *

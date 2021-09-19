@@ -202,7 +202,7 @@ class SchemaTest extends TestCase
         $tableB = $schema->createTable('bar');
         $tableB->addColumn('id', 'integer');
         $tableB->addColumn('foo_id', 'integer');
-        $tableB->addForeignKeyConstraint($tableA, ['foo_id'], ['id']);
+        $tableB->addForeignKeyConstraint($tableA->getName(), ['foo_id'], ['id']);
 
         $schemaNew = clone $schema;
 

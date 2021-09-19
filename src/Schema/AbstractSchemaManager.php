@@ -347,43 +347,31 @@ abstract class AbstractSchemaManager
     /**
      * Drops the index from the given table.
      *
-     * @param Index|string $index The name of the index.
-     * @param Table|string $table The name of the table.
-     *
      * @throws Exception
      */
-    public function dropIndex($index, $table): void
+    public function dropIndex(string $index, string $table): void
     {
-        if ($index instanceof Index) {
-            $index = $index->getQuotedName($this->_platform);
-        }
-
         $this->_execSql($this->_platform->getDropIndexSQL($index, $table));
     }
 
     /**
      * Drops the constraint from the given table.
      *
-     * @param Table|string $table The name of the table.
-     *
      * @throws Exception
      */
-    public function dropConstraint(Constraint $constraint, $table): void
+    public function dropConstraint(string $name, string $table): void
     {
-        $this->_execSql($this->_platform->getDropConstraintSQL($constraint, $table));
+        $this->_execSql($this->_platform->getDropConstraintSQL($name, $table));
     }
 
     /**
      * Drops a foreign key from a table.
      *
-     * @param ForeignKeyConstraint|string $foreignKey The name of the foreign key.
-     * @param Table|string                $table      The name of the table with the foreign key.
-     *
      * @throws Exception
      */
-    public function dropForeignKey($foreignKey, $table): void
+    public function dropForeignKey(string $name, string $table): void
     {
-        $this->_execSql($this->_platform->getDropForeignKeySQL($foreignKey, $table));
+        $this->_execSql($this->_platform->getDropForeignKeySQL($name, $table));
     }
 
     /**
@@ -442,11 +430,9 @@ abstract class AbstractSchemaManager
     /**
      * Creates a constraint on a table.
      *
-     * @param Table|string $table
-     *
      * @throws Exception
      */
-    public function createConstraint(Constraint $constraint, $table): void
+    public function createConstraint(Constraint $constraint, string $table): void
     {
         $this->_execSql($this->_platform->getCreateConstraintSQL($constraint, $table));
     }
@@ -454,11 +440,11 @@ abstract class AbstractSchemaManager
     /**
      * Creates a new index on a table.
      *
-     * @param Table|string $table The name of the table on which the index is to be created.
+     * @param string $table The name of the table on which the index is to be created.
      *
      * @throws Exception
      */
-    public function createIndex(Index $index, $table): void
+    public function createIndex(Index $index, string $table): void
     {
         $this->_execSql($this->_platform->getCreateIndexSQL($index, $table));
     }
@@ -467,11 +453,11 @@ abstract class AbstractSchemaManager
      * Creates a new foreign key.
      *
      * @param ForeignKeyConstraint $foreignKey The ForeignKey instance.
-     * @param Table|string         $table      The name of the table on which the foreign key is to be created.
+     * @param string               $table      The name of the table on which the foreign key is to be created.
      *
      * @throws Exception
      */
-    public function createForeignKey(ForeignKeyConstraint $foreignKey, $table): void
+    public function createForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
     {
         $this->_execSql($this->_platform->getCreateForeignKeySQL($foreignKey, $table));
     }
@@ -494,11 +480,9 @@ abstract class AbstractSchemaManager
      * @see dropConstraint()
      * @see createConstraint()
      *
-     * @param Table|string $table
-     *
      * @throws Exception
      */
-    public function dropAndCreateConstraint(Constraint $constraint, $table): void
+    public function dropAndCreateConstraint(Constraint $constraint, string $table): void
     {
         $this->tryMethod('dropConstraint', $constraint, $table);
         $this->createConstraint($constraint, $table);
@@ -507,11 +491,11 @@ abstract class AbstractSchemaManager
     /**
      * Drops and creates a new index on a table.
      *
-     * @param Table|string $table The name of the table on which the index is to be created.
+     * @param string $table The name of the table on which the index is to be created.
      *
      * @throws Exception
      */
-    public function dropAndCreateIndex(Index $index, $table): void
+    public function dropAndCreateIndex(Index $index, string $table): void
     {
         $this->tryMethod('dropIndex', $index->getQuotedName($this->_platform), $table);
         $this->createIndex($index, $table);
@@ -522,11 +506,11 @@ abstract class AbstractSchemaManager
      *
      * @param ForeignKeyConstraint $foreignKey An associative array that defines properties
      *                                         of the foreign key to be created.
-     * @param Table|string         $table      The name of the table on which the foreign key is to be created.
+     * @param string               $table      The name of the table on which the foreign key is to be created.
      *
      * @throws Exception
      */
-    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table): void
+    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
     {
         $this->tryMethod('dropForeignKey', $foreignKey, $table);
         $this->createForeignKey($foreignKey, $table);

@@ -60,7 +60,7 @@ class SchemaDiffTest extends TestCase
         if ($unsafe) {
             $platform->expects(self::exactly(1))
                  ->method('getDropSequenceSql')
-                 ->with(self::isInstanceOf(Sequence::class))
+                 ->with('baz_seq')
                  ->will(self::returnValue('drop_seq'));
         }
 
@@ -75,7 +75,7 @@ class SchemaDiffTest extends TestCase
         if ($unsafe) {
             $platform->expects(self::exactly(1))
                      ->method('getDropTableSql')
-                     ->with(self::isInstanceOf(Table::class))
+                     ->with('bar_table')
                      ->will(self::returnValue('drop_table'));
         }
 

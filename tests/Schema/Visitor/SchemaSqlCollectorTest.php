@@ -68,7 +68,7 @@ class SchemaSqlCollectorTest extends TestCase
         $tableB->addColumn('id', 'integer');
         $tableB->setPrimaryKey(['id']);
 
-        $tableA->addForeignKeyConstraint($tableB, ['bar'], ['id']);
+        $tableA->addForeignKeyConstraint($tableB->getName(), ['bar'], ['id']);
 
         return $schema;
     }

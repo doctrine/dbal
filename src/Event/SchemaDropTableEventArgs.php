@@ -5,36 +5,25 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Table;
-use InvalidArgumentException;
 
 /**
  * Event Arguments used when the SQL query for dropping tables are generated inside {@link AbstractPlatform}.
  */
 class SchemaDropTableEventArgs extends SchemaEventArgs
 {
-    /** @var string|Table */
-    private $table;
+    private string $table;
 
     private AbstractPlatform $platform;
 
     private ?string $sql = null;
 
-    /**
-     * @param string|Table $table
-     *
-     * @throws InvalidArgumentException
-     */
-    public function __construct($table, AbstractPlatform $platform)
+    public function __construct(string $table, AbstractPlatform $platform)
     {
         $this->table    = $table;
         $this->platform = $platform;
     }
 
-    /**
-     * @return string|Table
-     */
-    public function getTable()
+    public function getTable(): string
     {
         return $this->table;
     }

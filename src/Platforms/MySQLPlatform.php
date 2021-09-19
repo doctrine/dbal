@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
-use InvalidArgumentException;
 
 use function array_diff_key;
 use function array_merge;
@@ -25,7 +24,6 @@ use function count;
 use function implode;
 use function in_array;
 use function is_numeric;
-use function is_string;
 use function sprintf;
 use function str_replace;
 use function strcasecmp;
@@ -692,7 +690,7 @@ SQL
                 continue;
             }
 
-            $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
+            $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableName);
         }
 
         return $sql;
@@ -871,41 +869,9 @@ SQL
         return $query;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropIndexSQL($index, $table = null): string
+    public function getDropIndexSQL(string $name, string $table): string
     {
-        if ($index instanceof Index) {
-            $indexName = $index->getQuotedName($this);
-        } elseif (is_string($index)) {
-            $indexName = $index;
-        } else {
-            throw new InvalidArgumentException(
-                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
-            );
-        }
-
-        if ($table instanceof Table) {
-            $table = $table->getQuotedName($this);
-        } elseif (! is_string($table)) {
-            throw new InvalidArgumentException(
-                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
-            );
-        }
-
-        if ($index instanceof Index && $index->isPrimary()) {
-            // MySQL primary keys are always named "PRIMARY",
-            // so we cannot use them in statements because of them being keyword.
-            return $this->getDropPrimaryKeySQL($table);
-        }
-
-        return 'DROP INDEX ' . $indexName . ' ON ' . $table;
-    }
-
-    protected function getDropPrimaryKeySQL(string $table): string
-    {
-        return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
+        return 'DROP INDEX ' . $name . ' ON ' . $table;
     }
 
     public function getSetTransactionIsolationSQL(int $level): string
@@ -965,16 +931,8 @@ SQL
      * MySQL commits a transaction implicitly when DROP TABLE is executed, however not
      * if DROP TEMPORARY TABLE is executed.
      */
-    public function getDropTemporaryTableSQL($table): string
+    public function getDropTemporaryTableSQL(string $table): string
     {
-        if ($table instanceof Table) {
-            $table = $table->getQuotedName($this);
-        } elseif (! is_string($table)) {
-            throw new InvalidArgumentException(
-                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
-            );
-        }
-
         return 'DROP TEMPORARY TABLE ' . $table;
     }
 

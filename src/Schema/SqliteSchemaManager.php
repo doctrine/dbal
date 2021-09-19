@@ -71,10 +71,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $this->alterTable($tableDiff);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function createForeignKey(ForeignKeyConstraint $foreignKey, $table): void
+    public function createForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
     {
         $table = $this->ensureTable($table);
 
@@ -85,10 +82,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $this->alterTable($tableDiff);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table): void
+    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
     {
         $table = $this->ensureTable($table);
 
@@ -99,20 +93,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $this->alterTable($tableDiff);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function dropForeignKey($foreignKey, $table): void
+    public function dropForeignKey(string $name, string $table): void
     {
         $table = $this->ensureTable($table);
 
-        $tableDiff = $this->getTableDiffForAlterForeignKey($table);
-
-        if (is_string($foreignKey)) {
-            $tableDiff->removedForeignKeys[] = $table->getForeignKey($foreignKey);
-        } else {
-            $tableDiff->removedForeignKeys[] = $foreignKey;
-        }
+        $tableDiff                       = $this->getTableDiffForAlterForeignKey($table);
+        $tableDiff->removedForeignKeys[] = $table->getForeignKey($name);
 
         $this->alterTable($tableDiff);
     }

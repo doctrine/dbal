@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\TestCase;
 
 class ForeignKeyConstraintTest extends TestCase
@@ -60,12 +59,12 @@ class ForeignKeyConstraintTest extends TestCase
     }
 
     /**
-     * @param string|Table $foreignTableName
-     *
      * @dataProvider getUnqualifiedForeignTableNameData
      */
-    public function testGetUnqualifiedForeignTableName($foreignTableName, string $expectedUnqualifiedTableName): void
-    {
+    public function testGetUnqualifiedForeignTableName(
+        string $foreignTableName,
+        string $expectedUnqualifiedTableName
+    ): void {
         $foreignKey = new ForeignKeyConstraint(['foo', 'bar'], $foreignTableName, ['fk_foo', 'fk_bar']);
 
         self::assertSame($expectedUnqualifiedTableName, $foreignKey->getUnqualifiedForeignTableName());
@@ -79,8 +78,6 @@ class ForeignKeyConstraintTest extends TestCase
         return [
             ['schema.foreign_table', 'foreign_table'],
             ['foreign_table', 'foreign_table'],
-            [new Table('schema.foreign_table'), 'foreign_table'],
-            [new Table('foreign_table'), 'foreign_table'],
         ];
     }
 }

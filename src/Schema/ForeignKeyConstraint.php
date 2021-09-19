@@ -27,10 +27,8 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
 
     /**
      * Table or asset identifier instance of the referenced table name the foreign key constraint is associated with.
-     *
-     * @var Table|Identifier
      */
-    protected $_foreignTableName;
+    protected Identifier $_foreignTableName;
 
     /**
      * Asset identifier instances of the referenced table column names the foreign key constraint is associated with.
@@ -50,14 +48,14 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * Initializes the foreign key constraint.
      *
      * @param array<int, string>   $localColumnNames   Names of the referencing table columns.
-     * @param Table|string         $foreignTableName   Referenced table.
+     * @param string               $foreignTableName   Referenced table.
      * @param array<int, string>   $foreignColumnNames Names of the referenced table columns.
      * @param string               $name               Name of the foreign key constraint.
      * @param array<string, mixed> $options            Options associated with the foreign key constraint.
      */
     public function __construct(
         array $localColumnNames,
-        $foreignTableName,
+        string $foreignTableName,
         array $foreignColumnNames,
         string $name = '',
         array $options = []
@@ -65,12 +63,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         $this->_setName($name);
 
         $this->_localColumnNames = $this->createIdentifierMap($localColumnNames);
-
-        if ($foreignTableName instanceof Table) {
-            $this->_foreignTableName = $foreignTableName;
-        } else {
-            $this->_foreignTableName = new Identifier($foreignTableName);
-        }
+        $this->_foreignTableName = new Identifier($foreignTableName);
 
         $this->_foreignColumnNames = $this->createIdentifierMap($foreignColumnNames);
         $this->_options            = $options;

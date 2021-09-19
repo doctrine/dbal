@@ -38,7 +38,7 @@ class MySQLSchemaTest extends TestCase
 
         self::assertEquals(
             [
-                'ALTER TABLE test DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON test',
                 'ALTER TABLE test ADD PRIMARY KEY (bar_id, foo_id)',
             ],
             $sql
@@ -53,7 +53,7 @@ class MySQLSchemaTest extends TestCase
 
         $sqls = [];
         foreach ($tableOld->getForeignKeys() as $fk) {
-            $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld);
+            $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld->getQuotedName($this->platform));
         }
 
         self::assertEquals(
