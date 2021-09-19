@@ -1130,8 +1130,8 @@ abstract class AbstractPlatform
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $index => $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($index, $definition);
+            foreach ($options['uniqueConstraints'] as $definition) {
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
             }
         }
 
@@ -1141,7 +1141,7 @@ abstract class AbstractPlatform
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index => $definition) {
-                $columnListSql .= ', ' . $this->getIndexDeclarationSQL($index, $definition);
+                $columnListSql .= ', ' . $this->getIndexDeclarationSQL($definition);
             }
         }
 
@@ -1747,14 +1747,13 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a unique
      * constraint declaration to be used in statements like CREATE TABLE.
      *
-     * @param string           $name       The name of the unique constraint.
      * @param UniqueConstraint $constraint The unique constraint definition.
      *
      * @return string DBMS specific SQL code portion needed to set a constraint.
      *
      * @throws InvalidArgumentException
      */
-    public function getUniqueConstraintDeclarationSQL(string $name, UniqueConstraint $constraint): string
+    public function getUniqueConstraintDeclarationSQL(UniqueConstraint $constraint): string
     {
         $columns = $constraint->getColumns();
 
@@ -1764,8 +1763,8 @@ abstract class AbstractPlatform
 
         $chunks = ['CONSTRAINT'];
 
-        if ($name !== '') {
-            $chunks[] = (new Identifier($name))->getQuotedName($this);
+        if ($constraint->getName() !== '') {
+            $chunks[] = $constraint->getQuotedName($this);
         }
 
         $chunks[] = 'UNIQUE';
@@ -1783,23 +1782,21 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param string $name  The name of the index.
-     * @param Index  $index The index definition.
+     * @param Index $index The index definition.
      *
      * @return string DBMS specific SQL code portion needed to set an index.
      *
      * @throws InvalidArgumentException
      */
-    public function getIndexDeclarationSQL(string $name, Index $index): string
+    public function getIndexDeclarationSQL(Index $index): string
     {
         $columns = $index->getColumns();
-        $name    = new Identifier($name);
 
         if (count($columns) === 0) {
             throw new InvalidArgumentException('Incomplete definition. "columns" required.');
         }
 
-        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name->getQuotedName($this)
+        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getQuotedName($this)
             . ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')' . $this->getPartialIndexSQL($index);
     }
 

@@ -375,7 +375,7 @@ class DB2Platform extends AbstractPlatform
         return 'CURRENT TIMESTAMP';
     }
 
-    public function getIndexDeclarationSQL(string $name, Index $index): string
+    public function getIndexDeclarationSQL(Index $index): string
     {
         // Index declaration in statements like CREATE TABLE is not supported.
         throw NotSupported::new(__METHOD__);

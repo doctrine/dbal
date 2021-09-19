@@ -321,15 +321,15 @@ SQL
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $constraintName => $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($constraintName, $definition);
+            foreach ($options['uniqueConstraints'] as $definition) {
+                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
             }
         }
 
         // add all indexes
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $indexName => $definition) {
-                $queryFields .= ', ' . $this->getIndexDeclarationSQL($indexName, $definition);
+            foreach ($options['indexes'] as $definition) {
+                $queryFields .= ', ' . $this->getIndexDeclarationSQL($definition);
             }
         }
 

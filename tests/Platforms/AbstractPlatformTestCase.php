@@ -228,10 +228,10 @@ abstract class AbstractPlatformTestCase extends TestCase
         $indexes = [];
 
         if ($this->supportsInlineIndexDeclaration()) {
-            $indexes[] = $this->platform->getIndexDeclarationSQL('name', $indexDef);
+            $indexes[] = $this->platform->getIndexDeclarationSQL($indexDef);
         }
 
-        $uniqueConstraintSQL = $this->platform->getUniqueConstraintDeclarationSQL('name', $uniqueConstraint);
+        $uniqueConstraintSQL = $this->platform->getUniqueConstraintDeclarationSQL($uniqueConstraint);
         self::assertStringEndsNotWith($expected, $uniqueConstraintSQL, 'WHERE clause should NOT be present');
 
         $indexes[] = $this->platform->getCreateIndexSQL($indexDef, 'table');
@@ -722,7 +722,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         self::assertSame(
             $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(),
-            $this->platform->getUniqueConstraintDeclarationSQL('select', $constraint)
+            $this->platform->getUniqueConstraintDeclarationSQL($constraint)
         );
     }
 
@@ -748,7 +748,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         self::assertSame(
             $this->getQuotesReservedKeywordInIndexDeclarationSQL(),
-            $this->platform->getIndexDeclarationSQL('select', $index)
+            $this->platform->getIndexDeclarationSQL($index)
         );
     }
 

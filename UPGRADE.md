@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Changed signatures of `AbstractPlatform::getIndexDeclarationSQL()` and `::getUniqueConstraintDeclarationSQL()`
+
+The `AbstractPlatform::getIndexDeclarationSQL()` and `::getUniqueConstraintDeclarationSQL()` methods no longer accept
+the name of the object as a separate parameter. The name of the passed index or constraint is used instead.
+
 ## BC BREAK: Removed `AbstractPlatform::canEmulateSchemas()`
 
 The `AbstractPlatform::canEmulateSchemas()` method and the schema emulation implemented in the SQLite platform
