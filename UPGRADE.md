@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated `AbstractPlatform::canEmulateSchemas()`.
+
+The `AbstractPlatform::canEmulateSchemas()` method and the schema emulation implemented in the SQLite platform
+have been deprecated.
+
 ## Deprecated `udf*` methods of the `SQLitePlatform` methods.
 
 The following `SQLServerPlatform` methods have been deprecated in favor of their implementations

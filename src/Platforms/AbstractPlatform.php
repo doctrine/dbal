@@ -3467,6 +3467,8 @@ abstract class AbstractPlatform
     /**
      * Whether this platform can emulate schemas.
      *
+     * @deprecated
+     *
      * Platforms that either support or emulate schemas don't automatically
      * filter a schema for the namespaced elements in {@link AbstractManager::createSchema()}.
      *
@@ -3474,6 +3476,12 @@ abstract class AbstractPlatform
      */
     public function canEmulateSchemas()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4805',
+            'AbstractPlatform::canEmulateSchemas() is deprecated.'
+        );
+
         return false;
     }
 
