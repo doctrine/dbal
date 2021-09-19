@@ -1581,26 +1581,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet to drop an existing database.
-     *
-     * @param string $name The name of the database that should be dropped.
-     *
-     * @return string
-     */
-    public function getDropDatabaseSQL($name)
-    {
-        return 'DROP DATABASE ' . $name;
-    }
-
-    /**
-     * Returns the SQL snippet to drop a schema.
-     */
-    public function getDropSchemaSQL(string $schemaName): string
-    {
-        return 'DROP SCHEMA ' . $schemaName;
-    }
-
-    /**
      * Returns the SQL snippet to drop an existing table.
      *
      * @param Table|string $table
@@ -1968,6 +1948,28 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to drop an existing sequence.
+     *
+     * @param Sequence|string $sequence
+     *
+     * @return string
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    public function getDropSequenceSQL($sequence)
+    {
+        if (! $this->supportsSequences()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        if ($sequence instanceof Sequence) {
+            $sequence = $sequence->getQuotedName($this);
+        }
+
+        return 'DROP SEQUENCE ' . $sequence;
+    }
+
+    /**
      * Returns the SQL to create a constraint on a table on this platform.
      *
      * @param Table|string $table
@@ -2094,7 +2096,25 @@ abstract class AbstractPlatform
      */
     public function getCreateSchemaSQL($schemaName)
     {
-        throw Exception::notSupported(__METHOD__);
+        if (! $this->supportsSchemas()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        return 'CREATE SCHEMA ' . $schemaName;
+    }
+
+    /**
+     * Returns the SQL snippet to drop a schema.
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    public function getDropSchemaSQL(string $schemaName): string
+    {
+        if (! $this->supportsSchemas()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        return 'DROP SCHEMA ' . $schemaName;
     }
 
     /**
@@ -3125,38 +3145,20 @@ abstract class AbstractPlatform
      * @param string $sql
      *
      * @return string
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getCreateViewSQL($name, $sql)
     {
-        throw Exception::notSupported(__METHOD__);
+        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
     /**
      * @param string $name
      *
      * @return string
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDropViewSQL($name)
     {
-        throw Exception::notSupported(__METHOD__);
-    }
-
-    /**
-     * Returns the SQL snippet to drop an existing sequence.
-     *
-     * @param Sequence|string $sequence
-     *
-     * @return string
-     *
-     * @throws Exception If not supported on this platform.
-     */
-    public function getDropSequenceSQL($sequence)
-    {
-        throw Exception::notSupported(__METHOD__);
+        return 'DROP VIEW ' . $name;
     }
 
     /**
@@ -3182,7 +3184,27 @@ abstract class AbstractPlatform
      */
     public function getCreateDatabaseSQL($name)
     {
-        throw Exception::notSupported(__METHOD__);
+        if (! $this->supportsCreateDropDatabase()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        return 'CREATE DATABASE ' . $name;
+    }
+
+    /**
+     * Returns the SQL snippet to drop an existing database.
+     *
+     * @param string $name The name of the database that should be dropped.
+     *
+     * @return string
+     */
+    public function getDropDatabaseSQL($name)
+    {
+        if (! $this->supportsCreateDropDatabase()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        return 'DROP DATABASE ' . $name;
     }
 
     /**

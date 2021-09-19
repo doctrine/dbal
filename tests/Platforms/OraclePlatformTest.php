@@ -149,14 +149,12 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testCreateDatabaseThrowsException(): void
+    public function testCreateDatabaseSQL(): void
     {
-        $this->expectException(Exception::class);
-
-        self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals('CREATE USER foobar', $this->platform->getCreateDatabaseSQL('foobar'));
     }
 
-    public function testDropDatabaseThrowsException(): void
+    public function testDropDatabaseSQL(): void
     {
         self::assertEquals('DROP USER foobar CASCADE', $this->platform->getDropDatabaseSQL('foobar'));
     }

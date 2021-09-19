@@ -476,22 +476,6 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function getCreateViewSQL($name, $sql)
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropViewSQL($name)
-    {
-        return 'DROP VIEW ' . $name;
-    }
-
-    /**
      * @internal The method should be only used from within the OraclePlatform class hierarchy.
      *
      * @param string $name
@@ -727,18 +711,6 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDropSequenceSQL($sequence)
-    {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         if (! $foreignKey instanceof ForeignKeyConstraint) {
@@ -795,6 +767,14 @@ SQL
                 // SET DEFAULT is not supported, throw exception instead.
                 throw new InvalidArgumentException('Invalid foreign key action: ' . $action);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreateDatabaseSQL($name)
+    {
+        return 'CREATE USER ' . $name;
     }
 
     /**

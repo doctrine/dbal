@@ -347,8 +347,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesDDLSnippets(): void
     {
-        self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
-        self::assertEquals('DROP DATABASE foobar', $this->platform->getDropDatabaseSQL('foobar'));
         self::assertEquals('DECLARE GLOBAL TEMPORARY TABLE', $this->platform->getCreateTemporaryTableSnippetSQL());
         self::assertEquals('TRUNCATE foobar IMMEDIATE', $this->platform->getTruncateTableSQL('foobar'));
         self::assertEquals('TRUNCATE foobar IMMEDIATE', $this->platform->getTruncateTableSQL('foobar'), true);

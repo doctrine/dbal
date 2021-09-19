@@ -315,22 +315,6 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateViewSQL($name, $sql)
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropViewSQL($name)
-    {
-        return 'DROP VIEW ' . $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableConstraintsSQL($table)
     {
         $table = new Identifier($table);
@@ -439,14 +423,6 @@ SQL
                         AND a.atttypid = t.oid
                         AND n.oid = c.relnamespace
                     ORDER BY a.attnum';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateDatabaseSQL($name)
-    {
-        return 'CREATE DATABASE ' . $name;
     }
 
     /**
@@ -748,19 +724,7 @@ SQL
      */
     public function getDropSequenceSQL($sequence)
     {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateSchemaSQL($schemaName)
-    {
-        return 'CREATE SCHEMA ' . $schemaName;
+        return parent::getDropSequenceSQL($sequence) . ' CASCADE';
     }
 
     /**

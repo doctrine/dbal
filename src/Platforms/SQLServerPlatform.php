@@ -170,18 +170,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDropSequenceSQL($sequence): string
-    {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getListSequencesSQL($database)
     {
         return 'SELECT seq.name,
@@ -208,38 +196,6 @@ class SQLServerPlatform extends AbstractPlatform
     public function hasNativeGuidType()
     {
         return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateDatabaseSQL($name)
-    {
-        return 'CREATE DATABASE ' . $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropDatabaseSQL($name)
-    {
-        return 'DROP DATABASE ' . $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function supportsCreateDropDatabase()
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateSchemaSQL($schemaName)
-    {
-        return 'CREATE SCHEMA ' . $schemaName;
     }
 
     /**
@@ -1035,14 +991,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateViewSQL($name, $sql)
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getListViewsSQL($database)
     {
         return "SELECT name FROM sysobjects WHERE type = 'V' ORDER BY name";
@@ -1069,14 +1017,6 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return sprintf('(%s = %s AND %s = %s)', $tableColumn, $table, $schemaColumn, $schema);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropViewSQL($name)
-    {
-        return 'DROP VIEW ' . $name;
     }
 
     /**
