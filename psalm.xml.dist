@@ -150,6 +150,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\Schema::getMigrateToSql"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::assertValidIdentifier"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

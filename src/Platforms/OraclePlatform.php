@@ -35,6 +35,8 @@ class OraclePlatform extends AbstractPlatform
     /**
      * Assertion for Oracle identifiers.
      *
+     * @deprecated
+     *
      * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
      *
      * @param string $identifier
@@ -490,6 +492,8 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * @internal The method should be only used from within the OraclePlatform class hierarchy.
+     *
      * @param string $name
      * @param string $table
      * @param int    $start
@@ -557,6 +561,8 @@ END;';
     }
 
     /**
+     * @internal The method should be only used from within the OracleSchemaManager class hierarchy.
+     *
      * Returns the SQL statements to drop the autoincrement for the given table name.
      *
      * @param string $table The table name to drop the autoincrement for.

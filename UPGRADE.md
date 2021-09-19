@@ -8,6 +8,30 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated `udf*` methods of the `SQLitePlatform` methods.
+
+The following `SQLServerPlatform` methods have been deprecated in favor of their implementations
+in the `UserDefinedFunctions` class:
+- `udfSqrt()`,
+- `udfMod()`,
+- `udfLocate()`.
+
+## `SQLServerPlatform` methods marked internal.
+
+The following `SQLServerPlatform` methods have been marked internal:
+- `getDefaultConstraintDeclarationSQL()`,
+- `getAddExtendedPropertySQL()`,
+- `getDropExtendedPropertySQL()`,
+- `getUpdateExtendedPropertySQL()`.
+
+## `OraclePlatform` methods marked internal.
+
+The `OraclePlatform::getCreateAutoincrementSql()` and `::getDropAutoincrementSql()` have been marked internal.
+
+## Deprecated `OraclePlatform::assertValidIdentifier()`
+
+The `OraclePlatform::assertValidIdentifier()` method has been deprecated.
+
 ## Deprecated features of `Table::getColumns()`
 
 1. Using the returned array keys as column names is deprecated. Retrieve the name from the column

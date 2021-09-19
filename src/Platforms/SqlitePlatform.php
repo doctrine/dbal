@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Constraint;
@@ -27,7 +28,6 @@ use function sprintf;
 use function sqrt;
 use function str_replace;
 use function strlen;
-use function strpos;
 use function strtolower;
 use function trim;
 
@@ -594,6 +594,8 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction().
      *
+     * @deprecated The driver will use {@link sqrt()} in the next major release.
+     *
      * @param int|float $value
      *
      * @return float
@@ -606,6 +608,8 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * User-defined function for Sqlite that implements MOD(a, b).
      *
+     * @deprecated The driver will use {@link UserDefinedFunctions::mod()} in the next major release.
+     *
      * @param int $a
      * @param int $b
      *
@@ -613,10 +617,12 @@ class SqlitePlatform extends AbstractPlatform
      */
     public static function udfMod($a, $b)
     {
-        return $a % $b;
+        return UserDefinedFunctions::mod($a, $b);
     }
 
     /**
+     * @deprecated The driver will use {@link UserDefinedFunctions::locate()} in the next major release.
+     *
      * @param string $str
      * @param string $substr
      * @param int    $offset
@@ -625,19 +631,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public static function udfLocate($str, $substr, $offset = 0)
     {
-        // SQL's LOCATE function works on 1-based positions, while PHP's strpos works on 0-based positions.
-        // So we have to make them compatible if an offset is given.
-        if ($offset > 0) {
-            $offset -= 1;
-        }
-
-        $pos = strpos($str, $substr, $offset);
-
-        if ($pos !== false) {
-            return $pos + 1;
-        }
-
-        return 0;
+        return UserDefinedFunctions::locate($str, $substr, $offset);
     }
 
     /**
