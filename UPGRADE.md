@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated `OraclePlatform::assertValidIdentifier()`
+
+The `OraclePlatform::assertValidIdentifier()` method has been deprecated.
+
 ## Deprecated features of `Table::getColumns()`
 
 1. Using the returned array keys as column names is deprecated. Retrieve the name from the column

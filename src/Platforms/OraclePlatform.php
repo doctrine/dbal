@@ -35,6 +35,8 @@ class OraclePlatform extends AbstractPlatform
     /**
      * Assertion for Oracle identifiers.
      *
+     * @deprecated
+     *
      * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
      *
      * @param string $identifier
