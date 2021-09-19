@@ -750,14 +750,6 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getCreateSchemaSQL($schemaName)
-    {
-        return 'CREATE SCHEMA ' . $schemaName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         return $this->getDropConstraintSQL($foreignKey, $table);

@@ -1581,14 +1581,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet to drop a schema.
-     */
-    public function getDropSchemaSQL(string $schemaName): string
-    {
-        return 'DROP SCHEMA ' . $schemaName;
-    }
-
-    /**
      * Returns the SQL snippet to drop an existing table.
      *
      * @param Table|string $table
@@ -2082,7 +2074,25 @@ abstract class AbstractPlatform
      */
     public function getCreateSchemaSQL($schemaName)
     {
-        throw Exception::notSupported(__METHOD__);
+        if (! $this->supportsSchemas()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        return 'CREATE SCHEMA ' . $schemaName;
+    }
+
+    /**
+     * Returns the SQL snippet to drop a schema.
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    public function getDropSchemaSQL(string $schemaName): string
+    {
+        if (! $this->supportsSchemas()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        return 'DROP SCHEMA ' . $schemaName;
     }
 
     /**
