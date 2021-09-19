@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated `udf*` methods of the `SQLitePlatform` methods.
+
+The following `SQLServerPlatform` methods have been deprecated in favor of their implementations
+in the `UserDefinedFunctions` class:
+- `udfSqrt()`,
+- `udfMod()`,
+- `udfLocate()`.
+
 ## `SQLServerPlatform` methods marked internal.
 
 The following `SQLServerPlatform` methods have been marked internal:
