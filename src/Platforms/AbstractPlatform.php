@@ -2329,17 +2329,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Whether this platform can emulate schemas.
-     *
-     * Platforms that either support or emulate schemas don't automatically
-     * filter a schema for the namespaced elements in {@link AbstractManager::createSchema()}.
-     */
-    public function canEmulateSchemas(): bool
-    {
-        return false;
-    }
-
-    /**
      * Returns the default schema name.
      *
      * @throws Exception If not supported on this platform.
