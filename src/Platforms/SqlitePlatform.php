@@ -800,6 +800,8 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
+     * @deprecated
+     *
      * Sqlite Platform emulates schema by underscoring each dot and generating tables
      * into the default database.
      *
@@ -808,6 +810,12 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function canEmulateSchemas()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4805',
+            'SqlitePlatform::canEmulateSchemas() is deprecated.'
+        );
+
         return true;
     }
 
