@@ -444,14 +444,6 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getCreateDatabaseSQL($name)
-    {
-        return 'CREATE DATABASE ' . $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
     {
         $query = '';

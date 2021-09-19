@@ -213,30 +213,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateDatabaseSQL($name)
-    {
-        return 'CREATE DATABASE ' . $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropDatabaseSQL($name)
-    {
-        return 'DROP DATABASE ' . $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function supportsCreateDropDatabase()
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateSchemaSQL($schemaName)
     {
         return 'CREATE SCHEMA ' . $schemaName;

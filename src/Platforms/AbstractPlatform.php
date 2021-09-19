@@ -1581,18 +1581,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet to drop an existing database.
-     *
-     * @param string $name The name of the database that should be dropped.
-     *
-     * @return string
-     */
-    public function getDropDatabaseSQL($name)
-    {
-        return 'DROP DATABASE ' . $name;
-    }
-
-    /**
      * Returns the SQL snippet to drop a schema.
      */
     public function getDropSchemaSQL(string $schemaName): string
@@ -3182,7 +3170,27 @@ abstract class AbstractPlatform
      */
     public function getCreateDatabaseSQL($name)
     {
-        throw Exception::notSupported(__METHOD__);
+        if (! $this->supportsCreateDropDatabase()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        return 'CREATE DATABASE ' . $name;
+    }
+
+    /**
+     * Returns the SQL snippet to drop an existing database.
+     *
+     * @param string $name The name of the database that should be dropped.
+     *
+     * @return string
+     */
+    public function getDropDatabaseSQL($name)
+    {
+        if (! $this->supportsCreateDropDatabase()) {
+            throw Exception::notSupported(__METHOD__);
+        }
+
+        return 'DROP DATABASE ' . $name;
     }
 
     /**

@@ -800,6 +800,14 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getCreateDatabaseSQL($name)
+    {
+        return 'CREATE USER ' . $name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDropDatabaseSQL($name)
     {
         return 'DROP USER ' . $name . ' CASCADE';
