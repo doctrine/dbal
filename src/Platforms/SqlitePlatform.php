@@ -276,7 +276,7 @@ class SqlitePlatform extends AbstractPlatform
     {
         return parent::getForeignKeyDeclarationSQL(new ForeignKeyConstraint(
             $foreignKey->getQuotedLocalColumns($this),
-            str_replace('.', '__', $foreignKey->getQuotedForeignTableName($this)),
+            $foreignKey->getQuotedForeignTableName($this),
             $foreignKey->getQuotedForeignColumns($this),
             $foreignKey->getName(),
             $foreignKey->getOptions()
@@ -288,7 +288,6 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
-        $name        = str_replace('.', '__', $name);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
@@ -389,8 +388,6 @@ class SqlitePlatform extends AbstractPlatform
 
     public function getListTableConstraintsSQL(string $table): string
     {
-        $table = str_replace('.', '__', $table);
-
         return sprintf(
             "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = %s AND sql NOT NULL ORDER BY name",
             $this->quoteStringLiteral($table)
@@ -399,15 +396,11 @@ class SqlitePlatform extends AbstractPlatform
 
     public function getListTableColumnsSQL(string $table, ?string $database = null): string
     {
-        $table = str_replace('.', '__', $table);
-
         return sprintf('PRAGMA table_info(%s)', $this->quoteStringLiteral($table));
     }
 
     public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
-        $table = str_replace('.', '__', $table);
-
         return sprintf('PRAGMA index_list(%s)', $this->quoteStringLiteral($table));
     }
 
@@ -475,9 +468,8 @@ class SqlitePlatform extends AbstractPlatform
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $tableIdentifier = new Identifier($tableName);
-        $tableName       = str_replace('.', '__', $tableIdentifier->getQuotedName($this));
 
-        return 'DELETE FROM ' . $tableName;
+        return 'DELETE FROM ' . $tableIdentifier->getQuotedName($this);
     }
 
     /**
@@ -651,23 +643,7 @@ class SqlitePlatform extends AbstractPlatform
 
     public function getTemporaryTableName(string $tableName): string
     {
-        $tableName = str_replace('.', '__', $tableName);
-
         return $tableName;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Sqlite Platform emulates schema by underscoring each dot and generating tables
-     * into the default database.
-     *
-     * This hack is implemented to be able to use SQLite as testdriver when
-     * using schema supporting databases.
-     */
-    public function canEmulateSchemas(): bool
-    {
-        return true;
     }
 
     public function supportsForeignKeyConstraints(): bool
@@ -707,8 +683,6 @@ class SqlitePlatform extends AbstractPlatform
 
     public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
     {
-        $table = str_replace('.', '__', $table);
-
         return sprintf('PRAGMA foreign_key_list(%s)', $this->quoteStringLiteral($table));
     }
 

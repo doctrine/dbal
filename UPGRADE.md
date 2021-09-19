@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `AbstractPlatform::canEmulateSchemas()`
+
+The `AbstractPlatform::canEmulateSchemas()` method and the schema emulation implemented in the SQLite platform
+have been removed.
+
 ## BC BREAK: The `$fromColumn` parameter of the `ColumnDiff` constructor made required
 
 ## BC BREAK: Changes in the return value of `Table::getColumns()`
