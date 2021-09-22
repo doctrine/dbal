@@ -568,4 +568,13 @@ SQL
 
         return $table;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSchemaSearchPaths()
+    {
+        // SQLite does not support schemas or databases
+        return [];
+    }
 }
