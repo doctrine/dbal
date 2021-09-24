@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `AbstractAsset::getFullQualifiedName()`.
+
+The `AbstractAsset::getFullQualifiedName()` method has been removed.
+
 ## BC BREAK: Removed schema methods related to explicit foreign key indexes.
 
 The following methods have been removed:

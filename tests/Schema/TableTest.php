@@ -594,17 +594,6 @@ class TableTest extends TestCase
         self::assertEquals('`test`.`test`', $table->getQuotedName(new MySQLPlatform()));
     }
 
-    public function testFullQualifiedTableName(): void
-    {
-        $table = new Table('`test`.`test`');
-        self::assertEquals('test.test', $table->getFullQualifiedName('test'));
-        self::assertEquals('test.test', $table->getFullQualifiedName('other'));
-
-        $table = new Table('test');
-        self::assertEquals('test.test', $table->getFullQualifiedName('test'));
-        self::assertEquals('other.test', $table->getFullQualifiedName('other'));
-    }
-
     public function testDropIndex(): void
     {
         $table = new Table('test');

@@ -184,9 +184,23 @@ class Schema extends AbstractAsset
         return strtolower($name);
     }
 
+    /**
+     * The normalized name is qualified and lower-cased. Lower-casing is
+     * actually wrong, but we have to do it to keep our sanity. If you are
+     * using database objects that only differentiate in the casing (FOO vs
+     * Foo) then you will NOT be able to use Doctrine Schema abstraction.
+     *
+     * Every non-namespaced element is prefixed with this schema name.
+     */
     private function normalizeName(AbstractAsset $asset): string
     {
-        return $asset->getFullQualifiedName($this->getName());
+        $name = $asset->getName();
+
+        if ($asset->getNamespaceName() === null) {
+            $name = $this->getName() . '.' . $name;
+        }
+
+        return strtolower($name);
     }
 
     /**
