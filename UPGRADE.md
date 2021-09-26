@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed default PostgreSQL connection database.
+
+When connecting to a PostgreSQL server, the driver will no longer connect to the "postgres" database by default.
+
 ## BC BREAK: removed support for the "default_dbname" parameter of the wrapper `Connection`.
 
 The "default_dbname" parameter of the wrapper `Connection` is no longer supported.
