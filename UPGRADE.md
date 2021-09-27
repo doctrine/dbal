@@ -8,6 +8,16 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated `Schema::getTableNames()`.
+
+The `Schema::getTableNames()` method has been deprecated. In order to obtain schema table names,
+use `Schema::getTables()` and call `Table::getName()` on the elements of the returned array.
+
+## Deprecated features of `Schema::getTables()`
+
+Using the returned array keys as table names is deprecated. Retrieve the name from the table
+via `Table::getName()` instead. In order to retrieve a table by name, use `Schema::getTable()`.
+
 ## Deprecated `AbstractPlatform::canEmulateSchemas()`.
 
 The `AbstractPlatform::canEmulateSchemas()` method and the schema emulation implemented in the SQLite platform

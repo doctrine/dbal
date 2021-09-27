@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_keys;
 use function strpos;
@@ -246,10 +247,20 @@ class Schema extends AbstractAsset
     /**
      * Gets all table names, prefixed with a schema name, even the default one if present.
      *
+     * @deprecated Use {@link getTables()} and {@link Table::getName()} instead.
+     *
      * @return string[]
      */
     public function getTableNames()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4800',
+            'Schema::getTableNames() is deprecated.'
+            . ' Use Schema::getTables() and Table::getName() instead.',
+            __METHOD__
+        );
+
         return array_keys($this->_tables);
     }
 
