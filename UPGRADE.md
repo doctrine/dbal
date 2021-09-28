@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated schema methods related to explicit foreign key indexes.
+
+The following methods have been deprecated:
+
+- `Schema::hasExplicitForeignKeyIndexes()`,
+- `SchemaConfig::hasExplicitForeignKeyIndexes()`,
+- `SchemaConfig::setExplicitForeignKeyIndexes()`.
+
 ## Deprecated `Schema::getTableNames()`.
 
 The `Schema::getTableNames()` method has been deprecated. In order to obtain schema table names,
