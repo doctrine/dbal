@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function crc32;
@@ -102,7 +103,7 @@ abstract class AbstractAsset
     }
 
     /**
-     * The normalized name is full-qualified and lowerspaced. Lowerspacing is
+     * The normalized name is full-qualified and lower-cased. Lower-casing is
      * actually wrong, but we have to do it to keep our sanity. If you are
      * using database objects that only differentiate in the casing (FOO vs
      * Foo) then you will NOT be able to use Doctrine Schema abstraction.
@@ -110,12 +111,21 @@ abstract class AbstractAsset
      * Every non-namespaced element is prefixed with the default namespace
      * name which is passed as argument to this method.
      *
+     * @deprecated Use {@link getNamespaceName()} and {@link getName()} instead.
+     *
      * @param string $defaultNamespaceName
      *
      * @return string
      */
     public function getFullQualifiedName($defaultNamespaceName)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4814',
+            'AbstractAsset::getFullQualifiedName() is deprecated.'
+            . ' Use AbstractAsset::getNamespaceName() and ::getName() instead.'
+        );
+
         $name = $this->getName();
         if ($this->_namespace === null) {
             $name = $defaultNamespaceName . '.' . $name;

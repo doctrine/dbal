@@ -112,7 +112,7 @@ class Schema extends AbstractAsset
     protected function _addTable(Table $table)
     {
         $namespaceName = $table->getNamespaceName();
-        $tableName     = $table->getFullQualifiedName($this->getName());
+        $tableName     = $this->normalizeName($table);
 
         if (isset($this->_tables[$tableName])) {
             throw SchemaException::tableAlreadyExists($tableName);
@@ -138,7 +138,7 @@ class Schema extends AbstractAsset
     protected function _addSequence(Sequence $sequence)
     {
         $namespaceName = $sequence->getNamespaceName();
-        $seqName       = $sequence->getFullQualifiedName($this->getName());
+        $seqName       = $this->normalizeName($sequence);
 
         if (isset($this->_sequences[$seqName])) {
             throw SchemaException::sequenceAlreadyExists($seqName);
@@ -206,6 +206,11 @@ class Schema extends AbstractAsset
         }
 
         return strtolower($name);
+    }
+
+    private function normalizeName(AbstractAsset $asset): string
+    {
+        return $asset->getFullQualifiedName($this->getName());
     }
 
     /**

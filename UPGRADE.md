@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated `AbstractAsset::getFullQualifiedName()`.
+
+The `AbstractAsset::getFullQualifiedName()` method has been deprecated. Use `::getNamespaceName()`
+and `::getName()` instead.
+
 ## Deprecated schema methods related to explicit foreign key indexes.
 
 The following methods have been deprecated:
