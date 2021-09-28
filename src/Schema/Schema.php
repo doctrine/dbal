@@ -89,10 +89,18 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * @deprecated
+     *
      * @return bool
      */
     public function hasExplicitForeignKeyIndexes()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4822',
+            'Schema::hasExplicitForeignKeyIndexes() is deprecated.'
+        );
+
         return $this->_schemaConfig->hasExplicitForeignKeyIndexes();
     }
 

@@ -2,12 +2,18 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\Deprecations\Deprecation;
+
 /**
  * Configuration for a Schema.
  */
 class SchemaConfig
 {
-    /** @var bool */
+    /**
+     * @deprecated
+     *
+     * @var bool
+     */
     protected $hasExplicitForeignKeyIndexes = false;
 
     /** @var int */
@@ -20,20 +26,36 @@ class SchemaConfig
     protected $defaultTableOptions = [];
 
     /**
+     * @deprecated
+     *
      * @return bool
      */
     public function hasExplicitForeignKeyIndexes()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4822',
+            'SchemaConfig::hasExplicitForeignKeyIndexes() is deprecated.'
+        );
+
         return $this->hasExplicitForeignKeyIndexes;
     }
 
     /**
+     * @deprecated
+     *
      * @param bool $flag
      *
      * @return void
      */
     public function setExplicitForeignKeyIndexes($flag)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4822',
+            'SchemaConfig::setExplicitForeignKeyIndexes() is deprecated.'
+        );
+
         $this->hasExplicitForeignKeyIndexes = (bool) $flag;
     }
 
