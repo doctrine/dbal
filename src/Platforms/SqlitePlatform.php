@@ -1016,7 +1016,7 @@ class SqlitePlatform extends AbstractPlatform
     private function replaceColumn($tableName, array $columns, $columnName, Column $column): array
     {
         $keys  = array_keys($columns);
-        $index = array_search($columnName, $keys, true);
+        $index = array_search(strtolower($columnName), $keys, true);
 
         if ($index === false) {
             throw SchemaException::columnDoesNotExist($columnName, $tableName);
