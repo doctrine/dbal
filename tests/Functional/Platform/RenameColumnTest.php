@@ -10,16 +10,23 @@ use function array_keys;
 
 class RenameColumnTest extends FunctionalTestCase
 {
-    public function testColumnPositionRetainedAfterRenaming(): void
+    /**
+     * @dataProvider columnNameProvider
+     */
+    public function testColumnPositionRetainedAfterRenaming(string $columnName): void
     {
+        if ($columnName === 'C1') {
+            self::markTestIncomplete('See https://github.com/doctrine/dbal/issues/4816');
+        }
+
         $table = new Table('test_rename');
-        $table->addColumn('c1', 'string');
+        $table->addColumn($columnName, 'string');
         $table->addColumn('c2', 'integer');
 
         $sm = $this->connection->createSchemaManager();
         $sm->dropAndCreateTable($table);
 
-        $table->dropColumn('c1')
+        $table->dropColumn($columnName)
             ->addColumn('c1_x', 'string');
 
         $comparator = new Comparator();
@@ -30,5 +37,14 @@ class RenameColumnTest extends FunctionalTestCase
 
         $table = $sm->listTableDetails('test_rename');
         self::assertSame(['c1_x', 'c2'], array_keys($table->getColumns()));
+    }
+
+    /**
+     * @return iterable<array{string}>
+     */
+    public static function columnNameProvider(): iterable
+    {
+        yield ['c1'];
+        yield ['C1'];
     }
 }
