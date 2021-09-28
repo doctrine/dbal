@@ -101,7 +101,7 @@ final class Statement implements StatementInterface
 
             assert($lob !== false);
 
-            $lob->writetemporary($variable, OCI_TEMP_BLOB);
+            $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
             $variable =& $lob;
         }

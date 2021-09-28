@@ -41,9 +41,9 @@
     "require-dev": {
         "doctrine/coding-standard": "9.0.0",
         "jetbrains/phpstorm-stubs": "2021.1",
-        "phpstan/phpstan": "0.12.96",
+        "phpstan/phpstan": "0.12.99",
         "phpstan/phpstan-strict-rules": "^0.12.11",
-        "phpunit/phpunit": "9.5.5",
+        "phpunit/phpunit": "9.5.10",
         "psalm/plugin-phpunit": "0.16.1",
         "squizlabs/php_codesniffer": "3.6.0",
         "symfony/cache": "^5.2|^6.0",
@@ -55,9 +55,6 @@
     },
     "bin": ["bin/doctrine-dbal"],
     "config": {
-        "platform": {
-            "php": "7.3.0"
-        },
         "sort-packages": true
     },
     "autoload": {
