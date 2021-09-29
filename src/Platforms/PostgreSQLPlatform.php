@@ -208,16 +208,6 @@ class PostgreSQLPlatform extends AbstractPlatform
                   AND r.contype = 'f'";
     }
 
-    public function getCreateViewSQL(string $name, string $sql): string
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    public function getDropViewSQL(string $name): string
-    {
-        return 'DROP VIEW ' . $name;
-    }
-
     public function getListTableConstraintsSQL(string $table): string
     {
         $table = new Identifier($table);
@@ -316,11 +306,6 @@ SQL
                         AND a.atttypid = t.oid
                         AND n.oid = c.relnamespace
                     ORDER BY a.attnum';
-    }
-
-    public function getCreateDatabaseSQL(string $name): string
-    {
-        return 'CREATE DATABASE ' . $name;
     }
 
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
@@ -577,12 +562,7 @@ SQL
 
     public function getDropSequenceSQL(string $name): string
     {
-        return 'DROP SEQUENCE ' . $name . ' CASCADE';
-    }
-
-    public function getCreateSchemaSQL(string $schemaName): string
-    {
-        return 'CREATE SCHEMA ' . $schemaName;
+        return parent::getDropSequenceSQL($name) . ' CASCADE';
     }
 
     public function getDropForeignKeySQL(string $foreignKey, string $table): string

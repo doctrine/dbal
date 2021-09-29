@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
 use function array_filter;
@@ -55,9 +56,17 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function getSchemaSearchPaths(): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4821',
+            'PostgreSQLSchemaManager::getSchemaSearchPaths() is deprecated.'
+        );
+
         $params = $this->_conn->getParams();
 
         $searchPaths = $this->_conn->fetchOne('SHOW search_path');
@@ -86,6 +95,18 @@ SQL
         }
 
         return $this->existingSchemaPaths;
+    }
+
+    /**
+     * Returns the name of the current schema.
+     *
+     * @throws Exception
+     */
+    protected function getCurrentSchema(): ?string
+    {
+        $schemas = $this->getExistingSchemaSearchPaths();
+
+        return array_shift($schemas);
     }
 
     /**
@@ -175,10 +196,9 @@ SQL
      */
     protected function _getPortableTableDefinition(array $table): string
     {
-        $schemas     = $this->getExistingSchemaSearchPaths();
-        $firstSchema = array_shift($schemas);
+        $currentSchema = $this->getCurrentSchema();
 
-        if ($table['schema_name'] === $firstSchema) {
+        if ($table['schema_name'] === $currentSchema) {
             return $table['table_name'];
         }
 

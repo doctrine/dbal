@@ -130,6 +130,12 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/Platforms/AbstractPlatform.php
 
+        # https://github.com/phpstan/phpstan-src/pull/692
+        -
+            message: '~^Parameter #2 \$count of function array_fill expects int<0, max>, int given\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Driver/Mysqli/Statement.php
+
         # TODO: remove this once the support for PHP 7 is dropped
         -
             message: '~^Strict comparison using !== between int and false will always evaluate to true\.$~'
@@ -150,6 +156,12 @@ parameters:
 
         # This class has been added in PHP 8.1
         - '/^Attribute class ReturnTypeWillChange does not exist\.$/'
+
+        # https://github.com/phpstan/phpstan/issues/5608
+        -
+            message: '~^Circular definition detected in type alias (Override)?Params\.$~'
+            paths:
+                - %currentWorkingDirectory%/src/DriverManager.php
 
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon

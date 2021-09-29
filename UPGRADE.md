@@ -448,6 +448,76 @@ The following methods have been removed.
 
 # Upgrade to 3.2
 
+## Deprecated `AbstractSchemaManager::getSchemaSearchPaths()`.
+
+1. The `AbstractSchemaManager::getSchemaSearchPaths()` method has been deprecated.
+2. Relying on `AbstractSchemaManager::createSchemaConfig()` populating the schema name for those database
+   platforms that don't support schemas (currently, all except for PostgreSQL) is deprecated.
+3. Relying on `Schema` using "public" as the default name is deprecated.
+
+## Deprecated `AbstractAsset::getFullQualifiedName()`.
+
+The `AbstractAsset::getFullQualifiedName()` method has been deprecated. Use `::getNamespaceName()`
+and `::getName()` instead.
+
+## Deprecated schema methods related to explicit foreign key indexes.
+
+The following methods have been deprecated:
+
+- `Schema::hasExplicitForeignKeyIndexes()`,
+- `SchemaConfig::hasExplicitForeignKeyIndexes()`,
+- `SchemaConfig::setExplicitForeignKeyIndexes()`.
+
+## Deprecated `Schema::getTableNames()`.
+
+The `Schema::getTableNames()` method has been deprecated. In order to obtain schema table names,
+use `Schema::getTables()` and call `Table::getName()` on the elements of the returned array.
+
+## Deprecated features of `Schema::getTables()`
+
+Using the returned array keys as table names is deprecated. Retrieve the name from the table
+via `Table::getName()` instead. In order to retrieve a table by name, use `Schema::getTable()`.
+
+## Deprecated `AbstractPlatform::canEmulateSchemas()`.
+
+The `AbstractPlatform::canEmulateSchemas()` method and the schema emulation implemented in the SQLite platform
+have been deprecated.
+
+## Deprecated `udf*` methods of the `SQLitePlatform` methods.
+
+The following `SQLServerPlatform` methods have been deprecated in favor of their implementations
+in the `UserDefinedFunctions` class:
+- `udfSqrt()`,
+- `udfMod()`,
+- `udfLocate()`.
+
+## `SQLServerPlatform` methods marked internal.
+
+The following `SQLServerPlatform` methods have been marked internal:
+- `getDefaultConstraintDeclarationSQL()`,
+- `getAddExtendedPropertySQL()`,
+- `getDropExtendedPropertySQL()`,
+- `getUpdateExtendedPropertySQL()`.
+
+## `OraclePlatform` methods marked internal.
+
+The `OraclePlatform::getCreateAutoincrementSql()` and `::getDropAutoincrementSql()` have been marked internal.
+
+## Deprecated `OraclePlatform::assertValidIdentifier()`
+
+The `OraclePlatform::assertValidIdentifier()` method has been deprecated.
+
+## Deprecated features of `Table::getColumns()`
+
+1. Using the returned array keys as column names is deprecated. Retrieve the name from the column
+   via `Column::getName()` instead. In order to retrieve a column by name, use `Table::getColumn()`.
+2. Relying on the columns being sorted based on whether they belong to the primary key or a foreign key is deprecated.
+   If necessary, maintain the column order explicitly.
+
+## Deprecated not passing the `$fromColumn` argument to the `ColumnDiff` constructor.
+
+Not passing the `$fromColumn` argument to the `ColumnDiff` constructor is deprecated.
+
 ## Deprecated `AbstractPlatform::getName()`
 
 Relying on the name of the platform is discouraged. To identify the platform, use its class name.
@@ -1047,6 +1117,12 @@ The constructor of `Doctrine\DBAL\Exception\DriverException` is now `@internal`.
 - all `Configuration` methods are now typed
 - `Configuration::setSchemaAssetsFilter()` now returns `void`
 - `Configuration::$_attributes` has been removed; use individual properties in subclasses instead
+
+# Upgrade to 2.13
+
+## Deprecated SQLAnywhere drivers
+
+The `SQLAnywhere` driver has been deprecated and will be removed from DBAL.
 
 # Upgrade to 2.12
 

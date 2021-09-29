@@ -257,7 +257,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     public function createDatabase(string $database): void
     {
-        $statement = 'CREATE USER ' . $database;
+        $statement = $this->_platform->getCreateDatabaseSQL($database);
 
         $params = $this->_conn->getParams();
 

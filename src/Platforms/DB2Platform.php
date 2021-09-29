@@ -34,7 +34,7 @@ class DB2Platform extends AbstractPlatform
         return 'BLOB(1M)';
     }
 
-    public function initializeDoctrineTypeMappings(): void
+    protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
             'bigint'    => 'bigint',
@@ -323,26 +323,6 @@ class DB2Platform extends AbstractPlatform
                 AND      fk.REFTABNAME = pkcol.TABNAME
                 WHERE    fk.TABNAME = UPPER(" . $table . ')
                 ORDER BY fkcol.COLSEQ ASC';
-    }
-
-    public function getCreateViewSQL(string $name, string $sql): string
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    public function getDropViewSQL(string $name): string
-    {
-        return 'DROP VIEW ' . $name;
-    }
-
-    public function getCreateDatabaseSQL(string $name): string
-    {
-        return 'CREATE DATABASE ' . $name;
-    }
-
-    public function getDropDatabaseSQL(string $name): string
-    {
-        return 'DROP DATABASE ' . $name;
     }
 
     public function supportsCreateDropDatabase(): bool

@@ -161,16 +161,6 @@ class MySQLPlatform extends AbstractPlatform
             . ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
     }
 
-    public function getCreateViewSQL(string $name, string $sql): string
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    public function getDropViewSQL(string $name): string
-    {
-        return 'DROP VIEW ' . $name;
-    }
-
     /**
      * Gets the SQL snippet used to declare a CLOB column type.
      *     TINYTEXT   : 2 ^  8 - 1 = 255
@@ -301,16 +291,6 @@ SQL
             $database !== null ? $this->quoteStringLiteral($database) : 'DATABASE()',
             $this->quoteStringLiteral($table)
         );
-    }
-
-    public function getCreateDatabaseSQL(string $name): string
-    {
-        return 'CREATE DATABASE ' . $name;
-    }
-
-    public function getDropDatabaseSQL(string $name): string
-    {
-        return 'DROP DATABASE ' . $name;
     }
 
     /**

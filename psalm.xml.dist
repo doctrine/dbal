@@ -64,8 +64,37 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\Schema::getMigrateToSql"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::assertValidIdentifier"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4822
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\SchemaConfig::hasExplicitForeignKeyIndexes"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4814
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getFullQualifiedName"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4821
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::getSchemaSearchPaths"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\PostgreSQLSchemaManager::getSchemaSearchPaths"/>
             </errorLevel>
         </DeprecatedMethod>
+        <DeprecatedProperty>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/4822
+                -->
+                <referencedProperty name="Doctrine\DBAL\Schema\SchemaConfig::$hasExplicitForeignKeyIndexes"/>
+            </errorLevel>
+        </DeprecatedProperty>
         <DocblockTypeContradiction>
             <errorLevel type="suppress">
                 <!--
@@ -177,15 +206,6 @@
                 <directory name="tests"/>
             </errorLevel>
         </PropertyNotSetInConstructor>
-        <RedundantCondition>
-            <errorLevel type="suppress">
-                <!--
-                    Requires a release of
-                    https://github.com/sebastianbergmann/phpunit/commit/9c60d7d9fd3bfa80fa4aeab7090e1bbe0830dbcd
-                -->
-                <file name="tests/Driver/API/ExceptionConverterTest.php"/>
-            </errorLevel>
-        </RedundantCondition>
         <RedundantConditionGivenDocblockType>
             <errorLevel type="suppress">
                 <!--

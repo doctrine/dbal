@@ -146,11 +146,6 @@ class SQLServerPlatform extends AbstractPlatform
             ' MINVALUE ' . $sequence->getInitialValue();
     }
 
-    public function getDropSequenceSQL(string $name): string
-    {
-        return 'DROP SEQUENCE ' . $name;
-    }
-
     public function getListSequencesSQL(string $database): string
     {
         return 'SELECT seq.name,
@@ -173,26 +168,6 @@ class SQLServerPlatform extends AbstractPlatform
         return true;
     }
 
-    public function getCreateDatabaseSQL(string $name): string
-    {
-        return 'CREATE DATABASE ' . $name;
-    }
-
-    public function getDropDatabaseSQL(string $name): string
-    {
-        return 'DROP DATABASE ' . $name;
-    }
-
-    public function supportsCreateDropDatabase(): bool
-    {
-        return true;
-    }
-
-    public function getCreateSchemaSQL(string $schemaName): string
-    {
-        return 'CREATE SCHEMA ' . $schemaName;
-    }
-
     public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
         return $this->getDropConstraintSQL($foreignKey, $table);
@@ -200,20 +175,7 @@ class SQLServerPlatform extends AbstractPlatform
 
     public function getDropIndexSQL(string $name, string $table): string
     {
-        return sprintf(
-            <<<SQL
-                IF EXISTS (SELECT * FROM sysobjects WHERE name = '%s')
-                    ALTER TABLE %s DROP CONSTRAINT %s
-                ELSE
-                    DROP INDEX %s ON %s
-                SQL
-            ,
-            $name,
-            $table,
-            $name,
-            $name,
-            $table
-        );
+        return 'DROP INDEX ' . $name . ' ON ' . $table;
     }
 
     /**
@@ -344,6 +306,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * Returns the SQL snippet for declaring a default constraint.
+     *
+     * @internal The method should be only used from within the SQLServerPlatform class hierarchy.
      *
      * @param string  $table  Name of the table to return the default constraint declaration for.
      * @param mixed[] $column Column definition.
@@ -714,6 +678,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL statement for adding an extended property to a database object.
      *
+     * @internal The method should be only used from within the SQLServerPlatform class hierarchy.
+     *
      * @link http://msdn.microsoft.com/en-us/library/ms180047%28v=sql.90%29.aspx
      *
      * @param string      $name       The name of the property to add.
@@ -745,6 +711,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL statement for dropping an extended property from a database object.
      *
+     * @internal The method should be only used from within the SQLServerPlatform class hierarchy.
+     *
      * @link http://technet.microsoft.com/en-gb/library/ms178595%28v=sql.90%29.aspx
      *
      * @param string      $name       The name of the property to drop.
@@ -773,6 +741,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * Returns the SQL statement for updating an extended property of a database object.
+     *
+     * @internal The method should be only used from within the SQLServerPlatform class hierarchy.
      *
      * @link http://msdn.microsoft.com/en-us/library/ms186885%28v=sql.90%29.aspx
      *
@@ -884,11 +854,6 @@ class SQLServerPlatform extends AbstractPlatform
                 ORDER BY idx.index_id ASC, idxcol.key_ordinal ASC';
     }
 
-    public function getCreateViewSQL(string $name, string $sql): string
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
     public function getListViewsSQL(string $database): string
     {
         return "SELECT name FROM sysobjects WHERE type = 'V' ORDER BY name";
@@ -913,11 +878,6 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return sprintf('(%s = %s AND %s = %s)', $tableColumn, $table, $schemaColumn, $schema);
-    }
-
-    public function getDropViewSQL(string $name): string
-    {
-        return 'DROP VIEW ' . $name;
     }
 
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string

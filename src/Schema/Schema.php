@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_keys;
 use function strpos;
@@ -93,8 +94,17 @@ class Schema extends AbstractAsset
         }
     }
 
+    /**
+     * @deprecated
+     */
     public function hasExplicitForeignKeyIndexes(): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4822',
+            'Schema::hasExplicitForeignKeyIndexes() is deprecated.'
+        );
+
         return $this->_schemaConfig->hasExplicitForeignKeyIndexes();
     }
 
@@ -104,7 +114,7 @@ class Schema extends AbstractAsset
     protected function _addTable(Table $table): void
     {
         $namespaceName = $table->getNamespaceName();
-        $tableName     = $table->getFullQualifiedName($this->getName());
+        $tableName     = $this->normalizeName($table);
 
         if (isset($this->_tables[$tableName])) {
             throw TableAlreadyExists::new($tableName);
@@ -128,7 +138,7 @@ class Schema extends AbstractAsset
     protected function _addSequence(Sequence $sequence): void
     {
         $namespaceName = $sequence->getNamespaceName();
-        $seqName       = $sequence->getFullQualifiedName($this->getName());
+        $seqName       = $this->normalizeName($sequence);
 
         if (isset($this->_sequences[$seqName])) {
             throw SequenceAlreadyExists::new($seqName);
@@ -189,6 +199,11 @@ class Schema extends AbstractAsset
         return strtolower($name);
     }
 
+    private function normalizeName(AbstractAsset $asset): string
+    {
+        return $asset->getFullQualifiedName($this->getName());
+    }
+
     /**
      * Returns the unquoted representation of a given asset name.
      */
@@ -224,10 +239,20 @@ class Schema extends AbstractAsset
     /**
      * Gets all table names, prefixed with a schema name, even the default one if present.
      *
+     * @deprecated Use {@link getTables()} and {@link Table::getName()} instead.
+     *
      * @return array<int, string>
      */
     public function getTableNames(): array
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4800',
+            'Schema::getTableNames() is deprecated.'
+            . ' Use Schema::getTables() and Table::getName() instead.',
+            __METHOD__
+        );
+
         return array_keys($this->_tables);
     }
 

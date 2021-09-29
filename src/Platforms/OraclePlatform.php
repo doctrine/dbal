@@ -36,6 +36,8 @@ class OraclePlatform extends AbstractPlatform
     /**
      * Assertion for Oracle identifiers.
      *
+     * @deprecated
+     *
      * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
      *
      * @throws Exception
@@ -402,17 +404,9 @@ class OraclePlatform extends AbstractPlatform
         return 'SELECT view_name, text FROM sys.user_views';
     }
 
-    public function getCreateViewSQL(string $name, string $sql): string
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    public function getDropViewSQL(string $name): string
-    {
-        return 'DROP VIEW ' . $name;
-    }
-
     /**
+     * @internal The method should be only used from within the OraclePlatform class hierarchy.
+     *
      * @return array<int, string>
      */
     public function getCreateAutoincrementSql(string $name, string $table, int $start = 1): array
@@ -434,8 +428,10 @@ class OraclePlatform extends AbstractPlatform
         $sql[] = "DECLARE
   constraints_Count NUMBER;
 BEGIN
-  SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '" . $unquotedTableName
-            . "' AND CONSTRAINT_TYPE = 'P';
+  SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count
+    FROM USER_CONSTRAINTS
+   WHERE TABLE_NAME = '" . $unquotedTableName . "'
+     AND CONSTRAINT_TYPE = 'P';
   IF constraints_Count = 0 OR constraints_Count = '' THEN
     EXECUTE IMMEDIATE '" . $this->getCreateConstraintSQL($idx, $quotedTableName) . "';
   END IF;
@@ -474,6 +470,8 @@ END;';
     }
 
     /**
+     * @internal The method should be only used from within the OracleSchemaManager class hierarchy.
+     *
      * Returns the SQL statements to drop the autoincrement for the given table name.
      *
      * @param string $table The table name to drop the autoincrement for.
@@ -629,11 +627,6 @@ SQL
         return $this->getDropConstraintSQL($foreignKey, $table);
     }
 
-    public function getDropSequenceSQL(string $name): string
-    {
-        return 'DROP SEQUENCE ' . $name;
-    }
-
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $referentialAction = '';
@@ -668,6 +661,11 @@ SQL
                 // SET DEFAULT is not supported, throw exception instead.
                 throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $action));
         }
+    }
+
+    public function getCreateDatabaseSQL(string $name): string
+    {
+        return 'CREATE USER ' . $name;
     }
 
     public function getDropDatabaseSQL(string $name): string

@@ -222,12 +222,13 @@ class Comparator
                 continue;
             }
 
-            $changedProperties = $this->diffColumn($column, $toColumn);
+            $tableDifferences->changedColumns[$column->getName()] = new ColumnDiff(
+                $column->getName(),
+                $toColumn,
+                $this->diffColumn($column, $toColumn),
+                $column
+            );
 
-            $columnDiff = new ColumnDiff($column->getName(), $toColumn, $changedProperties, $column);
-
-            $columnDiff->fromColumn                               = $column;
-            $tableDifferences->changedColumns[$column->getName()] = $columnDiff;
             $changes++;
         }
 

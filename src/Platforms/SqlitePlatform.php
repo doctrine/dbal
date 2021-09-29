@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
@@ -29,7 +30,6 @@ use function implode;
 use function sprintf;
 use function sqrt;
 use function str_replace;
-use function strpos;
 use function strtolower;
 use function trim;
 
@@ -420,16 +420,6 @@ class SqlitePlatform extends AbstractPlatform
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
     }
 
-    public function getCreateViewSQL(string $name, string $sql): string
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    public function getDropViewSQL(string $name): string
-    {
-        return 'DROP VIEW ' . $name;
-    }
-
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
@@ -475,6 +465,8 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction().
      *
+     * @deprecated The driver will use {@link sqrt()} in the next major release.
+     *
      * @param int|float $value
      */
     public static function udfSqrt($value): float
@@ -484,27 +476,20 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * User-defined function for Sqlite that implements MOD(a, b).
+     *
+     * @deprecated The driver will use {@link UserDefinedFunctions::mod()} in the next major release.
      */
     public static function udfMod(int $a, int $b): int
     {
-        return $a % $b;
+        return UserDefinedFunctions::mod($a, $b);
     }
 
+    /**
+     * @deprecated The driver will use {@link UserDefinedFunctions::locate()} in the next major release.
+     */
     public static function udfLocate(string $str, string $substr, int $offset = 0): int
     {
-        // SQL's LOCATE function works on 1-based positions, while PHP's strpos works on 0-based positions.
-        // So we have to make them compatible if an offset is given.
-        if ($offset > 0) {
-            $offset -= 1;
-        }
-
-        $pos = strpos($str, $substr, $offset);
-
-        if ($pos !== false) {
-            return $pos + 1;
-        }
-
-        return 0;
+        return UserDefinedFunctions::locate($str, $substr, $offset);
     }
 
     public function getForUpdateSQL(): string
@@ -834,7 +819,7 @@ class SqlitePlatform extends AbstractPlatform
     private function replaceColumn(string $tableName, array $columns, string $columnName, Column $column): array
     {
         $keys  = array_keys($columns);
-        $index = array_search($columnName, $keys, true);
+        $index = array_search(strtolower($columnName), $keys, true);
 
         if ($index === false) {
             throw ColumnDoesNotExist::new($columnName, $tableName);

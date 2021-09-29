@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
 use function array_merge;
@@ -535,5 +536,22 @@ SQL
     public function createComparator(): Comparator
     {
         return new SQLite\Comparator($this->getDatabasePlatform());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated
+     */
+    public function getSchemaSearchPaths(): array
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4821',
+            'SqliteSchemaManager::getSchemaSearchPaths() is deprecated.'
+        );
+
+        // SQLite does not support schemas or databases
+        return [];
     }
 }
