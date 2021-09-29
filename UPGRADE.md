@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Deprecated `AbstractSchemaManager::getSchemaSearchPaths()`.
+
+1. The `AbstractSchemaManager::getSchemaSearchPaths()` method has been deprecated.
+2. Relying on `AbstractSchemaManager::createSchemaConfig()` populating the schema name for those database
+   platforms that don't support schemas (currently, all except for PostgreSQL) is deprecated.
+3. Relying on `Schema` using "public" as the default name is deprecated.
+
 ## Deprecated `AbstractAsset::getFullQualifiedName()`.
 
 The `AbstractAsset::getFullQualifiedName()` method has been deprecated. Use `::getNamespaceName()`

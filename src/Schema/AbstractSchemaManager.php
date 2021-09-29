@@ -1172,12 +1172,20 @@ abstract class AbstractSchemaManager
      * For databases that don't support subschema/namespaces this method
      * returns the name of the currently connected database.
      *
+     * @deprecated
+     *
      * @return string[]
      *
      * @throws Exception
      */
     public function getSchemaSearchPaths()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4821',
+            'AbstractSchemaManager::getSchemaSearchPaths() is deprecated.'
+        );
+
         $database = $this->_conn->getDatabase();
 
         if ($database !== null) {

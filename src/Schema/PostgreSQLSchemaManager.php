@@ -76,9 +76,17 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function getSchemaSearchPaths()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4821',
+            'PostgreSQLSchemaManager::getSchemaSearchPaths() is deprecated.'
+        );
+
         $params = $this->_conn->getParams();
 
         $searchPaths = $this->_conn->fetchOne('SHOW search_path');
@@ -101,6 +109,8 @@ SQL
      * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
      *
      * @return string[]
+     *
+     * @throws Exception
      */
     public function getExistingSchemaSearchPaths()
     {
@@ -112,6 +122,20 @@ SQL
     }
 
     /**
+     * Returns the name of the current schema.
+     *
+     * @return string|null
+     *
+     * @throws Exception
+     */
+    protected function getCurrentSchema()
+    {
+        $schemas = $this->getExistingSchemaSearchPaths();
+
+        return array_shift($schemas);
+    }
+
+    /**
      * Sets or resets the order of the existing schemas in the current search path of the user.
      *
      * This is a PostgreSQL only function.
@@ -119,6 +143,8 @@ SQL
      * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function determineExistingSchemaSearchPaths()
     {
@@ -200,10 +226,9 @@ SQL
      */
     protected function _getPortableTableDefinition($table)
     {
-        $schemas     = $this->getExistingSchemaSearchPaths();
-        $firstSchema = array_shift($schemas);
+        $currentSchema = $this->getCurrentSchema();
 
-        if ($table['schema_name'] === $firstSchema) {
+        if ($table['schema_name'] === $currentSchema) {
             return $table['table_name'];
         }
 

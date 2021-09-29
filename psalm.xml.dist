@@ -164,6 +164,11 @@
                     See https://github.com/doctrine/dbal/pull/4814
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getFullQualifiedName"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4821
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::getSchemaSearchPaths"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
