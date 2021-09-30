@@ -64,17 +64,6 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\Schema::getMigrateToSql"/>
-                <!--
-                    TODO: remove in 4.0.0
-                    See https://github.com/doctrine/dbal/pull/4814
-                -->
-                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getFullQualifiedName"/>
-                <!--
-                    TODO: remove in 4.0.0
-                    See https://github.com/doctrine/dbal/pull/4821
-                -->
-                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::getSchemaSearchPaths"/>
-                <referencedMethod name="Doctrine\DBAL\Schema\PostgreSQLSchemaManager::getSchemaSearchPaths"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>

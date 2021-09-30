@@ -8,13 +8,10 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
-use function array_filter;
 use function array_keys;
 use function array_map;
-use function array_shift;
 use function assert;
 use function explode;
 use function implode;
@@ -36,8 +33,7 @@ use const CASE_LOWER;
  */
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
-    /** @var array<int, string>|null */
-    private ?array $existingSchemaPaths = null;
+    private ?string $currentSchema = null;
 
     /**
      * {@inheritDoc}
@@ -54,47 +50,13 @@ SQL
         );
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    public function getSchemaSearchPaths(): array
+    public function createSchemaConfig(): SchemaConfig
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4821',
-            'PostgreSQLSchemaManager::getSchemaSearchPaths() is deprecated.'
-        );
+        $config = parent::createSchemaConfig();
 
-        $params = $this->_conn->getParams();
+        $config->setName($this->getCurrentSchema());
 
-        $searchPaths = $this->_conn->fetchOne('SHOW search_path');
-        assert($searchPaths !== false);
-
-        $schema = explode(',', $searchPaths);
-
-        if (isset($params['user'])) {
-            $schema = str_replace('"$user"', $params['user'], $schema);
-        }
-
-        return array_map('trim', $schema);
-    }
-
-    /**
-     * Gets names of all existing schemas in the current user's search path.
-     *
-     * @return array<int, string>
-     *
-     * @throws Exception
-     */
-    final protected function getExistingSchemaSearchPaths(): array
-    {
-        if ($this->existingSchemaPaths === null) {
-            $this->existingSchemaPaths = $this->determineExistingSchemaSearchPaths();
-        }
-
-        return $this->existingSchemaPaths;
+        return $config;
     }
 
     /**
@@ -104,26 +66,20 @@ SQL
      */
     protected function getCurrentSchema(): ?string
     {
-        $schemas = $this->getExistingSchemaSearchPaths();
-
-        return array_shift($schemas);
+        return $this->currentSchema ??= $this->determineCurrentSchema();
     }
 
     /**
-     * Determines the names of all existing schemas in the current user's search path.
-     *
-     * @return array<int,string>
+     * Determines the name of the current schema.
      *
      * @throws Exception
      */
-    protected function determineExistingSchemaSearchPaths(): array
+    protected function determineCurrentSchema(): string
     {
-        $names = $this->listSchemaNames();
-        $paths = $this->getSchemaSearchPaths();
+        $currentSchema = $this->_conn->fetchOne('SELECT current_schema()');
+        assert(is_string($currentSchema));
 
-        return array_filter($paths, static function ($v) use ($names): bool {
-            return in_array($v, $names, true);
-        });
+        return $currentSchema;
     }
 
     /**

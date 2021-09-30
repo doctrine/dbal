@@ -12,7 +12,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
-use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
 use function array_filter;
@@ -944,11 +943,6 @@ abstract class AbstractSchemaManager
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setMaxIdentifierLength($this->_platform->getMaxIdentifierLength());
 
-        $searchPaths = $this->getSchemaSearchPaths();
-        if (isset($searchPaths[0])) {
-            $schemaConfig->setName($searchPaths[0]);
-        }
-
         $params = $this->_conn->getParams();
         if (! isset($params['defaultTableOptions'])) {
             $params['defaultTableOptions'] = [];
@@ -961,39 +955,6 @@ abstract class AbstractSchemaManager
         $schemaConfig->setDefaultTableOptions($params['defaultTableOptions']);
 
         return $schemaConfig;
-    }
-
-    /**
-     * The search path for namespaces in the currently connected database.
-     *
-     * The first entry is usually the default namespace in the Schema. All
-     * further namespaces contain tables/sequences which can also be addressed
-     * with a short, not full-qualified name.
-     *
-     * For databases that don't support subschema/namespaces this method
-     * returns the name of the currently connected database.
-     *
-     * @deprecated
-     *
-     * @return array<int, string>
-     *
-     * @throws Exception
-     */
-    public function getSchemaSearchPaths(): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4821',
-            'AbstractSchemaManager::getSchemaSearchPaths() is deprecated.'
-        );
-
-        $database = $this->_conn->getDatabase();
-
-        if ($database !== null) {
-            return [$database];
-        }
-
-        return [];
     }
 
     /**

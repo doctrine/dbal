@@ -8,6 +8,16 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `AbstractSchemaManager::getSchemaSearchPaths()`.
+
+The `AbstractSchemaManager::getSchemaSearchPaths()` method has been removed.
+
+The schema configuration returned by `AbstractSchemaManager::createSchemaConfig()` will contain a non-empty schema name
+only for those database platforms that support schemas (currently, PostgreSQL).
+
+The schema returned by `AbstractSchemaManager::createSchema()` will have a non-empty name only for those
+database platforms that support schemas.
+
 ## BC BREAK: Removed `AbstractAsset::getFullQualifiedName()`.
 
 The `AbstractAsset::getFullQualifiedName()` method has been removed.
