@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDO\SQLite;
 
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
+use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\PDO\Connection;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
 
 use function array_merge;
 
@@ -15,9 +15,18 @@ final class Driver extends AbstractSQLiteDriver
 {
     /** @var mixed[] */
     private array $userDefinedFunctions = [
-        'sqrt' => ['callback' => [SqlitePlatform::class, 'udfSqrt'], 'numArgs' => 1],
-        'mod'  => ['callback' => [SqlitePlatform::class, 'udfMod'], 'numArgs' => 2],
-        'locate'  => ['callback' => [SqlitePlatform::class, 'udfLocate'], 'numArgs' => -1],
+        'sqrt' => [
+            'callback' => 'sqrt',
+            'numArgs' => 1,
+        ],
+        'mod' => [
+            'callback' => [UserDefinedFunctions::class, 'mod'],
+            'numArgs' => 2,
+        ],
+        'locate' => [
+            'callback' => [UserDefinedFunctions::class, 'locate'],
+            'numArgs' => -1,
+        ],
     ];
 
     /**

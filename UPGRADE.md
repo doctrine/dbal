@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `SqlitePlatform::udf*()` methods.
+
+The following `SqlitePlatform` methods have been removed:
+
+- `udfSqrt()`,
+- `udfMod()`,
+- `udfLocate()`.
+
 ## BC BREAK: `SQLServerPlatform` methods marked protected.
 
 The following `SQLServerPlatform` methods have been marked protected:
