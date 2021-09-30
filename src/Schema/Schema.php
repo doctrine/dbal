@@ -14,7 +14,6 @@ use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_values;
 use function strpos;
@@ -92,20 +91,6 @@ class Schema extends AbstractAsset
         foreach ($sequences as $sequence) {
             $this->_addSequence($sequence);
         }
-    }
-
-    /**
-     * @deprecated
-     */
-    public function hasExplicitForeignKeyIndexes(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4822',
-            'Schema::hasExplicitForeignKeyIndexes() is deprecated.'
-        );
-
-        return $this->_schemaConfig->hasExplicitForeignKeyIndexes();
     }
 
     /**

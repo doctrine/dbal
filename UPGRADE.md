@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed schema methods related to explicit foreign key indexes.
+
+The following methods have been removed:
+
+- `Schema::hasExplicitForeignKeyIndexes()`,
+- `SchemaConfig::hasExplicitForeignKeyIndexes()`,
+- `SchemaConfig::setExplicitForeignKeyIndexes()`.
+
 ## BC BREAK: Removed `Schema::getTableNames()`.
 
 The `Schema::getTableNames()` method has been removed.
