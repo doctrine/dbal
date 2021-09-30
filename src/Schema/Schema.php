@@ -16,7 +16,6 @@ use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\Deprecations\Deprecation;
 
-use function array_keys;
 use function array_values;
 use function strpos;
 use function strtolower;
@@ -235,26 +234,6 @@ class Schema extends AbstractAsset
         $name = $this->getFullQualifiedAssetName($name);
 
         return isset($this->_tables[$name]);
-    }
-
-    /**
-     * Gets all table names, prefixed with a schema name, even the default one if present.
-     *
-     * @deprecated Use {@link getTables()} and {@link Table::getName()} instead.
-     *
-     * @return array<int, string>
-     */
-    public function getTableNames(): array
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4800',
-            'Schema::getTableNames() is deprecated.'
-            . ' Use Schema::getTables() and Table::getName() instead.',
-            __METHOD__
-        );
-
-        return array_keys($this->_tables);
     }
 
     public function hasSequence(string $name): bool

@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `Schema::getTableNames()`.
+
+The `Schema::getTableNames()` method has been removed.
+
 ## BC BREAK: Changes in `Schema` method return values.
 
 The `Schema::getNamespaces()`, `Schema::getTables()` and `Schema::getSequences()` methods will return numeric arrays
