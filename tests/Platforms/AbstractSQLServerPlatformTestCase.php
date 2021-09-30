@@ -1219,64 +1219,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     }
 
     /**
-     * @param mixed[] $column
-     *
-     * @dataProvider getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL
-     */
-    public function testGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL(
-        string $table,
-        array $column,
-        string $expectedSql
-    ): void {
-        self::assertSame($expectedSql, $this->platform->getDefaultConstraintDeclarationSQL($table, $column));
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL(): iterable
-    {
-        return [
-            // Unquoted identifiers non-reserved keywords.
-            [
-                'mytable',
-                [
-                    'name' => 'mycolumn',
-                    'default' => 'foo',
-                ],
-                " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn",
-            ],
-            // Quoted identifiers non-reserved keywords.
-            [
-                '`mytable`',
-                [
-                    'name' => '`mycolumn`',
-                    'default' => 'foo',
-                ],
-                " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]",
-            ],
-            // Unquoted identifiers reserved keywords.
-            [
-                'table',
-                [
-                    'name' => 'select',
-                    'default' => 'foo',
-                ],
-                " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]",
-            ],
-            // Quoted identifiers reserved keywords.
-            [
-                '`table`',
-                [
-                    'name' => '`select`',
-                    'default' => 'foo',
-                ],
-                " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]",
-            ],
-        ];
-    }
-
-    /**
      * @param string[] $expectedSql
      *
      * @dataProvider getGeneratesIdentifierNamesInCreateTableSQL

@@ -8,6 +8,15 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: `SQLServerPlatform` methods marked protected.
+
+The following `SQLServerPlatform` methods have been marked protected:
+
+- `getDefaultConstraintDeclarationSQL()`,
+- `getAddExtendedPropertySQL()`,
+- `getDropExtendedPropertySQL()`,
+- `getUpdateExtendedPropertySQL()`.
+
 ## BC BREAK: `OraclePlatform` methods marked protected.
 
 The `OraclePlatform::getCreateAutoincrementSql()` method has been marked protected.
