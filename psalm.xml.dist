@@ -66,10 +66,6 @@
                 <referencedMethod name="Doctrine\DBAL\Schema\Schema::getMigrateToSql"/>
                 <!--
                     TODO: remove in 4.0.0
-                -->
-                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::assertValidIdentifier"/>
-                <!--
-                    TODO: remove in 4.0.0
                     See https://github.com/doctrine/dbal/pull/4822
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\SchemaConfig::hasExplicitForeignKeyIndexes"/>

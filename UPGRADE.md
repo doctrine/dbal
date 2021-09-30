@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: `OraclePlatform` methods marked protected.
+
+The `OraclePlatform::getCreateAutoincrementSql()` method has been marked protected.
+
+## BC BREAK: Removed `OraclePlatform::assertValidIdentifier()`.
+
+The `OraclePlatform::assertValidIdentifier()` method has been removed.
+
 ## BC BREAK: Changed signatures of `AbstractPlatform::getIndexDeclarationSQL()` and `::getUniqueConstraintDeclarationSQL()`
 
 The `AbstractPlatform::getIndexDeclarationSQL()` and `::getUniqueConstraintDeclarationSQL()` methods no longer accept
