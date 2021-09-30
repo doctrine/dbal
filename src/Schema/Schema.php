@@ -17,6 +17,7 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_keys;
+use function array_values;
 use function strpos;
 use function strtolower;
 
@@ -158,21 +159,21 @@ class Schema extends AbstractAsset
     /**
      * Returns the namespaces of this schema.
      *
-     * @return array<string, string> A list of namespace names.
+     * @return list<string> A list of namespace names.
      */
     public function getNamespaces(): array
     {
-        return $this->namespaces;
+        return array_values($this->namespaces);
     }
 
     /**
      * Gets all tables of this schema.
      *
-     * @return array<string, Table>
+     * @return list<Table>
      */
     public function getTables(): array
     {
-        return $this->_tables;
+        return array_values($this->_tables);
     }
 
     /**
@@ -277,11 +278,11 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @return array<string, Sequence>
+     * @return list<Sequence>
      */
     public function getSequences(): array
     {
-        return $this->_sequences;
+        return array_values($this->_sequences);
     }
 
     /**

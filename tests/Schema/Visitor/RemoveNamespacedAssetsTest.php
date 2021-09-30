@@ -10,8 +10,6 @@ use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets;
 use PHPUnit\Framework\TestCase;
 
-use function array_keys;
-
 class RemoveNamespacedAssetsTest extends TestCase
 {
     public function testRemoveNamespacedAssets(): void
@@ -26,8 +24,9 @@ class RemoveNamespacedAssetsTest extends TestCase
 
         $schema->visit(new RemoveNamespacedAssets());
 
-        $tables = $schema->getTables();
-        self::assertEquals(['test.test', 'test.baz'], array_keys($tables));
+        self::assertTrue($schema->hasTable('test.test'));
+        self::assertTrue($schema->hasTable('test.baz'));
+        self::assertFalse($schema->hasTable('foo.bar'));
     }
 
     public function testCleanupForeignKeys(): void

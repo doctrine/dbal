@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Changes in `Schema` method return values.
+
+The `Schema::getNamespaces()`, `Schema::getTables()` and `Schema::getSequences()` methods will return numeric arrays
+of namespaces, tables and sequences respectively instead of associative arrays.
+
 ## BC BREAK: Removed `SqlitePlatform::udf*()` methods.
 
 The following `SqlitePlatform` methods have been removed:

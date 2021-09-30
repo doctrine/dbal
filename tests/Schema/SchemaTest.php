@@ -27,9 +27,7 @@ class SchemaTest extends TestCase
 
         self::assertTrue($schema->hasTable($tableName));
 
-        $tables = $schema->getTables();
-        self::assertArrayHasKey($tableName, $tables);
-        self::assertSame($table, $tables[$tableName]);
+        self::assertSame([$table], $schema->getTables());
         self::assertSame($table, $schema->getTable($tableName));
         self::assertTrue($schema->hasTable($tableName));
     }
@@ -113,8 +111,7 @@ class SchemaTest extends TestCase
         self::assertTrue($schema->hasSequence('a_seq'));
         self::assertSame('a_seq', $schema->getSequence('a_seq')->getName());
 
-        $sequences = $schema->getSequences();
-        self::assertArrayHasKey('public.a_seq', $sequences);
+        self::assertEquals([$sequence], $schema->getSequences());
     }
 
     public function testSequenceAccessCaseInsensitive(): void
@@ -151,8 +148,7 @@ class SchemaTest extends TestCase
         self::assertTrue($schema->hasSequence('a_seq'));
         self::assertSame('a_seq', $schema->getSequence('a_seq')->getName());
 
-        $sequences = $schema->getSequences();
-        self::assertArrayHasKey('public.a_seq', $sequences);
+        self::assertEquals([$sequence], $schema->getSequences());
     }
 
     public function testDropSequence(): void
@@ -266,7 +262,7 @@ class SchemaTest extends TestCase
         self::assertTrue($schema->hasNamespace('`bar`'));
         self::assertTrue($schema->hasNamespace('`BAR`'));
 
-        self::assertSame(['foo' => 'foo', 'bar' => '`bar`'], $schema->getNamespaces());
+        self::assertSame(['foo', '`bar`'], $schema->getNamespaces());
     }
 
     public function testThrowsExceptionOnCreatingNamespaceTwice(): void
