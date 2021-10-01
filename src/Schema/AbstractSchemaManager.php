@@ -424,6 +424,8 @@ abstract class AbstractSchemaManager
     /**
      * Drops the constraint from the given table.
      *
+     * @deprecated Use {@link dropIndex()}, {@link dropForeignKey()} or {@link dropUniqueConstraint()} instead.
+     *
      * @param Table|string $table The name of the table.
      *
      * @return void
@@ -462,6 +464,16 @@ abstract class AbstractSchemaManager
     public function dropSequence($name)
     {
         $this->_execSql($this->_platform->getDropSequenceSQL($name));
+    }
+
+    /**
+     * Drops the unique constraint from the given table.
+     *
+     * @throws Exception
+     */
+    public function dropUniqueConstraint(string $name, string $tableName): void
+    {
+        $this->_execSql($this->_platform->getDropUniqueConstraintSQL($name, $tableName));
     }
 
     /**
@@ -524,6 +536,8 @@ abstract class AbstractSchemaManager
     /**
      * Creates a constraint on a table.
      *
+     * @deprecated Use {@link createIndex()}, {@link createForeignKey()} or {@link createUniqueConstraint()} instead.
+     *
      * @param Table|string $table
      *
      * @return void
@@ -565,6 +579,16 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Creates a unique constraint on a table.
+     *
+     * @throws Exception
+     */
+    public function createUniqueConstraint(UniqueConstraint $uniqueConstraint, string $tableName): void
+    {
+        $this->_execSql($this->_platform->getCreateUniqueConstraintSQL($uniqueConstraint, $tableName));
+    }
+
+    /**
      * Creates a new view.
      *
      * @return void
@@ -580,6 +604,9 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops and creates a constraint.
+     *
+     * @deprecated Use {@link dropAndCreateIndex()}, {@link dropAndCreateForeignKey()}
+     *             or {@link dropUniqueConstraint()} and {@link createUniqueConstraint()} instead.
      *
      * @see dropConstraint()
      * @see createConstraint()

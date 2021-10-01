@@ -999,6 +999,16 @@ SQL
     }
 
     /**
+     * The `ALTER TABLE ... DROP CONSTRAINT` syntax is only available as of MySQL 8.0.19.
+     *
+     * @link https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+     */
+    public function getDropUniqueConstraintSQL(string $name, string $tableName): string
+    {
+        return $this->getDropIndexSQL($name, $tableName);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getSetTransactionIsolationSQL($level)
