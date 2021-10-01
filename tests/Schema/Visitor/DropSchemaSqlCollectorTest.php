@@ -56,7 +56,7 @@ class DropSchemaSqlCollectorTest extends TestCase
             ->will(self::returnValue([]));
 
         $constraint->expects(self::any())
-            ->method('getColumns')
+            ->method('getLocalColumns')
             ->will(self::returnValue([]));
 
         return $constraint;

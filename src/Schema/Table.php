@@ -778,12 +778,12 @@ class Table extends AbstractAsset
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
         $indexName = $this->_generateIdentifierName(
-            array_merge([$this->getName()], $constraint->getColumns()),
+            array_merge([$this->getName()], $constraint->getLocalColumns()),
             'idx',
             $this->_getMaxIdentifierLength()
         );
 
-        $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, false, false);
+        $indexCandidate = $this->_createIndex($constraint->getLocalColumns(), $indexName, false, false);
 
         foreach ($this->_indexes as $existingIndex) {
             if ($indexCandidate->isFullfilledBy($existingIndex)) {

@@ -23,7 +23,6 @@ use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
-use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -946,7 +945,7 @@ abstract class AbstractPlatform
      *
      * @internal The method should be only used from within the {@link AbstractPlatform} class hierarchy.
      */
-    public function getDropConstraintSQL(string $name, string $table): string
+    protected function getDropConstraintSQL(string $name, string $table): string
     {
         return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $name;
     }
@@ -1197,45 +1196,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL to create a constraint on a table on this platform.
-     *
-     * @deprecated Use {@link getCreateIndexSQL()}, {@link getCreateForeignKeySQL()}
-     *             or {@link getCreateUniqueConstraintSQL()} instead.
-     *
-     * @throws InvalidArgumentException
-     */
-    public function getCreateConstraintSQL(Constraint $constraint, string $table): string
-    {
-        $query = 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $constraint->getQuotedName($this);
-
-        $columnList = '(' . implode(', ', $constraint->getQuotedColumns($this)) . ')';
-
-        $referencesClause = '';
-        if ($constraint instanceof Index) {
-            if ($constraint->isPrimary()) {
-                $query .= ' PRIMARY KEY';
-            } elseif ($constraint->isUnique()) {
-                $query .= ' UNIQUE';
-            } else {
-                throw new InvalidArgumentException(
-                    'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
-                );
-            }
-        } elseif ($constraint instanceof UniqueConstraint) {
-            $query .= ' UNIQUE';
-        } elseif ($constraint instanceof ForeignKeyConstraint) {
-            $query .= ' FOREIGN KEY';
-
-            $referencesClause = ' REFERENCES ' . $constraint->getQuotedForeignTableName($this) .
-                ' (' . implode(', ', $constraint->getQuotedForeignColumns($this)) . ')';
-        }
-
-        $query .= ' ' . $columnList . $referencesClause;
-
-        return $query;
-    }
-
-    /**
      * Returns the SQL to create an index on a table on this platform.
      *
      * @throws InvalidArgumentException
@@ -1306,7 +1266,8 @@ abstract class AbstractPlatform
      */
     public function getCreateUniqueConstraintSQL(UniqueConstraint $constraint, string $tableName): string
     {
-        return $this->getCreateConstraintSQL($constraint, $tableName);
+        return 'ALTER TABLE ' . $tableName . ' ADD CONSTRAINT ' . $constraint->getQuotedName($this) . ' UNIQUE'
+            . ' (' . implode(', ', $constraint->getQuotedColumns($this)) . ')';
     }
 
     /**

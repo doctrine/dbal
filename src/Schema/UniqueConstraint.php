@@ -13,7 +13,7 @@ use function strtolower;
 /**
  * Class for a unique constraint.
  */
-class UniqueConstraint extends AbstractAsset implements Constraint
+class UniqueConstraint extends AbstractAsset
 {
     /**
      * Asset identifier instances of the column names the unique constraint is associated with.

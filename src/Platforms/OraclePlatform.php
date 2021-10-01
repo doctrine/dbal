@@ -418,7 +418,7 @@ BEGIN
    WHERE TABLE_NAME = '" . $unquotedTableName . "'
      AND CONSTRAINT_TYPE = 'P';
   IF constraints_Count = 0 OR constraints_Count = '' THEN
-    EXECUTE IMMEDIATE '" . $this->getCreateConstraintSQL($idx, $quotedTableName) . "';
+    EXECUTE IMMEDIATE '" . $this->getCreateIndexSQL($idx, $quotedTableName) . "';
   END IF;
 END;";
 

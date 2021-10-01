@@ -255,25 +255,6 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     abstract protected function getGenerateForeignKeySql(): string;
 
-    public function testGeneratesConstraintCreationSql(): void
-    {
-        $idx = new Index('constraint_name', ['test'], true, false);
-        $sql = $this->platform->getCreateConstraintSQL($idx, 'test');
-        self::assertEquals($this->getGenerateConstraintUniqueIndexSql(), $sql);
-
-        $pk  = new Index('constraint_name', ['test'], true, true);
-        $sql = $this->platform->getCreateConstraintSQL($pk, 'test');
-        self::assertEquals($this->getGenerateConstraintPrimaryIndexSql(), $sql);
-
-        $uc  = new UniqueConstraint('constraint_name', ['test']);
-        $sql = $this->platform->getCreateConstraintSQL($uc, 'test');
-        self::assertEquals($this->getGenerateConstraintUniqueIndexSql(), $sql);
-
-        $fk  = new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk');
-        $sql = $this->platform->getCreateConstraintSQL($fk, 'test');
-        self::assertEquals($this->getGenerateConstraintForeignKeySql($fk), $sql);
-    }
-
     public function testGeneratesForeignKeySqlOnlyWhenSupportingForeignKeys(): void
     {
         if ($this->platform->supportsForeignKeyConstraints()) {

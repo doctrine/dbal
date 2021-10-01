@@ -23,7 +23,7 @@ final class NamedForeignKeyRequired extends SchemaException
                 'The performed schema operation on "%s" requires a named foreign key, ' .
                 'but the given foreign key from (%s) onto foreign table "%s" (%s) is currently unnamed.',
                 $localTable->getName(),
-                implode(', ', $foreignKey->getColumns()),
+                implode(', ', $foreignKey->getLocalColumns()),
                 $foreignKey->getForeignTableName(),
                 implode(', ', $foreignKey->getForeignColumns())
             )

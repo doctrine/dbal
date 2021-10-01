@@ -249,13 +249,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         parent::testGeneratesForeignKeyCreationSql();
     }
 
-    public function testGeneratesConstraintCreationSql(): void
-    {
-        $this->expectException(Exception::class);
-
-        parent::testGeneratesConstraintCreationSql();
-    }
-
     protected function getGenerateForeignKeySql(): string
     {
         self::fail('Foreign key constraints are not yet supported for SQLite.');
