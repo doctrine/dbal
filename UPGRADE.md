@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: `Statement::execute()` marked private.
+
+The `Statement::execute()` method has been marked private.
+
+## BC BREAK: Removed `QueryBuilder::execute()`.
+
+The `QueryBuilder::execute()` method has been removed.
+
 ## BC BREAK: Removed the `Constraint` interface.
 
 The `Constraint` interface has been removed. The `ForeignKeyConstraint`, `Index` and `UniqueConstraint` classes

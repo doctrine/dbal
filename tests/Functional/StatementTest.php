@@ -47,14 +47,14 @@ class StatementTest extends FunctionalTestCase
 
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test ORDER BY id');
 
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
 
         $id = $result->fetchOne();
         self::assertEquals(1, $id);
 
         $result->free();
 
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         self::assertEquals(1, $result->fetchOne());
         self::assertEquals(2, $result->fetchOne());
     }
@@ -78,7 +78,7 @@ class StatementTest extends FunctionalTestCase
         $this->connection->insert('stmt_longer_results', $row1);
 
         $stmt   = $this->connection->prepare('SELECT param, val FROM stmt_longer_results ORDER BY param');
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         self::assertEquals([
             ['param1', 'X'],
         ], $result->fetchAllNumeric());
@@ -89,7 +89,7 @@ class StatementTest extends FunctionalTestCase
         ];
         $this->connection->insert('stmt_longer_results', $row2);
 
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         self::assertEquals([
             ['param1', 'X'],
             ['param2', 'A bit longer value'],
@@ -133,7 +133,7 @@ EOF
         $this->connection->insert('stmt_long_blob', ['contents' => $contents], [ParameterType::LARGE_OBJECT]);
 
         $result = $this->connection->prepare('SELECT contents FROM stmt_long_blob')
-            ->execute();
+            ->executeQuery();
 
         $stream = Type::getType('blob')
             ->convertToPHPValue(
@@ -150,15 +150,15 @@ EOF
         $this->connection->insert('stmt_test', ['id' => 2]);
 
         $stmt1  = $this->connection->prepare('SELECT id FROM stmt_test');
-        $result = $stmt1->execute();
+        $result = $stmt1->executeQuery();
         $result->fetchAssociative();
 
-        $result = $stmt1->execute();
+        $result = $stmt1->executeQuery();
         // fetching only one record out of two
         $result->fetchAssociative();
 
         $stmt2  = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
-        $result = $stmt2->execute([1]);
+        $result = $stmt2->executeQuery([1]);
         self::assertEquals(1, $result->fetchOne());
     }
 
@@ -173,14 +173,14 @@ EOF
 
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
 
-        $result = $stmt->execute([1]);
+        $result = $stmt->executeQuery([1]);
 
         $id = $result->fetchOne();
         self::assertEquals(1, $id);
 
         $result->free();
 
-        $result = $stmt->execute([2]);
+        $result = $stmt->executeQuery([2]);
 
         $id = $result->fetchOne();
         self::assertEquals(2, $id);
@@ -196,12 +196,12 @@ EOF
 
         $id = 1;
 
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         self::assertEquals(1, $result->fetchOne());
 
         $id = 2;
 
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         self::assertEquals(2, $result->fetchOne());
     }
 
@@ -213,11 +213,11 @@ EOF
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
 
         $stmt->bindValue(1, 1);
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         self::assertEquals(1, $result->fetchOne());
 
         $stmt->bindValue(1, 2);
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         self::assertEquals(2, $result->fetchOne());
     }
 
@@ -230,12 +230,12 @@ EOF
 
         $x = 1;
         $stmt->bindParam(1, $x);
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         self::assertEquals(1, $result->fetchOne());
 
         $y = 2;
         $stmt->bindParam(1, $y);
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         self::assertEquals(2, $result->fetchOne());
     }
 
@@ -249,7 +249,7 @@ EOF
         $this->connection->insert('stmt_test', ['id' => 1]);
 
         $stmt   = $this->connection->prepare('SELECT id FROM stmt_test');
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
         $result->free();
 
         try {
@@ -359,7 +359,7 @@ EOF
             $this->expectException(Exception::class);
         }
 
-        $stmt->execute([null]);
+        $stmt->executeQuery([null]);
     }
 
     public function testExecuteQuery(): void

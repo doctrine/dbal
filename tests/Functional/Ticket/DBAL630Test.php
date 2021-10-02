@@ -81,7 +81,7 @@ class DBAL630Test extends FunctionalTestCase
 
         $stmt = $this->connection->prepare('INSERT INTO dbal630 (bool_col) VALUES(?)');
         $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue('false'), ParameterType::BOOLEAN);
-        $stmt->execute();
+        $stmt->executeStatement();
 
         $id = $this->connection->lastInsertId();
 
@@ -108,7 +108,7 @@ class DBAL630Test extends FunctionalTestCase
 
         $stmt = $this->connection->prepare('INSERT INTO dbal630_allow_nulls (bool_col) VALUES(?)');
         $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue($statementValue));
-        $stmt->execute();
+        $stmt->executeStatement();
 
         $id = $this->connection->lastInsertId();
 
@@ -139,7 +139,7 @@ class DBAL630Test extends FunctionalTestCase
             $platform->convertBooleansToDatabaseValue($statementValue),
             ParameterType::BOOLEAN
         );
-        $stmt->execute();
+        $stmt->executeStatement();
 
         $id = $this->connection->lastInsertId();
 

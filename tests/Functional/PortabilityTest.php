@@ -77,7 +77,7 @@ class PortabilityTest extends FunctionalTestCase
 
         $result = $this->connection
             ->prepare('SELECT * FROM portability_table')
-            ->execute();
+            ->executeQuery();
 
         while (($row = $result->fetchAssociative())) {
             $this->assertFetchResultRow($row);
@@ -95,7 +95,7 @@ class PortabilityTest extends FunctionalTestCase
         }
 
         $result = $this->connection->prepare('SELECT * FROM portability_table')
-            ->execute();
+            ->executeQuery();
 
         while (($row = $result->fetchAssociative())) {
             $this->assertFetchResultRow($row);

@@ -19,7 +19,7 @@ class AsciiTest extends FunctionalTestCase
         $statement = $this->connection->prepare('SELECT sql_variant_property(?, \'BaseType\')');
 
         $statement->bindValue(1, 'test', ParameterType::ASCII);
-        $results = $statement->execute()->fetchOne();
+        $results = $statement->executeQuery()->fetchOne();
 
         self::assertEquals('varchar', $results);
     }
