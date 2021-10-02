@@ -14,9 +14,8 @@ use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
-use Doctrine\Deprecations\Deprecation;
 
-use function array_keys;
+use function array_values;
 use function strpos;
 use function strtolower;
 
@@ -79,7 +78,12 @@ class Schema extends AbstractAsset
         }
 
         $this->_schemaConfig = $schemaConfig;
-        $this->_setName($schemaConfig->getName() ?? 'public');
+
+        $name = $schemaConfig->getName();
+
+        if ($name !== null) {
+            $this->_setName($name);
+        }
 
         foreach ($namespaces as $namespace) {
             $this->createNamespace($namespace);
@@ -92,20 +96,6 @@ class Schema extends AbstractAsset
         foreach ($sequences as $sequence) {
             $this->_addSequence($sequence);
         }
-    }
-
-    /**
-     * @deprecated
-     */
-    public function hasExplicitForeignKeyIndexes(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4822',
-            'Schema::hasExplicitForeignKeyIndexes() is deprecated.'
-        );
-
-        return $this->_schemaConfig->hasExplicitForeignKeyIndexes();
     }
 
     /**
@@ -158,21 +148,21 @@ class Schema extends AbstractAsset
     /**
      * Returns the namespaces of this schema.
      *
-     * @return array<string, string> A list of namespace names.
+     * @return list<string> A list of namespace names.
      */
     public function getNamespaces(): array
     {
-        return $this->namespaces;
+        return array_values($this->namespaces);
     }
 
     /**
      * Gets all tables of this schema.
      *
-     * @return array<string, Table>
+     * @return list<Table>
      */
     public function getTables(): array
     {
-        return $this->_tables;
+        return array_values($this->_tables);
     }
 
     /**
@@ -199,9 +189,23 @@ class Schema extends AbstractAsset
         return strtolower($name);
     }
 
+    /**
+     * The normalized name is qualified and lower-cased. Lower-casing is
+     * actually wrong, but we have to do it to keep our sanity. If you are
+     * using database objects that only differentiate in the casing (FOO vs
+     * Foo) then you will NOT be able to use Doctrine Schema abstraction.
+     *
+     * Every non-namespaced element is prefixed with this schema name.
+     */
     private function normalizeName(AbstractAsset $asset): string
     {
-        return $asset->getFullQualifiedName($this->getName());
+        $name = $asset->getName();
+
+        if ($asset->getNamespaceName() === null) {
+            $name = $this->getName() . '.' . $name;
+        }
+
+        return strtolower($name);
     }
 
     /**
@@ -236,26 +240,6 @@ class Schema extends AbstractAsset
         return isset($this->_tables[$name]);
     }
 
-    /**
-     * Gets all table names, prefixed with a schema name, even the default one if present.
-     *
-     * @deprecated Use {@link getTables()} and {@link Table::getName()} instead.
-     *
-     * @return array<int, string>
-     */
-    public function getTableNames(): array
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4800',
-            'Schema::getTableNames() is deprecated.'
-            . ' Use Schema::getTables() and Table::getName() instead.',
-            __METHOD__
-        );
-
-        return array_keys($this->_tables);
-    }
-
     public function hasSequence(string $name): bool
     {
         $name = $this->getFullQualifiedAssetName($name);
@@ -277,11 +261,11 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @return array<string, Sequence>
+     * @return list<Sequence>
      */
     public function getSequences(): array
     {
-        return $this->_sequences;
+        return array_values($this->_sequences);
     }
 
     /**

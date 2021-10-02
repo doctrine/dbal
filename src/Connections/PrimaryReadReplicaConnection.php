@@ -152,7 +152,7 @@ class PrimaryReadReplicaConnection extends Connection
     protected function performConnect(?string $connectionName = null): void
     {
         $requestedConnectionChange = ($connectionName !== null);
-        $connectionName            = $connectionName ?? 'replica';
+        $connectionName          ??= 'replica';
 
         if ($connectionName !== 'replica' && $connectionName !== 'primary') {
             throw new InvalidArgumentException('Invalid option to connect(), only primary or replica allowed.');

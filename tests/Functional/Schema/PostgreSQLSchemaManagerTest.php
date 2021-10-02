@@ -16,7 +16,6 @@ use Doctrine\DBAL\Types\Types;
 
 use function array_map;
 use function array_pop;
-use function array_unshift;
 use function count;
 use function preg_match;
 use function strtolower;
@@ -26,19 +25,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof PostgreSQLPlatform;
-    }
-
-    public function testGetSearchPath(): void
-    {
-        $expected = ['public'];
-
-        $params = $this->connection->getParams();
-
-        if (isset($params['user'])) {
-            array_unshift($expected, $params['user']);
-        }
-
-        self::assertEquals($expected, $this->schemaManager->getSchemaSearchPaths());
     }
 
     public function testGetSchemaNames(): void

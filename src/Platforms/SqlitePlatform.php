@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
@@ -28,7 +27,6 @@ use function array_unique;
 use function array_values;
 use function implode;
 use function sprintf;
-use function sqrt;
 use function str_replace;
 use function strtolower;
 use function trim;
@@ -460,36 +458,6 @@ class SqlitePlatform extends AbstractPlatform
         $tableIdentifier = new Identifier($tableName);
 
         return 'DELETE FROM ' . $tableIdentifier->getQuotedName($this);
-    }
-
-    /**
-     * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction().
-     *
-     * @deprecated The driver will use {@link sqrt()} in the next major release.
-     *
-     * @param int|float $value
-     */
-    public static function udfSqrt($value): float
-    {
-        return sqrt($value);
-    }
-
-    /**
-     * User-defined function for Sqlite that implements MOD(a, b).
-     *
-     * @deprecated The driver will use {@link UserDefinedFunctions::mod()} in the next major release.
-     */
-    public static function udfMod(int $a, int $b): int
-    {
-        return UserDefinedFunctions::mod($a, $b);
-    }
-
-    /**
-     * @deprecated The driver will use {@link UserDefinedFunctions::locate()} in the next major release.
-     */
-    public static function udfLocate(string $str, string $substr, int $offset = 0): int
-    {
-        return UserDefinedFunctions::locate($str, $substr, $offset);
     }
 
     public function getForUpdateSQL(): string

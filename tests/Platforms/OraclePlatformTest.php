@@ -26,58 +26,6 @@ use function uniqid;
  */
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
-    /**
-     * @return mixed[][]
-     */
-    public static function dataValidIdentifiers(): iterable
-    {
-        return [
-            ['a'],
-            ['foo'],
-            ['Foo'],
-            ['Foo123'],
-            ['Foo#bar_baz$'],
-            ['"a"'],
-            ['"1"'],
-            ['"foo_bar"'],
-            ['"@$%&!"'],
-        ];
-    }
-
-    /**
-     * @dataProvider dataValidIdentifiers
-     */
-    public function testValidIdentifiers(string $identifier): void
-    {
-        OraclePlatform::assertValidIdentifier($identifier);
-
-        $this->expectNotToPerformAssertions();
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function dataInvalidIdentifiers(): iterable
-    {
-        return [
-            ['1'],
-            ['abc&'],
-            ['abc-def'],
-            ['"'],
-            ['"foo"bar"'],
-        ];
-    }
-
-    /**
-     * @dataProvider dataInvalidIdentifiers
-     */
-    public function testInvalidIdentifiers(string $identifier): void
-    {
-        $this->expectException(Exception::class);
-
-        OraclePlatform::assertValidIdentifier($identifier);
-    }
-
     public function createPlatform(): AbstractPlatform
     {
         return new OraclePlatform();

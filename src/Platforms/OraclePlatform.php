@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
@@ -33,22 +32,6 @@ use function substr;
  */
 class OraclePlatform extends AbstractPlatform
 {
-    /**
-     * Assertion for Oracle identifiers.
-     *
-     * @deprecated
-     *
-     * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
-     *
-     * @throws Exception
-     */
-    public static function assertValidIdentifier(string $identifier): void
-    {
-        if (preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier) === 0) {
-            throw new Exception('Invalid Oracle identifier.');
-        }
-    }
-
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string
     {
         if ($length === null) {
@@ -405,11 +388,9 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * @internal The method should be only used from within the OraclePlatform class hierarchy.
-     *
      * @return array<int, string>
      */
-    public function getCreateAutoincrementSql(string $name, string $table, int $start = 1): array
+    protected function getCreateAutoincrementSql(string $name, string $table, int $start = 1): array
     {
         $tableIdentifier   = $this->normalizeIdentifier($table);
         $quotedTableName   = $tableIdentifier->getQuotedName($this);

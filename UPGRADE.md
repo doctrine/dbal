@@ -8,6 +8,62 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `AbstractSchemaManager::getSchemaSearchPaths()`.
+
+The `AbstractSchemaManager::getSchemaSearchPaths()` method has been removed.
+
+The schema configuration returned by `AbstractSchemaManager::createSchemaConfig()` will contain a non-empty schema name
+only for those database platforms that support schemas (currently, PostgreSQL).
+
+The schema returned by `AbstractSchemaManager::createSchema()` will have a non-empty name only for those
+database platforms that support schemas.
+
+## BC BREAK: Removed `AbstractAsset::getFullQualifiedName()`.
+
+The `AbstractAsset::getFullQualifiedName()` method has been removed.
+
+## BC BREAK: Removed schema methods related to explicit foreign key indexes.
+
+The following methods have been removed:
+
+- `Schema::hasExplicitForeignKeyIndexes()`,
+- `SchemaConfig::hasExplicitForeignKeyIndexes()`,
+- `SchemaConfig::setExplicitForeignKeyIndexes()`.
+
+## BC BREAK: Removed `Schema::getTableNames()`.
+
+The `Schema::getTableNames()` method has been removed.
+
+## BC BREAK: Changes in `Schema` method return values.
+
+The `Schema::getNamespaces()`, `Schema::getTables()` and `Schema::getSequences()` methods will return numeric arrays
+of namespaces, tables and sequences respectively instead of associative arrays.
+
+## BC BREAK: Removed `SqlitePlatform::udf*()` methods.
+
+The following `SqlitePlatform` methods have been removed:
+
+- `udfSqrt()`,
+- `udfMod()`,
+- `udfLocate()`.
+
+## BC BREAK: `SQLServerPlatform` methods marked protected.
+
+The following `SQLServerPlatform` methods have been marked protected:
+
+- `getDefaultConstraintDeclarationSQL()`,
+- `getAddExtendedPropertySQL()`,
+- `getDropExtendedPropertySQL()`,
+- `getUpdateExtendedPropertySQL()`.
+
+## BC BREAK: `OraclePlatform` methods marked protected.
+
+The `OraclePlatform::getCreateAutoincrementSql()` method has been marked protected.
+
+## BC BREAK: Removed `OraclePlatform::assertValidIdentifier()`.
+
+The `OraclePlatform::assertValidIdentifier()` method has been removed.
+
 ## BC BREAK: Changed signatures of `AbstractPlatform::getIndexDeclarationSQL()` and `::getUniqueConstraintDeclarationSQL()`
 
 The `AbstractPlatform::getIndexDeclarationSQL()` and `::getUniqueConstraintDeclarationSQL()` methods no longer accept
