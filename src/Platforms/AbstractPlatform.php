@@ -943,6 +943,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to drop a constraint.
+     *
+     * @internal The method should be only used from within the {@link AbstractPlatform} class hierarchy.
      */
     public function getDropConstraintSQL(string $name, string $table): string
     {
@@ -955,6 +957,14 @@ abstract class AbstractPlatform
     public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
         return 'ALTER TABLE ' . $table . ' DROP FOREIGN KEY ' . $foreignKey;
+    }
+
+    /**
+     * Returns the SQL to drop a unique constraint.
+     */
+    public function getDropUniqueConstraintSQL(string $name, string $tableName): string
+    {
+        return $this->getDropConstraintSQL($name, $tableName);
     }
 
     /**
@@ -1189,6 +1199,9 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to create a constraint on a table on this platform.
      *
+     * @deprecated Use {@link getCreateIndexSQL()}, {@link getCreateForeignKeySQL()}
+     *             or {@link getCreateUniqueConstraintSQL()} instead.
+     *
      * @throws InvalidArgumentException
      */
     public function getCreateConstraintSQL(Constraint $constraint, string $table): string
@@ -1286,6 +1299,14 @@ abstract class AbstractPlatform
         }
 
         return 'CREATE SCHEMA ' . $schemaName;
+    }
+
+    /**
+     * Returns the SQL to create a unique constraint on a table on this platform.
+     */
+    public function getCreateUniqueConstraintSQL(UniqueConstraint $constraint, string $tableName): string
+    {
+        return $this->getCreateConstraintSQL($constraint, $tableName);
     }
 
     /**

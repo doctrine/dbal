@@ -142,6 +142,8 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     /**
      * {@inheritdoc}
      *
+     * @deprecated Use {@link getLocalColumns()} instead.
+     *
      * @see getLocalColumns
      */
     public function getColumns(): array
@@ -156,6 +158,8 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * But only if they were defined with one or the referencing table column name
      * is a keyword reserved by the platform.
      * Otherwise the plain unquoted value as inserted is returned.
+     *
+     * @deprecated Use {@link getQuotedLocalColumns()} instead.
      *
      * @see getQuotedLocalColumns
      *

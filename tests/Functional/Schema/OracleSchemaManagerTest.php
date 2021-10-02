@@ -247,9 +247,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addUniqueIndex(['id'], 'id_unique_index');
         $this->schemaManager->dropAndCreateTable($table);
 
-        // Adding a primary key on already indexed columns
-        // Oracle will reuse the unique index, which cause a constraint name differing from the index name
-        $this->schemaManager->createConstraint(
+        $this->schemaManager->createIndex(
             new Index('id_pk_id_index', ['id'], true, true),
             'list_table_indexes_pk_id_test'
         );

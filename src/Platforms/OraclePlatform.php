@@ -119,6 +119,12 @@ class OraclePlatform extends AbstractPlatform
                 . '+' . $value2 . ')';
     }
 
+    public function getCreatePrimaryKeySQL(Index $index, string $table): string
+    {
+        return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $index->getQuotedName($this)
+            . ' PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -329,10 +335,8 @@ class OraclePlatform extends AbstractPlatform
             $sql = array_merge($sql, $this->getCreateAutoincrementSql($column['name'], $name));
         }
 
-        if (isset($indexes) && ! empty($indexes)) {
-            foreach ($indexes as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $name);
-            }
+        foreach ($indexes as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $name);
         }
 
         return $sql;

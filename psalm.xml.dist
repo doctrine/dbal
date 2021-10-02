@@ -46,8 +46,22 @@
                     is no longer supported.
                 -->
                 <file name="src/Tools/Console/ConsoleRunner.php"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4839
+                -->
+                <referencedClass name="Doctrine\DBAL\Schema\Constraint"/>
             </errorLevel>
         </DeprecatedClass>
+        <DeprecatedInterface>
+            <errorLevel type="suppress">
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4839
+                -->
+                <referencedClass name="Doctrine\DBAL\Schema\Constraint"/>
+            </errorLevel>
+        </DeprecatedInterface>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!--
@@ -64,6 +78,13 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\Schema::getMigrateToSql"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4839
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getCreateConstraintSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::createConstraint"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::getColumns"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>

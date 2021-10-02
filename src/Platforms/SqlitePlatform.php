@@ -619,6 +619,9 @@ class SqlitePlatform extends AbstractPlatform
         throw new Exception('Sqlite platform does not support alter foreign key.');
     }
 
+    /**
+     * @deprecated
+     */
     public function getCreateConstraintSQL(Constraint $constraint, string $table): string
     {
         throw new Exception('Sqlite platform does not support alter constraint.');

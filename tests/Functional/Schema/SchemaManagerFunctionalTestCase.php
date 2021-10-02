@@ -9,6 +9,7 @@ use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -19,6 +20,7 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\BinaryType;
@@ -38,6 +40,7 @@ use function array_search;
 use function array_shift;
 use function array_values;
 use function count;
+use function current;
 use function get_class;
 use function sprintf;
 use function strcasecmp;
@@ -382,6 +385,36 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test']->getColumns()));
         self::assertTrue($tableIndexes['test']->isUnique());
         self::assertFalse($tableIndexes['test']->isPrimary());
+    }
+
+    public function testDropAndCreateUniqueConstraint(): void
+    {
+        if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            self::markTestSkipped('SQLite does not support adding constraints to a table');
+        }
+
+        $table = new Table('test_unique_constraint');
+        $table->addColumn('id', 'integer');
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $uniqueConstraint = new UniqueConstraint('uniq_id', ['id']);
+        $this->schemaManager->createUniqueConstraint($uniqueConstraint, $table->getName());
+
+        // there's currently no API for introspecting unique constraints,
+        // so introspect the underlying indexes instead
+        $indexes = $this->schemaManager->listTableIndexes('test_unique_constraint');
+        self::assertCount(1, $indexes);
+
+        $index = current($indexes);
+        self::assertNotFalse($index);
+
+        self::assertEqualsIgnoringCase('uniq_id', $index->getName());
+        self::assertTrue($index->isUnique());
+
+        $this->schemaManager->dropUniqueConstraint($uniqueConstraint->getName(), $table->getName());
+
+        $indexes = $this->schemaManager->listTableIndexes('test_unique_constraint');
+        self::assertEmpty($indexes);
     }
 
     public function testCreateTableWithForeignKeys(): void
