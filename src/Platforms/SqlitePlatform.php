@@ -837,6 +837,8 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function getCreateConstraintSQL(Constraint $constraint, $table)
     {

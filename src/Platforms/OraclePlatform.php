@@ -179,6 +179,19 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     */
+    public function getCreatePrimaryKeySQL(Index $index, $table): string
+    {
+        if ($table instanceof Table) {
+            $table = $table->getQuotedName($this);
+        }
+
+        return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $index->getQuotedName($this)
+            . ' PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * Need to specifiy minvalue, since start with is hidden in the system and MINVALUE <= START WITH.
      * Therefore we can use MINVALUE to be able to get a hint what START WITH was for later introspection
@@ -411,10 +424,8 @@ class OraclePlatform extends AbstractPlatform
             $sql = array_merge($sql, $this->getCreateAutoincrementSql($columnName, $name));
         }
 
-        if (isset($indexes) && ! empty($indexes)) {
-            foreach ($indexes as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $name);
-            }
+        foreach ($indexes as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $name);
         }
 
         return $sql;
