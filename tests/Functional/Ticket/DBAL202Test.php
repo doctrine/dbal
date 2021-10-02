@@ -33,7 +33,7 @@ class DBAL202Test extends FunctionalTestCase
     {
         $stmt = $this->connection->prepare('INSERT INTO DBAL202 VALUES (8)');
         $this->connection->beginTransaction();
-        $stmt->execute();
+        $stmt->executeStatement();
         $this->connection->rollBack();
 
         self::assertEquals(0, $this->connection->fetchOne('SELECT COUNT(1) FROM DBAL202'));
@@ -43,7 +43,7 @@ class DBAL202Test extends FunctionalTestCase
     {
         $stmt = $this->connection->prepare('INSERT INTO DBAL202 VALUES (8)');
         $this->connection->beginTransaction();
-        $stmt->execute();
+        $stmt->executeStatement();
         $this->connection->commit();
 
         self::assertEquals(1, $this->connection->fetchOne('SELECT COUNT(1) FROM DBAL202'));

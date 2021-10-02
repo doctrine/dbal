@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function func_num_args;
 use function is_string;
@@ -152,21 +151,13 @@ class Statement
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @deprecated Statement::execute() is deprecated, use Statement::executeQuery() or executeStatement() instead
+     * @param mixed[] $params
      *
      * @throws Exception
      */
-    public function execute(?array $params = null): Result
+    private function execute(array $params): Result
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4580',
-            'Statement::execute() is deprecated, use Statement::executeQuery() or Statement::executeStatement() instead'
-        );
-
-        if ($params !== null) {
+        if ($params !== []) {
             $this->params = $params;
         }
 
@@ -175,7 +166,7 @@ class Statement
 
         try {
             return new Result(
-                $this->stmt->execute($params),
+                $this->stmt->execute($params === [] ? null : $params),
                 $this->conn
             );
         } catch (Exception $ex) {
@@ -194,10 +185,6 @@ class Statement
      */
     public function executeQuery(array $params = []): Result
     {
-        if ($params === []) {
-            $params = null; // Workaround as long execute() exists and used internally.
-        }
-
         return $this->execute($params);
     }
 
@@ -210,10 +197,6 @@ class Statement
      */
     public function executeStatement(array $params = []): int
     {
-        if ($params === []) {
-            $params = null; // Workaround as long execute() exists and used internally.
-        }
-
         return $this->execute($params)->rowCount();
     }
 

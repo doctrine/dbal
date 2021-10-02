@@ -355,36 +355,6 @@ class QueryBuilder
     }
 
     /**
-     * Executes this query using the bound parameters and their types.
-     *
-     * @deprecated Use {@link executeQuery()} or {@link executeStatement()} instead.
-     *
-     * @return Result|int
-     *
-     * @throws Exception
-     */
-    public function execute()
-    {
-        if ($this->type === self::SELECT) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/4578',
-                'QueryBuilder::execute() is deprecated, use QueryBuilder::executeQuery() for SQL queries instead.'
-            );
-
-            return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
-        }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4578',
-            'QueryBuilder::execute() is deprecated, use QueryBuilder::executeStatement() for SQL statements instead.'
-        );
-
-        return $this->connection->executeStatement($this->getSQL(), $this->params, $this->paramTypes);
-    }
-
-    /**
      * Gets the complete SQL string formed by the current specifications of this QueryBuilder.
      *
      * <code>

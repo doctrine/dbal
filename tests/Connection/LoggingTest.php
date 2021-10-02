@@ -39,7 +39,7 @@ final class LoggingTest extends TestCase
 
         $this->createConnection($driverConnection, 'UPDATE table SET foo = ?')
             ->prepare('UPDATE table SET foo = ?')
-            ->execute();
+            ->executeStatement();
     }
 
     private function createConnection(DriverConnection $driverConnection, string $expectedSQL): Connection

@@ -75,7 +75,7 @@ class StatementTest extends TestCase
 
         $statement = new Statement($sql, $this->conn);
         $statement->bindValue($name, $var, $type);
-        $statement->execute();
+        $statement->executeQuery();
     }
 
     public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute(): void
@@ -96,7 +96,7 @@ class StatementTest extends TestCase
                 ->will(self::returnValue($logger));
 
         $statement = new Statement($sql, $this->conn);
-        $statement->execute($values);
+        $statement->executeQuery($values);
     }
 
     public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam(): void
@@ -118,7 +118,7 @@ class StatementTest extends TestCase
 
         $statement = new Statement($sql, $this->conn);
         $statement->bindParam($name, $var);
-        $statement->execute();
+        $statement->executeQuery();
     }
 
     public function testExecuteCallsLoggerStopQueryOnException(): void
@@ -145,6 +145,6 @@ class StatementTest extends TestCase
 
         $this->expectException(Exception::class);
 
-        $statement->execute();
+        $statement->executeQuery();
     }
 }

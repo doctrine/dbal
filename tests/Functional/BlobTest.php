@@ -151,7 +151,7 @@ class BlobTest extends FunctionalTestCase
         // Bind param does late binding (bind by reference), so create the stream only now:
         $stream = fopen('data://text/plain,test', 'r');
 
-        $stmt->execute();
+        $stmt->executeStatement();
 
         $this->assertBlobContains('test');
     }
