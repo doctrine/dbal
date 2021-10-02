@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed the `Constraint` interface.
+
+The `Constraint` interface has been removed. The `ForeignKeyConstraint`, `Index` and `UniqueConstraint` classes
+no longer implement this interface.
+
+The following methods that used to accept an instance of `Constraint` have been removed:
+
+- `AbstractPlatform::getCreateConstraintSQL()`,
+- `AbstractSchemaManager::createConstraint()`, `::dropConstraint()` and `::dropAndCreateConstraint()`,
+- `ForeignKeyConstraint::getColumns()` and `::getQuotedColumns()`.
+
 ## BC BREAK: Removed `AbstractSchemaManager::getSchemaSearchPaths()`.
 
 The `AbstractSchemaManager::getSchemaSearchPaths()` method has been removed.

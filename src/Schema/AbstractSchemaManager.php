@@ -355,18 +355,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Drops the constraint from the given table.
-     *
-     * @deprecated Use {@link dropIndex()}, {@link dropForeignKey()} or {@link dropUniqueConstraint()} instead.
-     *
-     * @throws Exception
-     */
-    public function dropConstraint(string $name, string $table): void
-    {
-        $this->_execSql($this->_platform->getDropConstraintSQL($name, $table));
-    }
-
-    /**
      * Drops a foreign key from a table.
      *
      * @throws Exception
@@ -440,18 +428,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Creates a constraint on a table.
-     *
-     * @deprecated Use {@link createIndex()}, {@link createForeignKey()} or {@link createUniqueConstraint()} instead.
-     *
-     * @throws Exception
-     */
-    public function createConstraint(Constraint $constraint, string $table): void
-    {
-        $this->_execSql($this->_platform->getCreateConstraintSQL($constraint, $table));
-    }
-
-    /**
      * Creates a new index on a table.
      *
      * @param string $table The name of the table on which the index is to be created.
@@ -497,23 +473,6 @@ abstract class AbstractSchemaManager
     }
 
     /* dropAndCreate*() Methods */
-
-    /**
-     * Drops and creates a constraint.
-     *
-     * @deprecated Use {@link dropAndCreateIndex()}, {@link dropAndCreateForeignKey()}
-     *             or {@link dropUniqueConstraint()} and {@link createUniqueConstraint()} instead.
-     *
-     * @see dropConstraint()
-     * @see createConstraint()
-     *
-     * @throws Exception
-     */
-    public function dropAndCreateConstraint(Constraint $constraint, string $table): void
-    {
-        $this->tryMethod('dropConstraint', $constraint, $table);
-        $this->createConstraint($constraint, $table);
-    }
 
     /**
      * Drops and creates a new index on a table.

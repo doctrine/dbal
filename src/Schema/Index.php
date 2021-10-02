@@ -14,7 +14,7 @@ use function array_shift;
 use function count;
 use function strtolower;
 
-class Index extends AbstractAsset implements Constraint
+class Index extends AbstractAsset
 {
     /**
      * Asset identifier instances of the column names the index is associated with.

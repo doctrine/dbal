@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -617,14 +616,6 @@ class SqlitePlatform extends AbstractPlatform
     public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
         throw new Exception('Sqlite platform does not support alter foreign key.');
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getCreateConstraintSQL(Constraint $constraint, string $table): string
-    {
-        throw new Exception('Sqlite platform does not support alter constraint.');
     }
 
     /**

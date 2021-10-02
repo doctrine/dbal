@@ -438,10 +438,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $fkConstraint = array_shift($fkConstraints);
         self::assertEquals('test_foreign', strtolower($fkConstraint->getForeignTableName()));
-        self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkConstraint->getColumns()));
+        self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkConstraint->getLocalColumns()));
         self::assertEquals(['id'], array_map('strtolower', $fkConstraint->getForeignColumns()));
 
-        self::assertTrue($fkTable->columnsAreIndexed($fkConstraint->getColumns()));
+        self::assertTrue($fkTable->columnsAreIndexed($fkConstraint->getLocalColumns()));
     }
 
     public function testListForeignKeys(): void
@@ -617,7 +617,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foreignKey = array_shift($fks);
 
         self::assertEquals('alter_table_foreign', strtolower($foreignKey->getForeignTableName()));
-        self::assertEquals(['foreign_key_test'], array_map('strtolower', $foreignKey->getColumns()));
+        self::assertEquals(['foreign_key_test'], array_map('strtolower', $foreignKey->getLocalColumns()));
         self::assertEquals(['id'], array_map('strtolower', $foreignKey->getForeignColumns()));
     }
 
@@ -743,7 +743,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertCount(1, $foreignKeys);
         $foreignKey = array_shift($foreignKeys);
 
-        self::assertSame(['rename_fk_id'], array_map('strtolower', $foreignKey->getColumns()));
+        self::assertSame(['rename_fk_id'], array_map('strtolower', $foreignKey->getLocalColumns()));
     }
 
     public function testRenameIndexUsedInForeignKeyConstraint(): void

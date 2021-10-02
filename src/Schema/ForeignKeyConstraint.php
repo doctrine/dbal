@@ -16,7 +16,7 @@ use function substr;
 /**
  * An abstraction class for a foreign key constraint.
  */
-class ForeignKeyConstraint extends AbstractAsset implements Constraint
+class ForeignKeyConstraint extends AbstractAsset
 {
     /**
      * Asset identifier instances of the referencing table column names the foreign key constraint is associated with.
@@ -137,39 +137,6 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     public function getUnquotedForeignColumns(): array
     {
         return array_map([$this, 'trimQuotes'], $this->getForeignColumns());
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use {@link getLocalColumns()} instead.
-     *
-     * @see getLocalColumns
-     */
-    public function getColumns(): array
-    {
-        return $this->getLocalColumns();
-    }
-
-    /**
-     * Returns the quoted representation of the referencing table column names
-     * the foreign key constraint is associated with.
-     *
-     * But only if they were defined with one or the referencing table column name
-     * is a keyword reserved by the platform.
-     * Otherwise the plain unquoted value as inserted is returned.
-     *
-     * @deprecated Use {@link getQuotedLocalColumns()} instead.
-     *
-     * @see getQuotedLocalColumns
-     *
-     * @param AbstractPlatform $platform The platform to use for quotation.
-     *
-     * @return array<int, string>
-     */
-    public function getQuotedColumns(AbstractPlatform $platform): array
-    {
-        return $this->getQuotedLocalColumns($platform);
     }
 
     /**

@@ -594,7 +594,7 @@ SQL
 
         if (isset($options['uniqueConstraints'])) {
             foreach ($options['uniqueConstraints'] as $uniqueConstraint) {
-                $sql[] = $this->getCreateConstraintSQL($uniqueConstraint, $name);
+                $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $name);
             }
         }
 
