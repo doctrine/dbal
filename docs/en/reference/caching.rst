@@ -57,5 +57,5 @@ Reading the entire result set
 Caching half a result set would cause bugs if a subsequent caller needed
 more rows from that same result sets. To be able to cache the entire
 result set, it is always fetched entirely from the database. This means that
-all APIs will fetch the entire result set, even when not using on of the
+all APIs will fetch the entire result set, even when not using one of the
 ``fetchAll*()`` methods.
