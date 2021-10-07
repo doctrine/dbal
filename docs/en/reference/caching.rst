@@ -56,18 +56,6 @@ Reading the entire result set
 
 Caching half a result set would cause bugs if a subsequent caller needed
 more rows from that same result sets. To be able to cache the entire
-result set, it must be fetched entirely from the database, and not all
-APIs do that. The easiest way to ensure that is to use one of the
-``fetchAll*()`` methods:
-
-::
-
-    <?php
-    $stmt = $conn->executeCacheQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
-    $data = $stmt->fetchAllAssociative();
-
-.. warning::
-
-    When using the cache layer not all fetch modes are supported. See
-    the code of the ``Doctrine\DBAL\Cache\CachingResult`` for
-    details.
+result set, it is always fetched entirely from the database. This means that
+all APIs will fetch the entire result set, even when not using on of the
+``fetchAll*()`` methods.
