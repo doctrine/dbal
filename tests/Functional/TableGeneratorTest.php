@@ -20,8 +20,7 @@ class TableGeneratorTest extends FunctionalTestCase
             self::markTestSkipped('TableGenerator does not work with SQLite');
         }
 
-        $this->connection->createSchemaManager()
-            ->tryMethod('dropTable', 'sequences');
+        $this->dropTableIfExists('sequences');
 
         $schema  = new Schema();
         $visitor = new TableGeneratorSchemaVisitor();

@@ -36,9 +36,7 @@ class TypeConversionTest extends FunctionalTestCase
         $table->addColumn('test_decimal', 'decimal', ['notnull' => false, 'scale' => 2, 'precision' => 10]);
         $table->setPrimaryKey(['id']);
 
-        $this->connection
-            ->getSchemaManager()
-            ->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
     }
 
     /**

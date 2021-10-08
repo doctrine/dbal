@@ -35,16 +35,16 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
      */
     public function testAlterPrimaryKeyToAutoIncrementColumn(callable $comparatorFactory): void
     {
-        $schemaManager = $this->connection->getSchemaManager();
-        $schemaManager->tryMethod('dropTable', 'dbal2807');
+        $this->dropTableIfExists('dbal2807');
 
-        $schema = $schemaManager->createSchema();
+        $schemaManager = $this->connection->getSchemaManager();
+        $schema        = $schemaManager->createSchema();
 
         $table = $schema->createTable('dbal2807');
         $table->addColumn('initial_id', 'integer');
         $table->setPrimaryKey(['initial_id']);
 
-        $schemaManager->dropAndCreateTable($table);
+        $schemaManager->createTable($table);
 
         $newSchema = clone $schema;
         $newTable  = $newSchema->getTable($table->getName());
