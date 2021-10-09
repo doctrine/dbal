@@ -158,6 +158,10 @@ class QueryCacheProfileTest extends TestCase
             ]
         );
 
-        self::assertEquals($firstRealCacheKey, $secondRealCacheKey, 'Cache keys for different password should be the same');
+        self::assertEquals(
+            $firstRealCacheKey,
+            $secondRealCacheKey,
+            'Cache keys for different password should be the same'
+        );
     }
 }
