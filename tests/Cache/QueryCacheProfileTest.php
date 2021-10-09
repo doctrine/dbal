@@ -135,4 +135,33 @@ class QueryCacheProfileTest extends TestCase
 
         self::assertEquals($firstCacheKey, $secondCacheKey, 'Cache keys should be the same');
     }
+
+    public function testShouldGenerateDifferentPasswordInTheParams(): void
+    {
+        [, $firstRealCacheKey] = $this->queryCacheProfile->generateCacheKeys(
+            $this->query,
+            $this->params,
+            $this->types,
+            [
+                'user'     => 'database_user',
+                'password' => 'first-password',
+            ]
+        );
+
+        [, $secondRealCacheKey] = $this->queryCacheProfile->generateCacheKeys(
+            $this->query,
+            $this->params,
+            $this->types,
+            [
+                'user'     => 'database_user',
+                'password' => 'second-password',
+            ]
+        );
+
+        self::assertEquals(
+            $firstRealCacheKey,
+            $secondRealCacheKey,
+            'Cache keys for different password should be the same'
+        );
+    }
 }
