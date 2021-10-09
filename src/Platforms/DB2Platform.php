@@ -819,6 +819,14 @@ class DB2Platform extends AbstractPlatform
         return 'SUBSTR(' . $string . ', ' . $start . ', ' . $length . ')';
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getLengthExpression($column)
+    {
+        return 'LENGTH(' . $column . ', CODEUNITS32)';
+    }
+
     public function getCurrentDatabaseExpression(): string
     {
         return 'CURRENT_USER';

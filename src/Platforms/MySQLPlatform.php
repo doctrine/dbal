@@ -125,6 +125,14 @@ class MySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getLengthExpression($column)
+    {
+        return 'CHAR_LENGTH(' . $column . ')';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListDatabasesSQL()
     {
         return 'SHOW DATABASES';
