@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed support for SQL Server 2016 and older
+
+DBAL is now tested only with SQL Server 2017 and newer.
+
 ## BC BREAK: `Statement::execute()` marked private.
 
 The `Statement::execute()` method has been marked private.

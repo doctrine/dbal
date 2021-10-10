@@ -50,7 +50,7 @@ Oracle
 Microsoft SQL Server
 ^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLServerPlatform`` for version 2012 and above.
+-  ``SQLServerPlatform`` for version 2017 and above.
 
 PostgreSQL
 ^^^^^^^^^^
