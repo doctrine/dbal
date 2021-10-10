@@ -3,6 +3,8 @@
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -16,8 +18,13 @@ use Doctrine\DBAL\Types\Type;
 /**
  * @extends AbstractPlatformTestCase<SQLServer2012Platform>
  */
-abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
+class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
+    public function createPlatform(): AbstractPlatform
+    {
+        return new SQLServer2012Platform();
+    }
+
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255), PRIMARY KEY (id))';
@@ -1810,5 +1817,34 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $expectedSql = ['ALTER TABLE testschema.mytable ALTER COLUMN quota INT NOT NULL'];
 
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
+    }
+
+    /**
+     * @dataProvider getLockHints
+     */
+    public function testAppendsLockHint(int $lockMode, string $lockHint): void
+    {
+        $fromClause     = 'FROM users';
+        $expectedResult = $fromClause . $lockHint;
+
+        self::assertSame($expectedResult, $this->platform->appendLockHint($fromClause, $lockMode));
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function getLockHints(): iterable
+    {
+        return [
+            [LockMode::NONE, ''],
+            [LockMode::OPTIMISTIC, ''],
+            [LockMode::PESSIMISTIC_READ, ' WITH (HOLDLOCK, ROWLOCK)'],
+            [LockMode::PESSIMISTIC_WRITE, ' WITH (UPDLOCK, ROWLOCK)'],
+        ];
+    }
+
+    public function testGeneratesTypeDeclarationForDateTimeTz(): void
+    {
+        self::assertEquals('DATETIMEOFFSET(6)', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
     }
 }
