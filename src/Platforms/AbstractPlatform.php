@@ -480,7 +480,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet to get the length of a text column.
+     * Returns the SQL snippet to get the length of a text column in characters.
      *
      * @param string $string SQL expression producing the string.
      */

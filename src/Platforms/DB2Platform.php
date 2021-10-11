@@ -703,6 +703,11 @@ class DB2Platform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
+    public function getLengthExpression(string $string): string
+    {
+        return 'LENGTH(' . $string . ', CODEUNITS32)';
+    }
+
     public function getCurrentDatabaseExpression(): string
     {
         return 'CURRENT_USER';

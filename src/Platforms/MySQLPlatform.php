@@ -106,6 +106,11 @@ class MySQLPlatform extends AbstractPlatform
         return 'DATABASE()';
     }
 
+    public function getLengthExpression(string $string): string
+    {
+        return 'CHAR_LENGTH(' . $string . ')';
+    }
+
     public function getListDatabasesSQL(): string
     {
         return 'SHOW DATABASES';

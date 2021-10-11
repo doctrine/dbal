@@ -68,6 +68,10 @@ class QueryCacheProfile
      */
     public function generateCacheKeys(string $sql, array $params, array $types, array $connectionParams = []): array
     {
+        if (isset($connectionParams['password'])) {
+            unset($connectionParams['password']);
+        }
+
         $realCacheKey = 'query=' . $sql .
             '&params=' . serialize($params) .
             '&types=' . serialize($types) .

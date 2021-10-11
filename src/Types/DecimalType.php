@@ -33,6 +33,8 @@ class DecimalType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
+        // Some drivers starting from PHP 8.1 can represent decimals as float
+        // See also: https://github.com/doctrine/dbal/pull/4818
         if (PHP_VERSION_ID >= 80100 && is_float($value)) {
             return (string) $value;
         }
