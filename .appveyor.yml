@@ -19,10 +19,6 @@ environment:
   matrix:
   - db: mssql
     driver: sqlsrv
-    db_version: sql2012sp1
-    php: 7.4
-  - db: mssql
-    driver: sqlsrv
     db_version: sql2017
     php: 7.4
   - db: mssql
