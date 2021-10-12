@@ -12,9 +12,9 @@ class RenameColumnTest extends FunctionalTestCase
     /**
      * @dataProvider columnNameProvider
      */
-    public function testColumnPositionRetainedAfterRenaming(string $columnName): void
+    public function testColumnPositionRetainedAfterRenaming(string $columnName, string $newColumnName): void
     {
-        if ($columnName === 'C1') {
+        if ($columnName === 'C1' || $columnName === 'importantColumn') {
             self::markTestIncomplete('See https://github.com/doctrine/dbal/issues/4816');
         }
 
@@ -26,7 +26,7 @@ class RenameColumnTest extends FunctionalTestCase
         $sm->dropAndCreateTable($table);
 
         $table->dropColumn($columnName)
-            ->addColumn('c1_x', 'string', ['length' => 16]);
+            ->addColumn($newColumnName, 'string', ['length' => 16]);
 
         $diff = $sm->createComparator()
             ->diffTable($sm->listTableDetails('test_rename'), $table);
@@ -38,7 +38,7 @@ class RenameColumnTest extends FunctionalTestCase
         $columns = $table->getColumns();
 
         self::assertCount(2, $columns);
-        self::assertEqualsIgnoringCase('c1_x', $columns[0]->getName());
+        self::assertEqualsIgnoringCase($newColumnName, $columns[0]->getName());
         self::assertEqualsIgnoringCase('c2', $columns[1]->getName());
     }
 
@@ -47,7 +47,8 @@ class RenameColumnTest extends FunctionalTestCase
      */
     public static function columnNameProvider(): iterable
     {
-        yield ['c1'];
-        yield ['C1'];
+        yield ['c1', 'c1_x'];
+        yield ['C1', 'c1_x'];
+        yield ['importantColumn', 'veryImportantColumn'];
     }
 }
