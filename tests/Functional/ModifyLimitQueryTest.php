@@ -20,8 +20,6 @@ class ModifyLimitQueryTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         if (! self::$tableCreated) {
             $table = new Table('modify_limit_table');
             $table->addColumn('test_int', 'integer');

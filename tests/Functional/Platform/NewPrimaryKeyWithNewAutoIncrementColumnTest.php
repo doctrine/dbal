@@ -13,8 +13,6 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         if ($this->getPlatform() instanceof MySQLPlatform) {
             return;
         }

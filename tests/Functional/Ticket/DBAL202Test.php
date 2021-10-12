@@ -9,8 +9,6 @@ class DBAL202Test extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getDatabasePlatform()->getName() !== 'oracle') {
             self::markTestSkipped('OCI8 only test');
         }

@@ -13,8 +13,6 @@ class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getDriver() instanceof Driver) {
             return;
         }

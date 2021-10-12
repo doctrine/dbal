@@ -27,8 +27,6 @@ class DataAccessTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         if (self::$generated !== false) {
             return;
         }

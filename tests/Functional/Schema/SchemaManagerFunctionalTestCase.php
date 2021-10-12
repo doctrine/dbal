@@ -54,8 +54,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $this->supportsPlatform($platform)) {
@@ -81,8 +79,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         $this->markConnectionNotReusable();
-
-        parent::tearDown();
     }
 
     public function testDropAndCreateSequence(): void

@@ -33,8 +33,6 @@ class ConnectionTest extends FunctionalTestCase
         }
 
         $this->markConnectionNotReusable();
-
-        parent::tearDown();
     }
 
     public function testGetWrappedConnection(): void

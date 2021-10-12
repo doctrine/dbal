@@ -16,8 +16,6 @@ class DefaultValueTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         if (self::$initialized) {
             return;
         }

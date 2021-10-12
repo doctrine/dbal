@@ -12,8 +12,6 @@ class AsciiStringTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('ascii_table');
         $table->addColumn('id', 'ascii_string', [
             'length' => 3,

@@ -24,8 +24,6 @@ class ConnectionTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $driverConnection = $this->connection->getWrappedConnection();
 
         if (! $driverConnection instanceof Connection) {
@@ -38,8 +36,6 @@ class ConnectionTest extends FunctionalTestCase
     protected function tearDown(): void
     {
         $this->markConnectionNotReusable();
-
-        parent::tearDown();
     }
 
     public function testThrowsWrappedExceptionOnConstruct(): void

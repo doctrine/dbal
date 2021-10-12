@@ -22,8 +22,6 @@ class NoneTest extends FunctionalTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getDriver() instanceof OCI8\Driver) {
             // https://github.com/doctrine/dbal/issues/4417
             self::markTestSkipped('This test fails on OCI8 for a currently unknown reason');
@@ -59,17 +57,13 @@ class NoneTest extends FunctionalTestCase
         self::fail('Separate connections do not seem to talk to the same database');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
-        parent::tearDown();
-
         if ($this->connection2->isTransactionActive()) {
             $this->connection2->rollBack();
         }
 
         $this->connection2->close();
-
-        $this->connection->getSchemaManager()->dropTable('users');
 
         if (! $this->connection->getDatabasePlatform() instanceof SQLServer2012Platform) {
             return;

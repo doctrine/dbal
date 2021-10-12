@@ -13,8 +13,6 @@ class AutoIncrementColumnTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('auto_increment_table');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
@@ -25,11 +23,11 @@ class AutoIncrementColumnTest extends FunctionalTestCase
 
     protected function tearDown(): void
     {
-        if ($this->shouldDisableIdentityInsert) {
-            $this->connection->executeStatement('SET IDENTITY_INSERT auto_increment_table OFF');
+        if (! $this->shouldDisableIdentityInsert) {
+            return;
         }
 
-        parent::tearDown();
+        $this->connection->executeStatement('SET IDENTITY_INSERT auto_increment_table OFF');
     }
 
     public function testInsertIdentityValue(): void

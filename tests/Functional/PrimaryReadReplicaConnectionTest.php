@@ -20,8 +20,6 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         $platformName = $this->connection->getDatabasePlatform()->getName();
 
         // This is a MySQL specific test, skip other vendors.
