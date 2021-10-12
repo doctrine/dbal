@@ -922,7 +922,8 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $columns = $this->replaceColumn($diff->name, $columns, $oldColumnName, $column);
+            $oldColumnName = strtolower($oldColumnName);
+            $columns       = $this->replaceColumn($diff->name, $columns, $oldColumnName, $column);
 
             if (! isset($newColumnNames[$oldColumnName])) {
                 continue;
@@ -936,7 +937,8 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $columns = $this->replaceColumn($diff->name, $columns, $oldColumnName, $columnDiff->column);
+            $oldColumnName = strtolower($oldColumnName);
+            $columns       = $this->replaceColumn($diff->name, $columns, $oldColumnName, $columnDiff->column);
 
             if (! isset($newColumnNames[$oldColumnName])) {
                 continue;
@@ -1018,7 +1020,7 @@ class SqlitePlatform extends AbstractPlatform
     private function replaceColumn($tableName, array $columns, $columnName, Column $column): array
     {
         $keys  = array_keys($columns);
-        $index = array_search(strtolower($columnName), $keys, true);
+        $index = array_search($columnName, $keys, true);
 
         if ($index === false) {
             throw SchemaException::columnDoesNotExist($columnName, $tableName);

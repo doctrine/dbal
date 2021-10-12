@@ -157,9 +157,10 @@ jobs:
         postgres-version:
           - "9.4"
           - "13"
+          - "14"
         include:
           - php-version: "8.0"
-            postgres-version: "13"
+            postgres-version: "14"
 
     services:
       postgres:
