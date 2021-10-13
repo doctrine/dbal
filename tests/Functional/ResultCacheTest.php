@@ -33,8 +33,6 @@ class ResultCacheTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('caching');
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_string', 'string', ['notnull' => false]);
@@ -57,8 +55,6 @@ class ResultCacheTest extends FunctionalTestCase
     protected function tearDown(): void
     {
         $this->connection->getSchemaManager()->dropTable('caching');
-
-        parent::tearDown();
     }
 
     public function testCacheFetchAssociative(): void

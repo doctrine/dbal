@@ -26,8 +26,6 @@ final class ComparatorTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->platform = $this->connection->getDatabasePlatform();
 
         if (! $this->platform instanceof MySQLPlatform) {

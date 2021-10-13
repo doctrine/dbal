@@ -15,8 +15,6 @@ class TableGeneratorTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $platform = $this->connection->getDatabasePlatform();
         if ($platform instanceof SqlitePlatform) {
             self::markTestSkipped('TableGenerator does not work with SQLite');

@@ -12,8 +12,6 @@ class ConnectionLostTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getDatabasePlatform() instanceof MySQLPlatform) {
             return;
         }

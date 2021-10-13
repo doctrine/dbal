@@ -20,8 +20,6 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         if (! $this->connection->getDatabasePlatform() instanceof MySQLPlatform) {
             self::markTestSkipped('Test works only on MySQL.');
         }

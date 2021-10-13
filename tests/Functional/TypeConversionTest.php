@@ -18,8 +18,6 @@ class TypeConversionTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('type_conversion');
         $table->addColumn('id', 'integer', ['notnull' => false]);
         $table->addColumn('test_string', 'string', ['notnull' => false]);

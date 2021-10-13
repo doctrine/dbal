@@ -19,8 +19,6 @@ class BinaryTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             self::markTestSkipped('PDO_OCI doesn\'t support binding binary values');
         }

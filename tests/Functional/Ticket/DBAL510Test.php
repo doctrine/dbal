@@ -12,8 +12,6 @@ class DBAL510Test extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
             return;
         }
