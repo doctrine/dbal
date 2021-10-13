@@ -30,7 +30,6 @@ class ResultTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->connectionParams = TestUtil::getConnectionParams();
 
         if ($this->connection->getDriver() instanceof Driver) {
@@ -50,8 +49,6 @@ class ResultTest extends FunctionalTestCase
             'DROP TYPE return_numbers',
             $this->connectionParams['user']
         ));
-
-        parent::tearDown();
     }
 
     /**

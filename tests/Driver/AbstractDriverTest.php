@@ -27,8 +27,6 @@ abstract class AbstractDriverTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->driver = $this->createDriver();
     }
 

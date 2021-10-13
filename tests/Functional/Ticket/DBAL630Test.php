@@ -16,8 +16,6 @@ class DBAL630Test extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         if (! $this->connection->getDatabasePlatform() instanceof PostgreSQL94Platform) {
             self::markTestSkipped('Currently restricted to PostgreSQL');
         }
@@ -33,13 +31,13 @@ class DBAL630Test extends FunctionalTestCase
 
     protected function tearDown(): void
     {
-        if ($this->running) {
-            $this->getWrappedConnection()
-                ->getWrappedConnection()
-                ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        if (! $this->running) {
+            return;
         }
 
-        parent::tearDown();
+        $this->getWrappedConnection()
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     }
 
     public function testBooleanConversionSqlLiteral(): void

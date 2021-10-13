@@ -150,8 +150,6 @@ class NamedParametersTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getSchemaManager()->tablesExist('ddc1372_foobar')) {
             return;
         }

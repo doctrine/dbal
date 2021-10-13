@@ -17,8 +17,6 @@ class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('stmt_test');
         $table->addColumn('id', 'integer');
         $table->addColumn('name', 'text', ['notnull' => false]);

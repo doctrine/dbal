@@ -22,17 +22,8 @@ use const CASE_LOWER;
 
 class DataAccessTest extends FunctionalTestCase
 {
-    /** @var bool */
-    private static $generated = false;
-
     protected function setUp(): void
     {
-        parent::setUp();
-
-        if (self::$generated !== false) {
-            return;
-        }
-
         $table = new Table('fetch_table');
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_string', 'string');
@@ -40,15 +31,13 @@ class DataAccessTest extends FunctionalTestCase
         $table->setPrimaryKey(['test_int']);
 
         $sm = $this->connection->getSchemaManager();
-        $sm->createTable($table);
+        $sm->dropAndCreateTable($table);
 
         $this->connection->insert('fetch_table', [
             'test_int' => 1,
             'test_string' => 'foo',
             'test_datetime' => '2010-01-01 10:10:10',
         ]);
-
-        self::$generated = true;
     }
 
     public function testPrepareWithBindValue(): void
