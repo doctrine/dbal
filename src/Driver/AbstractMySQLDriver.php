@@ -95,7 +95,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
     {
         if (
             preg_match(
-                '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
+                '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/i',
                 $versionString,
                 $versionParts
             ) === 0
@@ -106,7 +106,11 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
             );
         }
 
-        return $versionParts['major'] . '.' . $versionParts['minor'] . '.' . $versionParts['patch'];
+        $majorVersion = $versionParts['major'];
+        $minorVersion = $versionParts['minor'] ?? 0;
+        $patchVersion = $versionParts['patch'] ?? 0;
+
+        return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
     }
 
     /**
