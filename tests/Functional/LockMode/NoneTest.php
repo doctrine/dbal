@@ -59,14 +59,14 @@ class NoneTest extends FunctionalTestCase
 
     protected function tearDown(): void
     {
-        if ($this->connection2->isTransactionActive()) {
-            $this->connection2->rollBack();
-        }
-
         $this->connection2->close();
 
         if (! $this->connection->getDatabasePlatform() instanceof SQLServer2012Platform) {
             return;
+        }
+
+        if ($this->connection->isTransactionActive()) {
+            $this->connection->rollBack();
         }
 
         $db = $this->connection->getDatabase();
