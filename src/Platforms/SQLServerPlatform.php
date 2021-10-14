@@ -993,7 +993,9 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListViewsSQL($database)
     {
-        return "SELECT name FROM sysobjects WHERE type = 'V' ORDER BY name";
+        return "SELECT name, definition FROM sysobjects
+                    INNER JOIN sys.sql_modules ON sysobjects.id = sys.sql_modules.object_id
+                WHERE type = 'V' ORDER BY name";
     }
 
     /**
