@@ -354,6 +354,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
         }
 
         if ($fixCase) {
+            assert($this->case !== null);
             $row = array_change_key_case($row, $this->case);
         }
 

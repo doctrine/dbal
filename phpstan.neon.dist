@@ -1,5 +1,5 @@
 parameters:
-    level: 7
+    level: 8
     paths:
         - %currentWorkingDirectory%/lib
     reportUnmatchedIgnoredErrors: false
@@ -130,3 +130,21 @@ parameters:
             message: '~^Circular definition detected in type alias (Override)?Params\.$~'
             paths:
                 - %currentWorkingDirectory%/lib/Doctrine/DBAL/DriverManager.php
+
+        # TODO: remove in 4.0.0
+        -
+            message: '~^Parameter #2 \$table of class Doctrine\\DBAL\\Event\\SchemaIndexDefinitionEventArgs constructor expects string, string\|null given\.$~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php
+
+        # https://github.com/phpstan/phpstan/issues/1901
+        -
+            message: '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::escapeStringForLike\(\) should return string but returns string\|null\.$~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Platforms/AbstractPlatform.php
+
+        # https://github.com/phpstan/phpstan/issues/4679
+        -
+            message: '~^Cannot call method writeTemporary\(\) on OCILob\|null\.$~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php

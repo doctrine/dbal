@@ -226,6 +226,8 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
         $streams = $values = [];
         $types   = $this->types;
 
+        assert($this->_bindedValues !== null);
+
         foreach ($this->_bindedValues as $parameter => $value) {
             assert(is_int($parameter));
 
