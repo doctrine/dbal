@@ -23,7 +23,7 @@ class ConnectionLostTest extends DbalFunctionalTestCase
 
     public function testConnectionLost(): void
     {
-        $this->connection->query('SET SESSION wait_timeout=1');
+        $this->connection->executeStatement('SET SESSION wait_timeout=1');
 
         sleep(2);
 

@@ -15,6 +15,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use mysqli;
+use mysqli_sql_exception;
 use mysqli_stmt;
 use PDO;
 use ReturnTypeWillChange;
@@ -94,7 +95,11 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
     {
         $this->_conn = $conn;
 
-        $stmt = $conn->prepare($prepareString);
+        try {
+            $stmt = $conn->prepare($prepareString);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
+        }
 
         if ($stmt === false) {
             throw ConnectionError::new($this->_conn);
@@ -161,7 +166,13 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
             }
         }
 
-        if (! $this->_stmt->execute()) {
+        try {
+            $result = $this->_stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            throw StatementError::upcast($e);
+        }
+
+        if (! $result) {
             throw StatementError::new($this->_stmt);
         }
 

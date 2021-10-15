@@ -11,6 +11,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
 use mysqli;
+use mysqli_sql_exception;
 
 use function assert;
 use function floor;
@@ -77,7 +78,14 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
         $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
 
-        if (! @$this->conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
+        try {
+            $success = @$this->conn
+                ->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionFailed::upcast($e);
+        }
+
+        if (! $success) {
             throw ConnectionFailed::new($this->conn);
         }
 
@@ -170,7 +178,13 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
      */
     public function exec($sql)
     {
-        if ($this->conn->query($sql) === false) {
+        try {
+            $result = $this->conn->query($sql);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
+        }
+
+        if ($result === false) {
             throw ConnectionError::new($this->conn);
         }
 
@@ -200,7 +214,11 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
      */
     public function commit()
     {
-        return $this->conn->commit();
+        try {
+            return $this->conn->commit();
+        } catch (mysqli_sql_exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -208,7 +226,11 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
      */
     public function rollBack()
     {
-        return $this->conn->rollback();
+        try {
+            return $this->conn->rollback();
+        } catch (mysqli_sql_exception $e) {
+            return false;
+        }
     }
 
     /**
