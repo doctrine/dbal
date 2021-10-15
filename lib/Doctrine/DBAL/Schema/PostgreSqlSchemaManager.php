@@ -86,6 +86,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $this->determineExistingSchemaSearchPaths();
         }
 
+        assert($this->existingSchemaPaths !== null);
+
         return $this->existingSchemaPaths;
     }
 

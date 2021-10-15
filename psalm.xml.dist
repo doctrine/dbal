@@ -273,6 +273,14 @@
                 <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
             </errorLevel>
         </PossiblyNullIterator>
+        <PossiblyFalseReference>
+            <errorLevel type="suppress">
+                <!--
+                    oci_new_descriptor() returns OCI-Lob|false on PHP 7 and OCILob|null on PHP 8
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php"/>
+            </errorLevel>
+        </PossiblyFalseReference>
         <PropertyNotSetInConstructor>
             <errorLevel type="suppress">
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
