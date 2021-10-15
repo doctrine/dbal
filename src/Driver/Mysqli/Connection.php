@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
+use mysqli_sql_exception;
 
 use function assert;
 use function floor;
@@ -52,7 +53,13 @@ final class Connection implements ServerInfoAwareConnection
             $initializer->initialize($connection);
         }
 
-        if (! @$connection->real_connect($host, $username, $password, $database, $port, $socket, $flags)) {
+        try {
+            $success = @$connection->real_connect($host, $username, $password, $database, $port, $socket, $flags);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionFailed::upcast($e);
+        }
+
+        if (! $success) {
             throw ConnectionFailed::new($connection);
         }
 
@@ -117,7 +124,13 @@ final class Connection implements ServerInfoAwareConnection
 
     public function exec(string $sql): int
     {
-        if ($this->conn->query($sql) === false) {
+        try {
+            $result = $this->conn->query($sql);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
+        }
+
+        if ($result === false) {
             throw ConnectionError::new($this->conn);
         }
 
@@ -147,7 +160,11 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function commit()
     {
-        return $this->conn->commit();
+        try {
+            return $this->conn->commit();
+        } catch (mysqli_sql_exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -155,6 +172,10 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function rollBack()
     {
-        return $this->conn->rollback();
+        try {
+            return $this->conn->rollback();
+        } catch (mysqli_sql_exception $e) {
+            return false;
+        }
     }
 }
