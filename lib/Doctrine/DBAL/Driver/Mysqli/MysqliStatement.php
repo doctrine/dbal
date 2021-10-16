@@ -317,10 +317,16 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
 
     /**
      * @return mixed[]|false|null
+     *
+     * @throws StatementError
      */
     private function _fetch()
     {
-        $ret = $this->_stmt->fetch();
+        try {
+            $ret = $this->_stmt->fetch();
+        } catch (mysqli_sql_exception $e) {
+            throw StatementError::upcast($e);
+        }
 
         if ($ret === true) {
             $values = [];
