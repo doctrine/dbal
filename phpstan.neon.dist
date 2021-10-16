@@ -153,5 +153,16 @@ parameters:
             paths:
                 - src/Driver/OCI8/Statement.php
 
+        # TODO: check for null after calling Connection::getDatabase()
+        -
+            message: '~Parameter.*\$database of method.*expects string, string\|null given\.~'
+            path: src/Schema/AbstractSchemaManager.php
+            count: 3
+
+        # TODO: prevent unsafe usage of operator - with null
+        -
+            message: '~Only numeric types are allowed in \-, float\|null given on the right side\.~'
+            path: src/Logging/DebugStack.php
+
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
