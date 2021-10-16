@@ -49,23 +49,22 @@ final class Connection implements ServerInfoAwareConnection
         $connection = mysqli_init();
         assert($connection !== false);
 
+        foreach ($preInitializers as $initializer) {
+            $initializer->initialize($connection);
+        }
+
         try {
-            foreach ($preInitializers as $initializer) {
-                $initializer->initialize($connection);
-            }
-
-            $success = @$connection
-                ->real_connect($host, $username, $password, $database, $port, $socket, $flags);
-
-            if (! $success) {
-                throw ConnectionFailed::new($connection);
-            }
-
-            foreach ($postInitializers as $initializer) {
-                $initializer->initialize($connection);
-            }
+            $success = @$connection->real_connect($host, $username, $password, $database, $port, $socket, $flags);
         } catch (mysqli_sql_exception $e) {
             throw ConnectionFailed::upcast($e);
+        }
+
+        if (! $success) {
+            throw ConnectionFailed::new($connection);
+        }
+
+        foreach ($postInitializers as $initializer) {
+            $initializer->initialize($connection);
         }
 
         $this->conn = $connection;
