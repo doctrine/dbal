@@ -60,9 +60,9 @@ parameters:
 
         # Fixing the issue may cause a BC break.
         -
-            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliConnection::lastInsertId\(\) should return string but returns int\|string\.$~'
+            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::lastInsertId\(\) should return string but returns int\|string\.$~'
             paths:
-                - lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
+                - src/Driver/Mysqli/Connection.php
 
         # In some namespaces, we use array<string,mixed>, some elements of which are actually boolean
         -
@@ -149,5 +149,27 @@ parameters:
             message: "#^Strict comparison using \\!\\=\\= between null and null will always evaluate to false\\.$#"
             count: 1
             path: src/Cache/QueryCacheProfile.php
+        -
+            message: '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::escapeStringForLike\(\) should return string but returns string\|null\.$~'
+            paths:
+                - src/Platforms/AbstractPlatform.php
+
+        # https://github.com/phpstan/phpstan/issues/4679
+        -
+            message: '~^Cannot call method writeTemporary\(\) on OCILob\|null\.$~'
+            paths:
+                - src/Driver/OCI8/Statement.php
+
+        # TODO: check for null after calling Connection::getDatabase()
+        -
+            message: '~Parameter.*\$database of method.*expects string, string\|null given\.~'
+            path: src/Schema/AbstractSchemaManager.php
+            count: 3
+
+        # TODO: prevent unsafe usage of operator - with null
+        -
+            message: '~Only numeric types are allowed in \-, float\|null given on the right side\.~'
+            path: src/Logging/DebugStack.php
+
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

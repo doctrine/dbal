@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\Mysqli\Initializer;
 use Doctrine\DBAL\Driver\Mysqli\Exception\InvalidCharset;
 use Doctrine\DBAL\Driver\Mysqli\Initializer;
 use mysqli;
+use mysqli_sql_exception;
 
 final class Charset implements Initializer
 {
@@ -20,7 +21,13 @@ final class Charset implements Initializer
 
     public function initialize(mysqli $connection): void
     {
-        if ($connection->set_charset($this->charset)) {
+        try {
+            $success = $connection->set_charset($this->charset);
+        } catch (mysqli_sql_exception $e) {
+            throw InvalidCharset::upcast($e, $this->charset);
+        }
+
+        if ($success) {
             return;
         }
 

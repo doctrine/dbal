@@ -68,7 +68,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.0"
+          - "8.1"
 
     services:
       oracle:
@@ -111,7 +111,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.0"
+          - "8.1"
 
     services:
       oracle:
@@ -159,7 +159,7 @@ jobs:
           - "13"
           - "14"
         include:
-          - php-version: "8.0"
+          - php-version: "8.1"
             postgres-version: "14"
 
     services:
@@ -216,10 +216,10 @@ jobs:
           - "mysqli"
           - "pdo_mysql"
         include:
-          - php-version: "8.0"
+          - php-version: "8.1"
             mariadb-version: "10.5"
             extension: "mysqli"
-          - php-version: "8.0"
+          - php-version: "8.1"
             mariadb-version: "10.5"
             extension: "pdo_mysql"
 
@@ -262,7 +262,6 @@ jobs:
           name: "${{ github.job }}-${{ matrix.mariadb-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
 
-
   phpunit-mysql:
     name: "PHPUnit with MySQL"
     runs-on: "ubuntu-20.04"
@@ -301,12 +300,12 @@ jobs:
             php-version: "7.4"
             mysql-version: "8.0"
             extension: "mysqli"
-          - php-version: "8.0"
+          - php-version: "8.1"
             mysql-version: "8.0"
             extension: "mysqli"
             custom-entrypoint: >-
               --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
-          - php-version: "8.0"
+          - php-version: "8.1"
             mysql-version: "8.0"
             extension: "pdo_mysql"
             custom-entrypoint: >-
@@ -365,7 +364,7 @@ jobs:
         php-version:
           - "7.3"
           - "7.4"
-          - "8.0"
+          - "8.1"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -406,7 +405,7 @@ jobs:
           coverage: "pcov"
           ini-values: "zend.assertions=1"
           tools: "pecl"
-          extensions: "${{ matrix.extension }}-5.9.0preview1"
+          extensions: "${{ matrix.extension }}-5.10.0beta1"
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
@@ -477,7 +476,6 @@ jobs:
         with:
           name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
-
 
   development-deps:
     name: "PHPUnit with SQLite and development dependencies"

@@ -316,6 +316,14 @@
                 <file name="src/Driver/Mysqli/Statement.php"/>
             </errorLevel>
         </PossiblyNullIterator>
+        <PossiblyFalseReference>
+            <errorLevel type="suppress">
+                <!--
+                    oci_new_descriptor() returns OCI-Lob|false on PHP 7 and OCILob|null on PHP 8
+                -->
+                <file name="src/Driver/OCI8/Statement.php"/>
+            </errorLevel>
+        </PossiblyFalseReference>
         <PropertyNotSetInConstructor>
             <errorLevel type="suppress">
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->

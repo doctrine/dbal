@@ -29,7 +29,7 @@ final class Driver extends AbstractMySQLDriver
             $host = $params['host'] ?? null;
         }
 
-        $flags = null;
+        $flags = 0;
 
         $preInitializers = $postInitializers = [];
 
