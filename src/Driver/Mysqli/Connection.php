@@ -42,7 +42,7 @@ final class Connection implements ServerInfoAwareConnection
         ?string $database = null,
         ?int $port = null,
         ?string $socket = null,
-        ?int $flags = null,
+        int $flags = 0,
         iterable $preInitializers = [],
         iterable $postInitializers = []
     ) {
