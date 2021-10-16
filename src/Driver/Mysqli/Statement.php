@@ -12,6 +12,7 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
+use mysqli_sql_exception;
 use mysqli_stmt;
 
 use function array_fill;
@@ -67,7 +68,11 @@ final class Statement implements StatementInterface
     {
         $this->_conn = $conn;
 
-        $stmt = $conn->prepare($prepareString);
+        try {
+            $stmt = $conn->prepare($prepareString);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
+        }
 
         if ($stmt === false) {
             throw ConnectionError::new($this->_conn);
@@ -134,7 +139,13 @@ final class Statement implements StatementInterface
             }
         }
 
-        if (! $this->_stmt->execute()) {
+        try {
+            $result = $this->_stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            throw StatementError::upcast($e);
+        }
+
+        if (! $result) {
             throw StatementError::new($this->_stmt);
         }
 
