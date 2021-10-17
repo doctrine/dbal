@@ -365,6 +365,7 @@ class TableTest extends TestCase
         $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
         $index = array_shift($indexes);
+        self::assertNotNull($index);
 
         self::assertTrue($table->hasIndex($index->getName()));
         self::assertEquals(['id'], $index->getColumns());
@@ -419,6 +420,7 @@ class TableTest extends TestCase
         $indexes = $table->getIndexes();
         self::assertCount(1, $indexes);
         $index = array_shift($indexes);
+        self::assertNotNull($index);
 
         $table->addUniqueIndex(['baz']);
         self::assertCount(2, $table->getIndexes());

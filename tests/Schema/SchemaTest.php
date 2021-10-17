@@ -184,6 +184,7 @@ class SchemaTest extends TestCase
         self::assertCount(1, $indexes);
 
         $index = array_shift($indexes);
+        self::assertNotNull($index);
         self::assertEquals(5, strlen($index->getName()));
     }
 

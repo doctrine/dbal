@@ -437,6 +437,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(1, count($fkConstraints), "Table 'test_create_fk1' has to have one foreign key.");
 
         $fkConstraint = array_shift($fkConstraints);
+        self::assertNotNull($fkConstraint);
         self::assertEquals('test_foreign', strtolower($fkConstraint->getForeignTableName()));
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkConstraint->getLocalColumns()));
         self::assertEquals(['id'], array_map('strtolower', $fkConstraint->getForeignColumns()));
@@ -615,6 +616,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $fks = $table->getForeignKeys();
         self::assertCount(1, $fks);
         $foreignKey = array_shift($fks);
+        self::assertNotNull($foreignKey);
 
         self::assertEquals('alter_table_foreign', strtolower($foreignKey->getForeignTableName()));
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $foreignKey->getLocalColumns()));
@@ -742,6 +744,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foreignKeys = $table->getForeignKeys();
         self::assertCount(1, $foreignKeys);
         $foreignKey = array_shift($foreignKeys);
+        self::assertNotNull($foreignKey);
 
         self::assertSame(['rename_fk_id'], array_map('strtolower', $foreignKey->getLocalColumns()));
     }

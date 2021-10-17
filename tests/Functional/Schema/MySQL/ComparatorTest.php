@@ -95,7 +95,9 @@ final class ComparatorTest extends FunctionalTestCase
     private function increaseLobLength(Table $table): void
     {
         $column = $table->getColumn('lob');
-        $column->setLength($column->getLength() + 1);
+        $length = $column->getLength();
+        self::assertNotNull($length);
+        $column->setLength($length + 1);
     }
 
     public function testExplicitDefaultCollation(): void
