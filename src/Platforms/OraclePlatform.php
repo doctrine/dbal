@@ -410,7 +410,7 @@ class OraclePlatform extends AbstractPlatform
         return $sql;
     }
 
-    public function getListAllIndexesSQL(string $database): string
+    public function getListDatabaseIndexesSQL(string $database): string
     {
         $databaseIdentifier       = $this->normalizeIdentifier($database);
         $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
@@ -644,7 +644,7 @@ END;';
             : $identifierName;
     }
 
-    public function getListAllForeignKeysSQL(string $database): string
+    public function getListDatabaseForeignKeysSQL(string $database): string
     {
         $databaseIdentifier       = $this->normalizeIdentifier($database);
         $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
@@ -710,7 +710,7 @@ SQL;
         return 'SELECT * FROM user_constraints WHERE table_name = ' . $table;
     }
 
-    public function getListAllColumnsSQL(string $database): string
+    public function getListDatabaseColumnsSQL(string $database): string
     {
         $databaseIdentifier       = $this->normalizeIdentifier($database);
         $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());

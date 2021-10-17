@@ -2797,7 +2797,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to list all the columns of all the tables in the database.
      */
-    public function getListAllColumnsSQL(string $database): string
+    public function getListDatabaseColumnsSQL(string $database): string
     {
         throw Exception::notSupported(__METHOD__);
     }
@@ -2852,7 +2852,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to list all the indexes in the database.
      */
-    public function getListAllIndexesSQL(string $database): string
+    public function getListDatabaseIndexesSQL(string $database): string
     {
         throw Exception::notSupported(__METHOD__);
     }
@@ -2882,7 +2882,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to list all the foreign keys in the database.
      */
-    public function getListAllForeignKeysSQL(string $database): string
+    public function getListDatabaseForeignKeysSQL(string $database): string
     {
         throw Exception::notSupported(__METHOD__);
     }
