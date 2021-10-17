@@ -39,6 +39,35 @@ class ColumnTest extends TestCase
         self::assertFalse($column->hasCustomSchemaOption('foo'));
     }
 
+    public function testGetOptions(): void
+    {
+        $expected = [
+            'type' => Type::getType('string'),
+            'default' => 'baz',
+            'notnull' => false,
+            'length' => 200,
+            'precision' => 5,
+            'scale' => 2,
+            'fixed' => true,
+            'unsigned' => true,
+            'autoincrement' => false,
+            'columnDefinition' => null,
+            'comment' => null,
+        ];
+
+        self::assertEquals($expected, $this->createColumn()->getOptions());
+    }
+
+    public function testGetPlatformOptions(): void
+    {
+        self::assertEquals(['foo' => 'bar'], $this->createColumn()->getPlatformOptions());
+    }
+
+    public function testGetCustomSchemaOptions(): void
+    {
+        self::assertEquals(['bar' => 'baz'], $this->createColumn()->getCustomSchemaOptions());
+    }
+
     public function testToArray(): void
     {
         $expected = [

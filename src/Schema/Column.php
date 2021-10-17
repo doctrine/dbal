@@ -91,6 +91,26 @@ class Column extends AbstractAsset
     }
 
     /**
+     * @return mixed[]
+     */
+    public function getOptions(): array
+    {
+        return [
+            'type'          => $this->_type,
+            'default'       => $this->_default,
+            'notnull'       => $this->_notnull,
+            'length'        => $this->_length,
+            'precision'     => $this->_precision,
+            'scale'         => $this->_scale,
+            'fixed'         => $this->_fixed,
+            'unsigned'      => $this->_unsigned,
+            'autoincrement' => $this->_autoincrement,
+            'columnDefinition' => $this->_columnDefinition,
+            'comment' => $this->_comment,
+        ];
+    }
+
+    /**
      * @return Column
      */
     public function setType(Type $type)
@@ -431,19 +451,11 @@ class Column extends AbstractAsset
      */
     public function toArray()
     {
-        return array_merge([
-            'name'          => $this->_name,
-            'type'          => $this->_type,
-            'default'       => $this->_default,
-            'notnull'       => $this->_notnull,
-            'length'        => $this->_length,
-            'precision'     => $this->_precision,
-            'scale'         => $this->_scale,
-            'fixed'         => $this->_fixed,
-            'unsigned'      => $this->_unsigned,
-            'autoincrement' => $this->_autoincrement,
-            'columnDefinition' => $this->_columnDefinition,
-            'comment' => $this->_comment,
-        ], $this->_platformOptions, $this->_customSchemaOptions);
+        return array_merge(
+            ['name' => $this->_name],
+            $this->getOptions(),
+            $this->_platformOptions,
+            $this->_customSchemaOptions
+        );
     }
 }
