@@ -16,6 +16,9 @@ use ReflectionProperty;
 use function get_class;
 use function sprintf;
 
+/**
+ * @template P of AbstractPlatform
+ */
 abstract class AbstractDriverTest extends TestCase
 {
     /**
@@ -109,6 +112,8 @@ abstract class AbstractDriverTest extends TestCase
      *
      * The platform instance returned by this method must be the same as returned by
      * the driver's getDatabasePlatform() method.
+     *
+     * @return P
      */
     abstract protected function createPlatform(): AbstractPlatform;
 

@@ -10,6 +10,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
+use function assert;
+
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SQLite based drivers.
  */
@@ -28,6 +30,8 @@ abstract class AbstractSQLiteDriver implements Driver
      */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform)
     {
+        assert($platform instanceof SqlitePlatform);
+
         return new SqliteSchemaManager($conn, $platform);
     }
 

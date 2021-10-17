@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Connection;
 
 use Doctrine\DBAL\Exception\NoKeyValue;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
@@ -94,7 +94,7 @@ class FetchTest extends FunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if ($platform instanceof SQLServer2012Platform) {
+        if ($platform instanceof SQLServerPlatform) {
             self::markTestSkipped('See https://github.com/doctrine/dbal/issues/2374');
         }
 

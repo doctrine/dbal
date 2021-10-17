@@ -28,6 +28,8 @@ use function strtolower;
 /**
  * Base class for schema managers. Schema managers are used to inspect and/or
  * modify the database schema/structure.
+ *
+ * @template T of AbstractPlatform
  */
 abstract class AbstractSchemaManager
 {
@@ -41,10 +43,13 @@ abstract class AbstractSchemaManager
     /**
      * Holds instance of the database platform used for this schema manager.
      *
-     * @var AbstractPlatform
+     * @var T
      */
     protected $_platform;
 
+    /**
+     * @param T $platform
+     */
     public function __construct(Connection $connection, AbstractPlatform $platform)
     {
         $this->_conn     = $connection;
@@ -54,7 +59,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns the associated platform.
      *
-     * @return AbstractPlatform
+     * @return T
      */
     public function getDatabasePlatform()
     {
@@ -419,6 +424,8 @@ abstract class AbstractSchemaManager
     /**
      * Drops the constraint from the given table.
      *
+     * @deprecated Use {@link dropIndex()}, {@link dropForeignKey()} or {@link dropUniqueConstraint()} instead.
+     *
      * @param Table|string $table The name of the table.
      *
      * @return void
@@ -457,6 +464,16 @@ abstract class AbstractSchemaManager
     public function dropSequence($name)
     {
         $this->_execSql($this->_platform->getDropSequenceSQL($name));
+    }
+
+    /**
+     * Drops the unique constraint from the given table.
+     *
+     * @throws Exception
+     */
+    public function dropUniqueConstraint(string $name, string $tableName): void
+    {
+        $this->_execSql($this->_platform->getDropUniqueConstraintSQL($name, $tableName));
     }
 
     /**
@@ -519,6 +536,8 @@ abstract class AbstractSchemaManager
     /**
      * Creates a constraint on a table.
      *
+     * @deprecated Use {@link createIndex()}, {@link createForeignKey()} or {@link createUniqueConstraint()} instead.
+     *
      * @param Table|string $table
      *
      * @return void
@@ -560,6 +579,16 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Creates a unique constraint on a table.
+     *
+     * @throws Exception
+     */
+    public function createUniqueConstraint(UniqueConstraint $uniqueConstraint, string $tableName): void
+    {
+        $this->_execSql($this->_platform->getCreateUniqueConstraintSQL($uniqueConstraint, $tableName));
+    }
+
+    /**
      * Creates a new view.
      *
      * @return void
@@ -575,6 +604,9 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops and creates a constraint.
+     *
+     * @deprecated Use {@link dropAndCreateIndex()}, {@link dropAndCreateForeignKey()}
+     *             or {@link dropUniqueConstraint()} and {@link createUniqueConstraint()} instead.
      *
      * @see dropConstraint()
      * @see createConstraint()
@@ -675,6 +707,29 @@ abstract class AbstractSchemaManager
     {
         $this->tryMethod('dropView', $view->getQuotedName($this->_platform));
         $this->createView($view);
+    }
+
+    /**
+     * Alters an existing schema.
+     *
+     * @throws Exception
+     */
+    public function alterSchema(SchemaDiff $schemaDiff): void
+    {
+        $this->_execSql($schemaDiff->toSql($this->_platform));
+    }
+
+    /**
+     * Migrates an existing schema to a new schema.
+     *
+     * @throws Exception
+     */
+    public function migrateSchema(Schema $toSchema): void
+    {
+        $schemaDiff = $this->createComparator()
+            ->compareSchemas($this->createSchema(), $toSchema);
+
+        $this->alterSchema($schemaDiff);
     }
 
     /* alterTable() Methods */
@@ -787,37 +842,6 @@ abstract class AbstractSchemaManager
         );
 
         return $namespace;
-    }
-
-    /**
-     * @param mixed[][] $triggers
-     *
-     * @return mixed[][]
-     */
-    protected function _getPortableTriggersList($triggers)
-    {
-        $list = [];
-        foreach ($triggers as $value) {
-            $value = $this->_getPortableTriggerDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
-        }
-
-        return $list;
-    }
-
-    /**
-     * @param mixed[] $trigger
-     *
-     * @return mixed
-     */
-    protected function _getPortableTriggerDefinition($trigger)
-    {
-        return $trigger;
     }
 
     /**
@@ -1175,12 +1199,20 @@ abstract class AbstractSchemaManager
      * For databases that don't support subschema/namespaces this method
      * returns the name of the currently connected database.
      *
+     * @deprecated
+     *
      * @return string[]
      *
      * @throws Exception
      */
     public function getSchemaSearchPaths()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4821',
+            'AbstractSchemaManager::getSchemaSearchPaths() is deprecated.'
+        );
+
         $database = $this->_conn->getDatabase();
 
         if ($database !== null) {
@@ -1221,5 +1253,10 @@ abstract class AbstractSchemaManager
         }
 
         return str_replace('(DC2Type:' . $type . ')', '', $comment);
+    }
+
+    public function createComparator(): Comparator
+    {
+        return new Comparator($this->getDatabasePlatform());
     }
 }

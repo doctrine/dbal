@@ -35,6 +35,8 @@ class OraclePlatform extends AbstractPlatform
     /**
      * Assertion for Oracle identifiers.
      *
+     * @deprecated
+     *
      * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
      *
      * @param string $identifier
@@ -63,12 +65,20 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated Generate dates within the application.
+     *
      * @param string $type
      *
      * @return string
      */
     public function getNowExpression($type = 'timestamp')
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4753',
+            'OraclePlatform::getNowExpression() is deprecated. Generate dates within the application.'
+        );
+
         switch ($type) {
             case 'date':
             case 'time':
@@ -165,6 +175,19 @@ class OraclePlatform extends AbstractPlatform
         return '(' . $value1 . '-' .
                 $this->getBitAndComparisonExpression($value1, $value2)
                 . '+' . $value2 . ')';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreatePrimaryKeySQL(Index $index, $table): string
+    {
+        if ($table instanceof Table) {
+            $table = $table->getQuotedName($this);
+        }
+
+        return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $index->getQuotedName($this)
+            . ' PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
     }
 
     /**
@@ -401,10 +424,8 @@ class OraclePlatform extends AbstractPlatform
             $sql = array_merge($sql, $this->getCreateAutoincrementSql($columnName, $name));
         }
 
-        if (isset($indexes) && ! empty($indexes)) {
-            foreach ($indexes as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $name);
-            }
+        foreach ($indexes as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $name);
         }
 
         return $sql;
@@ -487,22 +508,8 @@ SQL;
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function getCreateViewSQL($name, $sql)
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropViewSQL($name)
-    {
-        return 'DROP VIEW ' . $name;
-    }
-
-    /**
+     * @internal The method should be only used from within the OraclePlatform class hierarchy.
+     *
      * @param string $name
      * @param string $table
      * @param int    $start
@@ -570,6 +577,8 @@ END;';
     }
 
     /**
+     * @internal The method should be only used from within the OracleSchemaManager class hierarchy.
+     *
      * Returns the SQL statements to drop the autoincrement for the given table name.
      *
      * @param string $table The table name to drop the autoincrement for.
@@ -773,18 +782,6 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDropSequenceSQL($sequence)
-    {
-        if ($sequence instanceof Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-
-        return 'DROP SEQUENCE ' . $sequence;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         if (! $foreignKey instanceof ForeignKeyConstraint) {
@@ -841,6 +838,14 @@ SQL
                 // SET DEFAULT is not supported, throw exception instead.
                 throw new InvalidArgumentException('Invalid foreign key action: ' . $action);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreateDatabaseSQL($name)
+    {
+        return 'CREATE USER ' . $name;
     }
 
     /**
@@ -1068,6 +1073,12 @@ SQL
      */
     public function getName()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4749',
+            'OraclePlatform::getName() is deprecated. Identify platforms by their class.'
+        );
+
         return 'oracle';
     }
 

@@ -20,8 +20,7 @@ class VarDateTimeTest extends TestCase
     protected function setUp(): void
     {
         $this->platform = $this->getMockForAbstractClass(AbstractPlatform::class);
-
-        $this->type = new VarDateTimeType();
+        $this->type     = new VarDateTimeType();
     }
 
     public function testDateTimeConvertsToDatabaseValue(): void

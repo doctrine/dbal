@@ -46,8 +46,47 @@
                     is no longer supported.
                 -->
                 <file name="src/Tools/Console/ConsoleRunner.php"/>
+                <!--
+                    This suppression should be removed once Doctrine Cache
+                    is no longer supported.
+                -->
+                <file name="tests/Functional/ResultCacheTest.php"/>
+                <!--
+                    This suppression should be removed in 4.0.0.
+                -->
+                <referencedClass name="Doctrine\DBAL\Id\TableGenerator"/>
+                <referencedClass name="Doctrine\DBAL\Id\TableGeneratorSchemaVisitor"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Driver\ServerInfoAwareConnection"/>
+                <referencedClass name="Doctrine\DBAL\VersionAwarePlatformDriver"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL94Platform"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\SQLServer2012Platform"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Schema\Constraint"/>
             </errorLevel>
         </DeprecatedClass>
+        <DeprecatedInterface>
+            <errorLevel type="suppress">
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Driver\ServerInfoAwareConnection"/>
+                <referencedClass name="Doctrine\DBAL\VersionAwarePlatformDriver"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Schema\Constraint"/>
+            </errorLevel>
+        </DeprecatedInterface>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!--
@@ -77,8 +116,72 @@
                 -->
                 <file name="src/Schema/AbstractSchemaManager.php" />
                 <file name="src/Schema/PostgreSQLSchemaManager.php" />
-                <directory name="tests" />
+                <!--
+                    See https://github.com/doctrine/dbal/pull/4518
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Connection::getSchemaManager"/>
+                <!--
+                    See https://github.com/doctrine/dbal/issues/4503
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::listNamespaceNames"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\PostgreSQLSchemaManager::getSchemaNames"/>
+                <!--
+                    See https://github.com/doctrine/dbal/pull/4722
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\Comparator::compare" />
+                <!--
+                    See https://github.com/doctrine/dbal/pull/4578
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::execute" />
                 <referencedMethod name="Doctrine\DBAL\Statement::execute"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getBinaryDefaultLength"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getBinaryMaxLength"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIsNullExpression"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getUniqueFieldDeclarationSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsAlterTable"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsViews"/>
+                <!--
+                    See https://github.com/doctrine/dbal/pull/4742
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::getLocalTable"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::getLocalTableName"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::setLocalTable"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\Schema::getMigrateToSql"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::assertValidIdentifier"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4822
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\SchemaConfig::hasExplicitForeignKeyIndexes"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4814
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getFullQualifiedName"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/4821
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::getSchemaSearchPaths"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getCreateConstraintSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\ForeignKeyConstraint::getColumns"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
@@ -88,6 +191,17 @@
                     See https://github.com/doctrine/dbal/pull/4518
                 -->
                 <file name="src/Connection.php"/>
+
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/4620
+                -->
+                <file name="src/Configuration.php"/>
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/pull/4822
+                -->
+                <referencedProperty name="Doctrine\DBAL\Schema\SchemaConfig::$hasExplicitForeignKeyIndexes"/>
             </errorLevel>
         </DeprecatedProperty>
         <DocblockTypeContradiction>
@@ -101,12 +215,13 @@
                       1. Union types not supported at the language level (require dropping PHP 7 support)
                       2. Associative arrays with typed elements used instead of classes (require breaking API changes)
                 -->
+                <file name="src/Cache/QueryCacheProfile.php"/>
                 <file name="src/Connection.php"/>
                 <file name="src/Driver/IBMDB2/Statement.php"/>
                 <file name="src/DriverManager.php"/>
                 <file name="src/Platforms/AbstractPlatform.php"/>
                 <file name="src/Platforms/MySQLPlatform.php"/>
-                <file name="src/Platforms/SQLServer2012Platform.php"/>
+                <file name="src/Platforms/SQLServerPlatform.php"/>
                 <file name="src/Platforms/SqlitePlatform.php"/>
                 <file name="src/Schema/Column.php"/>
                 <!--
@@ -201,6 +316,14 @@
                 <file name="src/Driver/Mysqli/Statement.php"/>
             </errorLevel>
         </PossiblyNullIterator>
+        <PossiblyFalseReference>
+            <errorLevel type="suppress">
+                <!--
+                    oci_new_descriptor() returns OCI-Lob|false on PHP 7 and OCILob|null on PHP 8
+                -->
+                <file name="src/Driver/OCI8/Statement.php"/>
+            </errorLevel>
+        </PossiblyFalseReference>
         <PropertyNotSetInConstructor>
             <errorLevel type="suppress">
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
@@ -255,6 +378,8 @@
                 <!-- See https://github.com/doctrine/dbal/pull/3562 -->
                 <file name="src/Schema/AbstractSchemaManager.php"/>
                 <file name="src/Schema/SqliteSchemaManager.php"/>
+                <!-- See https://github.com/doctrine/dbal/pull/3498 -->
+                <file name="tests/Platforms/AbstractMySQLPlatformTestCase.php"/>
             </errorLevel>
         </TooManyArguments>
         <TypeDoesNotContainType>

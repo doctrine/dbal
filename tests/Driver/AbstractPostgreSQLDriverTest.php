@@ -10,9 +10,13 @@ use Doctrine\DBAL\Driver\API\PostgreSQL;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 
+/**
+ * @extends AbstractDriverTest<PostgreSQLPlatform>
+ */
 class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 {
     protected function createDriver(): Driver

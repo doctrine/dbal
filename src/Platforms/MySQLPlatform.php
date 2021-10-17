@@ -125,6 +125,14 @@ class MySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getLengthExpression($column)
+    {
+        return 'CHAR_LENGTH(' . $column . ')';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListDatabasesSQL()
     {
         return 'SHOW DATABASES';
@@ -196,22 +204,6 @@ class MySQLPlatform extends AbstractPlatform
         return $sql . ' AND k.table_schema = ' . $databaseNameSql
             . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */'
             . ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateViewSQL($name, $sql)
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropViewSQL($name)
-    {
-        return 'DROP VIEW ' . $name;
     }
 
     /**
@@ -368,30 +360,21 @@ class MySQLPlatform extends AbstractPlatform
     {
         return sprintf(
             <<<'SQL'
-SELECT ENGINE, AUTO_INCREMENT, TABLE_COLLATION, TABLE_COMMENT, CREATE_OPTIONS
-FROM information_schema.TABLES
+SELECT t.ENGINE,
+       t.AUTO_INCREMENT,
+       t.TABLE_COMMENT,
+       t.CREATE_OPTIONS,
+       t.TABLE_COLLATION,
+       ccsa.CHARACTER_SET_NAME
+FROM information_schema.TABLES t
+    INNER JOIN information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` ccsa
+        ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
 WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = %s AND TABLE_NAME = %s
 SQL
             ,
             $database !== null ? $this->quoteStringLiteral($database) : 'DATABASE()',
             $this->quoteStringLiteral($table)
         );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateDatabaseSQL($name)
-    {
-        return 'CREATE DATABASE ' . $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropDatabaseSQL($name)
-    {
-        return 'DROP DATABASE ' . $name;
     }
 
     /**
@@ -1024,6 +1007,16 @@ SQL
     }
 
     /**
+     * The `ALTER TABLE ... DROP CONSTRAINT` syntax is only available as of MySQL 8.0.19.
+     *
+     * @link https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+     */
+    public function getDropUniqueConstraintSQL(string $name, string $tableName): string
+    {
+        return $this->getDropIndexSQL($name, $tableName);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getSetTransactionIsolationSQL($level)
@@ -1036,6 +1029,12 @@ SQL
      */
     public function getName()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4749',
+            'MySQLPlatform::getName() is deprecated. Identify platforms by their class.'
+        );
+
         return 'mysql';
     }
 

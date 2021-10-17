@@ -11,7 +11,6 @@ use Doctrine\DBAL\Driver\SQLSrv;
 
 use function array_keys;
 use function array_merge;
-use function assert;
 use function class_implements;
 use function in_array;
 use function is_string;
@@ -299,8 +298,6 @@ final class DriverManager
 
         // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
         $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $params['url']);
-        assert(is_string($url));
-
         $url = parse_url($url);
 
         if ($url === false) {

@@ -11,6 +11,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * support the correct features and SQL syntax of each version.
  * This interface should be implemented by drivers that are capable to do this
  * distinction.
+ *
+ * @deprecated All drivers will have to be aware of the server version in the next major release.
  */
 interface VersionAwarePlatformDriver extends Driver
 {

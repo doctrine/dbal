@@ -68,7 +68,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.0"
+          - "8.1"
 
     services:
       oracle:
@@ -111,7 +111,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.0"
+          - "8.1"
 
     services:
       oracle:
@@ -159,7 +159,7 @@ jobs:
           - "13"
           - "14"
         include:
-          - php-version: "8.0"
+          - php-version: "8.1"
             postgres-version: "14"
 
     services:
@@ -364,23 +364,23 @@ jobs:
         php-version:
           - "7.3"
           - "7.4"
-          - "8.0"
+          - "8.1"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
         collation:
-          - "Latin1_General_100_CI_AS"
+          - "Latin1_General_100_CI_AS_SC_UTF8"
         include:
-          - collation: "Latin1_General_100_CS_AS"
+          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
             php-version: "7.4"
             extension: "sqlsrv"
-          - collation: "Latin1_General_100_CS_AS"
+          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
             php-version: "7.4"
             extension: "pdo_sqlsrv"
 
     services:
       mssql:
-        image: "mcr.microsoft.com/mssql/server:2017-latest"
+        image: "mcr.microsoft.com/mssql/server:2019-latest"
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: "Doctrine2018"
@@ -405,7 +405,7 @@ jobs:
           coverage: "pcov"
           ini-values: "zend.assertions=1"
           tools: "pecl"
-          extensions: "${{ matrix.extension }}-5.9.0preview1"
+          extensions: "${{ matrix.extension }}-5.10.0beta1"
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"

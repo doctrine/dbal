@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
@@ -30,6 +30,8 @@ use const CASE_LOWER;
 
 /**
  * PostgreSQL Schema Manager.
+ *
+ * @extends AbstractSchemaManager<PostgreSQLPlatform>
  */
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
@@ -74,9 +76,17 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function getSchemaSearchPaths()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4821',
+            'PostgreSQLSchemaManager::getSchemaSearchPaths() is deprecated.'
+        );
+
         $params = $this->_conn->getParams();
 
         $searchPaths = $this->_conn->fetchOne('SHOW search_path');
@@ -99,6 +109,8 @@ SQL
      * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
      *
      * @return string[]
+     *
+     * @throws Exception
      */
     public function getExistingSchemaSearchPaths()
     {
@@ -106,7 +118,23 @@ SQL
             $this->determineExistingSchemaSearchPaths();
         }
 
+        assert($this->existingSchemaPaths !== null);
+
         return $this->existingSchemaPaths;
+    }
+
+    /**
+     * Returns the name of the current schema.
+     *
+     * @return string|null
+     *
+     * @throws Exception
+     */
+    protected function getCurrentSchema()
+    {
+        $schemas = $this->getExistingSchemaSearchPaths();
+
+        return array_shift($schemas);
     }
 
     /**
@@ -117,6 +145,8 @@ SQL
      * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function determineExistingSchemaSearchPaths()
     {
@@ -177,14 +207,6 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTriggerDefinition($trigger)
-    {
-        return $trigger['trigger_name'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function _getPortableViewDefinition($view)
     {
         return new View($view['schemaname'] . '.' . $view['viewname'], $view['definition']);
@@ -206,10 +228,9 @@ SQL
      */
     protected function _getPortableTableDefinition($table)
     {
-        $schemas     = $this->getExistingSchemaSearchPaths();
-        $firstSchema = array_shift($schemas);
+        $currentSchema = $this->getCurrentSchema();
 
-        if ($table['schema_name'] === $firstSchema) {
+        if ($table['schema_name'] === $currentSchema) {
             return $table['table_name'];
         }
 
@@ -450,7 +471,7 @@ SQL
 
                 if (
                     preg_match(
-                        '([A-Za-z]+\(([0-9]+)\,([0-9]+)\))',
+                        '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
                         $tableColumn['complete_type'],
                         $match
                     ) === 1
@@ -544,9 +565,7 @@ SQL
     {
         $table = parent::listTableDetails($name);
 
-        $platform = $this->_platform;
-        assert($platform instanceof PostgreSQL94Platform);
-        $sql = $platform->getListTableMetadataSQL($name);
+        $sql = $this->_platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

@@ -4,9 +4,12 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\SQLite;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
 use function array_map;
@@ -32,6 +35,8 @@ use const CASE_LOWER;
 
 /**
  * Sqlite SchemaManager.
+ *
+ * @extends AbstractSchemaManager<SqlitePlatform>
  */
 class SqliteSchemaManager extends AbstractSchemaManager
 {
@@ -126,7 +131,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     '#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?
                     (?:FOREIGN\s+KEY[^\)]+\)\s*)?
-                    REFERENCES\s+[^\s]+\s+(?:\([^\)]+\))?
+                    REFERENCES\s+[^\s]+\s+(?:\([^)]+\))?
                     (?:
                         [^,]*?
                         (NOT\s+DEFERRABLE|DEFERRABLE)
@@ -569,11 +574,24 @@ SQL
         return $table;
     }
 
+    public function createComparator(): Comparator
+    {
+        return new SQLite\Comparator($this->getDatabasePlatform());
+    }
+
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function getSchemaSearchPaths()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4821',
+            'SqliteSchemaManager::getSchemaSearchPaths() is deprecated.'
+        );
+
         // SQLite does not support schemas or databases
         return [];
     }

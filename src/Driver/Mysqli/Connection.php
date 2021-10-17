@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use mysqli;
 use mysqli_sql_exception;
 
@@ -42,7 +43,7 @@ final class Connection implements ServerInfoAwareConnection
         ?string $database = null,
         ?int $port = null,
         ?string $socket = null,
-        ?int $flags = null,
+        int $flags = 0,
         iterable $preInitializers = [],
         iterable $postInitializers = []
     ) {
@@ -142,6 +143,14 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function lastInsertId($name = null)
     {
+        if ($name !== null) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4687',
+                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
+            );
+        }
+
         return $this->conn->insert_id;
     }
 

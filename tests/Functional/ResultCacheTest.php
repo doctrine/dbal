@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Logging\DebugStack;
@@ -49,8 +48,8 @@ class ResultCacheTest extends FunctionalTestCase
         $config = $this->connection->getConfiguration();
         $config->setSQLLogger($this->sqlLogger = new DebugStack());
 
-        $cache = $this->getArrayCache();
-        $config->setResultCacheImpl($cache);
+        $cache = new ArrayAdapter();
+        $config->setResultCache($cache);
     }
 
     protected function tearDown(): void
@@ -178,7 +177,7 @@ class ResultCacheTest extends FunctionalTestCase
 
         $result->fetchAllNumeric();
 
-        self::assertCount(1, $this->sqlLogger->queries);
+        self::assertCount(1, $this->sqlLogger->queries, 'Only one query has hit the database.');
     }
 
     public function testDontFinishNoCache(): void
@@ -203,7 +202,7 @@ class ResultCacheTest extends FunctionalTestCase
             return $result->fetchNumeric();
         });
 
-        self::assertCount(2, $this->sqlLogger->queries);
+        self::assertCount(2, $this->sqlLogger->queries, 'Two queries have hit the database.');
     }
 
     /**
@@ -211,7 +210,30 @@ class ResultCacheTest extends FunctionalTestCase
      */
     public function testFetchingAllRowsSavesCache(callable $fetchAll): void
     {
-        $layerCache = $this->getArrayCache();
+        $layerCache = new ArrayAdapter();
+
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(0, 'testcachekey', $layerCache)
+        );
+
+        $fetchAll($result);
+
+        self::assertCount(1, $layerCache->getItem('testcachekey')->get());
+    }
+
+    /**
+     * @dataProvider fetchAllProvider
+     */
+    public function testFetchingAllRowsSavesCacheLegacy(callable $fetchAll): void
+    {
+        if (! class_exists(ArrayCache::class)) {
+            self::markTestSkipped('This test requires the legacy ArrayCache class.');
+        }
+
+        $layerCache = new ArrayCache();
 
         $result = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -223,6 +245,26 @@ class ResultCacheTest extends FunctionalTestCase
         $fetchAll($result);
 
         self::assertCount(1, $layerCache->fetch('testcachekey'));
+    }
+
+    /**
+     * @dataProvider fetchAllProvider
+     */
+    public function testFetchingAllRowsSavesCacheLegacyWrapped(callable $fetchAll): void
+    {
+        $arrayAdapter = new ArrayAdapter();
+        $layerCache   = DoctrineProvider::wrap($arrayAdapter);
+
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(0, 'testcachekey', $layerCache)
+        );
+
+        $fetchAll($result);
+
+        self::assertCount(1, $arrayAdapter->getItem('testcachekey')->get());
     }
 
     /**
@@ -254,7 +296,7 @@ class ResultCacheTest extends FunctionalTestCase
         $query = $this->connection->getDatabasePlatform()
             ->getDummySelectSQL('1');
 
-        $qcp = new QueryCacheProfile(0, null, $this->getArrayCache());
+        $qcp = new QueryCacheProfile(0, null, new ArrayAdapter());
 
         $result = $this->connection->executeCacheQuery($query, [], [], $qcp);
         $result->fetchFirstColumn();
@@ -290,7 +332,7 @@ class ResultCacheTest extends FunctionalTestCase
         self::assertEquals(2, $stmt->columnCount());
         $data = $this->hydrateViaIteration($stmt, $fetchMode);
         self::assertEquals($expectedResult, $data);
-        self::assertCount(1, $this->sqlLogger->queries, 'just one dbal hit');
+        self::assertCount(1, $this->sqlLogger->queries, 'Only one query has hit the database.');
     }
 
     public function testEmptyResultCache(): void
@@ -317,7 +359,7 @@ class ResultCacheTest extends FunctionalTestCase
             return $result->fetchAssociative();
         });
 
-        self::assertCount(1, $this->sqlLogger->queries, 'just one dbal hit');
+        self::assertCount(1, $this->sqlLogger->queries, 'Only one query has hit the database.');
     }
 
     public function testChangeCacheImpl(): void
@@ -333,7 +375,7 @@ class ResultCacheTest extends FunctionalTestCase
             return $result->fetchAssociative();
         });
 
-        $secondCache = $this->getArrayCache();
+        $secondCache = new ArrayAdapter();
 
         $stmt = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -346,8 +388,73 @@ class ResultCacheTest extends FunctionalTestCase
             return $result->fetchAssociative();
         });
 
-        self::assertCount(2, $this->sqlLogger->queries, 'two hits');
+        self::assertCount(2, $this->sqlLogger->queries, 'Two queries have hit the database.');
+        self::assertCount(1, $secondCache->getItem('emptycachekey')->get());
+    }
+
+    public function testChangeCacheImplLegacy(): void
+    {
+        if (! class_exists(ArrayCache::class)) {
+            self::markTestSkipped('This test requires the legacy ArrayCache class.');
+        }
+
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey')
+        );
+
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
+        });
+
+        $secondCache = new ArrayCache();
+
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey', $secondCache)
+        );
+
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
+        });
+
+        self::assertCount(2, $this->sqlLogger->queries, 'Two queries have hit the database.');
         self::assertCount(1, $secondCache->fetch('emptycachekey'));
+    }
+
+    public function testChangeCacheImplLegacyWrapped(): void
+    {
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey')
+        );
+
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
+        });
+
+        $arrayAdapter = new ArrayAdapter();
+        $secondCache  = DoctrineProvider::wrap($arrayAdapter);
+
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey', $secondCache)
+        );
+
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
+        });
+
+        self::assertCount(2, $this->sqlLogger->queries, 'Two queries have hit the database.');
+        self::assertCount(1, $arrayAdapter->getItem('emptycachekey')->get());
     }
 
     /**
@@ -409,18 +516,5 @@ class ResultCacheTest extends FunctionalTestCase
         }
 
         return $data;
-    }
-
-    private function getArrayCache(): Cache
-    {
-        if (class_exists(DoctrineProvider::class)) {
-            return DoctrineProvider::wrap(new ArrayAdapter());
-        }
-
-        if (class_exists(ArrayCache::class)) {
-            return new ArrayCache();
-        }
-
-        self::fail('Cannot instantiate cache backend.');
     }
 }

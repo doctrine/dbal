@@ -110,11 +110,6 @@ class Exception extends \Exception
         return new self('No columns specified for table ' . $tableName);
     }
 
-    public static function limitOffsetInvalid(): self
-    {
-        return new self('Invalid Offset in Limit Query, it has to be larger than or equal to 0.');
-    }
-
     public static function typeExists(string $name): self
     {
         return new self('Type ' . $name . ' already exists.');
