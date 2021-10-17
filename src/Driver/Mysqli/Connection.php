@@ -16,10 +16,7 @@ use mysqli_sql_exception;
 use function assert;
 use function floor;
 use function mysqli_init;
-use function mysqli_report;
 use function stripos;
-
-use const MYSQLI_REPORT_OFF;
 
 final class Connection implements ServerInfoAwareConnection
 {
@@ -50,8 +47,6 @@ final class Connection implements ServerInfoAwareConnection
         iterable $preInitializers = [],
         iterable $postInitializers = []
     ) {
-        mysqli_report(MYSQLI_REPORT_OFF);
-
         $connection = mysqli_init();
         assert($connection !== false);
 
