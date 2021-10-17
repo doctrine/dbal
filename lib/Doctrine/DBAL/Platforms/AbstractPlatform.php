@@ -3247,7 +3247,7 @@ abstract class AbstractPlatform
      */
     public function supportsForeignKeyOnUpdate()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4229',
             'AbstractPlatform::supportsForeignKeyOnUpdate() is deprecated without replacement and removed in DBAL 3.0'
