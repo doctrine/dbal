@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_keys;
@@ -340,16 +341,26 @@ class Table extends AbstractAsset
     }
 
     /**
+     * @deprecated Use {@see addColumns()} instead.
+     *
      * @param string  $name
      * @param string  $typeName
      * @param mixed[] $options
      *
      * @return Column
      *
+     * @throws Exception
      * @throws SchemaException
      */
     public function addColumn($name, $typeName, array $options = [])
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/',
+            '%s is deprecated, use addColumns() instead.',
+            __METHOD__
+        );
+
         $column = new Column($name, Type::getType($typeName), $options);
 
         $this->_addColumn($column);
@@ -358,6 +369,24 @@ class Table extends AbstractAsset
     }
 
     /**
+     * @param Column[] $columns
+     *
+     * @return $this
+     *
+     * @throws SchemaException
+     */
+    public function addColumns(array $columns): self
+    {
+        foreach ($columns as $column) {
+            $this->_addColumn($column);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @deprecated Use {@see getColumn()} instead and change the column directly.
+     *
      * Change Column Details.
      *
      * @param string  $name
@@ -369,6 +398,13 @@ class Table extends AbstractAsset
      */
     public function changeColumn($name, array $options)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/',
+            '%s is deprecated, use getColumn() instead and change the column directly.',
+            __METHOD__
+        );
+
         $column = $this->getColumn($name);
         $column->setOptions($options);
 

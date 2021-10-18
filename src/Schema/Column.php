@@ -4,10 +4,11 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function is_numeric;
-use function method_exists;
+use function strtolower;
 
 /**
  * Object representation of a database column.
@@ -65,10 +66,12 @@ class Column extends AbstractAsset
     {
         $this->_setName($name);
         $this->setType($type);
-        $this->setOptions($options);
+        $this->_setOptions($options);
     }
 
     /**
+     * @deprecated Use the setter methods directly.
+     *
      * @param mixed[] $options
      *
      * @return Column
@@ -77,17 +80,158 @@ class Column extends AbstractAsset
      */
     public function setOptions(array $options)
     {
-        foreach ($options as $name => $value) {
-            $method = 'set' . $name;
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/',
+            '%s is deprecated, use the setter methods directly.',
+            __METHOD__
+        );
 
-            if (! method_exists($this, $method)) {
-                throw UnknownColumnOption::new($name);
-            }
-
-            $this->$method($value);
-        }
+        $this->_setOptions($options);
 
         return $this;
+    }
+
+    /**
+     * @param mixed[] $options
+     *
+     * @throws UnknownColumnOption
+     */
+    private function _setOptions(array $options): void
+    {
+        foreach ($options as $name => $value) {
+            switch (strtolower($name)) {
+                case 'type':
+                    $this->setType($value);
+                    break;
+                case 'length':
+                    $this->setLength($value);
+                    break;
+                case 'precision':
+                    $this->setPrecision($value);
+                    break;
+                case 'scale':
+                    $this->setScale($value);
+                    break;
+                case 'unsigned':
+                    $this->setUnsigned($value);
+                    break;
+                case 'fixed':
+                    $this->setFixed($value);
+                    break;
+                case 'notnull':
+                    $this->setNotnull($value);
+                    break;
+                case 'default':
+                    $this->setDefault($value);
+                    break;
+                case 'columndefinition':
+                    $this->setColumnDefinition($value);
+                    break;
+                case 'autoincrement':
+                    $this->setAutoincrement($value);
+                    break;
+                case 'comment':
+                    $this->setComment($value);
+                    break;
+                case 'platformoptions':
+                    $this->setPlatformOptions($value);
+                    break;
+                case 'customschemaoptions':
+                    $this->setCustomSchemaOptions($value);
+                    break;
+                default:
+                    throw UnknownColumnOption::new($name);
+            }
+        }
+    }
+
+    /**
+     * @return Type
+     */
+    public function getType()
+    {
+        return $this->_type;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getLength()
+    {
+        return $this->_length;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPrecision()
+    {
+        return $this->_precision;
+    }
+
+    /**
+     * @return int
+     */
+    public function getScale()
+    {
+        return $this->_scale;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getUnsigned()
+    {
+        return $this->_unsigned;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getFixed()
+    {
+        return $this->_fixed;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getNotnull()
+    {
+        return $this->_notnull;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDefault()
+    {
+        return $this->_default;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getColumnDefinition()
+    {
+        return $this->_columnDefinition;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAutoincrement()
+    {
+        return $this->_autoincrement;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getComment()
+    {
+        return $this->_comment;
     }
 
     /**
@@ -197,31 +341,6 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param mixed[] $platformOptions
-     *
-     * @return Column
-     */
-    public function setPlatformOptions(array $platformOptions)
-    {
-        $this->_platformOptions = $platformOptions;
-
-        return $this;
-    }
-
-    /**
-     * @param string $name
-     * @param mixed  $value
-     *
-     * @return Column
-     */
-    public function setPlatformOption($name, $value)
-    {
-        $this->_platformOptions[$name] = $value;
-
-        return $this;
-    }
-
-    /**
      * @param string $value
      *
      * @return Column
@@ -231,114 +350,6 @@ class Column extends AbstractAsset
         $this->_columnDefinition = $value;
 
         return $this;
-    }
-
-    /**
-     * @return Type
-     */
-    public function getType()
-    {
-        return $this->_type;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getLength()
-    {
-        return $this->_length;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPrecision()
-    {
-        return $this->_precision;
-    }
-
-    /**
-     * @return int
-     */
-    public function getScale()
-    {
-        return $this->_scale;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getUnsigned()
-    {
-        return $this->_unsigned;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getFixed()
-    {
-        return $this->_fixed;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getNotnull()
-    {
-        return $this->_notnull;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDefault()
-    {
-        return $this->_default;
-    }
-
-    /**
-     * @return mixed[]
-     */
-    public function getPlatformOptions()
-    {
-        return $this->_platformOptions;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasPlatformOption($name)
-    {
-        return isset($this->_platformOptions[$name]);
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return mixed
-     */
-    public function getPlatformOption($name)
-    {
-        return $this->_platformOptions[$name];
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getColumnDefinition()
-    {
-        return $this->_columnDefinition;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getAutoincrement()
-    {
-        return $this->_autoincrement;
     }
 
     /**
@@ -366,11 +377,31 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return string|null
+     * @param string $name
+     *
+     * @return bool
      */
-    public function getComment()
+    public function hasPlatformOption($name)
     {
-        return $this->_comment;
+        return isset($this->_platformOptions[$name]);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getPlatformOption($name)
+    {
+        return $this->_platformOptions[$name];
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function getPlatformOptions()
+    {
+        return $this->_platformOptions;
     }
 
     /**
@@ -379,9 +410,21 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setCustomSchemaOption($name, $value)
+    public function setPlatformOption($name, $value)
     {
-        $this->_customSchemaOptions[$name] = $value;
+        $this->_platformOptions[$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed[] $platformOptions
+     *
+     * @return Column
+     */
+    public function setPlatformOptions(array $platformOptions)
+    {
+        $this->_platformOptions = $platformOptions;
 
         return $this;
     }
@@ -407,6 +450,27 @@ class Column extends AbstractAsset
     }
 
     /**
+     * @return mixed[]
+     */
+    public function getCustomSchemaOptions()
+    {
+        return $this->_customSchemaOptions;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed  $value
+     *
+     * @return Column
+     */
+    public function setCustomSchemaOption($name, $value)
+    {
+        $this->_customSchemaOptions[$name] = $value;
+
+        return $this;
+    }
+
+    /**
      * @param mixed[] $customSchemaOptions
      *
      * @return Column
@@ -421,29 +485,29 @@ class Column extends AbstractAsset
     /**
      * @return mixed[]
      */
-    public function getCustomSchemaOptions()
-    {
-        return $this->_customSchemaOptions;
-    }
-
-    /**
-     * @return mixed[]
-     */
     public function toArray()
     {
         return array_merge([
-            'name'          => $this->_name,
-            'type'          => $this->_type,
-            'default'       => $this->_default,
-            'notnull'       => $this->_notnull,
-            'length'        => $this->_length,
-            'precision'     => $this->_precision,
-            'scale'         => $this->_scale,
-            'fixed'         => $this->_fixed,
-            'unsigned'      => $this->_unsigned,
-            'autoincrement' => $this->_autoincrement,
+            'name'             => $this->_name,
+            'type'             => $this->_type,
+            'default'          => $this->_default,
+            'notnull'          => $this->_notnull,
+            'length'           => $this->_length,
+            'precision'        => $this->_precision,
+            'scale'            => $this->_scale,
+            'fixed'            => $this->_fixed,
+            'unsigned'         => $this->_unsigned,
+            'autoincrement'    => $this->_autoincrement,
             'columnDefinition' => $this->_columnDefinition,
-            'comment' => $this->_comment,
+            'comment'          => $this->_comment,
         ], $this->_platformOptions, $this->_customSchemaOptions);
+    }
+
+    public function createCopy(string $name): Column
+    {
+        $column = clone $this;
+        $column->_setName($name);
+
+        return $column;
     }
 }
