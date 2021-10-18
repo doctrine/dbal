@@ -21,8 +21,6 @@ class CreateSchemaSqlCollectorTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->platformMock = $this->getMockBuilder(AbstractPlatform::class)
             ->onlyMethods(
                 [

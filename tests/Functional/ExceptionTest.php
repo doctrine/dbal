@@ -35,8 +35,6 @@ class ExceptionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         $driver = $this->connection->getDriver();
 
         if ($driver instanceof IBMDB2\Driver) {

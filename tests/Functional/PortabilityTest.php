@@ -18,8 +18,6 @@ class PortabilityTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->connection = DriverManager::getConnection(
             $this->connection->getParams(),
             $this->connection->getConfiguration()
@@ -57,11 +55,9 @@ class PortabilityTest extends FunctionalTestCase
         }
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->markConnectionNotReusable();
-
-        parent::tearDown();
     }
 
     public function testFullFetchMode(): void

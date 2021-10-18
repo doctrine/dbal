@@ -11,8 +11,6 @@ class GuidTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('guid_table');
         $table->addColumn('guid', 'guid');
 

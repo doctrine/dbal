@@ -31,8 +31,6 @@ class ResultCacheTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('caching');
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_string', 'string', [

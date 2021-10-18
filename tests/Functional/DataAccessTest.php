@@ -27,8 +27,6 @@ class DataAccessTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('fetch_table');
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_string', 'string', ['length' => 32]);

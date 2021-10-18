@@ -11,14 +11,12 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use mysqli;
+use mysqli_sql_exception;
 
 use function assert;
 use function floor;
 use function mysqli_init;
-use function mysqli_report;
 use function stripos;
-
-use const MYSQLI_REPORT_OFF;
 
 final class Connection implements ConnectionInterface
 {
@@ -48,8 +46,6 @@ final class Connection implements ConnectionInterface
         iterable $preInitializers = [],
         iterable $postInitializers = []
     ) {
-        mysqli_report(MYSQLI_REPORT_OFF);
-
         $connection = mysqli_init();
         assert($connection !== false);
 
@@ -57,7 +53,13 @@ final class Connection implements ConnectionInterface
             $initializer->initialize($connection);
         }
 
-        if (! @$connection->real_connect($host, $username, $password, $database, $port, $socket, $flags)) {
+        try {
+            $success = @$connection->real_connect($host, $username, $password, $database, $port, $socket, $flags);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionFailed::upcast($e);
+        }
+
+        if (! $success) {
             throw ConnectionFailed::new($connection);
         }
 
@@ -117,7 +119,13 @@ final class Connection implements ConnectionInterface
 
     public function exec(string $sql): int
     {
-        if ($this->conn->query($sql) === false) {
+        try {
+            $result = $this->conn->query($sql);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
+        }
+
+        if ($result === false) {
             throw ConnectionError::new($this->conn);
         }
 
@@ -145,15 +153,23 @@ final class Connection implements ConnectionInterface
 
     public function commit(): void
     {
-        if (! $this->conn->commit()) {
-            throw ConnectionError::new($this->conn);
+        try {
+            if (! $this->conn->commit()) {
+                throw ConnectionError::new($this->conn);
+            }
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
         }
     }
 
     public function rollBack(): void
     {
-        if (! $this->conn->rollback()) {
-            throw ConnectionError::new($this->conn);
+        try {
+            if (! $this->conn->rollback()) {
+                throw ConnectionError::new($this->conn);
+            }
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
         }
     }
 }

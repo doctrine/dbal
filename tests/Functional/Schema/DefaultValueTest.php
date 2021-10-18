@@ -11,18 +11,8 @@ use function sprintf;
 
 class DefaultValueTest extends FunctionalTestCase
 {
-    private static bool $initialized = false;
-
     protected function setUp(): void
     {
-        parent::setUp();
-
-        if (self::$initialized) {
-            return;
-        }
-
-        self::$initialized = true;
-
         $table = new Table('default_value');
         $table->addColumn('id', 'integer');
 

@@ -114,8 +114,8 @@ final class Connection implements ConnectionInterface
             throw Exception::new($exception);
         }
 
-        // pdo_mysql & pdo_sqlite return '0', pdo_sqlsrv returns ''
-        if ($value === '0' || $value === '') {
+        // pdo_mysql & pdo_sqlite return '0', pdo_sqlsrv returns '' or false depending on the PHP version
+        if ($value === '0' || $value === '' || $value === false) {
             throw NoIdentityValue::new();
         }
 

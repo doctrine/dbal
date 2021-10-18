@@ -100,8 +100,6 @@ final class Statement implements StatementInterface
         if ($type === ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->connection, OCI_D_LOB);
 
-            assert($lob !== false);
-
             $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
             $variable =& $lob;

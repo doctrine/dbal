@@ -16,29 +16,9 @@ use function array_map;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    private static bool $privilegesGranted = false;
-
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof OraclePlatform;
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        if (self::$privilegesGranted) {
-            return;
-        }
-
-        if (! isset($GLOBALS['db_user'])) {
-            self::markTestSkipped('Username must be explicitly specified in connection parameters for this test');
-        }
-
-        TestUtil::getPrivilegedConnection()
-            ->executeStatement('GRANT ALL PRIVILEGES TO ' . $GLOBALS['db_user']);
-
-        self::$privilegesGranted = true;
     }
 
     public function testRenameTable(): void

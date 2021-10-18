@@ -31,8 +31,6 @@ class ExceptionTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->wrappedException = new PDOException(self::MESSAGE);
 
         $this->wrappedException->errorInfo = [self::SQLSTATE, self::ERROR_CODE];

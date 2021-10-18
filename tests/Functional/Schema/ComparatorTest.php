@@ -14,8 +14,6 @@ class ComparatorTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->schemaManager = $this->connection->createSchemaManager();
     }
 

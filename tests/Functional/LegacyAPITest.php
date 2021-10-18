@@ -18,8 +18,6 @@ class LegacyAPITest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('legacy_table');
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_string', 'string', ['length' => 3]);
@@ -34,7 +32,7 @@ class LegacyAPITest extends FunctionalTestCase
         ]);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->executeStatement('DELETE FROM legacy_table WHERE test_int > 1');
     }

@@ -24,7 +24,7 @@ abstract class FunctionalTestCase extends TestCase
     /**
      * Mark shared connection not reusable for subsequent tests.
      *
-     * Should be called by the tests that modify configuration configuration
+     * Should be called by the tests that modify configuration
      * or alter the connection state in another way that may impact other tests.
      */
     protected function markConnectionNotReusable(): void
@@ -32,7 +32,10 @@ abstract class FunctionalTestCase extends TestCase
         $this->isConnectionReusable = false;
     }
 
-    protected function setUp(): void
+    /**
+     * @before
+     */
+    final protected function connect(): void
     {
         if (self::$sharedConnection === null) {
             self::$sharedConnection = TestUtil::getConnection();
@@ -41,7 +44,10 @@ abstract class FunctionalTestCase extends TestCase
         $this->connection = self::$sharedConnection;
     }
 
-    protected function tearDown(): void
+    /**
+     * @after
+     */
+    final protected function disconnect(): void
     {
         while ($this->connection->isTransactionActive()) {
             $this->connection->rollBack();

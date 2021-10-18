@@ -54,8 +54,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $this->supportsPlatform($platform)) {
@@ -81,8 +79,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         $this->markConnectionNotReusable();
-
-        parent::tearDown();
     }
 
     public function testDropAndCreateSequence(): void
@@ -105,14 +101,24 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
      */
     private function hasElementWithName(array $items, string $name): bool
     {
-        $filteredList = array_filter(
+        $filteredList = $this->filterElementsByName($items, $name);
+
+        return count($filteredList) === 1;
+    }
+
+    /**
+     * @param AbstractAsset[] $items
+     *
+     * @return AbstractAsset[]
+     */
+    private function filterElementsByName(array $items, string $name): array
+    {
+        return array_filter(
             $items,
             static function (AbstractAsset $item) use ($name): bool {
                 return $item->getShortestName($item->getNamespaceName()) === $name;
             }
         );
-
-        return count($filteredList) === 1;
     }
 
     public function testListSequences(): void
@@ -658,7 +664,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->dropAndCreateView($view);
 
-        self::assertTrue($this->hasElementWithName($this->schemaManager->listViews(), $name));
+        $views = $this->schemaManager->listViews();
+
+        $filtered = array_values($this->filterElementsByName($views, $name));
+        self::assertCount(1, $filtered);
+
+        $viewKey = strtolower($filtered[0]->getName());
+        self::assertStringContainsString('view_test_table', $views[$viewKey]->getSql());
     }
 
     public function testAutoincrementDetection(): void

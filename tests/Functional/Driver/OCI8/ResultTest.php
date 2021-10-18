@@ -30,7 +30,6 @@ class ResultTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->connectionParams = TestUtil::getConnectionParams();
 
         if ($this->connection->getDriver() instanceof Driver) {
@@ -44,8 +43,6 @@ class ResultTest extends FunctionalTestCase
     {
         $this->connection->executeQuery('DROP FUNCTION test_oracle_fetch_failure');
         $this->connection->executeQuery('DROP TYPE return_numbers');
-
-        parent::tearDown();
     }
 
     /**

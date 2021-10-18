@@ -25,8 +25,6 @@ final class ComparatorTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->platform = $this->connection->getDatabasePlatform();
 
         if (! $this->platform instanceof MySQLPlatform) {
@@ -43,7 +41,7 @@ final class ComparatorTest extends FunctionalTestCase
     public function testLobLengthIncrementWithinLimit(string $type, int $length): void
     {
         $table = $this->createLobTable($type, $length - 1);
-        $this->setLobLength($table, $length);
+        $this->setBlobLength($table, $length);
 
         self::assertNull(ComparatorTestUtils::diffOnlineAndOfflineTable(
             $this->schemaManager,
@@ -58,7 +56,7 @@ final class ComparatorTest extends FunctionalTestCase
     public function testLobLengthIncrementOverLimit(string $type, int $length): void
     {
         $table = $this->createLobTable($type, $length);
-        $this->setLobLength($table, $length + 1);
+        $this->setBlobLength($table, $length + 1);
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
@@ -92,7 +90,7 @@ final class ComparatorTest extends FunctionalTestCase
     /**
      * @throws Exception
      */
-    private function setLobLength(Table $table, int $length): void
+    private function setBlobLength(Table $table, int $length): void
     {
         $table->getColumn('lob')->setLength($length);
     }

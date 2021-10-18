@@ -19,8 +19,6 @@ class BlobTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035

@@ -20,8 +20,6 @@ class WriteTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         $table = new Table('write_table');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('test_int', 'integer');

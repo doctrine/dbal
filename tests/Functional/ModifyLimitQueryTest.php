@@ -17,37 +17,20 @@ use const CASE_LOWER;
 
 class ModifyLimitQueryTest extends FunctionalTestCase
 {
-    private static bool $tableCreated = false;
-
     protected function setUp(): void
     {
-        parent::setUp();
+        $table = new Table('modify_limit_table');
+        $table->addColumn('test_int', 'integer');
+        $table->setPrimaryKey(['test_int']);
 
-        if (! self::$tableCreated) {
-            $table = new Table('modify_limit_table');
-            $table->addColumn('test_int', 'integer');
-            $table->setPrimaryKey(['test_int']);
+        $table2 = new Table('modify_limit_table2');
+        $table2->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table2->addColumn('test_int', 'integer');
+        $table2->setPrimaryKey(['id']);
 
-            $table2 = new Table('modify_limit_table2');
-            $table2->addColumn('id', 'integer', ['autoincrement' => true]);
-            $table2->addColumn('test_int', 'integer');
-            $table2->setPrimaryKey(['id']);
-
-            $sm = $this->connection->createSchemaManager();
-            $sm->createTable($table);
-            $sm->createTable($table2);
-            self::$tableCreated = true;
-        }
-
-        $platform = $this->connection->getDatabasePlatform();
-
-        $this->connection->executeStatement(
-            $platform->getTruncateTableSQL('modify_limit_table')
-        );
-
-        $this->connection->executeStatement(
-            $platform->getTruncateTableSQL('modify_limit_table2')
-        );
+        $sm = $this->connection->createSchemaManager();
+        $sm->dropAndCreateTable($table);
+        $sm->dropAndCreateTable($table2);
     }
 
     public function testModifyLimitQuerySimpleQuery(): void

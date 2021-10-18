@@ -20,8 +20,6 @@ class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
@@ -32,8 +30,6 @@ class ConnectionTest extends FunctionalTestCase
     protected function tearDown(): void
     {
         $this->markConnectionNotReusable();
-
-        parent::tearDown();
     }
 
     public function testConnectionFailure(): void

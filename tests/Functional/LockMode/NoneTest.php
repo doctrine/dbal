@@ -21,8 +21,6 @@ class NoneTest extends FunctionalTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         if ($this->connection->getDriver() instanceof OCI8\Driver) {
             // https://github.com/doctrine/dbal/issues/4417
             self::markTestSkipped('This test fails on OCI8 for a currently unknown reason');
@@ -58,24 +56,23 @@ class NoneTest extends FunctionalTestCase
         self::fail('Separate connections do not seem to talk to the same database');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
-        parent::tearDown();
-
-        if ($this->connection2->isTransactionActive()) {
-            $this->connection2->rollBack();
-        }
-
         $this->connection2->close();
 
         $this->connection->createSchemaManager()->dropTable('users');
 
-        if (! $this->connection->getDatabasePlatform() instanceof SQLServerPlatform) {
-            return;
+        if ($this->connection->getDatabasePlatform() instanceof SQLServerPlatform) {
+            $this->connection->rollBack();
+
+            $db = $this->connection->getDatabase();
+            $this->connection->executeStatement('ALTER DATABASE ' . $db . ' SET READ_COMMITTED_SNAPSHOT OFF');
         }
 
-        $db = $this->connection->getDatabase();
-        $this->connection->executeStatement('ALTER DATABASE ' . $db . ' SET READ_COMMITTED_SNAPSHOT OFF');
+        // depending on current database platform, the above DROP TABLE may or may not commit the transaction,
+        // and there's no way to see whether the transaction is active. so we're closing the connection explicitly
+        // to avoid the ROLLBACK failure in {@link disconnect()}
+        $this->connection->close();
     }
 
     public function testLockModeNoneDoesNotBreakTransactionIsolation(): void

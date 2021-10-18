@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use mysqli_sql_exception;
 use mysqli_stmt;
 use stdClass;
 
@@ -98,7 +99,11 @@ final class Result implements ResultInterface
      */
     public function fetchNumeric()
     {
-        $ret = $this->statement->fetch();
+        try {
+            $ret = $this->statement->fetch();
+        } catch (mysqli_sql_exception $e) {
+            throw StatementError::upcast($e);
+        }
 
         if ($ret === false) {
             throw StatementError::new($this->statement);

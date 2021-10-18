@@ -243,7 +243,7 @@ SQL
     protected function _getPortableViewDefinition(array $view): View
     {
         // @todo
-        return new View($view['name'], '');
+        return new View($view['name'], $view['definition']);
     }
 
     /**
