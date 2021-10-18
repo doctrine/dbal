@@ -43,7 +43,7 @@ final class ComparatorTest extends FunctionalTestCase
     public function testLobLengthIncrementWithinLimit(string $type, int $length): void
     {
         $table = $this->createLobTable($type, $length - 1);
-        $this->increaseLobLength($table);
+        $this->setLobLength($table, $length);
 
         self::assertNull(ComparatorTestUtils::diffOnlineAndOfflineTable(
             $this->schemaManager,
@@ -58,7 +58,7 @@ final class ComparatorTest extends FunctionalTestCase
     public function testLobLengthIncrementOverLimit(string $type, int $length): void
     {
         $table = $this->createLobTable($type, $length);
-        $this->increaseLobLength($table);
+        $this->setLobLength($table, $length + 1);
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
@@ -92,12 +92,9 @@ final class ComparatorTest extends FunctionalTestCase
     /**
      * @throws Exception
      */
-    private function increaseLobLength(Table $table): void
+    private function setLobLength(Table $table, int $length): void
     {
-        $column = $table->getColumn('lob');
-        $length = $column->getLength();
-        self::assertNotNull($length);
-        $column->setLength($length + 1);
+        $table->getColumn('lob')->setLength($length);
     }
 
     public function testExplicitDefaultCollation(): void
