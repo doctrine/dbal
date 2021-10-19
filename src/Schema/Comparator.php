@@ -115,12 +115,13 @@ class Comparator
             }
         }
 
+        $addOrphanedForeignKeys = [];
         foreach ($diff->removedTables as $tableName => $table) {
             if (! isset($foreignKeysToTable[$tableName])) {
                 continue;
             }
 
-            $diff->orphanedForeignKeys = array_merge($diff->orphanedForeignKeys, $foreignKeysToTable[$tableName]);
+            $addOrphanedForeignKeys[] = $foreignKeysToTable[$tableName];
 
             // deleting duplicated foreign keys present on both on the orphanedForeignKey
             // and the removedForeignKeys from changedTables
@@ -143,6 +144,8 @@ class Comparator
                 }
             }
         }
+
+        $diff->orphanedForeignKeys = array_merge($diff->orphanedForeignKeys, ...$addOrphanedForeignKeys);
 
         foreach ($toSchema->getSequences() as $sequence) {
             $sequenceName = $sequence->getShortestName($toSchema->getName());

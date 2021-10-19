@@ -324,16 +324,19 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('SELECT a.* FROM (SELECT * FROM user ORDER BY username DESC) a WHERE ROWNUM <= 10', $sql);
     }
 
-    public function testGenerateTableWithAutoincrement(): void
+    public function testGenerateTableWithAutoincrementAndSequence(): void
     {
-        $columnName = strtoupper('id' . uniqid());
-        $tableName  = strtoupper('table' . uniqid());
-        $table      = new Table($tableName);
-        $column     = $table->addColumn($columnName, 'integer');
+        $columnName   = strtoupper('id' . uniqid());
+        $tableName    = strtoupper('table' . uniqid());
+        $sequenceName = strtoupper('seq' . uniqid());
+        $table        = new Table($tableName);
+        $column       = $table->addColumn($columnName, 'integer');
         $column->setAutoincrement(true);
+        $column->setPlatformOptions(['sequence' => new Sequence($sequenceName)]);
 
         self::assertSame([
             sprintf('CREATE TABLE %s (%s NUMBER(10) NOT NULL)', $tableName, $columnName),
+            sprintf('CREATE SEQUENCE %s START WITH 1 MINVALUE 1 INCREMENT BY 1', $sequenceName),
             sprintf(
                 <<<'SQL'
 DECLARE

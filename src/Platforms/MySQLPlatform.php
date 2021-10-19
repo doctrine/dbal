@@ -623,11 +623,11 @@ SQL
         $table = $diff->getName($this)->getQuotedName($this);
 
         foreach ($diff->changedIndexes as $changedIndex) {
-            $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $changedIndex));
+            $sql[] = $this->getPreAlterTableAlterPrimaryKeySQL($diff, $changedIndex);
         }
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
-            $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $remIndex));
+            $sql[] = $this->getPreAlterTableAlterPrimaryKeySQL($diff, $remIndex);
 
             foreach ($diff->addedIndexes as $addKey => $addIndex) {
                 if ($remIndex->getColumns() !== $addIndex->getColumns()) {
@@ -646,7 +646,7 @@ SQL
                 $query .= 'ADD ' . $indexClause;
                 $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex) . ')';
 
-                $sql[] = $query;
+                $sql[] = [$query];
 
                 unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
 
@@ -654,6 +654,7 @@ SQL
             }
         }
 
+        $sql    = array_merge([], ...$sql);
         $engine = 'INNODB';
 
         if ($diff->fromTable instanceof Table && $diff->fromTable->hasOption('engine')) {
@@ -667,14 +668,12 @@ SQL
             $diff->removedForeignKeys = [];
         }
 
-        $sql = array_merge(
+        return array_merge(
             $sql,
             $this->getPreAlterTableAlterIndexForeignKeySQL($diff),
             parent::getPreAlterTableIndexForeignKeySQL($diff),
             $this->getPreAlterTableRenameIndexForeignKeySQL($diff)
         );
-
-        return $sql;
     }
 
     /**

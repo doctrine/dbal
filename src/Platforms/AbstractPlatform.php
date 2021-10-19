@@ -1780,7 +1780,7 @@ abstract class AbstractPlatform
 
                 $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
 
-                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+                $columnSql[] = $eventArgs->getSql();
 
                 if ($eventArgs->isDefaultPrevented()) {
                     continue;
@@ -1802,7 +1802,7 @@ abstract class AbstractPlatform
             $this->_eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
 
             if ($eventArgs->isDefaultPrevented()) {
-                return array_merge($eventArgs->getSql(), $columnSql);
+                return array_merge($eventArgs->getSql(), ...$columnSql);
             }
         }
 
@@ -1824,7 +1824,7 @@ abstract class AbstractPlatform
             }
         }
 
-        return array_merge($sql, $columnSql);
+        return array_merge($sql, ...$columnSql);
     }
 
     protected function getCommentOnTableSQL(string $tableName, ?string $comment): string
@@ -2384,15 +2384,13 @@ abstract class AbstractPlatform
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
 
+        $renamedIndexSql = [];
         foreach ($diff->renamedIndexes as $oldIndexName => $index) {
-            $oldIndexName = new Identifier($oldIndexName);
-            $sql          = array_merge(
-                $sql,
-                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName)
-            );
+            $oldIndexName      = new Identifier($oldIndexName);
+            $renamedIndexSql[] = $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName);
         }
 
-        return $sql;
+        return array_merge($sql, ...$renamedIndexSql);
     }
 
     /**

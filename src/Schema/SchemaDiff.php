@@ -141,11 +141,9 @@ class SchemaDiff
         }
 
         $foreignKeySql = [];
+        $addSql        = [];
         foreach ($this->newTables as $table) {
-            $sql = array_merge(
-                $sql,
-                $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES)
-            );
+            $addSql[] = $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES);
 
             if (! $platform->supportsForeignKeyConstraints()) {
                 continue;
@@ -156,7 +154,7 @@ class SchemaDiff
             }
         }
 
-        $sql = array_merge($sql, $foreignKeySql);
+        $sql = array_merge(array_merge($sql, ...$addSql), $foreignKeySql);
 
         if ($saveMode === false) {
             foreach ($this->removedTables as $table) {
@@ -164,10 +162,11 @@ class SchemaDiff
             }
         }
 
+        $addSql = [];
         foreach ($this->changedTables as $tableDiff) {
-            $sql = array_merge($sql, $platform->getAlterTableSQL($tableDiff));
+            $addSql[] = $platform->getAlterTableSQL($tableDiff);
         }
 
-        return $sql;
+        return array_merge($sql, ...$addSql);
     }
 }
