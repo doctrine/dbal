@@ -4,14 +4,12 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
-use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
 use Doctrine\DBAL\Driver\Mysqli\Exception\NonStreamResourceUsedAsLargeObject;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use mysqli;
 use mysqli_sql_exception;
 use mysqli_stmt;
 
@@ -28,7 +26,7 @@ use function str_repeat;
 final class Statement implements StatementInterface
 {
     /** @var string[] */
-    protected static $_paramTypeMap = [
+    private static $paramTypeMap = [
         ParameterType::ASCII => 's',
         ParameterType::STRING => 's',
         ParameterType::BINARY => 's',
@@ -38,55 +36,36 @@ final class Statement implements StatementInterface
         ParameterType::LARGE_OBJECT => 'b',
     ];
 
-    /** @var mysqli */
-    protected $_conn;
-
     /** @var mysqli_stmt */
-    protected $_stmt;
+    private $stmt;
 
     /** @var mixed[]|null */
-    protected $_bindedValues;
+    private $boundValues;
 
     /** @var string */
-    protected $types;
+    private $types;
 
     /**
      * Contains ref values for bindValue().
      *
      * @var mixed[]
      */
-    protected $_values = [];
+    private $values = [];
 
     /**
      * @internal The statement can be only instantiated by its driver connection.
-     *
-     * @param string $prepareString
-     *
-     * @throws Exception
      */
-    public function __construct(mysqli $conn, $prepareString)
+    public function __construct(mysqli_stmt $stmt)
     {
-        $this->_conn = $conn;
+        $this->stmt = $stmt;
 
-        try {
-            $stmt = $conn->prepare($prepareString);
-        } catch (mysqli_sql_exception $e) {
-            throw ConnectionError::upcast($e);
-        }
-
-        if ($stmt === false) {
-            throw ConnectionError::new($this->_conn);
-        }
-
-        $this->_stmt = $stmt;
-
-        $paramCount = $this->_stmt->param_count;
+        $paramCount = $this->stmt->param_count;
         if (0 >= $paramCount) {
             return;
         }
 
-        $this->types         = str_repeat('s', $paramCount);
-        $this->_bindedValues = array_fill(1, $paramCount, null);
+        $this->types       = str_repeat('s', $paramCount);
+        $this->boundValues = array_fill(1, $paramCount, null);
     }
 
     /**
@@ -96,12 +75,12 @@ final class Statement implements StatementInterface
     {
         assert(is_int($param));
 
-        if (! isset(self::$_paramTypeMap[$type])) {
+        if (! isset(self::$paramTypeMap[$type])) {
             throw UnknownParameterType::new($type);
         }
 
-        $this->_bindedValues[$param] =& $variable;
-        $this->types[$param - 1]     = self::$_paramTypeMap[$type];
+        $this->boundValues[$param] =& $variable;
+        $this->types[$param - 1]   = self::$paramTypeMap[$type];
 
         return true;
     }
@@ -113,13 +92,13 @@ final class Statement implements StatementInterface
     {
         assert(is_int($param));
 
-        if (! isset(self::$_paramTypeMap[$type])) {
+        if (! isset(self::$paramTypeMap[$type])) {
             throw UnknownParameterType::new($type);
         }
 
-        $this->_values[$param]       = $value;
-        $this->_bindedValues[$param] =& $this->_values[$param];
-        $this->types[$param - 1]     = self::$_paramTypeMap[$type];
+        $this->values[$param]      = $value;
+        $this->boundValues[$param] =& $this->values[$param];
+        $this->types[$param - 1]   = self::$paramTypeMap[$type];
 
         return true;
     }
@@ -129,10 +108,10 @@ final class Statement implements StatementInterface
      */
     public function execute($params = null): ResultInterface
     {
-        if ($this->_bindedValues !== null) {
+        if ($this->boundValues !== null) {
             if ($params !== null) {
                 if (! $this->bindUntypedValues($params)) {
-                    throw StatementError::new($this->_stmt);
+                    throw StatementError::new($this->stmt);
                 }
             } else {
                 $this->bindTypedParameters();
@@ -140,16 +119,16 @@ final class Statement implements StatementInterface
         }
 
         try {
-            $result = $this->_stmt->execute();
+            $result = $this->stmt->execute();
         } catch (mysqli_sql_exception $e) {
             throw StatementError::upcast($e);
         }
 
         if (! $result) {
-            throw StatementError::new($this->_stmt);
+            throw StatementError::new($this->stmt);
         }
 
-        return new Result($this->_stmt);
+        return new Result($this->stmt);
     }
 
     /**
@@ -162,16 +141,16 @@ final class Statement implements StatementInterface
         $streams = $values = [];
         $types   = $this->types;
 
-        assert($this->_bindedValues !== null);
+        assert($this->boundValues !== null);
 
-        foreach ($this->_bindedValues as $parameter => $value) {
+        foreach ($this->boundValues as $parameter => $value) {
             assert(is_int($parameter));
 
             if (! isset($types[$parameter - 1])) {
-                $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
+                $types[$parameter - 1] = self::$paramTypeMap[ParameterType::STRING];
             }
 
-            if ($types[$parameter - 1] === static::$_paramTypeMap[ParameterType::LARGE_OBJECT]) {
+            if ($types[$parameter - 1] === self::$paramTypeMap[ParameterType::LARGE_OBJECT]) {
                 if (is_resource($value)) {
                     if (get_resource_type($value) !== 'stream') {
                         throw NonStreamResourceUsedAsLargeObject::new($parameter);
@@ -182,14 +161,14 @@ final class Statement implements StatementInterface
                     continue;
                 }
 
-                $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
+                $types[$parameter - 1] = self::$paramTypeMap[ParameterType::STRING];
             }
 
             $values[$parameter] = $value;
         }
 
-        if (! $this->_stmt->bind_param($types, ...$values)) {
-            throw StatementError::new($this->_stmt);
+        if (! $this->stmt->bind_param($types, ...$values)) {
+            throw StatementError::new($this->stmt);
         }
 
         $this->sendLongData($streams);
@@ -212,8 +191,8 @@ final class Statement implements StatementInterface
                     throw FailedReadingStreamOffset::new($paramNr);
                 }
 
-                if (! $this->_stmt->send_long_data($paramNr - 1, $chunk)) {
-                    throw StatementError::new($this->_stmt);
+                if (! $this->stmt->send_long_data($paramNr - 1, $chunk)) {
+                    throw StatementError::new($this->stmt);
                 }
             }
         }
@@ -223,10 +202,8 @@ final class Statement implements StatementInterface
      * Binds a array of values to bound parameters.
      *
      * @param mixed[] $values
-     *
-     * @return bool
      */
-    private function bindUntypedValues(array $values)
+    private function bindUntypedValues(array $values): bool
     {
         $params = [];
         $types  = str_repeat('s', count($values));
@@ -235,6 +212,6 @@ final class Statement implements StatementInterface
             $params[] =& $v;
         }
 
-        return $this->_stmt->bind_param($types, ...$params);
+        return $this->stmt->bind_param($types, ...$params);
     }
 }
