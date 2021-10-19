@@ -169,7 +169,7 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function beginTransaction()
     {
-        $this->conn->query('START TRANSACTION');
+        $this->conn->begin_transaction();
 
         return true;
     }
