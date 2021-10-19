@@ -3073,14 +3073,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL to list all the columns of all the tables in the database.
-     */
-    public function getListDatabaseColumnsSQL(string $database): string
-    {
-        throw Exception::notSupported(__METHOD__);
-    }
-
-    /**
      * @param string $table
      * @param string $database
      *
@@ -3136,14 +3128,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL to list all the indexes in the database.
-     */
-    public function getListDatabaseIndexesSQL(string $database): string
-    {
-        throw Exception::notSupported(__METHOD__);
-    }
-
-    /**
      * Returns the list of indexes for the current database.
      *
      * The current database parameter is optional but will always be passed
@@ -3161,14 +3145,6 @@ abstract class AbstractPlatform
      * @throws Exception If not supported on this platform.
      */
     public function getListTableIndexesSQL($table, $database = null)
-    {
-        throw Exception::notSupported(__METHOD__);
-    }
-
-    /**
-     * Returns the SQL to list all the foreign keys in the database.
-     */
-    public function getListDatabaseForeignKeysSQL(string $database): string
     {
         throw Exception::notSupported(__METHOD__);
     }

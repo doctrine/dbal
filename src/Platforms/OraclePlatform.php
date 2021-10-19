@@ -30,7 +30,7 @@ use function substr;
 /**
  * OraclePlatform.
  */
-class OraclePlatform extends AbstractPlatform
+class OraclePlatform extends AbstractPlatform implements DatabaseAsset
 {
     /**
      * Assertion for Oracle identifiers.

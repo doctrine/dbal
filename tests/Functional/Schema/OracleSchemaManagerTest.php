@@ -273,7 +273,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testCreateSchemaNumberOfQueriesInvariable(): void
     {
         // Create a table.
-        $this->connection->executeUpdate(<<<SQL
+        $this->connection->executeStatement(<<<SQL
           CREATE TABLE tbl_test_2766_0 (
                        x_id VARCHAR2(255) DEFAULT 'x' NOT NULL,
                        x_data CLOB DEFAULT NULL NULL,
@@ -289,7 +289,7 @@ SQL
         $firstQueryCount = $sqlLoggerStack->currentQuery;
 
         // Create another table.
-        $this->connection->executeUpdate(<<<SQL
+        $this->connection->executeStatement(<<<SQL
           CREATE TABLE tbl_test_2766_1 (
                        x_id VARCHAR2(255) DEFAULT 'x' NOT NULL,
                        x_data CLOB DEFAULT NULL NULL,
@@ -299,7 +299,7 @@ SQL
            PRIMARY KEY (x_id))
 SQL
         );
-        $this->connection->executeUpdate('CREATE UNIQUE INDEX tbl_test_2766_uix_1 ON tbl_test_2766_1 (x_number)');
+        $this->connection->executeStatement('CREATE UNIQUE INDEX tbl_test_2766_uix_1 ON tbl_test_2766_1 (x_number)');
 
         // Introspect the db schema again.
         $preCount         = $sqlLoggerStack->currentQuery;
