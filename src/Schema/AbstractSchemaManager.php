@@ -295,9 +295,9 @@ abstract class AbstractSchemaManager
     {
         $tableNames = $this->listTableNames();
 
-        $columnsByTable =     [];
+        $columnsByTable     = [];
         $foreignKeysByTable = [];
-        $indexesByTable =     [];
+        $indexesByTable     = [];
 
         if ($this->_platform instanceof DatabaseAsset) {
             $currentDatabase = $this->_conn->getDatabase() ?? '';
