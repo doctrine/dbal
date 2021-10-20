@@ -1768,14 +1768,13 @@ abstract class AbstractPlatform
             }
         }
 
-        $columnSql = [];
-        $columns   = [];
+        $columnSql                          = [];
+        $columns                            = [];
+        $hasSchemaCreateTableColumnListener = $this->_eventManager !== null
+            && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn);
 
         foreach ($table->getColumns() as $column) {
-            if (
-                $this->_eventManager !== null
-                && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)
-            ) {
+            if ($hasSchemaCreateTableColumnListener) {
                 $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
 
                 $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);

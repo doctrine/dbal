@@ -3,6 +3,8 @@
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaCreateTableEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidLockMode;
@@ -375,15 +377,49 @@ abstract class AbstractPlatformTestCase extends TestCase
         );
     }
 
-    public function testGetCreateTableSqlDispatchEvent(): void
+    public function testGetCreateTableSqlDispatchColumnEvent(): void
+    {
+        $listenerMock = $this->createMock(GetCreateTableSqlDispatchEventListener::class);
+
+        $listenerMock
+            ->expects(self::exactly(2))
+            ->method('onSchemaCreateTableColumn')
+            ->willReturnCallback(static function (SchemaCreateTableColumnEventArgs $eventArgs): void {
+                $eventArgs->addSql('DUMMY SQL');
+            });
+
+        $eventManager = new EventManager();
+        $eventManager->addEventListener([
+            Events::onSchemaCreateTableColumn,
+        ], $listenerMock);
+
+        $this->platform->setEventManager($eventManager);
+
+        $table = new Table('test');
+        $table->addColumn('foo', 'string', ['notnull' => false, 'length' => 255]);
+        $table->addColumn('bar', 'string', ['notnull' => false, 'length' => 255]);
+
+        $actual = $this->platform->getCreateTableSQL($table);
+        self::assertEquals('DUMMY SQL', $actual[1]);
+        self::assertEquals('DUMMY SQL', $actual[2]);
+    }
+
+    public function testGetCreateTableSqlDispatchColumnAndTableEventWithoutDefault(): void
     {
         $listenerMock = $this->createMock(GetCreateTableSqlDispatchEventListener::class);
         $listenerMock
             ->expects(self::once())
-            ->method('onSchemaCreateTable');
+            ->method('onSchemaCreateTable')
+            ->willReturnCallback(static function (SchemaCreateTableEventArgs $eventArgs): void {
+                $eventArgs->addSql('DUMMY TABLE SQL');
+                $eventArgs->preventDefault();
+            });
         $listenerMock
             ->expects(self::exactly(2))
-            ->method('onSchemaCreateTableColumn');
+            ->method('onSchemaCreateTableColumn')
+            ->willReturnCallback(static function (SchemaCreateTableColumnEventArgs $eventArgs): void {
+                $eventArgs->addSql('DUMMY COLUMN SQL');
+            });
 
         $eventManager = new EventManager();
         $eventManager->addEventListener([
@@ -397,7 +433,10 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('foo', 'string', ['notnull' => false, 'length' => 255]);
         $table->addColumn('bar', 'string', ['notnull' => false, 'length' => 255]);
 
-        $this->platform->getCreateTableSQL($table);
+        self::assertSame(
+            ['DUMMY TABLE SQL', 'DUMMY COLUMN SQL', 'DUMMY COLUMN SQL'],
+            $this->platform->getCreateTableSQL($table)
+        );
     }
 
     public function testGetDropTableSqlDispatchEvent(): void
