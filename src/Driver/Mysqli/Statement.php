@@ -6,14 +6,12 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
-use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
 use Doctrine\DBAL\Driver\Mysqli\Exception\NonStreamResourceUsedAsLargeObject;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use mysqli;
 use mysqli_sql_exception;
 use mysqli_stmt;
 
@@ -40,8 +38,6 @@ final class Statement implements StatementInterface
         ParameterType::LARGE_OBJECT => 'b',
     ];
 
-    private mysqli $conn;
-
     private mysqli_stmt $stmt;
 
     /** @var mixed[] */
@@ -58,23 +54,9 @@ final class Statement implements StatementInterface
 
     /**
      * @internal The statement can be only instantiated by its driver connection.
-     *
-     * @throws Exception
      */
-    public function __construct(mysqli $conn, string $sql)
+    public function __construct(mysqli_stmt $stmt)
     {
-        $this->conn = $conn;
-
-        try {
-            $stmt = $conn->prepare($sql);
-        } catch (mysqli_sql_exception $e) {
-            throw ConnectionError::upcast($e);
-        }
-
-        if ($stmt === false) {
-            throw ConnectionError::new($this->conn);
-        }
-
         $this->stmt = $stmt;
 
         $paramCount = $this->stmt->param_count;

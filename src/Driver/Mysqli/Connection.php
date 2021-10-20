@@ -104,7 +104,17 @@ final class Connection implements ConnectionInterface
 
     public function prepare(string $sql): DriverStatement
     {
-        return new Statement($this->conn, $sql);
+        try {
+            $stmt = $this->conn->prepare($sql);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
+        }
+
+        if ($stmt === false) {
+            throw ConnectionError::new($this->conn);
+        }
+
+        return new Statement($stmt);
     }
 
     public function query(string $sql): ResultInterface
@@ -148,7 +158,7 @@ final class Connection implements ConnectionInterface
 
     public function beginTransaction(): void
     {
-        $this->conn->query('START TRANSACTION');
+        $this->conn->begin_transaction();
     }
 
     public function commit(): void

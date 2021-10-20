@@ -12,13 +12,6 @@ parameters:
         - '~^Class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy) not found\.\z~'
         - '~^.+ on an unknown class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy)\.\z~'
 
-        # may not exist when pdo_sqlsrv is not loaded but PDO is
-        - '~^Access to undefined constant PDO::SQLSRV_ENCODING_BINARY\.\z~'
-
-        # weird class name, represented in stubs as OCI_(Lob|Collection)
-        - '~unknown class OCI-(Lob|Collection)~'
-        - '~^Call to method writetemporary\(\) on an unknown class OCILob\.~'
-
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
         -
             message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
@@ -33,9 +26,6 @@ parameters:
         -
             message: '~^Strict comparison using === between string and null will always evaluate to false\.$~'
             path: %currentWorkingDirectory%/src/Driver/IBMDB2/Connection.php
-
-        # Needs Generics
-        - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
 
         # https://github.com/phpstan/phpstan/issues/3134
         -
@@ -52,12 +42,6 @@ parameters:
                 - src/Platforms/*Platform.php
                 - src/Schema/*SchemaManager.php
 
-        # Fixing the issue may cause a BC break.
-        -
-            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::lastInsertId\(\) should return string but returns int\|string\.$~'
-            paths:
-                - src/Driver/Mysqli/Connection.php
-
         # In some namespaces, we use array<string,mixed>, some elements of which are actually boolean
         -
             message: '~^Only booleans are allowed in .*, mixed given~'
@@ -73,17 +57,6 @@ parameters:
                 - src/Schema/AbstractSchemaManager.php
                 - src/Schema/Column.php
 
-        # https://github.com/phpstan/phpstan/issues/3146
-        -
-            message: '~^Only numeric types are allowed in -, int<1, max>\|false given on the left side\.~'
-            paths:
-                - src/Platforms/SQLServerPlatform.php
-
-        # Temporaily suppressed during up-merging an upgrade PHPStan 0.12
-        -
-            message: '~^Call to an undefined method Doctrine\\DBAL\\Driver::createDatabasePlatformForVersion\(\)\.$~'
-            path: %currentWorkingDirectory%/tests/Driver/AbstractDriverTest.php
-
         # Temporaily suppressed during up-merging an upgrade to PHPStan 0.12.33
         -
             message: '~^Parameter #1 \$expected of static method PHPUnit\\Framework\\Assert::assertInstanceOf\(\) expects class-string<Doctrine\\DBAL\\Connection&PHPUnit\\Framework\\MockObject\\MockObject>, class-string<Doctrine\\DBAL\\Connection>&class-string<PHPUnit\\Framework\\MockObject\\MockObject> given\.$~'
@@ -94,41 +67,6 @@ parameters:
             message: '~^Parameter #1 \$scheme of static method Doctrine\\DBAL\\DriverManager::parseDatabaseUrlScheme\(\) expects string\|null, int\|string\|null given\.$~'
             paths:
                 - src/DriverManager.php
-
-        # Unlike Psalm, PHPStan doesn't understand that $matchesCount cannot be false
-        -
-            message: '~^Only numeric types are allowed in pre\-decrement, int\<1, max\>\|false given\.$~'
-            paths:
-                - src/Platforms/SQLServerPlatform.php
-
-        # https://github.com/phpstan/phpstan-phpunit/issues/83
-        -
-            message: '~^Only iterables can be unpacked, array<int, mixed>\|false given in argument #1\.$~'
-            paths:
-                - tests/Functional/Platform/DefaultExpressionTest.php
-
-        # https://github.com/phpstan/phpstan/issues/4126
-        -
-            message: '~^Call to function iterator_to_array\(\) on a separate line has no effect\.$~'
-            paths:
-                - %currentWorkingDirectory%/tests/Functional/Connection/FetchTest.php
-
-        # https://github.com/phpstan/phpstan/issues/4557
-        -
-            message: '~^Parameter #1 \$originalClassName of method PHPUnit\\Framework\\TestCase::createMock\(\) expects class-string<T of Doctrine\\DBAL\\Platforms\\AbstractPlatform>, string given\.$~'
-            paths:
-                - %currentWorkingDirectory%/tests/Platforms/AbstractPlatformTestCase.php
-
-        # https://github.com/phpstan/phpstan/issues/4557
-        -
-            message: '~^Unable to resolve the template type T in call to method PHPUnit\\Framework\\TestCase::createMock\(\)$~'
-            paths:
-                - %currentWorkingDirectory%/tests/Platforms/AbstractPlatformTestCase.php
-
-        -
-            message: '~^Instanceof between Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList and Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList will always evaluate to true\.~'
-            paths:
-                - src/Platforms/AbstractPlatform.php
 
         # https://github.com/phpstan/phpstan-src/pull/692
         -
@@ -145,17 +83,6 @@ parameters:
             message: '~^Unreachable statement - code above always terminates\.$~'
             paths:
                 - src/Driver/OCI8/Result.php
-        -
-            message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
-            paths:
-                - src/Driver/OCI8/Statement.php
-        -
-            message: '~^Strict comparison using !== between OCILob\|null and false will always evaluate to true\.$~'
-            paths:
-                - src/Driver/OCI8/Statement.php
-
-        # This class has been added in PHP 8.1
-        - '/^Attribute class ReturnTypeWillChange does not exist\.$/'
 
         # https://github.com/phpstan/phpstan/issues/5608
         -
@@ -163,23 +90,11 @@ parameters:
             paths:
                 - src/DriverManager.php
 
-        # https://github.com/phpstan/phpstan/issues/1901
-        -
-            message: '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::escapeStringForLike\(\) should return string but returns string\|null\.$~'
-            paths:
-                - src/Platforms/AbstractPlatform.php
-
         # https://github.com/phpstan/phpstan/issues/4679
         -
             message: '~^Cannot call method writeTemporary\(\) on OCILob\|null\.$~'
             paths:
                 - src/Driver/OCI8/Statement.php
-
-        # TODO: check for null after calling Connection::getDatabase()
-        -
-            message: '~Parameter.*\$database of method.*expects string, string\|null given\.~'
-            path: src/Schema/AbstractSchemaManager.php
-            count: 3
 
         # TODO: prevent unsafe usage of operator - with null
         -
