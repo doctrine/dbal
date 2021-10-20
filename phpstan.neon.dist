@@ -17,8 +17,6 @@ parameters:
         - '~^Constructor of class Doctrine\\DBAL\\Schema\\Table has an unused parameter \$idGeneratorType\.\z~'
 
         # changing these would be a BC break, to be done in next major
-        - '~^Property Doctrine\\DBAL\\Schema\\Table::\$_primaryKeyName \(string\) does not accept (default value of type )?false\.\z~'
-        - '~^Property Doctrine\\DBAL\\Schema\\Schema::\$_schemaConfig \(Doctrine\\DBAL\\Schema\\SchemaConfig\) does not accept default value of type false\.\z~'
         - '~^Return type \(int\|false\) of method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection\:\:lastInsertId\(\) should be compatible with return type \(string\) of method Doctrine\\DBAL\\Driver\\Connection::lastInsertId\(\)~'
 
         # https://github.com/doctrine/dbal/pull/3836
@@ -34,16 +32,6 @@ parameters:
         # legacy remnants from doctrine/common
         - '~^Class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy) not found\.\z~'
         - '~^.+ on an unknown class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy)\.\z~'
-
-        # weird class name, represented in stubs as OCI_(Lob|Collection)
-        - '~unknown class OCI-(Lob|Collection)~'
-        - '~^Call to method writeTemporary\(\) on an unknown class OCILob\.~'
-
-        # The ReflectionException in the case when the class does not exist is acceptable and does not need to be handled
-        - '~^Parameter #1 \$argument of class ReflectionClass constructor expects class-string<T of object>\|T of object, string given\.$~'
-
-        # Needs Generics
-        - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
 
         # This is deprecated code. Fixing the issue may cause a BC break.
         # TODO: remove in 3.0.0
@@ -79,26 +67,12 @@ parameters:
             paths:
                 - lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
 
-        # Fixing the issue may cause a BC break.
-        # TODO: fix in 3.0.0
-        -
-            message: '~^Parameter \#2 \$sqlState of class Doctrine\\DBAL\\Driver\\Mysqli\\MysqliException constructor expects string\|null, int given\.$~'
-            paths:
-                - lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php
-
         # This is deprecated code. Fixing the issue may cause a BC break.
         # TODO: remove in 3.0.0
         -
             message: '~^Return type \(string\) of method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliStatement::errorInfo\(\) should be compatible with return type \(array\) of method Doctrine\\DBAL\\Driver\\Statement::errorInfo\(\)$~'
             paths:
                 - lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php
-
-        # This is poorly typed deprecated code. The issue doesn't have practical implication and can be suppressed.
-        # TODO: remove in 3.0.0
-        -
-            message: '~^Parameter \#1 \$how of method PDOStatement\:\:fetchAll\(\) expects int, array\|int\|null given\.$~'
-            paths:
-                - lib/Doctrine/DBAL/Driver/PDOStatement.php
 
         -
             message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns int\|string\|false\|null\.~'
@@ -121,9 +95,6 @@ parameters:
             message: '~^Property Doctrine\\DBAL\\Connection::\$_conn \(Doctrine\\DBAL\\Driver\\Connection\|null\) does not accept PDO\.$~'
             paths:
                 - lib/Doctrine/DBAL/Connection.php
-
-        # The class was added in PHP 8.1
-        - '~^Attribute class ReturnTypeWillChange does not exist.$~'
 
         # https://github.com/phpstan/phpstan/issues/5608
         -
