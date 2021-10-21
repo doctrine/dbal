@@ -6,8 +6,11 @@
          beStrictAboutTodoAnnotatedTests="true"
          failOnRisky="true"
          failOnWarning="true"
+         convertDeprecationsToExceptions="true"
 >
     <php>
+        <ini name="error_reporting" value="-1" />
+
         <var name="db_driver" value="pdo_mysql"/>
         <var name="db_host" value="127.0.0.1" />
         <var name="db_port" value="3306"/>
