@@ -34,8 +34,7 @@ final class Parser
     private const BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
     private const MULTICHAR            = ':{2,}';
     private const NAMED_PARAMETER      = ':[a-zA-Z0-9_]+';
-    private const POSITIONAL_PARAMETER = '\\?';
-    private const ESCAPED_QUESTION     = '\\?\\?';
+    private const POSITIONAL_PARAMETER = '(?<!\\?)\\?(?!\\?)';
     private const ONE_LINE_COMMENT     = '--[^\r\n]*';
     private const MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
     private const OTHER                = '((?!' . self::SPECIAL . ')' . self::ANY . ')+';
@@ -61,13 +60,12 @@ final class Parser
             self::BACKTICK_IDENTIFIER,
             self::BRACKET_IDENTIFIER,
             self::MULTICHAR,
-            self::ESCAPED_QUESTION,
             self::ONE_LINE_COMMENT,
             self::MULTI_LINE_COMMENT,
             self::OTHER,
         ]);
 
-        $this->sqlPattern = sprintf('(%s)+', implode('|', $patterns));
+        $this->sqlPattern = sprintf('(%s)', implode('|', $patterns));
     }
 
     /**
