@@ -43,4 +43,12 @@ final class MariaDb1027Platform extends MySQLPlatform
 
         $this->doctrineTypeMapping['json'] = Types::JSON;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsDefaultValue(array $column): bool
+    {
+        return true;
+    }
 }

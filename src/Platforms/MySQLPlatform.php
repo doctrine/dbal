@@ -453,11 +453,21 @@ SQL
     public function getDefaultValueDeclarationSQL($column)
     {
         // Unset the default value if the given column definition does not allow default values.
-        if ($column['type'] instanceof TextType || $column['type'] instanceof BlobType) {
+        if (!$this->supportsDefaultValue($column)) {
             $column['default'] = null;
         }
 
         return parent::getDefaultValueDeclarationSQL($column);
+    }
+
+    /**
+     * @param array<string, mixed> $column
+     *
+     * @return bool
+     */
+    protected function supportsDefaultValue(array $column): bool
+    {
+        return false === ($column['type'] instanceof TextType || $column['type'] instanceof BlobType);
     }
 
     /**
@@ -573,7 +583,7 @@ SQL
             if (
                 $columnDiff->hasChanged('default') &&
                 count($columnDiff->changedProperties) === 1 &&
-                ($columnArray['type'] instanceof TextType || $columnArray['type'] instanceof BlobType)
+                !$this->supportsDefaultValue($columnArray)
             ) {
                 continue;
             }
