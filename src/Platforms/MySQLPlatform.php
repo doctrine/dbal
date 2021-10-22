@@ -453,7 +453,7 @@ SQL
     public function getDefaultValueDeclarationSQL($column)
     {
         // Unset the default value if the given column definition does not allow default values.
-        if (!$this->supportsDefaultValue($column)) {
+        if (! $this->supportsDefaultValue($column)) {
             $column['default'] = null;
         }
 
@@ -462,12 +462,10 @@ SQL
 
     /**
      * @param array<string, mixed> $column
-     *
-     * @return bool
      */
     protected function supportsDefaultValue(array $column): bool
     {
-        return false === ($column['type'] instanceof TextType || $column['type'] instanceof BlobType);
+        return ($column['type'] instanceof TextType || $column['type'] instanceof BlobType) === false;
     }
 
     /**
@@ -583,7 +581,7 @@ SQL
             if (
                 $columnDiff->hasChanged('default') &&
                 count($columnDiff->changedProperties) === 1 &&
-                !$this->supportsDefaultValue($columnArray)
+                ! $this->supportsDefaultValue($columnArray)
             ) {
                 continue;
             }
