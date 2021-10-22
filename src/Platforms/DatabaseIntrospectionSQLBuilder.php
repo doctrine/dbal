@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms;
  * @deprecated The methods defined in this interface will be made part of the {@link AbstractPlatform} base class in
  * the next major release.
  */
-interface DatabaseAsset
+interface DatabaseIntrospectionSQLBuilder
 {
     /**
      * Returns the SQL to list all the columns of all the tables in the database.

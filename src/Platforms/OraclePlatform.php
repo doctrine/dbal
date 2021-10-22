@@ -30,7 +30,7 @@ use function substr;
 /**
  * OraclePlatform.
  */
-class OraclePlatform extends AbstractPlatform implements DatabaseAsset
+class OraclePlatform extends AbstractPlatform implements DatabaseIntrospectionSQLBuilder
 {
     /**
      * Assertion for Oracle identifiers.
@@ -448,11 +448,17 @@ class OraclePlatform extends AbstractPlatform implements DatabaseAsset
 
     private function getListIndexesSQL(string $database, ?string $table = null): string
     {
-        if ($table === null) {
-            $databaseIdentifier       = $this->normalizeIdentifier($database);
-            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        $databaseIdentifier       = $this->normalizeIdentifier($database);
+        $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
 
-            return <<<SQL
+        $tableCondition = '';
+        if ($table !== null) {
+            $tableIdentifier       = $this->normalizeIdentifier($table);
+            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
+            $tableCondition        = 'AND ind_col.table_name = ' . $quotedTableIdentifier;
+        }
+
+        return <<<SQL
               SELECT ind_col.table_name as table_name,
                      ind_col.index_name AS name,
                      ind.index_type AS type,
@@ -463,41 +469,9 @@ class OraclePlatform extends AbstractPlatform implements DatabaseAsset
                 FROM all_ind_columns ind_col
            LEFT JOIN all_indexes ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
            LEFT JOIN all_constraints con ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
-               WHERE ind_col.index_owner = $quotedDatabaseIdentifier
+               WHERE ind_col.index_owner = $quotedDatabaseIdentifier $tableCondition
             ORDER BY ind_col.table_name, ind_col.index_name, ind_col.column_position
 SQL;
-        }
-
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        return "SELECT uind_col.index_name AS name,
-                       (
-                           SELECT uind.index_type
-                           FROM   user_indexes uind
-                           WHERE  uind.index_name = uind_col.index_name
-                       ) AS type,
-                       decode(
-                           (
-                               SELECT uind.uniqueness
-                               FROM   user_indexes uind
-                               WHERE  uind.index_name = uind_col.index_name
-                           ),
-                           'NONUNIQUE',
-                           0,
-                           'UNIQUE',
-                           1
-                       ) AS is_unique,
-                       uind_col.column_name AS column_name,
-                       uind_col.column_position AS column_pos,
-                       (
-                           SELECT ucon.constraint_type
-                           FROM   user_constraints ucon
-                           WHERE  ucon.index_name = uind_col.index_name
-                       ) AS is_primary
-             FROM      user_ind_columns uind_col
-             WHERE     uind_col.table_name = " . $table . '
-             ORDER BY  uind_col.column_position ASC';
     }
 
     /**
@@ -672,16 +646,31 @@ END;';
      */
     public function getListTableForeignKeysSQL($table)
     {
-        return $this->getListForeignKeysSQL('', $table);
+        return $this->getListForeignKeysSQL(null, $table);
     }
 
-    private function getListForeignKeysSQL(string $database, ?string $table = null): string
+    private function getListForeignKeysSQL(?string $database, ?string $table = null): string
     {
-        if ($table === null) {
-            $databaseIdentifier       = $this->normalizeIdentifier($database);
-            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        $databaseCondition      = '';
+        $constraintColumnsTable = 'all_cons_columns';
+        $constraintTable        = 'all_constraints';
+        if ($database !== null) {
+            $databaseIdentifier = $this->normalizeIdentifier($database);
+            $databaseCondition  = 'cols.owner = ' . $this->quoteStringLiteral($databaseIdentifier->getName());
+        }
 
-            return <<<SQL
+        $tableCondition = '';
+        if ($table !== null) {
+            $tableIdentifier = $this->normalizeIdentifier($table);
+            $tableCondition  = ($database === null ? '' : 'AND ') .
+                'cols.table_name = ' . $this->quoteStringLiteral($tableIdentifier->getName());
+            if ($database === null) {
+                $constraintColumnsTable = 'user_cons_columns';
+                $constraintTable        = 'user_constraints';
+            }
+        }
+
+        return <<<SQL
               SELECT cols.table_name,
                      alc.constraint_name,
                      alc.DELETE_RULE,
@@ -689,41 +678,14 @@ END;';
                      cols.position,
                      r_cols.table_name "references_table",
                      r_cols.column_name "foreign_column"
-                FROM all_cons_columns cols
-           LEFT JOIN all_constraints alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
-           LEFT JOIN all_cons_columns r_cols ON r_cols.owner = alc.r_owner AND
+                FROM $constraintColumnsTable cols
+           LEFT JOIN $constraintTable alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
+           LEFT JOIN $constraintColumnsTable r_cols ON r_cols.owner = alc.r_owner AND
                      r_cols.constraint_name = alc.r_constraint_name AND
                      r_cols.position = cols.position
-               WHERE cols.owner = $quotedDatabaseIdentifier AND alc.constraint_type = 'R'
+               WHERE $databaseCondition $tableCondition AND alc.constraint_type = 'R'
             ORDER BY cols.table_name, cols.constraint_name, cols.position
 SQL;
-        }
-
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        return "SELECT alc.constraint_name,
-          alc.DELETE_RULE,
-          cols.column_name \"local_column\",
-          cols.position,
-          (
-              SELECT r_cols.table_name
-              FROM   user_cons_columns r_cols
-              WHERE  alc.r_constraint_name = r_cols.constraint_name
-              AND    r_cols.position = cols.position
-          ) AS \"references_table\",
-          (
-              SELECT r_cols.column_name
-              FROM   user_cons_columns r_cols
-              WHERE  alc.r_constraint_name = r_cols.constraint_name
-              AND    r_cols.position = cols.position
-          ) AS \"foreign_column\"
-     FROM user_cons_columns cols
-     JOIN user_constraints alc
-       ON alc.constraint_name = cols.constraint_name
-      AND alc.constraint_type = 'R'
-      AND alc.table_name = " . $table . '
-    ORDER BY cols.constraint_name ASC, cols.position ASC';
     }
 
     /**
@@ -747,63 +709,39 @@ SQL;
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        return $this->getListColumnsSQL($database ?? '', $table);
+        return $this->getListColumnsSQL($database, $table);
     }
 
-    private function getListColumnsSQL(string $database, ?string $table = null): string
+    private function getListColumnsSQL(?string $database, ?string $table = null): string
     {
-        if ($table === null) {
-            $databaseIdentifier       = $this->normalizeIdentifier($database);
-            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        $databaseCondition   = '';
+        $tableColumnsTable   = 'all_tab_columns';
+        $columnCommentsTable = 'all_col_comments';
+        if ($database !== null) {
+            $databaseIdentifier = $this->normalizeIdentifier($database);
+            $databaseCondition  = 'c.owner = ' . $this->quoteStringLiteral($databaseIdentifier->getName());
+        }
 
-            return <<<SQL
+        $tableCondition = '';
+        if ($table !== null) {
+            $tableIdentifier = $this->normalizeIdentifier($table);
+            $tableCondition  = ($database === null ? '' : 'AND ') .
+                'c.table_name = ' . $this->quoteStringLiteral($tableIdentifier->getName());
+            if ($database === null) {
+                $constraintColumnsTable = 'user_tab_columns';
+                $constraintTable        = 'user_col_comments';
+            }
+        }
+
+        return <<<SQL
               SELECT c.*,
                      d.comments AS comments
-                FROM all_tab_columns c
-           LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND
+                FROM $tableColumnsTable c
+           LEFT JOIN $columnCommentsTable d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND
                      d.COLUMN_NAME = c.COLUMN_NAME
-               WHERE c.owner = $quotedDatabaseIdentifier
+               WHERE $databaseCondition $tableCondition
             ORDER BY c.table_name, c.column_id
 SQL;
-        }
-
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        $tabColumnsTableName       = 'user_tab_columns';
-        $colCommentsTableName      = 'user_col_comments';
-        $tabColumnsOwnerCondition  = '';
-        $colCommentsOwnerCondition = '';
-
-        if ($database !== '' && $database !== '/') {
-            $database                  = $this->normalizeIdentifier($database);
-            $database                  = $this->quoteStringLiteral($database->getName());
-            $tabColumnsTableName       = 'all_tab_columns';
-            $colCommentsTableName      = 'all_col_comments';
-            $tabColumnsOwnerCondition  = ' AND c.owner = ' . $database;
-            $colCommentsOwnerCondition = ' AND d.OWNER = c.OWNER';
-        }
-
-        return sprintf(
-            <<<'SQL'
-SELECT   c.*,
-         (
-             SELECT d.comments
-             FROM   %s d
-             WHERE  d.TABLE_NAME = c.TABLE_NAME%s
-             AND    d.COLUMN_NAME = c.COLUMN_NAME
-         ) AS comments
-FROM     %s c
-WHERE    c.table_name = %s%s
-ORDER BY c.column_id
-SQL
-            ,
-            $colCommentsTableName,
-            $colCommentsOwnerCondition,
-            $tabColumnsTableName,
-            $table,
-            $tabColumnsOwnerCondition
-        );
     }
 
     /**

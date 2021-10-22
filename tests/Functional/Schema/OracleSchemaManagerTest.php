@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
-use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -268,46 +267,5 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::markTestSkipped(
             "Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0."
         );
-    }
-
-    public function testCreateSchemaNumberOfQueriesInvariable(): void
-    {
-        // Create a table.
-        $this->connection->executeStatement(<<<SQL
-          CREATE TABLE tbl_test_2766_0 (
-                       x_id VARCHAR2(255) DEFAULT 'x' NOT NULL,
-                       x_data CLOB DEFAULT NULL NULL,
-                       x_number NUMBER(10) DEFAULT 0 NOT NULL,
-           PRIMARY KEY (x_id))
-SQL
-        );
-
-        // Introspect the db schema, counting the query executions needed.
-        $sqlLoggerStack = new DebugStack();
-        $this->connection->getConfiguration()->setSQLLogger($sqlLoggerStack);
-        $schema          = $this->schemaManager->createSchema();
-        $firstQueryCount = $sqlLoggerStack->currentQuery;
-
-        // Create another table.
-        $this->connection->executeStatement(<<<SQL
-          CREATE TABLE tbl_test_2766_1 (
-                       x_id VARCHAR2(255) DEFAULT 'x' NOT NULL,
-                       x_data CLOB DEFAULT NULL NULL,
-                       x_number NUMBER(10) DEFAULT 0 NOT NULL,
-                       x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL,
-            CONSTRAINT tbl_test_2766_fk_1 FOREIGN KEY (x_parent_id) REFERENCES tbl_test_2766_0(x_id),
-           PRIMARY KEY (x_id))
-SQL
-        );
-        $this->connection->executeStatement('CREATE UNIQUE INDEX tbl_test_2766_uix_1 ON tbl_test_2766_1 (x_number)');
-
-        // Introspect the db schema again.
-        $preCount         = $sqlLoggerStack->currentQuery;
-        $schema           = $this->schemaManager->createSchema();
-        $secondQueryCount = $sqlLoggerStack->currentQuery - $preCount;
-
-        // The number of queries needed to execute createSchema should be the same
-        // regardless of additional tables added.
-        self::assertSame($firstQueryCount, $secondQueryCount);
     }
 }

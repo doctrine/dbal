@@ -8,7 +8,7 @@ use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\DatabaseAsset;
+use Doctrine\DBAL\Platforms\DatabaseIntrospectionSQLBuilder;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
@@ -299,7 +299,7 @@ abstract class AbstractSchemaManager
         $foreignKeysByTable = [];
         $indexesByTable     = [];
 
-        if ($this->_platform instanceof DatabaseAsset) {
+        if ($this->_platform instanceof DatabaseIntrospectionSQLBuilder) {
             $currentDatabase = $this->_conn->getDatabase() ?? '';
 
             // Get all column definitions in one database call.
@@ -320,7 +320,7 @@ abstract class AbstractSchemaManager
 
         $tables = [];
         foreach ($tableNames as $tableName) {
-            if ($this->_platform instanceof DatabaseAsset) {
+            if ($this->_platform instanceof DatabaseIntrospectionSQLBuilder) {
                 $unquotedTableName = trim($tableName, '"');
 
                 $columns = $this->_getPortableTableColumnList($tableName, '', $columnsByTable[$unquotedTableName]);
