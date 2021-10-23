@@ -59,7 +59,7 @@ final class Statement implements StatementInterface
                 break;
         }
 
-        return $this->statement->bindParam($param, $variable, $type, $length, $driverOptions);
+        return $this->statement->bindParam($param, $variable, $type, $length ?? 0, $driverOptions);
     }
 
     /**

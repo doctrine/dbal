@@ -295,6 +295,17 @@ SELECT dummy as "dummy?"
 SQL
 ,
         ];
+
+        yield 'Escaped question' => [
+            <<<'SQL'
+SELECT '{"a":null}'::jsonb ?? :key
+SQL
+,
+            <<<'SQL'
+SELECT '{"a":null}'::jsonb ?? {:key}
+SQL
+,
+        ];
     }
 
     /**
