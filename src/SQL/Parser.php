@@ -27,8 +27,7 @@ use function strlen;
  */
 final class Parser
 {
-    private const ANY     = '.';
-    private const SPECIAL = '[:\?\'"`\\[\\-\\/]';
+    private const SPECIAL_CHARS = ':\?\'"`\\[\\-\\/';
 
     private const BACKTICK_IDENTIFIER  = '`[^`]*`';
     private const BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
@@ -37,7 +36,8 @@ final class Parser
     private const POSITIONAL_PARAMETER = '(?<!\\?)\\?(?!\\?)';
     private const ONE_LINE_COMMENT     = '--[^\r\n]*';
     private const MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
-    private const OTHER                = '((?!' . self::SPECIAL . ')' . self::ANY . ')+';
+    private const SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
+    private const OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
 
     /** @var string */
     private $sqlPattern;
@@ -65,7 +65,7 @@ final class Parser
             self::OTHER,
         ]);
 
-        $this->sqlPattern = sprintf('(%s)', implode('|', $patterns));
+        $this->sqlPattern = sprintf('(%s)+', implode('|', $patterns));
     }
 
     /**
@@ -107,7 +107,7 @@ final class Parser
 
     private function getMySQLStringLiteralPattern(string $delimiter): string
     {
-        return $delimiter . '((\\\\' . self::ANY . ')|(?![' . $delimiter . '\\\\])' . self::ANY . ')*' . $delimiter;
+        return $delimiter . '((\\\\.)|(?![' . $delimiter . '\\\\]).)*' . $delimiter;
     }
 
     private function getAnsiSQLStringLiteralPattern(string $delimiter): string
