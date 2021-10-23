@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver\Exception\PortWithoutHost;
-use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 
 /**
  * Driver for ext/sqlsrv.
@@ -15,10 +14,8 @@ final class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritdoc}
-     *
-     * @return Connection
      */
-    public function connect(array $params): ConnectionInterface
+    public function connect(array $params): Connection
     {
         $serverName = '';
 

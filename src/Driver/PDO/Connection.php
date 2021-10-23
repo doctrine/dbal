@@ -8,8 +8,6 @@ use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -55,12 +53,7 @@ final class Connection implements ConnectionInterface
         return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return Statement
-     */
-    public function prepare(string $sql): StatementInterface
+    public function prepare(string $sql): Statement
     {
         try {
             $stmt = $this->connection->prepare($sql);
@@ -72,7 +65,7 @@ final class Connection implements ConnectionInterface
         }
     }
 
-    public function query(string $sql): ResultInterface
+    public function query(string $sql): Result
     {
         try {
             $stmt = $this->connection->query($sql);

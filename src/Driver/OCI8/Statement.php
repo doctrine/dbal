@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\SQL\Parser;
@@ -137,7 +136,7 @@ final class Statement implements StatementInterface
         }
     }
 
-    public function execute(?array $params = null): ResultInterface
+    public function execute(?array $params = null): Result
     {
         if ($params !== null) {
             foreach ($params as $key => $val) {

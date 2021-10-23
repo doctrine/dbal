@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCopyStreamToStream;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCreateTemporaryFile;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotWriteToTemporaryFile;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 
@@ -115,7 +114,7 @@ final class Statement implements StatementInterface
         }
     }
 
-    public function execute(?array $params = null): ResultInterface
+    public function execute(?array $params = null): Result
     {
         if ($params === null) {
             ksort($this->bindParam);

@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Driver\PDO\SQLite;
 
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
-use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\PDO\Connection;
 
 use function array_merge;
@@ -31,10 +30,8 @@ final class Driver extends AbstractSQLiteDriver
 
     /**
      * {@inheritdoc}
-     *
-     * @return Connection
      */
-    public function connect(array $params): ConnectionInterface
+    public function connect(array $params): Connection
     {
         $driverOptions = $params['driverOptions'] ?? [];
 

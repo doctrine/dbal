@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
-use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Mysqli\Exception\HostRequired;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Charset;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Options;
@@ -17,10 +16,8 @@ final class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritdoc}
-     *
-     * @return Connection
      */
-    public function connect(array $params): ConnectionInterface
+    public function connect(array $params): Connection
     {
         if (! empty($params['persistent'])) {
             if (! isset($params['host'])) {

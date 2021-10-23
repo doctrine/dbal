@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
-use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 
 use const OCI_NO_AUTO_COMMIT;
 
@@ -16,10 +15,8 @@ final class Driver extends AbstractOracleDriver
 {
     /**
      * {@inheritdoc}
-     *
-     * @return Connection
      */
-    public function connect(array $params): ConnectionInterface
+    public function connect(array $params): Connection
     {
         return new Connection(
             $params['user'] ?? '',

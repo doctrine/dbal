@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver\Exception\PortWithoutHost;
-use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use PDO;
@@ -18,10 +17,8 @@ final class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritdoc}
-     *
-     * @return Connection
      */
-    public function connect(array $params): DriverConnection
+    public function connect(array $params): Connection
     {
         $pdoOptions = $dsnOptions = [];
 

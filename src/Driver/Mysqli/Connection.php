@@ -8,8 +8,6 @@ use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionFailed;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use mysqli;
 use mysqli_sql_exception;
 
@@ -102,7 +100,7 @@ final class Connection implements ConnectionInterface
         return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
     }
 
-    public function prepare(string $sql): DriverStatement
+    public function prepare(string $sql): Statement
     {
         try {
             $stmt = $this->conn->prepare($sql);
@@ -117,7 +115,7 @@ final class Connection implements ConnectionInterface
         return new Statement($stmt);
     }
 
-    public function query(string $sql): ResultInterface
+    public function query(string $sql): Result
     {
         return $this->prepare($sql)->execute();
     }

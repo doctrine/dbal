@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
 use Doctrine\DBAL\Driver\Mysqli\Exception\NonStreamResourceUsedAsLargeObject;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use mysqli_sql_exception;
@@ -96,7 +95,7 @@ final class Statement implements StatementInterface
         $this->types[$param - 1]   = self::$paramTypeMap[$type];
     }
 
-    public function execute(?array $params = null): ResultInterface
+    public function execute(?array $params = null): Result
     {
         if ($params !== null && count($params) > 0) {
             $this->bindUntypedValues($params);

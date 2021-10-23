@@ -9,8 +9,6 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use stdClass;
 
 use function assert;
@@ -70,7 +68,7 @@ final class Connection implements ConnectionInterface
         return $serverInfo->DBMS_VER;
     }
 
-    public function prepare(string $sql): DriverStatement
+    public function prepare(string $sql): Statement
     {
         $stmt = @db2_prepare($this->conn, $sql);
 
@@ -81,7 +79,7 @@ final class Connection implements ConnectionInterface
         return new Statement($stmt);
     }
 
-    public function query(string $sql): ResultInterface
+    public function query(string $sql): Result
     {
         return $this->prepare($sql)->execute();
     }

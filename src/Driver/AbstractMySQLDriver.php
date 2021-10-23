@@ -6,8 +6,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\API\ExceptionConverter;
-use Doctrine\DBAL\Driver\API\MySQL;
+use Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
@@ -15,7 +14,6 @@ use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
 
@@ -32,11 +30,9 @@ abstract class AbstractMySQLDriver implements Driver
     /**
      * {@inheritdoc}
      *
-     * @return MySQLPlatform
-     *
      * @throws Exception
      */
-    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): MySQLPlatform
     {
         $version = $versionProvider->getServerVersion();
         $mariadb = stripos($version, 'mariadb') !== false;
@@ -118,12 +114,7 @@ abstract class AbstractMySQLDriver implements Driver
         return $versionParts['major'] . '.' . $versionParts['minor'] . '.' . $versionParts['patch'];
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return MySQLSchemaManager
-     */
-    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager
+    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): MySQLSchemaManager
     {
         assert($platform instanceof MySQLPlatform);
 
@@ -132,6 +123,6 @@ abstract class AbstractMySQLDriver implements Driver
 
     public function getExceptionConverter(): ExceptionConverter
     {
-        return new MySQL\ExceptionConverter();
+        return new ExceptionConverter();
     }
 }
