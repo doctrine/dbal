@@ -6,8 +6,11 @@
          beStrictAboutTodoAnnotatedTests="true"
          failOnRisky="true"
          failOnWarning="true"
+         convertDeprecationsToExceptions="true"
 >
     <php>
+        <ini name="error_reporting" value="-1" />
+
         <var name="db_driver" value="oci8"/>
         <var name="db_host" value="localhost"/>
         <var name="db_user" value="doctrine"/>

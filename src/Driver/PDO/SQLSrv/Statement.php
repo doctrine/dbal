@@ -50,7 +50,7 @@ final class Statement implements StatementInterface
                 break;
 
             default:
-                $this->statement->bindParam($param, $variable, $type, $length);
+                $this->statement->bindParam($param, $variable, $type, $length ?? 0);
         }
     }
 

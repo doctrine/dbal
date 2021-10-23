@@ -13,9 +13,7 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use mysqli;
 use mysqli_sql_exception;
 
-use function assert;
 use function floor;
-use function mysqli_init;
 use function stripos;
 
 final class Connection implements ConnectionInterface
@@ -46,8 +44,7 @@ final class Connection implements ConnectionInterface
         iterable $preInitializers = [],
         iterable $postInitializers = []
     ) {
-        $connection = mysqli_init();
-        assert($connection !== false);
+        $connection = new mysqli();
 
         foreach ($preInitializers as $initializer) {
             $initializer->initialize($connection);
