@@ -6,8 +6,6 @@ use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use PDO;
 
-use function defined;
-
 final class Driver extends AbstractPostgreSQLDriver
 {
     /**
@@ -31,10 +29,8 @@ final class Driver extends AbstractPostgreSQLDriver
         );
 
         if (
-            defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')
-            && (! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
-                || $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] === true
-            )
+            ! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
+            || $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] === true
         ) {
             $connection->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
         }
