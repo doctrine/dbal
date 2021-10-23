@@ -443,23 +443,32 @@ class OraclePlatform extends AbstractPlatform implements DatabaseIntrospectionSQ
      */
     public function getListTableIndexesSQL($table, $database = null)
     {
-        return $this->getListIndexesSQL($database ?? '', $table);
+        return $this->getListIndexesSQL($database, $table);
     }
 
-    private function getListIndexesSQL(string $database, ?string $table = null): string
+    private function getListIndexesSQL(?string $database, ?string $table = null): string
     {
-        $databaseIdentifier       = $this->normalizeIdentifier($database);
-        $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        $databaseCondition = '';
+        $indexesTable      = 'all_indexes';
+        $constraintsTable  = 'all_constraints';
+        if ($database !== null) {
+            $databaseIdentifier = $this->normalizeIdentifier($database);
+            $databaseCondition  = 'ind_col.index_owner = ' . $this->quoteStringLiteral($databaseIdentifier->getName());
+        }
 
         $tableCondition = '';
         if ($table !== null) {
-            $tableIdentifier       = $this->normalizeIdentifier($table);
-            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableCondition        = 'AND ind_col.table_name = ' . $quotedTableIdentifier;
+            $tableIdentifier = $this->normalizeIdentifier($table);
+            $tableCondition  = ($database === null ? '' : 'AND ') .
+                'ind_col.table_name = ' . $this->quoteStringLiteral($tableIdentifier->getName());
+            if ($database === null) {
+                $indexesTable     = 'user_indexes';
+                $constraintsTable = 'user_constraints';
+            }
         }
 
         return <<<SQL
-              SELECT ind_col.table_name as table_name,
+              SELECT ind_col.table_name as "table_name",
                      ind_col.index_name AS name,
                      ind.index_type AS type,
                      decode(ind.uniqueness, 'NONUNIQUE', 0, 'UNIQUE', 1) AS is_unique,
@@ -467,9 +476,9 @@ class OraclePlatform extends AbstractPlatform implements DatabaseIntrospectionSQ
                      ind_col.column_position AS column_pos,
                      con.constraint_type AS is_primary
                 FROM all_ind_columns ind_col
-           LEFT JOIN all_indexes ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
-           LEFT JOIN all_constraints con ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
-               WHERE ind_col.index_owner = $quotedDatabaseIdentifier $tableCondition
+           LEFT JOIN $indexesTable ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
+           LEFT JOIN $constraintsTable con ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
+               WHERE $databaseCondition $tableCondition
             ORDER BY ind_col.table_name, ind_col.index_name, ind_col.column_position
 SQL;
     }
@@ -653,7 +662,7 @@ END;';
     {
         $databaseCondition      = '';
         $constraintColumnsTable = 'all_cons_columns';
-        $constraintTable        = 'all_constraints';
+        $constraintsTable       = 'all_constraints';
         if ($database !== null) {
             $databaseIdentifier = $this->normalizeIdentifier($database);
             $databaseCondition  = 'cols.owner = ' . $this->quoteStringLiteral($databaseIdentifier->getName());
@@ -666,12 +675,12 @@ END;';
                 'cols.table_name = ' . $this->quoteStringLiteral($tableIdentifier->getName());
             if ($database === null) {
                 $constraintColumnsTable = 'user_cons_columns';
-                $constraintTable        = 'user_constraints';
+                $constraintsTable       = 'user_constraints';
             }
         }
 
         return <<<SQL
-              SELECT cols.table_name,
+              SELECT cols.table_name "table_name",
                      alc.constraint_name,
                      alc.DELETE_RULE,
                      cols.column_name "local_column",
@@ -679,7 +688,7 @@ END;';
                      r_cols.table_name "references_table",
                      r_cols.column_name "foreign_column"
                 FROM $constraintColumnsTable cols
-           LEFT JOIN $constraintTable alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
+           LEFT JOIN $constraintsTable alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
            LEFT JOIN $constraintColumnsTable r_cols ON r_cols.owner = alc.r_owner AND
                      r_cols.constraint_name = alc.r_constraint_name AND
                      r_cols.position = cols.position
@@ -734,7 +743,7 @@ SQL;
         }
 
         return <<<SQL
-              SELECT c.*,
+              SELECT c.table_name "table_name", c.*,
                      d.comments AS comments
                 FROM $tableColumnsTable c
            LEFT JOIN $columnCommentsTable d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND

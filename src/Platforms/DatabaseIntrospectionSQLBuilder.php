@@ -3,8 +3,8 @@
 namespace Doctrine\DBAL\Platforms;
 
 /**
- * Database asset interface.
- * Interface that DBAL platforms can implement when all database assets can be retrieved with a single metadata query.
+ * Database introspection SQL builder interface.
+ * Interface that DBAL platforms can implement when all database objects can be retrieved with a single metadata query.
  *
  * @deprecated The methods defined in this interface will be made part of the {@link AbstractPlatform} base class in
  * the next major release.

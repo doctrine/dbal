@@ -37,7 +37,7 @@ use function trim;
  *
  * @todo   Rename: SQLitePlatform
  */
-class SqlitePlatform extends AbstractPlatform
+class SqlitePlatform extends AbstractPlatform implements DatabaseIntrospectionSQLBuilder
 {
     /**
      * {@inheritDoc}
@@ -461,14 +461,42 @@ class SqlitePlatform extends AbstractPlatform
         );
     }
 
+    public function getListDatabaseColumnsSQL(string $database): string
+    {
+        return $this->getListColumnsSQL($database);
+    }
+
     /**
      * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        $table = str_replace('.', '__', $table);
+        return $this->getListColumnsSQL($database, $table);
+    }
 
-        return sprintf('PRAGMA table_info(%s)', $this->quoteStringLiteral($table));
+    private function getListColumnsSQL(?string $database, ?string $table = null): string
+    {
+        $tableCondition = '';
+        if ($table !== null) {
+            $tableIdentifier = str_replace('.', '__', $table);
+            $tableCondition  = 'AND m.name = ' . $this->quoteStringLiteral($tableIdentifier);
+        }
+
+        return <<<SQL
+            SELECT m.name "table_name", p.*
+              FROM sqlite_master m
+              JOIN pragma_table_info(m.name) p
+             WHERE m.type = "table" $tableCondition AND
+                   m.name != 'sqlite_sequence' AND
+                   m.name != 'geometry_columns' AND
+                   m.name != 'spatial_ref_sys'
+          ORDER BY m.name, p.cid
+SQL;
+    }
+
+    public function getListDatabaseIndexesSQL(string $database): string
+    {
+        return $this->getListIndexesSQL($database);
     }
 
     /**
@@ -476,9 +504,27 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $database = null)
     {
-        $table = str_replace('.', '__', $table);
+        return $this->getListIndexesSQL($database, $table);
+    }
 
-        return sprintf('PRAGMA index_list(%s)', $this->quoteStringLiteral($table));
+    private function getListIndexesSQL(?string $database, ?string $table = null): string
+    {
+        $tableCondition = '';
+        if ($table !== null) {
+            $tableIdentifier = str_replace('.', '__', $table);
+            $tableCondition  = 'AND m.name = ' . $this->quoteStringLiteral($tableIdentifier);
+        }
+
+        return <<<SQL
+            SELECT m.name "table_name", p.*
+              FROM sqlite_master m
+              JOIN pragma_index_list(m.name) p
+             WHERE m.type = "table" $tableCondition AND
+                   m.name != 'sqlite_sequence' AND
+                   m.name != 'geometry_columns' AND
+                   m.name != 'spatial_ref_sys'
+          ORDER BY m.name, p.seq
+SQL;
     }
 
     /**
@@ -857,6 +903,11 @@ class SqlitePlatform extends AbstractPlatform
         return parent::getCreateTableSQL($table, $createFlags);
     }
 
+    public function getListDatabaseForeignKeysSQL(string $database): string
+    {
+        return $this->getListForeignKeysSQL($database);
+    }
+
     /**
      * @param string      $table
      * @param string|null $database
@@ -865,9 +916,27 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
-        $table = str_replace('.', '__', $table);
+        return $this->getListForeignKeysSQL(null, $table);
+    }
 
-        return sprintf('PRAGMA foreign_key_list(%s)', $this->quoteStringLiteral($table));
+    private function getListForeignKeysSQL(?string $database, ?string $table = null): string
+    {
+        $tableCondition = '';
+        if ($table !== null) {
+            $tableIdentifier = str_replace('.', '__', $table);
+            $tableCondition  = 'AND m.name = ' . $this->quoteStringLiteral($tableIdentifier);
+        }
+
+        return <<<SQL
+            SELECT m.name, p.*
+              FROM sqlite_master m
+              JOIN pragma_foreign_key_list(m.name) p ON p."seq" != "-1"
+             WHERE m.type = 'table' $tableCondition AND
+                   m.name != 'sqlite_sequence' AND
+                   m.name != 'geometry_columns' AND
+                   m.name != 'spatial_ref_sys'
+          ORDER BY m.name
+SQL;
     }
 
     /**

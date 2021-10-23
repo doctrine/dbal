@@ -14,6 +14,7 @@ use Throwable;
 
 use function array_filter;
 use function array_intersect;
+use function array_key_first;
 use function array_map;
 use function array_values;
 use function assert;
@@ -303,17 +304,17 @@ abstract class AbstractSchemaManager
             $currentDatabase = $this->_conn->getDatabase() ?? '';
 
             // Get all column definitions in one database call.
-            $columnsByTable = $this->getAssetRecordsByTable(
+            $columnsByTable = $this->getObjectRecordsByTable(
                 $this->_platform->getListDatabaseColumnsSQL($currentDatabase)
             );
 
             // Get all foreign keys definitions in one database call.
-            $foreignKeysByTable = $this->getAssetRecordsByTable(
+            $foreignKeysByTable = $this->getObjectRecordsByTable(
                 $this->_platform->getListDatabaseForeignKeysSQL($currentDatabase)
             );
 
             // Get all indexes definitions in one database call.
-            $indexesByTable = $this->getAssetRecordsByTable(
+            $indexesByTable = $this->getObjectRecordsByTable(
                 $this->_platform->getListDatabaseIndexesSQL($currentDatabase)
             );
         }
@@ -345,20 +346,23 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Helper method to group a set of asset records by the table name.
+     * Helper method to group a set of object records by the table name.
      *
-     * @param string $sql An SQL statement to be executed, that contains a TABLE_NAME field for grouping.
+     * @param string $sql An SQL statement to be executed, whose first field is used for grouping. It is up to the
+     *                    platform to ensure the first field contains the table name.
      *
      * @return array<int|string, array<int, array<string, mixed>>> An associative array with key being the table name,
      *                                                             and value a simple array of records associated with
      *                                                             the table.
      */
-    protected function getAssetRecordsByTable(string $sql): array
+    private function getObjectRecordsByTable(string $sql): array
     {
         $input  = $this->_conn->fetchAllAssociative($sql);
         $output = [];
         foreach ($input as $record) {
-            $output[$record['TABLE_NAME']][] = $record;
+            $tableName = array_key_first($record);
+            assert(is_string($tableName));
+            $output[$record[$tableName]][] = $record;
         }
 
         return $output;
