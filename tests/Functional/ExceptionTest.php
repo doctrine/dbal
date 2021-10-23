@@ -35,15 +35,11 @@ class ExceptionTest extends FunctionalTestCase
     {
         $driver = $this->connection->getDriver();
 
-        if ($driver instanceof IBMDB2\Driver) {
-            self::markTestSkipped("The IBM DB2 driver currently doesn't instantiate specialized exceptions");
-        }
-
-        if (! $driver instanceof AbstractSQLServerDriver) {
+        if (! $driver instanceof IBMDB2\Driver) {
             return;
         }
 
-        self::markTestSkipped("The SQL Server drivers currently don't instantiate specialized exceptions");
+        self::markTestSkipped("The IBM DB2 driver currently doesn't instantiate specialized exceptions");
     }
 
     public function testPrimaryConstraintViolationException(): void
@@ -346,13 +342,34 @@ class ExceptionTest extends FunctionalTestCase
         }
     }
 
+    public function testInvalidUserName(): void
+    {
+        $this->testConnectionException(['user' => 'not_existing']);
+    }
+
+    public function testInvalidPassword(): void
+    {
+        $this->testConnectionException(['password' => 'really_not']);
+    }
+
+    public function testInvalidHost(): void
+    {
+        if ($this->connection->getDriver() instanceof AbstractSQLServerDriver) {
+            self::markTestSkipped(
+                'Some sqlsrv and pdo_sqlsrv versions do not provide the exception code or SQLSTATE for login timeout'
+            );
+        }
+
+        $this->testConnectionException(['host' => 'localnope']);
+    }
+
     /**
      * @param array<string, mixed> $params
      * @psalm-param Params $params
      *
      * @dataProvider getConnectionParams
      */
-    public function testConnectionException(array $params): void
+    private function testConnectionException(array $params): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
