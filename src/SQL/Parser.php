@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\SQL;
 
+use Doctrine\DBAL\SQL\Parser\Exception;
+use Doctrine\DBAL\SQL\Parser\Exception\RegularExpressionError;
 use Doctrine\DBAL\SQL\Parser\Visitor;
 
 use function array_merge;
@@ -10,10 +12,13 @@ use function current;
 use function implode;
 use function key;
 use function next;
+use function preg_last_error;
 use function preg_match;
 use function reset;
 use function sprintf;
 use function strlen;
+
+use const PREG_NO_ERROR;
 
 /**
  * The SQL parser that focuses on identifying prepared statement parameters. It implements parsing other tokens like
@@ -70,6 +75,8 @@ final class Parser
 
     /**
      * Parses the given SQL statement
+     *
+     * @throws Exception
      */
     public function parse(string $sql, Visitor $visitor): void
     {
@@ -97,6 +104,10 @@ final class Parser
                 reset($patterns);
 
                 $offset += strlen($matches[0]);
+            } elseif (preg_last_error() !== PREG_NO_ERROR) {
+                // @codeCoverageIgnoreStart
+                throw RegularExpressionError::new();
+                // @codeCoverageIgnoreEnd
             } else {
                 next($patterns);
             }
