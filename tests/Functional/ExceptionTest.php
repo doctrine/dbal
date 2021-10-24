@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 use Throwable;
 
 use function array_merge;
@@ -356,23 +357,14 @@ class ExceptionTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if ($platform instanceof SqlitePlatform) {
-            self::markTestSkipped('Only skipped if platform is not sqlite');
+            self::markTestSkipped('The SQLite driver does not use a network connection');
         }
 
-        $defaultParams = $this->connection->getParams();
-        $params        = array_merge($defaultParams, $params);
-
-        $conn = DriverManager::getConnection($params);
-
-        $schema = new Schema();
-        $table  = $schema->createTable('no_connection');
-        $table->addColumn('id', 'integer');
+        $params = array_merge(TestUtil::getConnectionParams(), $params);
+        $conn   = DriverManager::getConnection($params);
 
         $this->expectException(Exception\ConnectionException::class);
-
-        foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-            $conn->executeStatement($sql);
-        }
+        $conn->connect();
     }
 
     /**
