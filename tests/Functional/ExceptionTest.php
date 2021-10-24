@@ -4,10 +4,8 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\IBMDB2;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -15,7 +13,6 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
 
 use function array_merge;
-use function assert;
 use function chmod;
 use function exec;
 use function file_exists;
@@ -25,7 +22,6 @@ use function sprintf;
 use function sys_get_temp_dir;
 use function touch;
 use function unlink;
-use function version_compare;
 
 use const PHP_OS_FAMILY;
 
@@ -361,15 +357,6 @@ class ExceptionTest extends FunctionalTestCase
 
         if ($platform instanceof SqlitePlatform) {
             self::markTestSkipped('Only skipped if platform is not sqlite');
-        }
-
-        if ($platform instanceof MySQLPlatform && isset($params['user'])) {
-            $wrappedConnection = $this->connection->getWrappedConnection();
-            assert($wrappedConnection instanceof ServerInfoAwareConnection);
-
-            if (version_compare($wrappedConnection->getServerVersion(), '8', '>=')) {
-                self::markTestIncomplete('PHP currently does not completely support MySQL 8');
-            }
         }
 
         $defaultParams = $this->connection->getParams();
