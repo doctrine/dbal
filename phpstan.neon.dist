@@ -119,3 +119,9 @@ parameters:
             message: '~^Cannot call method writeTemporary\(\) on OCILob\|null\.$~'
             paths:
                 - lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php
+
+        # https://github.com/phpstan/phpstan-src/pull/700
+        -
+            message: '~^Parameter #2 \$count of function array_fill expects int<0, max>, int given\.$~'
+            paths:
+                - lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php
