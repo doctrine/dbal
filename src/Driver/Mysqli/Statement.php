@@ -205,13 +205,6 @@ final class Statement implements StatementInterface
      */
     private function bindUntypedValues(array $values): bool
     {
-        $params = [];
-        $types  = str_repeat('s', count($values));
-
-        foreach ($values as &$v) {
-            $params[] =& $v;
-        }
-
-        return $this->stmt->bind_param($types, ...$params);
+        return $this->stmt->bind_param(str_repeat('s', count($values)), ...$values);
     }
 }
