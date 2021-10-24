@@ -7,9 +7,7 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
 
 use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
@@ -55,12 +53,12 @@ final class Connection implements ConnectionInterface
         return $serverInfo['SQLServerVersion'];
     }
 
-    public function prepare(string $sql): DriverStatement
+    public function prepare(string $sql): Statement
     {
         return new Statement($this->conn, $sql);
     }
 
-    public function query(string $sql): ResultInterface
+    public function query(string $sql): Result
     {
         return $this->prepare($sql)->execute();
     }

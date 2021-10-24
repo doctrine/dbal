@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
@@ -105,7 +104,7 @@ final class Statement implements StatementInterface
         $this->stmt = null;
     }
 
-    public function execute(?array $params = null): ResultInterface
+    public function execute(?array $params = null): Result
     {
         if ($params !== null) {
             foreach ($params as $key => $val) {

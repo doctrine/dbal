@@ -6,8 +6,7 @@ namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
-use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\Statement as StatementInterface;
+use Doctrine\DBAL\Driver\PDO\Result;
 use PDO;
 
 final class Connection implements ConnectionInterface
@@ -19,7 +18,7 @@ final class Connection implements ConnectionInterface
         $this->connection = $connection;
     }
 
-    public function prepare(string $sql): StatementInterface
+    public function prepare(string $sql): Statement
     {
         return new Statement(
             $this->connection->prepare($sql)

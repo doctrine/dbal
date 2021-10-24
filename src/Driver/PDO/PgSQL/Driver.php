@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDO\PgSQL;
 
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
-use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use PDO;
 
@@ -15,10 +14,8 @@ final class Driver extends AbstractPostgreSQLDriver
 {
     /**
      * {@inheritdoc}
-     *
-     * @return Connection
      */
-    public function connect(array $params): ConnectionInterface
+    public function connect(array $params): Connection
     {
         $driverOptions = $params['driverOptions'] ?? [];
 

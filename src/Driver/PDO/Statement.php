@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Driver\PDO;
 
 use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use PDO;
@@ -83,7 +82,7 @@ final class Statement implements StatementInterface
         }
     }
 
-    public function execute(?array $params = null): ResultInterface
+    public function execute(?array $params = null): Result
     {
         try {
             $this->stmt->execute($params);

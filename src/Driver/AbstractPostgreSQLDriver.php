@@ -6,13 +6,11 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\API\ExceptionConverter;
-use Doctrine\DBAL\Driver\API\PostgreSQL;
+use Doctrine\DBAL\Driver\API\PostgreSQL\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
 
@@ -25,7 +23,7 @@ use function version_compare;
  */
 abstract class AbstractPostgreSQLDriver implements Driver
 {
-    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): PostgreSQLPlatform
     {
         $version = $versionProvider->getServerVersion();
 
@@ -48,7 +46,7 @@ abstract class AbstractPostgreSQLDriver implements Driver
         return new PostgreSQLPlatform();
     }
 
-    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager
+    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): PostgreSQLSchemaManager
     {
         assert($platform instanceof PostgreSQLPlatform);
 
@@ -57,6 +55,6 @@ abstract class AbstractPostgreSQLDriver implements Driver
 
     public function getExceptionConverter(): ExceptionConverter
     {
-        return new PostgreSQL\ExceptionConverter();
+        return new ExceptionConverter();
     }
 }

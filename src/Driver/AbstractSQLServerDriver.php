@@ -6,11 +6,9 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\SQLSrv\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
 
@@ -21,19 +19,19 @@ use function assert;
  */
 abstract class AbstractSQLServerDriver implements Driver
 {
-    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): SQLServerPlatform
     {
         return new SQLServerPlatform();
     }
 
-    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager
+    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): SQLServerSchemaManager
     {
         assert($platform instanceof SQLServerPlatform);
 
         return new SQLServerSchemaManager($conn, $platform);
     }
 
-    public function getExceptionConverter(): ExceptionConverterInterface
+    public function getExceptionConverter(): ExceptionConverter
     {
         return new ExceptionConverter();
     }

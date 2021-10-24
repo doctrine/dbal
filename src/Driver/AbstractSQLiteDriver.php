@@ -6,11 +6,9 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\API\ExceptionConverter;
-use Doctrine\DBAL\Driver\API\SQLite;
+use Doctrine\DBAL\Driver\API\SQLite\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
 
@@ -21,12 +19,12 @@ use function assert;
  */
 abstract class AbstractSQLiteDriver implements Driver
 {
-    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): SqlitePlatform
     {
         return new SqlitePlatform();
     }
 
-    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager
+    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): SqliteSchemaManager
     {
         assert($platform instanceof SqlitePlatform);
 
@@ -35,6 +33,6 @@ abstract class AbstractSQLiteDriver implements Driver
 
     public function getExceptionConverter(): ExceptionConverter
     {
-        return new SQLite\ExceptionConverter();
+        return new ExceptionConverter();
     }
 }
