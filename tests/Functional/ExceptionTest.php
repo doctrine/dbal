@@ -4,18 +4,16 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\IBMDB2;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 use Throwable;
 
 use function array_merge;
-use function assert;
 use function chmod;
 use function exec;
 use function file_exists;
@@ -25,7 +23,6 @@ use function sprintf;
 use function sys_get_temp_dir;
 use function touch;
 use function unlink;
-use function version_compare;
 
 use const PHP_OS_FAMILY;
 
@@ -38,15 +35,11 @@ class ExceptionTest extends FunctionalTestCase
     {
         $driver = $this->connection->getDriver();
 
-        if ($driver instanceof IBMDB2\Driver) {
-            self::markTestSkipped("The IBM DB2 driver currently doesn't instantiate specialized exceptions");
-        }
-
-        if (! $driver instanceof AbstractSQLServerDriver) {
+        if (! $driver instanceof IBMDB2\Driver) {
             return;
         }
 
-        self::markTestSkipped("The SQL Server drivers currently don't instantiate specialized exceptions");
+        self::markTestSkipped("The IBM DB2 driver currently doesn't instantiate specialized exceptions");
     }
 
     public function testPrimaryConstraintViolationException(): void
@@ -349,43 +342,46 @@ class ExceptionTest extends FunctionalTestCase
         }
     }
 
+    public function testInvalidUserName(): void
+    {
+        $this->testConnectionException(['user' => 'not_existing']);
+    }
+
+    public function testInvalidPassword(): void
+    {
+        $this->testConnectionException(['password' => 'really_not']);
+    }
+
+    public function testInvalidHost(): void
+    {
+        if ($this->connection->getDriver() instanceof AbstractSQLServerDriver) {
+            self::markTestSkipped(
+                'Some sqlsrv and pdo_sqlsrv versions do not provide the exception code or SQLSTATE for login timeout'
+            );
+        }
+
+        $this->testConnectionException(['host' => 'localnope']);
+    }
+
     /**
      * @param array<string, mixed> $params
      * @psalm-param Params $params
      *
      * @dataProvider getConnectionParams
      */
-    public function testConnectionException(array $params): void
+    private function testConnectionException(array $params): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
         if ($platform instanceof SqlitePlatform) {
-            self::markTestSkipped('Only skipped if platform is not sqlite');
+            self::markTestSkipped('The SQLite driver does not use a network connection');
         }
 
-        if ($platform instanceof MySQLPlatform && isset($params['user'])) {
-            $wrappedConnection = $this->connection->getWrappedConnection();
-            assert($wrappedConnection instanceof ServerInfoAwareConnection);
-
-            if (version_compare($wrappedConnection->getServerVersion(), '8', '>=')) {
-                self::markTestIncomplete('PHP currently does not completely support MySQL 8');
-            }
-        }
-
-        $defaultParams = $this->connection->getParams();
-        $params        = array_merge($defaultParams, $params);
-
-        $conn = DriverManager::getConnection($params);
-
-        $schema = new Schema();
-        $table  = $schema->createTable('no_connection');
-        $table->addColumn('id', 'integer');
+        $params = array_merge(TestUtil::getConnectionParams(), $params);
+        $conn   = DriverManager::getConnection($params);
 
         $this->expectException(Exception\ConnectionException::class);
-
-        foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-            $conn->executeStatement($sql);
-        }
+        $conn->connect();
     }
 
     /**
