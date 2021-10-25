@@ -84,8 +84,6 @@ class TestUtil
         $testConnParams = self::getTestConnectionParameters();
         $privConnParams = self::getPrivilegedConnectionParameters();
 
-        $testConn = DriverManager::getConnection($testConnParams);
-
         // Connect as a privileged user to create and drop the test database.
         $privConn = DriverManager::getConnection($privConnParams);
 
@@ -98,12 +96,10 @@ class TestUtil
                 $dbname = $testConnParams['user'];
             }
 
-            $testConn->close();
-
             $privConn->getSchemaManager()->dropAndCreateDatabase($dbname);
-
-            $privConn->close();
         } else {
+            $testConn = DriverManager::getConnection($testConnParams);
+
             $sm = $testConn->getSchemaManager();
 
             $schema = $sm->createSchema();
@@ -112,7 +108,11 @@ class TestUtil
             foreach ($stmts as $stmt) {
                 $testConn->executeStatement($stmt);
             }
+
+            $testConn->close();
         }
+
+        $privConn->close();
     }
 
     /**
