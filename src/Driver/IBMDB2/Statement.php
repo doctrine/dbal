@@ -140,7 +140,7 @@ final class Statement implements StatementInterface
             $this->writeStringToStream($source, $target);
         }
 
-        $result = db2_execute($this->stmt, $params);
+        $result = @db2_execute($this->stmt, $params);
 
         foreach ($this->lobs as [, $handle]) {
             fclose($handle);

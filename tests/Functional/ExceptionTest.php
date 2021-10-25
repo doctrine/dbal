@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
-use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -31,17 +30,6 @@ use const PHP_OS_FAMILY;
  */
 class ExceptionTest extends FunctionalTestCase
 {
-    protected function setUp(): void
-    {
-        $driver = $this->connection->getDriver();
-
-        if (! $driver instanceof IBMDB2\Driver) {
-            return;
-        }
-
-        self::markTestSkipped("The IBM DB2 driver currently doesn't instantiate specialized exceptions");
-    }
-
     public function testPrimaryConstraintViolationException(): void
     {
         $table = new Table('duplicatekey_table');
@@ -220,7 +208,7 @@ class ExceptionTest extends FunctionalTestCase
 
         $table = $schema->createTable('notnull_table');
         $table->addColumn('id', 'integer', []);
-        $table->addColumn('value', 'integer', ['notnull' => true]);
+        $table->addColumn('val', 'integer', ['notnull' => true]);
         $table->setPrimaryKey(['id']);
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
@@ -228,7 +216,7 @@ class ExceptionTest extends FunctionalTestCase
         }
 
         $this->expectException(Exception\NotNullConstraintViolationException::class);
-        $this->connection->insert('notnull_table', ['id' => 1, 'value' => null]);
+        $this->connection->insert('notnull_table', ['id' => 1, 'val' => null]);
     }
 
     public function testInvalidFieldNameException(): void

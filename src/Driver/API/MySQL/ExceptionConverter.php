@@ -95,6 +95,7 @@ final class ExceptionConverter implements ExceptionConverterInterface
             case 1429:
             case 2002:
             case 2005:
+            case 2054:
                 return new ConnectionException($exception, $query);
 
             case 2006:
