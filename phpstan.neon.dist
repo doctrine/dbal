@@ -126,5 +126,10 @@ parameters:
             message: '~Only numeric types are allowed in \-, float\|null given on the right side\.~'
             path: src/Logging/DebugStack.php
 
+        # https://github.com/phpstan/phpstan-src/pull/731
+        -
+            message: '~Parameter #1 \$array of function array_column expects array, array\|false given\.~'
+            path: src/Driver/Mysqli/Result.php
+
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
