@@ -462,15 +462,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     private function getTableDiffForAlterForeignKey($table)
     {
         if (! $table instanceof Table) {
-            $tableDetails = $this->tryMethod('listTableDetails', $table);
-
-            if ($tableDetails === false) {
-                throw new Exception(
-                    sprintf('Sqlite schema manager requires to modify foreign keys table definition "%s".', $table)
-                );
-            }
-
-            $table = $tableDetails;
+            $table = $this->listTableDetails($table);
         }
 
         $tableDiff            = new TableDiff($table->getName());
