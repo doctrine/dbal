@@ -296,53 +296,78 @@ abstract class AbstractSchemaManager
     {
         $tableNames = $this->listTableNames();
 
-        $columnsByTable     = [];
-        $foreignKeysByTable = [];
-        $indexesByTable     = [];
+        $tables = [];
 
         if ($this->_platform instanceof DatabaseIntrospectionSQLBuilder) {
-            $currentDatabase = $this->_conn->getDatabase() ?? '';
+            $objectsByTable = $this->getDatabaseObjectsRecordsByTable();
 
-            // Get all column definitions in one database call.
-            $columnsByTable = $this->getObjectRecordsByTable(
-                $this->_platform->getListDatabaseColumnsSQL($currentDatabase)
-            );
-
-            // Get all foreign keys definitions in one database call.
-            $foreignKeysByTable = $this->getObjectRecordsByTable(
-                $this->_platform->getListDatabaseForeignKeysSQL($currentDatabase)
-            );
-
-            // Get all indexes definitions in one database call.
-            $indexesByTable = $this->getObjectRecordsByTable(
-                $this->_platform->getListDatabaseIndexesSQL($currentDatabase)
-            );
-        }
-
-        $tables = [];
-        foreach ($tableNames as $tableName) {
-            if ($this->_platform instanceof DatabaseIntrospectionSQLBuilder) {
+            foreach ($tableNames as $tableName) {
                 $unquotedTableName = trim($tableName, '"');
 
-                $columns = $this->_getPortableTableColumnList($tableName, '', $columnsByTable[$unquotedTableName]);
+                $columns = $this->_getPortableTableColumnList(
+                    $tableName,
+                    '',
+                    $objectsByTable['columns'][$unquotedTableName]
+                );
 
                 $foreignKeys = [];
-                if (isset($foreignKeysByTable[$unquotedTableName])) {
-                    $foreignKeys = $this->_getPortableTableForeignKeysList($foreignKeysByTable[$unquotedTableName]);
+                if (isset($objectsByTable['foreignKeys'][$unquotedTableName])) {
+                    $foreignKeys = $this->_getPortableTableForeignKeysList(
+                        $objectsByTable['foreignKeys'][$unquotedTableName]
+                    );
                 }
 
                 $indexes = [];
-                if (isset($indexesByTable[$unquotedTableName])) {
-                    $indexes = $this->_getPortableTableIndexesList($indexesByTable[$unquotedTableName], $tableName);
+                if (isset($objectsByTable['indexes'][$unquotedTableName])) {
+                    $indexes = $this->_getPortableTableIndexesList(
+                        $objectsByTable['indexes'][$unquotedTableName],
+                        $tableName
+                    );
                 }
 
                 $tables[] = new Table($tableName, $columns, $indexes, [], $foreignKeys, []);
-            } else {
-                $tables[] = $this->listTableDetails($tableName);
             }
+
+            return $tables;
+        }
+
+        foreach ($tableNames as $tableName) {
+            $tables[] = $this->listTableDetails($tableName);
         }
 
         return $tables;
+    }
+
+    /**
+     * Helper method to group a set of object records by the table name.
+     *
+     * @return array<string, array<int|string, array<int, array<string, mixed>>>> An associative array with key being
+     *    the object type, and value a simple array of records associated with the object type.
+     */
+    private function getDatabaseObjectsRecordsByTable(): array
+    {
+        assert($this->_platform instanceof DatabaseIntrospectionSQLBuilder);
+
+        $currentDatabase = $this->_conn->getDatabase() ?? '';
+
+        $objectsByTable = [];
+
+        // Get all column definitions in one database call.
+        $objectsByTable['columns'] = $this->getObjectRecordsByTable(
+            $this->_platform->getListDatabaseColumnsSQL($currentDatabase)
+        );
+
+        // Get all foreign keys definitions in one database call.
+        $objectsByTable['foreignKeys'] = $this->getObjectRecordsByTable(
+            $this->_platform->getListDatabaseForeignKeysSQL($currentDatabase)
+        );
+
+        // Get all indexes definitions in one database call.
+        $objectsByTable['indexes'] = $this->getObjectRecordsByTable(
+            $this->_platform->getListDatabaseIndexesSQL($currentDatabase)
+        );
+
+        return $objectsByTable;
     }
 
     /**
