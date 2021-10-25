@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\API\SQLSrv;
 use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\InvalidFieldNameException;
@@ -53,6 +54,10 @@ final class ExceptionConverter implements ExceptionConverterInterface
 
             case 2714:
                 return new TableExistsException($exception, $query);
+
+            case 3701:
+            case 15151:
+                return new DatabaseObjectNotFoundException($exception, $query);
 
             case 11001:
             case 18456:
