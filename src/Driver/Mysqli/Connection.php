@@ -13,9 +13,7 @@ use Doctrine\Deprecations\Deprecation;
 use mysqli;
 use mysqli_sql_exception;
 
-use function assert;
 use function floor;
-use function mysqli_init;
 use function stripos;
 
 final class Connection implements ServerInfoAwareConnection
@@ -47,8 +45,7 @@ final class Connection implements ServerInfoAwareConnection
         iterable $preInitializers = [],
         iterable $postInitializers = []
     ) {
-        $connection = mysqli_init();
-        assert($connection !== false);
+        $connection = new mysqli();
 
         foreach ($preInitializers as $initializer) {
             $initializer->initialize($connection);
@@ -107,7 +104,17 @@ final class Connection implements ServerInfoAwareConnection
 
     public function prepare(string $sql): DriverStatement
     {
-        return new Statement($this->conn, $sql);
+        try {
+            $stmt = $this->conn->prepare($sql);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
+        }
+
+        if ($stmt === false) {
+            throw ConnectionError::new($this->conn);
+        }
+
+        return new Statement($stmt);
     }
 
     public function query(string $sql): ResultInterface
@@ -159,7 +166,7 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function beginTransaction()
     {
-        $this->conn->query('START TRANSACTION');
+        $this->conn->begin_transaction();
 
         return true;
     }

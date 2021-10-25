@@ -1,5 +1,5 @@
 parameters:
-    level: 7
+    level: 8
     paths:
         - src
     treatPhpDocTypesAsCertain: false
@@ -7,12 +7,7 @@ parameters:
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-        # removing it would be BC break
-        - '~^Constructor of class Doctrine\\DBAL\\Schema\\Table has an unused parameter \$idGeneratorType\.\z~'
-
         # changing these would be a BC break, to be done in next major
-        - "~^Casting to bool something that's already bool.~"
-        - '~^Property Doctrine\\DBAL\\Schema\\Schema::\$_schemaConfig \(Doctrine\\DBAL\\Schema\\SchemaConfig\) does not accept default value of type false\.\z~'
         - '~^Return type \(int\|false\) of method Doctrine\\DBAL\\Driver\\OCI8\\Connection\:\:lastInsertId\(\) should be compatible with return type \(string\) of method Doctrine\\DBAL\\Driver\\Connection::lastInsertId\(\)~'
         - '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::lastInsertId\(\) should return string but returns int\|string\.$~'
 
@@ -27,10 +22,6 @@ parameters:
         - '~^Class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy) not found\.\z~'
         - '~^.+ on an unknown class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy)\.\z~'
 
-        # weird class name, represented in stubs as OCI_(Lob|Collection)
-        - '~unknown class OCI-(Lob|Collection)~'
-        - '~^Call to method writetemporary\(\) on an unknown class OCILob\.~'
-
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
         -
             message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
@@ -40,9 +31,6 @@ parameters:
         -
             message: '~^Instanceof between PDOStatement and PDOStatement will always evaluate to true\.$~'
             path: src/Driver/PDO/Connection.php
-
-        # Needs Generics
-        - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
 
         # https://github.com/phpstan/phpstan/issues/3134
         -
@@ -57,12 +45,6 @@ parameters:
                 - src/Driver/AbstractOracleDriver/EasyConnectString.php
                 - src/Platforms/*Platform.php
                 - src/Schema/*SchemaManager.php
-
-        # Fixing the issue may cause a BC break.
-        -
-            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::lastInsertId\(\) should return string but returns int\|string\.$~'
-            paths:
-                - src/Driver/Mysqli/Connection.php
 
         # In some namespaces, we use array<string,mixed>, some elements of which are actually boolean
         -
@@ -79,29 +61,11 @@ parameters:
             paths:
                 - src/Schema/Column.php
 
-        # https://github.com/phpstan/phpstan/issues/3146
-        -
-            message: '~^Only numeric types are allowed in -, int<1, max>\|false given on the left side\.~'
-            paths:
-                - src/Platforms/SQLServerPlatform.php
-
         # Unlike Psalm, PHPStan doesn't understand the shape of the parse_str() return value
         -
             message: '~^Parameter #1 \$scheme of static method Doctrine\\DBAL\\DriverManager::parseDatabaseUrlScheme\(\) expects string\|null, int\|string\|null given\.$~'
             paths:
                 - src/DriverManager.php
-
-        # Unlike Psalm, PHPStan doesn't understand that $matchesCount cannot be false
-        -
-            message: '~^Only numeric types are allowed in pre\-decrement, int\<1, max\>\|false given\.$~'
-            paths:
-                - src/Platforms/SQLServerPlatform.php
-
-        # https://github.com/phpstan/phpstan-phpunit/issues/83
-        -
-            message: '~^Only iterables can be unpacked, array<int, mixed>\|false given in argument #1\.$~'
-            paths:
-                - tests/Functional/Platform/DefaultExpressionTest.php
 
         -
             message: '~^Instanceof between Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList and Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList will always evaluate to true\.~'
@@ -117,23 +81,18 @@ parameters:
             message: '~^Unreachable statement - code above always terminates\.$~'
             paths:
                 - src/Driver/OCI8/Result.php
-        -
-            message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
-            paths:
-                - src/Driver/OCI8/Statement.php
-        -
-            message: '~^Strict comparison using !== between OCILob\|null and false will always evaluate to true\.$~'
-            paths:
-                - src/Driver/OCI8/Statement.php
-
-        # This class has been added in PHP 8.1
-        - '/^Attribute class ReturnTypeWillChange does not exist\.$/'
 
         # https://github.com/phpstan/phpstan/issues/5608
         -
             message: '~^Circular definition detected in type alias (Override)?Params\.$~'
             paths:
                 - src/DriverManager.php
+
+        # TODO: remove in 4.0.0
+        -
+            message: '~^Parameter #2 \$table of class Doctrine\\DBAL\\Event\\SchemaIndexDefinitionEventArgs constructor expects string, string\|null given\.$~'
+            paths:
+                - src/Schema/AbstractSchemaManager.php
 
         # See https://github.com/doctrine/dbal/pull/4707
         # TODO: remove in 4.0.0
@@ -144,11 +103,7 @@ parameters:
                 - src/Schema/Comparator.php
                 - src/Schema/Schema.php
 
-        # We're checking for invalid invalid input
-        -
-            message: "#^Strict comparison using \\!\\=\\= between null and null will always evaluate to false\\.$#"
-            count: 1
-            path: src/Cache/QueryCacheProfile.php
+        # https://github.com/phpstan/phpstan/issues/1901
         -
             message: '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::escapeStringForLike\(\) should return string but returns string\|null\.$~'
             paths:
