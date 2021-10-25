@@ -21,6 +21,11 @@ final class ConnectionError extends AbstractException
      */
     public static function new($connection): self
     {
-        return new self(db2_conn_errormsg($connection), db2_conn_error($connection));
+        $message  = db2_conn_errormsg($connection);
+        $sqlState = db2_conn_error($connection);
+
+        return Factory::create($message, static function (int $code) use ($message, $sqlState): self {
+            return new self($message, $sqlState, $code);
+        });
     }
 }

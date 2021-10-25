@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
+use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -109,7 +110,7 @@ final class Connection implements ServerInfoAwareConnection
         $stmt = @db2_exec($this->conn, $sql);
 
         if ($stmt === false) {
-            throw ConnectionError::new($this->conn);
+            throw StatementError::new();
         }
 
         return db2_num_rows($stmt);
