@@ -444,6 +444,13 @@ class OraclePlatform extends AbstractPlatform implements DatabaseIntrospectionSQ
      */
     public function getListTableIndexesSQL($table, $database = null)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4882',
+            '%s is deprecated, call getListDatabaseIndexesSQL() instead.',
+            __METHOD__
+        );
+
         return $this->getListIndexesSQL($database, $table);
     }
 
@@ -451,7 +458,7 @@ class OraclePlatform extends AbstractPlatform implements DatabaseIntrospectionSQ
     {
         $conditions = [];
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
               SELECT ind_col.table_name,
                      ind_col.index_name AS name,
                      ind.index_type AS type,
@@ -462,11 +469,12 @@ class OraclePlatform extends AbstractPlatform implements DatabaseIntrospectionSQ
 SQL;
 
         if (isset($database)) {
-            $sql         .= <<<SQL
+            $sql .= <<<'SQL'
                 FROM all_ind_columns ind_col
            LEFT JOIN all_indexes ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
            LEFT JOIN all_constraints con ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
 SQL;
+
             $conditions[] = 'ind_col.index_owner = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($database)->getName()
             );
@@ -476,7 +484,7 @@ SQL;
                 );
             }
         } else {
-            $sql .= <<<SQL
+            $sql .= <<<'SQL'
                 FROM user_ind_columns ind_col
            LEFT JOIN user_indexes ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
            LEFT JOIN user_constraints con ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
@@ -665,6 +673,13 @@ END;';
      */
     public function getListTableForeignKeysSQL($table)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4882',
+            '%s is deprecated, call getListDatabaseForeignKeysSQL() instead.',
+            __METHOD__
+        );
+
         return $this->getListForeignKeysSQL(null, $table);
     }
 
@@ -672,7 +687,7 @@ END;';
     {
         $conditions = [];
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
               SELECT cols.table_name,
                      alc.constraint_name,
                      alc.DELETE_RULE,
@@ -683,13 +698,14 @@ END;';
 SQL;
 
         if (isset($database)) {
-            $sql         .= <<<SQL
+            $sql .= <<<'SQL'
                 FROM all_cons_columns cols
            LEFT JOIN all_constraints alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
            LEFT JOIN all_cons_columns r_cols ON r_cols.owner = alc.r_owner AND
                      r_cols.constraint_name = alc.r_constraint_name AND
                      r_cols.position = cols.position
 SQL;
+
             $conditions[] = 'cols.owner = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($database)->getName()
             );
@@ -700,13 +716,14 @@ SQL;
             }
         } else {
             assert(isset($table));
-            $sql         .= <<<SQL
+            $sql .= <<<'SQL'
                 FROM user_cons_columns cols
            LEFT JOIN user_constraints alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
            LEFT JOIN user_cons_columns r_cols ON r_cols.owner = alc.r_owner AND
                      r_cols.constraint_name = alc.r_constraint_name AND
                      r_cols.position = cols.position
 SQL;
+
             $conditions[] = 'cols.table_name = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($table)->getName()
             );
@@ -741,6 +758,13 @@ SQL;
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4882',
+            '%s is deprecated, call getListDatabaseColumnsSQL() instead.',
+            __METHOD__
+        );
+
         return $this->getListColumnsSQL($database, $table);
     }
 
@@ -751,11 +775,12 @@ SQL;
         $sql = 'SELECT c.table_name, c.*, d.comments AS comments ';
 
         if (isset($database)) {
-            $sql         .= <<<SQL
+            $sql .= <<<'SQL'
                 FROM all_tab_columns c
            LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND
                      d.COLUMN_NAME = c.COLUMN_NAME
 SQL;
+
             $conditions[] = 'c.owner = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($database)->getName()
             );
@@ -766,11 +791,12 @@ SQL;
             }
         } else {
             assert(isset($table));
-            $sql         .= <<<SQL
+            $sql .= <<<'SQL'
                 FROM user_tab_columns c
            LEFT JOIN user_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND
                      d.COLUMN_NAME = c.COLUMN_NAME
 SQL;
+
             $conditions[] = 'c.table_name = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($table)->getName()
             );
