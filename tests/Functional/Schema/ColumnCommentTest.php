@@ -31,8 +31,7 @@ class ColumnCommentTest extends FunctionalTestCase
             $table->addColumn($name, $type, $options);
         }
 
-        $this->connection->createSchemaManager()
-            ->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
     }
 
     /**
@@ -90,11 +89,12 @@ class ColumnCommentTest extends FunctionalTestCase
         $table1 = new Table('column_comments');
         $table1->addColumn('id', 'integer', ['comment' => $comment1]);
 
-        $schemaManager = $this->connection->createSchemaManager();
-        $schemaManager->dropAndCreateTable($table1);
+        $this->dropAndCreateTable($table1);
 
         $table2 = clone $table1;
         $table2->getColumn('id')->setComment($comment2);
+
+        $schemaManager = $this->connection->createSchemaManager();
 
         $diff = $schemaManager->createComparator()
             ->diffTable($table1, $table2);

@@ -20,7 +20,7 @@ class DateExpressionTest extends FunctionalTestCase
         $table = new Table('date_expr_test');
         $table->addColumn('date1', 'datetime');
         $table->addColumn('date2', 'datetime');
-        $this->connection->createSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
         $this->connection->insert('date_expr_test', [
             'date1' => $date1,
             'date2' => $date2,

@@ -22,12 +22,12 @@ class RenameColumnTest extends FunctionalTestCase
         $table->addColumn($columnName, 'string', ['length' => 16]);
         $table->addColumn('c2', 'integer');
 
-        $sm = $this->connection->createSchemaManager();
-        $sm->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $table->dropColumn($columnName)
             ->addColumn($newColumnName, 'string', ['length' => 16]);
 
+        $sm   =  $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
             ->diffTable($sm->listTableDetails('test_rename'), $table);
 

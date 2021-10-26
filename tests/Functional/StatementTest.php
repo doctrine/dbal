@@ -31,7 +31,7 @@ class StatementTest extends FunctionalTestCase
         $table = new Table('stmt_test');
         $table->addColumn('id', 'integer');
         $table->addColumn('name', 'text', ['notnull' => false]);
-        $this->connection->createSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
     }
 
     public function testStatementIsReusableAfterFreeingResult(): void
@@ -63,11 +63,10 @@ class StatementTest extends FunctionalTestCase
             self::markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
         }
 
-        $sm    = $this->connection->createSchemaManager();
         $table = new Table('stmt_longer_results');
         $table->addColumn('param', 'string', ['length' => 24]);
         $table->addColumn('val', 'text');
-        $sm->createTable($table);
+        $this->dropAndCreateTable($table);
 
         $row1 = [
             'param' => 'param1',
@@ -106,10 +105,9 @@ class StatementTest extends FunctionalTestCase
         // but is still not enough to store a LONGBLOB of the max possible size
         $this->iniSet('memory_limit', '4G');
 
-        $sm    = $this->connection->createSchemaManager();
         $table = new Table('stmt_long_blob');
         $table->addColumn('contents', 'blob', ['length' => 0xFFFFFFFF]);
-        $sm->createTable($table);
+        $this->dropAndCreateTable($table);
 
         $contents = base64_decode(<<<EOF
 H4sICJRACVgCA2RvY3RyaW5lLmljbwDtVNtLFHEU/ia1i9fVzVWxvJSrZmoXS6pd0zK7QhdNc03z

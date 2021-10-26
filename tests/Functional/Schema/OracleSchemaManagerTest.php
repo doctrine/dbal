@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Index;
@@ -23,10 +24,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testRenameTable(): void
     {
-        $this->schemaManager->tryMethod('dropTable', 'list_tables_test');
-        $this->schemaManager->tryMethod('dropTable', 'list_tables_test_new_name');
-
         $this->createTestTable('list_tables_test');
+        $this->dropTableIfExists('list_tables_test_new_name');
         $this->schemaManager->renameTable('list_tables_test', 'list_tables_test_new_name');
 
         $tables = $this->schemaManager->listTables();
@@ -54,7 +53,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('bar', 'string', ['length' => 32]);
         $table->setPrimaryKey(['id']);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
@@ -77,19 +76,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['id']->getNotnull());
         self::assertFalse($columns['foo']->getNotnull());
         self::assertTrue($columns['bar']->getNotnull());
-    }
-
-    public function testListDatabases(): void
-    {
-        // We need a privileged connection to create the database.
-        $sm = TestUtil::getPrivilegedConnection()->createSchemaManager();
-
-        $sm->dropAndCreateDatabase('c##test_create_database');
-
-        $databases = $this->schemaManager->listDatabases();
-        $databases = array_map('strtolower', $databases);
-
-        self::assertContains('c##test_create_database', $databases);
     }
 
     public function testListTableDetailsWithDifferentIdentifierQuotingRequirements(): void
@@ -125,8 +111,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
         $offlineForeignTable->setPrimaryKey(['id']);
 
-        $this->schemaManager->tryMethod('dropTable', $foreignTableName);
-        $this->schemaManager->tryMethod('dropTable', $primaryTableName);
+        $this->dropTableIfExists($foreignTableName);
+        $this->dropTableIfExists($primaryTableName);
 
         $this->schemaManager->createTable($offlinePrimaryTable);
         $this->schemaManager->createTable($offlineForeignTable);
@@ -209,11 +195,20 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableColumnsSameTableNamesInDifferentSchemas(): void
     {
         $table = $this->createListTableColumns();
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $otherTable = new Table($table->getName());
         $otherTable->addColumn('id', Types::STRING, ['length' => 32]);
-        TestUtil::getPrivilegedConnection()->createSchemaManager()->dropAndCreateTable($otherTable);
+
+        $schemaManager = TestUtil::getPrivilegedConnection()
+            ->createSchemaManager();
+
+        try {
+            $schemaManager->dropTable($otherTable->getName());
+        } catch (DatabaseObjectNotFoundException $e) {
+        }
+
+        $schemaManager->createTable($otherTable);
 
         $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getDatabase());
         self::assertCount(7, $columns);
@@ -225,7 +220,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
         $table->addColumn('id', 'integer', ['notnull' => true]);
         $table->addUniqueIndex(['id'], 'id_unique_index');
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->schemaManager->createIndex(
             new Index('id_pk_id_index', ['id'], true, true),
@@ -247,7 +242,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_datetime', 'datetime');
         $table->addColumn('col_datetimetz', 'datetimetz');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('tbl_date');
 

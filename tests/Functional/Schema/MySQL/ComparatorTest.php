@@ -82,7 +82,7 @@ final class ComparatorTest extends FunctionalTestCase
         $table = new Table('comparator_test');
         $table->addColumn('lob', $type)->setLength($length);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         return $table;
     }
@@ -135,7 +135,7 @@ final class ComparatorTest extends FunctionalTestCase
         $table->addOption('charset', 'utf8mb4');
         $table->addOption('collate', 'utf8mb4_general_ci');
         $column = $table->addColumn('id', Types::STRING, ['length' => 32]);
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         return [$table, $column];
     }

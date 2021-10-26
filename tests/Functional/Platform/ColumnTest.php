@@ -108,8 +108,7 @@ abstract class ColumnTest extends FunctionalTestCase
         $table = new Table('column_test');
         $table->addColumn('val', $type, $column);
 
-        $sm = $this->connection->createSchemaManager();
-        $sm->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         self::assertSame(1, $this->connection->insert('column_test', ['val' => $value], [$bindType]));
 

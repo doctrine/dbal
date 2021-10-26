@@ -527,6 +527,29 @@ The following methods have been removed.
 
 # Upgrade to 3.2
 
+## Deprecated `AbstractSchemaManager::dropAndCreate*()` and `::tryMethod()` methods.
+
+The following `AbstractSchemaManager::dropAndCreate*()` methods have been deprecated:
+
+1. `AbstractSchemaManager::dropAndCreateConstraint()`. Use `AbstractSchemaManager::dropIndex()`
+   and `AbstractSchemaManager::createIndex()`, `AbstractSchemaManager::dropForeignKey()`
+   and `AbstractSchemaManager::createForeignKey()` or `AbstractSchemaManager::dropUniqueConstraint()`
+   and `AbstractSchemaManager::createUniqueConstraint()` instead.
+2. `AbstractSchemaManager::dropAndCreateIndex()`. Use `AbstractSchemaManager::dropIndex()`
+   and `AbstractSchemaManager::createIndex()` instead.
+3. `AbstractSchemaManager::dropAndCreateForeignKey()`.
+    Use AbstractSchemaManager::dropForeignKey() and AbstractSchemaManager::createForeignKey() instead.
+4. `AbstractSchemaManager::dropAndCreateSequence()`. Use `AbstractSchemaManager::dropSequence()`
+   and `AbstractSchemaManager::createSequence()` instead.
+5. `AbstractSchemaManager::dropAndCreateTable()`. Use `AbstractSchemaManager::dropTable()`
+   and `AbstractSchemaManager::createTable()` instead.
+6. `AbstractSchemaManager::dropAndCreateDatabase()`. Use `AbstractSchemaManager::dropDatabase()`
+   and `AbstractSchemaManager::createDatabase()` instead.
+7. `AbstractSchemaManager::dropAndCreateView()`. Use `AbstractSchemaManager::dropView()`
+   and `AbstractSchemaManager::createView()` instead.
+
+The `AbstractSchemaManager::tryMethod()` method has been also deprecated.
+
 ## Deprecated `AbstractSchemaManager::getSchemaSearchPaths()`.
 
 1. The `AbstractSchemaManager::getSchemaSearchPaths()` method has been deprecated.

@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
-use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 
 use function array_merge;
 use function chmod;
@@ -24,7 +23,6 @@ use function sprintf;
 use function sys_get_temp_dir;
 use function touch;
 use function unlink;
-use function version_compare;
 
 use const PHP_OS_FAMILY;
 
@@ -33,28 +31,12 @@ use const PHP_OS_FAMILY;
  */
 class ExceptionTest extends FunctionalTestCase
 {
-    protected function setUp(): void
-    {
-        $driver = $this->connection->getDriver();
-
-        if ($driver instanceof IBMDB2\Driver) {
-            self::markTestSkipped("The IBM DB2 driver currently doesn't instantiate specialized exceptions");
-        }
-
-        if (! $driver instanceof AbstractSQLServerDriver) {
-            return;
-        }
-
-        self::markTestSkipped("The SQL Server drivers currently don't instantiate specialized exceptions");
-    }
-
     public function testPrimaryConstraintViolationException(): void
     {
         $table = new Table('duplicatekey_table');
         $table->addColumn('id', 'integer', []);
         $table->setPrimaryKey(['id']);
-
-        $this->connection->createSchemaManager()->createTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->insert('duplicatekey_table', ['id' => 1]);
 
@@ -84,31 +66,21 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testNotNullConstraintViolationException(): void
     {
-        $schema = new Schema();
-
-        $table = $schema->createTable('notnull_table');
+        $table = new Table('notnull_table');
         $table->addColumn('id', 'integer', []);
-        $table->addColumn('value', 'integer', ['notnull' => true]);
+        $table->addColumn('val', 'integer', ['notnull' => true]);
         $table->setPrimaryKey(['id']);
-
-        foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->executeStatement($sql);
-        }
+        $this->dropAndCreateTable($table);
 
         $this->expectException(Exception\NotNullConstraintViolationException::class);
-        $this->connection->insert('notnull_table', ['id' => 1, 'value' => null]);
+        $this->connection->insert('notnull_table', ['id' => 1, 'val' => null]);
     }
 
     public function testInvalidFieldNameException(): void
     {
-        $schema = new Schema();
-
-        $table = $schema->createTable('bad_columnname_table');
+        $table = new Table('bad_columnname_table');
         $table->addColumn('id', 'integer', []);
-
-        foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->executeStatement($sql);
-        }
+        $this->dropAndCreateTable($table);
 
         $this->expectException(Exception\InvalidFieldNameException::class);
         $this->connection->insert('bad_columnname_table', ['name' => 5]);
@@ -116,34 +88,26 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testNonUniqueFieldNameException(): void
     {
-        $schema = new Schema();
+        $table1 = new Table('ambiguous_list_table_1');
+        $table1->addColumn('id', 'integer');
+        $this->dropAndCreateTable($table1);
 
-        $table = $schema->createTable('ambiguous_list_table');
-        $table->addColumn('id', 'integer');
-
-        $table2 = $schema->createTable('ambiguous_list_table_2');
+        $table2 = new Table('ambiguous_list_table_2');
         $table2->addColumn('id', 'integer');
+        $this->dropAndCreateTable($table2);
 
-        foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->executeStatement($sql);
-        }
-
-        $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
+        $sql = 'SELECT id FROM ambiguous_list_table_1, ambiguous_list_table_2';
         $this->expectException(Exception\NonUniqueFieldNameException::class);
         $this->connection->executeQuery($sql);
     }
 
     public function testUniqueConstraintViolationException(): void
     {
-        $schema = new Schema();
-
-        $table = $schema->createTable('unique_column_table');
+        $table = new Table('unique_column_table');
         $table->addColumn('id', 'integer');
         $table->addUniqueIndex(['id']);
 
-        foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->executeStatement($sql);
-        }
+        $this->dropAndCreateTable($table);
 
         $this->connection->insert('unique_column_table', ['id' => 5]);
         $this->expectException(Exception\UniqueConstraintViolationException::class);
@@ -156,7 +120,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->addColumn('id', 'integer', []);
         $table->setPrimaryKey(['id']);
 
-        $this->connection->createSchemaManager()->createTable($table);
+        $this->dropAndCreateTable($table);
 
         $sql = 'SELECT id FRO syntax_error_table';
         $this->expectException(Exception\SyntaxErrorException::class);
@@ -210,6 +174,27 @@ class ExceptionTest extends FunctionalTestCase
         }
     }
 
+    public function testInvalidUserName(): void
+    {
+        $this->testConnectionException(['user' => 'not_existing']);
+    }
+
+    public function testInvalidPassword(): void
+    {
+        $this->testConnectionException(['password' => 'really_not']);
+    }
+
+    public function testInvalidHost(): void
+    {
+        if ($this->connection->getDriver() instanceof AbstractSQLServerDriver) {
+            self::markTestSkipped(
+                'Some sqlsrv and pdo_sqlsrv versions do not provide the exception code or SQLSTATE for login timeout'
+            );
+        }
+
+        $this->testConnectionException(['host' => 'localnope']);
+    }
+
     /**
      * @param array<string, mixed> $params
      * @psalm-param Params $params
@@ -217,36 +202,19 @@ class ExceptionTest extends FunctionalTestCase
      *
      * @dataProvider getConnectionParams
      */
-    public function testConnectionException(array $params): void
+    private function testConnectionException(array $params): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
         if ($platform instanceof SqlitePlatform) {
-            self::markTestSkipped('Only skipped if platform is not sqlite');
+            self::markTestSkipped('The SQLite driver does not use a network connection');
         }
 
-        if ($platform instanceof MySQLPlatform && isset($params['user'])) {
-            $wrappedConnection = $this->connection->getWrappedConnection();
-
-            if (version_compare($wrappedConnection->getServerVersion(), '8', '>=')) {
-                self::markTestIncomplete('PHP currently does not completely support MySQL 8');
-            }
-        }
-
-        $defaultParams = $this->connection->getParams();
-        $params        = array_merge($defaultParams, $params);
-
-        $conn = DriverManager::getConnection($params);
-
-        $schema = new Schema();
-        $table  = $schema->createTable('no_connection');
-        $table->addColumn('id', 'integer');
+        $params = array_merge(TestUtil::getConnectionParams(), $params);
+        $conn   = DriverManager::getConnection($params);
 
         $this->expectException(Exception\ConnectionException::class);
-
-        foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-            $conn->executeStatement($sql);
-        }
+        $conn->connect();
     }
 
     /**

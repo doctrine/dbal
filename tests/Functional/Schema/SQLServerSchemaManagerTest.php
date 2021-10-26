@@ -47,7 +47,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table  = new Table($tableName = 'test_collation');
         $column = $table->addColumn('test', 'string', ['length' => 32]);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
         $columns = $this->schemaManager->listTableColumns($tableName);
 
         // SQL Server should report a default collation on the column
@@ -55,7 +55,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $column->setPlatformOption('collation', $collation = 'Icelandic_CS_AS');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
         $columns = $this->schemaManager->listTableColumns($tableName);
 
         self::assertEquals($collation, $columns['test']->getPlatformOption('collation'));

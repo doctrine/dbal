@@ -28,9 +28,8 @@ class ModifyLimitQueryTest extends FunctionalTestCase
         $table2->addColumn('test_int', 'integer');
         $table2->setPrimaryKey(['id']);
 
-        $sm = $this->connection->createSchemaManager();
-        $sm->dropAndCreateTable($table);
-        $sm->dropAndCreateTable($table2);
+        $this->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table2);
     }
 
     public function testModifyLimitQuerySimpleQuery(): void

@@ -71,7 +71,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $index = $table->getIndex('f_index');
         $index->addFlag('fulltext');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $indexes = $this->schemaManager->listTableIndexes('fulltext_index');
         self::assertArrayHasKey('f_index', $indexes);
@@ -88,7 +88,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $index = $table->getIndex('s_index');
         $index->addFlag('spatial');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $indexes = $this->schemaManager->listTableIndexes('spatial_index');
         self::assertArrayHasKey('s_index', $indexes);
@@ -102,7 +102,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('text', 'string', ['length' => 255]);
         $table->addIndex(['text'], 'text_index', [], ['lengths' => [128]]);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $indexes = $this->schemaManager->listTableIndexes('index_length');
         self::assertArrayHasKey('text_index', $indexes);
@@ -142,7 +142,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('foo', 'integer');
         $table->setPrimaryKey(['id', 'foo']);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $diffTable = clone $table;
 
@@ -174,7 +174,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('def_blob', 'blob', ['default' => 'def']);
         $table->addColumn('def_blob_null', 'blob', ['notnull' => false, 'default' => 'def']);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $onlineTable = $this->schemaManager->listTableDetails('text_blob_default_value');
 
@@ -207,7 +207,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'text')->setPlatformOption('charset', 'ascii');
         $table->addColumn('bar', 'text')->setPlatformOption('charset', 'latin1');
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_column_charset');
 
@@ -223,7 +223,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table($tableName);
         $table->addColumn('col_text', 'text')->setPlatformOption('charset', 'utf8');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $diffTable = clone $table;
         $diffTable->getColumn('col_text')->setPlatformOption('charset', 'ascii');
@@ -276,7 +276,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('foo', 'text')->setPlatformOption('collation', 'latin1_swedish_ci');
         $table->addColumn('bar', 'text')->setPlatformOption('collation', 'utf8_general_ci');
         $table->addColumn('baz', 'text')->setPlatformOption('collation', 'binary');
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_collation');
 
@@ -302,7 +302,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_mediumblob', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
         $table->addColumn('col_longblob', 'blob');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $platform      = $this->schemaManager->getDatabasePlatform();
         $onlineColumns = $this->schemaManager->listTableColumns($tableName);
@@ -347,7 +347,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlineTable = new Table('list_guid_table_column');
         $offlineTable->addColumn('col_guid', 'guid');
 
-        $this->schemaManager->dropAndCreateTable($offlineTable);
+        $this->dropAndCreateTable($offlineTable);
 
         $onlineTable = $this->schemaManager->listTableDetails('list_guid_table_column');
 
@@ -365,7 +365,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col', 'decimal');
         $table->addColumn('col_unsigned', 'decimal', ['unsigned' => true]);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
@@ -383,7 +383,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col', 'float');
         $table->addColumn('col_unsigned', 'float', ['unsigned' => true]);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
@@ -397,7 +397,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('test_mysql_json');
         $table->addColumn('col_json', 'json');
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_mysql_json');
 
@@ -415,7 +415,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_datetime', 'datetime', ['notnull' => true, 'default' => $currentTimeStampSql]);
         $table->addColumn('col_datetime_nullable', 'datetime', ['default' => $currentTimeStampSql]);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $onlineTable = $this->schemaManager->listTableDetails('test_column_defaults_current_timestamp');
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
@@ -441,7 +441,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_decimal', 'decimal', ['scale' => 3, 'precision' => 6, 'default' => -2.3]);
         $table->addColumn('col_date', 'date', ['default' => '2012-12-12']);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement(
             'INSERT INTO test_column_defaults_are_valid () VALUES()'
@@ -490,7 +490,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_date', 'date', ['default' => $currentDateSql]);
         $table->addColumn('col_time', 'time', ['default' => $currentTimeSql]);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $onlineTable = $this->schemaManager->listTableDetails('test_column_defaults_current_time_and_date');
 

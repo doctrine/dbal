@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\ConnectionLost;
+use Doctrine\DBAL\Exception\DatabaseDoesNotExist;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -33,6 +34,9 @@ final class ExceptionConverter implements ExceptionConverterInterface
     public function convert(Exception $exception, ?Query $query): DriverException
     {
         switch ($exception->getCode()) {
+            case 1008:
+                return new DatabaseDoesNotExist($exception, $query);
+
             case 1213:
                 return new DeadlockException($exception, $query);
 
@@ -95,6 +99,7 @@ final class ExceptionConverter implements ExceptionConverterInterface
             case 1429:
             case 2002:
             case 2005:
+            case 2054:
                 return new ConnectionException($exception, $query);
 
             case 2006:

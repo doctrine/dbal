@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
+use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\TestCase;
 
 abstract class FunctionalTestCase extends TestCase
@@ -70,5 +73,35 @@ abstract class FunctionalTestCase extends TestCase
         unset($this->connection);
 
         $this->isConnectionReusable = true;
+    }
+
+    /**
+     * Drops the table with the specified name, if it exists.
+     *
+     * @throws Exception
+     */
+    public function dropTableIfExists(string $name): void
+    {
+        $schemaManager = $this->connection->createSchemaManager();
+
+        try {
+            $schemaManager->dropTable($name);
+        } catch (DatabaseObjectNotFoundException $e) {
+        }
+    }
+
+    /**
+     * Drops and creates a new table.
+     *
+     * @throws Exception
+     */
+    public function dropAndCreateTable(Table $table): void
+    {
+        $schemaManager = $this->connection->createSchemaManager();
+        $platform      = $schemaManager->getDatabasePlatform();
+        $tableName     = $table->getQuotedName($platform);
+
+        $this->dropTableIfExists($tableName);
+        $schemaManager->createTable($table);
     }
 }

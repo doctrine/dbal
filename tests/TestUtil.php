@@ -8,6 +8,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use InvalidArgumentException;
@@ -88,8 +89,6 @@ class TestUtil
         $testConnParams = self::getTestConnectionParameters();
         $privConnParams = self::getPrivilegedConnectionParameters();
 
-        $testConn = DriverManager::getConnection($testConnParams);
-
         // Connect as a privileged user to create and drop the test database.
         $privConn = DriverManager::getConnection($privConnParams);
 
@@ -102,18 +101,23 @@ class TestUtil
                 $dbname = $testConnParams['user'];
             }
 
-            $testConn->close();
-
             if ($dbname === null) {
                 throw new InvalidArgumentException(
                     'You must have a database configured in your connection.'
                 );
             }
 
-            $privConn->createSchemaManager()->dropAndCreateDatabase($dbname);
+            $sm = $privConn->createSchemaManager();
 
-            $privConn->close();
+            try {
+                $sm->dropDatabase($dbname);
+            } catch (DatabaseObjectNotFoundException $e) {
+            }
+
+            $sm->createDatabase($dbname);
         } else {
+            $testConn = DriverManager::getConnection($testConnParams);
+
             $sm = $testConn->createSchemaManager();
 
             $schema = $sm->createSchema();
@@ -122,7 +126,11 @@ class TestUtil
             foreach ($stmts as $stmt) {
                 $testConn->executeStatement($stmt);
             }
+
+            $testConn->close();
         }
+
+        $privConn->close();
     }
 
     /**

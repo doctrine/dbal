@@ -33,8 +33,7 @@ class DataAccessTest extends FunctionalTestCase
         $table->addColumn('test_datetime', 'datetime', ['notnull' => false]);
         $table->setPrimaryKey(['test_int']);
 
-        $sm = $this->connection->createSchemaManager();
-        $sm->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->insert('fetch_table', [
             'test_int' => 1,

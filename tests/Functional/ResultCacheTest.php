@@ -39,8 +39,7 @@ class ResultCacheTest extends FunctionalTestCase
         ]);
         $table->setPrimaryKey(['test_int']);
 
-        $sm = $this->connection->createSchemaManager();
-        $sm->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         foreach ($this->expectedResult as $row) {
             $this->connection->insert('caching', $row);

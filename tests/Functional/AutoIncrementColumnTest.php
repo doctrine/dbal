@@ -18,8 +18,7 @@ class AutoIncrementColumnTest extends FunctionalTestCase
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
-        $this->connection->createSchemaManager()
-            ->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
     }
 
     protected function tearDown(): void

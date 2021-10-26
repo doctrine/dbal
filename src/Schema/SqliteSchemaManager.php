@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
 use function array_merge;
@@ -82,12 +83,21 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $this->alterTable($tableDiff);
     }
 
+    /**
+     * @deprecated Use {@link dropForeignKey()} and {@link createForeignKey()} instead.
+     */
     public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4897',
+            'SqliteSchemaManager::dropAndCreateForeignKey() is deprecated.'
+                . ' Use SqliteSchemaManager::dropForeignKey() and SqliteSchemaManager::createForeignKey() instead.'
+        );
+
         $table = $this->ensureTable($table);
 
-        $tableDiff = $this->getTableDiffForAlterForeignKey($table);
-
+        $tableDiff                       = $this->getTableDiffForAlterForeignKey($table);
         $tableDiff->changedForeignKeys[] = $foreignKey;
 
         $this->alterTable($tableDiff);

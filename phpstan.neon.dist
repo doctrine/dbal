@@ -101,10 +101,20 @@ parameters:
             message: '~Only numeric types are allowed in \-, float\|null given on the right side\.~'
             path: src/Logging/DebugStack.php
 
+        # https://github.com/phpstan/phpstan-src/pull/731
+        -
+            message: '~Parameter #1 \$array of function array_column expects array, array\|false given\.~'
+            path: src/Driver/Mysqli/Result.php
+
         # Requires a release of https://github.com/phpstan/phpstan-src/pull/719
         -
             message: '~Strict comparison using === between non-empty-string and false will always evaluate to false\.~'
             path: src/Driver/PDO/Connection.php
+
+        # The schema manager isn't initialized if the test is skipped
+        -
+            message: '~Strict comparison using === between Doctrine\\DBAL\\Schema\\AbstractSchemaManager and null will always evaluate to false\.~'
+            path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon

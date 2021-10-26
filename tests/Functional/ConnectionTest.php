@@ -99,6 +99,7 @@ class ConnectionTest extends FunctionalTestCase
             $connection = $this->connection;
         }
 
+        $this->dropTableIfExists('test_nesting');
         $connection->executeQuery('CREATE TABLE test_nesting(test int not null)');
 
         $this->connection->beginTransaction();
@@ -381,7 +382,7 @@ class ConnectionTest extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->createSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->insert(self::TABLE, ['id' => 1]);
     }

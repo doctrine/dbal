@@ -37,7 +37,7 @@ final class ComparatorTest extends FunctionalTestCase
     {
         $table  = new Table('comparator_test');
         $column = $table->addColumn('id', Types::STRING);
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $column->setPlatformOption('collation', 'NOCASE');
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);

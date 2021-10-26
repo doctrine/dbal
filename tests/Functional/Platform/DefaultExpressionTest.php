@@ -60,7 +60,7 @@ class DefaultExpressionTest extends FunctionalTestCase
         $table = new Table('default_expr_test');
         $table->addColumn('actual_value', $type);
         $table->addColumn('default_value', $type, ['default' => $defaultSql]);
-        $this->connection->createSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement(
             sprintf(

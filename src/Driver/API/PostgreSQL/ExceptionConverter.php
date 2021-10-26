@@ -7,12 +7,14 @@ namespace Doctrine\DBAL\Driver\API\PostgreSQL;
 use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\DatabaseDoesNotExist;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\InvalidFieldNameException;
 use Doctrine\DBAL\Exception\NonUniqueFieldNameException;
 use Doctrine\DBAL\Exception\NotNullConstraintViolationException;
+use Doctrine\DBAL\Exception\SchemaDoesNotExist;
 use Doctrine\DBAL\Exception\SyntaxErrorException;
 use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
@@ -53,6 +55,12 @@ final class ExceptionConverter implements ExceptionConverterInterface
 
             case '23505':
                 return new UniqueConstraintViolationException($exception, $query);
+
+            case '3D000':
+                return new DatabaseDoesNotExist($exception, $query);
+
+            case '3F000':
+                return new SchemaDoesNotExist($exception, $query);
 
             case '42601':
                 return new SyntaxErrorException($exception, $query);

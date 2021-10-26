@@ -21,8 +21,7 @@ class AsciiStringTest extends FunctionalTestCase
         $table->addColumn('val', 'ascii_string', ['length' => 4]);
         $table->setPrimaryKey(['id']);
 
-        $sm = $this->connection->createSchemaManager();
-        $sm->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
     }
 
     public function testInsertAndSelect(): void

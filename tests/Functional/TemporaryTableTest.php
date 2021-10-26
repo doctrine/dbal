@@ -39,7 +39,7 @@ class TemporaryTableTest extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->createSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->beginTransaction();
         $this->connection->insert('nontemporary', ['id' => 1]);
@@ -77,7 +77,7 @@ class TemporaryTableTest extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->createSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->beginTransaction();
         $this->connection->insert('nontemporary', ['id' => 1]);

@@ -29,7 +29,7 @@ class WriteTest extends FunctionalTestCase
         ]);
         $table->setPrimaryKey(['id']);
 
-        $this->connection->createSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement('DELETE FROM write_table');
     }
