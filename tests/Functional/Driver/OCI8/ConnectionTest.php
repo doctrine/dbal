@@ -22,18 +22,16 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testLastInsertIdAcceptsFqn(): void
     {
-        $platform      = $this->connection->getDatabasePlatform();
-        $schemaManager = $this->connection->getSchemaManager();
-
         $table = new Table('DBAL2595');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
 
-        $schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement('INSERT INTO DBAL2595 (foo) VALUES (1)');
 
         $schema   = $this->connection->getDatabase();
+        $platform = $this->connection->getDatabasePlatform();
         $sequence = $platform->getIdentitySequenceName($schema . '.DBAL2595', 'id');
 
         self::assertSame(1, $this->connection->lastInsertId($sequence));

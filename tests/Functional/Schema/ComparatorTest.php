@@ -32,7 +32,7 @@ class ComparatorTest extends FunctionalTestCase
         $table = new Table('default_value');
         $table->addColumn('test', $type, ['default' => $value]);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $onlineTable = $this->schemaManager->listTableDetails('default_value');
 

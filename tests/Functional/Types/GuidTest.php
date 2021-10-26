@@ -14,7 +14,7 @@ class GuidTest extends FunctionalTestCase
         $table = new Table('guid_table');
         $table->addColumn('guid', 'guid');
 
-        $this->connection->createSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
     }
 
     public function testInsertAndSelect(): void
