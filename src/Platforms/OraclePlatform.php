@@ -15,7 +15,6 @@ use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
-use function assert;
 use function count;
 use function explode;
 use function func_get_arg;
@@ -468,7 +467,7 @@ class OraclePlatform extends AbstractPlatform implements DatabaseIntrospectionSQ
                      con.constraint_type AS is_primary
 SQL;
 
-        if (isset($database)) {
+        if ($database !== null) {
             $sql .= <<<'SQL'
                 FROM all_ind_columns ind_col
            LEFT JOIN all_indexes ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
@@ -478,7 +477,7 @@ SQL;
             $conditions[] = 'ind_col.index_owner = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($database)->getName()
             );
-            if (isset($table)) {
+            if ($table !== null) {
                 $conditions[] = 'ind_col.table_name = ' . $this->quoteStringLiteral(
                     $this->normalizeIdentifier($table)->getName()
                 );
@@ -489,7 +488,7 @@ SQL;
            LEFT JOIN user_indexes ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
            LEFT JOIN user_constraints con ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
 SQL;
-            assert(isset($table));
+
             $conditions[] = 'ind_col.table_name = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($table)->getName()
             );
@@ -697,7 +696,7 @@ END;';
                      r_cols.column_name "foreign_column"
 SQL;
 
-        if (isset($database)) {
+        if ($database !== null) {
             $sql .= <<<'SQL'
                 FROM all_cons_columns cols
            LEFT JOIN all_constraints alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
@@ -709,13 +708,12 @@ SQL;
             $conditions[] = 'cols.owner = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($database)->getName()
             );
-            if (isset($table)) {
+            if ($table !== null) {
                 $conditions[] = 'cols.table_name = ' . $this->quoteStringLiteral(
                     $this->normalizeIdentifier($table)->getName()
                 );
             }
         } else {
-            assert(isset($table));
             $sql .= <<<'SQL'
                 FROM user_cons_columns cols
            LEFT JOIN user_constraints alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
@@ -774,7 +772,7 @@ SQL;
 
         $sql = 'SELECT c.table_name, c.*, d.comments AS comments ';
 
-        if (isset($database)) {
+        if ($database !== null) {
             $sql .= <<<'SQL'
                 FROM all_tab_columns c
            LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND
@@ -784,13 +782,12 @@ SQL;
             $conditions[] = 'c.owner = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($database)->getName()
             );
-            if (isset($table)) {
+            if ($table !== null) {
                 $conditions[] = 'c.table_name = ' . $this->quoteStringLiteral(
                     $this->normalizeIdentifier($table)->getName()
                 );
             }
         } else {
-            assert(isset($table));
             $sql .= <<<'SQL'
                 FROM user_tab_columns c
            LEFT JOIN user_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND
