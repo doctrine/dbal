@@ -117,5 +117,10 @@ parameters:
             message: '~Only numeric types are allowed in \-, float\|null given on the right side\.~'
             path: src/Logging/DebugStack.php
 
+        # https://github.com/phpstan/phpstan-src/pull/700
+        -
+            message: '~^Parameter #2 \$count of function array_fill expects int<0, max>, int given\.$~'
+            paths:
+                - src/Driver/Mysqli/Statement.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
