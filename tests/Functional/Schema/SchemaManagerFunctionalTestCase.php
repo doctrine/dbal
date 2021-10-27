@@ -513,12 +513,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testMigrateSchema(): void
     {
-        // see https://github.com/doctrine/dbal/issues/4760
-        $this->schemaManager->tryMethod('dropTable', 'blob_table');
-
-        // see https://github.com/doctrine/dbal/issues/4761
-        $this->schemaManager->tryMethod('dropTable', 'test_binary_table');
-
         $this->createTestTable('table_to_alter');
         $this->createTestTable('table_to_drop');
 
