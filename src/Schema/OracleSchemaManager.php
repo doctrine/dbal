@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 
@@ -286,7 +287,10 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     public function dropTable(string $name): void
     {
-        $this->tryMethod('dropAutoincrement', $name);
+        try {
+            $this->dropAutoincrement($name);
+        } catch (DatabaseObjectNotFoundException $e) {
+        }
 
         parent::dropTable($name);
     }

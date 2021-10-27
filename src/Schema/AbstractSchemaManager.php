@@ -12,8 +12,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
-use Doctrine\Deprecations\Deprecation;
-use Throwable;
 
 use function array_filter;
 use function array_intersect;
@@ -62,37 +60,6 @@ abstract class AbstractSchemaManager
     public function getDatabasePlatform(): AbstractPlatform
     {
         return $this->_platform;
-    }
-
-    /**
-     * Tries any method on the schema manager. Normally a method throws an
-     * exception when your DBMS doesn't support it or if an error occurs.
-     * This method allows you to try and method on your SchemaManager
-     * instance and will return false if it does not work or is not supported.
-     *
-     * <code>
-     * $result = $sm->tryMethod('dropView', 'view_name');
-     * </code>
-     *
-     * @deprecated
-     *
-     * @param mixed ...$arguments
-     *
-     * @return mixed
-     */
-    public function tryMethod(string $method, ...$arguments)
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4897',
-            'AbstractSchemaManager::tryMethod() is deprecated.'
-        );
-
-        try {
-            return $this->$method(...$arguments);
-        } catch (Throwable $e) {
-            return false;
-        }
     }
 
     /**
@@ -479,134 +446,6 @@ abstract class AbstractSchemaManager
     public function createView(View $view): void
     {
         $this->_execSql($this->_platform->getCreateViewSQL($view->getQuotedName($this->_platform), $view->getSql()));
-    }
-
-    /* dropAndCreate*() Methods */
-
-    /**
-     * Drops and creates a new index on a table.
-     *
-     * @deprecated Use {@link dropIndex()} and {@link createIndex()} instead.
-     *
-     * @param string $table The name of the table on which the index is to be created.
-     *
-     * @throws Exception
-     */
-    public function dropAndCreateIndex(Index $index, string $table): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4897',
-            'AbstractSchemaManager::dropAndCreateIndex() is deprecated.'
-            . ' Use AbstractSchemaManager::dropIndex() and AbstractSchemaManager::createIndex() instead.'
-        );
-
-        $this->tryMethod('dropIndex', $index->getQuotedName($this->_platform), $table);
-        $this->createIndex($index, $table);
-    }
-
-    /**
-     * Drops and creates a new foreign key.
-     *
-     * @deprecated Use {@link dropForeignKey()} and {@link createForeignKey()} instead.
-     *
-     * @param ForeignKeyConstraint $foreignKey An associative array that defines properties
-     *                                         of the foreign key to be created.
-     * @param string               $table      The name of the table on which the foreign key is to be created.
-     *
-     * @throws Exception
-     */
-    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4897',
-            'AbstractSchemaManager::dropAndCreateForeignKey() is deprecated.'
-            . ' Use AbstractSchemaManager::dropForeignKey() and AbstractSchemaManager::createForeignKey() instead.'
-        );
-
-        $this->tryMethod('dropForeignKey', $foreignKey, $table);
-        $this->createForeignKey($foreignKey, $table);
-    }
-
-    /**
-     * Drops and create a new sequence.
-     *
-     * @deprecated Use {@link dropSequence()} and {@link createSequence()} instead.
-     *
-     * @throws Exception
-     */
-    public function dropAndCreateSequence(Sequence $sequence): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4897',
-            'AbstractSchemaManager::dropAndCreateSequence() is deprecated.'
-            . ' Use AbstractSchemaManager::dropSequence() and AbstractSchemaManager::createSequence() instead.'
-        );
-
-        $this->tryMethod('dropSequence', $sequence->getQuotedName($this->_platform));
-        $this->createSequence($sequence);
-    }
-
-    /**
-     * Drops and creates a new table.
-     *
-     * @deprecated Use {@link dropTable()} and {@link createTable()} instead.
-     *
-     * @throws Exception
-     */
-    public function dropAndCreateTable(Table $table): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4897',
-            'AbstractSchemaManager::dropAndCreateTable() is deprecated.'
-            . ' Use AbstractSchemaManager::dropTable() and AbstractSchemaManager::createTable() instead.'
-        );
-
-        $this->tryMethod('dropTable', $table->getQuotedName($this->_platform));
-        $this->createTable($table);
-    }
-
-    /**
-     * Drops and creates a new database.
-     *
-     * @deprecated Use {@link dropDatabase()} and {@link createDatabase()} instead.
-     *
-     * @throws Exception
-     */
-    public function dropAndCreateDatabase(string $database): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4897',
-            'AbstractSchemaManager::dropAndCreateDatabase() is deprecated.'
-            . ' Use AbstractSchemaManager::dropDatabase() and AbstractSchemaManager::createDatabase() instead.'
-        );
-
-        $this->tryMethod('dropDatabase', $database);
-        $this->createDatabase($database);
-    }
-
-    /**
-     * Drops and creates a new view.
-     *
-     * @deprecated Use {@link dropView()} and {@link createView()} instead.
-     *
-     * @throws Exception
-     */
-    public function dropAndCreateView(View $view): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4897',
-            'AbstractSchemaManager::dropAndCreateView() is deprecated.'
-            . ' Use AbstractSchemaManager::dropView() and AbstractSchemaManager::createView() instead.'
-        );
-
-        $this->tryMethod('dropView', $view->getQuotedName($this->_platform));
-        $this->createView($view);
     }
 
     /**

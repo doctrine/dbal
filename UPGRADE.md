@@ -8,6 +8,19 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `AbstractSchemaManager::dropAndCreate*()` and `::tryMethod()` methods.
+
+The following `AbstractSchemaManager` methods have been removed:
+
+1. `AbstractSchemaManager::dropAndCreateConstraint()`,
+6. `AbstractSchemaManager::dropAndCreateDatabase()`,
+3. `AbstractSchemaManager::dropAndCreateForeignKey()`,
+2. `AbstractSchemaManager::dropAndCreateIndex()`,
+4. `AbstractSchemaManager::dropAndCreateSequence()`,
+5. `AbstractSchemaManager::dropAndCreateTable()`,
+7. `AbstractSchemaManager::dropAndCreateView()`,
+8. `AbstractSchemaManager::tryMethod()`.
+
 ## BC BREAK: Removed support for SQL Server 2016 and older
 
 DBAL is now tested only with SQL Server 2017 and newer.
