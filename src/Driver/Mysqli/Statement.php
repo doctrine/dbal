@@ -58,8 +58,7 @@ final class Statement implements StatementInterface
     {
         $this->stmt = $stmt;
 
-        $paramCount = $this->stmt->param_count;
-
+        $paramCount        = $this->stmt->param_count;
         $this->types       = str_repeat('s', $paramCount);
         $this->boundValues = array_fill(1, $paramCount, null);
     }
