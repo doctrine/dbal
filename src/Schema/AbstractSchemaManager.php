@@ -310,6 +310,27 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Helper method to group a set of object records by the table name.
+     *
+     * @param string $sql An SQL statement to be executed.
+     * @param string $groupingField The name of the resultset field to use for grouping.
+     *
+     * @return array<int|string, array<int, array<string, mixed>>> An associative array with key being the table name,
+     *                                                             and value a simple array of records associated with
+     *                                                             the table.
+     */
+    protected function getObjectRecordsByTable(string $sql, string $groupingField): array
+    {
+        $input  = $this->_conn->fetchAllAssociative($sql);
+        $output = [];
+        foreach ($input as $record) {
+            $output[$record[$groupingField]][] = $record;
+        }
+
+        return $output;
+    }
+
+    /**
      * @param string $name
      *
      * @return Table

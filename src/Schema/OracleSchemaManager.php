@@ -323,6 +323,104 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
+    public function listTables()
+    {
+        $currentDatabase = $this->_conn->getDatabase();
+        $tableNames = $this->listTableNames();
+
+        $objectsByTable = [];
+
+        // Get all column definitions in one database call.
+        $sql = <<<'SQL'
+          SELECT C.*, D.COMMENTS AS COMMENTS
+            FROM ALL_TAB_COLUMNS C
+       LEFT JOIN ALL_COL_COMMENTS D ON D.OWNER = C.OWNER AND D.TABLE_NAME = C.TABLE_NAME AND
+                 D.COLUMN_NAME = C.COLUMN_NAME
+           WHERE C.OWNER =
+SQL;
+
+        $sql .= $this->quoteStringLiteral($this->normalizeIdentifier($currentDatabase)->getName());
+        $sql .= ' ORDER BY C.TABLE_NAME, C.COLUMN_ID';
+
+        $objectsByTable['columns'] = $this->getObjectRecordsByTable($sql, 'TABLE_NAME');
+
+        // Get all foreign keys definitions in one database call.
+        $sql = <<<'SQL'
+          SELECT COLS.TABLE_NAME,
+                 ALC.CONSTRAINT_NAME,
+                 ALC.DELETE_RULE,
+                 COLS.COLUMN_NAME "local_column",
+                 COLS.POSITION,
+                 R_COLS.TABLE_NAME "references_table",
+                 R_COLS.COLUMN_NAME "foreign_column"
+            FROM ALL_CONS_COLUMNS COLS
+       LEFT JOIN ALL_CONSTRAINTS ALC ON ALC.OWNER = COLS.OWNER AND ALC.CONSTRAINT_NAME = COLS.CONSTRAINT_NAME
+       LEFT JOIN ALL_CONS_COLUMNS R_COLS ON R_COLS.OWNER = ALC.R_OWNER AND
+                 R_COLS.CONSTRAINT_NAME = ALC.R_CONSTRAINT_NAME AND
+                 R_COLS.POSITION = COLS.POSITION
+                 WHERE ALC.CONSTRAINT_TYPE = 'R' AND COLS.OWNER =
+SQL;
+
+        $sql .= $this->quoteStringLiteral($this->normalizeIdentifier($currentDatabase)->getName());
+        $sql .= 'ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME, COLS.POSITION';
+
+        $objectsByTable['foreignKeys'] = $this->getObjectRecordsByTable($sql, 'TABLE_NAME');
+
+        // Get all indexes definitions in one database call.
+        $sql = <<<'SQL'
+          SELECT IND_COL.TABLE_NAME,
+                 IND_COL.INDEX_NAME AS NAME,
+                 IND.INDEX_TYPE AS TYPE,
+                 DECODE(IND.UNIQUENESS, 'NONUNIQUE', 0, 'UNIQUE', 1) AS IS_UNIQUE,
+                 IND_COL.COLUMN_NAME AS COLUMN_NAME,
+                 IND_COL.COLUMN_POSITION AS COLUMN_POS,
+                 CON.CONSTRAINT_TYPE AS IS_PRIMARY
+            FROM ALL_IND_COLUMNS IND_COL
+       LEFT JOIN ALL_INDEXES IND ON IND.OWNER = IND_COL.INDEX_OWNER AND IND.INDEX_NAME = IND_COL.INDEX_NAME
+       LEFT JOIN ALL_CONSTRAINTS CON ON  CON.OWNER = IND_COL.INDEX_OWNER AND CON.INDEX_NAME = IND_COL.INDEX_NAME
+           WHERE IND_COL.INDEX_OWNER =
+SQL;
+
+        $sql .= $this->quoteStringLiteral($this->normalizeIdentifier($currentDatabase)->getName());
+        $sql .= ' ORDER BY iND_COL.TABLE_NAME, IND_COL.INDEX_NAME, IND_COL.COLUMN_POSITION';
+
+        $objectsByTable['indexes'] = $this->getObjectRecordsByTable($sql, 'TABLE_NAME');
+
+        $tables = [];
+
+        foreach ($tableNames as $tableName) {
+            $unquotedTableName = trim($tableName, '"');
+
+            $columns = $this->_getPortableTableColumnList(
+                $tableName,
+                '',
+                $objectsByTable['columns'][$unquotedTableName]
+            );
+
+            $foreignKeys = [];
+            if (isset($objectsByTable['foreignKeys'][$unquotedTableName])) {
+                $foreignKeys = $this->_getPortableTableForeignKeysList(
+                    $objectsByTable['foreignKeys'][$unquotedTableName]
+                );
+            }
+
+            $indexes = [];
+            if (isset($objectsByTable['indexes'][$unquotedTableName])) {
+                $indexes = $this->_getPortableTableIndexesList(
+                    $objectsByTable['indexes'][$unquotedTableName],
+                    $tableName
+                );
+            }
+
+            $tables[] = new Table($tableName, $columns, $indexes, [], $foreignKeys, []);
+        }
+
+        return $tables;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function listTableDetails($name): Table
     {
         $table = parent::listTableDetails($name);
