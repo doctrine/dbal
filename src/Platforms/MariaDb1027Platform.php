@@ -10,7 +10,7 @@ use Doctrine\Deprecations\Deprecation;
  *
  * Note: Should not be used with versions prior to 10.2.7.
  */
-final class MariaDb1027Platform extends MySQLPlatform
+class MariaDb1027Platform extends MySQLPlatform
 {
     /**
      * {@inheritdoc}

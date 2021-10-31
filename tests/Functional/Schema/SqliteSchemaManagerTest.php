@@ -105,7 +105,7 @@ EOS
         $table->addColumn('text', 'text');
         $table->addColumn('foo', 'text')->setPlatformOption('collation', 'BINARY');
         $table->addColumn('bar', 'text')->setPlatformOption('collation', 'NOCASE');
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_collation');
 
@@ -162,7 +162,7 @@ SQL;
         $table->addColumn('id', 'integer');
         $table->addColumn('text', 'text');
         $table->setPrimaryKey(['id']);
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 

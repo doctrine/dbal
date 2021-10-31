@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use PHPUnit\Framework\Assert;
@@ -84,8 +85,6 @@ class TestUtil
         $testConnParams = self::getTestConnectionParameters();
         $privConnParams = self::getPrivilegedConnectionParameters();
 
-        $testConn = DriverManager::getConnection($testConnParams);
-
         // Connect as a privileged user to create and drop the test database.
         $privConn = DriverManager::getConnection($privConnParams);
 
@@ -98,12 +97,17 @@ class TestUtil
                 $dbname = $testConnParams['user'];
             }
 
-            $testConn->close();
+            $sm = $privConn->getSchemaManager();
 
-            $privConn->getSchemaManager()->dropAndCreateDatabase($dbname);
+            try {
+                $sm->dropDatabase($dbname);
+            } catch (DatabaseObjectNotFoundException $e) {
+            }
 
-            $privConn->close();
+            $sm->createDatabase($dbname);
         } else {
+            $testConn = DriverManager::getConnection($testConnParams);
+
             $sm = $testConn->getSchemaManager();
 
             $schema = $sm->createSchema();
@@ -112,7 +116,11 @@ class TestUtil
             foreach ($stmts as $stmt) {
                 $testConn->executeStatement($stmt);
             }
+
+            $testConn->close();
         }
+
+        $privConn->close();
     }
 
     /**

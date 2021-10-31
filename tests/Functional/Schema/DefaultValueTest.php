@@ -23,8 +23,7 @@ class DefaultValueTest extends FunctionalTestCase
             ]);
         }
 
-        $this->connection->getSchemaManager()
-            ->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->insert('default_value', ['id' => 1]);
     }

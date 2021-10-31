@@ -81,8 +81,8 @@ Data Fixtures in Integration Tests
 ++++++++++++++++++++++++++++++++++
 
 To test selecting and fetching data from the database, the test may create the necessary schema and populate it
-with the test data. To create database tables, instead of checking if the table exists, it is recommended
-to use ``AbstractSchemaManager::dropAndCreateTable()``. This way, the table will be dropped and created every time
+with the test data. To create database tables, instead of checking if the table exists and reusing it,
+it is recommended to use ``FunctionalTestCase::dropAndCreateTable()``. This way, the table will be dropped and created every time
 providing better isolation between the test runs.
 
 Testing Different Database Platforms

@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -70,11 +71,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     protected function tearDown(): void
     {
-        if ($this->schemaManager->tablesExist(['json_array_test'])) {
-            $this->schemaManager->dropTable('json_array_test');
+        if ($this->schemaManager === null) {
+            return;
         }
-
-        $this->schemaManager->tryMethod('dropTable', 'testschema.my_table_in_namespace');
 
         //TODO: SchemaDiff does not drop removed namespaces?
         try {
@@ -86,7 +85,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->markConnectionNotReusable();
     }
 
-    public function testDropAndCreateSequence(): void
+    public function testCreateSequence(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -94,9 +93,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('The platform does not support sequences.');
         }
 
-        $name = 'dropcreate_sequences_test_seq';
+        $name = 'create_sequences_test_seq';
 
-        $this->schemaManager->dropAndCreateSequence(new Sequence($name, 20, 10));
+        $this->schemaManager->createSequence(new Sequence($name));
 
         self::assertTrue($this->hasElementWithName($this->schemaManager->listSequences(), $name));
     }
@@ -158,7 +157,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('Cannot drop Database client side with this Driver.');
         }
 
-        $this->schemaManager->dropAndCreateDatabase('test_create_database');
+        try {
+            $this->schemaManager->dropDatabase('test_create_database');
+        } catch (DatabaseObjectNotFoundException $e) {
+        }
+
+        $this->schemaManager->createDatabase('test_create_database');
+
         $databases = $this->schemaManager->listDatabases();
 
         $databases = array_map('strtolower', $databases);
@@ -171,14 +176,21 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
      */
     public function testListSchemaNames(callable $method): void
     {
-        if (! $this->schemaManager->getDatabasePlatform()->supportsSchemas()) {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform->supportsSchemas()) {
             self::markTestSkipped('Platform does not support schemas.');
         }
 
-        $this->schemaManager->tryMethod('dropSchema', 'test_create_schema');
+        try {
+            $this->schemaManager->dropSchema('test_create_schema');
+        } catch (DatabaseObjectNotFoundException $e) {
+        }
+
+        self::assertNotContains('test_create_schema', $this->schemaManager->listSchemaNames());
 
         $this->connection->executeStatement(
-            $this->schemaManager->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema')
+            $platform->getCreateSchemaSQL('test_create_schema')
         );
 
         self::assertContains('test_create_schema', $method($this->schemaManager));
@@ -243,7 +255,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $table = $this->createListTableColumns();
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns     = $this->schemaManager->listTableColumns('list_table_columns');
         $columnsKeys = array_keys($columns);
@@ -331,7 +343,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $table = $this->createListTableColumns();
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $listenerMock = $this->createMock(ListTableColumnsDispatchEventListener::class);
         $listenerMock
@@ -352,7 +364,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addUniqueIndex(['test'], 'test_index_name');
         $table->addIndex(['id', 'test'], 'test_composite_idx');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $listenerMock = $this->createMock(ListTableIndexesDispatchEventListener::class);
         $listenerMock
@@ -381,7 +393,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         $offlineTable = $this->createListTableColumns();
-        $this->schemaManager->dropAndCreateTable($offlineTable);
+        $this->dropAndCreateTable($offlineTable);
         $onlineTable = $this->schemaManager->listTableDetails('list_table_columns');
 
         $diff = $comparatorFactory($this->schemaManager)->diffTable($onlineTable, $offlineTable);
@@ -395,7 +407,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addUniqueIndex(['test'], 'test_index_name');
         $table->addIndex(['id', 'test'], 'test_composite_idx');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $tableIndexes = $this->schemaManager->listTableIndexes('list_table_indexes_test');
 
@@ -421,9 +433,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $table = $this->getTestTable('test_create_index');
         $table->addUniqueIndex(['test'], 'test');
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
-        $this->schemaManager->dropAndCreateIndex($table->getIndex('test'), $table);
+        $index = $table->getIndex('test');
+        $this->schemaManager->dropIndex($index, $table);
+        $this->schemaManager->createIndex($index, $table);
         $tableIndexes = $this->schemaManager->listTableIndexes('test_create_index');
 
         self::assertEquals('test', strtolower($tableIndexes['test']->getName()));
@@ -440,7 +454,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $table = new Table('test_unique_constraint');
         $table->addColumn('id', 'integer');
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $uniqueConstraint = new UniqueConstraint('uniq_id', ['id']);
         $this->schemaManager->createUniqueConstraint($uniqueConstraint, $table->getName());
@@ -468,12 +482,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $tableB = $this->getTestTable('test_foreign');
 
-        $this->schemaManager->dropAndCreateTable($tableB);
+        $this->dropAndCreateTable($tableB);
 
         $tableA = $this->getTestTable('test_create_fk');
         $tableA->addForeignKeyConstraint('test_foreign', ['foreign_key_test'], ['id']);
 
-        $this->schemaManager->dropAndCreateTable($tableA);
+        $this->dropAndCreateTable($tableA);
 
         $fkTable       = $this->schemaManager->listTableDetails('test_create_fk');
         $fkConstraints = $fkTable->getForeignKeys();
@@ -696,7 +710,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $view = new View($name, $sql);
 
-        $this->schemaManager->dropAndCreateView($view);
+        $this->schemaManager->createView($view);
 
         $views = $this->schemaManager->listViews();
 
@@ -769,8 +783,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableFK->addIndex(['fk_id'], 'fk_idx');
         $tableFK->addForeignKeyConstraint('test_fk_base', ['fk_id'], ['id']);
 
-        $this->schemaManager->tryMethod('dropTable', $tableFK);
-        $this->schemaManager->tryMethod('dropTable', $table);
+        $this->dropTableIfExists($tableFK->getName());
+        $this->dropTableIfExists($table->getName());
 
         $this->schemaManager->createTable($table);
         $this->schemaManager->createTable($tableFK);
@@ -824,8 +838,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             'fk_constraint'
         );
 
-        $this->schemaManager->tryMethod('dropTable', $foreignTable);
-        $this->schemaManager->tryMethod('dropTable', $primaryTable);
+        $this->dropTableIfExists($foreignTable->getName());
+        $this->dropTableIfExists($primaryTable->getName());
 
         $this->schemaManager->createTable($primaryTable);
         $this->schemaManager->createTable($foreignTable);
@@ -953,7 +967,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addColumn('col_int', 'smallint', ['default' => 666]);
         $table->addColumn('col_string', 'string', ['default' => 'foo']);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $tableDiff                            = new TableDiff($tableName);
         $tableDiff->fromTable                 = $table;
@@ -1004,7 +1018,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $table = $this->getTestTable($name, $options);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         return $table;
     }
@@ -1099,7 +1113,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addColumn('column7', 'integer', ['default' => 0]);
         $table->setPrimaryKey(['id']);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('col_def_lifecycle');
 
@@ -1183,7 +1197,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $table = new Table($primaryTableName);
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -1193,7 +1207,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addIndex(['bar']);
         $table->setPrimaryKey(['id']);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         self::assertEquals(
             $this->schemaManager->listTableColumns($primaryTableName),
@@ -1288,7 +1302,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $offlineTable->addColumn('comment2', 'integer', ['comment' => $comment2]);
         $offlineTable->addColumn('no_comment1', 'integer');
         $offlineTable->addColumn('no_comment2', 'integer');
-        $this->schemaManager->dropAndCreateTable($offlineTable);
+        $this->dropAndCreateTable($offlineTable);
 
         $onlineTable = $this->schemaManager->listTableDetails('alter_column_comment_test');
 
@@ -1360,8 +1374,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foreignTable->addForeignKeyConstraint('test_list_index_impl_primary', ['fk1'], ['id']);
         $foreignTable->addForeignKeyConstraint('test_list_index_impl_primary', ['fk2'], ['id']);
 
-        $this->schemaManager->dropAndCreateTable($primaryTable);
-        $this->schemaManager->dropAndCreateTable($foreignTable);
+        $this->dropAndCreateTable($primaryTable);
+        $this->dropAndCreateTable($foreignTable);
 
         $indexes = $this->schemaManager->listTableIndexes('test_list_index_impl_foreign');
 
@@ -1383,7 +1397,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('This test is only supported on platforms that have native JSON type.');
         }
 
-        $this->schemaManager->tryMethod('dropTable', 'json_test');
+        $this->dropTableIfExists('json_test');
         $this->connection->executeQuery('CREATE TABLE json_test (parameters JSON NOT NULL)');
 
         $table = new Table('json_test');
@@ -1476,7 +1490,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $sequenceInitialValue   = 10;
         $sequence               = new Sequence($sequenceName, $sequenceAllocationSize, $sequenceInitialValue);
 
-        $this->schemaManager->dropAndCreateSequence($sequence);
+        try {
+            $this->schemaManager->dropSequence($sequence->getName());
+        } catch (DatabaseObjectNotFoundException $e) {
+        }
+
+        $this->schemaManager->createSequence($sequence);
 
         $createdSequence = array_values(
             array_filter(
@@ -1500,7 +1519,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('text', 'string');
         $table->setPrimaryKey(['id']);
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
@@ -1535,7 +1554,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $expected = $table->getIndexes();
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $onlineTable = $this->schemaManager->listTableDetails('test_partial_column_index');
         self::assertEquals($expected, $onlineTable->getIndexes());
@@ -1546,7 +1565,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table = new Table('table_with_comment');
         $table->addColumn('id', 'integer');
         $table->setComment('Foo with control characters \'\\');
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $table = $this->schemaManager->listTableDetails('table_with_comment');
         self::assertSame('Foo with control characters \'\\', $table->getComment());

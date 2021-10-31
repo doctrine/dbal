@@ -39,7 +39,7 @@ final class Statement implements StatementInterface
     /** @var mysqli_stmt */
     private $stmt;
 
-    /** @var mixed[]|null */
+    /** @var mixed[] */
     private $boundValues;
 
     /** @var string */
@@ -59,11 +59,7 @@ final class Statement implements StatementInterface
     {
         $this->stmt = $stmt;
 
-        $paramCount = $this->stmt->param_count;
-        if (0 >= $paramCount) {
-            return;
-        }
-
+        $paramCount        = $this->stmt->param_count;
         $this->types       = str_repeat('s', $paramCount);
         $this->boundValues = array_fill(1, $paramCount, null);
     }
@@ -108,14 +104,12 @@ final class Statement implements StatementInterface
      */
     public function execute($params = null): ResultInterface
     {
-        if ($this->boundValues !== null) {
-            if ($params !== null) {
-                if (! $this->bindUntypedValues($params)) {
-                    throw StatementError::new($this->stmt);
-                }
-            } else {
-                $this->bindTypedParameters();
+        if ($params !== null && count($params) > 0) {
+            if (! $this->bindUntypedValues($params)) {
+                throw StatementError::new($this->stmt);
             }
+        } elseif (count($this->boundValues) > 0) {
+            $this->bindTypedParameters();
         }
 
         try {
@@ -140,8 +134,6 @@ final class Statement implements StatementInterface
     {
         $streams = $values = [];
         $types   = $this->types;
-
-        assert($this->boundValues !== null);
 
         foreach ($this->boundValues as $parameter => $value) {
             assert(is_int($parameter));

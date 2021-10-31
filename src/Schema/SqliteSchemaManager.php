@@ -91,9 +91,18 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use {@link dropForeignKey()} and {@link createForeignKey()} instead.
      */
     public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4897',
+            'SqliteSchemaManager::dropAndCreateForeignKey() is deprecated.'
+                . ' Use SqliteSchemaManager::dropForeignKey() and SqliteSchemaManager::createForeignKey() instead.'
+        );
+
         $tableDiff                       = $this->getTableDiffForAlterForeignKey($table);
         $tableDiff->changedForeignKeys[] = $foreignKey;
 
@@ -462,15 +471,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     private function getTableDiffForAlterForeignKey($table)
     {
         if (! $table instanceof Table) {
-            $tableDetails = $this->tryMethod('listTableDetails', $table);
-
-            if ($tableDetails === false) {
-                throw new Exception(
-                    sprintf('Sqlite schema manager requires to modify foreign keys table definition "%s".', $table)
-                );
-            }
-
-            $table = $tableDetails;
+            $table = $this->listTableDetails($table);
         }
 
         $tableDiff            = new TableDiff($table->getName());

@@ -18,12 +18,12 @@ class AlterColumnTest extends FunctionalTestCase
         $table->addColumn('c1', 'integer');
         $table->addColumn('c2', 'integer');
 
-        $sm = $this->connection->createSchemaManager();
-        $sm->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $table->getColumn('c1')
             ->setType(Type::getType(Types::STRING));
 
+        $sm         = $this->connection->createSchemaManager();
         $comparator = new Comparator();
         $diff       = $comparator->diffTable($sm->listTableDetails('test_alter'), $table);
 

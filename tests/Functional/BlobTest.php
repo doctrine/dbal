@@ -29,8 +29,7 @@ class BlobTest extends FunctionalTestCase
         $table->addColumn('blobcolumn', 'blob');
         $table->setPrimaryKey(['id']);
 
-        $sm = $this->connection->getSchemaManager();
-        $sm->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
     }
 
     public function testInsert(): void
