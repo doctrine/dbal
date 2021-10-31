@@ -339,7 +339,7 @@ class OracleSchemaManager extends AbstractSchemaManager
            WHERE C.OWNER =
 SQL;
 
-        $sql .= $this->quoteStringLiteral($this->normalizeIdentifier($currentDatabase)->getName());
+        $sql .= $this->_platform->quoteStringLiteral($currentDatabase);
         $sql .= ' ORDER BY C.TABLE_NAME, C.COLUMN_ID';
 
         $objectsByTable['columns'] = $this->getObjectRecordsByTable($sql, 'TABLE_NAME');
@@ -361,7 +361,7 @@ SQL;
                  WHERE ALC.CONSTRAINT_TYPE = 'R' AND COLS.OWNER =
 SQL;
 
-        $sql .= $this->quoteStringLiteral($this->normalizeIdentifier($currentDatabase)->getName());
+        $sql .= $this->_platform->quoteStringLiteral($currentDatabase);
         $sql .= 'ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME, COLS.POSITION';
 
         $objectsByTable['foreignKeys'] = $this->getObjectRecordsByTable($sql, 'TABLE_NAME');
@@ -381,7 +381,7 @@ SQL;
            WHERE IND_COL.INDEX_OWNER =
 SQL;
 
-        $sql .= $this->quoteStringLiteral($this->normalizeIdentifier($currentDatabase)->getName());
+        $sql .= $this->_platform->quoteStringLiteral($currentDatabase);
         $sql .= ' ORDER BY iND_COL.TABLE_NAME, IND_COL.INDEX_NAME, IND_COL.COLUMN_POSITION';
 
         $objectsByTable['indexes'] = $this->getObjectRecordsByTable($sql, 'TABLE_NAME');
