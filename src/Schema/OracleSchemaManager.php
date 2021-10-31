@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 
@@ -326,6 +327,11 @@ class OracleSchemaManager extends AbstractSchemaManager
     public function listTables()
     {
         $currentDatabase = $this->_conn->getDatabase();
+
+        if ($currentDatabase === null) {
+            throw new DatabaseObjectNotFoundException();
+        }
+
         $tableNames = $this->listTableNames();
 
         $objectsByTable = [];

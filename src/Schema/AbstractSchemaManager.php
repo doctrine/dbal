@@ -312,7 +312,7 @@ abstract class AbstractSchemaManager
     /**
      * Helper method to group a set of object records by the table name.
      *
-     * @param string $sql An SQL statement to be executed.
+     * @param string $sql           An SQL statement to be executed.
      * @param string $groupingField The name of the resultset field to use for grouping.
      *
      * @return array<int|string, array<int, array<string, mixed>>> An associative array with key being the table name,
