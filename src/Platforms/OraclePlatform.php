@@ -15,7 +15,6 @@ use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
-use function assert;
 use function count;
 use function explode;
 use function func_get_arg;
@@ -444,6 +443,13 @@ class OraclePlatform extends AbstractPlatform implements DatabaseIntrospectionSQ
      */
     public function getListTableIndexesSQL($table, $database = null)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4882',
+            '%s is deprecated, call getListDatabaseIndexesSQL() instead.',
+            __METHOD__
+        );
+
         return $this->getListIndexesSQL($database, $table);
     }
 
@@ -451,44 +457,45 @@ class OraclePlatform extends AbstractPlatform implements DatabaseIntrospectionSQ
     {
         $conditions = [];
 
-        $sql = <<<SQL
-              SELECT ind_col.table_name,
-                     ind_col.index_name AS name,
-                     ind.index_type AS type,
-                     decode(ind.uniqueness, 'NONUNIQUE', 0, 'UNIQUE', 1) AS is_unique,
-                     ind_col.column_name AS column_name,
-                     ind_col.column_position AS column_pos,
-                     con.constraint_type AS is_primary
+        $sql = <<<'SQL'
+              SELECT IND_COL.TABLE_NAME,
+                     IND_COL.INDEX_NAME AS NAME,
+                     IND.INDEX_TYPE AS TYPE,
+                     DECODE(IND.UNIQUENESS, 'NONUNIQUE', 0, 'UNIQUE', 1) AS IS_UNIQUE,
+                     IND_COL.COLUMN_NAME AS COLUMN_NAME,
+                     IND_COL.COLUMN_POSITION AS COLUMN_POS,
+                     CON.CONSTRAINT_TYPE AS IS_PRIMARY
 SQL;
 
-        if (isset($database)) {
-            $sql         .= <<<SQL
-                FROM all_ind_columns ind_col
-           LEFT JOIN all_indexes ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
-           LEFT JOIN all_constraints con ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
+        if ($database !== null) {
+            $sql .= <<<'SQL'
+                FROM ALL_IND_COLUMNS IND_COL
+           LEFT JOIN ALL_INDEXES IND ON IND.OWNER = IND_COL.INDEX_OWNER AND IND.INDEX_NAME = IND_COL.INDEX_NAME
+           LEFT JOIN ALL_CONSTRAINTS CON ON  CON.OWNER = IND_COL.INDEX_OWNER AND CON.INDEX_NAME = IND_COL.INDEX_NAME
 SQL;
-            $conditions[] = 'ind_col.index_owner = ' . $this->quoteStringLiteral(
+
+            $conditions[] = 'IND_COL.INDEX_OWNER = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($database)->getName()
             );
-            if (isset($table)) {
-                $conditions[] = 'ind_col.table_name = ' . $this->quoteStringLiteral(
+            if ($table !== null) {
+                $conditions[] = 'IND_COL.TABLE_NAME = ' . $this->quoteStringLiteral(
                     $this->normalizeIdentifier($table)->getName()
                 );
             }
         } else {
-            $sql .= <<<SQL
-                FROM user_ind_columns ind_col
-           LEFT JOIN user_indexes ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
-           LEFT JOIN user_constraints con ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
+            $sql .= <<<'SQL'
+                FROM USER_IND_COLUMNS IND_COL
+           LEFT JOIN USER_INDEXES IND ON IND.OWNER = IND_COL.INDEX_OWNER AND IND.INDEX_NAME = IND_COL.INDEX_NAME
+           LEFT JOIN USER_CONSTRAINTS CON ON  CON.OWNER = IND_COL.INDEX_OWNER AND CON.INDEX_NAME = IND_COL.INDEX_NAME
 SQL;
-            assert(isset($table));
-            $conditions[] = 'ind_col.table_name = ' . $this->quoteStringLiteral(
+
+            $conditions[] = 'IND_COL.TABLE_NAME = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($table)->getName()
             );
         }
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        $sql .= ' ORDER BY ind_col.table_name, ind_col.index_name, ind_col.column_position';
+        $sql .= ' ORDER BY IND_COL.TABLE_NAME, IND_COL.INDEX_NAME, IND_COL.COLUMN_POSITION';
 
         return $sql;
     }
@@ -665,6 +672,13 @@ END;';
      */
     public function getListTableForeignKeysSQL($table)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4882',
+            '%s is deprecated, call getListDatabaseForeignKeysSQL() instead.',
+            __METHOD__
+        );
+
         return $this->getListForeignKeysSQL(null, $table);
     }
 
@@ -672,50 +686,51 @@ END;';
     {
         $conditions = [];
 
-        $sql = <<<SQL
-              SELECT cols.table_name,
-                     alc.constraint_name,
-                     alc.DELETE_RULE,
-                     cols.column_name "local_column",
-                     cols.position,
-                     r_cols.table_name "references_table",
-                     r_cols.column_name "foreign_column"
+        $sql = <<<'SQL'
+              SELECT COLS.TABLE_NAME,
+                     ALC.CONSTRAINT_NAME,
+                     ALC.DELETE_RULE,
+                     COLS.COLUMN_NAME "local_column",
+                     COLS.POSITION,
+                     R_COLS.TABLE_NAME "references_table",
+                     R_COLS.COLUMN_NAME "foreign_column"
 SQL;
 
-        if (isset($database)) {
-            $sql         .= <<<SQL
-                FROM all_cons_columns cols
-           LEFT JOIN all_constraints alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
-           LEFT JOIN all_cons_columns r_cols ON r_cols.owner = alc.r_owner AND
-                     r_cols.constraint_name = alc.r_constraint_name AND
-                     r_cols.position = cols.position
+        if ($database !== null) {
+            $sql .= <<<'SQL'
+                FROM ALL_CONS_COLUMNS COLS
+           LEFT JOIN ALL_CONSTRAINTS ALC ON ALC.OWNER = COLS.OWNER AND ALC.CONSTRAINT_NAME = COLS.CONSTRAINT_NAME
+           LEFT JOIN ALL_CONS_COLUMNS R_COLS ON R_COLS.OWNER = ALC.R_OWNER AND
+                     R_COLS.CONSTRAINT_NAME = ALC.R_CONSTRAINT_NAME AND
+                     R_COLS.POSITION = COLS.POSITION
 SQL;
-            $conditions[] = 'cols.owner = ' . $this->quoteStringLiteral(
+
+            $conditions[] = 'COLS.OWNER = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($database)->getName()
             );
-            if (isset($table)) {
-                $conditions[] = 'cols.table_name = ' . $this->quoteStringLiteral(
+            if ($table !== null) {
+                $conditions[] = 'COLS.TABLE_NAME = ' . $this->quoteStringLiteral(
                     $this->normalizeIdentifier($table)->getName()
                 );
             }
         } else {
-            assert(isset($table));
-            $sql         .= <<<SQL
-                FROM user_cons_columns cols
-           LEFT JOIN user_constraints alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
-           LEFT JOIN user_cons_columns r_cols ON r_cols.owner = alc.r_owner AND
-                     r_cols.constraint_name = alc.r_constraint_name AND
-                     r_cols.position = cols.position
+            $sql .= <<<'SQL'
+                FROM USER_CONS_COLUMNS COLS
+           LEFT JOIN USER_CONSTRAINTS ALC ON ALC.OWNER = COLS.OWNER AND ALC.CONSTRAINT_NAME = COLS.CONSTRAINT_NAME
+           LEFT JOIN USER_CONS_COLUMNS R_COLS ON R_COLS.OWNER = ALC.R_OWNER AND
+                     R_COLS.CONSTRAINT_NAME = ALC.R_CONSTRAINT_NAME AND
+                     R_COLS.POSITION = COLS.POSITION
 SQL;
-            $conditions[] = 'cols.table_name = ' . $this->quoteStringLiteral(
+
+            $conditions[] = 'COLS.TABLE_NAME = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($table)->getName()
             );
         }
 
-        $conditions[] = "alc.constraint_type = 'R'";
+        $conditions[] = "ALC.CONSTRAINT_TYPE = 'R'";
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        $sql .= ' ORDER BY cols.table_name, cols.constraint_name, cols.position';
+        $sql .= ' ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME, COLS.POSITION';
 
         return $sql;
     }
@@ -741,6 +756,13 @@ SQL;
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4882',
+            '%s is deprecated, call getListDatabaseColumnsSQL() instead.',
+            __METHOD__
+        );
+
         return $this->getListColumnsSQL($database, $table);
     }
 
@@ -748,36 +770,37 @@ SQL;
     {
         $conditions = [];
 
-        $sql = 'SELECT c.table_name, c.*, d.comments AS comments ';
+        $sql = 'SELECT C.TABLE_NAME, C.*, D.COMMENTS AS COMMENTS ';
 
-        if (isset($database)) {
-            $sql         .= <<<SQL
-                FROM all_tab_columns c
-           LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND
-                     d.COLUMN_NAME = c.COLUMN_NAME
+        if ($database !== null) {
+            $sql .= <<<'SQL'
+                FROM ALL_TAB_COLUMNS C
+           LEFT JOIN ALL_COL_COMMENTS D ON D.OWNER = C.OWNER AND D.TABLE_NAME = C.TABLE_NAME AND
+                     D.COLUMN_NAME = C.COLUMN_NAME
 SQL;
-            $conditions[] = 'c.owner = ' . $this->quoteStringLiteral(
+
+            $conditions[] = 'C.OWNER = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($database)->getName()
             );
-            if (isset($table)) {
-                $conditions[] = 'c.table_name = ' . $this->quoteStringLiteral(
+            if ($table !== null) {
+                $conditions[] = 'C.TABLE_NAME = ' . $this->quoteStringLiteral(
                     $this->normalizeIdentifier($table)->getName()
                 );
             }
         } else {
-            assert(isset($table));
-            $sql         .= <<<SQL
-                FROM user_tab_columns c
-           LEFT JOIN user_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND
-                     d.COLUMN_NAME = c.COLUMN_NAME
+            $sql .= <<<'SQL'
+                FROM USER_TAB_COLUMNS C
+           LEFT JOIN USER_COL_COMMENTS D ON D.OWNER = C.OWNER AND D.TABLE_NAME = C.TABLE_NAME AND
+                     D.COLUMN_NAME = C.COLUMN_NAME
 SQL;
-            $conditions[] = 'c.table_name = ' . $this->quoteStringLiteral(
+
+            $conditions[] = 'C.TABLE_NAME = ' . $this->quoteStringLiteral(
                 $this->normalizeIdentifier($table)->getName()
             );
         }
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        $sql .= ' ORDER BY c.table_name, c.column_id';
+        $sql .= ' ORDER BY C.TABLE_NAME, C.COLUMN_ID';
 
         return $sql;
     }

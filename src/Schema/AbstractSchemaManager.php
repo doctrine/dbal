@@ -307,7 +307,7 @@ abstract class AbstractSchemaManager
         $tables = [];
 
         if ($this->_platform instanceof DatabaseIntrospectionSQLBuilder) {
-            $objectsByTable = $this->getDatabaseObjectsRecordsByTable();
+            $objectsByTable = $this->getDatabaseObjectRecordsByTable($this->_platform);
 
             foreach ($tableNames as $tableName) {
                 $unquotedTableName = trim($tableName, '"');
@@ -349,30 +349,28 @@ abstract class AbstractSchemaManager
     /**
      * Helper method to group a set of object records by the table name.
      *
-     * @return array<string, array<int|string, array<int, array<string, mixed>>>> An associative array with key being
+     * @return array<string, array<string, array<int, array<string, mixed>>>> An associative array with key being
      *    the object type, and value a simple array of records associated with the object type.
      */
-    private function getDatabaseObjectsRecordsByTable(): array
+    private function getDatabaseObjectRecordsByTable(DatabaseIntrospectionSQLBuilder $platform): array
     {
-        assert($this->_platform instanceof DatabaseIntrospectionSQLBuilder);
-
-        $currentDatabase = $this->_conn->getDatabase() ?? '';
+        $currentDatabase = $this->_conn->getDatabase();
 
         $objectsByTable = [];
 
         // Get all column definitions in one database call.
         $objectsByTable['columns'] = $this->getObjectRecordsByTable(
-            $this->_platform->getListDatabaseColumnsSQL($currentDatabase)
+            $platform->getListDatabaseColumnsSQL($currentDatabase)
         );
 
         // Get all foreign keys definitions in one database call.
         $objectsByTable['foreignKeys'] = $this->getObjectRecordsByTable(
-            $this->_platform->getListDatabaseForeignKeysSQL($currentDatabase)
+            $platform->getListDatabaseForeignKeysSQL($currentDatabase)
         );
 
         // Get all indexes definitions in one database call.
         $objectsByTable['indexes'] = $this->getObjectRecordsByTable(
-            $this->_platform->getListDatabaseIndexesSQL($currentDatabase)
+            $platform->getListDatabaseIndexesSQL($currentDatabase)
         );
 
         return $objectsByTable;
@@ -384,7 +382,7 @@ abstract class AbstractSchemaManager
      * @param string $sql An SQL statement to be executed, whose first field is used for grouping. It is up to the
      *                    platform to ensure the first field contains the table name.
      *
-     * @return array<int|string, array<int, array<string, mixed>>> An associative array with key being the table name,
+     * @return array<string, array<int, array<string, mixed>>> An associative array with key being the table name,
      *                                                             and value a simple array of records associated with
      *                                                             the table.
      */
