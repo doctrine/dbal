@@ -349,51 +349,19 @@ abstract class AbstractSchemaManager
     /**
      * Helper method to group a set of object records by the table name.
      *
-     * @return array<string, array<string, array<int, array<string, mixed>>>> An associative array with key being
-     *    the object type, and value a simple array of records associated with the object type.
-     */
-    private function getDatabaseObjectRecordsByTable(DatabaseIntrospectionSQLBuilder $platform): array
-    {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        $objectsByTable = [];
-
-        // Get all column definitions in one database call.
-        $objectsByTable['columns'] = $this->getObjectRecordsByTable(
-            $platform->getListDatabaseColumnsSQL($currentDatabase)
-        );
-
-        // Get all foreign keys definitions in one database call.
-        $objectsByTable['foreignKeys'] = $this->getObjectRecordsByTable(
-            $platform->getListDatabaseForeignKeysSQL($currentDatabase)
-        );
-
-        // Get all indexes definitions in one database call.
-        $objectsByTable['indexes'] = $this->getObjectRecordsByTable(
-            $platform->getListDatabaseIndexesSQL($currentDatabase)
-        );
-
-        return $objectsByTable;
-    }
-
-    /**
-     * Helper method to group a set of object records by the table name.
+     * @param string $sql           An SQL statement to be executed.
+     * @param string $groupingField The name of the resultset field to use for grouping.
      *
-     * @param string $sql An SQL statement to be executed, whose first field is used for grouping. It is up to the
-     *                    platform to ensure the first field contains the table name.
-     *
-     * @return array<string, array<int, array<string, mixed>>> An associative array with key being the table name,
+     * @return array<int|string, array<int, array<string, mixed>>> An associative array with key being the table name,
      *                                                             and value a simple array of records associated with
      *                                                             the table.
      */
-    private function getObjectRecordsByTable(string $sql): array
+    protected function getObjectRecordsByTable(string $sql, string $groupingField): array
     {
         $input  = $this->_conn->fetchAllAssociative($sql);
         $output = [];
         foreach ($input as $record) {
-            $tableName = array_key_first($record);
-            assert(is_string($tableName));
-            $output[$record[$tableName]][] = $record;
+            $output[$record[$groupingField]][] = $record;
         }
 
         return $output;
