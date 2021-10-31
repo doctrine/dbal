@@ -8,11 +8,13 @@ use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DatabaseIntrospectionSQLBuilder;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
 use function array_filter;
 use function array_intersect;
+use function array_key_first;
 use function array_map;
 use function array_values;
 use function assert;
@@ -24,6 +26,7 @@ use function is_string;
 use function preg_match;
 use function str_replace;
 use function strtolower;
+use function trim;
 
 /**
  * Base class for schema managers. Schema managers are used to inspect and/or
@@ -302,6 +305,40 @@ abstract class AbstractSchemaManager
         $tableNames = $this->listTableNames();
 
         $tables = [];
+
+        if ($this->_platform instanceof DatabaseIntrospectionSQLBuilder) {
+            $objectsByTable = $this->getDatabaseObjectRecordsByTable($this->_platform);
+
+            foreach ($tableNames as $tableName) {
+                $unquotedTableName = trim($tableName, '"');
+
+                $columns = $this->_getPortableTableColumnList(
+                    $tableName,
+                    '',
+                    $objectsByTable['columns'][$unquotedTableName]
+                );
+
+                $foreignKeys = [];
+                if (isset($objectsByTable['foreignKeys'][$unquotedTableName])) {
+                    $foreignKeys = $this->_getPortableTableForeignKeysList(
+                        $objectsByTable['foreignKeys'][$unquotedTableName]
+                    );
+                }
+
+                $indexes = [];
+                if (isset($objectsByTable['indexes'][$unquotedTableName])) {
+                    $indexes = $this->_getPortableTableIndexesList(
+                        $objectsByTable['indexes'][$unquotedTableName],
+                        $tableName
+                    );
+                }
+
+                $tables[] = new Table($tableName, $columns, $indexes, [], $foreignKeys, []);
+            }
+
+            return $tables;
+        }
+
         foreach ($tableNames as $tableName) {
             $tables[] = $this->listTableDetails($tableName);
         }
