@@ -19,5 +19,6 @@ jobs:
           close-pr-message: >
             This pull request was closed due to a year of no activity.
 
+          days-before-stale:    -1
           days-before-pr-stale: 365
           days-before-pr-close: 7
