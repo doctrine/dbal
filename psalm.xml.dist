@@ -247,6 +247,8 @@
                     or breaking API changes.
                 -->
                 <file name="src/Platforms/MySQLPlatform.php"/>
+                <!-- Psalm and PHPStan disagree over the return type of PDO::lastInsertId(). -->
+                <file name="src/Driver/PDO/Connection.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
         <ReferenceConstraintViolation>

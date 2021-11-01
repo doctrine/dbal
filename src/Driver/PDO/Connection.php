@@ -102,11 +102,13 @@ final class Connection implements ServerInfoAwareConnection
     public function lastInsertId($name = null)
     {
         try {
-            if ($name === null) {
-                return $this->connection->lastInsertId();
-            }
+            $lastInsertId = $name === null
+                ? $this->connection->lastInsertId()
+                : $this->connection->lastInsertId($name);
 
-            return $this->connection->lastInsertId($name);
+            assert($lastInsertId !== false);
+
+            return $lastInsertId;
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }

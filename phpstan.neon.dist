@@ -82,9 +82,19 @@ parameters:
             paths:
                 - src/Driver/OCI8/Result.php
 
-        # https://github.com/phpstan/phpstan/issues/5608
+        # PHPStan fails to parse this type alias which is meant for Psalm only.
         -
-            message: '~^Circular definition detected in type alias (Override)?Params\.$~'
+            message: '~^Invalid type definition detected in type alias (Override)?Params\.$~'
+            paths:
+                - src/DriverManager.php
+
+        -
+            message: '~Template type T of method Doctrine\\DBAL\\DriverManager::getConnection\(\) is not referenced in a parameter\.~'
+            paths:
+                - src/DriverManager.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\DriverManager::createDriver\(\) should return Doctrine\\DBAL\\Driver but returns object\.~'
             paths:
                 - src/DriverManager.php
 
@@ -117,10 +127,15 @@ parameters:
             message: '~Only numeric types are allowed in \-, float\|null given on the right side\.~'
             path: src/Logging/DebugStack.php
 
-        # https://github.com/phpstan/phpstan-src/pull/700
         -
-            message: '~^Parameter #2 \$count of function array_fill expects int<0, max>, int given\.$~'
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int\|string\.~'
             paths:
-                - src/Driver/Mysqli/Statement.php
+                - src/Driver/Mysqli/Result.php
+
+        -
+            message: '~Dead catch - PDOException is never thrown in the try block\.~'
+            paths:
+                - src/Schema/SQLServerSchemaManager.php
+
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
