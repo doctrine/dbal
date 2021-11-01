@@ -16,9 +16,6 @@ parameters:
         # removing it would be BC break
         - '~^Constructor of class Doctrine\\DBAL\\Schema\\Table has an unused parameter \$idGeneratorType\.\z~'
 
-        # changing these would be a BC break, to be done in next major
-        - '~^Return type \(int\|false\) of method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection\:\:lastInsertId\(\) should be compatible with return type \(string\) of method Doctrine\\DBAL\\Driver\\Connection::lastInsertId\(\)~'
-
         # https://github.com/doctrine/dbal/pull/3836
         - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int\|string> given\.\z~'
 
@@ -61,12 +58,6 @@ parameters:
             paths:
                 - lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
 
-        # Fixing the issue may cause a BC break.
-        -
-            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliConnection::lastInsertId\(\) should return string but returns int\|string\.$~'
-            paths:
-                - lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
-
         # This is deprecated code. Fixing the issue may cause a BC break.
         # TODO: remove in 3.0.0
         -
@@ -75,7 +66,7 @@ parameters:
                 - lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php
 
         -
-            message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns int\|string\|false\|null\.~'
+            message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return int\|string\|false but returns int\|string\|false\|null\.~'
             paths:
                 - lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php
 
@@ -96,9 +87,19 @@ parameters:
             paths:
                 - lib/Doctrine/DBAL/Connection.php
 
-        # https://github.com/phpstan/phpstan/issues/5608
+        # PHPStan fails to parse this type alias which is meant for Psalm only.
         -
-            message: '~^Circular definition detected in type alias (Override)?Params\.$~'
+            message: '~^Invalid type definition detected in type alias (Override)?Params\.$~'
+            paths:
+                - lib/Doctrine/DBAL/DriverManager.php
+
+        -
+            message: '~Template type T of method Doctrine\\DBAL\\DriverManager::getConnection\(\) is not referenced in a parameter\.~'
+            paths:
+                - lib/Doctrine/DBAL/DriverManager.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\DriverManager::createDriver\(\) should return Doctrine\\DBAL\\Driver but returns object\.~'
             paths:
                 - lib/Doctrine/DBAL/DriverManager.php
 
@@ -120,8 +121,7 @@ parameters:
             paths:
                 - lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php
 
-        # https://github.com/phpstan/phpstan-src/pull/700
         -
-            message: '~^Parameter #2 \$count of function array_fill expects int<0, max>, int given\.$~'
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliStatement::rowCount\(\) should return int but returns int\|string\.~'
             paths:
                 - lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php

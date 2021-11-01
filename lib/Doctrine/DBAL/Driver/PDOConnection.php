@@ -99,6 +99,10 @@ class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareC
 
     /**
      * {@inheritdoc}
+     *
+     * @param string|null $name
+     *
+     * @return string|int|false
      */
     #[ReturnTypeWillChange]
     public function lastInsertId($name = null)
