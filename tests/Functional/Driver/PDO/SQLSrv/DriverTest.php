@@ -20,11 +20,11 @@ class DriverTest extends AbstractDriverTest
     {
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('pdo_sqlsrv')) {
             return;
         }
 
-        self::markTestSkipped('pdo_sqlsrv only test.');
+        self::markTestSkipped('This test requires the pdo_sqlsrv driver.');
     }
 
     protected function createDriver(): DriverInterface

@@ -2,11 +2,10 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Driver\IBMDB2;
-use Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 
 class ResultTest extends FunctionalTestCase
 {
@@ -15,9 +14,7 @@ class ResultTest extends FunctionalTestCase
      */
     public function testExceptionHandling(callable $method): void
     {
-        $driver = $this->connection->getDriver();
-
-        if (! $driver instanceof Mysqli\Driver && ! $driver instanceof IBMDB2\Driver) {
+        if (! TestUtil::isDriverOneOf('mysqli', 'ibm_db2')) {
             self::markTestSkipped('This test works only with the mysqli and ibm_db2 drivers.');
         }
 

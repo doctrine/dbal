@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\LockMode;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -22,7 +21,7 @@ class NoneTest extends FunctionalTestCase
 
     public function setUp(): void
     {
-        if ($this->connection->getDriver() instanceof OCI8\Driver) {
+        if (TestUtil::isDriverOneOf('oci8')) {
             // https://github.com/doctrine/dbal/issues/4417
             self::markTestSkipped('This test fails on OCI8 for a currently unknown reason');
         }
