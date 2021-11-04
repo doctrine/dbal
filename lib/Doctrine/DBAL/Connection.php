@@ -1641,7 +1641,7 @@ class Connection implements DriverConnection
      *
      * @param string|null $name Name of the sequence object from which the ID should be returned.
      *
-     * @return string A string representation of the last inserted ID.
+     * @return string|int|false A string representation of the last inserted ID.
      */
     public function lastInsertId($name = null)
     {
