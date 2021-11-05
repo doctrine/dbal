@@ -1,10 +1,9 @@
 Transactions
 ============
 
-A ``Doctrine\DBAL\Connection`` provides a PDO-like API for
+A ``Doctrine\DBAL\Connection`` provides an API for
 transaction management, with the methods
-``Connection#beginTransaction()``, ``Connection#commit()`` and
-``Connection#rollBack()``.
+``beginTransaction()``, ``commit()`` and ``rollBack()``.
 
 Transaction demarcation with the Doctrine DBAL looks as follows:
 
@@ -135,10 +134,10 @@ wider scope and the control is handed to the outer scope.
 
 .. warning::
 
-    Directly invoking ``PDO#beginTransaction()``,
-    ``PDO#commit()`` or ``PDO#rollBack()`` or the corresponding methods
-    on the particular ``Doctrine\DBAL\Driver\Connection`` instance in
-    use bypasses the transparent transaction nesting that is provided
+    Directly invoking ``PDO::beginTransaction()``,
+    ``PDO::commit()`` or ``PDO::rollBack()`` or the corresponding methods
+    on the particular ``Doctrine\DBAL\Driver\Connection`` instance
+    bypasses the transparent transaction nesting that is provided
     by ``Doctrine\DBAL\Connection`` and can therefore corrupt the
     nesting level, causing errors with broken transaction boundaries
     that may be hard to debug.

@@ -1,10 +1,6 @@
 Data Retrieval And Manipulation
 ===============================
 
-Doctrine DBAL follows the PDO API very closely. If you have worked with PDO
-before you will get to know Doctrine DBAL very quickly. On top of the API provided
-by PDO there are tons of convenience functions in Doctrine DBAL.
-
 Data Retrieval
 --------------
 
@@ -15,8 +11,7 @@ kind of API called PDO (PHP Data Objects). However because of disagreements
 between the PHP community there are often native extensions for each database
 vendor that are much more maintained (OCI8 for example).
 
-Doctrine DBAL API builds on top of PDO and integrates native extensions by
-wrapping them into the PDO API as well. If you already have an open connection
+Doctrine DBAL API integrates native extensions. If you already have an open connection
 through the ``Doctrine\DBAL\DriverManager::getConnection()`` method you
 can start using this API for data retrieval easily.
 
@@ -192,8 +187,7 @@ on the Connection, which are all described in the API section below.
 Binding Types
 -------------
 
-Doctrine DBAL extends PDOs handling of binding types in prepared statements
-considerably. Besides ``Doctrine\DBAL\ParameterType`` constants, you
+Besides ``Doctrine\DBAL\ParameterType`` constants, you
 can make use of two very powerful additional features.
 
 Doctrine\DBAL\Types Conversion
@@ -227,10 +221,6 @@ which means this code works independent of the database you are using.
 
 List of Parameters Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. note::
-
-    This is a Doctrine 2.1 feature.
 
 One rather annoying bit of missing functionality in SQL is the support for lists of parameters.
 You cannot bind an array of values into a single prepared statement parameter. Consider
