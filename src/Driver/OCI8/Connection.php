@@ -2,8 +2,6 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\OCI8\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
@@ -17,54 +15,27 @@ use function assert;
 use function is_float;
 use function is_int;
 use function oci_commit;
-use function oci_connect;
-use function oci_pconnect;
 use function oci_rollback;
 use function oci_server_version;
 use function preg_match;
 use function str_replace;
 
-use const OCI_NO_AUTO_COMMIT;
-
 final class Connection implements ServerInfoAwareConnection
 {
     /** @var resource */
-    protected $dbh;
+    protected $connection;
 
     /** @var ExecutionMode */
     private $executionMode;
 
     /**
-     * Creates a Connection to an Oracle Database using oci8 extension.
-     *
      * @internal The connection can be only instantiated by its driver.
      *
-     * @param string $username
-     * @param string $password
-     * @param string $db
-     * @param string $charset
-     * @param int    $sessionMode
-     * @param bool   $persistent
-     *
-     * @throws Exception
+     * @param resource $connection
      */
-    public function __construct(
-        $username,
-        $password,
-        $db,
-        $charset = '',
-        $sessionMode = OCI_NO_AUTO_COMMIT,
-        $persistent = false
-    ) {
-        $dbh = $persistent
-            ? @oci_pconnect($username, $password, $db, $charset, $sessionMode)
-            : @oci_connect($username, $password, $db, $charset, $sessionMode);
-
-        if ($dbh === false) {
-            throw ConnectionFailed::new();
-        }
-
-        $this->dbh           = $dbh;
+    public function __construct($connection)
+    {
+        $this->connection    = $connection;
         $this->executionMode = new ExecutionMode();
     }
 
@@ -73,10 +44,10 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        $version = oci_server_version($this->dbh);
+        $version = oci_server_version($this->connection);
 
         if ($version === false) {
-            throw Error::new($this->dbh);
+            throw Error::new($this->connection);
         }
 
         assert(preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches) === 1);
@@ -86,7 +57,7 @@ final class Connection implements ServerInfoAwareConnection
 
     public function prepare(string $sql): DriverStatement
     {
-        return new Statement($this->dbh, $sql, $this->executionMode);
+        return new Statement($this->connection, $sql, $this->executionMode);
     }
 
     public function query(string $sql): ResultInterface
@@ -156,8 +127,8 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function commit()
     {
-        if (! oci_commit($this->dbh)) {
-            throw Error::new($this->dbh);
+        if (! oci_commit($this->connection)) {
+            throw Error::new($this->connection);
         }
 
         $this->executionMode->enableAutoCommit();
@@ -170,8 +141,8 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function rollBack()
     {
-        if (! oci_rollback($this->dbh)) {
-            throw Error::new($this->dbh);
+        if (! oci_rollback($this->connection)) {
+            throw Error::new($this->connection);
         }
 
         $this->executionMode->enableAutoCommit();
