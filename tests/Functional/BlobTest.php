@@ -2,11 +2,10 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
-use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 
 use function fopen;
@@ -17,7 +16,7 @@ class BlobTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
+        if (TestUtil::isDriverOneOf('pdo_oci')) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
             self::markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
@@ -50,7 +49,7 @@ class BlobTest extends FunctionalTestCase
     public function testInsertProcessesStream(): void
     {
         // https://github.com/doctrine/dbal/issues/3290
-        if ($this->connection->getDriver() instanceof OCI8Driver) {
+        if (TestUtil::isDriverOneOf('oci8')) {
             self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
@@ -106,7 +105,7 @@ class BlobTest extends FunctionalTestCase
     public function testUpdateProcessesStream(): void
     {
         // https://github.com/doctrine/dbal/issues/3290
-        if ($this->connection->getDriver() instanceof OCI8Driver) {
+        if (TestUtil::isDriverOneOf('oci8')) {
             self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
@@ -133,7 +132,7 @@ class BlobTest extends FunctionalTestCase
 
     public function testBindParamProcessesStream(): void
     {
-        if ($this->connection->getDriver() instanceof OCI8Driver) {
+        if (TestUtil::isDriverOneOf('oci8')) {
             self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 

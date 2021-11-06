@@ -2,8 +2,8 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 
 /**
  * @requires extension oci8
@@ -12,11 +12,11 @@ class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('oci8')) {
             return;
         }
 
-        self::markTestSkipped('oci8 only test.');
+        self::markTestSkipped('This test requires the oci8 driver.');
     }
 
     /**

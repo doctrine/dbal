@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -32,11 +31,11 @@ class ResultTest extends FunctionalTestCase
     {
         $this->connectionParams = TestUtil::getConnectionParams();
 
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('oci8')) {
             return;
         }
 
-        self::markTestSkipped('oci8 only test.');
+        self::markTestSkipped('This test requires the oci8 driver.');
     }
 
     protected function tearDown(): void
