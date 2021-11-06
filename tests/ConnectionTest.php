@@ -121,7 +121,7 @@ class ConnectionTest extends TestCase
                    ->method('connect');
 
         $conn = new Connection([], $driverMock, new Configuration(), $eventManager);
-        $conn->connect();
+        $conn->executeQuery('SELECT 1');
     }
 
     public function testTransactionBeginDispatchEvent(): void
@@ -304,7 +304,7 @@ class ConnectionTest extends TestCase
 
         self::assertFalse($conn->isTransactionActive());
 
-        $conn->connect();
+        $conn->executeQuery('SELECT 1');
 
         self::assertTrue($conn->isTransactionActive());
     }
@@ -316,7 +316,7 @@ class ConnectionTest extends TestCase
         $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
-        $conn->connect();
+        $conn->executeQuery('SELECT 1');
         $conn->commit();
 
         self::assertTrue($conn->isTransactionActive());
@@ -337,7 +337,7 @@ class ConnectionTest extends TestCase
         $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
-        $conn->connect();
+        $conn->executeQuery('SELECT 1');
         $conn->rollBack();
 
         self::assertTrue($conn->isTransactionActive());
@@ -349,7 +349,6 @@ class ConnectionTest extends TestCase
 
         $conn = new Connection([], $driverMock);
 
-        $conn->connect();
         $conn->beginTransaction();
         $conn->beginTransaction();
         $conn->setAutoCommit(false);
@@ -633,8 +632,8 @@ class ConnectionTest extends TestCase
         $platform = $this->createMock(AbstractPlatform::class);
 
         $conn = new Connection(['platform' => $platform], $driver);
-        $conn->connect();
-        $conn->connect();
+        $conn->executeQuery('SELECT 1');
+        $conn->executeQuery('SELECT 2');
     }
 
     public function testPlatformDetectionTriggersConnectionIfRequiredByTheDriver(): void

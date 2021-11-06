@@ -31,7 +31,6 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use LogicException;
 use Throwable;
 use Traversable;
@@ -260,26 +259,18 @@ class Connection implements ServerVersionProvider
     }
 
     /**
-     * Establishes the connection with the database.
-     *
-     * @internal This method will be made protected in DBAL 4.0.
+     * Establishes the connection with the database and returns the underlying connection.
      *
      * @throws Exception
      */
-    public function connect(): void
+    protected function connect(): DriverConnection
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4966',
-            'Public access to Connection::connect() is deprecated.'
-        );
-
         if ($this->_conn !== null) {
-            return;
+            return $this->_conn;
         }
 
         try {
-            $this->_conn = $this->_driver->connect($this->params);
+            $connection = $this->_conn = $this->_driver->connect($this->params);
         } catch (Driver\Exception $e) {
             throw $this->convertException($e);
         }
@@ -288,12 +279,12 @@ class Connection implements ServerVersionProvider
             $this->beginTransaction();
         }
 
-        if (! $this->_eventManager->hasListeners(Events::postConnect)) {
-            return;
+        if ($this->_eventManager->hasListeners(Events::postConnect)) {
+            $eventArgs = new Event\ConnectionEventArgs($this);
+            $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 
-        $eventArgs = new Event\ConnectionEventArgs($this);
-        $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
+        return $connection;
     }
 
     /**
@@ -320,7 +311,7 @@ class Connection implements ServerVersionProvider
     private function getServerVersionConnection(): DriverConnection
     {
         try {
-            return $this->getWrappedConnection();
+            return $this->connect();
         } catch (Exception $e) {
             if (! isset($this->params['dbname'])) {
                 throw $e;
@@ -333,7 +324,7 @@ class Connection implements ServerVersionProvider
             unset($this->params['dbname']);
 
             try {
-                return $this->getWrappedConnection();
+                return $this->connect();
             } catch (Exception $_) {
                 // Either the platform does not support database-less connections
                 // or something else went wrong.
@@ -666,7 +657,7 @@ class Connection implements ServerVersionProvider
      */
     public function quote(string $value): string
     {
-        return $this->getWrappedConnection()->quote($value);
+        return $this->connect()->quote($value);
     }
 
     /**
@@ -837,7 +828,7 @@ class Connection implements ServerVersionProvider
      */
     public function prepare(string $sql): Statement
     {
-        $connection = $this->getWrappedConnection();
+        $connection = $this->connect();
 
         try {
             $statement = $connection->prepare($sql);
@@ -868,7 +859,7 @@ class Connection implements ServerVersionProvider
             return $this->executeCacheQuery($sql, $params, $types, $qcp);
         }
 
-        $connection = $this->getWrappedConnection();
+        $connection = $this->connect();
 
         try {
             if (count($params) > 0) {
@@ -961,7 +952,7 @@ class Connection implements ServerVersionProvider
      */
     public function executeStatement(string $sql, array $params = [], array $types = []): int
     {
-        $connection = $this->getWrappedConnection();
+        $connection = $this->connect();
 
         try {
             if (count($params) > 0) {
@@ -1010,7 +1001,7 @@ class Connection implements ServerVersionProvider
     public function lastInsertId()
     {
         try {
-            return $this->getWrappedConnection()->lastInsertId();
+            return $this->connect()->lastInsertId();
         } catch (Driver\Exception $e) {
             throw $this->convertException($e);
         }
@@ -1087,7 +1078,7 @@ class Connection implements ServerVersionProvider
      */
     public function beginTransaction(): void
     {
-        $connection = $this->getWrappedConnection();
+        $connection = $this->connect();
 
         ++$this->transactionNestingLevel;
 
@@ -1113,7 +1104,7 @@ class Connection implements ServerVersionProvider
             throw CommitFailedRollbackOnly::new();
         }
 
-        $connection = $this->getWrappedConnection();
+        $connection = $this->connect();
 
         if ($this->transactionNestingLevel === 1) {
             try {
@@ -1165,7 +1156,7 @@ class Connection implements ServerVersionProvider
             throw NoActiveTransaction::new();
         }
 
-        $connection = $this->getWrappedConnection();
+        $connection = $this->connect();
 
         if ($this->transactionNestingLevel === 1) {
             $this->transactionNestingLevel = 0;
@@ -1251,44 +1242,22 @@ class Connection implements ServerVersionProvider
     }
 
     /**
-     * Gets the wrapped driver connection.
-     *
-     * @deprecated Use {@link getNativeConnection()} to access the native connection.
+     * @return resource|object
      *
      * @throws Exception
      */
-    public function getWrappedConnection(): DriverConnection
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4966',
-            'Connection::getWrappedConnection() is deprecated.'
-                . ' Use Connection::getNativeConnection() to access the native connection.'
-        );
-
-        $this->connect();
-
-        assert($this->_conn !== null);
-
-        return $this->_conn;
-    }
-
-    /**
-     * @return resource|object
-     */
     public function getNativeConnection()
     {
-        $this->connect();
+        $connection = $this->connect();
 
-        assert($this->_conn !== null);
-        if (! method_exists($this->_conn, 'getNativeConnection')) {
+        if (! method_exists($connection, 'getNativeConnection')) {
             throw new LogicException(sprintf(
                 'The driver connection %s does not support accessing the native connection.',
-                get_class($this->_conn)
+                get_class($connection)
             ));
         }
 
-        return $this->_conn->getNativeConnection();
+        return $connection->getNativeConnection();
     }
 
     /**

@@ -213,7 +213,7 @@ class ExceptionTest extends FunctionalTestCase
         $conn   = DriverManager::getConnection($params);
 
         $this->expectException(Exception\ConnectionException::class);
-        $conn->connect();
+        $conn->executeQuery($platform->getDummySelectSQL());
     }
 
     /**
