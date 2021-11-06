@@ -44,12 +44,12 @@ final class DB2SchemaManagerTest extends TestCase
     public function testListTableNamesFiltersAssetNamesCorrectly(): void
     {
         $this->conn->getConfiguration()->setFilterSchemaAssetsExpression('/^(?!T_)/');
-        $this->conn->expects($this->once())->method('fetchAllAssociative')->will($this->returnValue([
+        $this->conn->expects($this->once())->method('fetchAllAssociative')->willReturn([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
             ['name' => 'T_BAR'],
-        ]));
+        ]);
 
         self::assertSame(
             [
@@ -64,12 +64,12 @@ final class DB2SchemaManagerTest extends TestCase
     {
         $filterExpression = '/^(?!T_)/';
         $this->conn->getConfiguration()->setFilterSchemaAssetsExpression($filterExpression);
-        $this->conn->expects($this->once())->method('fetchAllAssociative')->will($this->returnValue([
+        $this->conn->expects($this->once())->method('fetchAllAssociative')->willReturn([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
             ['name' => 'T_BAR'],
-        ]));
+        ]);
 
         self::assertSame(
             [
@@ -93,12 +93,12 @@ final class DB2SchemaManagerTest extends TestCase
             return in_array($assetName, $accepted);
         });
         $this->conn->expects($this->any())->method('quote');
-        $this->conn->expects($this->once())->method('fetchAllAssociative')->will($this->returnValue([
+        $this->conn->expects($this->once())->method('fetchAllAssociative')->willReturn([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
             ['name' => 'T_BAR'],
-        ]));
+        ]);
 
         self::assertSame(
             [
@@ -118,12 +118,12 @@ final class DB2SchemaManagerTest extends TestCase
             return in_array($assetName, $accepted);
         });
         $this->conn->expects($this->any())->method('quote');
-        $this->conn->expects($this->atLeastOnce())->method('fetchAllAssociative')->will($this->returnValue([
+        $this->conn->expects($this->atLeastOnce())->method('fetchAllAssociative')->willReturn([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
             ['name' => 'T_BAR'],
-        ]));
+        ]);
 
         self::assertSame(
             [
@@ -153,12 +153,12 @@ final class DB2SchemaManagerTest extends TestCase
         $filterExpression = '/^(?!T_)/';
         $this->conn->getConfiguration()->setFilterSchemaAssetsExpression($filterExpression);
 
-        $this->conn->expects($this->exactly(2))->method('fetchAllAssociative')->will($this->returnValue([
+        $this->conn->expects($this->exactly(2))->method('fetchAllAssociative')->willReturn([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
             ['name' => 'T_BAR'],
-        ]));
+        ]);
 
         self::assertSame(
             [

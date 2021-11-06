@@ -41,7 +41,7 @@ class StatementTest extends DbalTestCase
         $this->wrappedStmt->expects($this->once())
             ->method('bindParam')
             ->with($column, $variable, $type, $length)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         self::assertTrue($this->stmt->bindParam($column, $variable, $type, $length));
     }
@@ -55,7 +55,7 @@ class StatementTest extends DbalTestCase
         $this->wrappedStmt->expects($this->once())
             ->method('bindValue')
             ->with($param, $value, $type)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         self::assertTrue($this->stmt->bindValue($param, $value, $type));
     }
@@ -64,7 +64,7 @@ class StatementTest extends DbalTestCase
     {
         $this->wrappedStmt->expects($this->once())
             ->method('closeCursor')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         self::assertTrue($this->stmt->closeCursor());
     }
@@ -75,7 +75,7 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('columnCount')
-            ->will($this->returnValue($columnCount));
+            ->willReturn($columnCount);
 
         self::assertSame($columnCount, $this->stmt->columnCount());
     }
@@ -86,7 +86,7 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('errorCode')
-            ->will($this->returnValue($errorCode));
+            ->willReturn($errorCode);
 
         self::assertSame($errorCode, $this->stmt->errorCode());
     }
@@ -97,7 +97,7 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('errorInfo')
-            ->will($this->returnValue($errorInfo));
+            ->willReturn($errorInfo);
 
         self::assertSame($errorInfo, $this->stmt->errorInfo());
     }
@@ -112,7 +112,7 @@ class StatementTest extends DbalTestCase
         $this->wrappedStmt->expects($this->once())
             ->method('execute')
             ->with($params)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         self::assertTrue($this->stmt->execute($params));
     }
@@ -126,7 +126,7 @@ class StatementTest extends DbalTestCase
         $this->wrappedStmt->expects($this->once())
             ->method('setFetchMode')
             ->with($fetchMode, $arg1, $arg2)
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $re = new ReflectionProperty($this->stmt, 'defaultFetchMode');
         $re->setAccessible(true);
@@ -151,7 +151,7 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('rowCount')
-            ->will($this->returnValue($rowCount));
+            ->willReturn($rowCount);
 
         self::assertSame($rowCount, $this->stmt->rowCount());
     }
