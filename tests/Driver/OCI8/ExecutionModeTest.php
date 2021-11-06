@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\ExecutionMode;
-use PHPStan\Testing\TestCase;
+use PHPUnit\Framework\TestCase;
 
 final class ExecutionModeTest extends TestCase
 {

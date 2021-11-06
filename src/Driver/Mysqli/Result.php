@@ -15,9 +15,7 @@ use stdClass;
 use function array_combine;
 use function array_fill;
 use function array_map;
-use function assert;
 use function count;
-use function is_array;
 
 final class Result implements ResultInterface
 {
@@ -61,7 +59,6 @@ final class Result implements ResultInterface
         $this->hasColumns = true;
 
         $fields = $meta->fetch_fields();
-        assert(is_array($fields));
 
         $this->columnNames = array_map(static function (stdClass $field): string {
             return $field->name;

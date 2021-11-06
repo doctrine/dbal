@@ -355,7 +355,7 @@ class WriteTest extends FunctionalTestCase
      * Returns the ID of the last inserted row or skips the test if the currently used driver
      * doesn't support this feature
      *
-     * @return string|false
+     * @return string|int|false
      *
      * @throws Exception
      */

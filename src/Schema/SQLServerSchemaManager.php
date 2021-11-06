@@ -6,7 +6,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
-use PDOException;
 
 use function assert;
 use function count;
@@ -254,12 +253,6 @@ SQL
 
         try {
             $tableIndexes = $this->_conn->fetchAllAssociative($sql);
-        } catch (PDOException $e) {
-            if ($e->getCode() === 'IMSSP') {
-                return [];
-            }
-
-            throw $e;
         } catch (Exception $e) {
             if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
                 return [];
