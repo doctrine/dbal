@@ -4,7 +4,9 @@ namespace Doctrine\DBAL\Driver\PDO\PgSQL;
 
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception;
 use PDO;
+use PDOException;
 
 final class Driver extends AbstractPostgreSQLDriver
 {
@@ -21,22 +23,27 @@ final class Driver extends AbstractPostgreSQLDriver
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
-        $connection = new Connection(
-            $this->_constructPdoDsn($params),
-            $params['user'] ?? '',
-            $params['password'] ?? '',
-            $driverOptions,
-        );
+        try {
+            $pdo = new PDO(
+                $this->constructPdoDsn($params),
+                $params['user'] ?? '',
+                $params['password'] ?? '',
+                $driverOptions,
+            );
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
 
         if (
             ! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
             || $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] === true
         ) {
-            $connection->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
+            $pdo->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
         }
 
+        $connection = new Connection($pdo);
+
         /* defining client_encoding via SET NAMES to avoid inconsistent DSN support
-         * - the 'client_encoding' connection param only works with postgres >= 9.1
          * - passing client_encoding via the 'options' param breaks pgbouncer support
          */
         if (isset($params['charset'])) {
@@ -53,7 +60,7 @@ final class Driver extends AbstractPostgreSQLDriver
      *
      * @return string The DSN.
      */
-    private function _constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params)
     {
         $dsn = 'pgsql:';
 
