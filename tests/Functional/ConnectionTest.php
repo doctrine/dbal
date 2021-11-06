@@ -4,9 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -69,7 +67,7 @@ class ConnectionTest extends FunctionalTestCase
                 $this->connection->insert(self::TABLE, ['id' => 1]);
                 self::fail('Expected exception to be thrown because of the unique constraint.');
             } catch (Throwable $e) {
-                $this->assertIsUniqueConstraintException($e);
+                self::assertInstanceOf(UniqueConstraintViolationException::class, $e);
                 $this->connection->rollBack();
                 self::assertSame(1, $this->connection->getTransactionNestingLevel());
             }
@@ -144,7 +142,7 @@ class ConnectionTest extends FunctionalTestCase
                 $this->connection->insert(self::TABLE, ['id' => 1]);
                 self::fail('Expected exception to be thrown because of the unique constraint.');
             } catch (Throwable $e) {
-                $this->assertIsUniqueConstraintException($e);
+                self::assertInstanceOf(UniqueConstraintViolationException::class, $e);
                 $this->connection->rollBack();
                 self::assertSame(1, $this->connection->getTransactionNestingLevel());
             }
@@ -241,7 +239,7 @@ class ConnectionTest extends FunctionalTestCase
             $this->connection->insert(self::TABLE, ['id' => 1]);
             self::fail('Expected exception to be thrown because of the unique constraint.');
         } catch (Throwable $e) {
-            $this->assertIsUniqueConstraintException($e);
+            self::assertInstanceOf(UniqueConstraintViolationException::class, $e);
             self::assertSame(1, $this->connection->getTransactionNestingLevel());
             $this->connection->rollBack();
             self::assertSame(0, $this->connection->getTransactionNestingLevel());
@@ -269,7 +267,7 @@ class ConnectionTest extends FunctionalTestCase
             });
             self::fail('Expected exception to be thrown because of the unique constraint.');
         } catch (Throwable $e) {
-            $this->assertIsUniqueConstraintException($e);
+            self::assertInstanceOf(UniqueConstraintViolationException::class, $e);
             self::assertSame(0, $this->connection->getTransactionNestingLevel());
         }
     }
@@ -402,22 +400,5 @@ class ConnectionTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         $this->connection->insert(self::TABLE, ['id' => 1]);
-    }
-
-    private function assertIsUniqueConstraintException(Throwable $exception): void
-    {
-        if ($this->connection->getDriver() instanceof IBMDB2\Driver) {
-            // The IBM DB2 driver currently doesn't instantiate specialized exceptions
-
-            return;
-        }
-
-        if ($this->connection->getDriver() instanceof AbstractSQLServerDriver) {
-            // The SQL Server drivers currently don't instantiate specialized exceptions
-
-            return;
-        }
-
-        self::assertInstanceOf(UniqueConstraintViolationException::class, $exception);
     }
 }
