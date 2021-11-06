@@ -2,19 +2,23 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\SQL\Parser;
 use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function assert;
 use function is_float;
 use function is_int;
+use function is_resource;
 use function oci_commit;
+use function oci_parse;
 use function oci_rollback;
 use function oci_server_version;
 use function preg_match;
@@ -23,7 +27,10 @@ use function str_replace;
 final class Connection implements ServerInfoAwareConnection
 {
     /** @var resource */
-    protected $connection;
+    private $connection;
+
+    /** @var Parser */
+    private $parser;
 
     /** @var ExecutionMode */
     private $executionMode;
@@ -36,6 +43,7 @@ final class Connection implements ServerInfoAwareConnection
     public function __construct($connection)
     {
         $this->connection    = $connection;
+        $this->parser        = new Parser(false);
         $this->executionMode = new ExecutionMode();
     }
 
@@ -55,11 +63,25 @@ final class Connection implements ServerInfoAwareConnection
         return $matches[1];
     }
 
+    /**
+     * @throws Parser\Exception
+     */
     public function prepare(string $sql): DriverStatement
     {
-        return new Statement($this->connection, $sql, $this->executionMode);
+        $visitor = new ConvertPositionalToNamedPlaceholders();
+
+        $this->parser->parse($sql, $visitor);
+
+        $statement = oci_parse($this->connection, $visitor->getSQL());
+        assert(is_resource($statement));
+
+        return new Statement($this->connection, $statement, $visitor->getParameterMap(), $this->executionMode);
     }
 
+    /**
+     * @throws Exception
+     * @throws Parser\Exception
+     */
     public function query(string $sql): ResultInterface
     {
         return $this->prepare($sql)->execute();
@@ -79,6 +101,10 @@ final class Connection implements ServerInfoAwareConnection
         return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
     }
 
+    /**
+     * @throws Exception
+     * @throws Parser\Exception
+     */
     public function exec(string $sql): int
     {
         return $this->prepare($sql)->execute()->rowCount();
@@ -90,6 +116,8 @@ final class Connection implements ServerInfoAwareConnection
      * @param string|null $name
      *
      * @return int|false
+     *
+     * @throws Parser\Exception
      */
     public function lastInsertId($name = null)
     {
