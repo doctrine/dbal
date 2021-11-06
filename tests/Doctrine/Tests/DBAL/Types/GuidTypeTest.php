@@ -38,7 +38,7 @@ class GuidTypeTest extends DbalTestCase
 
         $this->platform->expects($this->any())
              ->method('hasNativeGuidType')
-             ->will($this->returnValue(true));
+             ->willReturn(true);
 
         self::assertFalse($this->type->requiresSQLCommentHint($this->platform));
     }

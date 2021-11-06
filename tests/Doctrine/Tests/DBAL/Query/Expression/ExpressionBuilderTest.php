@@ -20,7 +20,7 @@ class ExpressionBuilderTest extends DbalTestCase
 
         $conn->expects($this->any())
              ->method('getExpressionBuilder')
-             ->will($this->returnValue($this->expr));
+             ->willReturn($this->expr);
     }
 
     /**

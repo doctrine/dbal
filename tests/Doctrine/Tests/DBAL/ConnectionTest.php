@@ -58,9 +58,9 @@ class ConnectionTest extends DbalTestCase
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
 
         $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
 
@@ -247,9 +247,9 @@ EOF
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
@@ -266,9 +266,9 @@ EOF
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
@@ -290,7 +290,7 @@ EOF
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue($driverConnection));
+            ->willReturn($driverConnection);
 
         $conn = new Connection([], $driverMock);
 
@@ -313,9 +313,9 @@ EOF
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
@@ -330,9 +330,9 @@ EOF
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn = new Connection([], $driverMock);
 
         $conn->connect();
@@ -516,16 +516,16 @@ EOF
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
 
         $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
             ->with(FetchMode::ASSOCIATIVE)
-            ->will($this->returnValue($result));
+            ->willReturn($result);
 
         $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['executeQuery'])
@@ -535,7 +535,7 @@ EOF
         $conn->expects($this->once())
             ->method('executeQuery')
             ->with($statement, $params, $types)
-            ->will($this->returnValue($driverStatementMock));
+            ->willReturn($driverStatementMock);
 
         self::assertSame($result, $conn->fetchAssoc($statement, $params, $types));
     }
@@ -551,16 +551,16 @@ EOF
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
 
         $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
             ->with(FetchMode::NUMERIC)
-            ->will($this->returnValue($result));
+            ->willReturn($result);
 
         $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['executeQuery'])
@@ -570,7 +570,7 @@ EOF
         $conn->expects($this->once())
             ->method('executeQuery')
             ->with($statement, $params, $types)
-            ->will($this->returnValue($driverStatementMock));
+            ->willReturn($driverStatementMock);
 
         self::assertSame($result, $conn->fetchArray($statement, $params, $types));
     }
@@ -587,16 +587,16 @@ EOF
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
 
         $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetchColumn')
             ->with($column)
-            ->will($this->returnValue($result));
+            ->willReturn($result);
 
         $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['executeQuery'])
@@ -606,7 +606,7 @@ EOF
         $conn->expects($this->once())
             ->method('executeQuery')
             ->with($statement, $params, $types)
-            ->will($this->returnValue($driverStatementMock));
+            ->willReturn($driverStatementMock);
 
         self::assertSame($result, $conn->fetchColumn($statement, $params, $column, $types));
     }
@@ -622,15 +622,15 @@ EOF
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
 
         $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetchAll')
-            ->will($this->returnValue($result));
+            ->willReturn($result);
 
         $conn = (new MockBuilderProxy($this->getMockBuilder(Connection::class)))
             ->onlyMethods(['executeQuery'])
@@ -640,7 +640,7 @@ EOF
         $conn->expects($this->once())
             ->method('executeQuery')
             ->with($statement, $params, $types)
-            ->will($this->returnValue($driverStatementMock));
+            ->willReturn($driverStatementMock);
 
         self::assertSame($result, $conn->fetchAll($statement, $params, $types));
     }
@@ -714,7 +714,7 @@ EOF
 
         $wrappedConnection
             ->method('prepare')
-            ->will($this->returnValue($stmt));
+            ->willReturn($stmt);
 
         $platform = $this->createMock(AbstractPlatform::class);
 
@@ -735,20 +735,20 @@ EOF
 
         $driverMock->expects($this->once())
             ->method('connect')
-            ->will($this->returnValue($driverConnectionMock));
+            ->willReturn($driverConnectionMock);
 
         $driverConnectionMock->expects($this->once())
             ->method('requiresQueryForServerVersion')
-            ->will($this->returnValue(false));
+            ->willReturn(false);
 
         $driverConnectionMock->expects($this->once())
             ->method('getServerVersion')
-            ->will($this->returnValue('6.6.6'));
+            ->willReturn('6.6.6');
 
         $driverMock->expects($this->once())
             ->method('createDatabasePlatformForVersion')
             ->with('6.6.6')
-            ->will($this->returnValue($platformMock));
+            ->willReturn($platformMock);
 
         self::assertSame($platformMock, $connection->getDatabasePlatform());
     }
@@ -761,7 +761,7 @@ EOF
             ->expects($this->atLeastOnce())
             ->method('fetch')
             ->with('cacheKey')
-            ->will($this->returnValue(['realKey' => []]));
+            ->willReturn(['realKey' => []]);
 
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = [666];
@@ -772,14 +772,14 @@ EOF
         $queryCacheProfileMock
             ->expects($this->any())
             ->method('getResultCacheDriver')
-            ->will($this->returnValue($resultCacheDriverMock));
+            ->willReturn($resultCacheDriverMock);
 
         // This is our main expectation
         $queryCacheProfileMock
             ->expects($this->once())
             ->method('generateCacheKeys')
             ->with($query, $params, $types, $this->params)
-            ->will($this->returnValue(['cacheKey', 'realKey']));
+            ->willReturn(['cacheKey', 'realKey']);
 
         $driver = $this->createMock(Driver::class);
         $result = (new Connection($this->params, $driver))
@@ -797,14 +797,14 @@ EOF
             ->expects($this->atLeastOnce())
             ->method('fetch')
             ->with('cacheKey')
-            ->will($this->returnValue(['realKey' => []]));
+            ->willReturn(['realKey' => []]);
 
         $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
 
         $queryCacheProfileMock
             ->expects($this->any())
             ->method('getResultCacheDriver')
-            ->will($this->returnValue($resultCacheDriverMock));
+            ->willReturn($resultCacheDriverMock);
 
         $query = 'SELECT 1';
 
@@ -814,7 +814,7 @@ EOF
             ->expects($this->once())
             ->method('generateCacheKeys')
             ->with($query, [], [], $connectionParams)
-            ->will($this->returnValue(['cacheKey', 'realKey']));
+            ->willReturn(['cacheKey', 'realKey']);
 
         $connectionParams['platform'] = $this->createMock(AbstractPlatform::class);
 
@@ -867,13 +867,13 @@ EOF
         $queryCacheProfile
             ->expects($this->any())
             ->method('getResultCacheDriver')
-            ->will($this->returnValue($resultCacheDriver));
+            ->willReturn($resultCacheDriver);
 
         $resultCacheDriver
             ->expects($this->atLeastOnce())
             ->method('fetch')
             ->with('cacheKey')
-            ->will($this->returnValue(['realKey' => []]));
+            ->willReturn(['realKey' => []]);
 
         $query = 'SELECT 1';
 
@@ -889,7 +889,7 @@ EOF
             ->expects($this->once())
             ->method('generateCacheKeys')
             ->with($query, [], [], $paramsWithoutPlatform)
-            ->will($this->returnValue(['cacheKey', 'realKey']));
+            ->willReturn(['cacheKey', 'realKey']);
 
         $connection = new Connection($params, $driver);
 

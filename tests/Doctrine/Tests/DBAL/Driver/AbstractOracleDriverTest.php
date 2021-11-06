@@ -24,7 +24,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
 
         $connection->expects($this->once())
             ->method('getParams')
-            ->will($this->returnValue($params));
+            ->willReturn($params);
 
         self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }
@@ -43,7 +43,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
 
         $connection->expects($this->once())
             ->method('getParams')
-            ->will($this->returnValue($params));
+            ->willReturn($params);
 
         self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }

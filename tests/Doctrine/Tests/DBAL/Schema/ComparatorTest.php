@@ -1173,7 +1173,7 @@ class ComparatorTest extends TestCase
 
         $fromSchema->expects($this->once())
             ->method('getNamespaces')
-            ->will($this->returnValue(['foo', 'bar']));
+            ->willReturn(['foo', 'bar']);
 
         $fromSchema->method('hasNamespace')
             ->withConsecutive(['bar'], ['baz'])
@@ -1181,7 +1181,7 @@ class ComparatorTest extends TestCase
 
         $toSchema->expects($this->once())
             ->method('getNamespaces')
-            ->will($this->returnValue(['bar', 'baz']));
+            ->willReturn(['bar', 'baz']);
 
         $toSchema->method('hasNamespace')
             ->withConsecutive(['foo'], ['bar'])

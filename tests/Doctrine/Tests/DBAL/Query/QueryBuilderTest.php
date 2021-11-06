@@ -25,7 +25,7 @@ class QueryBuilderTest extends DbalTestCase
 
         $this->conn->expects($this->any())
                    ->method('getExpressionBuilder')
-                   ->will($this->returnValue($expressionBuilder));
+                   ->willReturn($expressionBuilder);
     }
 
     public function testSimpleSelectWithoutFrom(): void

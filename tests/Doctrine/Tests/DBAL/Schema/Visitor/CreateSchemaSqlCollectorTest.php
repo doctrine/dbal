@@ -115,7 +115,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
         foreach (['supportsSchemas', 'supportsForeignKeyConstraints'] as $method) {
             $this->platformMock->expects($this->any())
                 ->method($method)
-                ->will($this->returnValue(true));
+                ->willReturn(true);
         }
 
         $table      = $this->createTableMock();

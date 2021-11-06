@@ -79,10 +79,8 @@ class PoolingShardManagerTest extends TestCase
     public function testGetShards(): void
     {
         $conn = $this->createConnectionMock();
-        $conn->expects($this->any())->method('getParams')->will(
-            $this->returnValue(
-                ['shards' => [['id' => 1], ['id' => 2]], 'shardChoser' => $this->createPassthroughShardChoser()]
-            )
+        $conn->expects($this->any())->method('getParams')->willReturn(
+            ['shards' => [['id' => 1], ['id' => 2]], 'shardChoser' => $this->createPassthroughShardChoser()]
         );
 
         $shardManager = new PoolingShardManager($conn);

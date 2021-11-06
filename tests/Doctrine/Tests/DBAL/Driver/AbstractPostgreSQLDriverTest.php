@@ -31,17 +31,17 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 
         $statement->expects($this->once())
             ->method('fetchColumn')
-            ->will($this->returnValue($database));
+            ->willReturn($database);
 
         $connection = $this->getConnectionMock();
 
         $connection->expects($this->once())
             ->method('getParams')
-            ->will($this->returnValue($params));
+            ->willReturn($params);
 
         $connection->expects($this->once())
             ->method('query')
-            ->will($this->returnValue($statement));
+            ->willReturn($statement);
 
         self::assertSame($database, $this->driver->getDatabase($connection));
     }

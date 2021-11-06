@@ -155,7 +155,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
         $connection->expects($this->once())
             ->method('getParams')
-            ->will($this->returnValue($params));
+            ->willReturn($params);
 
         self::assertSame($params['dbname'], $this->driver->getDatabase($connection));
     }
