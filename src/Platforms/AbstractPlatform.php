@@ -73,6 +73,8 @@ abstract class AbstractPlatform
 
     public const CREATE_FOREIGNKEYS = 2;
 
+    public const SQLITE = 'sqlite';
+
     /** @var string[]|null */
     protected $doctrineTypeMapping;
 
