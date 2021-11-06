@@ -7,6 +7,7 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -389,6 +390,31 @@ class ConnectionTest extends FunctionalTestCase
         $pdo = $driverConnection->getWrappedConnection();
 
         self::assertTrue($pdo->getAttribute(PDO::ATTR_PERSISTENT));
+    }
+
+    public function testExceptionOnExecuteStatement(): void
+    {
+        $this->expectException(DriverException::class);
+
+        $this->connection->executeStatement('foo');
+    }
+
+    public function testExceptionOnExecuteQuery(): void
+    {
+        $this->expectException(DriverException::class);
+
+        $this->connection->executeQuery('foo');
+    }
+
+    /**
+     * Some drivers do not check the query server-side even though emulated prepared statements are disabled,
+     * so an exception is thrown only eventually.
+     */
+    public function testExceptionOnPrepareAndExecute(): void
+    {
+        $this->expectException(DriverException::class);
+
+        $this->connection->prepare('foo')->executeStatement();
     }
 
     private function createTestTable(): void
