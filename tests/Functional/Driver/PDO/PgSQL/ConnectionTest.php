@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\PgSQL;
 
-use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 
 /**
  * @requires extension pdo_pgsql
@@ -15,11 +15,11 @@ class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('pdo_pgsql')) {
             return;
         }
 
-        self::markTestSkipped('pdo_pgsql only test.');
+        self::markTestSkipped('This test requires the pdo_pgsql driver.');
     }
 
     /**

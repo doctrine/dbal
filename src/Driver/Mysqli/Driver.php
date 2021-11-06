@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\Mysqli\Exception\HostRequired;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Charset;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Options;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Secure;
+use mysqli;
+use mysqli_sql_exception;
 
 use function count;
 
@@ -47,17 +50,35 @@ final class Driver extends AbstractMySQLDriver
         $preInitializers  = $this->withSecure($preInitializers, $params);
         $postInitializers = $this->withCharset($postInitializers, $params);
 
-        return new Connection(
-            $host,
-            $params['user'] ?? '',
-            $params['password'] ?? '',
-            $params['dbname'] ?? '',
-            $params['port'] ?? 0,
-            $params['unix_socket'] ?? '',
-            $flags,
-            $preInitializers,
-            $postInitializers
-        );
+        $connection = new mysqli();
+
+        foreach ($preInitializers as $initializer) {
+            $initializer->initialize($connection);
+        }
+
+        try {
+            $success = @$connection->real_connect(
+                $host,
+                $params['user'] ?? '',
+                $params['password'] ?? '',
+                $params['dbname'] ?? '',
+                $params['port'] ?? 0,
+                $params['unix_socket'] ?? '',
+                $flags
+            );
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionFailed::upcast($e);
+        }
+
+        if (! $success) {
+            throw ConnectionFailed::new($connection);
+        }
+
+        foreach ($postInitializers as $initializer) {
+            $initializer->initialize($connection);
+        }
+
+        return new Connection($connection);
     }
 
     /**

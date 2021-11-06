@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\IBMDB2\Driver;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 
 use const E_ALL;
 use const E_NOTICE;
@@ -19,11 +19,11 @@ class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('ibm_db2')) {
             return;
         }
 
-        self::markTestSkipped('ibm_db2 only test.');
+        self::markTestSkipped('This test requires the ibm_db2 driver.');
     }
 
     public function testExecutionErrorsAreNotSuppressed(): void

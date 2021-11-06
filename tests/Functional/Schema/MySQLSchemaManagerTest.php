@@ -28,6 +28,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     protected function tearDown(): void
     {
+        parent::tearDown();
+
         $this->markConnectionNotReusable();
     }
 

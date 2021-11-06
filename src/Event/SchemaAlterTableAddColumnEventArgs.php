@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\TableDiff;
 
 use function array_merge;
+use function array_values;
 
 /**
  * Event Arguments used when SQL queries for adding table columns are generated inside {@link AbstractPlatform}.
@@ -51,7 +52,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
      */
     public function addSql(string ...$sql): self
     {
-        $this->sql = array_merge($this->sql, $sql);
+        $this->sql = array_merge($this->sql, array_values($sql));
 
         return $this;
     }

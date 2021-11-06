@@ -8,6 +8,7 @@ use Countable;
 use ReturnTypeWillChange;
 
 use function array_merge;
+use function array_values;
 use function count;
 use function implode;
 
@@ -38,7 +39,7 @@ class CompositeExpression implements Countable
      *
      * @var array<int, self|string>
      */
-    private array $parts = [];
+    private array $parts;
 
     /**
      * @internal Use the and() / or() factory methods.
@@ -49,7 +50,7 @@ class CompositeExpression implements Countable
     public function __construct(string $type, $part, ...$parts)
     {
         $this->type  = $type;
-        $this->parts = array_merge([$part], $parts);
+        $this->parts = array_merge([$part], array_values($parts));
     }
 
     /**
@@ -80,7 +81,7 @@ class CompositeExpression implements Countable
     {
         $that = clone $this;
 
-        $that->parts = array_merge($that->parts, [$part], $parts);
+        $that->parts = array_merge($that->parts, [$part], array_values($parts));
 
         return $that;
     }

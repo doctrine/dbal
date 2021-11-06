@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDO;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
-use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use PDO;
@@ -20,19 +19,12 @@ final class Connection implements ConnectionInterface
 
     /**
      * @internal The connection can be only instantiated by its driver.
-     *
-     * @param array<int, mixed> $options
-     *
-     * @throws ExceptionInterface
      */
-    public function __construct(string $dsn, string $username = '', string $password = '', array $options = [])
+    public function __construct(PDO $connection)
     {
-        try {
-            $this->connection = new PDO($dsn, $username, $password, $options);
-            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $exception) {
-            throw Exception::new($exception);
-        }
+        $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $this->connection = $connection;
     }
 
     public function exec(string $sql): int
@@ -59,7 +51,7 @@ final class Connection implements ConnectionInterface
             $stmt = $this->connection->prepare($sql);
             assert($stmt instanceof PDOStatement);
 
-            return $this->createStatement($stmt);
+            return new Statement($stmt);
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
@@ -113,14 +105,6 @@ final class Connection implements ConnectionInterface
         }
 
         return $value;
-    }
-
-    /**
-     * Creates a wrapped statement
-     */
-    protected function createStatement(PDOStatement $stmt): Statement
-    {
-        return new Statement($stmt);
     }
 
     public function beginTransaction(): void

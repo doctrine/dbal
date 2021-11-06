@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
-use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 
 use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
-use function sqlsrv_configure;
-use function sqlsrv_connect;
 use function sqlsrv_query;
 use function sqlsrv_rollback;
 use function sqlsrv_rows_affected;
@@ -22,40 +19,28 @@ use function str_replace;
 final class Connection implements ConnectionInterface
 {
     /** @var resource */
-    private $conn;
+    private $connection;
 
     /**
      * @internal The connection can be only instantiated by its driver.
      *
-     * @param array<string, mixed> $connectionOptions
-     *
-     * @throws Exception
+     * @param resource $connection
      */
-    public function __construct(string $serverName, array $connectionOptions)
+    public function __construct($connection)
     {
-        if (! sqlsrv_configure('WarningsReturnAsErrors', 0)) {
-            throw Error::new();
-        }
-
-        $conn = sqlsrv_connect($serverName, $connectionOptions);
-
-        if ($conn === false) {
-            throw Error::new();
-        }
-
-        $this->conn = $conn;
+        $this->connection = $connection;
     }
 
     public function getServerVersion(): string
     {
-        $serverInfo = sqlsrv_server_info($this->conn);
+        $serverInfo = sqlsrv_server_info($this->connection);
 
         return $serverInfo['SQLServerVersion'];
     }
 
     public function prepare(string $sql): Statement
     {
-        return new Statement($this->conn, $sql);
+        return new Statement($this->connection, $sql);
     }
 
     public function query(string $sql): Result
@@ -70,7 +55,7 @@ final class Connection implements ConnectionInterface
 
     public function exec(string $sql): int
     {
-        $stmt = sqlsrv_query($this->conn, $sql);
+        $stmt = sqlsrv_query($this->connection, $sql);
 
         if ($stmt === false) {
             throw Error::new();
@@ -103,21 +88,21 @@ final class Connection implements ConnectionInterface
 
     public function beginTransaction(): void
     {
-        if (! sqlsrv_begin_transaction($this->conn)) {
+        if (! sqlsrv_begin_transaction($this->connection)) {
             throw Error::new();
         }
     }
 
     public function commit(): void
     {
-        if (! sqlsrv_commit($this->conn)) {
+        if (! sqlsrv_commit($this->connection)) {
             throw Error::new();
         }
     }
 
     public function rollBack(): void
     {
-        if (! sqlsrv_rollback($this->conn)) {
+        if (! sqlsrv_rollback($this->connection)) {
             throw Error::new();
         }
     }

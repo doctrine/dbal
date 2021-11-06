@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -186,7 +185,7 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testInvalidHost(): void
     {
-        if ($this->connection->getDriver() instanceof AbstractSQLServerDriver) {
+        if (TestUtil::isDriverOneOf('pdo_sqlsrv', 'sqlsrv')) {
             self::markTestSkipped(
                 'Some sqlsrv and pdo_sqlsrv versions do not provide the exception code or SQLSTATE for login timeout'
             );

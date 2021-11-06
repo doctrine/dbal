@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Types\Type;
-use PDOException;
 
 use function assert;
 use function count;
@@ -255,12 +254,6 @@ SQL
 
         try {
             $tableIndexes = $this->_conn->fetchAllAssociative($sql);
-        } catch (PDOException $e) {
-            if ($e->getCode() === 'IMSSP') {
-                return [];
-            }
-
-            throw $e;
         } catch (Exception $e) {
             if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
                 return [];

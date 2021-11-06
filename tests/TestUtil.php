@@ -20,6 +20,7 @@ use function array_values;
 use function explode;
 use function extension_loaded;
 use function implode;
+use function in_array;
 use function is_string;
 use function strlen;
 use function strpos;
@@ -251,6 +252,11 @@ class TestUtil
     public static function getPrivilegedConnection(): Connection
     {
         return DriverManager::getConnection(self::getPrivilegedConnectionParameters());
+    }
+
+    public static function isDriverOneOf(string ...$names): bool
+    {
+        return in_array(self::getConnectionParams()['driver'], $names, true);
     }
 
     /**

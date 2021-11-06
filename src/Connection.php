@@ -822,7 +822,15 @@ class Connection implements ServerVersionProvider
      */
     public function prepare(string $sql): Statement
     {
-        return new Statement($sql, $this);
+        $connection = $this->getWrappedConnection();
+
+        try {
+            $statement = $connection->prepare($sql);
+        } catch (Driver\Exception $e) {
+            throw $this->convertExceptionDuringQuery($e, $sql);
+        }
+
+        return new Statement($this, $statement, $sql);
     }
 
     /**

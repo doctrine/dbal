@@ -5,22 +5,16 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
-use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
-use Doctrine\DBAL\Driver\OCI8\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 
 use function addcslashes;
 use function assert;
 use function oci_commit;
-use function oci_connect;
-use function oci_pconnect;
 use function oci_rollback;
 use function oci_server_version;
 use function preg_match;
 use function str_replace;
-
-use const OCI_NO_AUTO_COMMIT;
 
 final class Connection implements ConnectionInterface
 {
@@ -30,32 +24,13 @@ final class Connection implements ConnectionInterface
     private ExecutionMode $executionMode;
 
     /**
-     * Creates a Connection to an Oracle Database using oci8 extension.
-     *
      * @internal The connection can be only instantiated by its driver.
      *
-     * @throws Exception
+     * @param resource $connection
      */
-    public function __construct(
-        string $username,
-        string $password,
-        string $db,
-        string $charset = '',
-        int $sessionMode = OCI_NO_AUTO_COMMIT,
-        bool $persistent = false
-    ) {
-        if ($persistent) {
-            $connection = @oci_pconnect($username, $password, $db, $charset, $sessionMode);
-        } else {
-            $connection = @oci_connect($username, $password, $db, $charset, $sessionMode);
-        }
-
-        if ($connection === false) {
-            throw ConnectionFailed::new();
-        }
-
+    public function __construct($connection)
+    {
         $this->connection    = $connection;
-        $this->executionMode = new ExecutionMode();
         $this->executionMode = new ExecutionMode();
     }
 

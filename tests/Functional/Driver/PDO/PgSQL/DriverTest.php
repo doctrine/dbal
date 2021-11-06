@@ -23,11 +23,11 @@ class DriverTest extends AbstractDriverTest
     {
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('pdo_pgsql')) {
             return;
         }
 
-        self::markTestSkipped('pdo_pgsql only test.');
+        self::markTestSkipped('This test requires the pdo_pgsql driver.');
     }
 
     /**

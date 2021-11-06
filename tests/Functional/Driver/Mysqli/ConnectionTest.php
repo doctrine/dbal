@@ -21,11 +21,11 @@ class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('mysqli')) {
             return;
         }
 
-        self::markTestSkipped('MySQLi only test.');
+        self::markTestSkipped('This test requires the mysqli driver.');
     }
 
     public function testSupportedDriverOptions(): void

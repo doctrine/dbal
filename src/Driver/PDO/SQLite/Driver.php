@@ -7,6 +7,9 @@ namespace Doctrine\DBAL\Driver\PDO\SQLite;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use Doctrine\DBAL\Driver\PDO\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception;
+use PDO;
+use PDOException;
 
 use function array_merge;
 
@@ -43,20 +46,22 @@ final class Driver extends AbstractSQLiteDriver
             unset($driverOptions['userDefinedFunctions']);
         }
 
-        $connection = new Connection(
-            $this->constructPdoDsn($params),
-            $params['user'] ?? '',
-            $params['password'] ?? '',
-            $driverOptions
-        );
-
-        $pdo = $connection->getWrappedConnection();
+        try {
+            $pdo = new PDO(
+                $this->constructPdoDsn($params),
+                $params['user'] ?? '',
+                $params['password'] ?? '',
+                $driverOptions
+            );
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
 
         foreach ($this->userDefinedFunctions as $fn => $data) {
             $pdo->sqliteCreateFunction($fn, $data['callback'], $data['numArgs']);
         }
 
-        return $connection;
+        return new Connection($pdo);
     }
 
     /**

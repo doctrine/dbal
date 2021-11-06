@@ -927,7 +927,7 @@ class SQLServerPlatform extends AbstractPlatform
 
     public function getConcatExpression(string ...$string): string
     {
-        return '(' . implode(' + ', $string) . ')';
+        return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
     public function getListDatabasesSQL(): string
