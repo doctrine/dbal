@@ -7,7 +7,9 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
+use function array_keys;
 use function array_values;
+use function assert;
 use function is_string;
 use function preg_match;
 use function str_replace;
@@ -327,13 +329,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $currentDatabase = $this->_conn->getDatabase();
 
-        if ($currentDatabase === null) {
-            throw new Exception('Invalid database name.');
-        }
-
-        $tableNames = $this->listTableNames();
-
-        $objectsByTable = [];
+        assert($currentDatabase !== null);
 
         // Get all column definitions in one database call.
         $sql = <<<'SQL'
@@ -341,13 +337,15 @@ class OracleSchemaManager extends AbstractSchemaManager
             FROM ALL_TAB_COLUMNS C
        LEFT JOIN ALL_COL_COMMENTS D ON D.OWNER = C.OWNER AND D.TABLE_NAME = C.TABLE_NAME AND
                  D.COLUMN_NAME = C.COLUMN_NAME
-           WHERE C.OWNER =
+           WHERE C.OWNER = :OWNER
+        ORDER BY C.TABLE_NAME, C.COLUMN_ID
 SQL;
 
-        $sql .= $this->_platform->quoteStringLiteral($currentDatabase);
-        $sql .= ' ORDER BY C.TABLE_NAME, C.COLUMN_ID';
-
-        $objectsByTable['columns'] = $this->getObjectRecordsByTable($sql, 'TABLE_NAME');
+        $columnsData = $this->getObjectRecordsByTable(
+            $sql,
+            ['OWNER' => $currentDatabase],
+            'TABLE_NAME'
+        );
 
         // Get all foreign keys definitions in one database call.
         $sql = <<<'SQL'
@@ -363,13 +361,15 @@ SQL;
        LEFT JOIN ALL_CONS_COLUMNS R_COLS ON R_COLS.OWNER = ALC.R_OWNER AND
                  R_COLS.CONSTRAINT_NAME = ALC.R_CONSTRAINT_NAME AND
                  R_COLS.POSITION = COLS.POSITION
-                 WHERE ALC.CONSTRAINT_TYPE = 'R' AND COLS.OWNER =
+           WHERE ALC.CONSTRAINT_TYPE = 'R' AND COLS.OWNER = :OWNER
+        ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME, COLS.POSITION
 SQL;
 
-        $sql .= $this->_platform->quoteStringLiteral($currentDatabase);
-        $sql .= 'ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME, COLS.POSITION';
-
-        $objectsByTable['foreignKeys'] = $this->getObjectRecordsByTable($sql, 'TABLE_NAME');
+        $foreignKeysData = $this->getObjectRecordsByTable(
+            $sql,
+            ['OWNER' => $currentDatabase],
+            'TABLE_NAME'
+        );
 
         // Get all indexes definitions in one database call.
         $sql = <<<'SQL'
@@ -383,36 +383,38 @@ SQL;
             FROM ALL_IND_COLUMNS IND_COL
        LEFT JOIN ALL_INDEXES IND ON IND.OWNER = IND_COL.INDEX_OWNER AND IND.INDEX_NAME = IND_COL.INDEX_NAME
        LEFT JOIN ALL_CONSTRAINTS CON ON  CON.OWNER = IND_COL.INDEX_OWNER AND CON.INDEX_NAME = IND_COL.INDEX_NAME
-           WHERE IND_COL.INDEX_OWNER =
+           WHERE IND_COL.INDEX_OWNER = :OWNER
+        ORDER BY IND_COL.TABLE_NAME, IND_COL.INDEX_NAME, IND_COL.COLUMN_POSITION
 SQL;
 
-        $sql .= $this->_platform->quoteStringLiteral($currentDatabase);
-        $sql .= ' ORDER BY iND_COL.TABLE_NAME, IND_COL.INDEX_NAME, IND_COL.COLUMN_POSITION';
-
-        $objectsByTable['indexes'] = $this->getObjectRecordsByTable($sql, 'TABLE_NAME');
+        $indexesData = $this->getObjectRecordsByTable(
+            $sql,
+            ['OWNER' => $currentDatabase],
+            'TABLE_NAME'
+        );
 
         $tables = [];
 
-        foreach ($tableNames as $tableName) {
+        foreach (array_keys($columnsData) as $tableName) {
             $unquotedTableName = trim($tableName, '"');
 
             $columns = $this->_getPortableTableColumnList(
                 $tableName,
                 '',
-                $objectsByTable['columns'][$unquotedTableName]
+                $columnsData[$unquotedTableName]
             );
 
             $foreignKeys = [];
-            if (isset($objectsByTable['foreignKeys'][$unquotedTableName])) {
+            if (isset($foreignKeysData[$unquotedTableName])) {
                 $foreignKeys = $this->_getPortableTableForeignKeysList(
-                    $objectsByTable['foreignKeys'][$unquotedTableName]
+                    $foreignKeysData[$unquotedTableName]
                 );
             }
 
             $indexes = [];
-            if (isset($objectsByTable['indexes'][$unquotedTableName])) {
+            if (isset($indexesData[$unquotedTableName])) {
                 $indexes = $this->_getPortableTableIndexesList(
-                    $objectsByTable['indexes'][$unquotedTableName],
+                    $indexesData[$unquotedTableName],
                     $tableName
                 );
             }
