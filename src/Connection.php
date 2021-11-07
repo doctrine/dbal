@@ -313,6 +313,8 @@ class Connection
     /**
      * Establishes the connection with the database.
      *
+     * @internal This method will be made protected in DBAL 4.0.
+     *
      * @return bool TRUE if the connection was successfully established, FALSE if
      *              the connection is already open.
      *
@@ -320,6 +322,12 @@ class Connection
      */
     public function connect()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4966',
+            'Public access to Connection::connect() is deprecated.'
+        );
+
         if ($this->_conn !== null) {
             return false;
         }
@@ -1501,12 +1509,21 @@ class Connection
     /**
      * Gets the wrapped driver connection.
      *
+     * @deprecated Use {@link getNativeConnection()} to access the native connection.
+     *
      * @return DriverConnection
      *
      * @throws Exception
      */
     public function getWrappedConnection()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4966',
+            'Connection::getWrappedConnection() is deprecated.'
+                . ' Use Connection::getNativeConnection() to access the native connection.'
+        );
+
         $this->connect();
 
         assert($this->_conn !== null);
