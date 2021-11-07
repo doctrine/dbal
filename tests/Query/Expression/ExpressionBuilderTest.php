@@ -20,7 +20,7 @@ class ExpressionBuilderTest extends TestCase
 
         $conn->expects(self::any())
              ->method('getExpressionBuilder')
-             ->will(self::returnValue($this->expr));
+             ->willReturn($this->expr);
     }
 
     /**

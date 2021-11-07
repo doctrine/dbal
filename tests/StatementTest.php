@@ -38,11 +38,11 @@ class StatementTest extends TestCase
         $this->configuration = $this->createMock(Configuration::class);
         $this->conn->expects(self::any())
                 ->method('getConfiguration')
-                ->will(self::returnValue($this->configuration));
+                ->willReturn($this->configuration);
 
         $this->conn->expects(self::any())
             ->method('getDriver')
-            ->will(self::returnValue($driver));
+            ->willReturn($driver);
     }
 
     public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound(): void
@@ -61,7 +61,7 @@ class StatementTest extends TestCase
 
         $this->configuration->expects(self::once())
                 ->method('getSQLLogger')
-                ->will(self::returnValue($logger));
+                ->willReturn($logger);
 
         $statement = new Statement($this->conn, $this->driverStatement, $sql);
         $statement->bindValue($name, $var, $type);
@@ -83,7 +83,7 @@ class StatementTest extends TestCase
 
         $this->configuration->expects(self::once())
                 ->method('getSQLLogger')
-                ->will(self::returnValue($logger));
+                ->willReturn($logger);
 
         $statement = new Statement($this->conn, $this->driverStatement, $sql);
         $statement->execute($values);
@@ -117,7 +117,7 @@ class StatementTest extends TestCase
 
         $this->configuration->expects(self::once())
             ->method('getSQLLogger')
-            ->will(self::returnValue($logger));
+            ->willReturn($logger);
 
         $logger->expects(self::once())
             ->method('startQuery');
