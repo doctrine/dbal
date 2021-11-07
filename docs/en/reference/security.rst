@@ -90,7 +90,7 @@ Instead of using string concatenation to insert user-input into your SQL/DQL sta
 placeholders and then explain to the database driver which variable should be bound to
 which placeholder. Each database vendor supports different placeholder styles:
 
--  All PDO Drivers support positional (using question marks) and named placeholders (:param1, :foo, :bar).
+-  All PDO Drivers support positional (using question marks) and named placeholders (e.g. ``:param1``, ``:foo``).
 -  OCI8 only supports named parameters, but Doctrine DBAL has a thin layer around OCI8 and
    also allows positional placeholders.
 -  Doctrine ORM DQL allows both named and positional parameters. The positional parameters however are not
