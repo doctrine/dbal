@@ -8,7 +8,6 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -73,8 +72,6 @@ class MySQLInheritCharsetTest extends TestCase
         $eventManager = new EventManager();
 
         $driverMock = $this->createMock(Driver::class);
-        $driverMock->method('connect')
-            ->willReturn($this->createMock(DriverConnection::class));
 
         $platform = new MySQLPlatform();
         $params   = array_merge(['platform' => $platform], $params);
