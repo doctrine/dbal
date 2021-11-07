@@ -4,20 +4,15 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\SQL\Parser;
 
-use function assert;
 use function is_int;
-use function is_resource;
 use function oci_bind_by_name;
 use function oci_execute;
 use function oci_new_descriptor;
-use function oci_parse;
 
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
@@ -35,43 +30,23 @@ final class Statement implements StatementInterface
     /** @var resource */
     private $statement;
 
+    /** @var array<int,string> */
+    private array $parameterMap;
+
     private ExecutionMode $executionMode;
 
-    /** @var string[] */
-    private array $parameterMap = [];
-
     /**
-     * Holds references to bound parameter values.
-     *
-     * This is a new requirement for PHP7's oci8 extension that prevents bound values from being garbage collected.
-     *
-     * @var mixed[]
-     */
-    private array $boundValues = [];
-
-    /**
-     * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
-     *
      * @internal The statement can be only instantiated by its driver connection.
      *
-     * @param resource $dbh   The connection handle.
-     * @param string   $query The SQL query.
-     *
-     * @throws Exception
+     * @param resource          $connection
+     * @param resource          $statement
+     * @param array<int,string> $parameterMap
      */
-    public function __construct($dbh, string $query, ExecutionMode $executionMode)
+    public function __construct($connection, $statement, array $parameterMap, ExecutionMode $executionMode)
     {
-        $parser  = new Parser(false);
-        $visitor = new ConvertPositionalToNamedPlaceholders();
-
-        $parser->parse($query, $visitor);
-
-        $stmt = oci_parse($dbh, $visitor->getSQL());
-        assert(is_resource($stmt));
-
-        $this->statement     = $stmt;
-        $this->connection    = $dbh;
-        $this->parameterMap  = $visitor->getParameterMap();
+        $this->connection    = $connection;
+        $this->statement     = $statement;
+        $this->parameterMap  = $parameterMap;
         $this->executionMode = $executionMode;
     }
 
@@ -80,7 +55,7 @@ final class Statement implements StatementInterface
      */
     public function bindValue($param, $value, int $type = ParameterType::STRING): void
     {
-        $this->bindParam($param, $value, $type, null);
+        $this->bindParam($param, $value, $type);
     }
 
     /**
@@ -98,13 +73,10 @@ final class Statement implements StatementInterface
 
         if ($type === ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->connection, OCI_D_LOB);
-
             $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
             $variable =& $lob;
         }
-
-        $this->boundValues[$param] =& $variable;
 
         if (
             ! oci_bind_by_name(

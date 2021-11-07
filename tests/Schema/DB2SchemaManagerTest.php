@@ -48,12 +48,12 @@ final class DB2SchemaManagerTest extends TestCase
         $this->conn->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
             return preg_match('/^(?!T_)/', $name) === 1;
         });
-        $this->conn->expects(self::once())->method('fetchAllAssociative')->will(self::returnValue([
+        $this->conn->expects(self::once())->method('fetchAllAssociative')->willReturn([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
             ['name' => 'T_BAR'],
-        ]));
+        ]);
 
         self::assertSame(
             [
@@ -72,12 +72,12 @@ final class DB2SchemaManagerTest extends TestCase
                 return in_array($assetName, $accepted, true);
             }
         );
-        $this->conn->expects(self::once())->method('fetchAllAssociative')->will(self::returnValue([
+        $this->conn->expects(self::once())->method('fetchAllAssociative')->willReturn([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
             ['name' => 'T_BAR'],
-        ]));
+        ]);
 
         self::assertSame(
             [

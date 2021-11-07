@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
+use Doctrine\DBAL\SQL\Parser;
 
 use function addcslashes;
 use function assert;
+use function is_resource;
 use function oci_commit;
+use function oci_parse;
 use function oci_rollback;
 use function oci_server_version;
 use function preg_match;
@@ -20,6 +24,8 @@ final class Connection implements ConnectionInterface
 {
     /** @var resource */
     private $connection;
+
+    private Parser $parser;
 
     private ExecutionMode $executionMode;
 
@@ -31,6 +37,7 @@ final class Connection implements ConnectionInterface
     public function __construct($connection)
     {
         $this->connection    = $connection;
+        $this->parser        = new Parser(false);
         $this->executionMode = new ExecutionMode();
     }
 
@@ -47,11 +54,25 @@ final class Connection implements ConnectionInterface
         return $matches[1];
     }
 
+    /**
+     * @throws Parser\Exception
+     */
     public function prepare(string $sql): Statement
     {
-        return new Statement($this->connection, $sql, $this->executionMode);
+        $visitor = new ConvertPositionalToNamedPlaceholders();
+
+        $this->parser->parse($sql, $visitor);
+
+        $statement = oci_parse($this->connection, $visitor->getSQL());
+        assert(is_resource($statement));
+
+        return new Statement($this->connection, $statement, $visitor->getParameterMap(), $this->executionMode);
     }
 
+    /**
+     * @throws Exception
+     * @throws Parser\Exception
+     */
     public function query(string $sql): Result
     {
         return $this->prepare($sql)->execute();
@@ -62,6 +83,10 @@ final class Connection implements ConnectionInterface
         return "'" . addcslashes(str_replace("'", "''", $value), "\000\n\r\\\032") . "'";
     }
 
+    /**
+     * @throws Exception
+     * @throws Parser\Exception
+     */
     public function exec(string $sql): int
     {
         return $this->prepare($sql)->execute()->rowCount();

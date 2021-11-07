@@ -7,7 +7,7 @@
 | [![Code Coverage][Coverage image]][CodeCov 4.0] | [![Code Coverage][Coverage 3.1 image]][CodeCov 3.1] | [![Code Coverage][Coverage 2.13 image]][CodeCov 2.13] |
 | N/A | [![Code Coverage][TypeCov 3.1 image]][TypeCov 3.1] | N/A |
 
-Powerful database abstraction layer with many features for database schema introspection, schema management and PDO abstraction.
+Powerful ***D***ata***B***ase ***A***bstraction ***L***ayer with many features for database schema introspection and schema management.
 
 ## More resources:
 

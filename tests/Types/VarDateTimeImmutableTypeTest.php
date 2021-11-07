@@ -40,7 +40,7 @@ class VarDateTimeImmutableTypeTest extends TestCase
     {
         $this->platform->expects(self::any())
             ->method('getDateTimeFormatString')
-            ->will(self::returnValue('Y-m-d H:i:s'));
+            ->willReturn('Y-m-d H:i:s');
 
         $date = $this->createMock(DateTimeImmutable::class);
 

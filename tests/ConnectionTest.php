@@ -64,9 +64,9 @@ class ConnectionTest extends TestCase
 
         $driverMock->expects(self::any())
             ->method('connect')
-            ->will(self::returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
 
         $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
 
@@ -137,9 +137,9 @@ class ConnectionTest extends TestCase
         $driverMock   = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
             ->method('connect')
-            ->will(self::returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn         = new Connection([], $driverMock, new Configuration(), $eventManager);
         $listenerMock = $this->createMock(TransactionBeginDispatchEventListener::class);
         $listenerMock
@@ -163,9 +163,9 @@ class ConnectionTest extends TestCase
         $driverMock   = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
             ->method('connect')
-            ->will(self::returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn         = new Connection([], $driverMock, new Configuration(), $eventManager);
         $listenerMock = $this->createMock(TransactionCommitDispatchEventListener::class);
         $listenerMock
@@ -190,9 +190,9 @@ class ConnectionTest extends TestCase
         $driverMock   = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
             ->method('connect')
-            ->will(self::returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn                 = new Connection([], $driverMock, new Configuration(), $eventManager);
         $rollBackListenerMock = $this->createMock(TransactionRollBackDispatchEventListener::class);
         $rollBackListenerMock
@@ -226,9 +226,9 @@ class ConnectionTest extends TestCase
         $driverMock   = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
             ->method('connect')
-            ->will(self::returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn         = new Connection([], $driverMock, new Configuration(), $eventManager);
         $listenerMock = $this->createMock(TransactionRollBackDispatchEventListener::class);
         $listenerMock
@@ -335,9 +335,9 @@ class ConnectionTest extends TestCase
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
             ->method('connect')
-            ->will(self::returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
@@ -354,9 +354,9 @@ class ConnectionTest extends TestCase
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
             ->method('connect')
-            ->will(self::returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
@@ -379,9 +379,9 @@ class ConnectionTest extends TestCase
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
             ->method('connect')
-            ->will(self::returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
@@ -396,9 +396,9 @@ class ConnectionTest extends TestCase
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
             ->method('connect')
-            ->will(self::returnValue(
+            ->willReturn(
                 $this->createMock(DriverConnection::class)
-            ));
+            );
         $conn = new Connection([], $driverMock);
 
         $conn->connect();
@@ -767,7 +767,7 @@ class ConnectionTest extends TestCase
             ->expects(self::once())
             ->method('generateCacheKeys')
             ->with($query, $params, $types, $this->params)
-            ->will(self::returnValue(['cacheKey', 'realKey']));
+            ->willReturn(['cacheKey', 'realKey']);
 
         $driver = $this->createMock(Driver::class);
 
@@ -802,7 +802,7 @@ class ConnectionTest extends TestCase
             ->expects(self::once())
             ->method('generateCacheKeys')
             ->with($query, [], [], $connectionParams)
-            ->will(self::returnValue(['cacheKey', 'realKey']));
+            ->willReturn(['cacheKey', 'realKey']);
 
         $connectionParams['platform'] = $this->createMock(AbstractPlatform::class);
 
@@ -864,7 +864,7 @@ class ConnectionTest extends TestCase
             ->expects(self::once())
             ->method('generateCacheKeys')
             ->with($query, [], [], $paramsWithoutPlatform)
-            ->will(self::returnValue(['cacheKey', 'realKey']));
+            ->willReturn(['cacheKey', 'realKey']);
 
         $connection = new Connection($params, $driver);
 

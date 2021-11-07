@@ -28,7 +28,7 @@ class QueryBuilderTest extends TestCase
 
         $this->conn->expects(self::any())
                    ->method('createExpressionBuilder')
-                   ->will(self::returnValue($expressionBuilder));
+                   ->willReturn($expressionBuilder);
     }
 
     public function testSimpleSelectWithoutFrom(): void
