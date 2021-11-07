@@ -23,7 +23,7 @@ class ForeignKeyConstraintTest extends TestCase
             ->getMock();
         $index->expects(self::once())
             ->method('getColumns')
-            ->will(self::returnValue($indexColumns));
+            ->willReturn($indexColumns);
 
         self::assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
     }
