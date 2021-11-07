@@ -9,12 +9,13 @@ use Doctrine\DBAL\Types\Type;
 use function array_change_key_case;
 use function array_keys;
 use function array_values;
-use function assert;
+use function implode;
 use function is_string;
 use function preg_match;
 use function str_replace;
 use function strpos;
 use function strtolower;
+use function strtoupper;
 use function trim;
 
 use const CASE_LOWER;
@@ -327,51 +328,108 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function listTables()
     {
-        $currentDatabase = $this->_conn->getDatabase();
+        $currentDatabase = (string) $this->_conn->getDatabase();
 
-        assert($currentDatabase !== null);
+        $columnsData     = $this->groupObjectRecordsByTable(
+            $this->getDatabaseColumns($currentDatabase),
+            'TABLE_NAME'
+        );
+        $foreignKeysData = $this->groupObjectRecordsByTable(
+            $this->getDatabaseForeignKeys($currentDatabase),
+            'TABLE_NAME'
+        );
+        $indexesData     = $this->groupObjectRecordsByTable(
+            $this->getDatabaseIndexes($currentDatabase),
+            'TABLE_NAME'
+        );
 
-        // Get all column definitions in one database call.
+        $tables = [];
+
+        foreach (array_keys($columnsData) as $tableName) {
+            $columns = $this->_getPortableTableColumnList(
+                $tableName,
+                '',
+                $columnsData[$tableName]
+            );
+
+            $foreignKeys = [];
+            if (! empty($foreignKeysData[$tableName])) {
+                $foreignKeys = $this->_getPortableTableForeignKeysList(
+                    $foreignKeysData[$tableName]
+                );
+            }
+
+            $indexes = [];
+            if (! empty($indexesData[$tableName])) {
+                $indexes = $this->_getPortableTableIndexesList(
+                    $indexesData[$tableName],
+                    $tableName
+                );
+            }
+
+            $table = new Table($tableName, $columns, $indexes, [], $foreignKeys, []);
+            if (! empty($columnsData[$tableName][0]['TABLE_COMMENTS'])) {
+                $table->addOption('comment', $columnsData[$tableName][0]['TABLE_COMMENTS']);
+            }
+
+            $tables[] = $table;
+        }
+
+        return $tables;
+    }
+
+    /**
+     * Gets all column definitions in one database call.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function getDatabaseColumns(string $databaseName, ?string $tableName = null): array
+    {
         $sql = <<<'SQL'
-          SELECT C.*, D.COMMENTS AS COMMENTS
+          SELECT C.OWNER,
+                 C.TABLE_NAME,
+                 C.COLUMN_NAME,
+                 C.DATA_TYPE,
+                 C.DATA_DEFAULT,
+                 C.DATA_PRECISION,
+                 C.DATA_SCALE,
+                 C.CHAR_LENGTH,
+                 C.DATA_LENGTH,
+                 C.NULLABLE,
+                 D.COMMENTS,
+                 E.COMMENTS TABLE_COMMENTS
             FROM ALL_TAB_COLUMNS C
+       LEFT JOIN ALL_TAB_COMMENTS E ON E.OWNER = C.OWNER AND E.TABLE_NAME = C.TABLE_NAME
        LEFT JOIN ALL_COL_COMMENTS D ON D.OWNER = C.OWNER AND D.TABLE_NAME = C.TABLE_NAME AND
                  D.COLUMN_NAME = C.COLUMN_NAME
-           WHERE C.OWNER = :OWNER
+SQL;
+
+        $conditions = [];
+        $params     = [];
+
+        $conditions[]    = 'C.OWNER = :OWNER';
+        $params['OWNER'] = $databaseName;
+
+        if ($tableName !== null) {
+            $conditions[]         = 'C.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        $sql .= <<<'SQL'
         ORDER BY C.TABLE_NAME, C.COLUMN_ID
 SQL;
 
-        $columnsData = $this->getObjectRecordsByTable(
-            $sql,
-            ['OWNER' => $currentDatabase],
-            'TABLE_NAME'
-        );
+        return $this->_conn->fetchAllAssociative($sql, $params);
+    }
 
-        // Get all foreign keys definitions in one database call.
-        $sql = <<<'SQL'
-          SELECT COLS.TABLE_NAME,
-                 ALC.CONSTRAINT_NAME,
-                 ALC.DELETE_RULE,
-                 COLS.COLUMN_NAME "local_column",
-                 COLS.POSITION,
-                 R_COLS.TABLE_NAME "references_table",
-                 R_COLS.COLUMN_NAME "foreign_column"
-            FROM ALL_CONS_COLUMNS COLS
-       LEFT JOIN ALL_CONSTRAINTS ALC ON ALC.OWNER = COLS.OWNER AND ALC.CONSTRAINT_NAME = COLS.CONSTRAINT_NAME
-       LEFT JOIN ALL_CONS_COLUMNS R_COLS ON R_COLS.OWNER = ALC.R_OWNER AND
-                 R_COLS.CONSTRAINT_NAME = ALC.R_CONSTRAINT_NAME AND
-                 R_COLS.POSITION = COLS.POSITION
-           WHERE ALC.CONSTRAINT_TYPE = 'R' AND COLS.OWNER = :OWNER
-        ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME, COLS.POSITION
-SQL;
-
-        $foreignKeysData = $this->getObjectRecordsByTable(
-            $sql,
-            ['OWNER' => $currentDatabase],
-            'TABLE_NAME'
-        );
-
-        // Get all indexes definitions in one database call.
+    /**
+     * Gets all indexes definitions in one database call.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function getDatabaseIndexes(string $databaseName, ?string $tableName = null): array
+    {
         $sql = <<<'SQL'
           SELECT IND_COL.TABLE_NAME,
                  IND_COL.INDEX_NAME AS NAME,
@@ -383,46 +441,80 @@ SQL;
             FROM ALL_IND_COLUMNS IND_COL
        LEFT JOIN ALL_INDEXES IND ON IND.OWNER = IND_COL.INDEX_OWNER AND IND.INDEX_NAME = IND_COL.INDEX_NAME
        LEFT JOIN ALL_CONSTRAINTS CON ON  CON.OWNER = IND_COL.INDEX_OWNER AND CON.INDEX_NAME = IND_COL.INDEX_NAME
-           WHERE IND_COL.INDEX_OWNER = :OWNER
+SQL;
+
+        $conditions = [];
+        $params     = [];
+
+        $conditions[]    = 'IND_COL.INDEX_OWNER = :OWNER';
+        $params['OWNER'] = $databaseName;
+
+        if ($tableName !== null) {
+            $conditions[]         = 'IND_COL.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        $sql .= <<<'SQL'
         ORDER BY IND_COL.TABLE_NAME, IND_COL.INDEX_NAME, IND_COL.COLUMN_POSITION
 SQL;
 
-        $indexesData = $this->getObjectRecordsByTable(
-            $sql,
-            ['OWNER' => $currentDatabase],
-            'TABLE_NAME'
-        );
+        return $this->_conn->fetchAllAssociative($sql, $params);
+    }
 
-        $tables = [];
+    /**
+     * Gets all foreign keys definitions in one database call.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function getDatabaseForeignKeys(string $databaseName, ?string $tableName = null): array
+    {
+        $sql = <<<'SQL'
+          SELECT COLS.TABLE_NAME,
+                 ALC.CONSTRAINT_NAME,
+                 ALC.DELETE_RULE,
+                 COLS.COLUMN_NAME LOCAL_COLUMN,
+                 COLS.POSITION,
+                 R_COLS.TABLE_NAME REFERENCES_TABLE,
+                 R_COLS.COLUMN_NAME FOREIGN_COLUMN
+            FROM ALL_CONS_COLUMNS COLS
+       LEFT JOIN ALL_CONSTRAINTS ALC ON ALC.OWNER = COLS.OWNER AND ALC.CONSTRAINT_NAME = COLS.CONSTRAINT_NAME
+       LEFT JOIN ALL_CONS_COLUMNS R_COLS ON R_COLS.OWNER = ALC.R_OWNER AND
+                 R_COLS.CONSTRAINT_NAME = ALC.R_CONSTRAINT_NAME AND
+                 R_COLS.POSITION = COLS.POSITION
+SQL;
 
-        foreach (array_keys($columnsData) as $tableName) {
-            $unquotedTableName = trim($tableName, '"');
+        $conditions = [];
+        $params     = [];
 
-            $columns = $this->_getPortableTableColumnList(
-                $tableName,
-                '',
-                $columnsData[$unquotedTableName]
-            );
+        $conditions[]    = 'ALC.CONSTRAINT_TYPE = \'R\'';
+        $conditions[]    = 'COLS.OWNER = :OWNER';
+        $params['OWNER'] = $databaseName;
 
-            $foreignKeys = [];
-            if (isset($foreignKeysData[$unquotedTableName])) {
-                $foreignKeys = $this->_getPortableTableForeignKeysList(
-                    $foreignKeysData[$unquotedTableName]
-                );
-            }
-
-            $indexes = [];
-            if (isset($indexesData[$unquotedTableName])) {
-                $indexes = $this->_getPortableTableIndexesList(
-                    $indexesData[$unquotedTableName],
-                    $tableName
-                );
-            }
-
-            $tables[] = new Table($tableName, $columns, $indexes, [], $foreignKeys, []);
+        if ($tableName !== null) {
+            $conditions[]         = 'COLS.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
         }
 
-        return $tables;
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        $sql .= <<<'SQL'
+        ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME, COLS.POSITION
+SQL;
+
+        return $this->_conn->fetchAllAssociative($sql, $params);
+    }
+
+    /**
+     * Remove quotes from the given identifier, if needed.
+     *
+     * Uppercases the given identifier if it is not quoted by intention to reflect Oracle's internal auto uppercasing
+     * strategy of unquoted identifiers.
+     */
+    private function unquoteIdentifier(string $identifier): string
+    {
+        $temp = new Identifier($identifier);
+
+        return $temp->isQuoted() ? $temp->getName() : strtoupper($identifier);
     }
 
     /**
@@ -430,14 +522,27 @@ SQL;
      */
     public function listTableDetails($name): Table
     {
-        $table = parent::listTableDetails($name);
+        $currentDatabase = (string) $this->_conn->getDatabase();
+        $tableName       = $this->unquoteIdentifier($name);
 
-        $sql = $this->_platform->getListTableCommentsSQL($name);
+        $columnsData = $this->getDatabaseColumns($currentDatabase, $tableName);
+        $columns     = $this->_getPortableTableColumnList($name, '', $columnsData);
 
-        $tableOptions = $this->_conn->fetchAssociative($sql);
+        $indexes     = [];
+        $indexesData = $this->getDatabaseIndexes($currentDatabase, $tableName);
+        if (! empty($indexesData)) {
+            $indexes = $this->_getPortableTableIndexesList($indexesData, $name);
+        }
 
-        if ($tableOptions !== false) {
-            $table->addOption('comment', $tableOptions['COMMENTS']);
+        $foreignKeys     = [];
+        $foreignKeysData = $this->getDatabaseForeignKeys($currentDatabase, $tableName);
+        if (! empty($foreignKeysData)) {
+            $foreignKeys = $this->_getPortableTableForeignKeysList($foreignKeysData);
+        }
+
+        $table = new Table($name, $columns, $indexes, [], $foreignKeys, []);
+        if (! empty($columnsData[0]['TABLE_COMMENTS'])) {
+            $table->addOption('comment', $columnsData[0]['TABLE_COMMENTS']);
         }
 
         return $table;
