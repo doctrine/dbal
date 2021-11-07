@@ -7,9 +7,7 @@ namespace Doctrine\DBAL\Tests\Connection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Logging\SQLLogger;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use PHPUnit\Framework\TestCase;
 
 final class LoggingTest extends TestCase
@@ -34,8 +32,6 @@ final class LoggingTest extends TestCase
     public function testLogPrepareExecute(): void
     {
         $driverConnection = $this->createStub(DriverConnection::class);
-        $driverConnection->method('prepare')
-            ->willReturn($this->createStub(Statement::class));
 
         $this->createConnection($driverConnection, 'UPDATE table SET foo = ?')
             ->prepare('UPDATE table SET foo = ?')
@@ -47,8 +43,6 @@ final class LoggingTest extends TestCase
         $driver = $this->createStub(Driver::class);
         $driver->method('connect')
             ->willReturn($driverConnection);
-        $driver->method('getDatabasePlatform')
-            ->willReturn($this->createMock(AbstractPlatform::class));
 
         $logger = $this->createMock(SQLLogger::class);
         $logger->expects(self::once())
