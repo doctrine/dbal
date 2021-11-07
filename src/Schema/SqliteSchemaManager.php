@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -19,7 +18,6 @@ use function array_reverse;
 use function array_values;
 use function assert;
 use function count;
-use function file_exists;
 use function is_string;
 use function preg_match;
 use function preg_match_all;
@@ -31,7 +29,6 @@ use function str_replace;
 use function strpos;
 use function strtolower;
 use function trim;
-use function unlink;
 use function usort;
 
 use const CASE_LOWER;
@@ -43,46 +40,6 @@ use const CASE_LOWER;
  */
 class SqliteSchemaManager extends AbstractSchemaManager
 {
-    /**
-     * @deprecated Delete the database file using the filesystem.
-     */
-    public function dropDatabase(string $database): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4963',
-            'SqliteSchemaManager::dropDatabase() is deprecated. Delete the database file using the filesystem.'
-        );
-
-        if (! file_exists($database)) {
-            return;
-        }
-
-        unlink($database);
-    }
-
-    /**
-     * @deprecated The engine will create the database file automatically.
-     */
-    public function createDatabase(string $database): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/4963',
-            'SqliteSchemaManager::createDatabase() is deprecated.'
-                . ' The engine will create the database file automatically.'
-        );
-
-        $params = $this->_conn->getParams();
-
-        $params['path'] = $database;
-        unset($params['memory']);
-
-        $conn = DriverManager::getConnection($params);
-        $conn->connect();
-        $conn->close();
-    }
-
     public function renameTable(string $name, string $newName): void
     {
         $tableDiff            = new TableDiff($name);

@@ -13,8 +13,6 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
-use function dirname;
-
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
@@ -30,16 +28,6 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->expectException(Exception::class);
 
         $this->schemaManager->listDatabases();
-    }
-
-    public function testCreateAndDropDatabase(): void
-    {
-        $path = dirname(__FILE__) . '/test_create_and_drop_sqlite_database.sqlite';
-
-        $this->schemaManager->createDatabase($path);
-        self::assertFileExists($path);
-        $this->schemaManager->dropDatabase($path);
-        self::assertFileDoesNotExist($path);
     }
 
     public function testRenameTable(): void
