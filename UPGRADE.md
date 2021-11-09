@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods.
+
+The `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods have been removed.
+
 ## BC BREAK: Removed `AbstractSchemaManager::dropAndCreate*()` and `::tryMethod()` methods.
 
 The following `AbstractSchemaManager` methods have been removed:
