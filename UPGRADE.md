@@ -540,6 +540,11 @@ The following methods have been removed.
 
 # Upgrade to 3.2
 
+## Deprecated `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods.
+
+The `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods have been deprecated. The SQLite engine
+will create the database file automatically. In order to delete the database file, use the filesystem.
+
 ## Deprecated `AbstractSchemaManager::dropAndCreate*()` and `::tryMethod()` methods.
 
 The following `AbstractSchemaManager::dropAndCreate*()` methods have been deprecated:

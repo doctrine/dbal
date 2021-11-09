@@ -19,6 +19,7 @@ use function array_map;
 use function array_values;
 use function explode;
 use function extension_loaded;
+use function file_exists;
 use function implode;
 use function in_array;
 use function is_string;
@@ -116,6 +117,10 @@ class TestUtil
             }
 
             $sm->createDatabase($dbname);
+        } elseif (isset($testConnParams['path'])) {
+            if (file_exists($testConnParams['path'])) {
+                unlink($testConnParams['path']);
+            }
         } else {
             $testConn = DriverManager::getConnection($testConnParams);
 
@@ -143,17 +148,10 @@ class TestUtil
             Assert::markTestSkipped('PDO SQLite extension is not loaded');
         }
 
-        $params = [
+        return [
             'driver' => 'pdo_sqlite',
             'memory' => true,
         ];
-
-        if (isset($GLOBALS['db_path'])) {
-            $params['path'] = $GLOBALS['db_path'];
-            unlink($GLOBALS['db_path']);
-        }
-
-        return $params;
     }
 
     private static function addDbEventSubscribers(Connection $conn): void
@@ -218,6 +216,7 @@ class TestUtil
                 'ssl_capath',
                 'ssl_cipher',
                 'unix_socket',
+                'path',
                 'charset',
             ] as $parameter
         ) {
