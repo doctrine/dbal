@@ -63,7 +63,7 @@ EOT
      *
      * @throws Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $conn = $this->getConnection($input);
 
