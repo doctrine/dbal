@@ -43,8 +43,17 @@ use const CASE_LOWER;
  */
 class SqliteSchemaManager extends AbstractSchemaManager
 {
+    /**
+     * @deprecated Delete the database file using the filesystem.
+     */
     public function dropDatabase(string $database): void
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4963',
+            'SqliteSchemaManager::dropDatabase() is deprecated. Delete the database file using the filesystem.'
+        );
+
         if (! file_exists($database)) {
             return;
         }
@@ -52,8 +61,18 @@ class SqliteSchemaManager extends AbstractSchemaManager
         unlink($database);
     }
 
+    /**
+     * @deprecated The engine will create the database file automatically.
+     */
     public function createDatabase(string $database): void
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4963',
+            'SqliteSchemaManager::createDatabase() is deprecated.'
+                . ' The engine will create the database file automatically.'
+        );
+
         $params = $this->_conn->getParams();
 
         $params['path'] = $database;

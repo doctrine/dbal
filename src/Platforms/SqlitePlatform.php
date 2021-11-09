@@ -437,6 +437,11 @@ class SqlitePlatform extends AbstractPlatform
         return $query;
     }
 
+    public function supportsCreateDropDatabase(): bool
+    {
+        return false;
+    }
+
     public function supportsIdentityColumns(): bool
     {
         return true;
