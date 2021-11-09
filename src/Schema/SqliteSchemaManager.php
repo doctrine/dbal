@@ -42,9 +42,17 @@ class SqliteSchemaManager extends AbstractSchemaManager
 {
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Delete the database file using the filesystem.
      */
     public function dropDatabase($database)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4963',
+            'SqliteSchemaManager::dropDatabase() is deprecated. Delete the database file using the filesystem.'
+        );
+
         if (! file_exists($database)) {
             return;
         }
@@ -54,9 +62,18 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The engine will create the database file automatically.
      */
     public function createDatabase($database)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4963',
+            'SqliteSchemaManager::createDatabase() is deprecated.'
+                . ' The engine will create the database file automatically.'
+        );
+
         $params = $this->_conn->getParams();
 
         $params['path'] = $database;

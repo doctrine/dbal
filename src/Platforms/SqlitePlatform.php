@@ -529,6 +529,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function supportsCreateDropDatabase()
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function supportsIdentityColumns()
     {
         return true;
