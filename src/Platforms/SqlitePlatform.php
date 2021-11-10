@@ -165,7 +165,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getCurrentDatabaseExpression(): string
     {
-        return "''";
+        return "file from pragma_database_list where name='main'";
     }
 
     /**
