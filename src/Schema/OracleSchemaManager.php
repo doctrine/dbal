@@ -308,10 +308,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      * and thus make references to the particular identifier work.
      *
      * @param string $identifier The identifier to quote.
-     *
-     * @return string The quoted identifier.
      */
-    private function getQuotedIdentifierName($identifier)
+    private function getQuotedIdentifierName($identifier): string
     {
         if (preg_match('/[a-z]/', $identifier) === 1) {
             return $this->_platform->quoteIdentifier($identifier);

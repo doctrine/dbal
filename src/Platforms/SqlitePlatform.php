@@ -1140,7 +1140,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return string[]
      */
-    private function getColumnNamesInAlteredTable(TableDiff $diff, Table $fromTable)
+    private function getColumnNamesInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $columns = [];
 
@@ -1180,7 +1180,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return Index[]
      */
-    private function getIndexesInAlteredTable(TableDiff $diff, Table $fromTable)
+    private function getIndexesInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $indexes     = $fromTable->getIndexes();
         $columnNames = $this->getColumnNamesInAlteredTable($diff, $fromTable);
@@ -1248,7 +1248,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return ForeignKeyConstraint[]
      */
-    private function getForeignKeysInAlteredTable(TableDiff $diff, Table $fromTable)
+    private function getForeignKeysInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $foreignKeys = $fromTable->getForeignKeys();
         $columnNames = $this->getColumnNamesInAlteredTable($diff, $fromTable);
@@ -1312,7 +1312,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return Index[]
      */
-    private function getPrimaryIndexInAlteredTable(TableDiff $diff, Table $fromTable)
+    private function getPrimaryIndexInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $primaryIndex = [];
 

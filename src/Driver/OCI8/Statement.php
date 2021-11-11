@@ -53,7 +53,7 @@ final class Statement implements StatementInterface
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING): bool
     {
         return $this->bindParam($param, $value, $type);
     }
@@ -61,7 +61,7 @@ final class Statement implements StatementInterface
     /**
      * {@inheritdoc}
      */
-    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null): bool
     {
         if (is_int($param)) {
             if (! isset($this->parameterMap[$param])) {

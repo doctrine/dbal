@@ -36,10 +36,8 @@ final class Connection implements ServerInfoAwareConnection
      * Retrieves mysqli native resource handle.
      *
      * Could be used if part of your application is not using DBAL.
-     *
-     * @return mysqli
      */
-    public function getWrappedResourceHandle()
+    public function getWrappedResourceHandle(): mysqli
     {
         return $this->connection;
     }
@@ -52,7 +50,7 @@ final class Connection implements ServerInfoAwareConnection
      *
      * @link https://jira.mariadb.org/browse/MDEV-4088
      */
-    public function getServerVersion()
+    public function getServerVersion(): string
     {
         $serverInfos = $this->connection->get_server_info();
         if (stripos($serverInfos, 'mariadb') !== false) {
@@ -125,20 +123,14 @@ final class Connection implements ServerInfoAwareConnection
         return $this->connection->insert_id;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         $this->connection->begin_transaction();
 
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function commit()
+    public function commit(): bool
     {
         try {
             return $this->connection->commit();
@@ -147,10 +139,7 @@ final class Connection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rollBack()
+    public function rollBack(): bool
     {
         try {
             return $this->connection->rollback();

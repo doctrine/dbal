@@ -314,8 +314,6 @@ class Table extends AbstractAsset
      * @param string[] $flags
      * @param mixed[]  $options
      *
-     * @return Index
-     *
      * @throws SchemaException
      */
     private function _createIndex(
@@ -325,7 +323,7 @@ class Table extends AbstractAsset
         $isPrimary,
         array $flags = [],
         array $options = []
-    ) {
+    ): Index {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw SchemaException::indexNameInvalid($indexName);
         }

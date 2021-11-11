@@ -298,10 +298,8 @@ SQL
      *
      * @param string $table
      * @param string $column
-     *
-     * @return string
      */
-    private function getColumnConstraintSQL($table, $column)
+    private function getColumnConstraintSQL($table, $column): string
     {
         return "SELECT sysobjects.[Name]
             FROM sysobjects INNER JOIN (SELECT [Name],[ID] FROM sysobjects WHERE XType = 'U') AS Tab

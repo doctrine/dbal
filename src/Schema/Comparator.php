@@ -195,10 +195,8 @@ class Comparator
     /**
      * @param Schema   $schema
      * @param Sequence $sequence
-     *
-     * @return bool
      */
-    private function isAutoIncrementSequenceInSchema($schema, $sequence)
+    private function isAutoIncrementSequenceInSchema($schema, $sequence): bool
     {
         foreach ($schema->getTables() as $table) {
             if ($sequence->isAutoIncrementsFor($table)) {
@@ -355,10 +353,8 @@ class Comparator
     /**
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
-     *
-     * @return void
      */
-    private function detectColumnRenamings(TableDiff $tableDifferences)
+    private function detectColumnRenamings(TableDiff $tableDifferences): void
     {
         $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
@@ -395,10 +391,8 @@ class Comparator
     /**
      * Try to find indexes that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
-     *
-     * @return void
      */
-    private function detectIndexRenamings(TableDiff $tableDifferences)
+    private function detectIndexRenamings(TableDiff $tableDifferences): void
     {
         $renameCandidates = [];
 

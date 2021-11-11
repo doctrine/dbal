@@ -65,10 +65,8 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param string $dataType   The target native data type. Alias data types cannot be used.
      * @param string $expression The SQL expression to convert.
-     *
-     * @return string
      */
-    private function getConvertExpression($dataType, $expression)
+    private function getConvertExpression($dataType, $expression): string
     {
         return sprintf('CONVERT(%s, %s)', $dataType, $expression);
     }
@@ -441,10 +439,8 @@ class SQLServerPlatform extends AbstractPlatform
      * Extend unique key constraint with required filters
      *
      * @param string $sql
-     *
-     * @return string
      */
-    private function _appendUniqueConstraintDefinition($sql, Index $index)
+    private function _appendUniqueConstraintDefinition($sql, Index $index): string
     {
         $fields = [];
 
@@ -632,10 +628,8 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param string $tableName The name of the table to generate the clause for.
      * @param Column $column    The column to generate the clause for.
-     *
-     * @return string
      */
-    private function getAlterTableAddDefaultConstraintClause($tableName, Column $column)
+    private function getAlterTableAddDefaultConstraintClause($tableName, Column $column): string
     {
         $columnDef         = $column->toArray();
         $columnDef['name'] = $column->getQuotedName($this);
@@ -648,10 +642,8 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param string $tableName  The name of the table to generate the clause for.
      * @param string $columnName The name of the column to generate the clause for.
-     *
-     * @return string
      */
-    private function getAlterTableDropDefaultConstraintClause($tableName, $columnName)
+    private function getAlterTableDropDefaultConstraintClause($tableName, $columnName): string
     {
         return 'DROP CONSTRAINT ' . $this->generateDefaultConstraintName($tableName, $columnName);
     }
@@ -663,12 +655,8 @@ class SQLServerPlatform extends AbstractPlatform
      * as constraints and therefore changes in a column's default value as well as changes
      * in a column's type require dropping the default constraint first before being to
      * alter the particular column to the new definition.
-     *
-     * @param ColumnDiff $columnDiff The column diff to evaluate.
-     *
-     * @return bool True if the column alteration requires dropping its default constraint first, false otherwise.
      */
-    private function alterColumnRequiresDropDefaultConstraint(ColumnDiff $columnDiff)
+    private function alterColumnRequiresDropDefaultConstraint(ColumnDiff $columnDiff): bool
     {
         // We can only decide whether to drop an existing default constraint
         // if we know the original default value.
@@ -1004,10 +992,8 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string $table        The full qualified name of the table.
      * @param string $schemaColumn The name of the column to compare the schema to in the where clause.
      * @param string $tableColumn  The name of the column to compare the table to in the where clause.
-     *
-     * @return string
      */
-    private function getTableWhereClause($table, $schemaColumn, $tableColumn)
+    private function getTableWhereClause($table, $schemaColumn, $tableColumn): string
     {
         if (strpos($table, '.') !== false) {
             [$schema, $table] = explode('.', $table);
@@ -1582,10 +1568,8 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param string $table  Name of the table to generate the unique default constraint name for.
      * @param string $column Name of the column in the table to generate the unique default constraint name for.
-     *
-     * @return string
      */
-    private function generateDefaultConstraintName($table, $column)
+    private function generateDefaultConstraintName($table, $column): string
     {
         return 'DF_' . $this->generateIdentifierName($table) . '_' . $this->generateIdentifierName($column);
     }
@@ -1594,10 +1578,8 @@ class SQLServerPlatform extends AbstractPlatform
      * Returns a hash value for a given identifier.
      *
      * @param string $identifier Identifier to generate a hash value for.
-     *
-     * @return string
      */
-    private function generateIdentifierName($identifier)
+    private function generateIdentifierName($identifier): string
     {
         // Always generate name for unquoted identifiers to ensure consistency.
         $identifier = new Identifier($identifier);
