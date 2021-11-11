@@ -1470,6 +1470,19 @@ abstract class AbstractPlatformTestCase extends TestCase
         );
     }
 
+    public function testLimitOffsetCastToInt(): void
+    {
+        self::assertSame(
+            $this->getLimitOffsetCastToIntExpectedQuery(),
+            $this->platform->modifyLimitQuery('SELECT * FROM user', '1 BANANA', '2 APPLES')
+        );
+    }
+
+    protected function getLimitOffsetCastToIntExpectedQuery(): string
+    {
+        return 'SELECT * FROM user LIMIT 1 OFFSET 2';
+    }
+
     /**
      * @param array<string, mixed> $column
      *
