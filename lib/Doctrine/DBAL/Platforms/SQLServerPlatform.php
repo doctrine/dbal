@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use function array_merge;
 use function array_unique;
 use function array_values;
+use function assert;
 use function count;
 use function crc32;
 use function dechex;
@@ -790,7 +791,10 @@ class SQLServerPlatform extends AbstractPlatform
 
     private function quoteSingleIdentifierAsStringLiteral(string $levelName): string
     {
-        return $this->quoteStringLiteral(preg_replace('~^\[|\]$~s', '', $levelName));
+        $levelName = preg_replace('~^\[|\]$~s', '', $levelName);
+        assert(is_string($levelName));
+
+        return $this->quoteStringLiteral($levelName);
     }
 
     /**
