@@ -66,11 +66,11 @@ class OracleSchemaManager extends AbstractSchemaManager
         foreach ($tableIndexes as $tableIndex) {
             $tableIndex = array_change_key_case($tableIndex, CASE_LOWER);
 
-            $keyName = strtolower($tableIndex['name']);
+            $keyName = $tableIndex['name'];
             $buffer  = [];
 
             if ($tableIndex['is_primary'] === 'P') {
-                $keyName              = 'primary';
+                $keyName              = 'PRIMARY';
                 $buffer['primary']    = true;
                 $buffer['non_unique'] = false;
             } else {
@@ -78,7 +78,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $buffer['non_unique'] = ! $tableIndex['is_unique'];
             }
 
-            $buffer['key_name']    = $keyName;
+            $buffer['key_name']    = $this->getQuotedIdentifierName($keyName);
             $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
             $indexBuffer[]         = $buffer;
         }

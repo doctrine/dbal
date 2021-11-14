@@ -256,22 +256,22 @@ class Table extends AbstractAsset
      */
     public function renameIndex($oldName, $newName = null)
     {
-        $oldName           = $this->normalizeIdentifier($oldName);
+        $normalizedOldName = $this->normalizeIdentifier($oldName);
         $normalizedNewName = $this->normalizeIdentifier($newName);
 
-        if ($oldName === $normalizedNewName) {
+        if ($normalizedOldName === $normalizedNewName) {
             return $this;
         }
 
-        if (! $this->hasIndex($oldName)) {
-            throw SchemaException::indexDoesNotExist($oldName, $this->_name);
+        if (! $this->hasIndex($normalizedOldName)) {
+            throw SchemaException::indexDoesNotExist($normalizedOldName, $this->_name);
         }
 
         if ($this->hasIndex($normalizedNewName)) {
             throw SchemaException::indexAlreadyExists($normalizedNewName, $this->_name);
         }
 
-        $oldIndex = $this->_indexes[$oldName];
+        $oldIndex = $this->_indexes[$normalizedOldName];
 
         if ($oldIndex->isPrimary()) {
             $this->dropPrimaryKey();
@@ -279,13 +279,15 @@ class Table extends AbstractAsset
             return $this->setPrimaryKey($oldIndex->getColumns(), $newName ?? false);
         }
 
-        unset($this->_indexes[$oldName]);
+        unset($this->_indexes[$normalizedOldName]);
 
-        if ($oldIndex->isUnique()) {
-            return $this->addUniqueIndex($oldIndex->getColumns(), $newName, $oldIndex->getOptions());
-        }
+        $opts = $oldIndex->getOptions();
+        $flags = !$oldIndex->isUnique() ? $oldIndex->getFlags() : [];
 
-        return $this->addIndex($oldIndex->getColumns(), $newName, $oldIndex->getFlags(), $oldIndex->getOptions());
+        $newIndex = $this->_createIndex($oldIndex->getColumns(), $newName, $oldIndex->isUnique(), false, $flags, $opts);
+        $newIndex->oldName = $oldName;
+
+        return $this->_addIndex($newIndex);
     }
 
     /**

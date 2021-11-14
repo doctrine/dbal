@@ -16,6 +16,13 @@ use function strtolower;
 class Index extends AbstractAsset implements Constraint
 {
     /**
+     * Old (quoted) index name if index is renamed.
+     *
+     * @var string|false
+     */
+    public $oldName = false;
+
+    /**
      * Asset identifier instances of the column names the index is associated with.
      * array($columnName => Identifier)
      *
