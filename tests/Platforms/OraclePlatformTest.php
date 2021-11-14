@@ -9,8 +9,8 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -840,6 +840,30 @@ EOD;
     {
         $sql = $this->platform->getDropIndexSQL('idx_name');
         self::assertEquals('DROP INDEX "idx_name"', $sql);
+    }
+
+    public function testDropSequenceWithoutQuotedName(): void
+    {
+        $sql = $this->platform->getDropSequenceSQL('TABLE_SEQ');
+        self::assertEquals('DROP SEQUENCE TABLE_SEQ', $sql);
+    }
+
+    public function testDropSequenceWithInitiallyQuotedName(): void
+    {
+        $sql = $this->platform->getDropSequenceSQL('table_seq');
+        self::assertEquals('DROP SEQUENCE "table_seq"', $sql);
+    }
+
+    public function testDropViewWithoutQuotedName(): void
+    {
+        $sql = $this->platform->getDropViewSQL('TEST_VIEW');
+        self::assertEquals('DROP VIEW TEST_VIEW', $sql);
+    }
+
+    public function testDropViewWithInitiallyQuotedName(): void
+    {
+        $sql = $this->platform->getDropViewSQL('test_view');
+        self::assertEquals('DROP VIEW "test_view"', $sql);
     }
 
     public function testRenameIndexWithoutQuotedIndexName(): void

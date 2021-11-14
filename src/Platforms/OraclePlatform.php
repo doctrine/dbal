@@ -20,6 +20,7 @@ use function explode;
 use function func_get_arg;
 use function func_num_args;
 use function implode;
+use function is_string;
 use function preg_match;
 use function sprintf;
 use function strlen;
@@ -478,7 +479,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDropViewSQL($name)
     {
-        return 'DROP VIEW ' . $name;
+        return 'DROP VIEW ' . $this->getOriginalIdentifier($name);
     }
 
     /**
@@ -589,6 +590,24 @@ END;';
     }
 
     /**
+     * Quotes a string if it was also initially quoted.
+     *
+     * @param string $name The identifier name.
+     *
+     * @return string The quoted identifier string if necessary.
+     */
+    private function getOriginalIdentifier($name)
+    {
+        $identifier = new Identifier($name);
+
+        if (! $identifier->isQuoted() && strtoupper($name) !== $name) {
+            $name = $this->quoteIdentifier($name);
+        }
+
+        return $name;
+    }
+
+    /**
      * Adds suffix to identifier,
      *
      * if the new string exceeds max identifier length,
@@ -679,13 +698,7 @@ END;';
             );
         }
 
-        $indexName = new Identifier($index);
-
-        if(!$indexName->isQuoted() && strtoupper($index) !== $index) {
-            $index = $this->quoteIdentifier($index);
-        }
-
-        return 'DROP INDEX ' . $index;
+        return 'DROP INDEX ' . $this->getOriginalIdentifier($index);
     }
 
     /**
@@ -741,7 +754,7 @@ SQL
             $sequence = $sequence->getQuotedName($this);
         }
 
-        return 'DROP SEQUENCE ' . $sequence;
+        return 'DROP SEQUENCE ' . $this->getOriginalIdentifier($sequence);
     }
 
     /**
@@ -982,11 +995,7 @@ SQL
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
-        $oldIndex = new Identifier($oldIndexName);
-
-        if(!$oldIndex->isQuoted() && strtoupper($oldIndexName) !== $oldIndexName) {
-            $oldIndexName = $this->quoteIdentifier($oldIndexName);
-        }
+        $oldIndexName = $this->getOriginalIdentifier($oldIndexName);
 
         if (strpos($tableName, '.') !== false) {
             [$schema]     = explode('.', $tableName);
