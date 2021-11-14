@@ -198,6 +198,8 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $testTable->addColumn('id', 'integer');
         $this->schemaManager->createTable($testTable);
 
+        $this->markConnectionNotReusable();
+
         $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
             return preg_match('#^dbal204_#', $name) === 1;
         });
