@@ -1008,7 +1008,7 @@ SQL
         $table = new Identifier($tableName);
 
         // No usage of column name to preserve BC compatibility with <2.5
-        $identitySequenceName = $this->addSuffix($table->getName(), '_seq');
+        $identitySequenceName = $this->addSuffix($table->getName() . '_' . $columnName, '_seq');
 
         if ($table->isQuoted()) {
             $identitySequenceName = '"' . $identitySequenceName . '"';

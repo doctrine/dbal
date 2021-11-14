@@ -591,10 +591,10 @@ SQL
 
     public function testReturnsIdentitySequenceName(): void
     {
-        self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
-        self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
-        self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', '"mycolumn"'));
-        self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
+        self::assertSame('MYTABLE_MYCOLUMN_SEQ', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
+        self::assertSame('"mytable_mycolumn_seq"', $this->platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
+        self::assertSame('MYTABLE_MYCOLUMN_SEQ', $this->platform->getIdentitySequenceName('mytable', '"mycolumn"'));
+        self::assertSame('"mytable_mycolumn_seq"', $this->platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
     }
 
     /**
