@@ -829,6 +829,30 @@ EOD;
         self::assertEquals($createTriggerStatement, $sql[3]);
     }
 
+    public function testDropIndexWithoutQuotedIndexName(): void
+    {
+        $sql = $this->platform->getDropIndexSQL('IDX_NAME');
+        self::assertEquals('DROP INDEX IDX_NAME', $sql[0]);
+    }
+
+    public function testDropIndexWithInitiallyQuotedIndexName(): void
+    {
+        $sql = $this->platform->getDropIndexSQL('idx_name');
+        self::assertEquals('DROP INDEX "idx_name"', $sql[0]);
+    }
+
+    public function testRenameIndexWithoutQuotedIndexName(): void
+    {
+        $sql = $this->platform->getRenameIndexSQL('OLDNAME', new Index('newname', []), 'TEST.testtable');
+        self::assertEquals('ALTER INDEX TEST.OLDNAME RENAME TO newname', $sql[0]);
+    }
+
+    public function testRenameIndexWithInitiallyQuotedIndexName(): void
+    {
+        $sql = $this->platform->getRenameIndexSQL('oldname', new Index('"newname"', []), 'TEST.testtable');
+        self::assertEquals('ALTER INDEX TEST."oldname" RENAME TO "newname"', $sql[0]);
+    }
+
     /**
      * @dataProvider getReturnsGetListTableColumnsSQL
      */

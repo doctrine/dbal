@@ -669,6 +669,26 @@ END;';
     /**
      * {@inheritDoc}
      */
+    public function getDropIndexSQL($index, $table = null)
+    {
+        if ($index instanceof Index) {
+            $index = $index->getQuotedName($this);
+        } elseif (! is_string($index)) {
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
+            );
+        }
+
+        if( strtoupper($index) !== $index) {
+            $index = $this->quoteIdentifier($index);
+        }
+
+        return 'DROP INDEX ' . $index;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableColumnsSQL($table, $database = null)
     {
         $table = $this->normalizeIdentifier($table);
@@ -960,6 +980,10 @@ SQL
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
+        if(strtoupper($oldIndexName) !== $oldIndexName) {
+            $oldIndexName = $this->quoteIdentifier($oldIndexName);
+        }
+
         if (strpos($tableName, '.') !== false) {
             [$schema]     = explode('.', $tableName);
             $oldIndexName = $schema . '.' . $oldIndexName;
