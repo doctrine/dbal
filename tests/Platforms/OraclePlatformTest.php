@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -623,7 +624,7 @@ SQL
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
-        return ['ALTER INDEX idx_foo RENAME TO idx_bar'];
+        return ['ALTER INDEX "idx_foo" RENAME TO idx_bar'];
     }
 
     /**
@@ -668,7 +669,7 @@ SQL
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
-        return ['ALTER INDEX myschema.idx_foo RENAME TO idx_bar'];
+        return ['ALTER INDEX myschema."idx_foo" RENAME TO idx_bar'];
     }
 
     /**
@@ -829,6 +830,48 @@ EOD;
         self::assertEquals($createTriggerStatement, $sql[3]);
     }
 
+    public function testDropIndexWithoutQuotedIndexName(): void
+    {
+        $sql = $this->platform->getDropIndexSQL('IDX_NAME');
+        self::assertEquals('DROP INDEX IDX_NAME', $sql);
+    }
+
+    public function testDropIndexWithInitiallyQuotedIndexName(): void
+    {
+        $sql = $this->platform->getDropIndexSQL('idx_name');
+        self::assertEquals('DROP INDEX "idx_name"', $sql);
+    }
+
+    public function testRenameIndexWithoutQuotedIndexName(): void
+    {
+        $table = new Table('mytable');
+        $table->addColumn('foo', 'integer');
+
+        $tableDiff                            = new TableDiff('mytable');
+        $tableDiff->fromTable                 = $table;
+        $tableDiff->renamedIndexes['IDX_FOO'] = new Index('idx_foo_renamed', ['foo']);
+
+        self::assertSame(
+            ['ALTER INDEX IDX_FOO RENAME TO idx_foo_renamed'],
+            $this->platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    public function testRenameIndexWithInitiallyQuotedIndexName(): void
+    {
+        $table = new Table('"mytable"');
+        $table->addColumn('"foo"', 'integer');
+
+        $tableDiff                            = new TableDiff('mytable');
+        $tableDiff->fromTable                 = $table;
+        $tableDiff->renamedIndexes['idx_foo'] = new Index('"idx_foo_renamed"', ['"foo"']);
+
+        self::assertSame(
+            ['ALTER INDEX "idx_foo" RENAME TO "idx_foo_renamed"'],
+            $this->platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
     /**
      * @dataProvider getReturnsGetListTableColumnsSQL
      */
@@ -925,7 +968,7 @@ SQL
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
-        return ['ALTER INDEX idx_foo RENAME TO idx_foo_renamed'];
+        return ['ALTER INDEX "idx_foo" RENAME TO idx_foo_renamed'];
     }
 
     public function testQuotesDatabaseNameInListSequencesSQL(): void
