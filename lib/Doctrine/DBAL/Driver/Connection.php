@@ -52,7 +52,7 @@ interface Connection
      *
      * @param string|null $name
      *
-     * @return string
+     * @return string|int|false
      */
     public function lastInsertId($name = null);
 

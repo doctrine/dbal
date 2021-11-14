@@ -75,7 +75,7 @@ abstract class AbstractDriverTest extends DbalTestCase
      *
      * @dataProvider exceptionConversionProvider
      */
-    public function testConvertsException($errorCode, ?string $sqlState, ?string $message, string $expectedClass): void
+    public function testConvertsException($errorCode, ?string $sqlState, string $message, string $expectedClass): void
     {
         if (! $this->driver instanceof ExceptionConverterDriver) {
             $this->markTestSkipped('This test is only intended for exception converter drivers.');
@@ -155,7 +155,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
         $connection->expects($this->once())
             ->method('getParams')
-            ->will($this->returnValue($params));
+            ->willReturn($params);
 
         self::assertSame($params['dbname'], $this->driver->getDatabase($connection));
     }

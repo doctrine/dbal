@@ -12,9 +12,11 @@
     <!-- Show progress of the run and show sniff names -->
     <arg value="ps"/>
 
+    <config name="php_version" value="70300"/>
+
     <file>bin</file>
     <file>lib</file>
-    <file>tests</file>
+    <file>tests/Doctrine/Tests</file>
 
     <rule ref="Doctrine">
         <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes"/>
@@ -35,13 +37,6 @@
     <rule ref="Generic.Classes.DuplicateClassName.Found">
         <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php</exclude-pattern>
         <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php</exclude-pattern>
-    </rule>
-
-    <!-- Disable the rules that will require PHP 7.4 -->
-    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint">
-        <properties>
-            <property name="enableNativeTypeHint" value="false"/>
-        </properties>
     </rule>
 
     <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
@@ -76,10 +71,6 @@
         <exclude-pattern>lib/Doctrine/DBAL/Events.php</exclude-pattern>
     </rule>
 
-    <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedProperty">
-        <exclude-pattern>tests/Doctrine/Tests/DBAL/Tools/TestAsset/*</exclude-pattern>
-    </rule>
-
     <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2099 -->
     <rule ref="Squiz.Commenting.FunctionComment.InvalidNoReturn">
         <exclude-pattern>lib/Doctrine/DBAL/Platforms/AbstractPlatform.php</exclude-pattern>
@@ -97,8 +88,7 @@
         <exclude-pattern>tests/Doctrine/Tests/DBAL/Functional/DataAccessTest.php</exclude-pattern>
     </rule>
 
-    <!-- https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
-    <rule ref="Squiz.NamingConventions.ValidVariableName.NotCamelCaps">
+    <rule ref="Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps">
         <!--
             This file uses the return value db2_server_info(), which does not follow conventions
             phpcs wrongly complains about it, and that has been reported here:
@@ -106,11 +96,14 @@
         -->
         <exclude-pattern>lib/Doctrine/DBAL/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
         <exclude-pattern>lib/Doctrine/DBAL/Driver/Mysqli/Exception/ConnectionFailed.php</exclude-pattern>
-        <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
-        <exclude-pattern>lib/Doctrine/DBAL/SQLParserUtils.php</exclude-pattern>
         <exclude-pattern>lib/Doctrine/DBAL/Tools/Dumper.php</exclude-pattern>
-        <exclude-pattern>tests/Doctrine/Tests/DBAL/Driver/StatementIteratorTest.php</exclude-pattern>
         <exclude-pattern>tests/Doctrine/Tests/DBAL/Tools/DumperTest.php</exclude-pattern>
+    </rule>
+
+    <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
+    <rule ref="Squiz.NamingConventions.ValidVariableName.NotCamelCaps">
+        <exclude-pattern>lib/Doctrine/DBAL/SQLParserUtils.php</exclude-pattern>
+        <exclude-pattern>tests/Doctrine/Tests/DBAL/Driver/StatementIteratorTest.php</exclude-pattern>
     </rule>
 
     <!-- some statement classes close cursor using an empty while-loop -->
@@ -121,11 +114,6 @@
     <!-- The override opts out the caller from the strict mode for backward compatibility -->
     <rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
         <exclude-pattern>lib/Doctrine/DBAL/Driver/PDOConnection.php</exclude-pattern>
-    </rule>
-
-    <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedMethod">
-        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOConnection.php</exclude-pattern>
-        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOStatement.php</exclude-pattern>
     </rule>
 
     <!-- See https://github.com/slevomat/coding-standard/issues/770 -->

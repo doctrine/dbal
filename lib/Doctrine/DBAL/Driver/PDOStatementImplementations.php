@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use ReturnTypeWillChange;
+
 use function func_get_args;
 
 use const PHP_VERSION_ID;
@@ -20,6 +22,7 @@ if (PHP_VERSION_ID >= 80000) {
          *
          * @return bool
          */
+        #[ReturnTypeWillChange]
         public function setFetchMode($mode, ...$args)
         {
             return $this->doSetFetchMode($mode, ...$args);
@@ -33,6 +36,7 @@ if (PHP_VERSION_ID >= 80000) {
          *
          * @return mixed[]
          */
+        #[ReturnTypeWillChange]
         public function fetchAll($mode = null, ...$args)
         {
             return $this->doFetchAll($mode, ...$args);

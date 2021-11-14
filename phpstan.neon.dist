@@ -1,7 +1,7 @@
 parameters:
-    level: 7
+    level: 8
     paths:
-        - %currentWorkingDirectory%/lib
+        - lib
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
@@ -15,11 +15,6 @@ parameters:
 
         # removing it would be BC break
         - '~^Constructor of class Doctrine\\DBAL\\Schema\\Table has an unused parameter \$idGeneratorType\.\z~'
-
-        # changing these would be a BC break, to be done in next major
-        - '~^Property Doctrine\\DBAL\\Schema\\Table::\$_primaryKeyName \(string\) does not accept (default value of type )?false\.\z~'
-        - '~^Property Doctrine\\DBAL\\Schema\\Schema::\$_schemaConfig \(Doctrine\\DBAL\\Schema\\SchemaConfig\) does not accept default value of type false\.\z~'
-        - '~^Return type \(int\|false\) of method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection\:\:lastInsertId\(\) should be compatible with return type \(string\) of method Doctrine\\DBAL\\Driver\\Connection::lastInsertId\(\)~'
 
         # https://github.com/doctrine/dbal/pull/3836
         - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int\|string> given\.\z~'
@@ -35,82 +30,98 @@ parameters:
         - '~^Class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy) not found\.\z~'
         - '~^.+ on an unknown class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy)\.\z~'
 
-        # weird class name, represented in stubs as OCI_(Lob|Collection)
-        - '~unknown class OCI-(Lob|Collection)~'
-
-        # The ReflectionException in the case when the class does not exist is acceptable and does not need to be handled
-        - '~^Parameter #1 \$argument of class ReflectionClass constructor expects class-string<T of object>\|T of object, string given\.$~'
-
-        # Needs Generics
-        - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
-
         # This is deprecated code. Fixing the issue may cause a BC break.
         # TODO: remove in 3.0.0
         -
             message: '~^Return type \(Doctrine\\DBAL\\Platforms\\DrizzlePlatform\) of method Doctrine\\DBAL\\Driver\\DrizzlePDOMySql\\Driver::getDatabasePlatform\(\) should be compatible with return type \(Doctrine\\DBAL\\Platforms\\MySqlPlatform\) of method Doctrine\\DBAL\\Driver\\AbstractMySQLDriver::getDatabasePlatform\(\)$~'
             paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/DrizzlePDOMySql/Driver.php
+                - lib/Doctrine/DBAL/Driver/DrizzlePDOMySql/Driver.php
 
         # This is deprecated code. Fixing the issue may cause a BC break.
         # TODO: remove in 3.0.0
         -
             message: '~^Return type \(Doctrine\\DBAL\\Schema\\DrizzleSchemaManager\) of method Doctrine\\DBAL\\Driver\\DrizzlePDOMySql\\Driver::getSchemaManager\(\) should be compatible with return type \(Doctrine\\DBAL\\Schema\\MySqlSchemaManager\) of method Doctrine\\DBAL\\Driver\\AbstractMySQLDriver::getSchemaManager\(\)$~'
             paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/DrizzlePDOMySql/Driver.php
+                - lib/Doctrine/DBAL/Driver/DrizzlePDOMySql/Driver.php
 
         # This is deprecated code. Fixing the issue may cause a BC break.
         # TODO: remove in 3.0.0
         -
             message: '~^Return type \(int\) of method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliConnection::errorCode\(\) should be compatible with return type \(string\|null\) of method Doctrine\\DBAL\\Driver\\Connection::errorCode\(\)$~'
             paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
+                - lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
 
         # This is deprecated code. Fixing the issue may cause a BC break.
         # TODO: remove in 3.0.0
         -
             message: '~^Return type \(string\) of method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliConnection::errorInfo\(\) should be compatible with return type \(array\) of method Doctrine\\DBAL\\Driver\\Connection::errorInfo\(\)$~'
             paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
-
-        # Fixing the issue may cause a BC break.
-        -
-            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliConnection::lastInsertId\(\) should return string but returns int\|string\.$~'
-            paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
-
-        # Fixing the issue may cause a BC break.
-        # TODO: fix in 3.0.0
-        -
-            message: '~^Parameter \#2 \$sqlState of class Doctrine\\DBAL\\Driver\\Mysqli\\MysqliException constructor expects string\|null, int given\.$~'
-            paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php
+                - lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
 
         # This is deprecated code. Fixing the issue may cause a BC break.
         # TODO: remove in 3.0.0
         -
             message: '~^Return type \(string\) of method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliStatement::errorInfo\(\) should be compatible with return type \(array\) of method Doctrine\\DBAL\\Driver\\Statement::errorInfo\(\)$~'
             paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php
-
-        # This is poorly typed deprecated code. The issue doesn't have practical implication and can be suppressed.
-        # TODO: remove in 3.0.0
-        -
-            message: '~^Parameter \#1 \$how of method PDOStatement\:\:fetchAll\(\) expects int, array\|int\|null given\.$~'
-            paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOStatement.php
+                - lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php
 
         -
-            message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns int\|string\|false\|null\.~'
+            message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return int\|string\|false but returns int\|string\|false\|null\.~'
             paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php
+                - lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php
 
         -
             message: '~Return type \(Doctrine\\DBAL\\Portability\\Statement\) of method Doctrine\\DBAL\\Portability\\Connection::prepare\(\) should be compatible with return type \(Doctrine\\DBAL\\Statement\) of method Doctrine\\DBAL\\Connection::prepare\(\)~'
             paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Portability/Connection.php
+                - lib/Doctrine/DBAL/Portability/Connection.php
 
         # Unlike Psalm, PHPStan doesn't understand the shape of the parse_str() return value
         -
             message: '~^Parameter #1 \$scheme of static method Doctrine\\DBAL\\DriverManager::parseDatabaseUrlScheme\(\) expects string\|null, int\|string\|null given\.$~'
             paths:
-                - %currentWorkingDirectory%/lib/Doctrine/DBAL/DriverManager.php
+                - lib/Doctrine/DBAL/DriverManager.php
+
+        # Until 3.x, $_conn does accept PDO
+        -
+            message: '~^Property Doctrine\\DBAL\\Connection::\$_conn \(Doctrine\\DBAL\\Driver\\Connection\|null\) does not accept PDO\.$~'
+            paths:
+                - lib/Doctrine/DBAL/Connection.php
+
+        # PHPStan fails to parse this type alias which is meant for Psalm only.
+        -
+            message: '~^Invalid type definition detected in type alias (Override)?Params\.$~'
+            paths:
+                - lib/Doctrine/DBAL/DriverManager.php
+
+        -
+            message: '~Template type T of method Doctrine\\DBAL\\DriverManager::getConnection\(\) is not referenced in a parameter\.~'
+            paths:
+                - lib/Doctrine/DBAL/DriverManager.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\DriverManager::createDriver\(\) should return Doctrine\\DBAL\\Driver but returns object\.~'
+            paths:
+                - lib/Doctrine/DBAL/DriverManager.php
+
+        # TODO: remove in 4.0.0
+        -
+            message: '~^Parameter #2 \$table of class Doctrine\\DBAL\\Event\\SchemaIndexDefinitionEventArgs constructor expects string, string\|null given\.$~'
+            paths:
+                - lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php
+
+        # https://github.com/phpstan/phpstan/issues/1901
+        -
+            message: '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::escapeStringForLike\(\) should return string but returns string\|null\.$~'
+            paths:
+                - lib/Doctrine/DBAL/Platforms/AbstractPlatform.php
+
+        # https://github.com/phpstan/phpstan/issues/4679
+        -
+            message: '~^Cannot call method writeTemporary\(\) on OCILob\|null\.$~'
+            paths:
+                - lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliStatement::rowCount\(\) should return int but returns int\|string\.~'
+            paths:
+                - lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php

@@ -33,7 +33,7 @@ class Statement extends PDO\Statement
                 break;
         }
 
-        return parent::bindParam($param, $variable, $type, $length, $driverOptions);
+        return parent::bindParam($param, $variable, $type, $length ?? 0, $driverOptions);
     }
 
     /**

@@ -1411,13 +1411,13 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to drop an existing database.
      *
-     * @param string $database The name of the database that should be dropped.
+     * @param string $name The name of the database that should be dropped.
      *
      * @return string
      */
-    public function getDropDatabaseSQL($database)
+    public function getDropDatabaseSQL($name)
     {
-        return 'DROP DATABASE ' . $database;
+        return 'DROP DATABASE ' . $name;
     }
 
     /**
@@ -2990,13 +2990,13 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to create a new database.
      *
-     * @param string $database The name of the database that should be created.
+     * @param string $name The name of the database that should be created.
      *
      * @return string
      *
      * @throws Exception If not supported on this platform.
      */
-    public function getCreateDatabaseSQL($database)
+    public function getCreateDatabaseSQL($name)
     {
         throw Exception::notSupported(__METHOD__);
     }
@@ -3247,7 +3247,7 @@ abstract class AbstractPlatform
      */
     public function supportsForeignKeyOnUpdate()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4229',
             'AbstractPlatform::supportsForeignKeyOnUpdate() is deprecated without replacement and removed in DBAL 3.0'
@@ -3658,10 +3658,9 @@ abstract class AbstractPlatform
      * Returns the class name of the reserved keywords list.
      *
      * @return string
+     * @psalm-return class-string<KeywordList>
      *
      * @throws Exception If not supported on this platform.
-     *
-     * @psalm-return class-string<KeywordList>
      */
     protected function getReservedKeywordsClass()
     {

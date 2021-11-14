@@ -512,8 +512,10 @@ class OraclePlatform extends AbstractPlatform
         $sql[] = "DECLARE
   constraints_Count NUMBER;
 BEGIN
-  SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '" . $unquotedTableName
-            . "' AND CONSTRAINT_TYPE = 'P';
+  SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count
+    FROM USER_CONSTRAINTS
+   WHERE TABLE_NAME = '" . $unquotedTableName . "'
+     AND CONSTRAINT_TYPE = 'P';
   IF constraints_Count = 0 OR constraints_Count = '' THEN
     EXECUTE IMMEDIATE '" . $this->getCreateConstraintSQL($idx, $quotedTableName) . "';
   END IF;
@@ -785,9 +787,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDropDatabaseSQL($database)
+    public function getDropDatabaseSQL($name)
     {
-        return 'DROP USER ' . $database . ' CASCADE';
+        return 'DROP USER ' . $name . ' CASCADE';
     }
 
     /**

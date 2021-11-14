@@ -19,8 +19,9 @@ class VarDateTimeTest extends DbalTestCase
 
     protected function setUp(): void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = new VarDateTimeType();
+        $this->platform = $this->getMockForAbstractClass(AbstractPlatform::class);
+
+        $this->type = new VarDateTimeType();
     }
 
     public function testDateTimeConvertsToDatabaseValue(): void

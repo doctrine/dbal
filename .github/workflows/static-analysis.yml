@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "7.4"
+          - "8.0"
 
     steps:
       - name: "Checkout code"
@@ -42,13 +42,24 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "7.4"
+          - "8.0"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Psalm
-        uses: docker://vimeo/psalm-github-actions:4.6.4
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
         with:
-          composer_require_dev: true
+          coverage: none
+          php-version: ${{ matrix.php-version }}
+          tools: cs2pr
+
+      - name: Install dependencies with Composer
+        uses: ramsey/composer-install@v1
+
+      - name: Run static analysis with Vimeo Psalm
+        run: vendor/bin/psalm --shepherd
+
+      - name: Run type inference tests with Vimeo Psalm
+        run: vendor/bin/psalm --config=psalm-strict.xml --shepherd

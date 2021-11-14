@@ -9,6 +9,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
+use ReturnTypeWillChange;
 
 use function array_slice;
 use function assert;
@@ -56,6 +57,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     /**
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
         $type = $this->convertParamType($type);
@@ -76,6 +78,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
      *
      * @return bool
      */
+    #[ReturnTypeWillChange]
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
         $type = $this->convertParamType($type);
@@ -92,6 +95,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
      *
      * @deprecated Use free() instead.
      */
+    #[ReturnTypeWillChange]
     public function closeCursor()
     {
         try {
@@ -106,6 +110,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     /**
      * {@inheritdoc}
      */
+    #[ReturnTypeWillChange]
     public function execute($params = null)
     {
         try {
@@ -120,6 +125,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
      *
      * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
      */
+    #[ReturnTypeWillChange]
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         $args = func_get_args();
@@ -140,6 +146,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
      *
      * @deprecated Use fetchOne() instead.
      */
+    #[ReturnTypeWillChange]
     public function fetchColumn($columnIndex = 0)
     {
         try {

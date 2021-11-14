@@ -2,20 +2,30 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\Psr6\DoctrineProvider;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDODriver;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ForwardCompatibility;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Error;
 use Exception;
 use PDO;
 use RuntimeException;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Throwable;
 
+use function class_exists;
 use function file_exists;
 use function in_array;
 use function unlink;
@@ -348,10 +358,87 @@ class ConnectionTest extends DbalFunctionalTestCase
      */
     public function testUserProvidedPDOConnection(): void
     {
-        self::assertTrue(
-            DriverManager::getConnection([
-                'pdo' => new PDO('sqlite::memory:'),
-            ])->ping()
+        $connection = DriverManager::getConnection([
+            'pdo' => new PDO('sqlite::memory:'),
+        ]);
+
+        $result = $connection->executeQuery('SELECT 1');
+
+        self::assertInstanceOf(ForwardCompatibility\DriverResultStatement::class, $result);
+    }
+
+    /**
+     * @requires extension pdo_sqlite
+     */
+    public function testUserProvidedPDOConnectionWithoutDriverManager(): void
+    {
+        $connection = new Connection(
+            ['pdo' => new PDO('sqlite::memory:')],
+            new PDODriver()
         );
+
+        $result = $connection->executeQuery('SELECT 1');
+
+        self::assertInstanceOf(ForwardCompatibility\DriverResultStatement::class, $result);
+    }
+
+    public function testResultCompatibilityWhenExecutingQueryWithoutParam(): void
+    {
+        $result = $this->connection->executeQuery(
+            $this->connection->getDatabasePlatform()->getDummySelectSQL()
+        );
+
+        self::assertInstanceOf(Result::class, $result);
+        self::assertInstanceOf(Driver\Statement::class, $result);
+    }
+
+    public function testResultCompatibilityWhenExecutingQueryWithParams(): void
+    {
+        $result = $this->connection->executeQuery(
+            $this->connection->getDatabasePlatform()->getDummySelectSQL(),
+            ['param1' => 'value']
+        );
+
+        self::assertInstanceOf(Result::class, $result);
+        self::assertInstanceOf(Driver\Statement::class, $result);
+    }
+
+    public function testResultCompatibilityWhenExecutingQueryWithQueryCacheParam(): void
+    {
+        $result = $this->connection->executeQuery(
+            $this->connection->getDatabasePlatform()->getDummySelectSQL(),
+            [],
+            [],
+            new QueryCacheProfile(1, 'cacheKey', $this->getArrayCache())
+        );
+
+        self::assertInstanceOf(Result::class, $result);
+        self::assertInstanceOf(Driver\ResultStatement::class, $result);
+    }
+
+    public function testResultCompatibilityWhenExecutingCacheQuery(): void
+    {
+        $result = $this->connection->executeCacheQuery(
+            $this->connection->getDatabasePlatform()->getDummySelectSQL(),
+            [],
+            [],
+            new QueryCacheProfile(1, 'cacheKey', $this->getArrayCache())
+        );
+
+        self::assertInstanceOf(Result::class, $result);
+        self::assertInstanceOf(Driver\ResultStatement::class, $result);
+    }
+
+    private function getArrayCache(): Cache
+    {
+        if (class_exists(DoctrineProvider::class)) {
+            return DoctrineProvider::wrap(new ArrayAdapter());
+        }
+
+        if (class_exists(ArrayCache::class)) {
+            return new ArrayCache();
+        }
+
+        self::fail('Cannot instantiate cache backend.');
     }
 }

@@ -6,7 +6,6 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Types\Type;
-use PDOException;
 use Throwable;
 
 use function assert;
@@ -252,12 +251,6 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
         try {
             $tableIndexes = $this->_conn->fetchAllAssociative($sql);
-        } catch (PDOException $e) {
-            if ($e->getCode() === 'IMSSP') {
-                return [];
-            }
-
-            throw $e;
         } catch (DBALException $e) {
             if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
                 return [];

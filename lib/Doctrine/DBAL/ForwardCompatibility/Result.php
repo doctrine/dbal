@@ -2,34 +2,47 @@
 
 namespace Doctrine\DBAL\ForwardCompatibility;
 
-use Doctrine\DBAL\Driver\ResultStatement as DriverResultStatement;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\NoKeyValue;
-use Doctrine\DBAL\Result as BaseResult;
+use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use IteratorAggregate;
 use PDO;
+use ReturnTypeWillChange;
 use Traversable;
 
 use function array_shift;
+use function func_get_args;
 use function method_exists;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\ResultStatement that adds 3.0 features
  * defined in Result interface
  */
-class Result implements IteratorAggregate, DriverResultStatement, BaseResult
+class Result implements IteratorAggregate, DriverStatement, DriverResultStatement
 {
-    /** @var DriverResultStatement */
+    /** @var Driver\ResultStatement */
     private $stmt;
 
-    public function __construct(DriverResultStatement $stmt)
+    public static function ensure(Driver\ResultStatement $stmt): Result
+    {
+        if ($stmt instanceof Result) {
+            return $stmt;
+        }
+
+        return new Result($stmt);
+    }
+
+    public function __construct(Driver\ResultStatement $stmt)
     {
         $this->stmt = $stmt;
     }
 
     /**
-     * @return DriverResultStatement
+     * @return Driver\ResultStatement
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return $this->stmt;
@@ -70,7 +83,13 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
-        return $this->stmt->fetch($fetchMode, $cursorOrientation, $cursorOffset);
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::fetch() is deprecated, use Result::fetchNumeric(), fetchAssociative() or fetchOne() instead.'
+        );
+
+        return $this->stmt->fetch(...func_get_args());
     }
 
     /**
@@ -80,6 +99,13 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::fetchAll() is deprecated, use Result::fetchAllNumeric(), fetchAllAssociative() or ' .
+            'fetchFirstColumn() instead.'
+        );
+
         return $this->stmt->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
     }
 
@@ -90,6 +116,12 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
      */
     public function fetchColumn($columnIndex = 0)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::fetchColumn() is deprecated, use Result::fetchOne() instead.'
+        );
+
         return $this->stmt->fetchColumn($columnIndex);
     }
 
@@ -280,5 +312,105 @@ class Result implements IteratorAggregate, DriverResultStatement, BaseResult
         if ($columnCount < 2) {
             throw NoKeyValue::fromColumnCount($columnCount);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated This feature will no longer be available on Result object in 3.0.x version.
+     */
+    public function bindValue($param, $value, $type = ParameterType::STRING)
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::bindValue() is deprecated, no replacement.'
+        );
+
+        if ($this->stmt instanceof Driver\Statement) {
+            return $this->stmt->bindValue($param, $value, $type);
+        }
+
+        throw Exception::notSupported('bindValue');
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated This feature will no longer be available on Result object in 3.0.x version.
+     */
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::bindParam() is deprecated, no replacement.'
+        );
+
+        if ($this->stmt instanceof Driver\Statement) {
+            return $this->stmt->bindParam($param, $variable, $type, $length);
+        }
+
+        throw Exception::notSupported('bindParam');
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated The error information is available via exceptions.
+     */
+    public function errorCode()
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::errorCode() is deprecated, the error information is available via exceptions.'
+        );
+
+        if ($this->stmt instanceof Driver\Statement) {
+            return $this->stmt->errorCode();
+        }
+
+        throw Exception::notSupported('errorCode');
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated The error information is available via exceptions.
+     */
+    public function errorInfo()
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::errorInfo() is deprecated, the error information is available via exceptions.'
+        );
+
+        if ($this->stmt instanceof Driver\Statement) {
+            return $this->stmt->errorInfo();
+        }
+
+        throw Exception::notSupported('errorInfo');
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated This feature will no longer be available on Result object in 3.0.x version.
+     */
+    public function execute($params = null)
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4019',
+            'Result::execute() is deprecated, no replacement.'
+        );
+
+        if ($this->stmt instanceof Driver\Statement) {
+            return $this->stmt->execute($params);
+        }
+
+        throw Exception::notSupported('execute');
     }
 }

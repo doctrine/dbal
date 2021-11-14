@@ -35,7 +35,7 @@ class StatementTest extends DbalTestCase
         $driverConnection = $this->createMock(DriverConnection::class);
         $driverConnection->expects($this->any())
                 ->method('prepare')
-                ->will($this->returnValue($this->pdoStatement));
+                ->willReturn($this->pdoStatement);
 
         $driver = $this->createMock(Driver::class);
 
@@ -44,16 +44,16 @@ class StatementTest extends DbalTestCase
             ->getMock();
         $this->conn->expects($this->atLeastOnce())
                 ->method('getWrappedConnection')
-                ->will($this->returnValue($driverConnection));
+                ->willReturn($driverConnection);
 
         $this->configuration = $this->createMock(Configuration::class);
         $this->conn->expects($this->any())
                 ->method('getConfiguration')
-                ->will($this->returnValue($this->configuration));
+                ->willReturn($this->configuration);
 
         $this->conn->expects($this->any())
             ->method('getDriver')
-            ->will($this->returnValue($driver));
+            ->willReturn($driver);
     }
 
     public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound(): void
@@ -72,7 +72,7 @@ class StatementTest extends DbalTestCase
 
         $this->configuration->expects($this->once())
                 ->method('getSQLLogger')
-                ->will($this->returnValue($logger));
+                ->willReturn($logger);
 
         $statement = new Statement($sql, $this->conn);
         $statement->bindValue($name, $var, $type);
@@ -94,7 +94,7 @@ class StatementTest extends DbalTestCase
 
         $this->configuration->expects($this->once())
                 ->method('getSQLLogger')
-                ->will($this->returnValue($logger));
+                ->willReturn($logger);
 
         $statement = new Statement($sql, $this->conn);
         $statement->execute($values);
@@ -128,7 +128,7 @@ class StatementTest extends DbalTestCase
 
         $this->configuration->expects($this->once())
             ->method('getSQLLogger')
-            ->will($this->returnValue($logger));
+            ->willReturn($logger);
 
         $this->conn->expects($this->any())
             ->method('handleExceptionDuringQuery')

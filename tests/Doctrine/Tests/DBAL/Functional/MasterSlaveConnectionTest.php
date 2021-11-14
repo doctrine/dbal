@@ -15,7 +15,7 @@ use function sprintf;
 use const CASE_LOWER;
 
 /**
- * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
+ * @psalm-import-type Params from DriverManager
  */
 class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 {
@@ -55,7 +55,6 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
     /**
      * @return mixed[]
-     *
      * @psalm-return Params
      */
     private function createMasterSlaveConnectionParams(bool $keepSlave = false): array
@@ -72,7 +71,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     public function testInheritCharsetFromMaster(): void
     {
         $charsets = [
-            'utf8',
+            'utf8mb4',
             'latin1',
         ];
 

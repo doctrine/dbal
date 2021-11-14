@@ -13,6 +13,7 @@ use IteratorAggregate;
 use PDO;
 use ReflectionClass;
 use ReflectionObject;
+use ReturnTypeWillChange;
 use stdClass;
 
 use function array_key_exists;
@@ -44,6 +45,8 @@ use const SASQL_BOTH;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
+ *
+ * @deprecated Support for SQLAnywhere will be removed in 3.0.
  */
 class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
 {
@@ -320,6 +323,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return new StatementIterator($this);

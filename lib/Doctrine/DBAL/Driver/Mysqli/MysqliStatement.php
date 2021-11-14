@@ -15,8 +15,10 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use mysqli;
+use mysqli_sql_exception;
 use mysqli_stmt;
 use PDO;
+use ReturnTypeWillChange;
 
 use function array_combine;
 use function array_fill;
@@ -59,7 +61,7 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
     /** @var mixed[] */
     protected $_rowBindedValues = [];
 
-    /** @var mixed[]|null */
+    /** @var mixed[] */
     protected $_bindedValues;
 
     /** @var string */
@@ -93,7 +95,11 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
     {
         $this->_conn = $conn;
 
-        $stmt = $conn->prepare($prepareString);
+        try {
+            $stmt = $conn->prepare($prepareString);
+        } catch (mysqli_sql_exception $e) {
+            throw ConnectionError::upcast($e);
+        }
 
         if ($stmt === false) {
             throw ConnectionError::new($this->_conn);
@@ -101,11 +107,7 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
 
         $this->_stmt = $stmt;
 
-        $paramCount = $this->_stmt->param_count;
-        if (0 >= $paramCount) {
-            return;
-        }
-
+        $paramCount          = $this->_stmt->param_count;
         $this->types         = str_repeat('s', $paramCount);
         $this->_bindedValues = array_fill(1, $paramCount, null);
     }
@@ -150,17 +152,21 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
      */
     public function execute($params = null)
     {
-        if ($this->_bindedValues !== null) {
-            if ($params !== null) {
-                if (! $this->bindUntypedValues($params)) {
-                    throw StatementError::new($this->_stmt);
-                }
-            } else {
-                $this->bindTypedParameters();
+        if ($params !== null && count($params) > 0) {
+            if (! $this->bindUntypedValues($params)) {
+                throw StatementError::new($this->_stmt);
             }
+        } elseif (count($this->_bindedValues) > 0) {
+            $this->bindTypedParameters();
         }
 
-        if (! $this->_stmt->execute()) {
+        try {
+            $result = $this->_stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            throw StatementError::upcast($e);
+        }
+
+        if (! $result) {
             throw StatementError::new($this->_stmt);
         }
 
@@ -303,10 +309,16 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
 
     /**
      * @return mixed[]|false|null
+     *
+     * @throws StatementError
      */
     private function _fetch()
     {
-        $ret = $this->_stmt->fetch();
+        try {
+            $ret = $this->_stmt->fetch();
+        } catch (mysqli_sql_exception $e) {
+            throw StatementError::upcast($e);
+        }
 
         if ($ret === true) {
             $values = [];
@@ -563,6 +575,7 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return new StatementIterator($this);

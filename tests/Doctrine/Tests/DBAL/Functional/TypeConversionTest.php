@@ -139,9 +139,7 @@ class TypeConversionTest extends DbalFunctionalTestCase
     {
         return [
             'string' => ['string', 'ABCDEFGabcdefg'],
-            'bigint' => ['bigint', 12345678],
             'text' => ['text', str_repeat('foo ', 1000)],
-            'decimal' => ['decimal', 1.55],
         ];
     }
 

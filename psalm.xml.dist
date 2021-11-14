@@ -7,6 +7,7 @@
 >
     <projectFiles>
         <directory name="lib/Doctrine/DBAL" />
+        <directory name="tests/Doctrine/StaticAnalysis" />
         <directory name="tests/Doctrine/Tests" />
         <ignoreFiles>
             <directory name="vendor" />
@@ -272,6 +273,14 @@
                 <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
             </errorLevel>
         </PossiblyNullIterator>
+        <PossiblyFalseReference>
+            <errorLevel type="suppress">
+                <!--
+                    oci_new_descriptor() returns OCI-Lob|false on PHP 7 and OCILob|null on PHP 8
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php"/>
+            </errorLevel>
+        </PossiblyFalseReference>
         <PropertyNotSetInConstructor>
             <errorLevel type="suppress">
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
@@ -310,25 +319,8 @@
                 <directory name="lib"/>
             </errorLevel>
         </RedundantCastGivenDocblockType>
-        <RedundantCondition>
-            <errorLevel type="suppress">
-                <!--
-                    This suppression should be removed in 3.0.x
-                    See https://github.com/doctrine/dbal/pull/3860
-                -->
-                <file name="lib/Doctrine/DBAL/Version.php"/>
-            </errorLevel>
-        </RedundantCondition>
         <RedundantConditionGivenDocblockType>
             <errorLevel type="suppress">
-                <!--
-                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1055
-                -->
-                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
-                <!--
-                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1053
-                -->
-                <file name="lib/Doctrine/DBAL/Driver/PDOStatement.php"/>
                 <!--
                     Fixing these issues requires support of union types at the language level
                     or breaking API changes.
@@ -340,11 +332,6 @@
                 -->
                 <file name="lib/Doctrine/DBAL/Tools/Console/ConsoleRunner.php"/>
                 <file name="tests/Doctrine/Tests/DBAL/Functional/PortabilityTest.php"/>
-                <!--
-                    Requires a release of
-                    https://github.com/JetBrains/phpstorm-stubs/commit/43ce0bb13e927b9eb69cc06c16ab22f548c4735b
-                -->
-                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
         <ReferenceConstraintViolation>
@@ -373,6 +360,12 @@
                 <file name="lib/Doctrine/DBAL/Schema/SqliteSchemaManager.php"/>
             </errorLevel>
         </TooManyArguments>
+        <UndefinedAttributeClass>
+            <errorLevel type="suppress">
+                <!-- The class was added in PHP 8.1 -->
+                <referencedClass name="ReturnTypeWillChange"/>
+            </errorLevel>
+        </UndefinedAttributeClass>
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <directory name="lib/Doctrine/DBAL/Driver/SQLAnywhere"/>
@@ -450,6 +443,9 @@
 
                 <!-- See https://github.com/doctrine/dbal/issues/4318 -->
                 <file name="lib/Doctrine/DBAL/Types/ConversionException.php"/>
+
+                <!-- See https://bugs.php.net/bug.php?id=77591 -->
+                <referencedFunction name="db2_autocommit"/>
             </errorLevel>
         </InvalidScalarArgument>
         <InvalidReturnStatement>

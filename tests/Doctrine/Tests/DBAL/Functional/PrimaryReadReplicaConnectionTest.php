@@ -16,7 +16,7 @@ use const CASE_LOWER;
 
 /**
  * @group DBAL-20
- * @psalm-import-type Params from \Doctrine\DBAL\DriverManager
+ * @psalm-import-type Params from DriverManager
  */
 class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
 {
@@ -56,7 +56,6 @@ class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
 
     /**
      * @return mixed[]
-     *
      * @psalm-return Params
      */
     private function createPrimaryReadReplicaConnectionParams(bool $keepReplica = false): array
@@ -73,7 +72,7 @@ class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
     public function testInheritCharsetFromPrimary(): void
     {
         $charsets = [
-            'utf8',
+            'utf8mb4',
             'latin1',
         ];
 

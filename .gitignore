@@ -1,5 +1,5 @@
 /composer.lock
-/.phpunit.result.cache
+.phpunit.result.cache
 build/
 logs/
 reports/

@@ -3,8 +3,8 @@
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\ForwardCompatibility;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
@@ -201,14 +201,16 @@ class QueryBuilder
     /**
      * Executes this query using the bound parameters and their types.
      *
-     * @return ResultStatement|int
+     * @return ForwardCompatibility\DriverStatement|int
      *
      * @throws Exception
      */
     public function execute()
     {
         if ($this->type === self::SELECT) {
-            return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
+            return ForwardCompatibility\Result::ensure(
+                $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes)
+            );
         }
 
         return $this->connection->executeStatement($this->getSQL(), $this->params, $this->paramTypes);

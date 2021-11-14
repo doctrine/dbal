@@ -10,6 +10,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
+use ReturnTypeWillChange;
 
 use function array_change_key_case;
 use function assert;
@@ -134,6 +135,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         return new StatementIterator($this);
@@ -352,6 +354,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
         }
 
         if ($fixCase) {
+            assert($this->case !== null);
             $row = array_change_key_case($row, $this->case);
         }
 

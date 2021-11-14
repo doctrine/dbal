@@ -6,7 +6,7 @@ use Doctrine\DBAL\Driver\AbstractDriverException;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 
 /**
- * @deprecated Use {@link Exception} instead
+ * @deprecated Use {@link \Doctrine\DBAL\Driver\Exception} instead
  *
  * @psalm-immutable
  */

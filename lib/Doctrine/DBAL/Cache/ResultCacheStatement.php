@@ -13,6 +13,7 @@ use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+use ReturnTypeWillChange;
 
 use function array_map;
 use function array_merge;
@@ -109,6 +110,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
      *
      * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         $data = $this->fetchAll();
@@ -117,6 +119,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      *
      * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
@@ -189,6 +194,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      *
      * @deprecated Use fetchOne() instead.
@@ -202,6 +210,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      */
     public function fetchNumeric()
@@ -216,6 +227,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      */
     public function fetchAssociative()
@@ -224,6 +238,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     }
 
     /**
+     * Be warned that you will need to call this method until no rows are
+     * available for caching to happen.
+     *
      * {@inheritdoc}
      */
     public function fetchOne()

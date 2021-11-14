@@ -3,17 +3,21 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 use function array_change_key_case;
 use function array_merge;
 use function array_shift;
 use function array_values;
+use function class_exists;
 use function is_array;
 
 use const CASE_LOWER;
@@ -49,7 +53,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $config = $this->connection->getConfiguration();
         $config->setSQLLogger($this->sqlLogger = new DebugStack());
 
-        $cache = new ArrayCache();
+        $cache = $this->getArrayCache();
         $config->setResultCacheImpl($cache);
     }
 
@@ -217,7 +221,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
      */
     public function testFetchingAllRowsSavesCache(callable $fetchAll): void
     {
-        $layerCache = new ArrayCache();
+        $layerCache = $this->getArrayCache();
 
         $stmt = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -266,7 +270,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $query = $this->connection->getDatabasePlatform()
             ->getDummySelectSQL('1');
 
-        $qcp = new QueryCacheProfile(0, null, new ArrayCache());
+        $qcp = new QueryCacheProfile(0, null, $this->getArrayCache());
 
         $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
         $stmt->fetchAll(FetchMode::COLUMN);
@@ -339,7 +343,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
         $this->hydrateStmt($stmt);
 
-        $secondCache = new ArrayCache();
+        $secondCache = $this->getArrayCache();
 
         $stmt = $this->connection->executeQuery(
             'SELECT * FROM caching WHERE test_int > 500',
@@ -380,5 +384,18 @@ class ResultCacheTest extends DbalFunctionalTestCase
         }
 
         return $data;
+    }
+
+    private function getArrayCache(): Cache
+    {
+        if (class_exists(DoctrineProvider::class)) {
+            return DoctrineProvider::wrap(new ArrayAdapter());
+        }
+
+        if (class_exists(ArrayCache::class)) {
+            return new ArrayCache();
+        }
+
+        self::fail('Cannot instantiate cache backend.');
     }
 }
