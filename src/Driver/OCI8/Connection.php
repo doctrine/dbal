@@ -78,7 +78,8 @@ final class Connection implements ServerInfoAwareConnection
             throw Error::new($this->dbh);
         }
 
-        assert(preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches) === 1);
+        $result = preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches);
+        assert($result === 1);
 
         return $matches[1];
     }
