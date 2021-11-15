@@ -57,10 +57,8 @@ final class Driver extends AbstractPostgreSQLDriver
      * Constructs the Postgres PDO DSN.
      *
      * @param mixed[] $params
-     *
-     * @return string The DSN.
      */
-    private function constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params): string
     {
         $dsn = 'pgsql:';
 

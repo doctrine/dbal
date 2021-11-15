@@ -41,16 +41,4 @@ final class Driver extends AbstractOracleDriver
 
         return new Connection($connection);
     }
-
-    /**
-     * Constructs the Oracle DSN.
-     *
-     * @param mixed[] $params
-     *
-     * @return string The DSN.
-     */
-    protected function _constructDsn(array $params)
-    {
-        return $this->getEasyConnectString($params);
-    }
 }

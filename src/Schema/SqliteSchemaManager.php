@@ -481,11 +481,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * @param Table|string $table
      *
-     * @return TableDiff
-     *
      * @throws Exception
      */
-    private function getTableDiffForAlterForeignKey($table)
+    private function getTableDiffForAlterForeignKey($table): TableDiff
     {
         if (! $table instanceof Table) {
             $table = $this->listTableDetails($table);

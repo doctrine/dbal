@@ -218,10 +218,8 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * Cache definition for sequences
-     *
-     * @return string
      */
-    private function getSequenceCacheSQL(Sequence $sequence)
+    private function getSequenceCacheSQL(Sequence $sequence): string
     {
         if ($sequence->getCache() === 0) {
             return ' NOCACHE';
@@ -587,10 +585,8 @@ END;';
      * to reflect Oracle's internal auto uppercasing strategy of unquoted identifiers.
      *
      * @param string $name The identifier to normalize.
-     *
-     * @return Identifier The normalized identifier.
      */
-    private function normalizeIdentifier($name)
+    private function normalizeIdentifier($name): Identifier
     {
         $identifier = new Identifier($name);
 
@@ -618,12 +614,8 @@ END;';
      *
      * Quotes the autoincrement primary key identifier name
      * if the given table name is quoted by intention.
-     *
-     * @param Identifier $table The table identifier to return the autoincrement primary key identifier name for.
-     *
-     * @return string
      */
-    private function getAutoincrementIdentifierName(Identifier $table)
+    private function getAutoincrementIdentifierName(Identifier $table): string
     {
         $identifierName = $this->addSuffix($table->getName(), '_AI_PK');
 

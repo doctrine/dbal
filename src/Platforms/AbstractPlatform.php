@@ -169,10 +169,8 @@ abstract class AbstractPlatform
     /**
      * Initializes Doctrine Type Mappings with the platform defaults
      * and with all additional type mappings.
-     *
-     * @return void
      */
-    private function initializeAllDoctrineTypeMappings()
+    private function initializeAllDoctrineTypeMappings(): void
     {
         $this->initializeDoctrineTypeMappings();
 
@@ -3689,11 +3687,9 @@ abstract class AbstractPlatform
      * @param int|null $limit
      * @param int      $offset
      *
-     * @return string
-     *
      * @throws Exception
      */
-    final public function modifyLimitQuery($query, $limit, $offset = 0)
+    final public function modifyLimitQuery($query, $limit, $offset = 0): string
     {
         if ($offset < 0) {
             throw new Exception(sprintf(
@@ -3845,11 +3841,9 @@ abstract class AbstractPlatform
     /**
      * Returns the keyword list instance of this platform.
      *
-     * @return KeywordList
-     *
      * @throws Exception If no keyword list is specified.
      */
-    final public function getReservedKeywordsList()
+    final public function getReservedKeywordsList(): KeywordList
     {
         // Check for an existing instantiation of the keywords class.
         if ($this->_keywords === null) {

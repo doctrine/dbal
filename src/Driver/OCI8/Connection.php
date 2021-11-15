@@ -47,10 +47,7 @@ final class Connection implements ServerInfoAwareConnection
         $this->executionMode = new ExecutionMode();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getServerVersion()
+    public function getServerVersion(): string
     {
         $version = oci_server_version($this->connection);
 
@@ -140,20 +137,14 @@ final class Connection implements ServerInfoAwareConnection
         return (int) $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         $this->executionMode->disableAutoCommit();
 
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function commit()
+    public function commit(): bool
     {
         if (! oci_commit($this->connection)) {
             throw Error::new($this->connection);
@@ -164,10 +155,7 @@ final class Connection implements ServerInfoAwareConnection
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rollBack()
+    public function rollBack(): bool
     {
         if (! oci_rollback($this->connection)) {
             throw Error::new($this->connection);

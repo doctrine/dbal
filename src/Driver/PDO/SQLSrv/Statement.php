@@ -33,8 +33,13 @@ final class Statement implements StatementInterface
      * @param int|null   $length
      * @param mixed      $driverOptions The usage of the argument is deprecated.
      */
-    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
-    {
+    public function bindParam(
+        $param,
+        &$variable,
+        $type = ParameterType::STRING,
+        $length = null,
+        $driverOptions = null
+    ): bool {
         if (func_num_args() > 4) {
             Deprecation::triggerIfCalledFromOutside(
                 'doctrine/dbal',
@@ -65,7 +70,7 @@ final class Statement implements StatementInterface
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING): bool
     {
         return $this->bindParam($param, $value, $type);
     }

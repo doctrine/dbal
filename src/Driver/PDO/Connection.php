@@ -108,26 +108,17 @@ final class Connection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         return $this->connection->beginTransaction();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function commit()
+    public function commit(): bool
     {
         return $this->connection->commit();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function rollBack()
+    public function rollBack(): bool
     {
         return $this->connection->rollBack();
     }

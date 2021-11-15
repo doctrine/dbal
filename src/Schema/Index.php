@@ -336,10 +336,8 @@ class Index extends AbstractAsset implements Constraint
 
     /**
      * Return whether the two indexes have the same partial index
-     *
-     * @return bool
      */
-    private function samePartialIndex(Index $other)
+    private function samePartialIndex(Index $other): bool
     {
         if (
             $this->hasOption('where')

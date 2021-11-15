@@ -447,10 +447,8 @@ SQL
      * Build SQL for table options
      *
      * @param mixed[] $options
-     *
-     * @return string
      */
-    private function buildTableOptions(array $options)
+    private function buildTableOptions(array $options): string
     {
         if (isset($options['table_options'])) {
             return $options['table_options'];
@@ -501,10 +499,8 @@ SQL
      * Build SQL for partition options.
      *
      * @param mixed[] $options
-     *
-     * @return string
      */
-    private function buildPartitionOptions(array $options)
+    private function buildPartitionOptions(array $options): string
     {
         return isset($options['partition_options'])
             ? ' ' . $options['partition_options']
@@ -682,7 +678,7 @@ SQL
      *
      * @throws Exception
      */
-    private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index)
+    private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index): array
     {
         $sql = [];
 
@@ -723,7 +719,7 @@ SQL
      *
      * @throws Exception
      */
-    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff)
+    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql   = [];
         $table = $diff->getName($this)->getQuotedName($this);
@@ -787,7 +783,7 @@ SQL
      *
      * @return ForeignKeyConstraint[]
      */
-    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff)
+    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff): array
     {
         if (empty($diff->renamedIndexes) || ! $diff->fromTable instanceof Table) {
             return [];
@@ -912,10 +908,8 @@ SQL
      * Get unsigned declaration for a column.
      *
      * @param mixed[] $columnDef
-     *
-     * @return string
      */
-    private function getUnsignedDeclaration(array $columnDef)
+    private function getUnsignedDeclaration(array $columnDef): string
     {
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
