@@ -49,7 +49,9 @@ class PortabilityTest extends FunctionalTestCase
 
     protected function tearDown(): void
     {
-        $this->markConnectionNotReusable();
+        // the connection that overrides the shared one has to be manually closed prior to 4.0.0 to prevent leak
+        // see https://github.com/doctrine/dbal/issues/4515
+        $this->connection->close();
     }
 
     public function testFullFetchMode(): void

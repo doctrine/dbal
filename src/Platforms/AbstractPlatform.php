@@ -3705,7 +3705,11 @@ abstract class AbstractPlatform
             ));
         }
 
-        return $this->doModifyLimitQuery($query, $limit, $offset);
+        if ($limit !== null) {
+            $limit = (int) $limit;
+        }
+
+        return $this->doModifyLimitQuery($query, $limit, (int) $offset);
     }
 
     /**

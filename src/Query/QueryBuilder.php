@@ -405,7 +405,7 @@ class QueryBuilder
      *         ->select('u')
      *         ->from('users', 'u')
      *         ->where('u.id = :user_id')
-     *         ->setParameter(':user_id', 1);
+     *         ->setParameter('user_id', 1);
      * </code>
      *
      * @param int|string           $key   Parameter position or name
@@ -434,8 +434,8 @@ class QueryBuilder
      *         ->from('users', 'u')
      *         ->where('u.id = :user_id1 OR u.id = :user_id2')
      *         ->setParameters(array(
-     *             ':user_id1' => 1,
-     *             ':user_id2' => 2
+     *             'user_id1' => 1,
+     *             'user_id2' => 2
      *         ));
      * </code>
      *
