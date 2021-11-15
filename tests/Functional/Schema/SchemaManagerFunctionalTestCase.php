@@ -78,8 +78,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $this->connection->executeStatement('DROP SCHEMA testschema');
         } catch (Exception $e) {
         }
-
-        $this->markConnectionNotReusable();
     }
 
     public function testDropAndCreateSequence(): void
