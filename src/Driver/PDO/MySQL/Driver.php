@@ -41,8 +41,6 @@ final class Driver extends AbstractMySQLDriver
      * Constructs the MySQL PDO DSN.
      *
      * @param mixed[] $params
-     *
-     * @return string The DSN.
      */
     private function constructPdoDsn(array $params): string
     {

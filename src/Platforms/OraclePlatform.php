@@ -486,8 +486,6 @@ END;';
      * to reflect Oracle's internal auto uppercasing strategy of unquoted identifiers.
      *
      * @param string $name The identifier to normalize.
-     *
-     * @return Identifier The normalized identifier.
      */
     private function normalizeIdentifier(string $name): Identifier
     {
@@ -517,8 +515,6 @@ END;';
      *
      * Quotes the autoincrement primary key identifier name
      * if the given table name is quoted by intention.
-     *
-     * @param Identifier $table The table identifier to return the autoincrement primary key identifier name for.
      */
     private function getAutoincrementIdentifierName(Identifier $table): string
     {

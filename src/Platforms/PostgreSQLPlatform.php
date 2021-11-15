@@ -497,10 +497,6 @@ SQL
      * as this platform does not have a native VARBINARY/BINARY column type. Therefore the comparator
      * might detect differences for binary type columns which do not have to be propagated
      * to database as there actually is no difference at database level.
-     *
-     * @param ColumnDiff $columnDiff The column diff to check against.
-     *
-     * @return bool True if the given column diff is an unchanged binary type column, false otherwise.
      */
     private function isUnchangedBinaryColumn(ColumnDiff $columnDiff): bool
     {

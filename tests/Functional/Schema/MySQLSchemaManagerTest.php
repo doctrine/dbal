@@ -26,13 +26,6 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         Type::addType('point', PointType::class);
     }
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->markConnectionNotReusable();
-    }
-
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof MySQLPlatform;
@@ -91,6 +84,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $index->addFlag('spatial');
 
         $this->dropAndCreateTable($table);
+
+        // see https://github.com/doctrine/dbal/issues/4983
+        $this->markConnectionNotReusable();
 
         $indexes = $this->schemaManager->listTableIndexes('spatial_index');
         self::assertArrayHasKey('s_index', $indexes);

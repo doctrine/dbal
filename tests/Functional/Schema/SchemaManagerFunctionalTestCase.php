@@ -32,6 +32,7 @@ use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use ReflectionMethod;
 
 use function array_filter;
@@ -76,8 +77,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $this->connection->executeStatement('DROP SCHEMA testschema');
         } catch (Exception $e) {
         }
-
-        $this->markConnectionNotReusable();
     }
 
     public function testCreateSequence(): void
@@ -1284,6 +1283,54 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $table = $this->schemaManager->listTableDetails('table_with_comment');
         self::assertSame('Foo with control characters \'\\', $table->getComment());
+    }
+
+    public function testCreatedCompositeForeignKeyOrderIsCorrectAfterCreation(): void
+    {
+        if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            self::markTestSkipped('Platform does not support foreign keys.');
+        }
+
+        $foreignKey     = 'fk_test_order';
+        $localTable     = 'test_table_foreign';
+        $foreignTable   = 'test_table_local';
+        $localColumns   = ['child_col2', 'child_col1'];
+        $foreignColumns = ['col2', 'col1'];
+
+        $this->dropTableIfExists($foreignTable);
+        $this->dropTableIfExists($localTable);
+
+        $table = new Table($localTable);
+
+        $table->addColumn('col1', Types::INTEGER);
+        $table->addColumn('col2', Types::INTEGER);
+        $table->setPrimaryKey($foreignColumns);
+
+        $this->schemaManager->createTable($table);
+
+        $table = new Table($foreignTable);
+
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('child_col1', Types::INTEGER);
+        $table->addColumn('child_col2', Types::INTEGER);
+        $table->setPrimaryKey(['id']);
+
+        $table->addForeignKeyConstraint(
+            $localTable,
+            $localColumns,
+            $foreignColumns,
+            [],
+            $foreignKey
+        );
+
+        $this->schemaManager->createTable($table);
+
+        $table = $this->schemaManager->listTableDetails($foreignTable);
+
+        $foreignKey = $table->getForeignKey($foreignKey);
+
+        self::assertSame($localColumns, array_map('strtolower', $foreignKey->getLocalColumns()));
+        self::assertSame($foreignColumns, array_map('strtolower', $foreignKey->getForeignColumns()));
     }
 }
 

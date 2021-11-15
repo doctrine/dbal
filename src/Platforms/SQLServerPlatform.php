@@ -561,10 +561,6 @@ class SQLServerPlatform extends AbstractPlatform
      * as constraints and therefore changes in a column's default value as well as changes
      * in a column's type require dropping the default constraint first before being to
      * alter the particular column to the new definition.
-     *
-     * @param ColumnDiff $columnDiff The column diff to evaluate.
-     *
-     * @return bool True if the column alteration requires dropping its default constraint first, false otherwise.
      */
     private function alterColumnRequiresDropDefaultConstraint(ColumnDiff $columnDiff): bool
     {
@@ -823,7 +819,8 @@ class SQLServerPlatform extends AbstractPlatform
                 INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
                 ON f.OBJECT_ID = fc.constraint_object_id
                 WHERE ' .
-                $this->getTableWhereClause($table, 'SCHEMA_NAME (f.schema_id)', 'OBJECT_NAME (f.parent_object_id)');
+                $this->getTableWhereClause($table, 'SCHEMA_NAME (f.schema_id)', 'OBJECT_NAME (f.parent_object_id)') .
+                ' ORDER BY fc.constraint_column_id';
     }
 
     public function getListTableIndexesSQL(string $table, ?string $database = null): string
