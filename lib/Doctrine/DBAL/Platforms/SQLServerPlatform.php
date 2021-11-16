@@ -10,6 +10,8 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -1238,7 +1240,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getClobTypeDeclarationSQL(array $column)
     {
-        return 'VARCHAR(MAX)';
+        return 'NVARCHAR(MAX)';
     }
 
     /**
@@ -1530,6 +1532,20 @@ class SQLServerPlatform extends AbstractPlatform
             'image' => 'blob',
             'uniqueidentifier' => 'guid',
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isCommentedDoctrineType(Type $doctrineType)
+    {
+        if ($doctrineType->getName() === Types::TEXT) {
+            // We require a commented text type in order to distinguish between text and string
+            // as both (have to) map to the same native type.
+            return true;
+        }
+
+        return parent::isCommentedDoctrineType($doctrineType);
     }
 
     /**
