@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\API\MySQL;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb1070Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
@@ -31,8 +32,14 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
     public function createDatabasePlatformForVersion($version)
     {
         $mariadb = stripos($version, 'mariadb') !== false;
-        if ($mariadb && version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
-            return new MariaDb1027Platform();
+        if ($mariadb) {
+            if (version_compare($this->getMariaDbMysqlVersionNumber($version), '10.7', '>=')) {
+                return new MariaDb1070Platform();
+            }
+            
+            if (version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
+                return new MariaDb1027Platform();
+            }
         }
 
         if (! $mariadb) {
