@@ -5,20 +5,17 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Types\Types;
 
 /**
- * Provides the behavior, features and SQL dialect of the MariaDB 10.2 (10.2.7 GA) database platform.
+ * Provides the native GUID type from MariaDB 10.7 database platform.
  *
- * Note: Should not be used with versions prior to 10.2.7.
+ * Note: Should not be used with versions prior to 10.7.
  */
 class MariaDb1070Platform extends MariaDb1027Platform
 {
-    /**
-     * {@inheritDoc}
-     */
     public function hasNativeGuidType(): bool
     {
         return true;
     }
-    
+
     /**
      * {@inheritDoc}
      */

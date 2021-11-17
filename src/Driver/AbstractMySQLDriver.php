@@ -36,7 +36,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
             if (version_compare($this->getMariaDbMysqlVersionNumber($version), '10.7', '>=')) {
                 return new MariaDb1070Platform();
             }
-            
+
             if (version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
                 return new MariaDb1027Platform();
             }
