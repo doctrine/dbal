@@ -19,6 +19,7 @@ use function count;
 use function explode;
 use function func_get_arg;
 use function func_num_args;
+use function hash;
 use function implode;
 use function preg_match;
 use function sprintf;
@@ -32,6 +33,8 @@ use function substr;
  */
 class OraclePlatform extends AbstractPlatform
 {
+    private const HASH_LENGTH = 4;
+
     /**
      * Assertion for Oracle identifiers.
      *
@@ -603,7 +606,7 @@ END;';
     {
         $maxPossibleLengthWithoutSuffix = $this->getMaxIdentifierLength() - strlen($suffix);
         if (strlen($identifier) > $maxPossibleLengthWithoutSuffix) {
-            $identifier = substr($identifier, 0, $maxPossibleLengthWithoutSuffix);
+            $identifier = substr($identifier, 0, $maxPossibleLengthWithoutSuffix - self::HASH_LENGTH - 1) . '_' . substr(hash('sha256', $identifier), -self::HASH_LENGTH);
         }
 
         return $identifier . $suffix;
