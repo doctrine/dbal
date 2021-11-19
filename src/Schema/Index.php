@@ -16,13 +16,6 @@ use function strtolower;
 class Index extends AbstractAsset implements Constraint
 {
     /**
-     * Old (quoted) index name if index is renamed.
-     *
-     * @var string|false
-     */
-    public $oldName = false;
-
-    /**
      * Asset identifier instances of the column names the index is associated with.
      * array($columnName => Identifier)
      *
@@ -45,6 +38,13 @@ class Index extends AbstractAsset implements Constraint
     protected $_flags = [];
 
     /**
+     * Original (quoted) index name if index is renamed.
+     *
+     * @var string
+     */
+    private $prevName;
+
+    /**
      * Platform specific options
      *
      * @todo $_flags should eventually be refactored into options
@@ -59,6 +59,7 @@ class Index extends AbstractAsset implements Constraint
      * @param bool     $isPrimary
      * @param string[] $flags
      * @param mixed[]  $options
+     * @param string|null $prevName
      */
     public function __construct(
         $name,
@@ -66,7 +67,8 @@ class Index extends AbstractAsset implements Constraint
         $isUnique = false,
         $isPrimary = false,
         array $flags = [],
-        array $options = []
+        array $options = [],
+        $prevName = null
     ) {
         $isUnique = $isUnique || $isPrimary;
 
@@ -74,6 +76,7 @@ class Index extends AbstractAsset implements Constraint
         $this->_isUnique  = $isUnique;
         $this->_isPrimary = $isPrimary;
         $this->options    = $options;
+        $this->prevName = $prevName ?? $name;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -339,6 +342,16 @@ class Index extends AbstractAsset implements Constraint
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * Returns the previous (quoted) index name or the current one if unchanged
+     *
+     * @return string Previous index name or current index name
+     */
+    public function getPreviousName()
+    {
+        $this->prevName;
     }
 
     /**

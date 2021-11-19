@@ -2122,8 +2122,8 @@ abstract class AbstractPlatform
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
 
-        foreach ($diff->renamedIndexes as $oldIndexName => $index) {
-            $oldIndexName = new Identifier($index->oldName ?: $oldIndexName);
+        foreach ($diff->renamedIndexes as $index) {
+            $oldIndexName = new Identifier($index->getPreviousName());
             $sql          = array_merge(
                 $sql,
                 $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName)

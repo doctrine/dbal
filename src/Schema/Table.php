@@ -272,11 +272,12 @@ class Table extends AbstractAsset
         }
 
         $oldIndex = $this->_indexes[$normalizedOldName];
+        $cols = $oldIndex->getColumns();
 
         if ($oldIndex->isPrimary()) {
             $this->dropPrimaryKey();
 
-            return $this->setPrimaryKey($oldIndex->getColumns(), $newName ?? false);
+            return $this->setPrimaryKey($cols, $newName ?? false);
         }
 
         unset($this->_indexes[$normalizedOldName]);
@@ -284,8 +285,7 @@ class Table extends AbstractAsset
         $opts = $oldIndex->getOptions();
         $flags = !$oldIndex->isUnique() ? $oldIndex->getFlags() : [];
 
-        $newIndex = $this->_createIndex($oldIndex->getColumns(), $newName, $oldIndex->isUnique(), false, $flags, $opts);
-        $newIndex->oldName = $oldName;
+        $newIndex = $this->_createIndex($cols, $newName, $oldIndex->isUnique(), false, $flags, $opts, $oldName);
 
         return $this->_addIndex($newIndex);
     }
@@ -315,6 +315,7 @@ class Table extends AbstractAsset
      * @param bool     $isPrimary
      * @param string[] $flags
      * @param mixed[]  $options
+     * @param string|null $prevName
      *
      * @return Index
      *
@@ -326,7 +327,8 @@ class Table extends AbstractAsset
         $isUnique,
         $isPrimary,
         array $flags = [],
-        array $options = []
+        array $options = [],
+        $prevName = null
     ) {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw SchemaException::indexNameInvalid($indexName);
@@ -338,7 +340,7 @@ class Table extends AbstractAsset
             }
         }
 
-        return new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags, $options);
+        return new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags, $options, $prevName);
     }
 
     /**
