@@ -589,6 +589,8 @@ SQL
         self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
         self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', '"mycolumn"'));
         self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
+        self::assertSame('MY_REALLY_LENGTHY_TABL_134_SEQ', $this->platform->getIdentitySequenceName('my_really_lengthy_table_name', 'mycolumn'));
+        self::assertSame('"my_really_lengthy_tabl_134_SEQ"', $this->platform->getIdentitySequenceName('"my_really_lengthy_table_name"', '"mycolumn"'));
     }
 
     /**
