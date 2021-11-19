@@ -212,6 +212,7 @@ jobs:
           - "10.0"
           - "10.2"
           - "10.5"
+          - "10.7"
         extension:
           - "mysqli"
           - "pdo_mysql"
