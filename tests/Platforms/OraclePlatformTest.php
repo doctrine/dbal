@@ -258,6 +258,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $columnName = strtoupper('id' . uniqid());
         $tableName  = strtoupper('table' . uniqid());
+        $seqName    = $this->platform->getIdentitySequenceName($tableName, $columnName);
         $table      = new Table($tableName);
 
         $column = $table->addColumn($columnName, 'integer');
@@ -275,7 +276,7 @@ BEGIN
    WHERE TABLE_NAME = '%s'
      AND CONSTRAINT_TYPE = 'P';
   IF constraints_Count = 0 OR constraints_Count = '' THEN
-    EXECUTE IMMEDIATE 'ALTER TABLE %s ADD CONSTRAINT %s_AI_PK PRIMARY KEY (%s)';
+    EXECUTE IMMEDIATE 'ALTER TABLE %s ADD CONSTRAINT %s_APK PRIMARY KEY (%s)';
   END IF;
 END;
 SQL
@@ -285,10 +286,10 @@ SQL
                 $tableName,
                 $columnName
             ),
-            sprintf('CREATE SEQUENCE %s_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1', $tableName),
+            sprintf('CREATE SEQUENCE %s START WITH 1 MINVALUE 1 INCREMENT BY 1', $seqName),
             sprintf(
                 <<<SQL
-CREATE TRIGGER %s_AI_PK
+CREATE TRIGGER %s_APK
    BEFORE INSERT
    ON %s
    FOR EACH ROW
@@ -297,16 +298,16 @@ DECLARE
    last_InsertID NUMBER;
 BEGIN
    IF (:NEW.%s IS NULL OR :NEW.%s = 0) THEN
-      SELECT %s_SEQ.NEXTVAL INTO :NEW.%s FROM DUAL;
+      SELECT %s.NEXTVAL INTO :NEW.%s FROM DUAL;
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
         FROM User_Sequences
-       WHERE Sequence_Name = '%s_SEQ';
+       WHERE Sequence_Name = '%s';
       SELECT :NEW.%s INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
-         SELECT %s_SEQ.NEXTVAL INTO last_Sequence FROM DUAL;
+         SELECT %s.NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
-      SELECT %s_SEQ.NEXTVAL INTO last_Sequence FROM DUAL;
+      SELECT %s.NEXTVAL INTO last_Sequence FROM DUAL;
    END IF;
 END;
 SQL
@@ -315,12 +316,12 @@ SQL
                 $tableName,
                 $columnName,
                 $columnName,
-                $tableName,
+                $seqName,
                 $columnName,
-                $tableName,
+                $seqName,
                 $columnName,
-                $tableName,
-                $tableName
+                $seqName,
+                $seqName
             ),
         ], $this->platform->getCreateTableSQL($table));
     }
@@ -563,10 +564,12 @@ SQL
 
     public function testReturnsIdentitySequenceName(): void
     {
-        self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
-        self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
-        self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', '"mycolumn"'));
-        self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
+        self::assertSame('MYTABLE_MYCOLUMN_SEQ', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
+        self::assertSame('"mytable_MYCOLUMN_seq"', $this->platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
+        self::assertSame('"MYTABLE_mycolumn_seq"', $this->platform->getIdentitySequenceName('mytable', '"mycolumn"'));
+        self::assertSame('"mytable_mycolumn_seq"', $this->platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
+        self::assertSame('MY_REALLY_LENGTHY_TABL_9BB_SEQ', $this->platform->getIdentitySequenceName('my_really_lengthy_table_name', 'mycolumn'));
+        self::assertSame('"my_really_lengthy_tabl_b04_seq"', $this->platform->getIdentitySequenceName('"my_really_lengthy_table_name"', '"mycolumn"'));
     }
 
     /**
@@ -686,25 +689,25 @@ SQL
             [
                 'myTable',
                 [
-                    'DROP TRIGGER MYTABLE_AI_PK',
+                    'DROP TRIGGER MYTABLE_APK',
                     'DROP SEQUENCE MYTABLE_SEQ',
-                    'ALTER TABLE MYTABLE DROP CONSTRAINT MYTABLE_AI_PK',
+                    'ALTER TABLE MYTABLE DROP CONSTRAINT MYTABLE_APK',
                 ],
             ],
             [
                 '"myTable"',
                 [
-                    'DROP TRIGGER "myTable_AI_PK"',
-                    'DROP SEQUENCE "myTable_SEQ"',
-                    'ALTER TABLE "myTable" DROP CONSTRAINT "myTable_AI_PK"',
+                    'DROP TRIGGER "myTable_apk"',
+                    'DROP SEQUENCE "myTable_seq"',
+                    'ALTER TABLE "myTable" DROP CONSTRAINT "myTable_apk"',
                 ],
             ],
             [
                 'table',
                 [
-                    'DROP TRIGGER TABLE_AI_PK',
+                    'DROP TRIGGER TABLE_APK',
                     'DROP SEQUENCE TABLE_SEQ',
-                    'ALTER TABLE "TABLE" DROP CONSTRAINT TABLE_AI_PK',
+                    'ALTER TABLE "TABLE" DROP CONSTRAINT TABLE_APK',
                 ],
             ],
         ];
@@ -767,9 +770,9 @@ SQL
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals('CREATE TABLE "test" ("id" NUMBER(10) NOT NULL)', $sql[0]);
-        self::assertEquals('CREATE SEQUENCE "test_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[2]);
+        self::assertEquals('CREATE SEQUENCE "test_id_seq" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[2]);
         $createTriggerStatement = <<<EOD
-CREATE TRIGGER "test_AI_PK"
+CREATE TRIGGER "test_apk"
    BEFORE INSERT
    ON "test"
    FOR EACH ROW
@@ -778,16 +781,16 @@ DECLARE
    last_InsertID NUMBER;
 BEGIN
    IF (:NEW."id" IS NULL OR :NEW."id" = 0) THEN
-      SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
+      SELECT "test_id_seq".NEXTVAL INTO :NEW."id" FROM DUAL;
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
         FROM User_Sequences
-       WHERE Sequence_Name = 'test_SEQ';
+       WHERE Sequence_Name = 'test_id_seq';
       SELECT :NEW."id" INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
-         SELECT "test_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
+         SELECT "test_id_seq".NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
-      SELECT "test_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
+      SELECT "test_id_seq".NEXTVAL INTO last_Sequence FROM DUAL;
    END IF;
 END;
 EOD;

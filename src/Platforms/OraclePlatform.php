@@ -32,6 +32,8 @@ use function substr;
  */
 class OraclePlatform extends AbstractPlatform
 {
+    private const HASH_LENGTH = 3;
+
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string
     {
         if ($length === null) {
@@ -506,7 +508,7 @@ END;';
     {
         $maxPossibleLengthWithoutSuffix = $this->getMaxIdentifierLength() - strlen($suffix);
         if (strlen($identifier) > $maxPossibleLengthWithoutSuffix) {
-            $identifier = substr($identifier, 0, $maxPossibleLengthWithoutSuffix);
+            $identifier = substr($identifier, 0, $maxPossibleLengthWithoutSuffix - self::HASH_LENGTH - 1) . '_' . substr(hash('sha256', $identifier), -self::HASH_LENGTH);
         }
 
         return $identifier . $suffix;
@@ -522,11 +524,15 @@ END;';
      */
     private function getAutoincrementIdentifierName(Identifier $table): string
     {
-        $identifierName = $this->addSuffix($table->getName(), '_AI_PK');
+        $identifierName = $this->addSuffix($table->getName(), '_apk');
 
-        return $table->isQuoted()
-            ? $this->quoteSingleIdentifier($identifierName)
-            : $identifierName;
+        if ($table->isQuoted()) {
+            $identifierName = '"' . $identifierName . '"';
+        }
+
+        $identifier = $this->normalizeIdentifier($identifierName);
+
+        return $identifier->getQuotedName($this);
     }
 
     public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
@@ -841,12 +847,13 @@ SQL
 
     public function getIdentitySequenceName(string $tableName, string $columnName): string
     {
-        $table = new Identifier($tableName);
+        $table = $this->normalizeIdentifier($tableName);
+        $column = $this->normalizeIdentifier($columnName);
 
-        // No usage of column name to preserve BC compatibility with <2.5
-        $identitySequenceName = $this->addSuffix($table->getName(), '_SEQ');
+        $colname = $columnName ? '_' . $column->getName() : '';
+        $identitySequenceName = $this->addSuffix($table->getName() . $colname, '_seq');
 
-        if ($table->isQuoted()) {
+        if ($table->isQuoted() || $column->isQuoted()) {
             $identitySequenceName = '"' . $identitySequenceName . '"';
         }
 
