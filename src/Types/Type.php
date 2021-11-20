@@ -16,37 +16,6 @@ use function get_class;
  */
 abstract class Type
 {
-    /**
-     * The map of supported doctrine mapping types.
-     */
-    private const BUILTIN_TYPES_MAP = [
-        Types::ARRAY                => ArrayType::class,
-        Types::ASCII_STRING         => AsciiStringType::class,
-        Types::BIGINT               => BigIntType::class,
-        Types::BINARY               => BinaryType::class,
-        Types::BLOB                 => BlobType::class,
-        Types::BOOLEAN              => BooleanType::class,
-        Types::DATE_MUTABLE         => DateType::class,
-        Types::DATE_IMMUTABLE       => DateImmutableType::class,
-        Types::DATEINTERVAL         => DateIntervalType::class,
-        Types::DATETIME_MUTABLE     => DateTimeType::class,
-        Types::DATETIME_IMMUTABLE   => DateTimeImmutableType::class,
-        Types::DATETIMETZ_MUTABLE   => DateTimeTzType::class,
-        Types::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
-        Types::DECIMAL              => DecimalType::class,
-        Types::FLOAT                => FloatType::class,
-        Types::GUID                 => GuidType::class,
-        Types::INTEGER              => IntegerType::class,
-        Types::JSON                 => JsonType::class,
-        Types::OBJECT               => ObjectType::class,
-        Types::SIMPLE_ARRAY         => SimpleArrayType::class,
-        Types::SMALLINT             => SmallIntType::class,
-        Types::STRING               => StringType::class,
-        Types::TEXT                 => TextType::class,
-        Types::TIME_MUTABLE         => TimeType::class,
-        Types::TIME_IMMUTABLE       => TimeImmutableType::class,
-    ];
-
     /** @var TypeRegistry|null */
     private static $typeRegistry;
 
@@ -111,21 +80,10 @@ abstract class Type
     final public static function getTypeRegistry(): TypeRegistry
     {
         if (self::$typeRegistry === null) {
-            self::$typeRegistry = self::createTypeRegistry();
+            self::$typeRegistry = TypeRegistry::builtIn();
         }
 
         return self::$typeRegistry;
-    }
-
-    private static function createTypeRegistry(): TypeRegistry
-    {
-        $instances = [];
-
-        foreach (self::BUILTIN_TYPES_MAP as $name => $class) {
-            $instances[$name] = new $class();
-        }
-
-        return new TypeRegistry($instances);
     }
 
     /**

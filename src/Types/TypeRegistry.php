@@ -26,6 +26,37 @@ final class TypeRegistry
         $this->instances = $instances;
     }
 
+    public static function builtIn(): self
+    {
+        return new self([
+            Types::ARRAY                => new ArrayType(),
+            Types::ASCII_STRING         => new AsciiStringType(),
+            Types::BIGINT               => new BigIntType(),
+            Types::BINARY               => new BinaryType(),
+            Types::BLOB                 => new BlobType(),
+            Types::BOOLEAN              => new BooleanType(),
+            Types::DATE_MUTABLE         => new DateType(),
+            Types::DATE_IMMUTABLE       => new DateImmutableType(),
+            Types::DATEINTERVAL         => new DateIntervalType(),
+            Types::DATETIME_MUTABLE     => new DateTimeType(),
+            Types::DATETIME_IMMUTABLE   => new DateTimeImmutableType(),
+            Types::DATETIMETZ_MUTABLE   => new DateTimeTzType(),
+            Types::DATETIMETZ_IMMUTABLE => new DateTimeTzImmutableType(),
+            Types::DECIMAL              => new DecimalType(),
+            Types::FLOAT                => new FloatType(),
+            Types::GUID                 => new GuidType(),
+            Types::INTEGER              => new IntegerType(),
+            Types::JSON                 => new JsonType(),
+            Types::OBJECT               => new ObjectType(),
+            Types::SIMPLE_ARRAY         => new SimpleArrayType(),
+            Types::SMALLINT             => new SmallIntType(),
+            Types::STRING               => new StringType(),
+            Types::TEXT                 => new TextType(),
+            Types::TIME_MUTABLE         => new TimeType(),
+            Types::TIME_IMMUTABLE       => new TimeImmutableType(),
+        ]);
+    }
+
     /**
      * Finds a type by the given name.
      *
