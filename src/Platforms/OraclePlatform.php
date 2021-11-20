@@ -32,6 +32,8 @@ use function substr;
  */
 class OraclePlatform extends AbstractPlatform
 {
+    private const HASH_LENGTH = 4;
+
     /**
      * Assertion for Oracle identifiers.
      *
@@ -603,7 +605,7 @@ END;';
     {
         $maxPossibleLengthWithoutSuffix = $this->getMaxIdentifierLength() - strlen($suffix);
         if (strlen($identifier) > $maxPossibleLengthWithoutSuffix) {
-            $identifier = substr($identifier, 0, $maxPossibleLengthWithoutSuffix);
+            $identifier = substr($identifier, 0, $maxPossibleLengthWithoutSuffix - self::HASH_LENGTH - 1) . '_' . substr(hash('sha256', $identifier), -self::HASH_LENGTH);
         }
 
         return $identifier . $suffix;
