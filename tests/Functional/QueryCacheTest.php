@@ -19,7 +19,7 @@ use function is_array;
 
 use const CASE_LOWER;
 
-class ResultCacheTest extends FunctionalTestCase
+class QueryCacheTest extends FunctionalTestCase
 {
     /** @var list<array{test_int: int, test_string: string}> */
     private $expectedResult = [
@@ -156,7 +156,7 @@ class ResultCacheTest extends FunctionalTestCase
         self::assertEquals($data, $dataIterator);
     }
 
-    public function testFetchAndFinishSavesCache(): void
+    public function testFetchSavesCache(): void
     {
         $result = $this->connection->executeQuery(
             'SELECT * FROM caching ORDER BY test_int ASC',
@@ -177,31 +177,6 @@ class ResultCacheTest extends FunctionalTestCase
         $result->fetchAllNumeric();
 
         self::assertCount(1, $this->sqlLogger->queries, 'Only one query has hit the database.');
-    }
-
-    public function testDontFinishNoCache(): void
-    {
-        $result = $this->connection->executeQuery(
-            'SELECT * FROM caching ORDER BY test_int ASC',
-            [],
-            [],
-            new QueryCacheProfile(0, 'testcachekey')
-        );
-
-        $result->fetchAssociative();
-
-        $result = $this->connection->executeQuery(
-            'SELECT * FROM caching ORDER BY test_int ASC',
-            [],
-            [],
-            new QueryCacheProfile(0, 'testcachekey')
-        );
-
-        $this->hydrateViaIteration($result, static function (Result $result) {
-            return $result->fetchNumeric();
-        });
-
-        self::assertCount(2, $this->sqlLogger->queries, 'Two queries have hit the database.');
     }
 
     /**
