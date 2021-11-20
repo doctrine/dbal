@@ -32,7 +32,7 @@ use function substr;
  */
 class OraclePlatform extends AbstractPlatform
 {
-    private const HASH_LENGTH = 3;
+    private const HASH_LENGTH = 4;
 
     /**
      * Assertion for Oracle identifiers.
