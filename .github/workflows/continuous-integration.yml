@@ -264,16 +264,16 @@ jobs:
         mariadb-version:
           - "10.0"
           - "10.2"
-          - "10.5"
+          - "10.7"
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - php-version: "8.1"
-            mariadb-version: "10.5"
+            mariadb-version: "10.7"
             extension: "mysqli"
           - php-version: "8.1"
-            mariadb-version: "10.5"
+            mariadb-version: "10.7"
             extension: "pdo_mysql"
 
     services:
