@@ -835,7 +835,6 @@ class Connection implements ServerVersionProvider
      * Executes an, optionally parametrized, SQL query.
      *
      * If the query is parametrized, a prepared statement is used.
-     * If an SQLLogger is configured, the execution is logged.
      *
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
@@ -853,9 +852,6 @@ class Connection implements ServerVersionProvider
         }
 
         $connection = $this->getWrappedConnection();
-
-        $logger = $this->_config->getSQLLogger();
-        $logger->startQuery($sql, $params, $types);
 
         try {
             if (count($params) > 0) {
@@ -877,8 +873,6 @@ class Connection implements ServerVersionProvider
             return new Result($result, $this);
         } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $sql, $params, $types);
-        } finally {
-            $logger->stopQuery();
         }
     }
 
@@ -952,9 +946,6 @@ class Connection implements ServerVersionProvider
     {
         $connection = $this->getWrappedConnection();
 
-        $logger = $this->_config->getSQLLogger();
-        $logger->startQuery($sql, $params, $types);
-
         try {
             if (count($params) > 0) {
                 if ($this->needsArrayParameterConversion($params, $types)) {
@@ -977,8 +968,6 @@ class Connection implements ServerVersionProvider
             return $connection->exec($sql);
         } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $sql, $params, $types);
-        } finally {
-            $logger->stopQuery();
         }
     }
 
@@ -1085,20 +1074,10 @@ class Connection implements ServerVersionProvider
 
         ++$this->transactionNestingLevel;
 
-        $logger = $this->_config->getSQLLogger();
-
         if ($this->transactionNestingLevel === 1) {
-            $logger->startQuery('"START TRANSACTION"');
-
-            try {
-                $connection->beginTransaction();
-            } finally {
-                $logger->stopQuery();
-            }
+            $connection->beginTransaction();
         } elseif ($this->nestTransactionsWithSavepoints) {
-            $logger->startQuery('"SAVEPOINT"');
             $this->createSavepoint($this->_getNestedTransactionSavePointName());
-            $logger->stopQuery();
         }
 
         $this->getEventManager()->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
@@ -1119,22 +1098,14 @@ class Connection implements ServerVersionProvider
 
         $connection = $this->getWrappedConnection();
 
-        $logger = $this->_config->getSQLLogger();
-
         if ($this->transactionNestingLevel === 1) {
-            $logger->startQuery('"COMMIT"');
-
             try {
                 $connection->commit();
             } catch (Driver\Exception $e) {
                 throw $this->convertException($e);
-            } finally {
-                $logger->stopQuery();
             }
         } elseif ($this->nestTransactionsWithSavepoints) {
-            $logger->startQuery('"RELEASE SAVEPOINT"');
             $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
-            $logger->stopQuery();
         }
 
         --$this->transactionNestingLevel;
@@ -1169,8 +1140,6 @@ class Connection implements ServerVersionProvider
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @throws Exception
      */
     public function rollBack(): void
@@ -1181,10 +1150,7 @@ class Connection implements ServerVersionProvider
 
         $connection = $this->getWrappedConnection();
 
-        $logger = $this->_config->getSQLLogger();
-
         if ($this->transactionNestingLevel === 1) {
-            $logger->startQuery('"ROLLBACK"');
             $this->transactionNestingLevel = 0;
 
             try {
@@ -1193,17 +1159,14 @@ class Connection implements ServerVersionProvider
                 throw $this->convertException($e);
             } finally {
                 $this->isRollbackOnly = false;
-                $logger->stopQuery();
 
                 if ($this->autoCommit === false) {
                     $this->beginTransaction();
                 }
             }
         } elseif ($this->nestTransactionsWithSavepoints) {
-            $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
             $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
             --$this->transactionNestingLevel;
-            $logger->stopQuery();
         } else {
             $this->isRollbackOnly = true;
             --$this->transactionNestingLevel;

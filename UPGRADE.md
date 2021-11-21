@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `SQLLogger` and its implementations.
+
+The `SQLLogger` interface and its implementations `DebugStack` and `LoggerChain` have been removed.
+The corresponding `Configuration` methods, `getSQLLogger()` and `setSQLLogger()`, have been removed as well.
+
 ## BC BREAK: Removed `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods.
 
 The `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods have been removed.
@@ -410,7 +415,6 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
  * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
  * Removed `Table::renameColumn()`.
  * Removed `SQLParserUtils::getPlaceholderPositions()`.
- * Removed `LoggerChain::addLogger`.
  * Removed `AbstractSchemaManager::getFilterSchemaAssetsExpression()`, `Configuration::getFilterSchemaAssetsExpression()`
    and `Configuration::getFilterSchemaAssetsExpression()`.
  * `SQLParserUtils::*_TOKEN` constants made private.
@@ -517,13 +521,6 @@ Please generate UUIDs on the application side (e.g. using [ramsey/uuid](https://
 ## BC BREAK: Removed Doctrine\DBAL\Version
 
 The Doctrine\DBAL\Version class is no longer available: please refrain from checking the DBAL version at runtime.
-
-## BC BREAK: SQLLogger changes
-
-- The `SQLLogger` interface has changed; the methods are the same but use scalar type hints, return types, and non-nullable arrays.
-- `SQLLogger` implementations: `DebugStack`, `EchoSQLLogger`, `LoggerChain` are now final.
-- `Configuration::getSQLLogger()` does not return `null` anymore, but a `NullLogger` implementation.
-- `Configuration::setSQLLogger()` does not allow `null` anymore.
 
 ## BC BREAK: Changes to handling binary fields
 

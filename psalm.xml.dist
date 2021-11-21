@@ -46,24 +46,8 @@
                     is no longer supported.
                 -->
                 <file name="src/Tools/Console/ConsoleRunner.php"/>
-                <!--
-                    TODO: remove in 4.0.0
-                    See https://github.com/doctrine/dbal/pull/4967
-                -->
-                <referencedClass name="Doctrine\DBAL\Logging\DebugStack"/>
-                <referencedClass name="Doctrine\DBAL\Logging\SQLLogger"/>
-                <referencedClass name="Doctrine\DBAL\Logging\LoggerChain"/>
             </errorLevel>
         </DeprecatedClass>
-        <DeprecatedInterface>
-            <errorLevel type="suppress">
-                <!--
-                    TODO: remove in 4.0.0
-                    See https://github.com/doctrine/dbal/pull/4967
-                -->
-                <referencedClass name="Doctrine\DBAL\Logging\SQLLogger"/>
-            </errorLevel>
-        </DeprecatedInterface>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!--

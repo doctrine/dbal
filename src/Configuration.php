@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\Middleware;
-use Doctrine\DBAL\Logging\NullLogger;
-use Doctrine\DBAL\Logging\SQLLogger;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
@@ -16,11 +14,6 @@ class Configuration
 {
     /** @var Middleware[] */
     private array $middlewares = [];
-
-    /**
-     * The SQL logger in use. If null, SQL logging is disabled.
-     */
-    protected ?SQLLogger $sqlLogger = null;
 
     /**
      * The cache driver implementation that is used for query result caching.
@@ -38,22 +31,6 @@ class Configuration
      * The default auto-commit mode for connections.
      */
     protected bool $autoCommit = true;
-
-    /**
-     * Sets the SQL logger to use.
-     */
-    public function setSQLLogger(?SQLLogger $logger): void
-    {
-        $this->sqlLogger = $logger;
-    }
-
-    /**
-     * Gets the SQL logger that is used.
-     */
-    public function getSQLLogger(): SQLLogger
-    {
-        return $this->sqlLogger ?? $this->sqlLogger = new NullLogger();
-    }
 
     /**
      * Gets the cache driver implementation that is used for query result caching.
