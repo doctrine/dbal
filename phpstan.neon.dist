@@ -106,11 +106,6 @@ parameters:
             paths:
                 - src/Driver/OCI8/Statement.php
 
-        # TODO: prevent unsafe usage of operator - with null
-        -
-            message: '~Only numeric types are allowed in \-, float\|null given on the right side\.~'
-            path: src/Logging/DebugStack.php
-
         # https://github.com/phpstan/phpstan-src/pull/731
         -
             message: '~Parameter #1 \$array of function array_column expects array, array\|false given\.~'

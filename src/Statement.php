@@ -152,9 +152,6 @@ class Statement
             $this->params = $params;
         }
 
-        $logger = $this->conn->getConfiguration()->getSQLLogger();
-        $logger->startQuery($this->sql, $this->params, $this->types);
-
         try {
             return new Result(
                 $this->stmt->execute($params === [] ? null : $params),
@@ -162,8 +159,6 @@ class Statement
             );
         } catch (Driver\Exception $ex) {
             throw $this->conn->convertExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);
-        } finally {
-            $logger->stopQuery();
         }
     }
 

@@ -18,7 +18,6 @@ use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
@@ -282,16 +281,6 @@ class ConnectionTest extends TestCase
                 $connection->prepare($statement);
             },
         ];
-    }
-
-    /**
-     * Pretty dumb test, however we want to check that the DebugStack correctly implements the interface.
-     */
-    public function testDebugSQLStack(): void
-    {
-        $logger = new DebugStack();
-        $this->connection->getConfiguration()->setSQLLogger($logger);
-        self::assertSame($logger, $this->connection->getConfiguration()->getSQLLogger());
     }
 
     public function testIsAutoCommit(): void
