@@ -195,12 +195,6 @@
                 <file name="tests/Functional/Schema/SchemaManagerFunctionalTestCase.php"/>
             </errorLevel>
         </TypeDoesNotContainNull>
-        <TypeDoesNotContainType>
-            <errorLevel type="suppress">
-                <!-- See https://github.com/vimeo/psalm/issues/4274 -->
-                <file name="src/Schema/Index.php"/>
-            </errorLevel>
-        </TypeDoesNotContainType>
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <!--

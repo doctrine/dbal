@@ -49,7 +49,8 @@ final class Connection implements ConnectionInterface
             throw Error::new($this->connection);
         }
 
-        assert(preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches) === 1);
+        $result = preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches);
+        assert($result === 1);
 
         return $matches[1];
     }

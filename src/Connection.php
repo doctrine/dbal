@@ -8,7 +8,6 @@ use Closure;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\CacheException;
-use Doctrine\DBAL\Cache\CachingResult;
 use Doctrine\DBAL\Cache\Exception\NoResultDriverConfigured;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection\StaticServerVersionProvider;
@@ -35,7 +34,6 @@ use Doctrine\DBAL\Types\Type;
 use Throwable;
 use Traversable;
 
-use function array_key_exists;
 use function assert;
 use function count;
 use function implode;
@@ -906,30 +904,31 @@ class Connection implements ServerVersionProvider
 
         [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $connectionParams);
 
-        // fetch the row pointers entry
         $item = $resultCache->getItem($cacheKey);
 
         if ($item->isHit()) {
-            $data = $item->get();
-            // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
-            if (isset($data[$realKey])) {
-                $result = new ArrayResult($data[$realKey]);
-            } elseif (array_key_exists($realKey, $data)) {
-                $result = new ArrayResult([]);
+            $value = $item->get();
+            if (isset($value[$realKey])) {
+                return new Result(new ArrayResult($value[$realKey]), $this);
             }
+        } else {
+            $value = [];
         }
 
-        if (! isset($result)) {
-            $result = new CachingResult(
-                $this->executeQuery($sql, $params, $types),
-                $resultCache,
-                $cacheKey,
-                $realKey,
-                $qcp->getLifetime()
-            );
+        $data = $this->fetchAllAssociative($sql, $params, $types);
+
+        $value[$realKey] = $data;
+
+        $item->set($value);
+
+        $lifetime = $qcp->getLifetime();
+        if ($lifetime > 0) {
+            $item->expiresAfter($lifetime);
         }
 
-        return new Result($result, $this);
+        $resultCache->save($item);
+
+        return new Result(new ArrayResult($data), $this);
     }
 
     /**
