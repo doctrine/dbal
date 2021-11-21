@@ -10,17 +10,22 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
 
+use function array_merge;
 use function strlen;
 
 class PortabilityTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        $this->connection = DriverManager::getConnection(
-            $this->connection->getParams(),
-            $this->connection->getConfiguration()
-                ->setMiddlewares([new Middleware(Connection::PORTABILITY_ALL, ColumnCase::LOWER)])
+        $configuration = $this->connection->getConfiguration();
+        $configuration->setMiddlewares(
+            array_merge(
+                $configuration->getMiddlewares(),
+                [new Middleware(Connection::PORTABILITY_ALL, ColumnCase::LOWER)]
+            )
         );
+
+        $this->connection = DriverManager::getConnection($this->connection->getParams(), $configuration);
 
         try {
             $table = new Table('portability_table');

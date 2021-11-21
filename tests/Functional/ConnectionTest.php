@@ -360,7 +360,6 @@ class ConnectionTest extends FunctionalTestCase
         );
 
         self::assertInstanceOf(AbstractPlatform::class, $connection->getDatabasePlatform());
-        self::assertFalse($connection->isConnected());
         self::assertSame($params, $connection->getParams());
 
         $connection->close();
