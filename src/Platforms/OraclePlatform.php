@@ -846,11 +846,12 @@ SQL
             }
 
             $columnHasChangedComment = $columnDiff->hasChanged('comment');
+            $columnHasChangedAutoinc = $columnDiff->hasChanged('autoincrement');
 
             /**
              * Do not add query part if only comment has changed
              */
-            if (! ($columnHasChangedComment && count($columnDiff->changedProperties) === 1)) {
+            if (! (($columnHasChangedComment || $columnHasChangedAutoinc) && count($columnDiff->changedProperties) === 1)) {
                 $columnInfo = $column->toArray();
 
                 if (! $columnDiff->hasChanged('notnull')) {
@@ -860,7 +861,7 @@ SQL
                 $fields[] = $column->getQuotedName($this) . $this->getColumnDeclarationSQL('', $columnInfo);
             }
 
-            if (! $columnHasChangedComment) {
+            if (! ($columnHasChangedComment || $columnHasChangedAutoinc)) {
                 continue;
             }
 
