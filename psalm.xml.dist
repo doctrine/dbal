@@ -384,18 +384,6 @@
                 <file name="tests/Platforms/AbstractMySQLPlatformTestCase.php"/>
             </errorLevel>
         </TooManyArguments>
-        <TypeDoesNotContainType>
-            <errorLevel type="suppress">
-                <!-- See https://github.com/vimeo/psalm/issues/4274 -->
-                <file name="src/Schema/Index.php"/>
-            </errorLevel>
-        </TypeDoesNotContainType>
-        <UndefinedAttributeClass>
-            <errorLevel type="suppress">
-                <!-- This class has been added in PHP 8.1 -->
-                <referencedClass name="ReturnTypeWillChange"/>
-            </errorLevel>
-        </UndefinedAttributeClass>
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <!--
