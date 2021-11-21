@@ -784,6 +784,9 @@ class Connection
     }
 
     /**
+     * The usage of this method is discouraged. Use prepared statements
+     * or {@link AbstractPlatform::quoteStringLiteral()} instead.
+     *
      * @param mixed                $value
      * @param int|string|Type|null $type
      *
