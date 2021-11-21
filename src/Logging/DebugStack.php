@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Logging;
 
+use Doctrine\Deprecations\Deprecation;
+
 use function microtime;
 
 /**
  * Includes executed SQLs in a Debug Stack.
+ *
+ * @deprecated
  */
 final class DebugStack implements SQLLogger
 {
@@ -26,6 +30,15 @@ final class DebugStack implements SQLLogger
     public ?float $start = null;
 
     public int $currentQuery = 0;
+
+    public function __construct()
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4967',
+            'DebugStack is deprecated.'
+        );
+    }
 
     /**
      * {@inheritdoc}

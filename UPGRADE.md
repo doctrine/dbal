@@ -544,6 +544,11 @@ The following methods have been removed.
 
 # Upgrade to 3.2
 
+## Deprecated `SQLLogger` and its implementations.
+
+The `SQLLogger` and its implementations `DebugStack` and `LoggerChain` have been deprecated.
+For logging purposes, use `Doctrine\DBAL\Logging\Middleware` instead. No replacement for `DebugStack` is provided.
+
 ## Deprecated `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods.
 
 The `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods have been deprecated. The SQLite engine

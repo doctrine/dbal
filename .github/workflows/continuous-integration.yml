@@ -37,6 +37,10 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: "Temporarily remove support for PSR Log 3 on PHP 8.1"
+        run: 'sed -i "s/\"psr\/log\": \"^1|^2|^3\"/\"psr\/log\": \"^1|^2\"/" composer.json'
+        if: "${{ matrix.php-version=='8.1' }}"
+
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
@@ -81,6 +85,10 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: "Temporarily remove support for PSR Log 3 on PHP 8.1"
+        run: 'sed -i "s/\"psr\/log\": \"^1|^2|^3\"/\"psr\/log\": \"^1|^2\"/" composer.json'
+        if: "${{ matrix.php-version=='8.1' }}"
+
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
@@ -123,6 +131,10 @@ jobs:
         uses: "actions/checkout@v2"
         with:
           fetch-depth: 2
+
+      - name: "Temporarily remove support for PSR Log 3 on PHP 8.1"
+        run: 'sed -i "s/\"psr\/log\": \"^1|^2|^3\"/\"psr\/log\": \"^1|^2\"/" composer.json'
+        if: "${{ matrix.php-version=='8.1' }}"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
@@ -178,6 +190,10 @@ jobs:
         uses: "actions/checkout@v2"
         with:
           fetch-depth: 2
+
+      - name: "Temporarily remove support for PSR Log 3 on PHP 8.1"
+        run: 'sed -i "s/\"psr\/log\": \"^1|^2|^3\"/\"psr\/log\": \"^1|^2\"/" composer.json'
+        if: "${{ matrix.php-version=='8.1' }}"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
@@ -240,6 +256,10 @@ jobs:
         uses: "actions/checkout@v2"
         with:
           fetch-depth: 2
+
+      - name: "Temporarily remove support for PSR Log 3 on PHP 8.1"
+        run: 'sed -i "s/\"psr\/log\": \"^1|^2|^3\"/\"psr\/log\": \"^1|^2\"/" composer.json'
+        if: "${{ matrix.php-version=='8.1' }}"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
@@ -329,6 +349,10 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: "Temporarily remove support for PSR Log 3 on PHP 8.1"
+        run: 'sed -i "s/\"psr\/log\": \"^1|^2|^3\"/\"psr\/log\": \"^1|^2\"/" composer.json'
+        if: "${{ matrix.php-version=='8.1' }}"
+
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
@@ -396,6 +420,10 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: "Temporarily remove support for PSR Log 3 on PHP 8.1"
+        run: 'sed -i "s/\"psr\/log\": \"^1|^2|^3\"/\"psr\/log\": \"^1|^2\"/" composer.json'
+        if: "${{ matrix.php-version=='8.1' }}"
+
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
@@ -451,6 +479,10 @@ jobs:
         uses: "actions/checkout@v2"
         with:
           fetch-depth: 2
+
+      - name: "Temporarily remove support for PSR Log 3 on PHP 8.1"
+        run: 'sed -i "s/\"psr\/log\": \"^1|^2|^3\"/\"psr\/log\": \"^1|^2\"/" composer.json'
+        if: "${{ matrix.php-version=='8.1' }}"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"

@@ -35,7 +35,8 @@
         "composer/package-versions-deprecated": "^1.11.99",
         "doctrine/deprecations": "^0.5.3",
         "doctrine/event-manager": "^1.0",
-        "psr/cache": "^1|^2|^3"
+        "psr/cache": "^1|^2|^3",
+        "psr/log": "^1|^2|^3"
     },
     "require-dev": {
         "doctrine/coding-standard": "9.0.0",
