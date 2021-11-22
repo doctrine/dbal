@@ -9,9 +9,25 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
+use function rtrim;
+
 final class DecimalTest extends DbalFunctionalTestCase
 {
-    public function testInsertAndRetrieveDecimal(): void
+    /**
+     * @return string[][]
+     */
+    public function dataValuesProvider(): array
+    {
+        return [
+            ['13.37'],
+            ['13.0'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataValuesProvider
+     */
+    public function testInsertAndRetrieveDecimal(string $expected): void
     {
         $table = new Table('decimal_table');
         $table->addColumn('val', Types::DECIMAL, ['precision' => 4, 'scale' => 2]);
@@ -21,7 +37,7 @@ final class DecimalTest extends DbalFunctionalTestCase
 
         $this->connection->insert(
             'decimal_table',
-            ['val' => '13.37'],
+            ['val' => $expected],
             ['val' => Types::DECIMAL]
         );
 
@@ -30,6 +46,12 @@ final class DecimalTest extends DbalFunctionalTestCase
             $this->connection->getDatabasePlatform()
         );
 
-        self::assertSame('13.37', $value);
+        self::assertIsString($value);
+        self::assertSame($this->stripTrailingZero($expected), $this->stripTrailingZero($value));
+    }
+
+    private function stripTrailingZero(string $expected): string
+    {
+        return rtrim(rtrim($expected, '0'), '.');
     }
 }
