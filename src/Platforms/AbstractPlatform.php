@@ -586,7 +586,7 @@ abstract class AbstractPlatform
      */
     public function getVarcharDefaultLength()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
             'Relying on the default varchar column length is deprecated, specify the length explicitly.'
@@ -3957,7 +3957,7 @@ abstract class AbstractPlatform
         ]);
 
         if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
-            $columnData['length'] = 255;
+            $columnData['length'] = $this->getVarcharDefaultLength();
         }
 
         return $columnData;
