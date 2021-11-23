@@ -3724,11 +3724,11 @@ abstract class AbstractPlatform
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
         if ($limit !== null) {
-            $query .= ' LIMIT ' . $limit;
+            $query .= sprintf(' LIMIT %d', $limit);
         }
 
         if ($offset > 0) {
-            $query .= ' OFFSET ' . $offset;
+            $query .= sprintf(' OFFSET %d', $offset);
         }
 
         return $query;
