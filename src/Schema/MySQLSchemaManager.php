@@ -2,9 +2,11 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
@@ -12,6 +14,7 @@ use function array_shift;
 use function array_values;
 use function assert;
 use function explode;
+use function implode;
 use function is_string;
 use function preg_match;
 use function strpos;
@@ -334,37 +337,99 @@ class MySQLSchemaManager extends AbstractSchemaManager
      */
     public function listTableDetails($name)
     {
-        $table = parent::listTableDetails($name);
+        $currentDatabase = $this->_conn->getDatabase() ?? '';
 
-        $sql = $this->_platform->getListTableMetadataSQL($name);
+        $options  = [];
+        $metadata = $this->selectDatabaseTableMetadata($currentDatabase, $name)
+            ->fetchAssociative();
 
-        $tableOptions = $this->_conn->fetchAssociative($sql);
-
-        if ($tableOptions === false) {
-            return $table;
+        if ($metadata !== false) {
+            $options = $this->buildTableOptions($metadata);
         }
 
-        $table->addOption('engine', $tableOptions['ENGINE']);
+        return new Table(
+            $name,
+            $this->_getPortableTableColumnList(
+                $name,
+                $currentDatabase,
+                $this->selectDatabaseColumns($currentDatabase, $name)
+                    ->fetchAllAssociative()
+            ),
+            $this->_getPortableTableIndexesList(
+                $this->selectDatabaseIndexes($currentDatabase, $name)
+                    ->fetchAllAssociative(),
+                $name
+            ),
+            [],
+            $this->_getPortableTableForeignKeysList(
+                $this->selectDatabaseForeignKeys($currentDatabase, $name)
+                    ->fetchAllAssociative()
+            ),
+            $options,
+        );
+    }
 
-        if ($tableOptions['TABLE_COLLATION'] !== null) {
-            $table->addOption('collation', $tableOptions['TABLE_COLLATION']);
+    /**
+     * {@inheritdoc}
+     */
+    public function listTables()
+    {
+        $currentDatabase = $this->_conn->getDatabase() ?? '';
+
+        $columns = $this->selectDatabaseColumns($currentDatabase)
+            ->fetchAllAssociativeGrouped();
+
+        $indexes = $this->selectDatabaseIndexes($currentDatabase)
+            ->fetchAllAssociativeGrouped();
+
+        $foreignKeys = $this->selectDatabaseForeignKeys($currentDatabase)
+            ->fetchAllAssociativeGrouped();
+
+        $metadata = $this->selectDatabaseTableMetadata($currentDatabase)
+            ->fetchAllAssociativeIndexed();
+
+        $tables = [];
+
+        foreach ($columns as $tableName => $tableColumns) {
+            $options = [];
+
+            if (isset($metadata[$tableName])) {
+                $options = $this->buildTableOptions($metadata[$tableName]);
+            }
+
+            $tables[] = new Table(
+                $tableName,
+                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
+                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
+                [],
+                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
+                $options
+            );
         }
 
-        $table->addOption('charset', $tableOptions['CHARACTER_SET_NAME']);
-
-        if ($tableOptions['AUTO_INCREMENT'] !== null) {
-            $table->addOption('autoincrement', $tableOptions['AUTO_INCREMENT']);
-        }
-
-        $table->addOption('comment', $tableOptions['TABLE_COMMENT']);
-        $table->addOption('create_options', $this->parseCreateOptions($tableOptions['CREATE_OPTIONS']));
-
-        return $table;
+        return $tables;
     }
 
     public function createComparator(): Comparator
     {
         return new MySQL\Comparator($this->getDatabasePlatform());
+    }
+
+    /**
+     * @param array<string,mixed> $row
+     *
+     * @return array<string,mixed>
+     */
+    private function buildTableOptions(array $row): array
+    {
+        return [
+            'engine'         => $row['ENGINE'],
+            'collation'      => $row['TABLE_COLLATION'],
+            'charset'        => $row['CHARACTER_SET_NAME'],
+            'autoincrement'  => $row['AUTO_INCREMENT'],
+            'comment'        => $row['TABLE_COMMENT'],
+            'create_options' => $this->parseCreateOptions($row['CREATE_OPTIONS']),
+        ];
     }
 
     /**
@@ -385,5 +450,169 @@ class MySQLSchemaManager extends AbstractSchemaManager
         }
 
         return $options;
+    }
+
+    /**
+     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' TABLE_NAME,';
+        }
+
+        $sql .= <<<'SQL'
+       COLUMN_NAME        AS Field,
+       COLUMN_TYPE        AS Type,
+       IS_NULLABLE        AS `Null`,
+       COLUMN_KEY         AS `Key`,
+       COLUMN_DEFAULT     AS `Default`,
+       EXTRA              AS Extra,
+       COLUMN_COMMENT     AS Comment,
+       CHARACTER_SET_NAME AS CharacterSet,
+       COLLATION_NAME     AS Collation
+FROM information_schema.COLUMNS
+SQL;
+
+        $conditions = ['TABLE_SCHEMA = ?'];
+        $params     = [$databaseName];
+
+        if ($tableName !== null) {
+            $conditions[] = 'TABLE_NAME = ?';
+            $params[]     = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions)
+            . ' ORDER BY ORDINAL_POSITION';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' TABLE_NAME,';
+        }
+
+        $sql .= <<<'SQL'
+        NON_UNIQUE  AS Non_Unique,
+        INDEX_NAME  AS Key_name,
+        COLUMN_NAME AS Column_Name,
+        SUB_PART    AS Sub_Part,
+        INDEX_TYPE  AS Index_Type
+FROM information_schema.STATISTICS
+SQL;
+
+        $conditions = ['TABLE_SCHEMA = ?'];
+        $params     = [$databaseName];
+
+        if ($tableName !== null) {
+            $conditions[] = 'TABLE_NAME = ?';
+            $params[]     = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions)
+            . ' ORDER BY SEQ_IN_INDEX';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
+     * narrows down the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT DISTINCT';
+
+        if ($tableName === null) {
+            $sql .= ' k.TABLE_NAME,';
+        }
+
+        $sql .= <<<'SQL'
+            k.CONSTRAINT_NAME,
+            k.COLUMN_NAME,
+            k.REFERENCED_TABLE_NAME,
+            k.REFERENCED_COLUMN_NAME,
+            k.ORDINAL_POSITION /*!50116,
+            c.UPDATE_RULE,
+            c.DELETE_RULE */
+FROM information_schema.key_column_usage k /*!50116
+INNER JOIN information_schema.referential_constraints c
+ON c.CONSTRAINT_NAME = k.CONSTRAINT_NAME
+AND c.TABLE_NAME = k.TABLE_NAME
+AND c.CONSTRAINT_SCHEMA = k.TABLE_SCHEMA */
+SQL;
+
+        $conditions = ['k.TABLE_SCHEMA = ?'];
+        $params     = [$databaseName];
+
+        if ($tableName !== null) {
+            $conditions[] = 'k.TABLE_NAME = ?';
+            $params[]     = $tableName;
+        }
+
+        $conditions[] = 'k.REFERENCED_COLUMN_NAME IS NOT NULL';
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions)
+            . ' ORDER BY k.ORDINAL_POSITION';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseTableMetadata(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' t.TABLE_NAME,';
+        }
+
+        $sql .= <<<'SQL'
+       t.ENGINE,
+       t.AUTO_INCREMENT,
+       t.TABLE_COMMENT,
+       t.CREATE_OPTIONS,
+       t.TABLE_COLLATION,
+       ccsa.CHARACTER_SET_NAME
+FROM information_schema.TABLES t
+    INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY ccsa
+        ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
+SQL;
+
+        $conditions = ['t.TABLE_SCHEMA = ?'];
+        $params     = [$databaseName];
+
+        if ($tableName !== null) {
+            $conditions[] = 't.TABLE_NAME = ?';
+            $params[]     = $tableName;
+        }
+
+        $conditions[] = "t.TABLE_TYPE = 'BASE TABLE'";
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+
+        return $this->_conn->executeQuery($sql, $params);
     }
 }
