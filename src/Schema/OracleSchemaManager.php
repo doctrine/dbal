@@ -372,6 +372,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         assert($currentDatabase !== null);
 
+        /** @var array<string,list<array<string,mixed>>> $columns */
         $columns = $this->selectDatabaseColumns($currentDatabase)
             ->fetchAllAssociativeGrouped();
 

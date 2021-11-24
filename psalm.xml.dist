@@ -194,6 +194,22 @@
                     See https://github.com/doctrine/dbal/pull/4897
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::tryMethod"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\MySQLPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\MySQLPlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\MySQLPlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableColumnsSQL"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

@@ -896,6 +896,8 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)

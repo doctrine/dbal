@@ -376,6 +376,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     {
         $currentDatabase = $this->_conn->getDatabase() ?? '';
 
+        /** @var array<string,list<array<string,mixed>>> $columns */
         $columns = $this->selectDatabaseColumns($currentDatabase)
             ->fetchAllAssociativeGrouped();
 

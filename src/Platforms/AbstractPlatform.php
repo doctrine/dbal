@@ -3071,6 +3071,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string $table
      * @param string $database
      *
@@ -3126,6 +3128,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * Returns the list of indexes for the current database.
      *
      * The current database parameter is optional but will always be passed
@@ -3148,6 +3152,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string $table
      *
      * @return string
