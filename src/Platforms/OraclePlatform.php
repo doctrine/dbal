@@ -430,6 +430,8 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaOracleReader.html
@@ -625,6 +627,8 @@ END;';
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableForeignKeysSQL($table)
@@ -668,6 +672,8 @@ END;';
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)
@@ -1189,6 +1195,9 @@ SQL
         return 'BLOB';
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableCommentsSQL(string $table, ?string $database = null): string
     {
         $tableCommentsName = 'user_tab_comments';

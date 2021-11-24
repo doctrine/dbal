@@ -194,6 +194,15 @@
                     See https://github.com/doctrine/dbal/pull/4897
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::tryMethod"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\MySQLPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\MySQLPlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\MySQLPlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableIndexesSQL"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

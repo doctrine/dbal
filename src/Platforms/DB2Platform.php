@@ -272,6 +272,8 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * This code fragment is originally from the Zend_Db_Adapter_Db2 class, but has been edited.
      *
      * @param string $table
