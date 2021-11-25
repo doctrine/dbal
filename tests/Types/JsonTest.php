@@ -14,6 +14,8 @@ use function base64_encode;
 use function fopen;
 use function json_encode;
 
+use const JSON_THROW_ON_ERROR;
+
 class JsonTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
@@ -60,7 +62,7 @@ class JsonTest extends TestCase
     public function testJsonStringConvertsToPHPValue(): void
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = json_encode($value);
+        $databaseValue = json_encode($value, 0, JSON_THROW_ON_ERROR);
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertEquals($value, $phpValue);
@@ -84,7 +86,10 @@ class JsonTest extends TestCase
     public function testJsonResourceConvertsToPHPValue(): void
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = fopen('data://text/plain;base64,' . base64_encode(json_encode($value)), 'r');
+        $databaseValue = fopen(
+            'data://text/plain;base64,' . base64_encode(json_encode($value, JSON_THROW_ON_ERROR)),
+            'r'
+        );
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertSame($value, $phpValue);
@@ -93,5 +98,18 @@ class JsonTest extends TestCase
     public function testRequiresSQLCommentHint(): void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
+    }
+
+    public function testSerializationFailure(): void
+    {
+        $object            = (object) [];
+        $object->recursion = $object;
+
+        $this->expectException(ConversionException::class);
+        $this->expectExceptionMessage(
+            'Could not convert PHP type \'stdClass\' to \'json\', as an \'Recursion detected\' error'
+            . ' was triggered by the serialization'
+        );
+        $this->type->convertToDatabaseValue($object, $this->platform);
     }
 }
