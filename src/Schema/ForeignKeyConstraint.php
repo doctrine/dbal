@@ -367,10 +367,8 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * on the referenced table the foreign key constraint is associated with.
      *
      * @param string $event Name of the database operation/event to return the referential action for.
-     *
-     * @return string|null
      */
-    private function onEvent($event)
+    private function onEvent($event): ?string
     {
         if (isset($this->_options[$event])) {
             $onEvent = strtoupper($this->_options[$event]);

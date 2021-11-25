@@ -194,10 +194,8 @@ class Schema extends AbstractAsset
 
     /**
      * @param string $name
-     *
-     * @return string
      */
-    private function getFullQualifiedAssetName($name)
+    private function getFullQualifiedAssetName($name): string
     {
         $name = $this->getUnquotedAssetName($name);
 
@@ -217,10 +215,8 @@ class Schema extends AbstractAsset
      * Returns the unquoted representation of a given asset name.
      *
      * @param string $assetName Quoted or unquoted representation of an asset name.
-     *
-     * @return string
      */
-    private function getUnquotedAssetName($assetName)
+    private function getUnquotedAssetName($assetName): string
     {
         if ($this->isIdentifierQuoted($assetName)) {
             return $this->trimQuotes($assetName);

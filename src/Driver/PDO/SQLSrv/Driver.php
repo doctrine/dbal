@@ -57,11 +57,9 @@ final class Driver extends AbstractSQLServerDriver
      * @param mixed[]  $params
      * @param string[] $connectionOptions
      *
-     * @return string The DSN.
-     *
      * @throws Exception
      */
-    private function constructDsn(array $params, array $connectionOptions)
+    private function constructDsn(array $params, array $connectionOptions): string
     {
         $dsn = 'sqlsrv:server=';
 

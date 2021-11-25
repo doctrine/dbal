@@ -41,10 +41,8 @@ final class Driver extends AbstractOracleDriver
      * Constructs the Oracle PDO DSN.
      *
      * @param mixed[] $params
-     *
-     * @return string The DSN.
      */
-    private function constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params): string
     {
         $dsn = 'oci:dbname=' . $this->getEasyConnectString($params);
 

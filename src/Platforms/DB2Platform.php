@@ -272,6 +272,8 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * This code fragment is originally from the Zend_Db_Adapter_Db2 class, but has been edited.
      *
      * @param string $table
@@ -633,11 +635,9 @@ class DB2Platform extends AbstractPlatform
     /**
      * Returns the ALTER COLUMN SQL clauses for altering a column described by the given column diff.
      *
-     * @param ColumnDiff $columnDiff The column diff to evaluate.
-     *
      * @return string[]
      */
-    private function getAlterColumnClausesSQL(ColumnDiff $columnDiff)
+    private function getAlterColumnClausesSQL(ColumnDiff $columnDiff): array
     {
         $column = $columnDiff->column->toArray();
 

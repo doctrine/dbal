@@ -6,7 +6,6 @@ use Closure;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\CacheException;
-use Doctrine\DBAL\Cache\CachingResult;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
@@ -28,7 +27,6 @@ use Doctrine\Deprecations\Deprecation;
 use Throwable;
 use Traversable;
 
-use function array_key_exists;
 use function assert;
 use function count;
 use function get_class;
@@ -755,7 +753,7 @@ class Connection
      *
      * @return array<int, int|string|Type|null>|array<string, int|string|Type|null>
      */
-    private function extractTypeValues(array $columnList, array $types)
+    private function extractTypeValues(array $columnList, array $types): array
     {
         $typeValues = [];
 
@@ -1066,30 +1064,31 @@ class Connection
 
         [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $connectionParams);
 
-        // fetch the row pointers entry
         $item = $resultCache->getItem($cacheKey);
 
         if ($item->isHit()) {
-            $data = $item->get();
-            // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
-            if (isset($data[$realKey])) {
-                $result = new ArrayResult($data[$realKey]);
-            } elseif (array_key_exists($realKey, $data)) {
-                $result = new ArrayResult([]);
+            $value = $item->get();
+            if (isset($value[$realKey])) {
+                return new Result(new ArrayResult($value[$realKey]), $this);
             }
+        } else {
+            $value = [];
         }
 
-        if (! isset($result)) {
-            $result = new CachingResult(
-                $this->executeQuery($sql, $params, $types),
-                $resultCache,
-                $cacheKey,
-                $realKey,
-                $qcp->getLifetime()
-            );
+        $data = $this->fetchAllAssociative($sql, $params, $types);
+
+        $value[$realKey] = $data;
+
+        $item->set($value);
+
+        $lifetime = $qcp->getLifetime();
+        if ($lifetime > 0) {
+            $item->expiresAfter($lifetime);
         }
 
-        return new Result($result, $this);
+        $resultCache->save($item);
+
+        return new Result(new ArrayResult($data), $this);
     }
 
     /**
@@ -1170,7 +1169,7 @@ class Connection
      *
      * @param string|null $name Name of the sequence object from which the ID should be returned.
      *
-     * @return string A string representation of the last inserted ID.
+     * @return string|int|false A string representation of the last inserted ID.
      *
      * @throws Exception
      */

@@ -150,6 +150,22 @@ class Result
     }
 
     /**
+     * @return array<mixed,list<array<string,mixed>>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllAssociativeGrouped(): array
+    {
+        $data = [];
+
+        foreach ($this->fetchAllAssociative() as $row) {
+            $data[array_shift($row)][] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      * @return list<mixed>
      *
      * @throws Exception

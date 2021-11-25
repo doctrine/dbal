@@ -15,13 +15,13 @@ class SchemaSqlCollectorTest extends TestCase
             ->getMock();
         $platformMock->expects(self::exactly(2))
                      ->method('getCreateTableSql')
-                     ->will(self::returnValue(['foo']));
+                     ->willReturn(['foo']);
         $platformMock->expects(self::exactly(1))
                      ->method('getCreateSequenceSql')
-                     ->will(self::returnValue('bar'));
+                     ->willReturn('bar');
         $platformMock->expects(self::exactly(1))
                      ->method('getCreateForeignKeySql')
-                     ->will(self::returnValue('baz'));
+                     ->willReturn('baz');
 
         $schema = $this->createFixtureSchema();
 
@@ -37,13 +37,13 @@ class SchemaSqlCollectorTest extends TestCase
             ->getMock();
         $platformMock->expects(self::exactly(2))
                      ->method('getDropTableSql')
-                     ->will(self::returnValue('tbl'));
+                     ->willReturn('tbl');
         $platformMock->expects(self::exactly(1))
                      ->method('getDropSequenceSql')
-                     ->will(self::returnValue('seq'));
+                     ->willReturn('seq');
         $platformMock->expects(self::exactly(1))
                      ->method('getDropForeignKeySql')
-                     ->will(self::returnValue('fk'));
+                     ->willReturn('fk');
 
         $schema = $this->createFixtureSchema();
 

@@ -54,41 +54,41 @@ class SchemaDiffTest extends TestCase
         $platform->expects(self::exactly(1))
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')
-            ->will($this->returnValue('create_schema'));
+            ->willReturn('create_schema');
         if ($unsafe) {
             $platform->expects(self::exactly(1))
                  ->method('getDropSequenceSql')
                  ->with(self::isInstanceOf(Sequence::class))
-                 ->will(self::returnValue('drop_seq'));
+                 ->willReturn('drop_seq');
         }
 
         $platform->expects(self::exactly(1))
                  ->method('getAlterSequenceSql')
                  ->with(self::isInstanceOf(Sequence::class))
-                 ->will(self::returnValue('alter_seq'));
+                 ->willReturn('alter_seq');
         $platform->expects(self::exactly(1))
                  ->method('getCreateSequenceSql')
                  ->with(self::isInstanceOf(Sequence::class))
-                 ->will(self::returnValue('create_seq'));
+                 ->willReturn('create_seq');
         if ($unsafe) {
             $platform->expects(self::exactly(1))
                      ->method('getDropTableSql')
                      ->with(self::isInstanceOf(Table::class))
-                     ->will(self::returnValue('drop_table'));
+                     ->willReturn('drop_table');
         }
 
         $platform->expects(self::exactly(1))
                  ->method('getCreateTableSql')
                  ->with(self::isInstanceOf(Table::class))
-                 ->will(self::returnValue(['create_table']));
+                 ->willReturn(['create_table']);
         $platform->expects(self::exactly(1))
                  ->method('getCreateForeignKeySQL')
                  ->with(self::isInstanceOf(ForeignKeyConstraint::class))
-                 ->will(self::returnValue('create_foreign_key'));
+                 ->willReturn('create_foreign_key');
         $platform->expects(self::exactly(1))
                  ->method('getAlterTableSql')
                  ->with(self::isInstanceOf(TableDiff::class))
-                 ->will(self::returnValue(['alter_table']));
+                 ->willReturn(['alter_table']);
         if ($unsafe) {
             $platform->expects(self::exactly(1))
                      ->method('getDropForeignKeySql')
@@ -96,18 +96,18 @@ class SchemaDiffTest extends TestCase
                          self::isInstanceOf(ForeignKeyConstraint::class),
                          self::isInstanceOf(Table::class)
                      )
-                     ->will(self::returnValue('drop_orphan_fk'));
+                     ->willReturn('drop_orphan_fk');
         }
 
         $platform->expects(self::exactly(1))
                 ->method('supportsSchemas')
-                ->will(self::returnValue(true));
+                ->willReturn(true);
         $platform->expects(self::exactly(1))
                 ->method('supportsSequences')
-                ->will(self::returnValue(true));
+                ->willReturn(true);
         $platform->expects(self::exactly(2))
                 ->method('supportsForeignKeyConstraints')
-                ->will(self::returnValue(true));
+                ->willReturn(true);
 
         return $platform;
     }

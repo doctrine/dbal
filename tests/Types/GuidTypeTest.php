@@ -38,7 +38,7 @@ class GuidTypeTest extends TestCase
 
         $this->platform->expects(self::any())
              ->method('hasNativeGuidType')
-             ->will(self::returnValue(true));
+             ->willReturn(true);
 
         self::assertFalse($this->type->requiresSQLCommentHint($this->platform));
     }
