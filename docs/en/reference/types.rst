@@ -425,8 +425,18 @@ json
 Maps and converts array data based on PHP's JSON encoding functions.
 If you know that the data to be stored always is in a valid UTF-8
 encoded JSON format string, you should consider using this type.
-Values retrieved from the database are always converted to PHP's ``array`` or
-``null`` types using PHP's ``json_decode()`` function.
+Values retrieved from the database are always converted to PHP's
+native types using PHP's ``json_decode()`` function.
+JSON objects are always converted to PHP associative arrays.
+
+.. note::
+
+    The ``json`` type doesn't preserve the type of PHP objects.
+    PHP objects will always be encoded as (anonymous) JSON objects.
+    JSON objects will always be decoded as PHP associative arrays.
+
+    To preserve the type of PHP objects, consider using
+    `Doctrine JSON ODM <https://github.com/dunglas/doctrine-json-odm>`_.
 
 .. note::
 
@@ -711,13 +721,7 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
 +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-| **json_array**    | ``array``     | **MySQL** [1]_           | *all*   | ``TINYTEXT`` [16]_                                       |
-|                   |               |                          |         +----------------------------------------------------------+
-|                   |               |                          |         | ``TEXT`` [17]_                                           |
-|                   |               |                          |         +----------------------------------------------------------+
-|                   |               |                          |         | ``MEDIUMTEXT`` [18]_                                     |
-|                   |               |                          |         +----------------------------------------------------------+
-|                   |               |                          |         | ``LONGTEXT`` [19]_                                       |
+| **json**          | ``mixed``     | **MySQL**                | *all*   | ``JSON``                                                 |
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **PostgreSQL**           | *all*   | ``JSON`` [20]_                                           |
 |                   |               |                          |         +----------------------------------------------------------+
