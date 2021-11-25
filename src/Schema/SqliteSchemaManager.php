@@ -6,18 +6,22 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
+use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function array_reverse;
 use function array_values;
+use function assert;
 use function explode;
 use function file_exists;
+use function implode;
 use function preg_match;
 use function preg_match_all;
 use function preg_quote;
@@ -428,7 +432,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            $name  = $value['constraint_name'];
+
+            if (! array_key_exists('constraint_name', $value)) {
+                continue;
+            }
+
+            $name = $value['constraint_name'];
             if (! isset($list[$name])) {
                 if (! isset($value['on_delete']) || $value['on_delete'] === 'RESTRICT') {
                     $value['on_delete'] = null;
@@ -577,17 +586,79 @@ SQL
      */
     public function listTableDetails($name): Table
     {
-        $table = parent::listTableDetails($name);
+        $currentDatabase = $this->_conn->getDatabase();
 
-        $tableCreateSql = $this->getCreateTableSQL($name);
+        assert($currentDatabase !== null);
 
-        $comment = $this->parseTableCommentFromSQL($name, $tableCreateSql);
+        $options = [];
 
+        $comment = $this->parseTableCommentFromSQL($name, $this->getCreateTableSQL($name));
         if ($comment !== null) {
-            $table->addOption('comment', $comment);
+            $options['comment'] = $comment;
         }
 
-        return $table;
+        return new Table(
+            $name,
+            $this->_getPortableTableColumnList(
+                $name,
+                $currentDatabase,
+                $this->selectDatabaseColumns($currentDatabase, $name)
+                    ->fetchAllAssociative()
+            ),
+            $this->_getPortableTableIndexesList(
+                $this->selectDatabaseIndexes($currentDatabase, $name)
+                    ->fetchAllAssociative(),
+                $name
+            ),
+            [],
+            $this->_getPortableTableForeignKeysList(
+                $this->selectDatabaseForeignKeys($currentDatabase, $name)
+                    ->fetchAllAssociative()
+            ),
+            $options
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listTables()
+    {
+        $currentDatabase = $this->_conn->getDatabase();
+
+        assert($currentDatabase !== null);
+
+        /** @var array<string,list<array<string,mixed>>> $columns */
+        $columns = $this->selectDatabaseColumns($currentDatabase)
+            ->fetchAllAssociativeGrouped();
+
+        $indexes = $this->selectDatabaseIndexes($currentDatabase)
+            ->fetchAllAssociativeGrouped();
+
+        $foreignKeys = $this->selectDatabaseForeignKeys($currentDatabase)
+            ->fetchAllAssociativeGrouped();
+
+        $tables = [];
+
+        foreach ($columns as $tableName => $tableColumns) {
+            $options = [];
+
+            $comment = $this->parseTableCommentFromSQL($tableName, $this->getCreateTableSQL($tableName));
+            if ($comment !== null) {
+                $options['comment'] = $comment;
+            }
+
+            $tables[] = new Table(
+                $tableName,
+                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
+                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
+                [],
+                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
+                $options
+            );
+        }
+
+        return $tables;
     }
 
     public function createComparator(): Comparator
@@ -610,5 +681,104 @@ SQL
 
         // SQLite does not support schemas or databases
         return [];
+    }
+
+    /**
+     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = <<<SQL
+            SELECT m.name "table_name", p.*
+              FROM sqlite_master m
+              JOIN pragma_table_info(m.name) p
+SQL;
+
+        $conditions = [
+            "m.type = 'table'",
+            "m.name != 'sqlite_sequence'",
+            "m.name != 'geometry_columns'",
+            "m.name != 'spatial_ref_sys'",
+        ];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = 'm.name = ?';
+            $params[]     = str_replace('.', '__', $tableName);
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions)
+            . ' ORDER BY m.name, p.cid';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = <<<SQL
+            SELECT m.name "table_name", p.*
+              FROM sqlite_master m
+              JOIN pragma_index_list(m.name) p
+SQL;
+
+        $conditions = [
+            "m.type = 'table'",
+            "m.name != 'sqlite_sequence'",
+            "m.name != 'geometry_columns'",
+            "m.name != 'spatial_ref_sys'",
+        ];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = 'm.name = ?';
+            $params[]     = str_replace('.', '__', $tableName);
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions)
+            . ' ORDER BY m.name, p.seq';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
+     * narrows down the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = <<<SQL
+            SELECT m.name, p.*
+              FROM sqlite_master m
+              JOIN pragma_foreign_key_list(m.name) p ON p."seq" != "-1"
+SQL;
+
+        $conditions = [
+            "m.type = 'table'",
+            "m.name != 'sqlite_sequence'",
+            "m.name != 'geometry_columns'",
+            "m.name != 'spatial_ref_sys'",
+        ];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = 'm.name = ?';
+            $params[]     = str_replace('.', '__', $tableName);
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions)
+            . ' ORDER BY m.name';
+
+        return $this->_conn->executeQuery($sql, $params);
     }
 }
