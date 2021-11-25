@@ -8,7 +8,6 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
-use function array_keys;
 use function array_values;
 use function assert;
 use function implode;
