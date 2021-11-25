@@ -431,6 +431,15 @@ JSON objects are always converted to PHP associative arrays.
 
 .. note::
 
+    The ``json`` type doesn't preserve the type of PHP objects.
+    PHP objects will always be encoded as (anonymous) JSON objects.
+    JSON objects will always be decoded as PHP associative arrays.
+
+    To preserve the type of PHP objects, consider using
+    `Doctrine JSON ODM <https://github.com/dunglas/doctrine-json-odm>`_.
+
+.. note::
+
     Some vendors have a native JSON type and Doctrine will use it if possible
     and otherwise silently fall back to the vendor's ``text`` type to ensure
     the most efficient storage requirements.
