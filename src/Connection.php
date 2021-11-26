@@ -647,6 +647,10 @@ class Connection implements ServerVersionProvider
         return $this->getDatabasePlatform()->quoteIdentifier($identifier);
     }
 
+    /**
+     * The usage of this method is discouraged. Use prepared statements
+     * or {@link AbstractPlatform::quoteStringLiteral()} instead.
+     */
     public function quote(string $value): string
     {
         return $this->getWrappedConnection()->quote($value);

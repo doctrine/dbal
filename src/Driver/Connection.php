@@ -28,6 +28,9 @@ interface Connection extends ServerVersionProvider
 
     /**
      * Quotes a string for use in a query.
+     *
+     * The usage of this method is discouraged. Use prepared statements
+     * or {@link AbstractPlatform::quoteStringLiteral()} instead.
      */
     public function quote(string $value): string;
 

@@ -92,6 +92,6 @@ functions.
 Platforms are also responsible to know which database type
 translates to which PHP Type. This is a very tricky issue across
 all the different database vendors, for example MySQL BIGINT and
-Oracle NUMBER should be handled as integer. Doctrine 2 offers a
+Oracle NUMBER should be handled as integer. Doctrine DBAL offers a
 powerful way to abstract the database to php and back conversion,
 which is described in the next section.

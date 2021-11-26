@@ -241,6 +241,9 @@ class ExpressionBuilder
 
     /**
      * Creates an SQL literal expression from the string.
+     *
+     * The usage of this method is discouraged. Use prepared statements
+     * or {@link AbstractPlatform::quoteStringLiteral()} instead.
      */
     public function literal(string $input): string
     {

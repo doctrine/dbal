@@ -99,4 +99,17 @@ class JsonTest extends TestCase
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }
+
+    public function testSerializationFailure(): void
+    {
+        $object            = (object) [];
+        $object->recursion = $object;
+
+        $this->expectException(ConversionException::class);
+        $this->expectExceptionMessage(
+            'Could not convert PHP type "stdClass" to "json". '
+            . 'An error was triggered by the serialization: Recursion detected'
+        );
+        $this->type->convertToDatabaseValue($object, $this->platform);
+    }
 }
