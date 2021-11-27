@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated `Connection::getWrappedConnection()`, `Connection::connect()` made `@internal`.
+
+The wrapper-level `Connection::getWrappedConnection()` method has been deprecated.
+Use `Connection::getNativeConnection()` to access the native connection.
+
+The `Connection::connect()` method has been marked internal. It will be marked `protected` in DBAL 4.0.
+
 ## Add `Connection::getNativeConnection()`
 
 Driver and middleware connections need to implement a new method `getNativeConnection()` that gives access to the
