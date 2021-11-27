@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Logging;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Psr\Log\LoggerInterface;
 
-final class Connection implements ConnectionInterface
+final class Connection extends AbstractConnectionMiddleware
 {
-    private ConnectionInterface $connection;
-
     private LoggerInterface $logger;
 
     /**
@@ -20,8 +19,9 @@ final class Connection implements ConnectionInterface
      */
     public function __construct(ConnectionInterface $connection, LoggerInterface $logger)
     {
-        $this->connection = $connection;
-        $this->logger     = $logger;
+        parent::__construct($connection);
+
+        $this->logger = $logger;
     }
 
     public function __destruct()
@@ -32,7 +32,7 @@ final class Connection implements ConnectionInterface
     public function prepare(string $sql): DriverStatement
     {
         return new Statement(
-            $this->connection->prepare($sql),
+            parent::prepare($sql),
             $this->logger,
             $sql
         );
@@ -42,52 +42,34 @@ final class Connection implements ConnectionInterface
     {
         $this->logger->debug('Executing query: {sql}', ['sql' => $sql]);
 
-        return $this->connection->query($sql);
-    }
-
-    public function quote(string $value): string
-    {
-        return $this->connection->quote($value);
+        return parent::query($sql);
     }
 
     public function exec(string $sql): int
     {
         $this->logger->debug('Executing statement: {sql}', ['sql' => $sql]);
 
-        return $this->connection->exec($sql);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function lastInsertId()
-    {
-        return $this->connection->lastInsertId();
+        return parent::exec($sql);
     }
 
     public function beginTransaction(): void
     {
         $this->logger->debug('Beginning transaction');
 
-        $this->connection->beginTransaction();
+        parent::beginTransaction();
     }
 
     public function commit(): void
     {
         $this->logger->debug('Committing transaction');
 
-        $this->connection->commit();
+        parent::commit();
     }
 
     public function rollBack(): void
     {
         $this->logger->debug('Rolling back transaction');
 
-        $this->connection->rollBack();
-    }
-
-    public function getServerVersion(): string
-    {
-        return $this->connection->getServerVersion();
+        parent::rollBack();
     }
 }

@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Logging;
 
+use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use Psr\Log\LoggerInterface;
 
-final class Statement implements StatementInterface
+final class Statement extends AbstractStatementMiddleware
 {
-    private StatementInterface $statement;
-
     private LoggerInterface $logger;
 
     private string $sql;
@@ -28,9 +27,10 @@ final class Statement implements StatementInterface
      */
     public function __construct(StatementInterface $statement, LoggerInterface $logger, string $sql)
     {
-        $this->statement = $statement;
-        $this->logger    = $logger;
-        $this->sql       = $sql;
+        parent::__construct($statement);
+
+        $this->logger = $logger;
+        $this->sql    = $sql;
     }
 
     /**
@@ -41,7 +41,7 @@ final class Statement implements StatementInterface
         $this->params[$param] = &$variable;
         $this->types[$param]  = $type;
 
-        $this->statement->bindParam($param, $variable, $type, $length);
+        parent::bindParam($param, $variable, $type, $length);
     }
 
     /**
@@ -52,13 +52,10 @@ final class Statement implements StatementInterface
         $this->params[$param] = $value;
         $this->types[$param]  = $type;
 
-        $this->statement->bindValue($param, $value, $type);
+        parent::bindValue($param, $value, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function execute($params = null): ResultInterface
+    public function execute(?array $params = null): ResultInterface
     {
         $this->logger->debug('Executing statement: {sql} (parameters: {params}, types: {types})', [
             'sql'    => $this->sql,
@@ -66,6 +63,6 @@ final class Statement implements StatementInterface
             'types'  => $this->types,
         ]);
 
-        return $this->statement->execute($params);
+        return parent::execute($params);
     }
 }

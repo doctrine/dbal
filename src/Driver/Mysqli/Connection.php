@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
+use Doctrine\Deprecations\Deprecation;
 use mysqli;
 use mysqli_sql_exception;
 
@@ -34,10 +35,19 @@ final class Connection implements ConnectionInterface
      * Retrieves mysqli native resource handle.
      *
      * Could be used if part of your application is not using DBAL.
+     *
+     * @deprecated Call {@see getNativeConnection()} instead.
      */
     public function getWrappedResourceHandle(): mysqli
     {
-        return $this->connection;
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5037',
+            '%s is deprecated, call getNativeConnection() instead.',
+            __METHOD__
+        );
+
+        return $this->getNativeConnection();
     }
 
     /**
@@ -141,5 +151,10 @@ final class Connection implements ConnectionInterface
         } catch (mysqli_sql_exception $e) {
             throw ConnectionError::upcast($e);
         }
+    }
+
+    public function getNativeConnection(): mysqli
+    {
+        return $this->connection;
     }
 }

@@ -31,15 +31,20 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
+use LogicException;
 use Throwable;
 use Traversable;
 
 use function assert;
 use function count;
+use function get_class;
 use function implode;
 use function is_int;
 use function is_string;
 use function key;
+use function method_exists;
+use function sprintf;
 
 /**
  * A database abstraction-level connection that implements features like events, transaction isolation levels,
@@ -257,10 +262,18 @@ class Connection implements ServerVersionProvider
     /**
      * Establishes the connection with the database.
      *
+     * @internal This method will be made protected in DBAL 4.0.
+     *
      * @throws Exception
      */
     public function connect(): void
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4966',
+            'Public access to Connection::connect() is deprecated.'
+        );
+
         if ($this->_conn !== null) {
             return;
         }
@@ -1240,15 +1253,42 @@ class Connection implements ServerVersionProvider
     /**
      * Gets the wrapped driver connection.
      *
+     * @deprecated Use {@link getNativeConnection()} to access the native connection.
+     *
      * @throws Exception
      */
     public function getWrappedConnection(): DriverConnection
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4966',
+            'Connection::getWrappedConnection() is deprecated.'
+                . ' Use Connection::getNativeConnection() to access the native connection.'
+        );
+
         $this->connect();
 
         assert($this->_conn !== null);
 
         return $this->_conn;
+    }
+
+    /**
+     * @return resource|object
+     */
+    public function getNativeConnection()
+    {
+        $this->connect();
+
+        assert($this->_conn !== null);
+        if (! method_exists($this->_conn, 'getNativeConnection')) {
+            throw new LogicException(sprintf(
+                'The driver connection %s does not support accessing the native connection.',
+                get_class($this->_conn)
+            ));
+        }
+
+        return $this->_conn->getNativeConnection();
     }
 
     /**

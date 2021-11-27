@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
-use Doctrine\DBAL\Driver\Result as DriverResult;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 
 /**
  * Portability wrapper for a Connection.
  */
-final class Connection implements ConnectionInterface
+final class Connection extends AbstractConnectionMiddleware
 {
     public const PORTABILITY_ALL           = 255;
     public const PORTABILITY_NONE          = 0;
@@ -19,67 +18,28 @@ final class Connection implements ConnectionInterface
     public const PORTABILITY_EMPTY_TO_NULL = 4;
     public const PORTABILITY_FIX_CASE      = 8;
 
-    private ConnectionInterface $connection;
-
     private Converter $converter;
 
     public function __construct(ConnectionInterface $connection, Converter $converter)
     {
-        $this->connection = $connection;
-        $this->converter  = $converter;
+        parent::__construct($connection);
+
+        $this->converter = $converter;
     }
 
-    public function prepare(string $sql): DriverStatement
+    public function prepare(string $sql): Statement
     {
         return new Statement(
-            $this->connection->prepare($sql),
+            parent::prepare($sql),
             $this->converter
         );
     }
 
-    public function query(string $sql): DriverResult
+    public function query(string $sql): Result
     {
         return new Result(
-            $this->connection->query($sql),
+            parent::query($sql),
             $this->converter
         );
-    }
-
-    public function quote(string $value): string
-    {
-        return $this->connection->quote($value);
-    }
-
-    public function exec(string $sql): int
-    {
-        return $this->connection->exec($sql);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function lastInsertId()
-    {
-        return $this->connection->lastInsertId();
-    }
-
-    public function beginTransaction(): void
-    {
-        $this->connection->beginTransaction();
-    }
-
-    public function commit(): void
-    {
-        $this->connection->commit();
-    }
-
-    public function rollBack(): void
-    {
-        $this->connection->rollBack();
-    }
-
-    public function getServerVersion(): string
-    {
-        return $this->connection->getServerVersion();
     }
 }

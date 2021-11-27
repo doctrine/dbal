@@ -123,4 +123,12 @@ final class Connection implements ConnectionInterface
 
         $this->executionMode->enableAutoCommit();
     }
+
+    /**
+     * @return resource
+     */
+    public function getNativeConnection()
+    {
+        return $this->connection;
+    }
 }

@@ -5,31 +5,29 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\ColumnCase;
-use Doctrine\DBAL\Connection as DBALConnection;
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
-use Doctrine\DBAL\Driver\PDO;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\ServerVersionProvider;
+use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use LogicException;
+use PDO;
+
+use function method_exists;
 
 use const CASE_LOWER;
 use const CASE_UPPER;
 
-final class Driver implements DriverInterface
+final class Driver extends AbstractDriverMiddleware
 {
-    private DriverInterface $driver;
-
     private int $mode;
 
     private int $case;
 
     public function __construct(DriverInterface $driver, int $mode, int $case)
     {
-        $this->driver = $driver;
-        $this->mode   = $mode;
-        $this->case   = $case;
+        parent::__construct($driver);
+
+        $this->mode = $mode;
+        $this->case = $case;
     }
 
     /**
@@ -37,7 +35,7 @@ final class Driver implements DriverInterface
      */
     public function connect(array $params): ConnectionInterface
     {
-        $connection = $this->driver->connect($params);
+        $connection = parent::connect($params);
 
         $portability = (new OptimizeFlags())(
             $this->getDatabasePlatform($connection),
@@ -47,10 +45,17 @@ final class Driver implements DriverInterface
         $case = 0;
 
         if ($this->case !== 0 && ($portability & Connection::PORTABILITY_FIX_CASE) !== 0) {
-            if ($connection instanceof PDO\Connection) {
-                // make use of c-level support for case handling
+            $nativeConnection = null;
+            if (method_exists($connection, 'getNativeConnection')) {
+                try {
+                    $nativeConnection = $connection->getNativeConnection();
+                } catch (LogicException $e) {
+                }
+            }
+
+            if ($nativeConnection instanceof PDO) {
                 $portability &= ~Connection::PORTABILITY_FIX_CASE;
-                $connection->getWrappedConnection()->setAttribute(\PDO::ATTR_CASE, $this->case);
+                $nativeConnection->setAttribute(PDO::ATTR_CASE, $this->case);
             } else {
                 $case = $this->case === ColumnCase::LOWER ? CASE_LOWER : CASE_UPPER;
             }
@@ -67,20 +72,5 @@ final class Driver implements DriverInterface
             $connection,
             new Converter($convertEmptyStringToNull, $rightTrimString, $case)
         );
-    }
-
-    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
-    {
-        return $this->driver->getDatabasePlatform($versionProvider);
-    }
-
-    public function getSchemaManager(DBALConnection $conn, AbstractPlatform $platform): AbstractSchemaManager
-    {
-        return $this->driver->getSchemaManager($conn, $platform);
-    }
-
-    public function getExceptionConverter(): ExceptionConverter
-    {
-        return $this->driver->getExceptionConverter();
     }
 }

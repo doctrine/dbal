@@ -22,4 +22,26 @@ class ConnectionTest extends TestCase
 
         self::assertSame('1.2.3', $connection->getServerVersion());
     }
+
+    public function testGetNativeConnection(): void
+    {
+        $nativeConnection = new class () {
+        };
+
+        $driverConnection = $this->createMock(NativeDriverConnection::class);
+        $driverConnection->method('getNativeConnection')
+            ->willReturn($nativeConnection);
+
+        $connection = new Connection($driverConnection, new Converter(false, false, 0));
+
+        self::assertSame($nativeConnection, $connection->getNativeConnection());
+    }
+}
+
+interface NativeDriverConnection extends ConnectionInterface
+{
+    /**
+     * @return object|resource
+     */
+    public function getNativeConnection();
 }

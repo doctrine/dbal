@@ -73,7 +73,7 @@ class DriverTest extends AbstractDriverTest
         self::assertSame(
             PDO::CASE_UPPER,
             $connection
-                ->getWrappedConnection()
+                ->getNativeConnection()
                 ->getAttribute(PDO::ATTR_CASE)
         );
     }

@@ -32,7 +32,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertTrue(
-            $connection->getWrappedConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES)
+            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES)
         );
     }
 
@@ -44,7 +44,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertNotTrue(
-            $connection->getWrappedConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES)
+            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES)
         );
     }
 
@@ -56,7 +56,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertTrue(
-            $connection->getWrappedConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES)
+            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES)
         );
     }
 

@@ -106,4 +106,12 @@ final class Connection implements ConnectionInterface
             throw Error::new();
         }
     }
+
+    /**
+     * @return resource
+     */
+    public function getNativeConnection()
+    {
+        return $this->connection;
+    }
 }

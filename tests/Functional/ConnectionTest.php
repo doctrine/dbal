@@ -370,7 +370,7 @@ class ConnectionTest extends FunctionalTestCase
             self::markTestSkipped('Unable to test if the connection is persistent');
         }
 
-        $pdo = $driverConnection->getWrappedConnection();
+        $pdo = $driverConnection->getNativeConnection();
 
         self::assertTrue($pdo->getAttribute(PDO::ATTR_PERSISTENT));
     }

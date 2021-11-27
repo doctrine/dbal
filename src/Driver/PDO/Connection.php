@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
+use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -130,8 +131,23 @@ final class Connection implements ConnectionInterface
         }
     }
 
-    public function getWrappedConnection(): PDO
+    public function getNativeConnection(): PDO
     {
         return $this->connection;
+    }
+
+    /**
+     * @deprecated Call {@see getNativeConnection()} instead.
+     */
+    public function getWrappedConnection(): PDO
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5037',
+            '%s is deprecated, call getNativeConnection() instead.',
+            __METHOD__
+        );
+
+        return $this->getNativeConnection();
     }
 }
