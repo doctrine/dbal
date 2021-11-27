@@ -3,20 +3,15 @@
 namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\ColumnCase;
-use Doctrine\DBAL\Connection as DBALConnection;
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\API\ExceptionConverter;
+use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use Doctrine\DBAL\Driver\PDO;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use const CASE_LOWER;
 use const CASE_UPPER;
 
-final class Driver implements DriverInterface
+final class Driver extends AbstractDriverMiddleware
 {
-    /** @var DriverInterface */
-    private $driver;
-
     /** @var int */
     private $mode;
 
@@ -25,9 +20,10 @@ final class Driver implements DriverInterface
 
     public function __construct(DriverInterface $driver, int $mode, int $case)
     {
-        $this->driver = $driver;
-        $this->mode   = $mode;
-        $this->case   = $case;
+        parent::__construct($driver);
+
+        $this->mode = $mode;
+        $this->case = $case;
     }
 
     /**
@@ -35,7 +31,7 @@ final class Driver implements DriverInterface
      */
     public function connect(array $params)
     {
-        $connection = $this->driver->connect($params);
+        $connection = parent::connect($params);
 
         $portability = (new OptimizeFlags())(
             $this->getDatabasePlatform(),
@@ -65,26 +61,5 @@ final class Driver implements DriverInterface
             $connection,
             new Converter($convertEmptyStringToNull, $rightTrimString, $case)
         );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDatabasePlatform()
-    {
-        return $this->driver->getDatabasePlatform();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getSchemaManager(DBALConnection $conn, AbstractPlatform $platform)
-    {
-        return $this->driver->getSchemaManager($conn, $platform);
-    }
-
-    public function getExceptionConverter(): ExceptionConverter
-    {
-        return $this->driver->getExceptionConverter();
     }
 }
