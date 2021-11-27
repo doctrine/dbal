@@ -10,6 +10,10 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
 
+use function get_class;
+use function method_exists;
+use function sprintf;
+
 abstract class AbstractConnectionMiddleware implements ServerInfoAwareConnection
 {
     /** @var Connection */
@@ -93,5 +97,20 @@ abstract class AbstractConnectionMiddleware implements ServerInfoAwareConnection
         }
 
         return $this->wrappedConnection->getServerVersion();
+    }
+
+    /**
+     * @return resource|object
+     */
+    public function getNativeConnection()
+    {
+        if (! method_exists($this->wrappedConnection, 'getNativeConnection')) {
+            throw new LogicException(sprintf(
+                'The driver connection %s does not support accessing the native connection.',
+                get_class($this->wrappedConnection)
+            ));
+        }
+
+        return $this->wrappedConnection->getNativeConnection();
     }
 }

@@ -142,4 +142,12 @@ final class Connection implements ServerInfoAwareConnection
 
         return $result;
     }
+
+    /**
+     * @return resource
+     */
+    public function getNativeConnection()
+    {
+        return $this->connection;
+    }
 }

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use PHPUnit\Framework\Constraint\IsType;
 
 abstract class AbstractDriverTest extends FunctionalTestCase
 {
@@ -47,6 +48,16 @@ abstract class AbstractDriverTest extends FunctionalTestCase
             static::getDatabaseNameForConnectionWithoutDatabaseNameParameter(),
             $connection->getDatabase()
         );
+    }
+
+    public function testProvidesAccessToTheNativeConnection(): void
+    {
+        $nativeConnection = $this->connection->getNativeConnection();
+
+        self::assertThat($nativeConnection, self::logicalOr(
+            new IsType(IsType::TYPE_OBJECT),
+            new IsType(IsType::TYPE_RESOURCE)
+        ));
     }
 
     abstract protected function createDriver(): Driver;

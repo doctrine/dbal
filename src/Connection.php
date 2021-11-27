@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
+use LogicException;
 use Throwable;
 use Traversable;
 
@@ -34,6 +35,8 @@ use function implode;
 use function is_int;
 use function is_string;
 use function key;
+use function method_exists;
+use function sprintf;
 
 /**
  * A database abstraction-level connection that implements features like events, transaction isolation levels,
@@ -1509,6 +1512,24 @@ class Connection
         assert($this->_conn !== null);
 
         return $this->_conn;
+    }
+
+    /**
+     * @return resource|object
+     */
+    public function getNativeConnection()
+    {
+        $this->connect();
+
+        assert($this->_conn !== null);
+        if (! method_exists($this->_conn, 'getNativeConnection')) {
+            throw new LogicException(sprintf(
+                'The driver connection %s does not support accessing the native connection.',
+                get_class($this->_conn)
+            ));
+        }
+
+        return $this->_conn->getNativeConnection();
     }
 
     /**

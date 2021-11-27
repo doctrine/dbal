@@ -6,6 +6,23 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 3.3
+
+## Add `Connection::getNativeConnection()`
+
+Driver and middleware connections need to implement a new method `getNativeConnection()` that gives access to the
+native database connection. Not doing so is deprecated.
+
+## Deprecate accessors for the native connection in favor of `getNativeConnection()`
+
+The following methods have been deprecated:
+
+* `Doctrine\DBAL\Driver\PDO\Connection::getWrappedConnection()`
+* `Doctrine\DBAL\Driver\PDO\SQLSrv\Connection::getWrappedConnection()`
+* `Doctrine\DBAL\Driver\Mysqli\Connection::getWrappedResourceHandle()`
+
+Call `getNativeConnection()` to access the underlying PDO or MySQLi connection.
+
 # Upgrade to 3.2
 
 ## Deprecated `SQLLogger` and its implementations.

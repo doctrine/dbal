@@ -194,6 +194,9 @@
                     See https://github.com/doctrine/dbal/pull/4897
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::tryMethod"/>
+
+                <!-- TODO: remove in 4.0.0 -->
+                <referencedMethod name="Doctrine\DBAL\Driver\PDO\Connection::getWrappedConnection"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
@@ -376,6 +379,7 @@
                     or breaking API changes.
                 -->
                 <file name="src/Platforms/MySQLPlatform.php"/>
+                <file name="tests/Functional/Driver/AbstractDriverTest.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
         <ReferenceConstraintViolation>

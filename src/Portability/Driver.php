@@ -5,7 +5,10 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
-use Doctrine\DBAL\Driver\PDO;
+use LogicException;
+use PDO;
+
+use function method_exists;
 
 use const CASE_LOWER;
 use const CASE_UPPER;
@@ -41,10 +44,17 @@ final class Driver extends AbstractDriverMiddleware
         $case = 0;
 
         if ($this->case !== 0 && ($portability & Connection::PORTABILITY_FIX_CASE) !== 0) {
-            if ($connection instanceof PDO\Connection) {
-                // make use of c-level support for case handling
+            $nativeConnection = null;
+            if (method_exists($connection, 'getNativeConnection')) {
+                try {
+                    $nativeConnection = $connection->getNativeConnection();
+                } catch (LogicException $e) {
+                }
+            }
+
+            if ($nativeConnection instanceof PDO) {
                 $portability &= ~Connection::PORTABILITY_FIX_CASE;
-                $connection->getWrappedConnection()->setAttribute(\PDO::ATTR_CASE, $this->case);
+                $nativeConnection->setAttribute(PDO::ATTR_CASE, $this->case);
             } else {
                 $case = $this->case === ColumnCase::LOWER ? CASE_LOWER : CASE_UPPER;
             }
