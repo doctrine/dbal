@@ -100,6 +100,7 @@ class Statement
 
         if ($type !== null) {
             if (is_string($type)) {
+                // The type registry could be obtained from the connection
                 $type = Type::getType($type);
             }
 

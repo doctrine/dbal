@@ -1596,6 +1596,8 @@ class Connection
      */
     public function convertToDatabaseValue($value, $type)
     {
+        // Either we deprecate this method, or we add the type registry as a
+        // dependency
         return Type::getType($type)->convertToDatabaseValue($value, $this->getDatabasePlatform());
     }
 
@@ -1612,6 +1614,7 @@ class Connection
      */
     public function convertToPHPValue($value, $type)
     {
+        // same as above
         return Type::getType($type)->convertToPHPValue($value, $this->getDatabasePlatform());
     }
 
@@ -1669,6 +1672,7 @@ class Connection
     private function getBindingInfo($value, $type): array
     {
         if (is_string($type)) {
+            // same as above
             $type = Type::getType($type);
         }
 

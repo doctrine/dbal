@@ -348,6 +348,8 @@ class Table extends AbstractAsset
      */
     public function addColumn($name, $typeName, array $options = [])
     {
+        // either the signature of addColumn should require a Type instance, or
+        // we should pass a string to Column::__construct and resolve the type later on
         $column = new Column($name, Type::getType($typeName), $options);
 
         $this->_addColumn($column);

@@ -153,7 +153,7 @@ abstract class Type
      *
      * @throws Exception
      */
-    public static function addType($name, $className)
+    public static function addType($name, $className) // this method is only ever used in tests
     {
         self::getTypeRegistry()->register($name, new $className());
     }
@@ -165,7 +165,7 @@ abstract class Type
      *
      * @return bool TRUE if type is supported; FALSE otherwise.
      */
-    public static function hasType($name)
+    public static function hasType($name) // used once in AbstractPlatform
     {
         return self::getTypeRegistry()->has($name);
     }
@@ -180,7 +180,7 @@ abstract class Type
      *
      * @throws Exception
      */
-    public static function overrideType($name, $className)
+    public static function overrideType($name, $className) // used exclusively in tests
     {
         self::getTypeRegistry()->override($name, new $className());
     }
@@ -204,7 +204,7 @@ abstract class Type
      *
      * @return string[]
      */
-    public static function getTypesMap()
+    public static function getTypesMap() // used in AbstractPlatform
     {
         return array_map(
             static function (Type $type): string {

@@ -120,6 +120,8 @@ class DB2SchemaManager extends AbstractSchemaManager
             $options['precision'] = $precision;
         }
 
+        // most schema managers perform that kind of call. They know about both
+        // the connection and the platform
         return new Column($tableColumn['colname'], Type::getType($type), $options);
     }
 

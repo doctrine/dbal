@@ -174,6 +174,7 @@ abstract class AbstractPlatform
     {
         $this->initializeDoctrineTypeMappings();
 
+        // this method has been deprecated and will be removed, no longer a blocker
         foreach (Type::getTypesMap() as $typeName => $className) {
             foreach (Type::getType($typeName)->getMappedDatabaseTypes($this) as $dbType) {
                 $this->doctrineTypeMapping[$dbType] = $typeName;
@@ -364,6 +365,7 @@ abstract class AbstractPlatform
         $dbType                             = strtolower($dbType);
         $this->doctrineTypeMapping[$dbType] = $doctrineType;
 
+        // deprecated method, so not a big deal either
         $doctrineType = Type::getType($doctrineType);
 
         if (! $doctrineType->requiresSQLCommentHint($this)) {
@@ -427,6 +429,7 @@ abstract class AbstractPlatform
         $this->doctrineTypeComments = [];
 
         foreach (Type::getTypesMap() as $typeName => $className) {
+            // again, deprecated method
             $type = Type::getType($typeName);
 
             if (! $type->requiresSQLCommentHint($this)) {
