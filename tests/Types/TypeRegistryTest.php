@@ -84,7 +84,7 @@ class TypeRegistryTest extends TestCase
         self::assertSame($newType, $this->registry->get('some'));
     }
 
-    public function testRegisterWithAlradyRegisteredName(): void
+    public function testRegisterWithAlreadyRegisteredName(): void
     {
         $this->registry->register('some', new TextType());
 
@@ -96,10 +96,12 @@ class TypeRegistryTest extends TestCase
     {
         $newType = new TextType();
 
-        $this->registry->register('some', $newType);
-
-        $this->expectException(Exception::class);
-        $this->registry->register('other', $newType);
+        $this->registry->register('type1', $newType);
+        $this->registry->register('type2', $newType);
+        self::assertSame(
+            $this->registry->get('type1'),
+            $this->registry->get('type2')
+        );
     }
 
     public function testOverride(): void
@@ -121,17 +123,6 @@ class TypeRegistryTest extends TestCase
         $this->registry->override('some', $type);
 
         self::assertSame($type, $this->registry->get('some'));
-    }
-
-    public function testOverrideWithAlreadyRegisteredInstance(): void
-    {
-        $newType = new TextType();
-
-        $this->registry->register('first', $newType);
-        $this->registry->register('second', new StringType());
-
-        $this->expectException(Exception::class);
-        $this->registry->override('second', $newType);
     }
 
     public function testOverrideWithUnknownType(): void

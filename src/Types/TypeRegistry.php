@@ -5,23 +5,20 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Types\Exception\TypeAlreadyRegistered;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
 use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
 use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 
 use function array_search;
-use function in_array;
 
 /**
  * The type registry is responsible for holding a map of all known DBAL types.
- * The types are stored using the flyweight pattern so that one type only exists as exactly one instance.
  */
 final class TypeRegistry
 {
     /**
-     * Map of type names and their corresponding flyweight objects.
+     * Map of type names and their corresponding objects.
      *
      * @var array<string, Type>
      */
@@ -56,9 +53,9 @@ final class TypeRegistry
      */
     public function lookupName(Type $type): string
     {
-        $name = $this->findTypeName($type);
+        $name = array_search($type, $this->instances, true);
 
-        if ($name === null) {
+        if ($name === false) {
             throw TypeNotRegistered::new($type);
         }
 
@@ -84,10 +81,6 @@ final class TypeRegistry
             throw TypesAlreadyExists::new($name);
         }
 
-        if ($this->findTypeName($type) !== null) {
-            throw TypeAlreadyRegistered::new($type);
-        }
-
         $this->instances[$name] = $type;
     }
 
@@ -100,10 +93,6 @@ final class TypeRegistry
     {
         if (! isset($this->instances[$name])) {
             throw TypeNotFound::new($name);
-        }
-
-        if (! in_array($this->findTypeName($type), [$name, null], true)) {
-            throw TypeAlreadyRegistered::new($type);
         }
 
         $this->instances[$name] = $type;
@@ -119,16 +108,5 @@ final class TypeRegistry
     public function getMap(): array
     {
         return $this->instances;
-    }
-
-    private function findTypeName(Type $type): ?string
-    {
-        $name = array_search($type, $this->instances, true);
-
-        if ($name === false) {
-            return null;
-        }
-
-        return $name;
     }
 }
