@@ -69,9 +69,38 @@ final class AbstractConnectionMiddlewareTest extends TestCase
         $middleware->getServerVersion();
     }
 
+    public function testGetNativeConnection(): void
+    {
+        $nativeConnection = new class () {
+        };
+
+        $connection = $this->createMock(NativeDriverConnection::class);
+        $connection->method('getNativeConnection')
+            ->willReturn($nativeConnection);
+
+        self::assertSame($nativeConnection, $this->createMiddleware($connection)->getNativeConnection());
+    }
+
+    public function testGetNativeConnectionFailsWithLegacyConnection(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $middleware = $this->createMiddleware($connection);
+
+        $this->expectException(LogicException::class);
+        $middleware->getNativeConnection();
+    }
+
     private function createMiddleware(Connection $connection): AbstractConnectionMiddleware
     {
         return new class ($connection) extends AbstractConnectionMiddleware {
         };
     }
+}
+
+interface NativeDriverConnection extends ServerInfoAwareConnection
+{
+    /**
+     * @return object|resource
+     */
+    public function getNativeConnection();
 }

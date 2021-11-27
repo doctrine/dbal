@@ -123,8 +123,23 @@ final class Connection implements ServerInfoAwareConnection
         return $this->connection->rollBack();
     }
 
-    public function getWrappedConnection(): PDO
+    public function getNativeConnection(): PDO
     {
         return $this->connection;
+    }
+
+    /**
+     * @deprecated Call {@see getNativeConnection()} instead.
+     */
+    public function getWrappedConnection(): PDO
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5037',
+            '%s is deprecated, call getNativeConnection() instead.',
+            __METHOD__
+        );
+
+        return $this->getNativeConnection();
     }
 }

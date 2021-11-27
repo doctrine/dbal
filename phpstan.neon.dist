@@ -141,5 +141,9 @@ parameters:
             message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int\|string\.~'
             paths:
                 - src/Driver/Mysqli/Result.php
+
+        # Type check for legacy implementations of the Connection interface
+        # TODO: remove in 4.0.0
+        - "~Call to function method_exists\\(\\) with Doctrine\\\\DBAL\\\\Driver\\\\Connection and 'getNativeConnection' will always evaluate to true\\.~"
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
