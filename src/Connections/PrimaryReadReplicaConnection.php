@@ -137,7 +137,7 @@ class PrimaryReadReplicaConnection extends Connection
         return $this->_conn !== null && $this->_conn === $this->connections['primary'];
     }
 
-    public function connect(?string $connectionName = null): void
+    public function connect(?string $connectionName = null): DriverConnection
     {
         if ($connectionName !== null) {
             throw new InvalidArgumentException(
@@ -146,10 +146,10 @@ class PrimaryReadReplicaConnection extends Connection
             );
         }
 
-        $this->performConnect();
+        return $this->performConnect();
     }
 
-    protected function performConnect(?string $connectionName = null): void
+    protected function performConnect(?string $connectionName = null): DriverConnection
     {
         $requestedConnectionChange = ($connectionName !== null);
         $connectionName          ??= 'replica';
@@ -162,7 +162,7 @@ class PrimaryReadReplicaConnection extends Connection
         // change request, then abort right here, because we are already done.
         // This prevents writes to the replica in case of "keepReplica" option enabled.
         if ($this->_conn !== null && ! $requestedConnectionChange) {
-            return;
+            return $this->_conn;
         }
 
         $forcePrimaryAsReplica = false;
@@ -179,7 +179,7 @@ class PrimaryReadReplicaConnection extends Connection
                 $this->connections['replica'] = $this->_conn;
             }
 
-            return;
+            return $this->_conn;
         }
 
         if ($connectionName === 'primary') {
@@ -193,12 +193,12 @@ class PrimaryReadReplicaConnection extends Connection
             $this->connections['replica'] = $this->_conn = $this->connectTo($connectionName);
         }
 
-        if (! $this->_eventManager->hasListeners(Events::postConnect)) {
-            return;
+        if ($this->_eventManager->hasListeners(Events::postConnect)) {
+            $eventArgs = new ConnectionEventArgs($this);
+            $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 
-        $eventArgs = new ConnectionEventArgs($this);
-        $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
+        return $this->_conn;
     }
 
     /**

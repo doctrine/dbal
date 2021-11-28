@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -318,11 +317,9 @@ class ConnectionTest extends FunctionalTestCase
             $this->connection->getEventManager()
         );
 
-        $connection->connect();
-
-        self::assertTrue($connection->isConnected());
-
-        $connection->close();
+        self::assertEquals(1, $connection->fetchOne(
+            $platform->getDummySelectSQL()
+        ));
     }
 
     public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase(): void
@@ -364,15 +361,13 @@ class ConnectionTest extends FunctionalTestCase
         $params['persistent'] = true;
 
         $connection       = DriverManager::getConnection($params);
-        $driverConnection = $connection->getWrappedConnection();
+        $nativeConnection = $connection->getNativeConnection();
 
-        if (! $driverConnection instanceof PDOConnection) {
+        if (! $nativeConnection instanceof PDO) {
             self::markTestSkipped('Unable to test if the connection is persistent');
         }
 
-        $pdo = $driverConnection->getNativeConnection();
-
-        self::assertTrue($pdo->getAttribute(PDO::ATTR_PERSISTENT));
+        self::assertTrue($nativeConnection->getAttribute(PDO::ATTR_PERSISTENT));
     }
 
     public function testExceptionOnExecuteStatement(): void

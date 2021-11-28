@@ -58,11 +58,6 @@
 
                 <!-- TODO: remove in 4.0.0 -->
                 <referencedMethod name="Doctrine\DBAL\Driver\PDO\Connection::getWrappedConnection"/>
-                <!--
-                    TODO: remove in 4.0.0
-                    See https://github.com/doctrine/dbal/pull/4966
-                -->
-                <referencedMethod name="Doctrine\DBAL\Connection::getWrappedConnection"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>

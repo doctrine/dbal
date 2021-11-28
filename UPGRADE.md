@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `Connection::getWrappedConnection()`, `Connection::connect()` made `protected`.
+
+The wrapper-level `Connection::getWrappedConnection()` method has been removed. The `Connection::connect()` method
+has been made `protected` and now must return the underlying driver-level connection.
+
 ## BC BREAK: Removed `SQLLogger` and its implementations.
 
 The `SQLLogger` interface and its implementations `DebugStack` and `LoggerChain` have been removed.
