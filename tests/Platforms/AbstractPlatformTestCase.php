@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -45,7 +46,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuoteIdentifier(): void
     {
-        if ($this->platform->getName() === 'mssql') {
+        if ($this->platform instanceof SQLServerPlatform) {
             self::markTestSkipped('Not working this way on mssql.');
         }
 
@@ -57,7 +58,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuoteSingleIdentifier(): void
     {
-        if ($this->platform->getName() === 'mssql') {
+        if ($this->platform instanceof SQLServerPlatform) {
             self::markTestSkipped('Not working this way on mssql.');
         }
 

@@ -3,8 +3,8 @@
 namespace Doctrine\DBAL\Tests\Functional\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\SQLSrv\Driver;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 
 /**
  * @requires extension sqlsrv
@@ -13,11 +13,11 @@ class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('sqlsrv')) {
             return;
         }
 
-        self::markTestSkipped('sqlsrv only test');
+        self::markTestSkipped('This test requires the sqlsrv driver.');
     }
 
     public function testFailureToPrepareResultsInException(): void

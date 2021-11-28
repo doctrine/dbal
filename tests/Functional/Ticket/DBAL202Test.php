@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -9,8 +10,8 @@ class DBAL202Test extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() !== 'oracle') {
-            self::markTestSkipped('OCI8 only test');
+        if (! $this->connection->getDatabasePlatform() instanceof OraclePlatform) {
+            self::markTestSkipped('Oracle only test');
         }
 
         if ($this->connection->getSchemaManager()->tablesExist('DBAL202')) {

@@ -18,16 +18,13 @@ class WriteTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        try {
-            $table = new Table('write_table');
-            $table->addColumn('id', 'integer', ['autoincrement' => true]);
-            $table->addColumn('test_int', 'integer');
-            $table->addColumn('test_string', 'string', ['notnull' => false]);
-            $table->setPrimaryKey(['id']);
+        $table = new Table('write_table');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('test_int', 'integer');
+        $table->addColumn('test_string', 'string', ['notnull' => false]);
+        $table->setPrimaryKey(['id']);
 
-            $this->connection->getSchemaManager()->createTable($table);
-        } catch (Throwable $e) {
-        }
+        $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement('DELETE FROM write_table');
     }

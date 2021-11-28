@@ -16,8 +16,7 @@ final class DecimalTest extends FunctionalTestCase
         $table = new Table('decimal_table');
         $table->addColumn('val', Types::DECIMAL, ['precision' => 4, 'scale' => 2]);
 
-        $sm = $this->connection->getSchemaManager();
-        $sm->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->insert(
             'decimal_table',

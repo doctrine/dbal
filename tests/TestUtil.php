@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use PHPUnit\Framework\Assert;
@@ -14,7 +15,9 @@ use function array_map;
 use function array_values;
 use function explode;
 use function extension_loaded;
+use function file_exists;
 use function implode;
+use function in_array;
 use function is_string;
 use function strlen;
 use function strpos;
@@ -84,8 +87,6 @@ class TestUtil
         $testConnParams = self::getTestConnectionParameters();
         $privConnParams = self::getPrivilegedConnectionParameters();
 
-        $testConn = DriverManager::getConnection($testConnParams);
-
         // Connect as a privileged user to create and drop the test database.
         $privConn = DriverManager::getConnection($privConnParams);
 
@@ -98,12 +99,21 @@ class TestUtil
                 $dbname = $testConnParams['user'];
             }
 
-            $testConn->close();
+            $sm = $privConn->getSchemaManager();
 
-            $privConn->getSchemaManager()->dropAndCreateDatabase($dbname);
+            try {
+                $sm->dropDatabase($dbname);
+            } catch (DatabaseObjectNotFoundException $e) {
+            }
 
-            $privConn->close();
+            $sm->createDatabase($dbname);
+        } elseif (isset($testConnParams['path'])) {
+            if (file_exists($testConnParams['path'])) {
+                unlink($testConnParams['path']);
+            }
         } else {
+            $testConn = DriverManager::getConnection($testConnParams);
+
             $sm = $testConn->getSchemaManager();
 
             $schema = $sm->createSchema();
@@ -112,7 +122,11 @@ class TestUtil
             foreach ($stmts as $stmt) {
                 $testConn->executeStatement($stmt);
             }
+
+            $testConn->close();
         }
+
+        $privConn->close();
     }
 
     /**
@@ -124,17 +138,10 @@ class TestUtil
             Assert::markTestSkipped('PDO SQLite extension is not loaded');
         }
 
-        $params = [
+        return [
             'driver' => 'pdo_sqlite',
             'memory' => true,
         ];
-
-        if (isset($GLOBALS['db_path'])) {
-            $params['path'] = $GLOBALS['db_path'];
-            unlink($GLOBALS['db_path']);
-        }
-
-        return $params;
     }
 
     private static function addDbEventSubscribers(Connection $conn): void
@@ -199,6 +206,8 @@ class TestUtil
                 'ssl_capath',
                 'ssl_cipher',
                 'unix_socket',
+                'path',
+                'charset',
             ] as $parameter
         ) {
             if (! isset($configuration[$prefix . $parameter])) {
@@ -222,6 +231,11 @@ class TestUtil
     public static function getPrivilegedConnection(): Connection
     {
         return DriverManager::getConnection(self::getPrivilegedConnectionParameters());
+    }
+
+    public static function isDriverOneOf(string ...$names): bool
+    {
+        return in_array(self::getConnectionParams()['driver'], $names, true);
     }
 
     /**

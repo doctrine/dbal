@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Table;
@@ -16,7 +16,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
-        return $platform instanceof SQLServer2012Platform;
+        return $platform instanceof SQLServerPlatform;
     }
 
     public function testDropColumnConstraints(): void
@@ -39,7 +39,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table  = new Table($tableName = 'test_collation');
         $column = $table->addColumn($columnName = 'test', 'string');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
         $columns = $this->schemaManager->listTableColumns($tableName);
 
         // SQL Server should report a default collation on the column
@@ -47,7 +47,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $column->setPlatformOption('collation', $collation = 'Icelandic_CS_AS');
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
         $columns = $this->schemaManager->listTableColumns($tableName);
 
         self::assertEquals($collation, $columns[$columnName]->getPlatformOption('collation'));

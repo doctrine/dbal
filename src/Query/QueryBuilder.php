@@ -1315,11 +1315,9 @@ class QueryBuilder
     }
 
     /**
-     * @return string
-     *
      * @throws QueryException
      */
-    private function getSQLForSelect()
+    private function getSQLForSelect(): string
     {
         $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
                   implode(', ', $this->sqlParts['select']);
@@ -1346,7 +1344,7 @@ class QueryBuilder
      *
      * @throws QueryException
      */
-    private function getFromClauses()
+    private function getFromClauses(): array
     {
         $fromClauses  = [];
         $knownAliases = [];
@@ -1385,20 +1383,15 @@ class QueryBuilder
         }
     }
 
-    /**
-     * @return bool
-     */
-    private function isLimitQuery()
+    private function isLimitQuery(): bool
     {
         return $this->maxResults !== null || $this->firstResult !== 0;
     }
 
     /**
      * Converts this instance into an INSERT string in SQL.
-     *
-     * @return string
      */
-    private function getSQLForInsert()
+    private function getSQLForInsert(): string
     {
         return 'INSERT INTO ' . $this->sqlParts['from']['table'] .
         ' (' . implode(', ', array_keys($this->sqlParts['values'])) . ')' .
@@ -1407,10 +1400,8 @@ class QueryBuilder
 
     /**
      * Converts this instance into an UPDATE string in SQL.
-     *
-     * @return string
      */
-    private function getSQLForUpdate()
+    private function getSQLForUpdate(): string
     {
         $table = $this->sqlParts['from']['table']
             . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
@@ -1422,10 +1413,8 @@ class QueryBuilder
 
     /**
      * Converts this instance into a DELETE string in SQL.
-     *
-     * @return string
      */
-    private function getSQLForDelete()
+    private function getSQLForDelete(): string
     {
         $table = $this->sqlParts['from']['table']
             . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
@@ -1517,11 +1506,9 @@ class QueryBuilder
      * @param string             $fromAlias
      * @param array<string,true> $knownAliases
      *
-     * @return string
-     *
      * @throws QueryException
      */
-    private function getSQLForJoins($fromAlias, array &$knownAliases)
+    private function getSQLForJoins($fromAlias, array &$knownAliases): string
     {
         $sql = '';
 

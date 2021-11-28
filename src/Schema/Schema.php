@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_keys;
 use function strpos;
@@ -88,10 +89,18 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * @deprecated
+     *
      * @return bool
      */
     public function hasExplicitForeignKeyIndexes()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4822',
+            'Schema::hasExplicitForeignKeyIndexes() is deprecated.'
+        );
+
         return $this->_schemaConfig->hasExplicitForeignKeyIndexes();
     }
 
@@ -103,7 +112,7 @@ class Schema extends AbstractAsset
     protected function _addTable(Table $table)
     {
         $namespaceName = $table->getNamespaceName();
-        $tableName     = $table->getFullQualifiedName($this->getName());
+        $tableName     = $this->normalizeName($table);
 
         if (isset($this->_tables[$tableName])) {
             throw SchemaException::tableAlreadyExists($tableName);
@@ -129,7 +138,7 @@ class Schema extends AbstractAsset
     protected function _addSequence(Sequence $sequence)
     {
         $namespaceName = $sequence->getNamespaceName();
-        $seqName       = $sequence->getFullQualifiedName($this->getName());
+        $seqName       = $this->normalizeName($sequence);
 
         if (isset($this->_sequences[$seqName])) {
             throw SchemaException::sequenceAlreadyExists($seqName);
@@ -185,10 +194,8 @@ class Schema extends AbstractAsset
 
     /**
      * @param string $name
-     *
-     * @return string
      */
-    private function getFullQualifiedAssetName($name)
+    private function getFullQualifiedAssetName($name): string
     {
         $name = $this->getUnquotedAssetName($name);
 
@@ -199,14 +206,17 @@ class Schema extends AbstractAsset
         return strtolower($name);
     }
 
+    private function normalizeName(AbstractAsset $asset): string
+    {
+        return $asset->getFullQualifiedName($this->getName());
+    }
+
     /**
      * Returns the unquoted representation of a given asset name.
      *
      * @param string $assetName Quoted or unquoted representation of an asset name.
-     *
-     * @return string
      */
-    private function getUnquotedAssetName($assetName)
+    private function getUnquotedAssetName($assetName): string
     {
         if ($this->isIdentifierQuoted($assetName)) {
             return $this->trimQuotes($assetName);
@@ -246,10 +256,20 @@ class Schema extends AbstractAsset
     /**
      * Gets all table names, prefixed with a schema name, even the default one if present.
      *
+     * @deprecated Use {@link getTables()} and {@link Table::getName()} instead.
+     *
      * @return string[]
      */
     public function getTableNames()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4800',
+            'Schema::getTableNames() is deprecated.'
+            . ' Use Schema::getTables() and Table::getName() instead.',
+            __METHOD__
+        );
+
         return array_keys($this->_tables);
     }
 
@@ -431,27 +451,29 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * @deprecated
+     *
      * @return string[]
      *
      * @throws SchemaException
      */
     public function getMigrateToSql(Schema $toSchema, AbstractPlatform $platform)
     {
-        $comparator = new Comparator();
-        $schemaDiff = $comparator->compare($this, $toSchema);
+        $schemaDiff = (new Comparator())->compareSchemas($this, $toSchema);
 
         return $schemaDiff->toSql($platform);
     }
 
     /**
+     * @deprecated
+     *
      * @return string[]
      *
      * @throws SchemaException
      */
     public function getMigrateFromSql(Schema $fromSchema, AbstractPlatform $platform)
     {
-        $comparator = new Comparator();
-        $schemaDiff = $comparator->compare($fromSchema, $this);
+        $schemaDiff = (new Comparator())->compareSchemas($fromSchema, $this);
 
         return $schemaDiff->toSql($platform);
     }

@@ -3,7 +3,8 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServer;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
@@ -18,9 +19,14 @@ use function strtok;
 
 /**
  * SQL Server Schema Manager.
+ *
+ * @extends AbstractSchemaManager<SQLServerPlatform>
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
+    /** @var string|null */
+    private $databaseCollation;
+
     /**
      * {@inheritDoc}
      */
@@ -241,7 +247,7 @@ SQL
     protected function _getPortableViewDefinition($view)
     {
         // @todo
-        return new View($view['name'], '');
+        return new View($view['name'], $view['definition']);
     }
 
     /**
@@ -292,10 +298,8 @@ SQL
      *
      * @param string $table
      * @param string $column
-     *
-     * @return string
      */
-    private function getColumnConstraintSQL($table, $column)
+    private function getColumnConstraintSQL($table, $column): string
     {
         return "SELECT sysobjects.[Name]
             FROM sysobjects INNER JOIN (SELECT [Name],[ID] FROM sysobjects WHERE XType = 'U') AS Tab
@@ -315,9 +319,7 @@ SQL
     {
         $table = parent::listTableDetails($name);
 
-        $platform = $this->_platform;
-        assert($platform instanceof SQLServer2012Platform);
-        $sql = $platform->getListTableMetadataSQL($name);
+        $sql = $this->_platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 
@@ -326,5 +328,33 @@ SQL
         }
 
         return $table;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function createComparator(): Comparator
+    {
+        return new SQLServer\Comparator($this->getDatabasePlatform(), $this->getDatabaseCollation());
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getDatabaseCollation(): string
+    {
+        if ($this->databaseCollation === null) {
+            $databaseCollation = $this->_conn->fetchOne(
+                'SELECT collation_name FROM sys.databases WHERE name = '
+                . $this->_platform->getCurrentDatabaseExpression(),
+            );
+
+            // a database is always selected, even if omitted in the connection parameters
+            assert(is_string($databaseCollation));
+
+            $this->databaseCollation = $databaseCollation;
+        }
+
+        return $this->databaseCollation;
     }
 }

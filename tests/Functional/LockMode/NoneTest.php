@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\LockMode;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -22,12 +21,12 @@ class NoneTest extends FunctionalTestCase
 
     public function setUp(): void
     {
-        if ($this->connection->getDriver() instanceof OCI8\Driver) {
+        if (TestUtil::isDriverOneOf('oci8')) {
             // https://github.com/doctrine/dbal/issues/4417
             self::markTestSkipped('This test fails on OCI8 for a currently unknown reason');
         }
 
-        if ($this->connection->getDatabasePlatform() instanceof SQLServer2012Platform) {
+        if ($this->connection->getDatabasePlatform() instanceof SQLServerPlatform) {
             // Use row versioning instead of locking on SQL Server (if we don't, the second connection will block when
             // attempting to read the row created by the first connection, instead of reading the previous version);
             // for some reason we cannot set READ_COMMITTED_SNAPSHOT ON when not running this test in isolation,
@@ -42,7 +41,7 @@ class NoneTest extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->connection->getSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection2 = TestUtil::getConnection();
 
@@ -61,7 +60,7 @@ class NoneTest extends FunctionalTestCase
     {
         $this->connection2->close();
 
-        if (! $this->connection->getDatabasePlatform() instanceof SQLServer2012Platform) {
+        if (! $this->connection->getDatabasePlatform() instanceof SQLServerPlatform) {
             return;
         }
 

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
@@ -14,9 +15,10 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use InvalidArgumentException;
 
 /**
- * @extends AbstractPlatformTestCase<SQLServer2012Platform>
+ * @extends AbstractPlatformTestCase<SQLServerPlatform>
  */
 class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
@@ -1846,5 +1848,11 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     public function testGeneratesTypeDeclarationForDateTimeTz(): void
     {
         self::assertEquals('DATETIMEOFFSET(6)', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
+    }
+
+    public function testDropIndexSQLRequiresTable(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->platform->getDropIndexSQL('foo');
     }
 }

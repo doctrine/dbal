@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -26,9 +26,8 @@ class ModifyLimitQueryTest extends FunctionalTestCase
         $table2->addColumn('test_int', 'integer');
         $table2->setPrimaryKey(['id']);
 
-        $sm = $this->connection->getSchemaManager();
-        $sm->dropAndCreateTable($table);
-        $sm->dropAndCreateTable($table2);
+        $this->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table2);
     }
 
     public function testModifyLimitQuerySimpleQuery(): void
@@ -205,7 +204,7 @@ SQL;
 
         $subquery = 'SELECT test_int FROM modify_limit_table2 T2 WHERE T1.id=T2.id ORDER BY test_int';
 
-        if ($platform instanceof SQLServer2012Platform) {
+        if ($platform instanceof SQLServerPlatform) {
             $subquery .= ' OFFSET 0 ROWS';
         }
 

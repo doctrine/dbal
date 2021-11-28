@@ -17,10 +17,20 @@ use function db2_stmt_errormsg;
 final class StatementError extends AbstractException
 {
     /**
-     * @param resource $statement
+     * @param resource|null $statement
      */
-    public static function new($statement): self
+    public static function new($statement = null): self
     {
-        return new self(db2_stmt_errormsg($statement), db2_stmt_error($statement));
+        if ($statement !== null) {
+            $message  = db2_stmt_errormsg($statement);
+            $sqlState = db2_stmt_error($statement);
+        } else {
+            $message  = db2_stmt_errormsg();
+            $sqlState = db2_stmt_error();
+        }
+
+        return Factory::create($message, static function (int $code) use ($message, $sqlState): self {
+            return new self($message, $sqlState, $code);
+        });
     }
 }

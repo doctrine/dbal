@@ -3,11 +3,11 @@
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 
 use function base64_decode;
@@ -20,12 +20,12 @@ class StatementTest extends FunctionalTestCase
         $table = new Table('stmt_test');
         $table->addColumn('id', 'integer');
         $table->addColumn('name', 'text', ['notnull' => false]);
-        $this->connection->getSchemaManager()->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
     }
 
     public function testStatementIsReusableAfterFreeingResult(): void
     {
-        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
+        if (TestUtil::isDriverOneOf('pdo_oci')) {
             self::markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
         }
 
@@ -48,15 +48,14 @@ class StatementTest extends FunctionalTestCase
 
     public function testReuseStatementWithLongerResults(): void
     {
-        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
+        if (TestUtil::isDriverOneOf('pdo_oci')) {
             self::markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
         }
 
-        $sm    = $this->connection->getSchemaManager();
         $table = new Table('stmt_longer_results');
         $table->addColumn('param', 'string');
         $table->addColumn('val', 'text');
-        $sm->createTable($table);
+        $this->dropAndCreateTable($table);
 
         $row1 = [
             'param' => 'param1',
@@ -85,7 +84,7 @@ class StatementTest extends FunctionalTestCase
 
     public function testFetchLongBlob(): void
     {
-        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
+        if (TestUtil::isDriverOneOf('pdo_oci')) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
             self::markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
@@ -95,10 +94,9 @@ class StatementTest extends FunctionalTestCase
         // but is still not enough to store a LONGBLOB of the max possible size
         $this->iniSet('memory_limit', '4G');
 
-        $sm    = $this->connection->getSchemaManager();
         $table = new Table('stmt_long_blob');
         $table->addColumn('contents', 'blob', ['length' => 0xFFFFFFFF]);
-        $sm->createTable($table);
+        $this->dropAndCreateTable($table);
 
         $contents = base64_decode(<<<EOF
 H4sICJRACVgCA2RvY3RyaW5lLmljbwDtVNtLFHEU/ia1i9fVzVWxvJSrZmoXS6pd0zK7QhdNc03z
@@ -151,7 +149,7 @@ EOF
 
     public function testReuseStatementAfterFreeingResult(): void
     {
-        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
+        if (TestUtil::isDriverOneOf('pdo_oci')) {
             self::markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
         }
 

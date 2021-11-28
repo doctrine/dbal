@@ -125,6 +125,14 @@ class MySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getLengthExpression($column)
+    {
+        return 'CHAR_LENGTH(' . $column . ')';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListDatabasesSQL()
     {
         return 'SHOW DATABASES';
@@ -197,22 +205,6 @@ class MySQLPlatform extends AbstractPlatform
             . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */'
             . ' AND k.`REFERENCED_COLUMN_NAME` is not NULL'
             . ' ORDER BY k.`ORDINAL_POSITION`';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateViewSQL($name, $sql)
-    {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropViewSQL($name)
-    {
-        return 'DROP VIEW ' . $name;
     }
 
     /**
@@ -369,30 +361,21 @@ class MySQLPlatform extends AbstractPlatform
     {
         return sprintf(
             <<<'SQL'
-SELECT ENGINE, AUTO_INCREMENT, TABLE_COLLATION, TABLE_COMMENT, CREATE_OPTIONS
-FROM information_schema.TABLES
+SELECT t.ENGINE,
+       t.AUTO_INCREMENT,
+       t.TABLE_COMMENT,
+       t.CREATE_OPTIONS,
+       t.TABLE_COLLATION,
+       ccsa.CHARACTER_SET_NAME
+FROM information_schema.TABLES t
+    INNER JOIN information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` ccsa
+        ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
 WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = %s AND TABLE_NAME = %s
 SQL
             ,
             $database !== null ? $this->quoteStringLiteral($database) : 'DATABASE()',
             $this->quoteStringLiteral($table)
         );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateDatabaseSQL($name)
-    {
-        return 'CREATE DATABASE ' . $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropDatabaseSQL($name)
-    {
-        return 'DROP DATABASE ' . $name;
     }
 
     /**
@@ -465,10 +448,8 @@ SQL
      * Build SQL for table options
      *
      * @param mixed[] $options
-     *
-     * @return string
      */
-    private function buildTableOptions(array $options)
+    private function buildTableOptions(array $options): string
     {
         if (isset($options['table_options'])) {
             return $options['table_options'];
@@ -519,10 +500,8 @@ SQL
      * Build SQL for partition options.
      *
      * @param mixed[] $options
-     *
-     * @return string
      */
-    private function buildPartitionOptions(array $options)
+    private function buildPartitionOptions(array $options): string
     {
         return isset($options['partition_options'])
             ? ' ' . $options['partition_options']
@@ -700,7 +679,7 @@ SQL
      *
      * @throws Exception
      */
-    private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index)
+    private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index): array
     {
         $sql = [];
 
@@ -741,7 +720,7 @@ SQL
      *
      * @throws Exception
      */
-    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff)
+    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql   = [];
         $table = $diff->getName($this)->getQuotedName($this);
@@ -805,7 +784,7 @@ SQL
      *
      * @return ForeignKeyConstraint[]
      */
-    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff)
+    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff): array
     {
         if (empty($diff->renamedIndexes) || ! $diff->fromTable instanceof Table) {
             return [];
@@ -930,10 +909,8 @@ SQL
      * Get unsigned declaration for a column.
      *
      * @param mixed[] $columnDef
-     *
-     * @return string
      */
-    private function getUnsignedDeclaration(array $columnDef)
+    private function getUnsignedDeclaration(array $columnDef): string
     {
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
@@ -1025,6 +1002,16 @@ SQL
     }
 
     /**
+     * The `ALTER TABLE ... DROP CONSTRAINT` syntax is only available as of MySQL 8.0.19.
+     *
+     * @link https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+     */
+    public function getDropUniqueConstraintSQL(string $name, string $tableName): string
+    {
+        return $this->getDropIndexSQL($name, $tableName);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getSetTransactionIsolationSQL($level)
@@ -1037,6 +1024,12 @@ SQL
      */
     public function getName()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/4749',
+            'MySQLPlatform::getName() is deprecated. Identify platforms by their class.'
+        );
+
         return 'mysql';
     }
 

@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Schema\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
@@ -10,19 +11,18 @@ use PHPUnit\Framework\TestCase;
 
 class MySQLSchemaTest extends TestCase
 {
-    /** @var Comparator */
-    private $comparator;
-
     /** @var AbstractPlatform */
     private $platform;
 
     protected function setUp(): void
     {
-        $this->comparator = new Comparator();
-        $this->platform   = new MySQLPlatform();
+        $this->platform = new MySQLPlatform();
     }
 
-    public function testSwitchPrimaryKeyOrder(): void
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testSwitchPrimaryKeyOrder(Comparator $comparator): void
     {
         $tableOld = new Table('test');
         $tableOld->addColumn('foo_id', 'integer');
@@ -32,7 +32,7 @@ class MySQLSchemaTest extends TestCase
         $tableOld->setPrimaryKey(['foo_id', 'bar_id']);
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
-        $diff = $this->comparator->diffTable($tableOld, $tableNew);
+        $diff = $comparator->diffTable($tableOld, $tableNew);
         self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -66,7 +66,10 @@ class MySQLSchemaTest extends TestCase
         );
     }
 
-    public function testClobNoAlterTable(): void
+    /**
+     * @dataProvider comparatorProvider
+     */
+    public function testClobNoAlterTable(Comparator $comparator): void
     {
         $tableOld = new Table('test');
         $tableOld->addColumn('id', 'integer');
@@ -75,7 +78,7 @@ class MySQLSchemaTest extends TestCase
 
         $tableNew->setPrimaryKey(['id']);
 
-        $diff = $this->comparator->diffTable($tableOld, $tableNew);
+        $diff = $comparator->diffTable($tableOld, $tableNew);
         self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -84,5 +87,19 @@ class MySQLSchemaTest extends TestCase
             ['ALTER TABLE test ADD PRIMARY KEY (id)'],
             $sql
         );
+    }
+
+    /**
+     * @return iterable<string,array{Comparator}>
+     */
+    public static function comparatorProvider(): iterable
+    {
+        yield 'Generic comparator' => [
+            new Comparator(),
+        ];
+
+        yield 'MySQL comparator' => [
+            new MySQL\Comparator(new MySQLPlatform()),
+        ];
     }
 }

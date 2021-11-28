@@ -20,7 +20,7 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
         $table = new Table('add_default_test');
 
         $table->addColumn('original_field', Types::STRING);
-        $schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement("INSERT INTO add_default_test (original_field) VALUES ('one')");
 

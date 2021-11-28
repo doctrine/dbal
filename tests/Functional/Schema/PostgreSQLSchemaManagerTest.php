@@ -2,20 +2,23 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
-use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 use function array_map;
+use function array_merge;
 use function array_pop;
 use function array_unshift;
 use function assert;
@@ -27,7 +30,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
-        return $platform instanceof PostgreSQL94Platform;
+        return $platform instanceof PostgreSQLPlatform;
     }
 
     public function testGetSearchPath(): void
@@ -75,17 +78,28 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $autoincTable = new Table('autoinc_table');
         $column       = $autoincTable->addColumn('id', 'integer');
         $column->setAutoincrement(true);
-        $this->schemaManager->createTable($autoincTable);
+        $this->dropAndCreateTable($autoincTable);
         $autoincTable = $this->schemaManager->listTableDetails('autoinc_table');
 
         self::assertTrue($autoincTable->getColumn('id')->getAutoincrement());
     }
 
-    public function testAlterTableAutoIncrementAdd(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testAlterTableAutoIncrementAdd(callable $comparatorFactory): void
     {
+        // see https://github.com/doctrine/dbal/issues/4745
+        try {
+            $this->schemaManager->dropSequence('autoinc_table_add_id_seq');
+        } catch (DatabaseObjectNotFoundException $e) {
+        }
+
         $tableFrom = new Table('autoinc_table_add');
         $tableFrom->addColumn('id', 'integer');
-        $this->schemaManager->createTable($tableFrom);
+        $this->dropAndCreateTable($tableFrom);
         $tableFrom = $this->schemaManager->listTableDetails('autoinc_table_add');
         self::assertFalse($tableFrom->getColumn('id')->getAutoincrement());
 
@@ -93,10 +107,11 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column  = $tableTo->addColumn('id', 'integer');
         $column->setAutoincrement(true);
 
-        $diff = (new Comparator())->diffTable($tableFrom, $tableTo);
+        $platform = $this->schemaManager->getDatabasePlatform();
+        $diff     = $comparatorFactory($this->schemaManager)->diffTable($tableFrom, $tableTo);
         self::assertNotFalse($diff);
 
-        $sql = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
+        $sql = $platform->getAlterTableSQL($diff);
         self::assertEquals([
             'CREATE SEQUENCE autoinc_table_add_id_seq',
             "SELECT setval('autoinc_table_add_id_seq', (SELECT MAX(id) FROM autoinc_table_add))",
@@ -108,24 +123,30 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
-    public function testAlterTableAutoIncrementDrop(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testAlterTableAutoIncrementDrop(callable $comparatorFactory): void
     {
         $tableFrom = new Table('autoinc_table_drop');
         $column    = $tableFrom->addColumn('id', 'integer');
         $column->setAutoincrement(true);
-        $this->schemaManager->createTable($tableFrom);
+        $this->dropAndCreateTable($tableFrom);
         $tableFrom = $this->schemaManager->listTableDetails('autoinc_table_drop');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_table_drop');
         $tableTo->addColumn('id', 'integer');
 
-        $diff = (new Comparator())->diffTable($tableFrom, $tableTo);
+        $platform = $this->schemaManager->getDatabasePlatform();
+        $diff     = $comparatorFactory($this->schemaManager)->diffTable($tableFrom, $tableTo);
         self::assertNotFalse($diff);
 
         self::assertEquals(
             ['ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT'],
-            $this->connection->getDatabasePlatform()->getAlterTableSQL($diff)
+            $platform->getAlterTableSQL($diff)
         );
 
         $this->schemaManager->alterTable($diff);
@@ -170,6 +191,8 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testReturnQuotedAssets(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS dbal91_something');
+
         $sql = 'create table dbal91_something'
             . ' (id integer CONSTRAINT id_something PRIMARY KEY NOT NULL, "table" integer)';
         $this->connection->executeStatement($sql);
@@ -193,10 +216,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $testTable = new Table('dbal204_test_prefix');
         $testTable->addColumn('id', 'integer');
-        $this->schemaManager->createTable($testTable);
+        $this->dropAndCreateTable($testTable);
+
         $testTable = new Table('dbal204_without_prefix');
         $testTable->addColumn('id', 'integer');
-        $this->schemaManager->createTable($testTable);
+        $this->dropAndCreateTable($testTable);
+
+        $this->markConnectionNotReusable();
 
         $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
             return preg_match('#^dbal204_#', $name) === 1;
@@ -231,7 +257,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             );
         }
 
-        $this->schemaManager->dropAndCreateTable($fkTable);
+        $this->dropAndCreateTable($fkTable);
         $this->createTestTable('test_create_fk2');
 
         foreach ($foreignKeys as $foreignKey) {
@@ -259,26 +285,29 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $testTable->addColumn('id', 'integer');
         $testTable->addColumn('def', 'string', ['default' => 'foo']);
         $testTable->setPrimaryKey(['id']);
-
-        $this->schemaManager->createTable($testTable);
+        $this->dropAndCreateTable($testTable);
 
         $databaseTable = $this->schemaManager->listTableDetails($testTable->getName());
 
         self::assertEquals('foo', $databaseTable->getColumn('def')->getDefault());
     }
 
-    public function testBooleanDefault(): void
+    /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
+     * @dataProvider \Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils::comparatorProvider
+     */
+    public function testBooleanDefault(callable $comparatorFactory): void
     {
         $table = new Table('ddc2843_bools');
         $table->addColumn('id', 'integer');
         $table->addColumn('checked', 'boolean', ['default' => false]);
 
-        $this->schemaManager->createTable($table);
+        $this->dropAndCreateTable($table);
 
         $databaseTable = $this->schemaManager->listTableDetails($table->getName());
 
-        $c    = new Comparator();
-        $diff = $c->diffTable($table, $databaseTable);
+        $diff = $comparatorFactory($this->schemaManager)->diffTable($table, $databaseTable);
 
         self::assertFalse($diff);
     }
@@ -301,18 +330,18 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListQuotedTable(): void
     {
-        $offlineTable = new Schema\Table('user');
+        $offlineTable = new Table('user');
         $offlineTable->addColumn('id', 'integer');
         $offlineTable->addColumn('username', 'string');
         $offlineTable->addColumn('fk', 'integer');
         $offlineTable->setPrimaryKey(['id']);
         $offlineTable->addForeignKeyConstraint($offlineTable, ['fk'], ['id']);
 
-        $this->schemaManager->dropAndCreateTable($offlineTable);
+        $this->dropAndCreateTable($offlineTable);
 
         $onlineTable = $this->schemaManager->listTableDetails('"user"');
 
-        $comparator = new Schema\Comparator();
+        $comparator = new Comparator();
 
         self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
     }
@@ -336,9 +365,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $name = 'list_tables_excludes_views_test_view';
         $sql  = 'SELECT * from list_tables_excludes_views';
 
-        $view = new Schema\View($name, $sql);
+        $view = new View($name, $sql);
 
-        $this->schemaManager->dropAndCreateView($view);
+        $this->schemaManager->createView($view);
 
         $tables = $this->schemaManager->listTables();
 
@@ -357,17 +386,17 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testPartialIndexes(): void
     {
-        $offlineTable = new Schema\Table('person');
+        $offlineTable = new Table('person');
         $offlineTable->addColumn('id', 'integer');
         $offlineTable->addColumn('name', 'string');
         $offlineTable->addColumn('email', 'string');
         $offlineTable->addUniqueIndex(['id', 'name'], 'simple_partial_index', ['where' => '(id IS NULL)']);
 
-        $this->schemaManager->dropAndCreateTable($offlineTable);
+        $this->dropAndCreateTable($offlineTable);
 
         $onlineTable = $this->schemaManager->listTableDetails('person');
 
-        $comparator = new Schema\Comparator();
+        $comparator = new Comparator();
 
         self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
@@ -377,15 +406,15 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testJsonbColumn(): void
     {
-        if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQL94Platform) {
+        if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQLPlatform) {
             $this->markTestSkipped('Requires PostgresSQL 9.4+');
 
             return;
         }
 
-        $table = new Schema\Table('test_jsonb');
+        $table = new Table('test_jsonb');
         $table->addColumn('foo', Types::JSON)->setPlatformOption('jsonb', true);
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
@@ -395,7 +424,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListNegativeColumnDefaultValue(): void
     {
-        $table = new Schema\Table('test_default_negative');
+        $table = new Table('test_default_negative');
         $table->addColumn('col_smallint', 'smallint', ['default' => -1]);
         $table->addColumn('col_integer', 'integer', ['default' => -1]);
         $table->addColumn('col_bigint', 'bigint', ['default' => -1]);
@@ -403,7 +432,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_decimal', 'decimal', ['default' => -1.1]);
         $table->addColumn('col_string', 'string', ['default' => '(-1)']);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_default_negative');
 
@@ -433,10 +462,10 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $tableName = 'test_serial_type_' . $type;
 
-        $table = new Schema\Table($tableName);
+        $table = new Table($tableName);
         $table->addColumn('id', $type, ['autoincrement' => true, 'notnull' => false]);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
@@ -450,10 +479,10 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $tableName = 'test_serial_type_with_default_' . $type;
 
-        $table = new Schema\Table($tableName);
+        $table = new Table($tableName);
         $table->addColumn('id', $type, ['autoincrement' => true, 'notnull' => false, 'default' => 1]);
 
-        $this->schemaManager->dropAndCreateTable($table);
+        $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
@@ -461,14 +490,20 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
+     * @param callable(AbstractSchemaManager):Comparator $comparatorFactory
+     *
      * @dataProvider autoIncrementTypeMigrations
      */
-    public function testAlterTableAutoIncrementIntToBigInt(string $from, string $to, string $expected): void
-    {
+    public function testAlterTableAutoIncrementIntToBigInt(
+        callable $comparatorFactory,
+        string $from,
+        string $to,
+        string $expected
+    ): void {
         $tableFrom = new Table('autoinc_type_modification');
         $column    = $tableFrom->addColumn('id', $from);
         $column->setAutoincrement(true);
-        $this->schemaManager->dropAndCreateTable($tableFrom);
+        $this->dropAndCreateTable($tableFrom);
         $tableFrom = $this->schemaManager->listTableDetails('autoinc_type_modification');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
@@ -476,8 +511,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column  = $tableTo->addColumn('id', $to);
         $column->setAutoincrement(true);
 
-        $c    = new Comparator();
-        $diff = $c->diffTable($tableFrom, $tableTo);
+        $diff = $comparatorFactory($this->schemaManager)->diffTable($tableFrom, $tableTo);
         self::assertInstanceOf(TableDiff::class, $diff);
         self::assertSame(
             ['ALTER TABLE autoinc_type_modification ALTER id TYPE ' . $expected],
@@ -490,14 +524,20 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
-     * @return mixed[][]
+     * @return iterable<mixed[]>
      */
     public static function autoIncrementTypeMigrations(): iterable
     {
-        return [
-            'int->bigint' => ['integer', 'bigint', 'BIGINT'],
-            'bigint->int' => ['bigint', 'integer', 'INT'],
-        ];
+        foreach (ComparatorTestUtils::comparatorProvider() as $comparatorArguments) {
+            foreach (
+                [
+                    'int -> bigint' => ['integer', 'bigint', 'BIGINT'],
+                    'bigint -> int' => ['bigint', 'integer', 'INT'],
+                ] as $testArguments
+            ) {
+                yield array_merge($comparatorArguments, $testArguments);
+            }
+        }
     }
 }
 

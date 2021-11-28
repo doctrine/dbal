@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Tests;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception;
@@ -30,18 +29,11 @@ class StatementTest extends TestCase
     {
         $this->driverStatement = $this->createMock(DriverStatement::class);
 
-        $driverConnection = $this->createConfiguredMock(DriverConnection::class, [
-            'prepare' => $this->driverStatement,
-        ]);
-
         $driver = $this->createMock(Driver::class);
 
         $this->conn = $this->getMockBuilder(Connection::class)
             ->setConstructorArgs([[], $driver])
             ->getMock();
-        $this->conn->expects(self::atLeastOnce())
-                ->method('getWrappedConnection')
-                ->willReturn($driverConnection);
 
         $this->configuration = $this->createMock(Configuration::class);
         $this->conn->expects(self::any())
@@ -71,7 +63,7 @@ class StatementTest extends TestCase
                 ->method('getSQLLogger')
                 ->willReturn($logger);
 
-        $statement = new Statement($sql, $this->conn);
+        $statement = new Statement($this->conn, $this->driverStatement, $sql);
         $statement->bindValue($name, $var, $type);
         $statement->execute();
     }
@@ -93,7 +85,7 @@ class StatementTest extends TestCase
                 ->method('getSQLLogger')
                 ->willReturn($logger);
 
-        $statement = new Statement($sql, $this->conn);
+        $statement = new Statement($this->conn, $this->driverStatement, $sql);
         $statement->execute($values);
     }
 
@@ -114,7 +106,7 @@ class StatementTest extends TestCase
                 ->method('getSQLLogger')
                 ->willReturn($logger);
 
-        $statement = new Statement($sql, $this->conn);
+        $statement = new Statement($this->conn, $this->driverStatement, $sql);
         $statement->bindParam($name, $var);
         $statement->execute();
     }
@@ -139,7 +131,7 @@ class StatementTest extends TestCase
                 $this->createMock(DriverException::class)
             ));
 
-        $statement = new Statement('', $this->conn);
+        $statement = new Statement($this->conn, $this->driverStatement, '');
 
         $this->expectException(Exception::class);
 

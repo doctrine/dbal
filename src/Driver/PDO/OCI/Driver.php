@@ -4,7 +4,9 @@ namespace Doctrine\DBAL\Driver\PDO\OCI;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception;
 use PDO;
+use PDOException;
 
 final class Driver extends AbstractOracleDriver
 {
@@ -21,22 +23,26 @@ final class Driver extends AbstractOracleDriver
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
-        return new Connection(
-            $this->constructPdoDsn($params),
-            $params['user'] ?? '',
-            $params['password'] ?? '',
-            $driverOptions
-        );
+        try {
+            $pdo = new PDO(
+                $this->constructPdoDsn($params),
+                $params['user'] ?? '',
+                $params['password'] ?? '',
+                $driverOptions
+            );
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
+
+        return new Connection($pdo);
     }
 
     /**
      * Constructs the Oracle PDO DSN.
      *
      * @param mixed[] $params
-     *
-     * @return string The DSN.
      */
-    private function constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params): string
     {
         $dsn = 'oci:dbname=' . $this->getEasyConnectString($params);
 

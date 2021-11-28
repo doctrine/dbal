@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\OCI;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDO\OCI\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
+use Doctrine\DBAL\Tests\TestUtil;
 
 /**
  * @requires extension pdo_oci
@@ -15,11 +16,11 @@ class DriverTest extends AbstractDriverTest
     {
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('pdo_oci')) {
             return;
         }
 
-        self::markTestSkipped('PDO_OCI only test.');
+        self::markTestSkipped('This test requires the pdo_oci driver.');
     }
 
     public function testConnectsWithoutDatabaseNameParameter(): void

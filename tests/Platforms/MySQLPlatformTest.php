@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use InvalidArgumentException;
 
 class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
 {
@@ -19,5 +20,11 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
             TransactionIsolationLevel::REPEATABLE_READ,
             $this->platform->getDefaultTransactionIsolationLevel()
         );
+    }
+
+    public function testDropIndexSQLRequiresTable(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->platform->getDropIndexSQL('foo');
     }
 }

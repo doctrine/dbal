@@ -17,6 +17,7 @@
         <var name="db_ssl_ca" value="ca.pem"/>
         <var name="db_ssl_cert" value="client-cert.pem"/>
         <var name="db_ssl_key" value="client-key.pem"/>
+        <var name="db_charset" value="utf8mb4" />
 
         <!-- Use MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT since there's no way to generate a certificate
         with a proper common name (CN) on the CI. This flag must be not used in production settings. -->

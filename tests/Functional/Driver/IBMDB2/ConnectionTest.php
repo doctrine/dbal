@@ -2,11 +2,9 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\IBMDB2\Connection;
-use Doctrine\DBAL\Driver\IBMDB2\Driver;
-use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 use ReflectionProperty;
 
 use function db2_close;
@@ -18,11 +16,11 @@ class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDriver() instanceof Driver) {
+        if (TestUtil::isDriverOneOf('ibm_db2')) {
             return;
         }
 
-        $this->markTestSkipped('ibm_db2 only test.');
+        self::markTestSkipped('This test requires the ibm_db2 driver.');
     }
 
     protected function tearDown(): void
@@ -30,17 +28,11 @@ class ConnectionTest extends FunctionalTestCase
         $this->markConnectionNotReusable();
     }
 
-    public function testConnectionFailure(): void
-    {
-        $this->expectException(ConnectionFailed::class);
-        new Connection('garbage', false, '', '');
-    }
-
     public function testPrepareFailure(): void
     {
         $driverConnection = $this->connection->getWrappedConnection();
 
-        $re = new ReflectionProperty($driverConnection, 'conn');
+        $re = new ReflectionProperty($driverConnection, 'connection');
         $re->setAccessible(true);
         $conn = $re->getValue($driverConnection);
         db2_close($conn);

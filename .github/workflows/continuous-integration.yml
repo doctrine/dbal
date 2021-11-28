@@ -369,18 +369,18 @@ jobs:
           - "sqlsrv"
           - "pdo_sqlsrv"
         collation:
-          - "Latin1_General_100_CI_AS"
+          - "Latin1_General_100_CI_AS_SC_UTF8"
         include:
-          - collation: "Latin1_General_100_CS_AS"
+          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
             php-version: "7.4"
             extension: "sqlsrv"
-          - collation: "Latin1_General_100_CS_AS"
+          - collation: "Latin1_General_100_CS_AS_SC_UTF8"
             php-version: "7.4"
             extension: "pdo_sqlsrv"
 
     services:
       mssql:
-        image: "mcr.microsoft.com/mssql/server:2017-latest"
+        image: "mcr.microsoft.com/mssql/server:2019-latest"
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: "Doctrine2018"
