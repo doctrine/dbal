@@ -56,13 +56,8 @@ class JsonType extends Type
         try {
             return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
-            throw ValueNotConvertible::new($value, $this->getName(), $e->getMessage(), $e);
+            throw ValueNotConvertible::new($value, 'json', $e->getMessage(), $e);
         }
-    }
-
-    public function getName(): string
-    {
-        return Types::JSON;
     }
 
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool

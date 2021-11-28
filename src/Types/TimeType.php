@@ -15,11 +15,6 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  */
 class TimeType extends Type
 {
-    public function getName(): string
-    {
-        return Types::TIME_MUTABLE;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -38,7 +33,7 @@ class TimeType extends Type
             return $value->format($platform->getTimeFormatString());
         }
 
-        throw InvalidType::new($value, $this->getName(), ['null', 'DateTime']);
+        throw InvalidType::new($value, static::class, ['null', 'DateTime']);
     }
 
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeInterface
@@ -51,7 +46,7 @@ class TimeType extends Type
         if ($val === false) {
             throw InvalidFormat::new(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getTimeFormatString()
             );
         }

@@ -12,11 +12,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class SmallIntType extends Type implements PhpIntegerMappingType
 {
-    public function getName(): string
-    {
-        return Types::SMALLINT;
-    }
-
     /**
      * {@inheritdoc}
      */

@@ -26,9 +26,4 @@ class TextType extends Type
     {
         return is_resource($value) ? stream_get_contents($value) : $value;
     }
-
-    public function getName(): string
-    {
-        return Types::TEXT;
-    }
 }

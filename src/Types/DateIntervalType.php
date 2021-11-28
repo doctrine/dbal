@@ -19,13 +19,8 @@ class DateIntervalType extends Type
 {
     public const FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
 
-    public function getName(): string
-    {
-        return Types::DATEINTERVAL;
-    }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
@@ -44,7 +39,7 @@ class DateIntervalType extends Type
             return $value->format(self::FORMAT);
         }
 
-        throw InvalidType::new($value, $this->getName(), ['null', 'DateInterval']);
+        throw InvalidType::new($value, static::class, ['null', 'DateInterval']);
     }
 
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateInterval
@@ -69,7 +64,7 @@ class DateIntervalType extends Type
 
             return $interval;
         } catch (Throwable $exception) {
-            throw InvalidFormat::new($value, $this->getName(), self::FORMAT, $exception);
+            throw InvalidFormat::new($value, static::class, self::FORMAT, $exception);
         }
     }
 

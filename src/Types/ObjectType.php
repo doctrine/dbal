@@ -40,8 +40,8 @@ class ObjectType extends Type
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
-        set_error_handler(function (int $code, string $message) use ($value): bool {
-            throw ValueNotConvertible::new($value, $this->getName(), $message);
+        set_error_handler(static function (int $code, string $message) use ($value): bool {
+            throw ValueNotConvertible::new($value, 'object', $message);
         });
 
         try {
@@ -49,11 +49,6 @@ class ObjectType extends Type
         } finally {
             restore_error_handler();
         }
-    }
-
-    public function getName(): string
-    {
-        return Types::OBJECT;
     }
 
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool

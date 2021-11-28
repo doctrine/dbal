@@ -14,11 +14,6 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  */
 class DateImmutableType extends DateType
 {
-    public function getName(): string
-    {
-        return Types::DATE_IMMUTABLE;
-    }
-
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -31,7 +26,7 @@ class DateImmutableType extends DateType
 
         throw InvalidType::new(
             $value,
-            $this->getName(),
+            static::class,
             ['null', DateTimeImmutable::class]
         );
     }
@@ -47,7 +42,7 @@ class DateImmutableType extends DateType
         if ($dateTime === false) {
             throw InvalidFormat::new(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getDateFormatString()
             );
         }

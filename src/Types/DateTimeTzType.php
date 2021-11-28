@@ -28,13 +28,8 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  */
 class DateTimeTzType extends Type implements PhpDateTimeMappingType
 {
-    public function getName(): string
-    {
-        return Types::DATETIMETZ_MUTABLE;
-    }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
@@ -53,7 +48,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
 
         throw InvalidType::new(
             $value,
-            $this->getName(),
+            static::class,
             ['null', 'DateTime']
         );
     }
@@ -68,7 +63,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
         if ($val === false) {
             throw InvalidFormat::new(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getDateTimeTzFormatString()
             );
         }

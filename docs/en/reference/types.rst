@@ -848,8 +848,6 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
      */
     class MoneyType extends Type
     {
-        const MONEY = 'money'; // modify to match your type name
-
         public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
         {
             return 'MyMoney';
@@ -863,11 +861,6 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
         public function convertToDatabaseValue($value, AbstractPlatform $platform)
         {
             return $value->toDecimal();
-        }
-
-        public function getName()
-        {
-            return self::MONEY;
         }
     }
 

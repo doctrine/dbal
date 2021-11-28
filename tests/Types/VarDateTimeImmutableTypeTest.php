@@ -26,11 +26,6 @@ class VarDateTimeImmutableTypeTest extends TestCase
         $this->type     = new VarDateTimeImmutableType();
     }
 
-    public function testReturnsName(): void
-    {
-        self::assertSame('datetime_immutable', $this->type->getName());
-    }
-
     public function testReturnsBindingType(): void
     {
         self::assertSame(ParameterType::STRING, $this->type->getBindingType());

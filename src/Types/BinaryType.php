@@ -42,11 +42,6 @@ class BinaryType extends Type
         return $value;
     }
 
-    public function getName(): string
-    {
-        return Types::BINARY;
-    }
-
     public function getBindingType(): int
     {
         return ParameterType::BINARY;

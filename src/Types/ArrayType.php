@@ -41,8 +41,8 @@ class ArrayType extends Type
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
-        set_error_handler(function (int $code, string $message) use ($value): bool {
-            throw ValueNotConvertible::new($value, $this->getName(), $message);
+        set_error_handler(static function (int $code, string $message) use ($value): bool {
+            throw ValueNotConvertible::new($value, 'array', $message);
         });
 
         try {
@@ -50,11 +50,6 @@ class ArrayType extends Type
         } finally {
             restore_error_handler();
         }
-    }
-
-    public function getName(): string
-    {
-        return Types::ARRAY;
     }
 
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool
