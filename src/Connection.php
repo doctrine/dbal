@@ -1255,10 +1255,9 @@ class Connection
     }
 
     /**
-     * Returns the savepoint name to use for nested transactions are false if they are not supported
-     * "savepointFormat" parameter is not set
+     * Returns the savepoint name to use for nested transactions.
      *
-     * @return mixed A string with the savepoint name or false.
+     * @return string
      */
     protected function _getNestedTransactionSavePointName()
     {
