@@ -51,7 +51,7 @@ class Result
      *
      * @throws Exception
      */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         try {
             return $this->result->fetchAssociative();
@@ -63,11 +63,9 @@ class Result
     /**
      * Returns the first value of the next row of the result or FALSE if there are no more rows.
      *
-     * @return mixed|false
-     *
      * @throws Exception
      */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         try {
             return $this->result->fetchOne();
@@ -272,11 +270,9 @@ class Result
      *
      * @deprecated This API is deprecated and will be removed after 2022
      *
-     * @return mixed
-     *
      * @throws Exception
      */
-    public function fetch(int $mode = FetchMode::ASSOCIATIVE)
+    public function fetch(int $mode = FetchMode::ASSOCIATIVE): mixed
     {
         if (func_num_args() > 1) {
             throw new LogicException('Only invocations with one argument are still supported by this legecy API.');

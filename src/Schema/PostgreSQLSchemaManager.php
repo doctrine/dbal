@@ -444,12 +444,8 @@ SQL
 
     /**
      * PostgreSQL 9.4 puts parentheses around negative numeric default values that need to be stripped eventually.
-     *
-     * @param mixed $defaultValue
-     *
-     * @return mixed
      */
-    private function fixVersion94NegativeNumericDefaultValue($defaultValue)
+    private function fixVersion94NegativeNumericDefaultValue(mixed $defaultValue): mixed
     {
         if ($defaultValue !== null && strpos($defaultValue, '(') === 0) {
             return trim($defaultValue, '()');

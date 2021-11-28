@@ -7,10 +7,8 @@ namespace Doctrine\DBAL\Types\Exception;
 use Doctrine\DBAL\Types\ConversionException;
 use Throwable;
 
-use function get_class;
-use function gettype;
+use function get_debug_type;
 use function implode;
-use function is_object;
 use function is_scalar;
 use function sprintf;
 use function var_export;
@@ -23,13 +21,12 @@ use function var_export;
 final class InvalidType extends ConversionException implements TypesException
 {
     /**
-     * @param mixed    $value
      * @param string[] $possibleTypes
      *
      * @todo split into two methods
      * @todo sanitize value
      */
-    public static function new($value, string $toType, array $possibleTypes, ?Throwable $previous = null): self
+    public static function new(mixed $value, string $toType, array $possibleTypes, ?Throwable $previous = null): self
     {
         if (is_scalar($value) || $value === null) {
             $message = sprintf(
@@ -41,7 +38,7 @@ final class InvalidType extends ConversionException implements TypesException
         } else {
             $message = sprintf(
                 'Could not convert PHP value of type %s to type %s. Expected one of the following types: %s.',
-                is_object($value) ? get_class($value) : gettype($value),
+                get_debug_type($value),
                 $toType,
                 implode(', ', $possibleTypes)
             );

@@ -425,10 +425,8 @@ abstract class AbstractPlatform
 
     /**
      * Marks this type as to be commented in ALTER TABLE and CREATE TABLE statements.
-     *
-     * @param string|Type $doctrineType
      */
-    public function markDoctrineTypeCommented($doctrineType): void
+    public function markDoctrineTypeCommented(string|Type $doctrineType): void
     {
         if ($this->doctrineTypeComments === null) {
             $this->initializeCommentedDoctrineTypes();
@@ -1988,7 +1986,7 @@ abstract class AbstractPlatform
      *
      * @return mixed A boolean database value or an array of them.
      */
-    public function convertBooleans($item)
+    public function convertBooleans(mixed $item): mixed
     {
         if (is_array($item)) {
             foreach ($item as $k => $value) {
@@ -2009,10 +2007,8 @@ abstract class AbstractPlatform
      * Some platforms have boolean literals that needs to be correctly converted
      *
      * The default conversion tries to convert value into bool "(bool)$item"
-     *
-     * @param mixed $item
      */
-    public function convertFromBoolean($item): ?bool
+    public function convertFromBoolean(mixed $item): ?bool
     {
         if ($item === null) {
             return null;
@@ -2031,7 +2027,7 @@ abstract class AbstractPlatform
      *
      * @return mixed A boolean database value or an array of them.
      */
-    public function convertBooleansToDatabaseValue($item)
+    public function convertBooleansToDatabaseValue(mixed $item): mixed
     {
         return $this->convertBooleans($item);
     }

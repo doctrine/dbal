@@ -15,8 +15,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
-use function get_class;
-
 /**
  * @template P of AbstractPlatform
  */
@@ -41,7 +39,7 @@ abstract class AbstractDriverTest extends TestCase
             new StaticServerVersionProvider($version)
         );
 
-        self::assertSame($expectedClass, get_class($platform));
+        self::assertSame($expectedClass, $platform::class);
     }
 
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void

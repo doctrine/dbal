@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Types\Exception;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
 
-use function get_class;
+use function get_debug_type;
 use function spl_object_hash;
 use function sprintf;
 
@@ -20,7 +20,7 @@ final class TypeAlreadyRegistered extends Exception implements TypesException
     {
         return new self(sprintf(
             'Type of the class %s@%s is already registered.',
-            get_class($type),
+            get_debug_type($type),
             spl_object_hash($type)
         ));
     }

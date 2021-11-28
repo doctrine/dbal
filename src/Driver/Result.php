@@ -16,7 +16,7 @@ interface Result
      *
      * @throws Exception
      */
-    public function fetchNumeric();
+    public function fetchNumeric(): array|false;
 
     /**
      * Returns the next row of the result as an associative array or FALSE if there are no more rows.
@@ -25,16 +25,14 @@ interface Result
      *
      * @throws Exception
      */
-    public function fetchAssociative();
+    public function fetchAssociative(): array|false;
 
     /**
      * Returns the first value of the next row of the result or FALSE if there are no more rows.
      *
-     * @return mixed|false
-     *
      * @throws Exception
      */
-    public function fetchOne();
+    public function fetchOne(): mixed;
 
     /**
      * Returns an array containing all of the result rows represented as numeric arrays.

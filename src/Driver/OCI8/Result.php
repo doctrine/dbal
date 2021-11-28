@@ -38,26 +38,17 @@ final class Result implements ResultInterface
         $this->statement = $statement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         return $this->fetch(OCI_NUM);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->fetch(OCI_ASSOC);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
@@ -114,11 +105,9 @@ final class Result implements ResultInterface
     }
 
     /**
-     * @return mixed|false
-     *
      * @throws Exception
      */
-    private function fetch(int $mode)
+    private function fetch(int $mode): mixed
     {
         $result = oci_fetch_array($this->statement, $mode | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
 

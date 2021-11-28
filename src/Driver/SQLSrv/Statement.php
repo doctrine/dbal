@@ -79,10 +79,7 @@ final class Statement implements StatementInterface
         $this->sql .= self::LAST_INSERT_ID_SQL;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindValue($param, $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
     {
         assert(is_int($param));
 
@@ -90,11 +87,12 @@ final class Statement implements StatementInterface
         $this->types[$param]     = $type;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
-    {
+    public function bindParam(
+        int|string $param,
+        mixed &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null
+    ): void {
         assert(is_int($param));
 
         $this->variables[$param] =& $variable;

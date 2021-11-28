@@ -12,11 +12,9 @@ use PHPUnit\Framework\TestCase;
 class ResultTest extends TestCase
 {
     /**
-     * @param mixed $return
-     *
      * @dataProvider fetchProvider
      */
-    public function testFetch(string $source, callable $fetch, $return): void
+    public function testFetch(string $source, callable $fetch, mixed $return): void
     {
         $driverResult = $this->createMock(DriverResult::class);
         $driverResult->expects(self::once())
@@ -51,7 +49,7 @@ class ResultTest extends TestCase
 
         yield 'one' => [
             'fetchOne',
-            static function (Result $result) {
+            static function (Result $result): mixed {
                 return $result->fetchOne();
             },
             'bar',

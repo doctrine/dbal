@@ -17,7 +17,6 @@ use stdClass;
 
 use function array_intersect_key;
 use function array_merge;
-use function get_class;
 use function in_array;
 use function is_array;
 
@@ -61,7 +60,7 @@ class DriverManagerTest extends TestCase
     public function testCustomWrapper(): void
     {
         $wrapper      = $this->createMock(Connection::class);
-        $wrapperClass = get_class($wrapper);
+        $wrapperClass = $wrapper::class;
 
         $options = [
             'url' => 'sqlite::memory:',
@@ -152,12 +151,9 @@ class DriverManagerTest extends TestCase
     }
 
     /**
-     * @param mixed $url
-     * @param mixed $expected
-     *
      * @dataProvider databaseUrls
      */
-    public function testDatabaseUrl($url, $expected): void
+    public function testDatabaseUrl(mixed $url, mixed $expected): void
     {
         $options = is_array($url) ? $url : ['url' => $url];
 
@@ -183,7 +179,7 @@ class DriverManagerTest extends TestCase
     public function databaseUrls(): iterable
     {
         $driver      = $this->createMock(Driver::class);
-        $driverClass = get_class($driver);
+        $driverClass = $driver::class;
 
         return [
             'simple URL' => [

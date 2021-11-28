@@ -30,10 +30,7 @@ class BigIntType extends Type implements PhpIntegerMappingType
         return ParameterType::STRING;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?string
     {
         return $value === null ? null : (string) $value;
     }

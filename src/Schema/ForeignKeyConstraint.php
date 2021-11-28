@@ -223,10 +223,8 @@ class ForeignKeyConstraint extends AbstractAsset
 
     /**
      * Returns an option associated with the foreign key constraint.
-     *
-     * @return mixed
      */
-    public function getOption(string $name)
+    public function getOption(string $name): mixed
     {
         return $this->_options[$name];
     }

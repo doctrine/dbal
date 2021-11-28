@@ -21,30 +21,21 @@ final class Result extends AbstractResultMiddleware
         $this->converter = $converter;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         return $this->converter->convertNumeric(
             parent::fetchNumeric()
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->converter->convertAssociative(
             parent::fetchAssociative()
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return $this->converter->convertOne(
             parent::fetchOne()

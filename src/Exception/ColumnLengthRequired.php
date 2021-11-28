@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-use function get_class;
+use function get_debug_type;
 use function sprintf;
 
 /**
@@ -24,7 +24,7 @@ final class ColumnLengthRequired extends Exception
         return new self(
             sprintf(
                 '%s requires the length of a %s column to be specified',
-                get_class($platform),
+                get_debug_type($platform),
                 $type
             )
         );

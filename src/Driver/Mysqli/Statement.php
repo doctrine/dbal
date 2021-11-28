@@ -63,11 +63,12 @@ final class Statement implements StatementInterface
         $this->boundValues = array_fill(1, $paramCount, null);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
-    {
+    public function bindParam(
+        int|string $param,
+        mixed &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null
+    ): void {
         assert(is_int($param));
 
         if (! isset(self::$paramTypeMap[$type])) {
@@ -78,10 +79,7 @@ final class Statement implements StatementInterface
         $this->types[$param - 1]   = self::$paramTypeMap[$type];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindValue($param, $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
     {
         assert(is_int($param));
 

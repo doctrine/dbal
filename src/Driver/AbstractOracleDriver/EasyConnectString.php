@@ -106,10 +106,7 @@ final class EasyConnectString
         return implode('', $chunks);
     }
 
-    /**
-     * @param mixed $value
-     */
-    private static function renderValue($value): string
+    private static function renderValue(mixed $value): string
     {
         if (is_array($value)) {
             return self::renderParams($value);

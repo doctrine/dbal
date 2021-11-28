@@ -71,11 +71,11 @@ class ConverterTest extends TestCase
      * @dataProvider convertAssociativeProvider
      */
     public function testConvertAssociative(
-        $row,
+        array|false $row,
         bool $convertEmptyStringToNull,
         bool $rightTrimString,
         ?int $case,
-        $expected
+        array|false $expected
     ): void {
         self::assertSame(
             $expected,
@@ -186,13 +186,14 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * @param mixed|false $value
-     * @param mixed|false $expected
-     *
      * @dataProvider convertOneProvider
      */
-    public function testConvertOne($value, bool $convertEmptyStringToNull, bool $rightTrimString, $expected): void
-    {
+    public function testConvertOne(
+        mixed $value,
+        bool $convertEmptyStringToNull,
+        bool $rightTrimString,
+        mixed $expected
+    ): void {
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, null)

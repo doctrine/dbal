@@ -36,10 +36,7 @@ final class ArrayResult implements Result
         $this->columnCount = count($data[0]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         $row = $this->fetch();
 
@@ -50,18 +47,12 @@ final class ArrayResult implements Result
         return array_values($row);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->fetch();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         $row = $this->fetch();
 
@@ -111,10 +102,7 @@ final class ArrayResult implements Result
         $this->data = [];
     }
 
-    /**
-     * @return mixed|false
-     */
-    private function fetch()
+    private function fetch(): mixed
     {
         if (! isset($this->data[$this->num])) {
             return false;

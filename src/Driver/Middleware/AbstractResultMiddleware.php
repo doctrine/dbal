@@ -15,26 +15,17 @@ abstract class AbstractResultMiddleware implements Result
         $this->wrappedResult = $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         return $this->wrappedResult->fetchNumeric();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->wrappedResult->fetchAssociative();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return $this->wrappedResult->fetchOne();
     }

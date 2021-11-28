@@ -29,8 +29,7 @@ class Column extends AbstractAsset
 
     protected bool $_notnull = true;
 
-    /** @var mixed */
-    protected $_default;
+    protected mixed $_default = null;
 
     protected bool $_autoincrement = false;
 
@@ -127,10 +126,7 @@ class Column extends AbstractAsset
         return $this;
     }
 
-    /**
-     * @param mixed $default
-     */
-    public function setDefault($default): self
+    public function setDefault(mixed $default): self
     {
         $this->_default = $default;
 
@@ -147,10 +143,7 @@ class Column extends AbstractAsset
         return $this;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setPlatformOption(string $name, $value): self
+    public function setPlatformOption(string $name, mixed $value): self
     {
         $this->_platformOptions[$name] = $value;
 
@@ -199,10 +192,7 @@ class Column extends AbstractAsset
         return $this->_notnull;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDefault()
+    public function getDefault(): mixed
     {
         return $this->_default;
     }
@@ -220,10 +210,7 @@ class Column extends AbstractAsset
         return isset($this->_platformOptions[$name]);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getPlatformOption(string $name)
+    public function getPlatformOption(string $name): mixed
     {
         return $this->_platformOptions[$name];
     }
@@ -257,10 +244,7 @@ class Column extends AbstractAsset
         return $this->_comment;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setCustomSchemaOption(string $name, $value): self
+    public function setCustomSchemaOption(string $name, mixed $value): self
     {
         $this->_customSchemaOptions[$name] = $value;
 
@@ -272,10 +256,7 @@ class Column extends AbstractAsset
         return isset($this->_customSchemaOptions[$name]);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCustomSchemaOption(string $name)
+    public function getCustomSchemaOption(string $name): mixed
     {
         return $this->_customSchemaOptions[$name];
     }
