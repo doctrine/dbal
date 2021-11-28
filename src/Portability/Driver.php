@@ -8,10 +8,7 @@ use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
-use LogicException;
 use PDO;
-
-use function method_exists;
 
 use const CASE_LOWER;
 use const CASE_UPPER;
@@ -45,13 +42,7 @@ final class Driver extends AbstractDriverMiddleware
         $case = 0;
 
         if ($this->case !== 0 && ($portability & Connection::PORTABILITY_FIX_CASE) !== 0) {
-            $nativeConnection = null;
-            if (method_exists($connection, 'getNativeConnection')) {
-                try {
-                    $nativeConnection = $connection->getNativeConnection();
-                } catch (LogicException $e) {
-                }
-            }
+            $nativeConnection = $connection->getNativeConnection();
 
             if ($nativeConnection instanceof PDO) {
                 $portability &= ~Connection::PORTABILITY_FIX_CASE;

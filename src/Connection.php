@@ -31,19 +31,15 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
-use LogicException;
 use Throwable;
 use Traversable;
 
 use function assert;
 use function count;
-use function get_class;
 use function implode;
 use function is_int;
 use function is_string;
 use function key;
-use function method_exists;
-use function sprintf;
 
 /**
  * A database abstraction-level connection that implements features like events, transaction isolation levels,
@@ -1242,22 +1238,15 @@ class Connection implements ServerVersionProvider
     }
 
     /**
+     * Provides access to the native database connection.
+     *
      * @return resource|object
      *
      * @throws Exception
      */
     public function getNativeConnection()
     {
-        $connection = $this->connect();
-
-        if (! method_exists($connection, 'getNativeConnection')) {
-            throw new LogicException(sprintf(
-                'The driver connection %s does not support accessing the native connection.',
-                get_class($connection)
-            ));
-        }
-
-        return $connection->getNativeConnection();
+        return $this->connect()->getNativeConnection();
     }
 
     /**

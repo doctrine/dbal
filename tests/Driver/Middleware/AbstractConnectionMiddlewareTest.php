@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
-use LogicException;
 use PHPUnit\Framework\TestCase;
 
 final class AbstractConnectionMiddlewareTest extends TestCase
@@ -66,20 +65,11 @@ final class AbstractConnectionMiddlewareTest extends TestCase
         $nativeConnection = new class () {
         };
 
-        $connection = $this->createMock(NativeDriverConnection::class);
+        $connection = $this->createMock(Connection::class);
         $connection->method('getNativeConnection')
             ->willReturn($nativeConnection);
 
         self::assertSame($nativeConnection, $this->createMiddleware($connection)->getNativeConnection());
-    }
-
-    public function testGetNativeConnectionFailsWithLegacyConnection(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $middleware = $this->createMiddleware($connection);
-
-        $this->expectException(LogicException::class);
-        $middleware->getNativeConnection();
     }
 
     private function createMiddleware(Connection $connection): AbstractConnectionMiddleware
@@ -87,12 +77,4 @@ final class AbstractConnectionMiddlewareTest extends TestCase
         return new class ($connection) extends AbstractConnectionMiddleware {
         };
     }
-}
-
-interface NativeDriverConnection extends Connection
-{
-    /**
-     * @return object|resource
-     */
-    public function getNativeConnection();
 }

@@ -7,11 +7,6 @@ namespace Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
-use LogicException;
-
-use function get_class;
-use function method_exists;
-use function sprintf;
 
 abstract class AbstractConnectionMiddleware implements Connection
 {
@@ -71,17 +66,10 @@ abstract class AbstractConnectionMiddleware implements Connection
     }
 
     /**
-     * @return resource|object
+     * {@inheritdoc}
      */
     public function getNativeConnection()
     {
-        if (! method_exists($this->wrappedConnection, 'getNativeConnection')) {
-            throw new LogicException(sprintf(
-                'The driver connection %s does not support accessing the native connection.',
-                get_class($this->wrappedConnection)
-            ));
-        }
-
         return $this->wrappedConnection->getNativeConnection();
     }
 }

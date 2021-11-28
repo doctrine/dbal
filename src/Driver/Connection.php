@@ -9,8 +9,6 @@ use Doctrine\DBAL\ServerVersionProvider;
 /**
  * Connection interface.
  * Driver connections must implement this interface.
- *
- * @method resource|object getNativeConnection()
  */
 interface Connection extends ServerVersionProvider
 {
@@ -83,4 +81,11 @@ interface Connection extends ServerVersionProvider
      * @throws Exception
      */
     public function rollBack(): void;
+
+    /**
+     * Provides access to the native database connection.
+     *
+     * @return resource|object
+     */
+    public function getNativeConnection();
 }
