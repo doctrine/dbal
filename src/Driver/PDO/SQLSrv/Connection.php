@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\Driver\PDO\Result;
-use Doctrine\Deprecations\Deprecation;
 use PDO;
 
 final class Connection implements ConnectionInterface
@@ -72,20 +71,5 @@ final class Connection implements ConnectionInterface
     public function getNativeConnection(): PDO
     {
         return $this->connection->getNativeConnection();
-    }
-
-    /**
-     * @deprecated Call {@see getNativeConnection()} instead.
-     */
-    public function getWrappedConnection(): PDO
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5037',
-            '%s is deprecated, call getNativeConnection() instead.',
-            __METHOD__
-        );
-
-        return $this->connection->getWrappedConnection();
     }
 }

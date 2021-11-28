@@ -13,6 +13,15 @@ awareness about deprecated code.
 The wrapper-level `Connection::getWrappedConnection()` method has been removed. The `Connection::connect()` method
 has been made `protected` and now must return the underlying driver-level connection.
 
+## BC BREAK: Added `getNativeConnection()` to driver connections and removed old accessors 
+
+Driver and middleware connections must implement `getNativeConnection()` now. This new method replaces several accessors
+that have been removed:
+
+* `Doctrine\DBAL\Driver\PDO\Connection::getWrappedConnection()`
+* `Doctrine\DBAL\Driver\PDO\SQLSrv\Connection::getWrappedConnection()`
+* `Doctrine\DBAL\Driver\Mysqli\Connection::getWrappedResourceHandle()`
+
 ## BC BREAK: Removed `SQLLogger` and its implementations.
 
 The `SQLLogger` interface and its implementations `DebugStack` and `LoggerChain` have been removed.
