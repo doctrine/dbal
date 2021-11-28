@@ -47,15 +47,15 @@ class DropSchemaSqlCollectorTest extends TestCase
 
         $constraint->expects(self::any())
             ->method('getName')
-            ->will(self::returnValue($name));
+            ->willReturn($name);
 
         $constraint->expects(self::any())
             ->method('getForeignColumns')
-            ->will(self::returnValue([]));
+            ->willReturn([]);
 
         $constraint->expects(self::any())
             ->method('getColumns')
-            ->will(self::returnValue([]));
+            ->willReturn([]);
 
         return $constraint;
     }

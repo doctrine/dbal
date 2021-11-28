@@ -362,10 +362,8 @@ SQL
      * @param string $table
      * @param string $classAlias
      * @param string $namespaceAlias
-     *
-     * @return string
      */
-    private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n')
+    private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n'): string
     {
         $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
         if (strpos($table, '.') !== false) {
@@ -388,6 +386,8 @@ SQL
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)
@@ -621,12 +621,8 @@ SQL
      * as this platform does not have a native VARBINARY/BINARY column type. Therefore the comparator
      * might detect differences for binary type columns which do not have to be propagated
      * to database as there actually is no difference at database level.
-     *
-     * @param ColumnDiff $columnDiff The column diff to check against.
-     *
-     * @return bool True if the given column diff is an unchanged binary type column, false otherwise.
      */
-    private function isUnchangedBinaryColumn(ColumnDiff $columnDiff)
+    private function isUnchangedBinaryColumn(ColumnDiff $columnDiff): bool
     {
         $columnType = $columnDiff->column->getType();
 
@@ -707,10 +703,8 @@ SQL
 
     /**
      * Cache definition for sequences
-     *
-     * @return string
      */
-    private function getSequenceCacheSQL(Sequence $sequence)
+    private function getSequenceCacheSQL(Sequence $sequence): string
     {
         if ($sequence->getCache() > 1) {
             return ' CACHE ' . $sequence->getCache();

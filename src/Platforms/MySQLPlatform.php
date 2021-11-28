@@ -50,14 +50,14 @@ class MySQLPlatform extends AbstractPlatform
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
         if ($limit !== null) {
-            $query .= ' LIMIT ' . $limit;
+            $query .= sprintf(' LIMIT %d', $limit);
 
             if ($offset > 0) {
-                $query .= ' OFFSET ' . $offset;
+                $query .= sprintf(' OFFSET %d', $offset);
             }
         } elseif ($offset > 0) {
             // 2^64-1 is the maximum of unsigned BIGINT, the biggest limit possible
-            $query .= ' LIMIT 18446744073709551615 OFFSET ' . $offset;
+            $query .= sprintf(' LIMIT 18446744073709551615 OFFSET %d', $offset);
         }
 
         return $query;
@@ -147,6 +147,8 @@ class MySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      *
      * Two approaches to listing the table indexes. The information_schema is
@@ -179,6 +181,8 @@ class MySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string      $table
      * @param string|null $database
      *
@@ -193,7 +197,7 @@ class MySQLPlatform extends AbstractPlatform
         }
 
         $sql = 'SELECT DISTINCT k.`CONSTRAINT_NAME`, k.`COLUMN_NAME`, k.`REFERENCED_TABLE_NAME`, ' .
-               'k.`REFERENCED_COLUMN_NAME` /*!50116 , c.update_rule, c.delete_rule */ ' .
+               'k.`REFERENCED_COLUMN_NAME`, k.`ORDINAL_POSITION` /*!50116 , c.update_rule, c.delete_rule */ ' .
                'FROM information_schema.key_column_usage k /*!50116 ' .
                'INNER JOIN information_schema.referential_constraints c ON ' .
                '  c.constraint_name = k.constraint_name AND ' .
@@ -203,7 +207,8 @@ class MySQLPlatform extends AbstractPlatform
 
         return $sql . ' AND k.table_schema = ' . $databaseNameSql
             . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */'
-            . ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
+            . ' AND k.`REFERENCED_COLUMN_NAME` is not NULL'
+            . ' ORDER BY k.`ORDINAL_POSITION`';
     }
 
     /**
@@ -337,6 +342,8 @@ class MySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)
@@ -356,6 +363,9 @@ class MySQLPlatform extends AbstractPlatform
                ' ORDER BY ORDINAL_POSITION ASC';
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableMetadataSQL(string $table, ?string $database = null): string
     {
         return sprintf(
@@ -447,10 +457,8 @@ SQL
      * Build SQL for table options
      *
      * @param mixed[] $options
-     *
-     * @return string
      */
-    private function buildTableOptions(array $options)
+    private function buildTableOptions(array $options): string
     {
         if (isset($options['table_options'])) {
             return $options['table_options'];
@@ -501,10 +509,8 @@ SQL
      * Build SQL for partition options.
      *
      * @param mixed[] $options
-     *
-     * @return string
      */
-    private function buildPartitionOptions(array $options)
+    private function buildPartitionOptions(array $options): string
     {
         return isset($options['partition_options'])
             ? ' ' . $options['partition_options']
@@ -682,7 +688,7 @@ SQL
      *
      * @throws Exception
      */
-    private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index)
+    private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index): array
     {
         $sql = [];
 
@@ -723,7 +729,7 @@ SQL
      *
      * @throws Exception
      */
-    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff)
+    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql   = [];
         $table = $diff->getName($this)->getQuotedName($this);
@@ -787,7 +793,7 @@ SQL
      *
      * @return ForeignKeyConstraint[]
      */
-    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff)
+    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff): array
     {
         if (empty($diff->renamedIndexes) || ! $diff->fromTable instanceof Table) {
             return [];
@@ -912,10 +918,8 @@ SQL
      * Get unsigned declaration for a column.
      *
      * @param mixed[] $columnDef
-     *
-     * @return string
      */
-    private function getUnsignedDeclaration(array $columnDef)
+    private function getUnsignedDeclaration(array $columnDef): string
     {
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }

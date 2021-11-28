@@ -206,8 +206,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $otherTable = new Table($table->getName());
         $otherTable->addColumn('id', Types::STRING);
 
-        $schemaManager = TestUtil::getPrivilegedConnection()
-            ->getSchemaManager();
+        $connection    = TestUtil::getPrivilegedConnection();
+        $schemaManager = $connection->getSchemaManager();
 
         try {
             $schemaManager->dropTable($otherTable->getName());
@@ -215,6 +215,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         $schemaManager->createTable($otherTable);
+        $connection->close();
 
         $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getDatabase());
         self::assertCount(7, $columns);

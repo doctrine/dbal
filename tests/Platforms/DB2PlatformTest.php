@@ -727,4 +727,10 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
         );
     }
+
+    protected function getLimitOffsetCastToIntExpectedQuery(): string
+    {
+        return 'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM'
+            . ' FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM >= 3 AND db22.DC_ROWNUM <= 3';
+    }
 }

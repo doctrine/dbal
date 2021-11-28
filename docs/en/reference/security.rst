@@ -43,7 +43,7 @@ Consider **ALL** other APIs to be not safe for user-input:
 - The QueryBuilder API
 - The Platforms and SchemaManager APIs to generate and execute DML/DDL SQL statements
 
-To escape user input in those scenarios use the ``Connection#quote()`` method.
+To use values from the user input in those scenarios use prepared statements.
 
 User input in your queries
 --------------------------
@@ -90,7 +90,7 @@ Instead of using string concatenation to insert user-input into your SQL/DQL sta
 placeholders and then explain to the database driver which variable should be bound to
 which placeholder. Each database vendor supports different placeholder styles:
 
--  All PDO Drivers support positional (using question marks) and named placeholders (:param1, :foo, :bar).
+-  All PDO Drivers support positional (using question marks) and named placeholders (e.g. ``:param1``, ``:foo``).
 -  OCI8 only supports named parameters, but Doctrine DBAL has a thin layer around OCI8 and
    also allows positional placeholders.
 -  Doctrine ORM DQL allows both named and positional parameters. The positional parameters however are not
@@ -141,10 +141,10 @@ Besides binding parameters you can also pass the type of the variable. This allo
 vendor to not only escape but also cast the value to the correct type. See the docs on querying and DQL in the
 respective chapters for more information.
 
-Right: Quoting/Escaping values
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Discouraged: Quoting/Escaping values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Although previously we said string concatenation is wrong, there is a way to do it correctly using
+Previously we said string concatenation is wrong. There is a way to do it technically correctly using
 the ``Connection#quote`` method:
 
 .. code-block:: php
@@ -154,4 +154,5 @@ the ``Connection#quote`` method:
     $sql = "SELECT * FROM users WHERE name = " . $connection->quote($_GET['username']);
 
 This method is only available for SQL, not for DQL. For DQL you are always encouraged to use prepared
-statements not only for security, but also for caching reasons.
+statements not only for security, but also for caching reasons. To insert a string literal into DDL,
+use ``AbstractPlatform::quoteStringLiteral()``.

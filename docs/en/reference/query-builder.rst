@@ -1,7 +1,7 @@
 SQL Query Builder
 =================
 
-Doctrine 2.1 ships with a powerful query builder for the SQL language. This QueryBuilder object has methods
+Doctrine features a powerful query builder for the SQL language. This QueryBuilder object has methods
 to add parts to an SQL statement. If you built the complete state you can execute it using the connection
 it was generated from. The API is roughly the same as that of the DQL Query Builder.
 
@@ -45,7 +45,7 @@ input to any of the methods of the QueryBuilder and use the placeholder
 .. note::
 
     The numerical parameters in the QueryBuilder API start with the needle
-    ``0``, not with ``1`` as in the PDO API.
+    ``0``.
 
 Building a Query
 ----------------

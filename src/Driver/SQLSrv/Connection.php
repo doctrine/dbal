@@ -23,7 +23,7 @@ use function str_replace;
 final class Connection implements ServerInfoAwareConnection
 {
     /** @var resource */
-    protected $connection;
+    private $connection;
 
     /**
      * @internal The connection can be only instantiated by its driver.
@@ -109,10 +109,7 @@ final class Connection implements ServerInfoAwareConnection
         return $result->fetchOne();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         if (! sqlsrv_begin_transaction($this->connection)) {
             throw Error::new();
@@ -121,10 +118,7 @@ final class Connection implements ServerInfoAwareConnection
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function commit()
+    public function commit(): bool
     {
         if (! sqlsrv_commit($this->connection)) {
             throw Error::new();
@@ -133,15 +127,20 @@ final class Connection implements ServerInfoAwareConnection
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function rollBack()
+    public function rollBack(): bool
     {
         if (! sqlsrv_rollback($this->connection)) {
             throw Error::new();
         }
 
         return true;
+    }
+
+    /**
+     * @return resource
+     */
+    public function getNativeConnection()
+    {
+        return $this->connection;
     }
 }

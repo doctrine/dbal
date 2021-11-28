@@ -360,7 +360,6 @@ class ConnectionTest extends FunctionalTestCase
         );
 
         self::assertInstanceOf(AbstractPlatform::class, $connection->getDatabasePlatform());
-        self::assertFalse($connection->isConnected());
         self::assertSame($params, $connection->getParams());
 
         $connection->close();
@@ -387,7 +386,7 @@ class ConnectionTest extends FunctionalTestCase
             self::markTestSkipped('Unable to test if the connection is persistent');
         }
 
-        $pdo = $driverConnection->getWrappedConnection();
+        $pdo = $driverConnection->getNativeConnection();
 
         self::assertTrue($pdo->getAttribute(PDO::ATTR_PERSISTENT));
     }

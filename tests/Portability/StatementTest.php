@@ -35,7 +35,7 @@ class StatementTest extends TestCase
         $this->wrappedStmt->expects(self::once())
             ->method('bindParam')
             ->with($column, $variable, $type, $length)
-            ->will(self::returnValue(true));
+            ->willReturn(true);
 
         self::assertTrue($this->stmt->bindParam($column, $variable, $type, $length));
     }
@@ -49,7 +49,7 @@ class StatementTest extends TestCase
         $this->wrappedStmt->expects(self::once())
             ->method('bindValue')
             ->with($param, $value, $type)
-            ->will(self::returnValue(true));
+            ->willReturn(true);
 
         self::assertTrue($this->stmt->bindValue($param, $value, $type));
     }

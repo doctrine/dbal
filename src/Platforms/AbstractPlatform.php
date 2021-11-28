@@ -169,10 +169,8 @@ abstract class AbstractPlatform
     /**
      * Initializes Doctrine Type Mappings with the platform defaults
      * and with all additional type mappings.
-     *
-     * @return void
      */
-    private function initializeAllDoctrineTypeMappings()
+    private function initializeAllDoctrineTypeMappings(): void
     {
         $this->initializeDoctrineTypeMappings();
 
@@ -588,7 +586,7 @@ abstract class AbstractPlatform
      */
     public function getVarcharDefaultLength()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
             'Relying on the default varchar column length is deprecated, specify the length explicitly.'
@@ -3073,6 +3071,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string $table
      * @param string $database
      *
@@ -3128,6 +3128,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * Returns the list of indexes for the current database.
      *
      * The current database parameter is optional but will always be passed
@@ -3150,6 +3152,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string $table
      *
      * @return string
@@ -3689,11 +3693,9 @@ abstract class AbstractPlatform
      * @param int|null $limit
      * @param int      $offset
      *
-     * @return string
-     *
      * @throws Exception
      */
-    final public function modifyLimitQuery($query, $limit, $offset = 0)
+    final public function modifyLimitQuery($query, $limit, $offset = 0): string
     {
         if ($offset < 0) {
             throw new Exception(sprintf(
@@ -3709,7 +3711,11 @@ abstract class AbstractPlatform
             ));
         }
 
-        return $this->doModifyLimitQuery($query, $limit, $offset);
+        if ($limit !== null) {
+            $limit = (int) $limit;
+        }
+
+        return $this->doModifyLimitQuery($query, $limit, (int) $offset);
     }
 
     /**
@@ -3724,11 +3730,11 @@ abstract class AbstractPlatform
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
         if ($limit !== null) {
-            $query .= ' LIMIT ' . $limit;
+            $query .= sprintf(' LIMIT %d', $limit);
         }
 
         if ($offset > 0) {
-            $query .= ' OFFSET ' . $offset;
+            $query .= sprintf(' OFFSET %d', $offset);
         }
 
         return $query;
@@ -3845,11 +3851,9 @@ abstract class AbstractPlatform
     /**
      * Returns the keyword list instance of this platform.
      *
-     * @return KeywordList
-     *
      * @throws Exception If no keyword list is specified.
      */
-    final public function getReservedKeywordsList()
+    final public function getReservedKeywordsList(): KeywordList
     {
         // Check for an existing instantiation of the keywords class.
         if ($this->_keywords === null) {
@@ -3959,7 +3963,7 @@ abstract class AbstractPlatform
         ]);
 
         if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
-            $columnData['length'] = 255;
+            $columnData['length'] = $this->getVarcharDefaultLength();
         }
 
         return $columnData;

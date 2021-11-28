@@ -16,10 +16,8 @@ final class UserDefinedFunctions
      *
      * @param int $a
      * @param int $b
-     *
-     * @return int
      */
-    public static function mod($a, $b)
+    public static function mod($a, $b): int
     {
         return $a % $b;
     }
@@ -30,10 +28,8 @@ final class UserDefinedFunctions
      * @param string $str
      * @param string $substr
      * @param int    $offset
-     *
-     * @return int
      */
-    public static function locate($str, $substr, $offset = 0)
+    public static function locate($str, $substr, $offset = 0): int
     {
         // SQL's LOCATE function works on 1-based positions, while PHP's strpos works on 0-based positions.
         // So we have to make them compatible if an offset is given.

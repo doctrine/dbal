@@ -980,4 +980,10 @@ SQL
             ['CHAR(12)', ['length' => 12, 'fixed' => true]],
         ];
     }
+
+    protected function getLimitOffsetCastToIntExpectedQuery(): string
+    {
+        return 'SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 3)'
+            . ' WHERE doctrine_rownum >= 3';
+    }
 }

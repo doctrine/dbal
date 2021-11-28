@@ -111,10 +111,7 @@ final class Connection implements ServerInfoAwareConnection
         return db2_last_insert_id($this->connection);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         $result = db2_autocommit($this->connection, DB2_AUTOCOMMIT_OFF);
         assert(is_bool($result));
@@ -122,10 +119,7 @@ final class Connection implements ServerInfoAwareConnection
         return $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function commit()
+    public function commit(): bool
     {
         if (! db2_commit($this->connection)) {
             throw ConnectionError::new($this->connection);
@@ -137,10 +131,7 @@ final class Connection implements ServerInfoAwareConnection
         return $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rollBack()
+    public function rollBack(): bool
     {
         if (! db2_rollback($this->connection)) {
             throw ConnectionError::new($this->connection);
@@ -150,5 +141,13 @@ final class Connection implements ServerInfoAwareConnection
         assert(is_bool($result));
 
         return $result;
+    }
+
+    /**
+     * @return resource
+     */
+    public function getNativeConnection()
+    {
+        return $this->connection;
     }
 }
