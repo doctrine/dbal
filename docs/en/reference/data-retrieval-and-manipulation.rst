@@ -530,35 +530,3 @@ given data.
     <?php
     $conn->update('user', array('username' => 'jwage'), array('id' => 1));
     // UPDATE user (username) VALUES (?) WHERE id = ? (jwage, 1)
-
-By default the Doctrine DBAL does no escaping. Escaping is a very
-tricky business to do automatically, therefore there is none by
-default. The ORM internally escapes all your values, because it has
-lots of metadata available about the current context. When you use
-the Doctrine DBAL as standalone, you have to take care of this
-yourself. The following methods help you with it:
-
-quote()
-~~~~~~~~~
-
-Quote a value:
-
-.. code-block:: php
-
-    <?php
-
-    use Doctrine\DBAL\ParameterType;
-
-    $quoted = $conn->quote('value');
-    $quoted = $conn->quote('1234', ParameterType::INTEGER);
-
-quoteIdentifier()
-~~~~~~~~~~~~~~~~~
-
-Quote an identifier according to the platform details.
-
-.. code-block:: php
-
-    <?php
-    $quoted = $conn->quoteIdentifier('id');
-

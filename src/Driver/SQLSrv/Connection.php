@@ -23,7 +23,7 @@ use function str_replace;
 final class Connection implements ServerInfoAwareConnection
 {
     /** @var resource */
-    protected $connection;
+    private $connection;
 
     /**
      * @internal The connection can be only instantiated by its driver.
@@ -134,5 +134,13 @@ final class Connection implements ServerInfoAwareConnection
         }
 
         return true;
+    }
+
+    /**
+     * @return resource
+     */
+    public function getNativeConnection()
+    {
+        return $this->connection;
     }
 }

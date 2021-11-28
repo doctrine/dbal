@@ -2,21 +2,21 @@
 
 namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 
+use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
-use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
 use PDO;
 
-final class Connection implements ServerInfoAwareConnection
+final class Connection extends AbstractConnectionMiddleware
 {
     /** @var PDOConnection */
     private $connection;
 
     public function __construct(PDOConnection $connection)
     {
+        parent::__construct($connection);
+
         $this->connection = $connection;
     }
 
@@ -27,31 +27,13 @@ final class Connection implements ServerInfoAwareConnection
         );
     }
 
-    public function query(string $sql): Result
-    {
-        return $this->connection->query($sql);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function quote($value, $type = ParameterType::STRING)
-    {
-        return $this->connection->quote($value, $type);
-    }
-
-    public function exec(string $sql): int
-    {
-        return $this->connection->exec($sql);
-    }
-
     /**
      * {@inheritDoc}
      */
     public function lastInsertId($name = null)
     {
         if ($name === null) {
-            return $this->connection->lastInsertId($name);
+            return parent::lastInsertId($name);
         }
 
         Deprecation::triggerIfCalledFromOutside(
@@ -65,31 +47,23 @@ final class Connection implements ServerInfoAwareConnection
             ->fetchOne();
     }
 
-    public function beginTransaction(): bool
+    public function getNativeConnection(): PDO
     {
-        return $this->connection->beginTransaction();
-    }
-
-    public function commit(): bool
-    {
-        return $this->connection->commit();
-    }
-
-    public function rollBack(): bool
-    {
-        return $this->connection->rollBack();
+        return $this->connection->getNativeConnection();
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated Call {@see getNativeConnection()} instead.
      */
-    public function getServerVersion()
-    {
-        return $this->connection->getServerVersion();
-    }
-
     public function getWrappedConnection(): PDO
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5037',
+            '%s is deprecated, call getNativeConnection() instead.',
+            __METHOD__
+        );
+
         return $this->connection->getWrappedConnection();
     }
 }

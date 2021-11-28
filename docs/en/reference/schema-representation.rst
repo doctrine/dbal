@@ -67,7 +67,7 @@ Schema Assets
 
 A schema asset is considered any abstract atomic unit in a database such as schemas,
 tables, indexes, but also sequences, columns and even identifiers.
-The following chapter gives an overview of all available Doctrine 2
+The following chapter gives an overview of all available Doctrine DBAL
 schema assets with short explanations on their context and usage.
 All schema assets reside in the ``Doctrine\DBAL\Schema`` namespace.
 

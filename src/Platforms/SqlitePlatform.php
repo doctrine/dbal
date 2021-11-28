@@ -767,7 +767,7 @@ class SqlitePlatform extends AbstractPlatform
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
         if ($limit === null && $offset > 0) {
-            return $query . ' LIMIT -1 OFFSET ' . $offset;
+            return sprintf('%s LIMIT -1 OFFSET %d', $query, $offset);
         }
 
         return parent::doModifyLimitQuery($query, $limit, $offset);

@@ -27,7 +27,6 @@ use function preg_match_all;
 use function preg_quote;
 use function preg_replace;
 use function rtrim;
-use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtolower;
@@ -210,10 +209,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $indexBuffer = [];
 
         // fetch primary
-        $indexArray = $this->_conn->fetchAllAssociative(sprintf(
-            'PRAGMA TABLE_INFO (%s)',
-            $this->_conn->quote($tableName)
-        ));
+        $indexArray = $this->_conn->fetchAllAssociative('SELECT * FROM PRAGMA_TABLE_INFO (?)', [$tableName]);
 
         usort(
             $indexArray,
@@ -256,10 +252,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $idx['primary']    = false;
             $idx['non_unique'] = ! $tableIndex['unique'];
 
-            $indexArray = $this->_conn->fetchAllAssociative(sprintf(
-                'PRAGMA INDEX_INFO (%s)',
-                $this->_conn->quote($keyName)
-            ));
+            $indexArray = $this->_conn->fetchAllAssociative('SELECT * FROM PRAGMA_INDEX_INFO (?)', [$keyName]);
 
             foreach ($indexArray as $indexColumnRow) {
                 $idx['column_name'] = $indexColumnRow['name'];
