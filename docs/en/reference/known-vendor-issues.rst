@@ -140,7 +140,7 @@ Rethans explains it very well
 OCI-LOB instances
 ~~~~~~~~~~~~~~~~~
 
-Doctrine 2 always requests CLOB columns as strings, so that you as
+Doctrine DBAL always requests CLOB columns as strings, so that you as
 a developer never get access to the ``OCI-LOB`` instance. Since we
 are using prepared statements for all write operations inside the
 ORM, using strings instead of the ``OCI-LOB`` does not cause any
