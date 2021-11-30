@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated support for Postgres 9
+
+Postgres 9 won't be actively supported in DBAL 4. Consider upgrading to Postgres 10 or later.
+The following classes have been deprecated:
+
+* `Doctrine\DBAL\Platforms\PostgreSQL100Platform`
+* `Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords`
+
 ## Deprecated `Connection::getWrappedConnection()`, `Connection::connect()` made `@internal`.
 
 The wrapper-level `Connection::getWrappedConnection()` method has been deprecated.
