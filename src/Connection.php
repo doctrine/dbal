@@ -1059,12 +1059,9 @@ class Connection implements ServerVersionProvider
     }
 
     /**
-     * Returns the savepoint name to use for nested transactions are false if they are not supported
-     * "savepointFormat" parameter is not set
-     *
-     * @return mixed A string with the savepoint name or false.
+     * Returns the savepoint name to use for nested transactions.
      */
-    protected function _getNestedTransactionSavePointName()
+    protected function _getNestedTransactionSavePointName(): string
     {
         return 'DOCTRINE2_SAVEPOINT_' . $this->transactionNestingLevel;
     }

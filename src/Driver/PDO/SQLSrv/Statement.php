@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 
+use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\PDO\Statement as PDOStatement;
-use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use PDO;
 
-final class Statement implements StatementInterface
+final class Statement extends AbstractStatementMiddleware
 {
     private PDOStatement $statement;
 
@@ -19,6 +18,8 @@ final class Statement implements StatementInterface
      */
     public function __construct(PDOStatement $statement)
     {
+        parent::__construct($statement);
+
         $this->statement = $statement;
     }
 
@@ -60,10 +61,5 @@ final class Statement implements StatementInterface
     public function bindValue($param, $value, int $type = ParameterType::STRING): void
     {
         $this->bindParam($param, $value, $type);
-    }
-
-    public function execute(?array $params = null): Result
-    {
-        return $this->statement->execute($params);
     }
 }

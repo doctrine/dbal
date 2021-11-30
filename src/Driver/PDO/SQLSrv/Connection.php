@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 
-use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
-use Doctrine\DBAL\Driver\PDO\Result;
 use PDO;
 
-final class Connection implements ConnectionInterface
+final class Connection extends AbstractConnectionMiddleware
 {
     private PDOConnection $connection;
 
     public function __construct(PDOConnection $connection)
     {
+        parent::__construct($connection);
+
         $this->connection = $connection;
     }
 
@@ -23,49 +24,6 @@ final class Connection implements ConnectionInterface
         return new Statement(
             $this->connection->prepare($sql)
         );
-    }
-
-    public function query(string $sql): Result
-    {
-        return $this->connection->query($sql);
-    }
-
-    public function quote(string $value): string
-    {
-        return $this->connection->quote($value);
-    }
-
-    public function exec(string $sql): int
-    {
-        return $this->connection->exec($sql);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function lastInsertId()
-    {
-        return $this->connection->lastInsertId();
-    }
-
-    public function beginTransaction(): void
-    {
-        $this->connection->beginTransaction();
-    }
-
-    public function commit(): void
-    {
-        $this->connection->commit();
-    }
-
-    public function rollBack(): void
-    {
-        $this->connection->rollBack();
-    }
-
-    public function getServerVersion(): string
-    {
-        return $this->connection->getServerVersion();
     }
 
     public function getNativeConnection(): PDO
