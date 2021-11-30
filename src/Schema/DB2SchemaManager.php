@@ -4,10 +4,13 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
+use function assert;
+use function implode;
 use function preg_match;
 use function str_replace;
 use function strpos;
@@ -234,16 +237,287 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     public function listTableDetails($name): Table
     {
-        $table = parent::listTableDetails($name);
+        $currentDatabase = $this->_conn->getDatabase();
 
-        $sql = $this->_platform->getListTableCommentsSQL($name);
+        assert($currentDatabase !== null);
 
-        $tableOptions = $this->_conn->fetchAssociative($sql);
+        $options = [];
+        $comment = $this->selectDatabaseTableComments($currentDatabase, $name)
+            ->fetchOne();
 
-        if ($tableOptions !== false) {
-            $table->addOption('comment', $tableOptions['REMARKS']);
+        if ($comment !== false) {
+            $options['comment'] = $comment;
         }
 
-        return $table;
+        return new Table(
+            $name,
+            $this->_getPortableTableColumnList(
+                $name,
+                $currentDatabase,
+                $this->selectDatabaseColumns($currentDatabase, $name)
+                    ->fetchAllAssociative()
+            ),
+            $this->_getPortableTableIndexesList(
+                $this->selectDatabaseIndexes($currentDatabase, $name)
+                    ->fetchAllAssociative(),
+                $name
+            ),
+            [],
+            $this->_getPortableTableForeignKeysList(
+                $this->selectDatabaseForeignKeys($currentDatabase, $name)
+                    ->fetchAllAssociative()
+            ),
+            $options
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listTables()
+    {
+        $currentDatabase = $this->_conn->getDatabase();
+
+        assert($currentDatabase !== null);
+
+        /** @var array<string,list<array<string,mixed>>> $columns */
+        $columns = $this->selectDatabaseColumns($currentDatabase)
+            ->fetchAllAssociativeGrouped();
+
+        $indexes = $this->selectDatabaseIndexes($currentDatabase)
+            ->fetchAllAssociativeGrouped();
+
+        $foreignKeys = $this->selectDatabaseForeignKeys($currentDatabase)
+            ->fetchAllAssociativeGrouped();
+
+        $comments = $this->selectDatabaseTableComments($currentDatabase)
+            ->fetchAllKeyValue();
+
+        $tables = [];
+
+        foreach ($columns as $tableName => $tableColumns) {
+            $options = [];
+
+            if (isset($comments[$tableName])) {
+                $options['comment'] = $comments[$tableName];
+            }
+
+            $tables[] = new Table(
+                $tableName,
+                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
+                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
+                [],
+                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
+                $options
+            );
+        }
+
+        return $tables;
+    }
+
+    /**
+     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    {
+        // We do the funky subquery and join syscat.columns.default this crazy way because
+        // as of db2 v10, the column is CLOB(64k) and the distinct operator won't allow a CLOB,
+        // it wants shorter stuff like a varchar.
+
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' SUBQ.TABNAME,';
+        }
+
+        $sql .= <<<'SQL'
+             COLS.DEFAULT,
+             SUBQ.*
+        FROM (
+               SELECT DISTINCT
+                 C.TABSCHEMA,
+                 C.TABNAME,
+                 C.COLNAME,
+                 C.COLNO,
+                 C.TYPENAME,
+                 C.CODEPAGE,
+                 C.NULLS,
+                 C.LENGTH,
+                 C.SCALE,
+                 C.IDENTITY,
+                 TC.TYPE AS TABCONSTTYPE,
+                 C.REMARKS AS COMMENT,
+                 K.COLSEQ,
+                 CASE
+                 WHEN C.GENERATED = 'D' THEN 1
+                 ELSE 0
+                 END     AS AUTOINCREMENT
+               FROM SYSCAT.COLUMNS C
+               JOIN SYSCAT.TABLES AS T
+                 ON C.TABSCHEMA = T.TABSCHEMA AND C.TABNAME = T.TABNAME
+          LEFT JOIN (SYSCAT.KEYCOLUSE K
+                       JOIN SYSCAT.TABCONST TC
+                         ON (K.TABSCHEMA = TC.TABSCHEMA AND K.TABNAME = TC.TABNAME AND TC.TYPE = 'P')
+                    )
+                 ON (C.TABSCHEMA = K.TABSCHEMA AND C.TABNAME = K.TABNAME AND C.COLNAME = K.COLNAME)
+SQL;
+
+        $conditions = ['T.TYPE = \'T\'', 'T.TABSCHEMA <> \'SYSIBMTS\'', 'T.OWNER = ?'];
+        $params     = [$databaseName];
+
+        if ($tableName !== null) {
+            $conditions[] = 'UPPER(c.tabname) = UPPER(?)';
+            $params[]     = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+
+        $sql .= <<<'SQL'
+               ORDER BY C.COLNO
+             ) SUBQ
+          JOIN SYSCAT.COLUMNS COLS
+            ON SUBQ.TABSCHEMA = COLS.TABSCHEMA
+               AND SUBQ.TABNAME = COLS.TABNAME
+               AND SUBQ.COLNO = COLS.COLNO
+        ORDER BY SUBQ.COLNO
+SQL;
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' IDX.TABNAME,';
+        }
+
+        $sql .= <<<'SQL'
+             IDX.INDNAME AS KEY_NAME,
+             IDXCOL.COLNAME AS COLUMN_NAME,
+             CASE
+                 WHEN IDX.UNIQUERULE = 'P' THEN 1
+                 ELSE 0
+             END AS PRIMARY,
+             CASE
+                 WHEN IDX.UNIQUERULE = 'D' THEN 1
+                 ELSE 0
+             END AS NON_UNIQUE
+        FROM SYSCAT.INDEXES AS IDX
+        JOIN SYSCAT.TABLES AS T
+          ON IDX.TABSCHEMA = T.TABSCHEMA AND IDX.TABNAME = T.TABNAME
+        JOIN SYSCAT.INDEXCOLUSE AS IDXCOL
+          ON IDX.INDSCHEMA = IDXCOL.INDSCHEMA AND IDX.INDNAME = IDXCOL.INDNAME
+SQL;
+
+        $conditions = ['T.TYPE = \'T\'', 'T.TABSCHEMA <> \'SYSIBMTS\'', 'T.OWNER = ?'];
+        $params     = [$databaseName];
+
+        if ($tableName !== null) {
+            $conditions[] = 'UPPER(T.TABNAME) = UPPER(?)';
+            $params[]     = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+
+        $sql .= ' ORDER BY IDX.INDNAME, IDXCOL.COLSEQ ASC';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
+     * narrows down the selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' FK.REFTABNAME,';
+        }
+
+        $sql .= <<<'SQL'
+             FKCOL.COLNAME AS LOCAL_COLUMN,
+             FK.REFTABNAME AS FOREIGN_TABLE,
+             PKCOL.COLNAME AS FOREIGN_COLUMN,
+             FK.CONSTNAME AS INDEX_NAME,
+             CASE
+                 WHEN FK.UPDATERULE = 'R' THEN 'RESTRICT'
+                 ELSE NULL
+             END AS ON_UPDATE,
+             CASE
+                 WHEN FK.DELETERULE = 'C' THEN 'CASCADE'
+                 WHEN FK.DELETERULE = 'N' THEN 'SET NULL'
+                 WHEN FK.DELETERULE = 'R' THEN 'RESTRICT'
+                 ELSE NULL
+             END AS ON_DELETE
+        FROM SYSCAT.REFERENCES AS FK
+        JOIN SYSCAT.TABLES AS T
+          ON FK.TABSCHEMA = T.TABSCHEMA AND FK.TABNAME = T.TABNAME
+        JOIN SYSCAT.KEYCOLUSE AS FKCOL
+          ON FK.CONSTNAME = FKCOL.CONSTNAME AND FK.TABSCHEMA = FKCOL.TABSCHEMA AND FK.TABNAME = FKCOL.TABNAME
+        JOIN SYSCAT.KEYCOLUSE AS PKCOL
+          ON FK.REFKEYNAME = PKCOL.CONSTNAME AND FK.REFTABSCHEMA = PKCOL.TABSCHEMA AND FK.REFTABNAME = PKCOL.TABNAME
+SQL;
+
+        $conditions = ['T.TYPE = \'T\'', 'T.TABSCHEMA <> \'SYSIBMTS\'', 'T.OWNER = ?'];
+        $params     = [$databaseName];
+
+        if ($tableName !== null) {
+            $conditions[] = 'UPPER(T.TABNAME) = UPPER(?)';
+            $params[]     = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+
+        $sql .= ' ORDER BY FK.CONSTNAME, FKCOL.COLSEQ ASC';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * Selects comments of the tables in the specified database. If the table name is specified, narrows down the
+     * selection to this table.
+     *
+     * @throws Exception
+     */
+    private function selectDatabaseTableComments(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' NAME,';
+        }
+
+        $sql .= ' REMARKS';
+
+        $conditions = [];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = 'NAME = UPPER(?)';
+            $params[]     = $tableName;
+        }
+
+        $sql .= ' FROM SYSIBM.SYSTABLES';
+
+        if ($conditions !== []) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
+        return $this->_conn->executeQuery($sql, $params);
     }
 }
