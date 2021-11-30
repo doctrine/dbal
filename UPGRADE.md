@@ -8,6 +8,19 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated platform "commented type" API
+
+Since `Type::requiresSQLCommentTypeHint()` already allows determining whether a
+type should result in SQL columns with a type hint in their comments, the
+following methods are deprecated:
+
+- `AbstractPlatform::isCommentedDoctrineType()`
+- `AbstractPlatform::initializeCommentedDoctrineTypes()`
+- `AbstractPlatform::markDoctrineTypeCommented()`
+
+The protected property `AbstractPlatform::$doctrineTypeComments` is deprecated
+as well.
+
 ## Deprecated support for Postgres 9
 
 Postgres 9 won't be actively supported in DBAL 4. Consider upgrading to Postgres 10 or later.
