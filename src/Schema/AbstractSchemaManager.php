@@ -122,7 +122,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of all namespaces in the current database.
      *
-     * @deprecated Use {@link listSchemaNames()} instead.
+     * @deprecated Use {@see listSchemaNames()} instead.
      *
      * @return string[]
      *
@@ -432,7 +432,7 @@ abstract class AbstractSchemaManager
     /**
      * Drops the constraint from the given table.
      *
-     * @deprecated Use {@link dropIndex()}, {@link dropForeignKey()} or {@link dropUniqueConstraint()} instead.
+     * @deprecated Use {@see dropIndex()}, {@see dropForeignKey()} or {@see dropUniqueConstraint()} instead.
      *
      * @param Table|string $table The name of the table.
      *
@@ -544,7 +544,7 @@ abstract class AbstractSchemaManager
     /**
      * Creates a constraint on a table.
      *
-     * @deprecated Use {@link createIndex()}, {@link createForeignKey()} or {@link createUniqueConstraint()} instead.
+     * @deprecated Use {@see createIndex()}, {@see createForeignKey()} or {@see createUniqueConstraint()} instead.
      *
      * @param Table|string $table
      *
@@ -613,9 +613,9 @@ abstract class AbstractSchemaManager
     /**
      * Drops and creates a constraint.
      *
-     * @deprecated Use {@link dropIndex()} and {@link createIndex()},
-     *             {@link dropForeignKey()} and {@link createForeignKey()}
-     *             or {@link dropUniqueConstraint()} and {@link createUniqueConstraint()} instead.
+     * @deprecated Use {@see dropIndex()} and {@see createIndex()},
+     *             {@see dropForeignKey()} and {@see createForeignKey()}
+     *             or {@see dropUniqueConstraint()} and {@see createUniqueConstraint()} instead.
      *
      * @see dropConstraint()
      * @see createConstraint()
@@ -645,7 +645,7 @@ abstract class AbstractSchemaManager
     /**
      * Drops and creates a new index on a table.
      *
-     * @deprecated Use {@link dropIndex()} and {@link createIndex()} instead.
+     * @deprecated Use {@see dropIndex()} and {@see createIndex()} instead.
      *
      * @param Table|string $table The name of the table on which the index is to be created.
      *
@@ -669,7 +669,7 @@ abstract class AbstractSchemaManager
     /**
      * Drops and creates a new foreign key.
      *
-     * @deprecated Use {@link dropForeignKey()} and {@link createForeignKey()} instead.
+     * @deprecated Use {@see dropForeignKey()} and {@see createForeignKey()} instead.
      *
      * @param ForeignKeyConstraint $foreignKey An associative array that defines properties
      *                                         of the foreign key to be created.
@@ -695,7 +695,7 @@ abstract class AbstractSchemaManager
     /**
      * Drops and create a new sequence.
      *
-     * @deprecated Use {@link dropSequence()} and {@link createSequence()} instead.
+     * @deprecated Use {@see dropSequence()} and {@see createSequence()} instead.
      *
      * @return void
      *
@@ -717,7 +717,7 @@ abstract class AbstractSchemaManager
     /**
      * Drops and creates a new table.
      *
-     * @deprecated Use {@link dropTable()} and {@link createTable()} instead.
+     * @deprecated Use {@see dropTable()} and {@see createTable()} instead.
      *
      * @return void
      *
@@ -739,7 +739,7 @@ abstract class AbstractSchemaManager
     /**
      * Drops and creates a new database.
      *
-     * @deprecated Use {@link dropDatabase()} and {@link createDatabase()} instead.
+     * @deprecated Use {@see dropDatabase()} and {@see createDatabase()} instead.
      *
      * @param string $database The name of the database to create.
      *
@@ -763,7 +763,7 @@ abstract class AbstractSchemaManager
     /**
      * Drops and creates a new view.
      *
-     * @deprecated Use {@link dropView()} and {@link createView()} instead.
+     * @deprecated Use {@see dropView()} and {@see createView()} instead.
      *
      * @return void
      *
@@ -861,7 +861,7 @@ abstract class AbstractSchemaManager
     /**
      * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @deprecated Use {@link listSchemaNames()} instead.
+     * @deprecated Use {@see listSchemaNames()} instead.
      *
      * @param array<int, array<string, mixed>> $namespaces The list of namespace names
      *                                                     in the native DBMS data definition.
@@ -899,7 +899,7 @@ abstract class AbstractSchemaManager
     /**
      * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @deprecated Use {@link listSchemaNames()} instead.
+     * @deprecated Use {@see listSchemaNames()} instead.
      *
      * @param array<string, mixed> $namespace The native DBMS namespace definition.
      *

@@ -227,7 +227,7 @@ SQL
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use {@link listSchemaNames()} instead.
+     * @deprecated Use {@see listSchemaNames()} instead.
      */
     protected function getPortableNamespaceDefinition(array $namespace)
     {

@@ -72,7 +72,7 @@ class Connection
     protected $_eventManager;
 
     /**
-     * @deprecated Use {@link createExpressionBuilder()} instead.
+     * @deprecated Use {@see createExpressionBuilder()} instead.
      *
      * @var ExpressionBuilder
      */
@@ -131,7 +131,7 @@ class Connection
     /**
      * The schema manager.
      *
-     * @deprecated Use {@link createSchemaManager()} instead.
+     * @deprecated Use {@see createSchemaManager()} instead.
      *
      * @var AbstractSchemaManager|null
      */
@@ -291,7 +291,7 @@ class Connection
     /**
      * Gets the ExpressionBuilder for the connection.
      *
-     * @deprecated Use {@link createExpressionBuilder()} instead.
+     * @deprecated Use {@see createExpressionBuilder()} instead.
      *
      * @return ExpressionBuilder
      */
@@ -785,7 +785,7 @@ class Connection
 
     /**
      * The usage of this method is discouraged. Use prepared statements
-     * or {@link AbstractPlatform::quoteStringLiteral()} instead.
+     * or {@see AbstractPlatform::quoteStringLiteral()} instead.
      *
      * @param mixed                $value
      * @param int|string|Type|null $type
@@ -1528,7 +1528,7 @@ class Connection
      * Gets the SchemaManager that can be used to inspect or change the
      * database schema through the connection.
      *
-     * @deprecated Use {@link createSchemaManager()} instead.
+     * @deprecated Use {@see createSchemaManager()} instead.
      *
      * @return AbstractSchemaManager
      *

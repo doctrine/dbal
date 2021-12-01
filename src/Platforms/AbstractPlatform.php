@@ -634,7 +634,7 @@ abstract class AbstractPlatform
     /**
      * Gets all SQL wildcard characters of the platform.
      *
-     * @deprecated Use {@link AbstractPlatform::getLikeWildcardCharacters()} instead.
+     * @deprecated Use {@see AbstractPlatform::getLikeWildcardCharacters()} instead.
      *
      * @return string[]
      */
@@ -1657,7 +1657,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to drop a constraint.
      *
-     * @internal The method should be only used from within the {@link AbstractPlatform} class hierarchy.
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      *
      * @param Constraint|string $constraint
      * @param Table|string      $table
@@ -1980,8 +1980,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to create a constraint on a table on this platform.
      *
-     * @deprecated Use {@link getCreateIndexSQL()}, {@link getCreateForeignKeySQL()}
-     *             or {@link getCreateUniqueConstraintSQL()} instead.
+     * @deprecated Use {@see getCreateIndexSQL()}, {@see getCreateForeignKeySQL()}
+     *             or {@see getCreateUniqueConstraintSQL()} instead.
      *
      * @param Table|string $table
      *
@@ -3028,7 +3028,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL statement for retrieving the namespaces defined in the database.
      *
-     * @deprecated Use {@link AbstractSchemaManager::listSchemaNames()} instead.
+     * @deprecated Use {@see AbstractSchemaManager::listSchemaNames()} instead.
      *
      * @return string
      *
@@ -3511,7 +3511,7 @@ abstract class AbstractPlatform
      * @deprecated
      *
      * Platforms that either support or emulate schemas don't automatically
-     * filter a schema for the namespaced elements in {@link AbstractManager::createSchema()}.
+     * filter a schema for the namespaced elements in {@see AbstractManager::createSchema()}.
      *
      * @return bool
      */
@@ -3879,7 +3879,7 @@ abstract class AbstractPlatform
     /**
      * Returns the class name of the reserved keywords list.
      *
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     * @deprecated Implement {@see createReservedKeywordsList()} instead.
      *
      * @return string
      * @psalm-return class-string<KeywordList>

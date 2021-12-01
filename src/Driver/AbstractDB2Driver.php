@@ -13,7 +13,7 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
 use function assert;
 
 /**
- * Abstract base implementation of the {@link Driver} interface for IBM DB2 based drivers.
+ * Abstract base implementation of the {@see Driver} interface for IBM DB2 based drivers.
  */
 abstract class AbstractDB2Driver implements Driver
 {

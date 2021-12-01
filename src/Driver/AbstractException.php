@@ -8,7 +8,7 @@ use Exception as BaseException;
 use Throwable;
 
 /**
- * Base implementation of the {@link Exception} interface.
+ * Base implementation of the {@see Exception} interface.
  *
  * @internal
  *

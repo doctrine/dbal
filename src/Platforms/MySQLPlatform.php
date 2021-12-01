@@ -1099,7 +1099,7 @@ SQL
     /**
      * {@inheritDoc}
      *
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     * @deprecated Implement {@see createReservedKeywordsList()} instead.
      */
     protected function getReservedKeywordsClass()
     {

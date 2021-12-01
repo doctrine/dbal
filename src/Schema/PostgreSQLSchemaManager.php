@@ -40,7 +40,7 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
     /**
      * Gets all the existing schema names.
      *
-     * @deprecated Use {@link listSchemaNames()} instead.
+     * @deprecated Use {@see listSchemaNames()} instead.
      *
      * @return string[]
      *
@@ -312,7 +312,7 @@ SQL
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use {@link listSchemaNames()} instead.
+     * @deprecated Use {@see listSchemaNames()} instead.
      */
     protected function getPortableNamespaceDefinition(array $namespace)
     {

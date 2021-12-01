@@ -17,7 +17,7 @@ use function preg_match;
 use function version_compare;
 
 /**
- * Abstract base implementation of the {@link Driver} interface for PostgreSQL based drivers.
+ * Abstract base implementation of the {@see Driver} interface for PostgreSQL based drivers.
  */
 abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
 {

@@ -111,7 +111,7 @@ abstract class AbstractAsset
      * Every non-namespaced element is prefixed with the default namespace
      * name which is passed as argument to this method.
      *
-     * @deprecated Use {@link getNamespaceName()} and {@link getName()} instead.
+     * @deprecated Use {@see getNamespaceName()} and {@see getName()} instead.
      *
      * @param string $defaultNamespaceName
      *

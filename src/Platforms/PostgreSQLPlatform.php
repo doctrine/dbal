@@ -237,7 +237,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * @deprecated Use {@link PostgreSQLSchemaManager::listSchemaNames()} instead.
+     * @deprecated Use {@see PostgreSQLSchemaManager::listSchemaNames()} instead.
      */
     public function getListNamespacesSQL()
     {
@@ -615,7 +615,7 @@ SQL
      * Checks whether a given column diff is a logically unchanged binary type column.
      *
      * Used to determine whether a column alteration for a binary type column can be skipped.
-     * Doctrine's {@link BinaryType} and {@link BlobType} are mapped to the same database column type on this platform
+     * Doctrine's {@see BinaryType} and {@see BlobType} are mapped to the same database column type on this platform
      * as this platform does not have a native VARBINARY/BINARY column type. Therefore the comparator
      * might detect differences for binary type columns which do not have to be propagated
      * to database as there actually is no difference at database level.
@@ -1161,7 +1161,7 @@ SQL
     /**
      * {@inheritDoc}
      *
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     * @deprecated Implement {@see createReservedKeywordsList()} instead.
      */
     protected function getReservedKeywordsClass()
     {

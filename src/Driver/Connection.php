@@ -28,7 +28,7 @@ interface Connection
      * Quotes a string for use in a query.
      *
      * The usage of this method is discouraged. Use prepared statements
-     * or {@link AbstractPlatform::quoteStringLiteral()} instead.
+     * or {@see AbstractPlatform::quoteStringLiteral()} instead.
      *
      * @param mixed $value
      * @param int   $type
