@@ -59,8 +59,10 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
+                <referencedClass name="Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL100Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL94Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\SQLServer2012Platform"/>
                 <!--

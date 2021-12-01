@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 use function preg_match;
@@ -41,6 +42,13 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
         if (version_compare($version, '10.0', '>=')) {
             return new PostgreSQL100Platform();
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5060',
+            'PostgreSQL 9 support is deprecated and will be removed in DBAL 4.'
+                . ' Consider upgrading to Postgres 10 or later.'
+        );
 
         return new PostgreSQL94Platform();
     }
