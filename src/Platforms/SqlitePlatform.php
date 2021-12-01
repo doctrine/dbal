@@ -474,6 +474,8 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableIndexesSQL($table, $database = null)
@@ -868,6 +870,8 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string      $table
      * @param string|null $database
      *

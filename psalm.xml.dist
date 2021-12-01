@@ -214,9 +214,17 @@
                 <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableForeignKeysSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableIndexesSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getListTableCommentsSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableMetadataSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableColumnsSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableIndexesSQL"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

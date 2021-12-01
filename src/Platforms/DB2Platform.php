@@ -347,6 +347,8 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableIndexesSQL($table, $database = null)
@@ -371,6 +373,8 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableForeignKeysSQL($table)
@@ -895,6 +899,9 @@ class DB2Platform extends AbstractPlatform
         return Keywords\DB2Keywords::class;
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableCommentsSQL(string $table): string
     {
         return sprintf(

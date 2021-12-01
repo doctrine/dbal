@@ -294,6 +294,8 @@ class PostgreSQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string      $table
      * @param string|null $database
      *
@@ -340,6 +342,8 @@ SQL
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
@@ -1262,6 +1266,9 @@ SQL
         return $columnDiff->fromColumn !== null ? $this->getColumnComment($columnDiff->fromColumn) : null;
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableMetadataSQL(string $table, ?string $schema = null): string
     {
         if ($schema !== null) {
