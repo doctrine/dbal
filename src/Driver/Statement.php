@@ -18,7 +18,7 @@ interface Statement
      * As mentioned above, the named parameters are not natively supported by the mysqli driver, use executeQuery(),
      * fetchAll(), fetchArray(), fetchColumn(), fetchAssoc() methods to have the named parameter emulated by doctrine.
      *
-     * @param string|int $param Parameter identifier. For a prepared statement using named placeholders,
+     * @param int|string $param Parameter identifier. For a prepared statement using named placeholders,
      *                          this will be a parameter name of the form :name. For a prepared statement
      *                          using question mark placeholders, this will be the 1-indexed position of the parameter.
      * @param mixed      $value The value to bind to the parameter.
@@ -27,7 +27,7 @@ interface Statement
      *
      * @throws Exception
      */
-    public function bindValue($param, $value, int $type = ParameterType::STRING): void;
+    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void;
 
     /**
      * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
@@ -43,7 +43,7 @@ interface Statement
      * of stored procedures that return data as output parameters, and some also as input/output
      * parameters that both send in data and are updated to receive it.
      *
-     * @param string|int $param    Parameter identifier. For a prepared statement using named placeholders,
+     * @param int|string $param    Parameter identifier. For a prepared statement using named placeholders,
      *                             this will be a parameter name of the form :name. For a prepared statement using
      *                             question mark placeholders, this will be the 1-indexed position of the parameter.
      * @param mixed      $variable The variable to bind to the parameter.
@@ -54,7 +54,12 @@ interface Statement
      *
      * @throws Exception
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void;
+    public function bindParam(
+        int|string $param,
+        mixed &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null
+    ): void;
 
     /**
      * Executes a prepared statement

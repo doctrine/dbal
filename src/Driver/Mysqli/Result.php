@@ -84,10 +84,7 @@ final class Result implements ResultInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         try {
             $ret = $this->statement->fetch();
@@ -112,10 +109,7 @@ final class Result implements ResultInterface
         return $values;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         $values = $this->fetchNumeric();
 
@@ -126,10 +120,7 @@ final class Result implements ResultInterface
         return array_combine($this->columnNames, $values);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }

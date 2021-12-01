@@ -20,18 +20,12 @@ class BooleanType extends Type
         return $platform->getBooleanTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): mixed
     {
         return $platform->convertBooleansToDatabaseValue($value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?bool
     {
         return $platform->convertFromBoolean($value);
     }

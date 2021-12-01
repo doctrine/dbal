@@ -22,7 +22,7 @@ class SerializationFailedTest extends TestCase
         $exception = SerializationFailed::new($value, 'json', json_last_error_msg());
 
         self::assertSame(
-            'Could not convert PHP type "double" to "json". An error was triggered by the serialization: '
+            'Could not convert PHP type "float" to "json". An error was triggered by the serialization: '
                 . 'Inf and NaN cannot be JSON encoded',
             $exception->getMessage()
         );

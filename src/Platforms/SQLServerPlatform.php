@@ -1113,10 +1113,7 @@ class SQLServerPlatform extends AbstractPlatform
         return $query;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function convertBooleans($item)
+    public function convertBooleans(mixed $item): mixed
     {
         if (is_array($item)) {
             foreach ($item as $key => $value) {

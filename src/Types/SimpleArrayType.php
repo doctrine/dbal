@@ -28,10 +28,7 @@ class SimpleArrayType extends Type
         return $platform->getClobTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if (! is_array($value) || count($value) === 0) {
             return null;
@@ -43,7 +40,7 @@ class SimpleArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?array
     {
         if ($value === null) {
             return [];

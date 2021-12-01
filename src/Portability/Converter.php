@@ -56,7 +56,7 @@ final class Converter
      *
      * @return list<mixed>|false
      */
-    public function convertNumeric($row)
+    public function convertNumeric(array|false $row): array|false
     {
         return ($this->convertNumeric)($row);
     }
@@ -66,17 +66,12 @@ final class Converter
      *
      * @return array<string,mixed>|false
      */
-    public function convertAssociative($row)
+    public function convertAssociative(array|false $row): array|false
     {
         return ($this->convertAssociative)($row);
     }
 
-    /**
-     * @param mixed|false $value
-     *
-     * @return mixed|false
-     */
-    public function convertOne($value)
+    public function convertOne(mixed $value): mixed
     {
         return ($this->convertOne)($value);
     }
@@ -118,7 +113,7 @@ final class Converter
      *
      * @template T
      */
-    private static function id($value)
+    private static function id(mixed $value): mixed
     {
         return $value;
     }
@@ -130,7 +125,7 @@ final class Converter
      *
      * @template T
      */
-    private static function convertEmptyStringToNull($value)
+    private static function convertEmptyStringToNull(mixed $value): mixed
     {
         if ($value === '') {
             return null;
@@ -147,7 +142,7 @@ final class Converter
      *
      * @template T
      */
-    private static function rightTrimString($value)
+    private static function rightTrimString(mixed $value): mixed
     {
         if (! is_string($value)) {
             return $value;
@@ -224,7 +219,7 @@ final class Converter
                 *
                 * @template T
                 */
-            static function ($value) use ($function) {
+            static function (mixed $value) use ($function): mixed {
                 if ($value === false) {
                     return false;
                 }
@@ -256,9 +251,7 @@ final class Converter
      */
     private function createMapper(callable $function): callable
     {
-        return static function (array $array) use ($function): array {
-            return array_map($function, $array);
-        };
+        return static fn (array $array): array => array_map($function, $array);
     }
 
     /**
@@ -284,9 +277,7 @@ final class Converter
                     *
                     * @template T
                     */
-                static function ($value) use ($carry, $item) {
-                    return $item($carry($value));
-                };
+                static fn (mixed $value): mixed => $item($carry($value));
         });
     }
 }

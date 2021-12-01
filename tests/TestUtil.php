@@ -162,7 +162,7 @@ class TestUtil
 
         $evm = $conn->getEventManager();
 
-        /** @psalm-var class-string<EventSubscriber> $subscriberClass */
+        /** @var class-string<EventSubscriber> $subscriberClass */
         foreach (explode(',', $GLOBALS['db_event_subscribers']) as $subscriberClass) {
             $subscriberInstance = new $subscriberClass();
             $evm->addEventSubscriber($subscriberInstance);

@@ -33,21 +33,19 @@ final class Statement extends AbstractStatementMiddleware
         $this->sql    = $sql;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
-    {
+    public function bindParam(
+        int|string $param,
+        mixed &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null
+    ): void {
         $this->params[$param] = &$variable;
         $this->types[$param]  = $type;
 
         parent::bindParam($param, $variable, $type, $length);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindValue($param, $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
     {
         $this->params[$param] = $value;
         $this->types[$param]  = $type;

@@ -28,10 +28,7 @@ class TimeType extends Type
         return $platform->getTimeTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
             return $value;
@@ -44,10 +41,7 @@ class TimeType extends Type
         throw InvalidType::new($value, $this->getName(), ['null', 'DateTime']);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeInterface
     {
         if ($value === null || $value instanceof DateTimeInterface) {
             return $value;

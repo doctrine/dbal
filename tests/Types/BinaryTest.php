@@ -106,11 +106,9 @@ class BinaryTest extends TestCase
     }
 
     /**
-     * @param mixed $value
-     *
      * @dataProvider getInvalidDatabaseValues
      */
-    public function testThrowsConversionExceptionOnInvalidDatabaseValue($value): void
+    public function testThrowsConversionExceptionOnInvalidDatabaseValue(mixed $value): void
     {
         $this->expectException(ConversionException::class);
 

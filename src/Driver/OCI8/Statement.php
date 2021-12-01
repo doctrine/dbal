@@ -50,19 +50,17 @@ final class Statement implements StatementInterface
         $this->executionMode = $executionMode;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindValue($param, $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
     {
         $this->bindParam($param, $value, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
-    {
+    public function bindParam(
+        int|string $param,
+        mixed &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null
+    ): void {
         if (is_int($param)) {
             if (! isset($this->parameterMap[$param])) {
                 throw UnknownParameterIndex::new($param);

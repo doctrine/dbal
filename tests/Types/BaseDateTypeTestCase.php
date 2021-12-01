@@ -42,11 +42,9 @@ abstract class BaseDateTypeTestCase extends TestCase
     }
 
     /**
-     * @param mixed $value
-     *
      * @dataProvider invalidPHPValuesProvider
      */
-    public function testInvalidTypeConversionToDatabaseValue($value): void
+    public function testInvalidTypeConversionToDatabaseValue(mixed $value): void
     {
         $this->expectException(ConversionException::class);
 

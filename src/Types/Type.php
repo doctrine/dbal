@@ -9,7 +9,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use function array_map;
-use function get_class;
 
 /**
  * The base class for so-called Doctrine mapping types.
@@ -69,7 +68,7 @@ abstract class Type
      *
      * @throws ConversionException
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): mixed
     {
         return $value;
     }
@@ -85,7 +84,7 @@ abstract class Type
      *
      * @throws ConversionException
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
     {
         return $value;
     }
@@ -198,7 +197,7 @@ abstract class Type
     {
         return array_map(
             static function (Type $type): string {
-                return get_class($type);
+                return $type::class;
             },
             self::getTypeRegistry()->getMap()
         );

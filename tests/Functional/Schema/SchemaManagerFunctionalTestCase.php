@@ -43,7 +43,7 @@ use function array_shift;
 use function array_values;
 use function count;
 use function current;
-use function get_class;
+use function get_debug_type;
 use function sprintf;
 use function strcasecmp;
 use function strtolower;
@@ -59,7 +59,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $this->supportsPlatform($platform)) {
-            self::markTestSkipped(sprintf('Skipping since connected to %s', get_class($platform)));
+            self::markTestSkipped(sprintf('Skipping since connected to %s', get_debug_type($platform)));
         }
 
         $this->schemaManager = $this->connection->createSchemaManager();

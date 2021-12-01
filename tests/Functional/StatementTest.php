@@ -19,7 +19,7 @@ use Doctrine\DBAL\Types\Type;
 use Error;
 
 use function base64_decode;
-use function get_class;
+use function get_debug_type;
 use function sprintf;
 use function stream_get_contents;
 
@@ -237,11 +237,9 @@ EOF
     }
 
     /**
-     * @param mixed $expected
-     *
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromExecutedStatementWithFreedResult(callable $fetch, $expected): void
+    public function testFetchFromExecutedStatementWithFreedResult(callable $fetch, mixed $expected): void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
 
@@ -271,27 +269,21 @@ EOF
     {
         return [
             'fetch' => [
-                /**
-                 * @return mixed
-                 */
-                static function (Result $result) {
+                static function (Result $result): array|false {
                     return $result->fetchAssociative();
                 },
                 false,
             ],
-            /**
-             * @return mixed|false
-             */
             'fetch-column' => [
-                static function (Result $result) {
+                static function (Result $result): mixed {
                     return $result->fetchOne();
                 },
                 false,
             ],
-            /**
-             * @return mixed[]
-             */
             'fetch-all' => [
+                /**
+                 * @return mixed[]
+                 */
                 static function (Result $result): array {
                     return $result->fetchAllAssociative();
                 },
@@ -330,7 +322,7 @@ EOF
         ) {
             self::markTestSkipped(sprintf(
                 'The underlying implementation of the "%s" driver does not report redundant parameters',
-                get_class($driver)
+                get_debug_type($driver)
             ));
         }
 

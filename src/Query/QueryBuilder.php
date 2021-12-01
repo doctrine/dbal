@@ -140,10 +140,8 @@ class QueryBuilder
 
     /**
      * The WHERE part of a SELECT, UPDATE or DELETE query.
-     *
-     * @var string|CompositeExpression|null
      */
-    private $where;
+    private string|CompositeExpression|null $where = null;
 
     /**
      * The GROUP BY part of a SELECT query.
@@ -154,10 +152,8 @@ class QueryBuilder
 
     /**
      * The HAVING part of a SELECT query.
-     *
-     * @var string|CompositeExpression|null
      */
-    private $having;
+    private string|CompositeExpression|null $having = null;
 
     /**
      * The ORDER BY parts of a SELECT query.
@@ -236,7 +232,7 @@ class QueryBuilder
      *
      * @throws Exception
      */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->connection->fetchAssociative($this->getSQL(), $this->params, $this->paramTypes);
     }
@@ -249,7 +245,7 @@ class QueryBuilder
      *
      * @throws Exception
      */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         return $this->connection->fetchNumeric($this->getSQL(), $this->params, $this->paramTypes);
     }
@@ -262,7 +258,7 @@ class QueryBuilder
      *
      * @throws Exception
      */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return $this->connection->fetchOne($this->getSQL(), $this->params, $this->paramTypes);
     }
@@ -416,7 +412,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function setParameter($key, $value, $type = null): self
+    public function setParameter(int|string $key, mixed $value, int|string|Type|null $type = null): self
     {
         if ($type !== null) {
             $this->paramTypes[$key] = $type;
@@ -471,7 +467,7 @@ class QueryBuilder
      *
      * @return mixed The value of the bound parameter.
      */
-    public function getParameter($key)
+    public function getParameter(string|int $key): mixed
     {
         return $this->params[$key] ?? null;
     }
@@ -494,7 +490,7 @@ class QueryBuilder
      *
      * @return int|string|Type|null The value of the bound parameter type
      */
-    public function getParameterType($key)
+    public function getParameterType(int|string $key): int|string|Type|null
     {
         return $this->paramTypes[$key] ?? null;
     }
@@ -885,7 +881,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function where($predicate, ...$predicates): self
+    public function where(string|CompositeExpression $predicate, string|CompositeExpression ...$predicates): self
     {
         $this->where = $this->createPredicate($predicate, ...$predicates);
 
@@ -913,7 +909,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function andWhere($predicate, ...$predicates): self
+    public function andWhere(string|CompositeExpression $predicate, string|CompositeExpression ...$predicates): self
     {
         $this->where = $this->appendToPredicate(
             $this->where,
@@ -946,7 +942,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orWhere($predicate, ...$predicates): self
+    public function orWhere(string|CompositeExpression $predicate, string|CompositeExpression ...$predicates): self
     {
         $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
 
@@ -1068,7 +1064,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function having($predicate, ...$predicates): self
+    public function having(string|CompositeExpression $predicate, string|CompositeExpression ...$predicates): self
     {
         $this->having = $this->createPredicate($predicate, ...$predicates);
 
@@ -1086,7 +1082,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function andHaving($predicate, ...$predicates): self
+    public function andHaving(string|CompositeExpression $predicate, string|CompositeExpression ...$predicates): self
     {
         $this->having = $this->appendToPredicate(
             $this->having,
@@ -1109,7 +1105,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orHaving($predicate, ...$predicates): self
+    public function orHaving(string|CompositeExpression $predicate, string|CompositeExpression ...$predicates): self
     {
         $this->having = $this->appendToPredicate(
             $this->having,
@@ -1125,14 +1121,11 @@ class QueryBuilder
 
     /**
      * Creates a CompositeExpression from one or more predicates combined by the AND logic.
-     *
-     * @param string|CompositeExpression $predicate
-     * @param string|CompositeExpression ...$predicates
-     *
-     * @return string|CompositeExpression
      */
-    private function createPredicate($predicate, ...$predicates)
-    {
+    private function createPredicate(
+        string|CompositeExpression $predicate,
+        string|CompositeExpression ...$predicates
+    ): string|CompositeExpression {
         if (count($predicates) === 0) {
             return $predicate;
         }
@@ -1142,14 +1135,12 @@ class QueryBuilder
 
     /**
      * Appends the given predicates combined by the given type of logic to the current predicate.
-     *
-     * @param string|CompositeExpression|null $currentPredicate
-     * @param string|CompositeExpression      ...$predicates
-     *
-     * @return string|CompositeExpression
      */
-    private function appendToPredicate($currentPredicate, string $type, ...$predicates)
-    {
+    private function appendToPredicate(
+        string|CompositeExpression|null $currentPredicate,
+        string $type,
+        string|CompositeExpression ...$predicates
+    ): string|CompositeExpression {
         if ($currentPredicate instanceof CompositeExpression && $currentPredicate->getType() === $type) {
             return $currentPredicate->with(...$predicates);
         }
@@ -1376,14 +1367,15 @@ class QueryBuilder
      *
      * @link http://www.zetacomponents.org
      *
-     * @param mixed                $value
-     * @param int|string|Type|null $type
-     * @param string               $placeHolder The name to bind with. The string must start with a colon ':'.
+     * @param string|null $placeHolder The name to bind with. The string must start with a colon ':'.
      *
      * @return string the placeholder name used.
      */
-    public function createNamedParameter($value, $type = ParameterType::STRING, ?string $placeHolder = null): string
-    {
+    public function createNamedParameter(
+        mixed $value,
+        int|string|Type|null $type = ParameterType::STRING,
+        ?string $placeHolder = null
+    ): string {
         if ($placeHolder === null) {
             $this->boundCounter++;
             $placeHolder = ':dcValue' . $this->boundCounter;
@@ -1410,11 +1402,8 @@ class QueryBuilder
      *     ->where('u.username = ' . $qb->createPositionalParameter('Foo', ParameterType::STRING))
      *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', ParameterType::STRING))
      * </code>
-     *
-     * @param mixed                $value
-     * @param int|string|Type|null $type
      */
-    public function createPositionalParameter($value, $type = ParameterType::STRING): string
+    public function createPositionalParameter(mixed $value, int|string|Type|null $type = ParameterType::STRING): string
     {
         $this->setParameter($this->boundCounter, $value, $type);
         $this->boundCounter++;

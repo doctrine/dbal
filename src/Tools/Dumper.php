@@ -18,7 +18,6 @@ use function count;
 use function end;
 use function explode;
 use function extension_loaded;
-use function get_class;
 use function html_entity_decode;
 use function ini_set;
 use function is_array;
@@ -57,7 +56,7 @@ final class Dumper
      * @param mixed $var      The variable to dump.
      * @param int   $maxDepth The maximum nesting level for object properties.
      */
-    public static function dump($var, int $maxDepth = 2): string
+    public static function dump(mixed $var, int $maxDepth = 2): string
     {
         $html = ini_set('html_errors', '1');
         assert(is_string($html));
@@ -81,12 +80,7 @@ final class Dumper
         }
     }
 
-    /**
-     * @param mixed $var
-     *
-     * @return mixed
-     */
-    public static function export($var, int $maxDepth)
+    public static function export(mixed $var, int $maxDepth): mixed
     {
         $isObj = is_object($var);
 
@@ -95,7 +89,7 @@ final class Dumper
         }
 
         if ($maxDepth === 0) {
-            return is_object($var) ? get_class($var)
+            return is_object($var) ? $var::class
                 : (is_array($var) ? 'Array(' . count($var) . ')' : $var);
         }
 
@@ -115,7 +109,7 @@ final class Dumper
 
         $return = new stdClass();
         if ($var instanceof DateTimeInterface) {
-            $return->__CLASS__ = get_class($var);
+            $return->__CLASS__ = $var::class;
             $return->date      = $var->format('c');
             $return->timezone  = $var->getTimezone()->getName();
 
@@ -139,10 +133,8 @@ final class Dumper
     /**
      * Fill the $return variable with class attributes
      * Based on obj2array function from {@see https://secure.php.net/manual/en/function.get-object-vars.php#47075}
-     *
-     * @return mixed
      */
-    private static function fillReturnWithClassAttributes(object $var, stdClass $return, int $maxDepth)
+    private static function fillReturnWithClassAttributes(object $var, stdClass $return, int $maxDepth): mixed
     {
         $clone = (array) $var;
 
@@ -161,7 +153,7 @@ final class Dumper
 
     private static function getClass(object $object): string
     {
-        $class = get_class($object);
+        $class = $object::class;
 
         if (! class_exists(Proxy::class)) {
             return $class;

@@ -10,11 +10,9 @@ namespace Doctrine\DBAL\Driver;
 final class FetchUtils
 {
     /**
-     * @return mixed|false
-     *
      * @throws Exception
      */
-    public static function fetchOne(Result $result)
+    public static function fetchOne(Result $result): mixed
     {
         $row = $result->fetchNumeric();
 

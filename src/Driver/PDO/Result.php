@@ -24,26 +24,17 @@ final class Result implements ResultInterface
         $this->statement = $statement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         return $this->fetch(PDO::FETCH_NUM);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return $this->fetch(PDO::FETCH_COLUMN);
     }
@@ -96,11 +87,9 @@ final class Result implements ResultInterface
     }
 
     /**
-     * @return mixed|false
-     *
      * @throws Exception
      */
-    private function fetch(int $mode)
+    private function fetch(int $mode): mixed
     {
         try {
             return $this->statement->fetch($mode);

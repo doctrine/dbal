@@ -613,11 +613,9 @@ SQL
      * @param mixed    $value    The value to convert.
      * @param callable $callback The callback function to use for converting the real boolean value.
      *
-     * @return mixed
-     *
      * @throws UnexpectedValueException
      */
-    private function convertSingleBooleanValue($value, callable $callback)
+    private function convertSingleBooleanValue(mixed $value, callable $callback): mixed
     {
         if ($value === null) {
             return $callback(null);
@@ -657,10 +655,8 @@ SQL
      *
      * @param mixed    $item     The value(s) to convert.
      * @param callable $callback The callback function to use for converting the real boolean value(s).
-     *
-     * @return mixed
      */
-    private function doConvertBooleans($item, callable $callback)
+    private function doConvertBooleans(mixed $item, callable $callback): mixed
     {
         if (is_array($item)) {
             foreach ($item as $key => $value) {
@@ -678,7 +674,7 @@ SQL
      *
      * Postgres wants boolean values converted to the strings 'true'/'false'.
      */
-    public function convertBooleans($item)
+    public function convertBooleans(mixed $item): mixed
     {
         if (! $this->useBooleanTrueFalseStrings) {
             return parent::convertBooleans($item);
@@ -699,10 +695,7 @@ SQL
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function convertBooleansToDatabaseValue($item)
+    public function convertBooleansToDatabaseValue(mixed $item): mixed
     {
         if (! $this->useBooleanTrueFalseStrings) {
             return parent::convertBooleansToDatabaseValue($item);
@@ -719,10 +712,7 @@ SQL
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function convertFromBoolean($item): ?bool
+    public function convertFromBoolean(mixed $item): ?bool
     {
         if (in_array($item, $this->booleanLiterals['false'], true)) {
             return false;

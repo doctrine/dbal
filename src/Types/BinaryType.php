@@ -25,10 +25,7 @@ class BinaryType extends Type
         return $platform->getBinaryTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
             return null;

@@ -807,7 +807,7 @@ class SqlitePlatform extends AbstractPlatform
      *
      * @throws Exception
      */
-    private function getSimpleAlterTableSQL(TableDiff $diff)
+    private function getSimpleAlterTableSQL(TableDiff $diff): array|false
     {
         // Suppress changes on integer type autoincrement columns.
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {

@@ -42,41 +42,27 @@ class CompositeExpression implements Countable
 
     /**
      * @internal Use the and() / or() factory methods.
-     *
-     * @param self|string $part
-     * @param self|string ...$parts
      */
-    public function __construct(string $type, $part, ...$parts)
+    public function __construct(string $type, self|string $part, self|string ...$parts)
     {
         $this->type  = $type;
         $this->parts = array_merge([$part], array_values($parts));
     }
 
-    /**
-     * @param self|string $part
-     * @param self|string ...$parts
-     */
-    public static function and($part, ...$parts): self
+    public static function and(self|string $part, self|string ...$parts): self
     {
         return new self(self::TYPE_AND, $part, ...$parts);
     }
 
-    /**
-     * @param self|string $part
-     * @param self|string ...$parts
-     */
-    public static function or($part, ...$parts): self
+    public static function or(self|string $part, self|string ...$parts): self
     {
         return new self(self::TYPE_OR, $part, ...$parts);
     }
 
     /**
      * Returns a new CompositeExpression with the given parts added.
-     *
-     * @param self|string $part
-     * @param self|string ...$parts
      */
-    public function with($part, ...$parts): self
+    public function with(self|string $part, self|string ...$parts): self
     {
         $that = clone $this;
 

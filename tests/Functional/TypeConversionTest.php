@@ -44,11 +44,9 @@ class TypeConversionTest extends FunctionalTestCase
     }
 
     /**
-     * @param mixed $originalValue
-     *
      * @dataProvider booleanProvider
      */
-    public function testIdempotentConversionToBoolean(string $type, $originalValue): void
+    public function testIdempotentConversionToBoolean(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
 
@@ -68,11 +66,9 @@ class TypeConversionTest extends FunctionalTestCase
     }
 
     /**
-     * @param mixed $originalValue
-     *
      * @dataProvider integerProvider
      */
-    public function testIdempotentConversionToInteger(string $type, $originalValue): void
+    public function testIdempotentConversionToInteger(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
 
@@ -91,11 +87,9 @@ class TypeConversionTest extends FunctionalTestCase
     }
 
     /**
-     * @param mixed $originalValue
-     *
      * @dataProvider floatProvider
      */
-    public function testIdempotentConversionToFloat(string $type, $originalValue): void
+    public function testIdempotentConversionToFloat(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
 
@@ -114,11 +108,9 @@ class TypeConversionTest extends FunctionalTestCase
     }
 
     /**
-     * @param mixed $originalValue
-     *
      * @dataProvider toStringProvider
      */
-    public function testIdempotentConversionToString(string $type, $originalValue): void
+    public function testIdempotentConversionToString(string $type, mixed $originalValue): void
     {
         if ($type === 'text' && TestUtil::isDriverOneOf('pdo_oci')) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
@@ -144,11 +136,9 @@ class TypeConversionTest extends FunctionalTestCase
     }
 
     /**
-     * @param mixed $originalValue
-     *
      * @dataProvider toArrayProvider
      */
-    public function testIdempotentConversionToArray(string $type, $originalValue): void
+    public function testIdempotentConversionToArray(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
 
@@ -168,11 +158,9 @@ class TypeConversionTest extends FunctionalTestCase
     }
 
     /**
-     * @param mixed $originalValue
-     *
      * @dataProvider toObjectProvider
      */
-    public function testIdempotentConversionToObject(string $type, $originalValue): void
+    public function testIdempotentConversionToObject(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
 
@@ -227,12 +215,7 @@ class TypeConversionTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @param mixed $originalValue
-     *
-     * @return mixed
-     */
-    private function processValue(string $type, $originalValue)
+    private function processValue(string $type, mixed $originalValue): mixed
     {
         $columnName     = 'test_' . $type;
         $typeInstance   = Type::getType($type);

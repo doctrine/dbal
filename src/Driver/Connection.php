@@ -59,7 +59,7 @@ interface Connection extends ServerVersionProvider
      *
      * @throws Exception
      */
-    public function lastInsertId();
+    public function lastInsertId(): int|string;
 
     /**
      * Initiates a transaction.

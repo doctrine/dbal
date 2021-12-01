@@ -38,23 +38,21 @@ class ExpressionBuilder
 
     /**
      * Creates a conjunction of the given expressions.
-     *
-     * @param string|CompositeExpression $expression
-     * @param string|CompositeExpression ...$expressions
      */
-    public function and($expression, ...$expressions): CompositeExpression
-    {
+    public function and(
+        string|CompositeExpression $expression,
+        string|CompositeExpression ...$expressions
+    ): CompositeExpression {
         return CompositeExpression::and($expression, ...$expressions);
     }
 
     /**
      * Creates a disjunction of the given expressions.
-     *
-     * @param string|CompositeExpression $expression
-     * @param string|CompositeExpression ...$expressions
      */
-    public function or($expression, ...$expressions): CompositeExpression
-    {
+    public function or(
+        string|CompositeExpression $expression,
+        string|CompositeExpression ...$expressions
+    ): CompositeExpression {
         return CompositeExpression::or($expression, ...$expressions);
     }
 
@@ -223,7 +221,7 @@ class ExpressionBuilder
      * @param string          $x The SQL expression to be matched against the set.
      * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
      */
-    public function in(string $x, $y): string
+    public function in(string $x, string|array $y): string
     {
         return $this->comparison($x, 'IN', '(' . implode(', ', (array) $y) . ')');
     }
@@ -234,7 +232,7 @@ class ExpressionBuilder
      * @param string          $x The SQL expression to be matched against the set.
      * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
      */
-    public function notIn(string $x, $y): string
+    public function notIn(string $x, string|array $y): string
     {
         return $this->comparison($x, 'NOT IN', '(' . implode(', ', (array) $y) . ')');
     }
