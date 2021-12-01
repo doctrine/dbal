@@ -222,6 +222,9 @@
                 <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableIndexesSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableMetadataSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableMetadataSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableColumnsSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableForeignKeysSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableIndexesSQL"/>
@@ -419,6 +422,13 @@
                 <file name="src/Query/QueryBuilder.php"/>
             </errorLevel>
         </ReferenceConstraintViolation>
+        <!-- Workaround for https://github.com/vimeo/psalm/issues/7026 -->
+        <ReservedWord>
+            <errorLevel type="suppress">
+                <directory name="src"/>
+                <directory name="tests"/>
+            </errorLevel>
+        </ReservedWord>
         <TooManyArguments>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3562 -->

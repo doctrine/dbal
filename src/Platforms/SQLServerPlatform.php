@@ -931,6 +931,8 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string      $table
      * @param string|null $database
      *
@@ -957,6 +959,8 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableIndexesSQL($table, $database = null)
@@ -1604,6 +1608,9 @@ class SQLServerPlatform extends AbstractPlatform
         );
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableMetadataSQL(string $table): string
     {
         return sprintf(
