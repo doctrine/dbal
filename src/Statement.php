@@ -86,7 +86,7 @@ class Statement
      *
      * @throws Exception
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING): void
+    public function bindValue(string|int $param, mixed $value, string|int|Type $type = ParameterType::STRING): void
     {
         $this->params[$param] = $value;
         $this->types[$param]  = $type;
@@ -125,8 +125,12 @@ class Statement
      *
      * @throws Exception
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
-    {
+    public function bindParam(
+        string|int $param,
+        mixed &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null
+    ): void {
         $this->params[$param] = $variable;
         $this->types[$param]  = $type;
 

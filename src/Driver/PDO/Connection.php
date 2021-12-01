@@ -74,10 +74,7 @@ final class Connection implements ConnectionInterface
         return $this->connection->quote($value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function lastInsertId()
+    public function lastInsertId(): int|string
     {
         try {
             $value = $this->connection->lastInsertId();

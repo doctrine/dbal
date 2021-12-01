@@ -29,10 +29,7 @@ class DecimalType extends Type
         return $platform->getDecimalTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?string
     {
         // Some drivers starting from PHP 8.1 can represent decimals as float/int
         // See also: https://github.com/doctrine/dbal/pull/4818

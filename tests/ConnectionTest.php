@@ -519,11 +519,9 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @param mixed $expected
-     *
      * @dataProvider fetchModeProvider
      */
-    public function testFetch(string $method, callable $invoke, $expected): void
+    public function testFetch(string $method, callable $invoke, mixed $expected): void
     {
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = [666];

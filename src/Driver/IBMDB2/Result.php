@@ -30,10 +30,7 @@ final class Result implements ResultInterface
         $this->statement = $statement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         $row = @db2_fetch_array($this->statement);
 
@@ -44,10 +41,7 @@ final class Result implements ResultInterface
         return $row;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         $row = @db2_fetch_assoc($this->statement);
 
@@ -58,10 +52,7 @@ final class Result implements ResultInterface
         return $row;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }

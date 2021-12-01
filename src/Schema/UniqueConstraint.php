@@ -131,10 +131,7 @@ class UniqueConstraint extends AbstractAsset
         return isset($this->options[strtolower($name)]);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getOption(string $name)
+    public function getOption(string $name): mixed
     {
         return $this->options[strtolower($name)];
     }

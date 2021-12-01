@@ -70,10 +70,7 @@ final class Connection implements ConnectionInterface
         return $rowsAffected;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function lastInsertId()
+    public function lastInsertId(): int|string
     {
         $result = $this->query('SELECT @@IDENTITY');
 

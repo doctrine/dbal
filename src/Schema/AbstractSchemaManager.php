@@ -790,7 +790,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    protected function _execSql($sql): void
+    protected function _execSql(array|string $sql): void
     {
         foreach ((array) $sql as $query) {
             $this->_conn->executeStatement($query);

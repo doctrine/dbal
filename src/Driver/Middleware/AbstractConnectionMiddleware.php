@@ -37,10 +37,7 @@ abstract class AbstractConnectionMiddleware implements Connection
         return $this->wrappedConnection->exec($sql);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function lastInsertId()
+    public function lastInsertId(): int|string
     {
         return $this->wrappedConnection->lastInsertId();
     }

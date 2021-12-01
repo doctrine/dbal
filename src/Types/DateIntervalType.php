@@ -34,10 +34,7 @@ class DateIntervalType extends Type
         return $platform->getStringTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
             return null;
@@ -50,10 +47,7 @@ class DateIntervalType extends Type
         throw InvalidType::new($value, $this->getName(), ['null', 'DateInterval']);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateInterval
     {
         if ($value === null || $value instanceof DateInterval) {
             return $value;

@@ -25,10 +25,7 @@ class IntegerType extends Type implements PhpIntegerMappingType
         return $platform->getIntegerTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?int
     {
         return $value === null ? null : (int) $value;
     }

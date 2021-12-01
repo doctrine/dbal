@@ -22,10 +22,7 @@ class TextType extends Type
         return $platform->getClobTypeDeclarationSQL($column);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
     {
         return is_resource($value) ? stream_get_contents($value) : $value;
     }

@@ -23,11 +23,12 @@ final class Statement extends AbstractStatementMiddleware
         $this->statement = $statement;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
-    {
+    public function bindParam(
+        int|string $param,
+        mixed &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null
+    ): void {
         switch ($type) {
             case ParameterType::LARGE_OBJECT:
             case ParameterType::BINARY:
@@ -55,10 +56,7 @@ final class Statement extends AbstractStatementMiddleware
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindValue($param, $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
     {
         $this->bindParam($param, $value, $type);
     }

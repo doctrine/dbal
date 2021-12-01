@@ -20,7 +20,6 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
-use function get_class;
 
 abstract class ComparatorTest extends TestCase
 {
@@ -203,7 +202,7 @@ abstract class ComparatorTest extends TestCase
     public function testCompareColumnsMultipleTypeInstances(): void
     {
         $integerType1 = Type::getType('integer');
-        Type::overrideType('integer', get_class($integerType1));
+        Type::overrideType('integer', $integerType1::class);
         $integerType2 = Type::getType('integer');
 
         $column1 = new Column('integercolumn1', $integerType1);
@@ -217,10 +216,10 @@ abstract class ComparatorTest extends TestCase
         $oldStringInstance = Type::getType('string');
         $integerType       = Type::getType('integer');
 
-        Type::overrideType('string', get_class($integerType));
+        Type::overrideType('string', $integerType::class);
         $overriddenStringType = Type::getType('string');
 
-        Type::overrideType('string', get_class($oldStringInstance));
+        Type::overrideType('string', $oldStringInstance::class);
 
         $column1 = new Column('integercolumn1', $integerType);
         $column2 = new Column('integercolumn1', $overriddenStringType);

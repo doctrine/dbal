@@ -34,10 +34,7 @@ final class Statement implements StatementInterface
         $this->stmt = $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindValue($param, $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
     {
         $type = $this->convertParamType($type);
 
@@ -48,11 +45,12 @@ final class Statement implements StatementInterface
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
-    {
+    public function bindParam(
+        string|int $param,
+        mixed &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null
+    ): void {
         try {
             if ($length === null) {
                 $this->stmt->bindParam($param, $variable, $this->convertParamType($type));
@@ -67,14 +65,15 @@ final class Statement implements StatementInterface
     /**
      * @internal Driver options can be only specified by a PDO-based driver.
      *
-     * @param string|int $param
-     * @param mixed      $variable
-     * @param mixed      $driverOptions
-     *
      * @throws ExceptionInterface
      */
-    public function bindParamWithDriverOptions($param, &$variable, int $type, int $length, $driverOptions): void
-    {
+    public function bindParamWithDriverOptions(
+        string|int $param,
+        mixed &$variable,
+        int $type,
+        int $length,
+        mixed $driverOptions
+    ): void {
         try {
             $this->stmt->bindParam($param, $variable, $this->convertParamType($type), $length, $driverOptions);
         } catch (PDOException $exception) {

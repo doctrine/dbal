@@ -367,10 +367,7 @@ class Table extends AbstractAsset
         return $this->_addForeignKeyConstraint($constraint);
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function addOption(string $name, $value): self
+    public function addOption(string $name, mixed $value): self
     {
         $this->_options[$name] = $value;
 
@@ -608,10 +605,7 @@ class Table extends AbstractAsset
         return isset($this->_options[$name]);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getOption(string $name)
+    public function getOption(string $name): mixed
     {
         return $this->_options[$name];
     }

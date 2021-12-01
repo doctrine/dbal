@@ -105,6 +105,7 @@ class DateTimeImmutableTypeTest extends TestCase
 
         $date = $this->type->convertToPHPValue('2016-01-01 15:58:59.123456', $this->platform);
 
+        self::assertNotNull($date);
         self::assertSame('2016-01-01 15:58:59', $date->format('Y-m-d H:i:s'));
     }
 

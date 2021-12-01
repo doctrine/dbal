@@ -57,21 +57,19 @@ final class Statement implements StatementInterface
         $this->stmt = $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindValue($param, $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
     {
         assert(is_int($param));
 
         $this->bindParam($param, $value, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
-    {
+    public function bindParam(
+        int|string $param,
+        mixed &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null
+    ): void {
         assert(is_int($param));
 
         switch ($type) {
@@ -100,12 +98,9 @@ final class Statement implements StatementInterface
     }
 
     /**
-     * @param int   $position Parameter position
-     * @param mixed $variable
-     *
      * @throws Exception
      */
-    private function bind(int $position, &$variable, int $parameterType, int $dataType): void
+    private function bind(int $position, mixed &$variable, int $parameterType, int $dataType): void
     {
         $this->bindParam[$position] =& $variable;
 

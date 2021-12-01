@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use Throwable;
 
-use function get_class;
-use function gettype;
-use function is_object;
+use function get_debug_type;
 use function sprintf;
 use function tmpfile;
 
@@ -29,11 +27,9 @@ class ConversionExceptionTest extends TestCase
     }
 
     /**
-     * @param mixed $scalarValue
-     *
      * @dataProvider scalarsProvider
      */
-    public function testConversionFailedInvalidTypeWithScalar($scalarValue, string $expected): void
+    public function testConversionFailedInvalidTypeWithScalar(mixed $scalarValue, string $expected): void
     {
         $exception = InvalidType::new($scalarValue, 'foo', ['bar', 'baz']);
 
@@ -44,21 +40,17 @@ class ConversionExceptionTest extends TestCase
     }
 
     /**
-     * @param mixed $nonScalar
-     *
      * @dataProvider nonScalarsProvider
      */
-    public function testConversionFailedInvalidTypeWithNonScalar($nonScalar): void
+    public function testConversionFailedInvalidTypeWithNonScalar(mixed $nonScalar): void
     {
         $exception = InvalidType::new($nonScalar, 'foo', ['bar', 'baz']);
-
-        $type = is_object($nonScalar) ? get_class($nonScalar) : gettype($nonScalar);
 
         self::assertSame(
             sprintf(
                 'Could not convert PHP value of type %s to type foo.'
                     . ' Expected one of the following types: bar, baz.',
-                $type
+                get_debug_type($nonScalar)
             ),
             $exception->getMessage()
         );

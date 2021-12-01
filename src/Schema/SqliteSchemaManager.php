@@ -408,10 +408,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $tableDiff;
     }
 
-    /**
-     * @param string|Table $table
-     */
-    private function ensureTable($table): Table
+    private function ensureTable(string|Table $table): Table
     {
         if (is_string($table)) {
             $table = $this->listTableDetails($table);

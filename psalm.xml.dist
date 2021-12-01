@@ -211,13 +211,6 @@
                 <file name="tests/Functional/Driver/AbstractDriverTest.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
-        <!-- Workaround for https://github.com/vimeo/psalm/issues/7026 -->
-        <ReservedWord>
-            <errorLevel type="suppress">
-                <directory name="src"/>
-                <directory name="tests"/>
-            </errorLevel>
-        </ReservedWord>
         <TypeDoesNotContainNull>
             <errorLevel type="suppress">
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->

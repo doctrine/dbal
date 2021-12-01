@@ -387,7 +387,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function fetchAssociative(string $query, array $params = [], array $types = [])
+    public function fetchAssociative(string $query, array $params = [], array $types = []): array|false
     {
         return $this->executeQuery($query, $params, $types)->fetchAssociative();
     }
@@ -419,7 +419,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function fetchOne(string $query, array $params = [], array $types = [])
+    public function fetchOne(string $query, array $params = [], array $types = []): mixed
     {
         return $this->executeQuery($query, $params, $types)->fetchOne();
     }
@@ -994,7 +994,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function lastInsertId()
+    public function lastInsertId(): int|string
     {
         try {
             return $this->connect()->lastInsertId();
@@ -1017,7 +1017,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Throwable
      */
-    public function transactional(Closure $func)
+    public function transactional(Closure $func): mixed
     {
         $this->beginTransaction();
         try {
@@ -1300,7 +1300,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function convertToDatabaseValue($value, string $type)
+    public function convertToDatabaseValue(mixed $value, string $type): mixed
     {
         return Type::getType($type)->convertToDatabaseValue($value, $this->getDatabasePlatform());
     }
@@ -1316,7 +1316,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function convertToPHPValue($value, string $type)
+    public function convertToPHPValue(mixed $value, string $type): mixed
     {
         return Type::getType($type)->convertToPHPValue($value, $this->getDatabasePlatform());
     }
@@ -1372,7 +1372,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    private function getBindingInfo($value, $type): array
+    private function getBindingInfo(mixed $value, int|string|Type|null $type): array
     {
         if (is_string($type)) {
             $type = Type::getType($type);

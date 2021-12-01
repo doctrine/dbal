@@ -81,10 +81,7 @@ final class Connection implements ConnectionInterface
         return db2_num_rows($stmt);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function lastInsertId()
+    public function lastInsertId(): int|string
     {
         $lastInsertId = db2_last_insert_id($this->connection);
 

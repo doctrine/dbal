@@ -18,11 +18,9 @@ class ComparatorTest extends FunctionalTestCase
     }
 
     /**
-     * @param mixed $value
-     *
      * @dataProvider defaultValueProvider
      */
-    public function testDefaultValueComparison(string $type, $value): void
+    public function testDefaultValueComparison(string $type, mixed $value): void
     {
         $table = new Table('default_value');
         $table->addColumn('test', $type, ['default' => $value]);

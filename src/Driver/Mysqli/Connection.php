@@ -92,10 +92,7 @@ final class Connection implements ConnectionInterface
         return $this->connection->affected_rows;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function lastInsertId()
+    public function lastInsertId(): int|string
     {
         $lastInsertId = $this->connection->insert_id;
 
