@@ -80,6 +80,8 @@ abstract class AbstractPlatform
      * Contains a list of all columns that should generate parseable column comments for type-detection
      * in reverse engineering scenarios.
      *
+     * @deprecated This property is deprecated and will be removed in Doctrine DBAL 4.0.
+     *
      * @var string[]|null
      */
     protected $doctrineTypeComments;
@@ -420,10 +422,19 @@ abstract class AbstractPlatform
     /**
      * Initializes the Doctrine Type comments instance variable for in_array() checks.
      *
+     * @deprecated This API will be removed in Doctrine DBAL 4.0.
+     *
      * @return void
      */
     protected function initializeCommentedDoctrineTypes()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5058',
+            '%s is deprecated and will be removed in Doctrine DBAL 4.0.',
+            __METHOD__
+        );
+
         $this->doctrineTypeComments = [];
 
         foreach (Type::getTypesMap() as $typeName => $className) {
@@ -440,10 +451,19 @@ abstract class AbstractPlatform
     /**
      * Is it necessary for the platform to add a parsable type comment to allow reverse engineering the given type?
      *
+     * @deprecated Use {@link Type::requiresSQLCommentHint()} instead.
+     *
      * @return bool
      */
     public function isCommentedDoctrineType(Type $doctrineType)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5058',
+            '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
+            __METHOD__
+        );
+
         if ($this->doctrineTypeComments === null) {
             $this->initializeCommentedDoctrineTypes();
         }
@@ -462,6 +482,13 @@ abstract class AbstractPlatform
      */
     public function markDoctrineTypeCommented($doctrineType)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5058',
+            '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
+            __METHOD__
+        );
+
         if ($this->doctrineTypeComments === null) {
             $this->initializeCommentedDoctrineTypes();
         }
@@ -490,7 +517,7 @@ abstract class AbstractPlatform
     {
         $comment = $column->getComment();
 
-        if ($this->isCommentedDoctrineType($column->getType())) {
+        if ($column->getType()->requiresSQLCommentHint($this)) {
             $comment .= $this->getDoctrineTypeComment($column->getType());
         }
 
