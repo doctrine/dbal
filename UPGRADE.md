@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 3.2
 
+## Minor BC Break: using cache keys with characters reserved by `psr/cache`
+
+We have been working on phasing out `doctrine/cache`, and 3.2.0 allows to use
+`psr/cache` instead. To help calling our own internal APIs in a unified way, we
+also wrap `doctrine/cache` implementations with a `psr/cache` adapter.
+Using cache keys containing characters reserved by `psr/cache` will result in
+an exception. The characters are the following: `{}()/\@`.
+
 ## Deprecated `SQLLogger` and its implementations.
 
 The `SQLLogger` and its implementations `DebugStack` and `LoggerChain` have been deprecated.
