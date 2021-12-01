@@ -12,7 +12,7 @@ use function func_get_args;
 use function is_array;
 
 /**
- * Event Arguments used when SQL queries for adding table columns are generated inside {@link AbstractPlatform}.
+ * Event Arguments used when SQL queries for adding table columns are generated inside {@see AbstractPlatform}.
  */
 class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
 {

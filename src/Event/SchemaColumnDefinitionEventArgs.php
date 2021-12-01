@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 
 /**
- * Event Arguments used when the portable column definition is generated inside {@link AbstractPlatform}.
+ * Event Arguments used when the portable column definition is generated inside {@see AbstractPlatform}.
  */
 class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
 {

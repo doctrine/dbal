@@ -20,7 +20,7 @@ use function stripos;
 use function version_compare;
 
 /**
- * Abstract base implementation of the {@link Driver} interface for MySQL based drivers.
+ * Abstract base implementation of the {@see Driver} interface for MySQL based drivers.
  */
 abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 {
