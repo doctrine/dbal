@@ -8,6 +8,19 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed Platform "commented type" API
+
+Since `Type::requiresSQLCommentTypeHint()` already allows determining whether a
+type should result in SQL columns with a type hint in their comments, the
+following methods are removed:
+
+- `AbstractPlatform::isCommentedDoctrineType()`
+- `AbstractPlatform::initializeCommentedDoctrineTypes()`
+- `AbstractPlatform::markDoctrineTypeCommented()`
+
+The protected property `AbstractPlatform::$doctrineTypeComments` is removed as
+well.
+
 ## BC BREAK: Removed `Connection::getWrappedConnection()`, `Connection::connect()` made `protected`.
 
 The wrapper-level `Connection::getWrappedConnection()` method has been removed. The `Connection::connect()` method

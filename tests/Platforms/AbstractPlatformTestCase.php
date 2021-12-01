@@ -121,43 +121,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $this->platform->registerDoctrineTypeMapping('foo', 'bar');
     }
 
-    public function testRegistersCommentedDoctrineMappingTypeImplicitly(): void
-    {
-        $type = Type::getType('array');
-        $this->platform->registerDoctrineTypeMapping('foo', 'array');
-
-        self::assertTrue($this->platform->isCommentedDoctrineType($type));
-    }
-
-    /**
-     * @dataProvider getIsCommentedDoctrineType
-     */
-    public function testIsCommentedDoctrineType(Type $type, bool $commented): void
-    {
-        self::assertSame($commented, $this->platform->isCommentedDoctrineType($type));
-    }
-
-    /**
-     * @return mixed[]
-     */
-    public function getIsCommentedDoctrineType(): iterable
-    {
-        $this->setUp();
-
-        $data = [];
-
-        foreach (Type::getTypesMap() as $typeName => $className) {
-            $type = Type::getType($typeName);
-
-            $data[$typeName] = [
-                $type,
-                $type->requiresSQLCommentHint($this->platform),
-            ];
-        }
-
-        return $data;
-    }
-
     public function testCreateWithNoColumns(): void
     {
         $table = new Table('test');
