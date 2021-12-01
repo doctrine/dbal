@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * PostgreSQL 10.0 reserved keywords list.
+ *
+ * @deprecated Use {@link PostgreSQLKeywords} instead.
  */
 class PostgreSQL100Keywords extends PostgreSQL94Keywords
 {
