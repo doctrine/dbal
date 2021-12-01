@@ -20,7 +20,6 @@ use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
-use function strpos;
 use function strtolower;
 use function trim;
 
@@ -328,21 +327,12 @@ SQL
         switch ($dbType) {
             case 'smallint':
             case 'int2':
-                $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
-                $length                 = null;
-                break;
-
             case 'int':
             case 'int4':
             case 'integer':
-                $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
-                $length                 = null;
-                break;
-
             case 'bigint':
             case 'int8':
-                $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
-                $length                 = null;
+                $length = null;
                 break;
 
             case 'bool':
@@ -378,8 +368,6 @@ SQL
             case 'decimal':
             case 'money':
             case 'numeric':
-                $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
-
                 if (
                     preg_match(
                         '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
@@ -440,18 +428,6 @@ SQL
         }
 
         return $column;
-    }
-
-    /**
-     * PostgreSQL 9.4 puts parentheses around negative numeric default values that need to be stripped eventually.
-     */
-    private function fixVersion94NegativeNumericDefaultValue(mixed $defaultValue): mixed
-    {
-        if ($defaultValue !== null && strpos($defaultValue, '(') === 0) {
-            return trim($defaultValue, '()');
-        }
-
-        return $defaultValue;
     }
 
     /**

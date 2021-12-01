@@ -163,7 +163,7 @@ jobs:
         php-version:
           - "8.0"
         postgres-version:
-          - "9.4"
+          - "10"
           - "13"
           - "14"
         include:

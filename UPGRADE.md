@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed active support for Postgres 9
+
+Postgres 9 is not actively supported anymore. The following classes have been merged into their respective parent class:
+
+* `Doctrine\DBAL\Platforms\PostgreSQL100Platform`
+* `Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords`
+
 ## BC BREAK: Removed Platform "commented type" API
 
 Since `Type::requiresSQLCommentTypeHint()` already allows determining whether a
