@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 use function preg_match;
@@ -46,6 +47,13 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
                 return new MySQL57Platform();
             }
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5060',
+            'MySQL 5.6 support is deprecated and will be removed in DBAL 4.'
+                . ' Consider upgrading to MySQL 5.7 or later.'
+        );
 
         return $this->getDatabasePlatform();
     }

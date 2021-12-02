@@ -21,6 +21,14 @@ following methods are deprecated:
 The protected property `AbstractPlatform::$doctrineTypeComments` is deprecated
 as well.
 
+## Deprecated support for MySQL 5.6 and older
+
+MySQL 5.6 and older won't be actively supported in DBAL 4. Consider upgrading to MySQL 5.7 or later.
+The following classes have been deprecated:
+
+* `Doctrine\DBAL\Platforms\MySQL57Platform`
+* `Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords`
+
 ## Deprecated support for Postgres 9
 
 Postgres 9 won't be actively supported in DBAL 4. Consider upgrading to Postgres 10 or later.
