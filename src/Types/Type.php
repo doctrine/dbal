@@ -102,9 +102,9 @@ abstract class Type
     /**
      * Gets the name of this type.
      *
-     * @return string
+     * @deprecated Identify types by their class, or their name inside {@link TypeRegistry}
      *
-     * @todo Needed?
+     * @return string
      */
     abstract public function getName();
 

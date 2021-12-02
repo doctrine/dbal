@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated `Doctrine\DBAL\Types\Type::getName()`
+
+Basing logic on type name of a type should be avoided.
+
 ## Deprecated the `doctrine-dbal` binary.
 
 The documentation explains how the console tools can be bootstrapped for standalone usage.
