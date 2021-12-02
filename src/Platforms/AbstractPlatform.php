@@ -448,9 +448,7 @@ abstract class AbstractPlatform
             $this->initializeCommentedDoctrineTypes();
         }
 
-        assert(is_array($this->doctrineTypeComments));
-
-        return in_array($doctrineType->getName(), $this->doctrineTypeComments, true);
+        return $doctrineType->requiresSQLCommentHint($this);
     }
 
     /**
