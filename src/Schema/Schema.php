@@ -16,7 +16,7 @@ use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 
 use function array_values;
-use function strpos;
+use function str_contains;
 use function strtolower;
 
 /**
@@ -182,7 +182,7 @@ class Schema extends AbstractAsset
     {
         $name = $this->getUnquotedAssetName($name);
 
-        if (strpos($name, '.') === false) {
+        if (! str_contains($name, '.')) {
             $name = $this->getName() . '.' . $name;
         }
 

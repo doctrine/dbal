@@ -15,7 +15,7 @@ use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
-use function strpos;
+use function str_starts_with;
 use function strtok;
 
 /**
@@ -255,7 +255,7 @@ SQL
         try {
             $tableIndexes = $this->_conn->fetchAllAssociative($sql);
         } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
+            if (str_starts_with($e->getMessage(), 'SQLSTATE [01000, 15472]')) {
                 return [];
             }
 

@@ -19,7 +19,7 @@ use function current;
 use function explode;
 use function implode;
 use function sprintf;
-use function strpos;
+use function str_contains;
 
 class DB2Platform extends AbstractPlatform
 {
@@ -605,7 +605,7 @@ class DB2Platform extends AbstractPlatform
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
-        if (strpos($tableName, '.') !== false) {
+        if (str_contains($tableName, '.')) {
             [$schema]     = explode('.', $tableName);
             $oldIndexName = $schema . '.' . $oldIndexName;
         }

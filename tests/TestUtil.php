@@ -23,8 +23,8 @@ use function file_exists;
 use function implode;
 use function in_array;
 use function is_string;
+use function str_starts_with;
 use function strlen;
-use function strpos;
 use function substr;
 use function unlink;
 
@@ -232,7 +232,7 @@ class TestUtil
         }
 
         foreach ($configuration as $param => $value) {
-            if (strpos($param, $prefix . 'driver_option_') !== 0) {
+            if (! str_starts_with($param, $prefix . 'driver_option_')) {
                 continue;
             }
 

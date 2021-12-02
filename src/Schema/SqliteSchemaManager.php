@@ -24,8 +24,9 @@ use function preg_match_all;
 use function preg_quote;
 use function preg_replace;
 use function rtrim;
+use function str_contains;
 use function str_replace;
-use function strpos;
+use function str_starts_with;
 use function strtolower;
 use function trim;
 use function usort;
@@ -190,7 +191,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         // fetch regular indexes
         foreach ($tableIndexes as $tableIndex) {
             // Ignore indexes with reserved names, e.g. autoindexes
-            if (strpos($tableIndex['name'], 'sqlite_') === 0) {
+            if (str_starts_with($tableIndex['name'], 'sqlite_')) {
                 continue;
             }
 
@@ -292,7 +293,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $length = (int) $matches[4];
         }
 
-        if (strpos($dbType, ' unsigned') !== false) {
+        if (str_contains($dbType, ' unsigned')) {
             $dbType   = str_replace(' unsigned', '', $dbType);
             $unsigned = true;
         }

@@ -22,8 +22,8 @@ use function explode;
 use function implode;
 use function preg_match;
 use function sprintf;
+use function str_contains;
 use function strlen;
-use function strpos;
 use function strtoupper;
 use function substr;
 
@@ -822,7 +822,7 @@ SQL
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
-        if (strpos($tableName, '.') !== false) {
+        if (str_contains($tableName, '.')) {
             [$schema]     = explode('.', $tableName);
             $oldIndexName = $schema . '.' . $oldIndexName;
         }

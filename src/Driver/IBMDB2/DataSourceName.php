@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use function implode;
 use function sprintf;
-use function strpos;
+use function str_contains;
 
 /**
  * IBM DB2 DSN
@@ -48,7 +48,7 @@ final class DataSourceName
      */
     public static function fromConnectionParameters(array $params): self
     {
-        if (isset($params['dbname']) && strpos($params['dbname'], '=') !== false) {
+        if (isset($params['dbname']) && str_contains($params['dbname'], '=')) {
             return new self($params['dbname']);
         }
 
