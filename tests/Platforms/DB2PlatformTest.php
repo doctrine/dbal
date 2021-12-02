@@ -13,7 +13,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\Types;
 
 /**
  * @extends AbstractPlatformTestCase<DB2Platform>
@@ -280,22 +279,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
         self::assertEquals('TIMESTAMP(0)', $this->platform->getDateTimeTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL($fullColumnDef));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getIsCommentedDoctrineType(): iterable
-    {
-        $types = [];
-
-        foreach (parent::getIsCommentedDoctrineType() as $key => $value) {
-            $types[$key] = $value;
-        }
-
-        $types[Types::BOOLEAN] = [Type::getType(Types::BOOLEAN), true];
-
-        return $types;
     }
 
     public function testGeneratesDDLSnippets(): void

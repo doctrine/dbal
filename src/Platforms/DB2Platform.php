@@ -12,9 +12,6 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function count;
@@ -54,24 +51,6 @@ class DB2Platform extends AbstractPlatform
             'varbinary' => 'binary',
             'varchar'   => 'string',
         ];
-    }
-
-    public function isCommentedDoctrineType(Type $doctrineType): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5058',
-            '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
-            __METHOD__
-        );
-
-        if ($doctrineType->getName() === Types::BOOLEAN) {
-            // We require a commented boolean type in order to distinguish between boolean and smallint
-            // as both (have to) map to the same native type.
-            return true;
-        }
-
-        return parent::isCommentedDoctrineType($doctrineType);
     }
 
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string

@@ -35,7 +35,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -78,16 +77,6 @@ abstract class AbstractPlatform
 
     /** @var string[]|null */
     protected ?array $doctrineTypeMapping = null;
-
-    /**
-     * Contains a list of all columns that should generate parseable column comments for type-detection
-     * in reverse engineering scenarios.
-     *
-     * @deprecated This property is deprecated and will be removed in Doctrine DBAL 4.0.
-     *
-     * @var string[]|null
-     */
-    protected ?array $doctrineTypeComments = null;
 
     protected ?EventManager $_eventManager = null;
 
@@ -346,14 +335,6 @@ abstract class AbstractPlatform
 
         $dbType                             = strtolower($dbType);
         $this->doctrineTypeMapping[$dbType] = $doctrineType;
-
-        $doctrineType = Type::getType($doctrineType);
-
-        if (! $doctrineType->requiresSQLCommentHint($this)) {
-            return;
-        }
-
-        $this->markDoctrineTypeCommented($doctrineType);
     }
 
     /**
@@ -392,77 +373,6 @@ abstract class AbstractPlatform
         $dbType = strtolower($dbType);
 
         return isset($this->doctrineTypeMapping[$dbType]);
-    }
-
-    /**
-     * Initializes the Doctrine Type comments instance variable for in_array() checks.
-     *
-     * @deprecated This API will be removed in Doctrine DBAL 4.0.
-     */
-    protected function initializeCommentedDoctrineTypes(): void
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5058',
-            '%s is deprecated and will be removed in Doctrine DBAL 4.0.',
-            __METHOD__
-        );
-
-        $this->doctrineTypeComments = [];
-
-        foreach (Type::getTypesMap() as $typeName => $className) {
-            $type = Type::getType($typeName);
-
-            if (! $type->requiresSQLCommentHint($this)) {
-                continue;
-            }
-
-            $this->doctrineTypeComments[] = $typeName;
-        }
-    }
-
-    /**
-     * Is it necessary for the platform to add a parsable type comment to allow reverse engineering the given type?
-     *
-     * @deprecated Use {@link Type::requiresSQLCommentHint()} instead.
-     */
-    public function isCommentedDoctrineType(Type $doctrineType): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5058',
-            '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
-            __METHOD__
-        );
-
-        if ($this->doctrineTypeComments === null) {
-            $this->initializeCommentedDoctrineTypes();
-        }
-
-        assert(is_array($this->doctrineTypeComments));
-
-        return in_array($doctrineType->getName(), $this->doctrineTypeComments, true);
-    }
-
-    /**
-     * Marks this type as to be commented in ALTER TABLE and CREATE TABLE statements.
-     */
-    public function markDoctrineTypeCommented(string|Type $doctrineType): void
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5058',
-            '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
-            __METHOD__
-        );
-
-        if ($this->doctrineTypeComments === null) {
-            $this->initializeCommentedDoctrineTypes();
-        }
-
-        assert(is_array($this->doctrineTypeComments));
-
-        $this->doctrineTypeComments[] = $doctrineType instanceof Type ? $doctrineType->getName() : $doctrineType;
     }
 
     /**
