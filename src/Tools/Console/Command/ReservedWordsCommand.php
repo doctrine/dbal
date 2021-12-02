@@ -13,7 +13,6 @@ use Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
-use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
@@ -53,7 +52,6 @@ class ReservedWordsCommand extends Command
             'mysql80'    => new MySQL80Keywords(),
             'oracle'     => new OracleKeywords(),
             'pgsql'      => new PostgreSQLKeywords(),
-            'pgsql100'   => new PostgreSQL100Keywords(),
             'sqlite'     => new SQLiteKeywords(),
             'sqlserver'  => new SQLServerKeywords(),
         ];
@@ -103,7 +101,6 @@ The following keyword lists are currently shipped with Doctrine:
     * mysql80
     * oracle
     * pgsql
-    * pgsql100
     * sqlite
     * sqlserver
 EOT
