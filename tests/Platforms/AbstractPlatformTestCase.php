@@ -17,7 +17,9 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
+use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -33,6 +35,9 @@ abstract class AbstractPlatformTestCase extends TestCase
 {
     /** @var T */
     protected $platform;
+
+    /** @var Type|null */
+    private $backedUpType;
 
     /**
      * @return T
@@ -1510,6 +1515,35 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $this->expectException(InvalidLockMode::class);
         $this->platform->appendLockHint('TABLE', 128);
+    }
+
+    public function testItAddsCommentsForOverridingTypes(): void
+    {
+        $this->backedUpType = Type::getType(Types::STRING);
+        self::assertFalse($this->platform->isCommentedDoctrineType($this->backedUpType));
+        $type = new class () extends StringType {
+            public function getName(): string
+            {
+                return Types::STRING;
+            }
+
+            public function requiresSQLCommentHint(AbstractPlatform $platform): bool
+            {
+                return true;
+            }
+        };
+        Type::getTypeRegistry()->override(Types::STRING, $type);
+        self::assertTrue($this->platform->isCommentedDoctrineType($type));
+    }
+
+    public function tearDown(): void
+    {
+        if (! isset($this->backedUpType)) {
+            return;
+        }
+
+        Type::getTypeRegistry()->override(Types::STRING, $this->backedUpType);
+        $this->backedUpType = null;
     }
 }
 
