@@ -777,6 +777,62 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testDateAddStaticNumberOfWeeks(): void
+    {
+        self::assertSame(
+            "DATE(rentalBeginsOn,'+14 DAY')",
+            $this->platform->getDateAddWeeksExpression('rentalBeginsOn', 2)
+        );
+    }
+
+    public function testDateAddNumberOfWeeksFromColumn(): void
+    {
+        self::assertSame(
+            "DATE(rentalBeginsOn,'+' || (duration * 7) || ' DAY')",
+            $this->platform->getDateAddWeeksExpression('rentalBeginsOn', 'duration')
+        );
+    }
+
+    public function testDateAddStaticNumberOfSeconds(): void
+    {
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+45 SECOND')",
+            $this->platform->getDateAddSecondsExpression('rentalBeginsOn', 45)
+        );
+    }
+
+    public function testDateAddNumberOfSecondsFromColumn(): void
+    {
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+' || duration || ' SECOND')",
+            $this->platform->getDateAddSecondsExpression('rentalBeginsOn', 'duration')
+        );
+    }
+
+    public function testDateSubNumberOfSecondsFromColumn(): void
+    {
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'-' || duration || ' SECOND')",
+            $this->platform->getDateSubSecondsExpression('rentalBeginsOn', 'duration')
+        );
+    }
+
+    public function testDateAddNumberOfSecondsFromNamedParameter(): void
+    {
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+' || :duration || ' SECOND')",
+            $this->platform->getDateAddSecondsExpression('rentalBeginsOn', ':duration')
+        );
+    }
+
+    public function testDateSubNumberOfSecondsFromNamedParameter(): void
+    {
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'-' || :duration || ' SECOND')",
+            $this->platform->getDateSubSecondsExpression('rentalBeginsOn', ':duration')
+        );
+    }
+
     public function testSupportsColumnCollation(): void
     {
         self::assertTrue($this->platform->supportsColumnCollation());

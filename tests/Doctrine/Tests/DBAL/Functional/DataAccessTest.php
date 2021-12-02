@@ -602,6 +602,51 @@ class DataAccessTest extends DbalFunctionalTestCase
         self::assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])));
     }
 
+    public function testDateArithmeticsWithDynamicInterval(): void
+    {
+        $p    = $this->connection->getDatabasePlatform();
+        $sql  = 'SELECT ';
+        $sql .= $p->getDateAddSecondsExpression('test_datetime', ':n') . ' AS add_seconds, ';
+        $sql .= $p->getDateSubSecondsExpression('test_datetime', ':n') . ' AS sub_seconds, ';
+        $sql .= $p->getDateAddMinutesExpression('test_datetime', ':n') . ' AS add_minutes, ';
+        $sql .= $p->getDateSubMinutesExpression('test_datetime', ':n') . ' AS sub_minutes, ';
+        $sql .= $p->getDateAddHourExpression('test_datetime', ':n') . ' AS add_hour, ';
+        $sql .= $p->getDateSubHourExpression('test_datetime', ':n') . ' AS sub_hour, ';
+        $sql .= $p->getDateAddDaysExpression('test_datetime', ':n') . ' AS add_days, ';
+        $sql .= $p->getDateSubDaysExpression('test_datetime', ':n') . ' AS sub_days, ';
+        $sql .= $p->getDateAddWeeksExpression('test_datetime', ':n') . ' AS add_weeks, ';
+        $sql .= $p->getDateSubWeeksExpression('test_datetime', ':n') . ' AS sub_weeks, ';
+        $sql .= $p->getDateAddMonthExpression('test_datetime', ':n') . ' AS add_month, ';
+        $sql .= $p->getDateSubMonthExpression('test_datetime', ':n') . ' AS sub_month, ';
+        $sql .= $p->getDateAddQuartersExpression('test_datetime', ':n') . ' AS add_quarters, ';
+        $sql .= $p->getDateSubQuartersExpression('test_datetime', ':n') . ' AS sub_quarters, ';
+        $sql .= $p->getDateAddYearsExpression('test_datetime', ':n') . ' AS add_years, ';
+        $sql .= $p->getDateSubYearsExpression('test_datetime', ':n') . ' AS sub_years ';
+        $sql .= 'FROM fetch_table';
+
+        $row = $this->connection->fetchAssoc($sql, ['n' => 3]);
+        self::assertNotFalse($row);
+
+        $row = array_change_key_case($row, CASE_LOWER);
+
+        self::assertEquals('2010-01-01 10:10:13', date('Y-m-d H:i:s', strtotime($row['add_seconds'])));
+        self::assertEquals('2010-01-01 10:10:07', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])));
+        self::assertEquals('2010-01-01 10:13:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])));
+        self::assertEquals('2010-01-01 10:07:10', date('Y-m-d H:i:s', strtotime($row['sub_minutes'])));
+        self::assertEquals('2010-01-01 13:10', date('Y-m-d H:i', strtotime($row['add_hour'])));
+        self::assertEquals('2010-01-01 07:10', date('Y-m-d H:i', strtotime($row['sub_hour'])));
+        self::assertEquals('2010-01-04', date('Y-m-d', strtotime($row['add_days'])));
+        self::assertEquals('2009-12-29', date('Y-m-d', strtotime($row['sub_days'])));
+        self::assertEquals('2010-01-22', date('Y-m-d', strtotime($row['add_weeks'])));
+        self::assertEquals('2009-12-11', date('Y-m-d', strtotime($row['sub_weeks'])));
+        self::assertEquals('2010-04-01', date('Y-m-d', strtotime($row['add_month'])));
+        self::assertEquals('2009-10-01', date('Y-m-d', strtotime($row['sub_month'])));
+        self::assertEquals('2010-10-01', date('Y-m-d', strtotime($row['add_quarters'])));
+        self::assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])));
+        self::assertEquals('2013-01-01', date('Y-m-d', strtotime($row['add_years'])));
+        self::assertEquals('2007-01-01', date('Y-m-d', strtotime($row['sub_years'])));
+    }
+
     public function testSqliteDateArithmeticWithDynamicInterval(): void
     {
         $platform = $this->connection->getDatabasePlatform();
@@ -623,6 +668,32 @@ class DataAccessTest extends DbalFunctionalTestCase
 
         $sql  = 'SELECT COUNT(*) FROM fetch_table_date_math WHERE ';
         $sql .= $platform->getDateSubDaysExpression('test_date', 'test_days') . " < '2010-05-12'";
+
+        $rowCount = $this->connection->fetchColumn($sql, [], 0);
+
+        $this->assertEquals(1, $rowCount);
+    }
+
+    public function testSqliteDateArithmeticWithWeeks(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform instanceof SqlitePlatform) {
+            $this->markTestSkipped('test is for sqlite only');
+        }
+
+        $table = new Table('fetch_table_weeks_math');
+        $table->addColumn('test_date', 'date');
+        $table->setPrimaryKey(['test_date']);
+
+        $sm = $this->connection->getSchemaManager();
+        $sm->createTable($table);
+
+        $this->connection->insert('fetch_table_weeks_math', ['test_date' => '2010-01-01']);
+        $this->connection->insert('fetch_table_weeks_math', ['test_date' => '2010-01-15']);
+
+        $sql  = 'SELECT COUNT(*) FROM fetch_table_weeks_math WHERE ';
+        $sql .= $platform->getDateSubWeeksExpression('test_date', 2) . " < '2009-12-20'";
 
         $rowCount = $this->connection->fetchColumn($sql, [], 0);
 
