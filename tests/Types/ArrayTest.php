@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 use function serialize;
+use function sprintf;
 
 class ArrayTest extends TestCase
 {
@@ -37,10 +38,11 @@ class ArrayTest extends TestCase
     public function testConversionFailure(): void
     {
         $this->expectException(ConversionException::class);
-        $this->expectExceptionMessage(
-            "Could not convert database value to 'array' as an error was triggered by the unserialization:"
-                . " 'unserialize(): Error at offset 0 of 7 bytes'"
-        );
+        $this->expectExceptionMessage(sprintf(
+            "Could not convert database value to '%s' as an error was triggered by the unserialization:"
+            . " 'unserialize(): Error at offset 0 of 7 bytes'",
+            ArrayType::class
+        ));
 
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }

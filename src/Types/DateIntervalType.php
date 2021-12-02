@@ -46,7 +46,11 @@ class DateIntervalType extends Type
             return $value->format(self::FORMAT);
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateInterval']);
+        throw ConversionException::conversionFailedInvalidType(
+            $value,
+            static::class,
+            ['null', 'DateInterval']
+        );
     }
 
     /**
@@ -74,7 +78,12 @@ class DateIntervalType extends Type
 
             return $interval;
         } catch (Throwable $exception) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), self::FORMAT, $exception);
+            throw ConversionException::conversionFailedFormat(
+                $value,
+                static::class,
+                self::FORMAT,
+                $exception
+            );
         }
     }
 

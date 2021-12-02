@@ -44,8 +44,8 @@ class ArrayType extends Type
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
-        set_error_handler(function (int $code, string $message): bool {
-            throw ConversionException::conversionFailedUnserialization($this->getName(), $message);
+        set_error_handler(static function (int $code, string $message): bool {
+            throw ConversionException::conversionFailedUnserialization(static::class, $message);
         });
 
         try {

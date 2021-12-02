@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 
 use function serialize;
+use function sprintf;
 
 class ObjectTest extends TestCase
 {
@@ -38,10 +39,11 @@ class ObjectTest extends TestCase
     public function testConversionFailure(): void
     {
         $this->expectException(ConversionException::class);
-        $this->expectExceptionMessage(
-            "Could not convert database value to 'object' as an error was triggered by the unserialization:"
-                . " 'unserialize(): Error at offset 0 of 7 bytes'"
-        );
+        $this->expectExceptionMessage(sprintf(
+            "Could not convert database value to '%s' as an error was triggered by the unserialization:"
+            . " 'unserialize(): Error at offset 0 of 7 bytes'",
+            ObjectType::class
+        ));
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 

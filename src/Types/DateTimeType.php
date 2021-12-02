@@ -42,7 +42,11 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
             return $value->format($platform->getDateTimeFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
+        throw ConversionException::conversionFailedInvalidType(
+            $value,
+            static::class,
+            ['null', 'DateTime']
+        );
     }
 
     /**
@@ -63,7 +67,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
         if ($val === false) {
             throw ConversionException::conversionFailedFormat(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getDateTimeFormatString()
             );
         }

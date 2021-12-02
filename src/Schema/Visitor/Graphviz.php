@@ -8,8 +8,8 @@ use Doctrine\DBAL\Schema\Table;
 
 use function current;
 use function file_put_contents;
+use function get_class;
 use function in_array;
-use function strtolower;
 
 /**
  * Create a Graphviz output of a Schema.
@@ -83,7 +83,7 @@ class Graphviz extends AbstractVisitor
                 . '</TD>'
                 . '<TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec">'
                 . '<FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="10">'
-                . strtolower($column->getType()->getName())
+                . get_class($column->getType())
                 . '</FONT>'
                 . '</TD>'
                 . '<TD BORDER="0" ALIGN="RIGHT" BGCOLOR="#eeeeec" PORT="col' . $column->getName() . '">';

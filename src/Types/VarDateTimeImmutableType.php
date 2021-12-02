@@ -35,7 +35,7 @@ class VarDateTimeImmutableType extends VarDateTimeType
 
         throw ConversionException::conversionFailedInvalidType(
             $value,
-            $this->getName(),
+            static::class,
             ['null', DateTimeImmutable::class]
         );
     }
@@ -52,7 +52,10 @@ class VarDateTimeImmutableType extends VarDateTimeType
         $dateTime = date_create_immutable($value);
 
         if ($dateTime === false) {
-            throw ConversionException::conversionFailed($value, $this->getName());
+            throw ConversionException::conversionFailed(
+                $value,
+                static::class
+            );
         }
 
         return $dateTime;

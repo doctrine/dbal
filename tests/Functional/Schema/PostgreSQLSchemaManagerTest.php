@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DecimalType;
+use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -418,7 +419,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
-        self::assertSame(Types::JSON, $columns['foo']->getType()->getName());
+        self::assertInstanceOf(JsonType::class, $columns['foo']->getType());
         self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
     }
 

@@ -7,8 +7,8 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\BooleanType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
@@ -102,7 +102,7 @@ class DB2Platform extends AbstractPlatform
             __METHOD__
         );
 
-        if ($doctrineType->getName() === Types::BOOLEAN) {
+        if ($doctrineType instanceof BooleanType) {
             // We require a commented boolean type in order to distinguish between boolean and smallint
             // as both (have to) map to the same native type.
             return true;

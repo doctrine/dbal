@@ -33,7 +33,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
 
         throw ConversionException::conversionFailedInvalidType(
             $value,
-            $this->getName(),
+            static::class,
             ['null', DateTimeImmutable::class]
         );
     }
@@ -52,7 +52,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
         if ($dateTime === false) {
             throw ConversionException::conversionFailedFormat(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getDateTimeTzFormatString()
             );
         }

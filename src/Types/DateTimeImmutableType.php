@@ -35,7 +35,7 @@ class DateTimeImmutableType extends DateTimeType
 
         throw ConversionException::conversionFailedInvalidType(
             $value,
-            $this->getName(),
+            static::class,
             ['null', DateTimeImmutable::class]
         );
     }
@@ -58,7 +58,7 @@ class DateTimeImmutableType extends DateTimeType
         if ($dateTime === false) {
             throw ConversionException::conversionFailedFormat(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getDateTimeFormatString()
             );
         }
