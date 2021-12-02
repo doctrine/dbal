@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated the `--depth` option of `RunSqlCommand`.
+
+This option does not have any effect anymore and will be removed in DBAL 4.
+
 ## Deprecated platform "commented type" API
 
 Since `Type::requiresSQLCommentTypeHint()` already allows determining whether a
