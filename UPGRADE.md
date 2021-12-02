@@ -25,7 +25,7 @@ This option does not have any effect anymore and will be removed in DBAL 4.
 
 ## Deprecated platform "commented type" API
 
-Since `Type::requiresSQLCommentTypeHint()` already allows determining whether a
+Since `Doctrine\DBAL\Types\Type::requiresSQLCommentTypeHint()` already allows determining whether a
 type should result in SQL columns with a type hint in their comments, the
 following methods are deprecated:
 
