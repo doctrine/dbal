@@ -59,7 +59,7 @@ class Statement
     /**
      * Creates a new <tt>Statement</tt> for the given SQL and <tt>Connection</tt>.
      *
-     * @internal The statement can be only instantiated by {@link Connection}.
+     * @internal The statement can be only instantiated by {@see Connection}.
      *
      * @param Connection       $conn      The connection for handling statement errors.
      * @param Driver\Statement $statement The underlying driver-level statement.

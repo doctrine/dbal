@@ -108,7 +108,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use {@link dropForeignKey()} and {@link createForeignKey()} instead.
+     * @deprecated Use {@see dropForeignKey()} and {@see createForeignKey()} instead.
      */
     public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {

@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Driver;
 /**
  * Contract for a connection that is able to provide information about the server it is connected to.
  *
- * @deprecated The methods defined in this interface will be made part of the {@link Driver} interface
+ * @deprecated The methods defined in this interface will be made part of the {@see Driver} interface
  * in the next major release.
  */
 interface ServerInfoAwareConnection extends Connection
