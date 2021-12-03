@@ -14,10 +14,6 @@ parameters:
         # some drivers actually do accept 2nd parameter...
         - '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::getListTableForeignKeysSQL\(\) invoked with \d+ parameters, 1 required\.\z~'
 
-        # legacy remnants from doctrine/common
-        - '~^Class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy) not found\.\z~'
-        - '~^.+ on an unknown class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy)\.\z~'
-
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
         -
             message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'

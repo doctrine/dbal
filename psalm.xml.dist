@@ -283,12 +283,6 @@
                 <file name="src/Driver/SQLSrv/Connection.php"/>
             </errorLevel>
         </FalsableReturnStatement>
-        <ForbiddenCode>
-            <errorLevel type="suppress">
-                <!-- The call to var_dump() here is by design -->
-                <file name="src/Tools/Dumper.php"/>
-            </errorLevel>
-        </ForbiddenCode>
         <ImplementedReturnTypeMismatch>
             <errorLevel type="suppress">
                 <!-- Fixing this issue requires an API change -->
@@ -437,12 +431,6 @@
                 <file name="tests/Driver/PDO/PgSQL/DriverTest.php" />
             </errorLevel>
         </UndefinedConstant>
-        <UndefinedClass>
-            <errorLevel type="suppress">
-                <!-- Contains references to optional dependencies -->
-                <file name="src/Tools/Dumper.php"/>
-            </errorLevel>
-        </UndefinedClass>
         <UndefinedDocblockClass>
             <errorLevel type="suppress">
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->
