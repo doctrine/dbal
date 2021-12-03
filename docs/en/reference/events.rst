@@ -21,7 +21,7 @@ instance.
 Doctrine ships with one implementation for the "PostConnect" event:
 
 -  ``Doctrine\DBAL\Event\Listeners\OracleSessionInit`` allows to
-   specify any number of Oracle Session related enviroment variables
+   specify any number of Oracle Session related environment variables
    that are set right after the connection is established.
 
 You can register events by subscribing them to the ``EventManager``
