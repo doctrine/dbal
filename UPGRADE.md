@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated the `Graphviz` visitor.
+
+This class is not part of the database abstraction provided by the library and will be removed in DBAL 4.
+
 ## Deprecated the `--depth` option of `RunSqlCommand`.
 
 This option does not have any effect anymore and will be removed in DBAL 4.
