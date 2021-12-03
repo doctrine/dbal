@@ -20,7 +20,7 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
 
-use function strpos;
+use function str_contains;
 
 /**
  * @internal
@@ -32,55 +32,55 @@ final class ExceptionConverter implements ExceptionConverterInterface
      */
     public function convert(Exception $exception, ?Query $query): DriverException
     {
-        if (strpos($exception->getMessage(), 'database is locked') !== false) {
+        if (str_contains($exception->getMessage(), 'database is locked')) {
             return new LockWaitTimeoutException($exception, $query);
         }
 
         if (
-            strpos($exception->getMessage(), 'must be unique') !== false ||
-            strpos($exception->getMessage(), 'is not unique') !== false ||
-            strpos($exception->getMessage(), 'are not unique') !== false ||
-            strpos($exception->getMessage(), 'UNIQUE constraint failed') !== false
+            str_contains($exception->getMessage(), 'must be unique') ||
+            str_contains($exception->getMessage(), 'is not unique') ||
+            str_contains($exception->getMessage(), 'are not unique') ||
+            str_contains($exception->getMessage(), 'UNIQUE constraint failed')
         ) {
             return new UniqueConstraintViolationException($exception, $query);
         }
 
         if (
-            strpos($exception->getMessage(), 'may not be NULL') !== false ||
-            strpos($exception->getMessage(), 'NOT NULL constraint failed') !== false
+            str_contains($exception->getMessage(), 'may not be NULL') ||
+            str_contains($exception->getMessage(), 'NOT NULL constraint failed')
         ) {
             return new NotNullConstraintViolationException($exception, $query);
         }
 
-        if (strpos($exception->getMessage(), 'no such table:') !== false) {
+        if (str_contains($exception->getMessage(), 'no such table:')) {
             return new TableNotFoundException($exception, $query);
         }
 
-        if (strpos($exception->getMessage(), 'already exists') !== false) {
+        if (str_contains($exception->getMessage(), 'already exists')) {
             return new TableExistsException($exception, $query);
         }
 
-        if (strpos($exception->getMessage(), 'has no column named') !== false) {
+        if (str_contains($exception->getMessage(), 'has no column named')) {
             return new InvalidFieldNameException($exception, $query);
         }
 
-        if (strpos($exception->getMessage(), 'ambiguous column name') !== false) {
+        if (str_contains($exception->getMessage(), 'ambiguous column name')) {
             return new NonUniqueFieldNameException($exception, $query);
         }
 
-        if (strpos($exception->getMessage(), 'syntax error') !== false) {
+        if (str_contains($exception->getMessage(), 'syntax error')) {
             return new SyntaxErrorException($exception, $query);
         }
 
-        if (strpos($exception->getMessage(), 'attempt to write a readonly database') !== false) {
+        if (str_contains($exception->getMessage(), 'attempt to write a readonly database')) {
             return new ReadOnlyException($exception, $query);
         }
 
-        if (strpos($exception->getMessage(), 'unable to open database file') !== false) {
+        if (str_contains($exception->getMessage(), 'unable to open database file')) {
             return new ConnectionException($exception, $query);
         }
 
-        if (strpos($exception->getMessage(), 'FOREIGN KEY constraint failed') !== false) {
+        if (str_contains($exception->getMessage(), 'FOREIGN KEY constraint failed')) {
             return new ForeignKeyConstraintViolationException($exception, $query);
         }
 

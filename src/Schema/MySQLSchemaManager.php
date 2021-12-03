@@ -15,7 +15,7 @@ use function assert;
 use function explode;
 use function is_string;
 use function preg_match;
-use function strpos;
+use function str_contains;
 use function strtok;
 use function strtolower;
 use function strtr;
@@ -81,14 +81,14 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 $v['primary'] = false;
             }
 
-            if (strpos($v['index_type'], 'FULLTEXT') !== false) {
+            if (str_contains($v['index_type'], 'FULLTEXT')) {
                 $v['flags'] = ['FULLTEXT'];
-            } elseif (strpos($v['index_type'], 'SPATIAL') !== false) {
+            } elseif (str_contains($v['index_type'], 'SPATIAL')) {
                 $v['flags'] = ['SPATIAL'];
             }
 
             // Ignore prohibited prefix `length` for spatial index
-            if (strpos($v['index_type'], 'SPATIAL') === false) {
+            if (! str_contains($v['index_type'], 'SPATIAL')) {
                 $v['length'] = isset($v['sub_part']) ? (int) $v['sub_part'] : null;
             }
 
@@ -199,13 +199,13 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
         $options = [
             'length'        => $length !== null ? (int) $length : null,
-            'unsigned'      => strpos($tableColumn['type'], 'unsigned') !== false,
+            'unsigned'      => str_contains($tableColumn['type'], 'unsigned'),
             'fixed'         => $fixed,
             'default'       => $columnDefault,
             'notnull'       => $tableColumn['null'] !== 'YES',
             'scale'         => $scale,
             'precision'     => $precision,
-            'autoincrement' => strpos($tableColumn['extra'], 'auto_increment') !== false,
+            'autoincrement' => str_contains($tableColumn['extra'], 'auto_increment'),
         ];
 
         if (isset($tableColumn['comment'])) {

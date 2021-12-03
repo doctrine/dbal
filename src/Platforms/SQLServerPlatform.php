@@ -32,8 +32,8 @@ use function is_numeric;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
+use function str_contains;
 use function str_replace;
-use function strpos;
 use function strtoupper;
 use function substr_count;
 
@@ -283,7 +283,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getCreateColumnCommentSQL(string $tableName, string $columnName, string $comment): string
     {
-        if (strpos($tableName, '.') !== false) {
+        if (str_contains($tableName, '.')) {
             [$schemaSQL, $tableSQL] = explode('.', $tableName);
             $schemaSQL              = $this->quoteStringLiteral($schemaSQL);
             $tableSQL               = $this->quoteStringLiteral($tableSQL);
@@ -598,7 +598,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getAlterColumnCommentSQL(string $tableName, string $columnName, string $comment): string
     {
-        if (strpos($tableName, '.') !== false) {
+        if (str_contains($tableName, '.')) {
             [$schemaSQL, $tableSQL] = explode('.', $tableName);
             $schemaSQL              = $this->quoteStringLiteral($schemaSQL);
             $tableSQL               = $this->quoteStringLiteral($tableSQL);
@@ -635,7 +635,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getDropColumnCommentSQL(string $tableName, string $columnName): string
     {
-        if (strpos($tableName, '.') !== false) {
+        if (str_contains($tableName, '.')) {
             [$schemaSQL, $tableSQL] = explode('.', $tableName);
             $schemaSQL              = $this->quoteStringLiteral($schemaSQL);
             $tableSQL               = $this->quoteStringLiteral($tableSQL);
@@ -859,7 +859,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function getTableWhereClause(string $table, string $schemaColumn, string $tableColumn): string
     {
-        if (strpos($table, '.') !== false) {
+        if (str_contains($table, '.')) {
             [$schema, $table] = explode('.', $table);
             $schema           = $this->quoteStringLiteral($schema);
             $table            = $this->quoteStringLiteral($table);

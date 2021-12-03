@@ -11,8 +11,8 @@ use function crc32;
 use function dechex;
 use function explode;
 use function implode;
+use function str_contains;
 use function str_replace;
-use function strpos;
 use function strtolower;
 use function strtoupper;
 use function substr;
@@ -44,7 +44,7 @@ abstract class AbstractAsset
             $name          = $this->trimQuotes($name);
         }
 
-        if (strpos($name, '.') !== false) {
+        if (str_contains($name, '.')) {
             $parts            = explode('.', $name);
             $this->_namespace = $parts[0];
             $name             = $parts[1];

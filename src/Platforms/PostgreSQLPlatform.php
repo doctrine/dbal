@@ -32,7 +32,7 @@ use function is_bool;
 use function is_numeric;
 use function is_string;
 use function sprintf;
-use function strpos;
+use function str_contains;
 use function strtolower;
 use function trim;
 
@@ -257,7 +257,7 @@ SQL
     private function getTableWhereClause(string $table, string $classAlias = 'c', string $namespaceAlias = 'n'): string
     {
         $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
-        if (strpos($table, '.') !== false) {
+        if (str_contains($table, '.')) {
             [$schema, $table] = explode('.', $table);
             $schema           = $this->quoteStringLiteral($schema);
         } else {
@@ -523,7 +523,7 @@ SQL
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
-        if (strpos($tableName, '.') !== false) {
+        if (str_contains($tableName, '.')) {
             [$schema]     = explode('.', $tableName);
             $oldIndexName = $schema . '.' . $oldIndexName;
         }

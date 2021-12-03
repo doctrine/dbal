@@ -25,8 +25,8 @@ use function parse_str;
 use function parse_url;
 use function preg_replace;
 use function rawurldecode;
+use function str_contains;
 use function str_replace;
-use function strpos;
 use function substr;
 
 /**
@@ -369,7 +369,7 @@ final class DriverManager
             return self::parseRegularDatabaseUrlPath($url, $params);
         }
 
-        if (strpos($params['driver'], 'sqlite') !== false) {
+        if (str_contains($params['driver'], 'sqlite')) {
             return self::parseSqliteDatabaseUrlPath($url, $params);
         }
 

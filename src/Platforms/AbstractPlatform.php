@@ -56,9 +56,9 @@ use function is_string;
 use function preg_quote;
 use function preg_replace;
 use function sprintf;
+use function str_contains;
 use function str_replace;
 use function strlen;
-use function strpos;
 use function strtolower;
 use function strtoupper;
 
@@ -1235,7 +1235,7 @@ abstract class AbstractPlatform
      */
     public function quoteIdentifier(string $identifier): string
     {
-        if (strpos($identifier, '.') !== false) {
+        if (str_contains($identifier, '.')) {
             $parts = array_map([$this, 'quoteSingleIdentifier'], explode('.', $identifier));
 
             return implode('.', $parts);

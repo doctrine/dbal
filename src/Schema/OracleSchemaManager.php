@@ -13,8 +13,9 @@ use function array_change_key_case;
 use function array_values;
 use function is_string;
 use function preg_match;
+use function str_contains;
 use function str_replace;
-use function strpos;
+use function str_starts_with;
 use function strtolower;
 use function trim;
 
@@ -98,8 +99,8 @@ class OracleSchemaManager extends AbstractSchemaManager
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
         $dbType = strtolower($tableColumn['data_type']);
-        if (strpos($dbType, 'timestamp(') === 0) {
-            if (strpos($dbType, 'with time zone') !== false) {
+        if (str_starts_with($dbType, 'timestamp(')) {
+            if (str_contains($dbType, 'with time zone')) {
                 $dbType = 'timestamptz';
             } else {
                 $dbType = 'timestamp';
