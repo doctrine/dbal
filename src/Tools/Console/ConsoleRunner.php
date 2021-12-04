@@ -52,6 +52,8 @@ class ConsoleRunner
     /**
      * Prints the instructions to create a configuration file
      *
+     * @deprecated This method will be removed without replacement.
+     *
      * @return void
      */
     public static function printCliConfigTemplate()

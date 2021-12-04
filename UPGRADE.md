@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated the `doctrine-dbal` binary.
+
+The documentation explains how the console tools can be bootstrapped for standalone usage.
+
+The method `ConsoleRunner::printCliConfigTemplate()` is deprecated because it was only useful in the context of the
+`doctrine-dbal` binary.
+
 ## Deprecated the `Graphviz` visitor.
 
 This class is not part of the database abstraction provided by the library and will be removed in DBAL 4.
