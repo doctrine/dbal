@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
- * Event Arguments used when the SQL query for dropping tables are generated inside {@link AbstractPlatform}.
+ * Event Arguments used when the SQL query for dropping tables are generated inside {@see AbstractPlatform}.
  */
 class SchemaDropTableEventArgs extends SchemaEventArgs
 {

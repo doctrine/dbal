@@ -20,7 +20,7 @@ class Result
     private Connection $connection;
 
     /**
-     * @internal The result can be only instantiated by {@link Connection} or {@link Statement}.
+     * @internal The result can be only instantiated by {@see Connection} or {@see Statement}.
      */
     public function __construct(DriverResult $result, Connection $connection)
     {

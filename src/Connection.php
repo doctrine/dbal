@@ -649,7 +649,7 @@ class Connection implements ServerVersionProvider
 
     /**
      * The usage of this method is discouraged. Use prepared statements
-     * or {@link AbstractPlatform::quoteStringLiteral()} instead.
+     * or {@see AbstractPlatform::quoteStringLiteral()} instead.
      */
     public function quote(string $value): string
     {

@@ -20,4 +20,5 @@
     reference/upgrading
     reference/testing
 
+    explanation/dc2type-comments.rst
     explanation/implicit-indexes

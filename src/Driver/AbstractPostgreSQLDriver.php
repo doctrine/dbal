@@ -15,7 +15,7 @@ use Doctrine\DBAL\ServerVersionProvider;
 use function assert;
 
 /**
- * Abstract base implementation of the {@link Driver} interface for PostgreSQL based drivers.
+ * Abstract base implementation of the {@see Driver} interface for PostgreSQL based drivers.
  */
 abstract class AbstractPostgreSQLDriver implements Driver
 {

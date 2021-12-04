@@ -12,7 +12,7 @@ use function array_merge;
 use function array_values;
 
 /**
- * Event Arguments used when SQL queries for adding table columns are generated inside {@link AbstractPlatform}.
+ * Event Arguments used when SQL queries for adding table columns are generated inside {@see AbstractPlatform}.
  */
 class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
 {

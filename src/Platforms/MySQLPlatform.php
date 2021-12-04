@@ -130,13 +130,10 @@ class MySQLPlatform extends AbstractPlatform
     public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
         if ($database !== null) {
-            $database = $this->quoteStringLiteral($database);
-            $table    = $this->quoteStringLiteral($table);
-
             return 'SELECT NON_UNIQUE AS Non_Unique, INDEX_NAME AS Key_name, COLUMN_NAME AS Column_Name,' .
                    ' SUB_PART AS Sub_Part, INDEX_TYPE AS Index_Type' .
-                   ' FROM information_schema.STATISTICS WHERE TABLE_NAME = ' . $table .
-                   ' AND TABLE_SCHEMA = ' . $database .
+                   ' FROM information_schema.STATISTICS WHERE TABLE_NAME = ' . $this->quoteStringLiteral($table) .
+                   ' AND TABLE_SCHEMA = ' . $this->quoteStringLiteral($database) .
                    ' ORDER BY SEQ_IN_INDEX ASC';
         }
 
@@ -150,21 +147,16 @@ class MySQLPlatform extends AbstractPlatform
 
     public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
     {
-        $table = $this->quoteStringLiteral($table);
-
-        $sql = 'SELECT DISTINCT k.`CONSTRAINT_NAME`, k.`COLUMN_NAME`, k.`REFERENCED_TABLE_NAME`, ' .
-               'k.`REFERENCED_COLUMN_NAME`, k.`ORDINAL_POSITION` /*!50116 , c.update_rule, c.delete_rule */ ' .
-               'FROM information_schema.key_column_usage k /*!50116 ' .
-               'INNER JOIN information_schema.referential_constraints c ON ' .
-               '  c.constraint_name = k.constraint_name AND ' .
-               '  c.table_name = ' . $table . ' */ WHERE k.table_name = ' . $table;
-
-        $databaseNameSql = $this->getDatabaseNameSql($database);
-
-        return $sql . ' AND k.table_schema = ' . $databaseNameSql
-            . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */'
-            . ' AND k.`REFERENCED_COLUMN_NAME` is not NULL'
-            . ' ORDER BY k.`ORDINAL_POSITION`';
+        return 'SELECT k.CONSTRAINT_NAME, k.COLUMN_NAME, k.REFERENCED_TABLE_NAME, ' .
+               'k.REFERENCED_COLUMN_NAME /*!50116 , c.UPDATE_RULE, c.DELETE_RULE */ ' .
+               'FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE k /*!50116 ' .
+               'INNER JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS c ON ' .
+               'c.CONSTRAINT_NAME = k.CONSTRAINT_NAME AND ' .
+               'c.TABLE_NAME = k.TABLE_NAME AND ' .
+               'c.CONSTRAINT_SCHEMA = k.CONSTRAINT_SCHEMA */ ' .
+               'WHERE k.TABLE_NAME = ' . $this->quoteStringLiteral($table) . ' ' .
+               'AND k.TABLE_SCHEMA = ' . $this->getDatabaseNameSQL($database) . ' ' .
+               'ORDER BY k.ORDINAL_POSITION';
     }
 
     /**
@@ -274,7 +266,7 @@ class MySQLPlatform extends AbstractPlatform
         return 'SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ' .
                'COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, ' .
                'CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation ' .
-               'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $this->getDatabaseNameSql($database) . ' ' .
+               'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $this->getDatabaseNameSQL($database) . ' ' .
                'AND TABLE_NAME = ' . $this->quoteStringLiteral($table) . ' ORDER BY ORDINAL_POSITION';
     }
 
@@ -294,7 +286,7 @@ FROM information_schema.TABLES t
 WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = %s AND TABLE_NAME = %s
 SQL
             ,
-            $database !== null ? $this->quoteStringLiteral($database) : 'DATABASE()',
+            $this->getDatabaseNameSQL($database),
             $this->quoteStringLiteral($table)
         );
     }
@@ -981,15 +973,13 @@ SQL
 
     /**
      * Returns an SQL expression representing the given database name or current database name
-     *
-     * @param string|null $database Database name
      */
-    private function getDatabaseNameSql(?string $database): string
+    private function getDatabaseNameSQL(?string $databaseName): string
     {
-        if ($database === null) {
-            return 'DATABASE()';
+        if ($databaseName === null) {
+            return $this->getCurrentDatabaseExpression();
         }
 
-        return $this->quoteStringLiteral($database);
+        return $this->quoteStringLiteral($databaseName);
     }
 }

@@ -575,6 +575,14 @@ The following methods have been removed.
 
 # Upgrade to 3.3
 
+## Deprecated the `Graphviz` visitor.
+
+This class is not part of the database abstraction provided by the library and will be removed in DBAL 4.
+
+## Deprecated the `--depth` option of `RunSqlCommand`.
+
+This option does not have any effect anymore and will be removed in DBAL 4.
+
 ## Deprecated platform "commented type" API
 
 Since `Type::requiresSQLCommentTypeHint()` already allows determining whether a
@@ -587,6 +595,14 @@ following methods are deprecated:
 
 The protected property `AbstractPlatform::$doctrineTypeComments` is deprecated
 as well.
+
+## Deprecated support for MySQL 5.6 and older
+
+MySQL 5.6 and older won't be actively supported in DBAL 4. Consider upgrading to MySQL 5.7 or later.
+The following classes have been deprecated:
+
+* `Doctrine\DBAL\Platforms\MySQL57Platform`
+* `Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords`
 
 ## Deprecated support for Postgres 9
 
@@ -619,6 +635,14 @@ The following methods have been deprecated:
 Call `getNativeConnection()` to access the underlying PDO or MySQLi connection.
 
 # Upgrade to 3.2
+
+## Minor BC Break: using cache keys with characters reserved by `psr/cache`
+
+We have been working on phasing out `doctrine/cache`, and 3.2.0 allows to use
+`psr/cache` instead. To help calling our own internal APIs in a unified way, we
+also wrap `doctrine/cache` implementations with a `psr/cache` adapter.
+Using cache keys containing characters reserved by `psr/cache` will result in
+an exception. The characters are the following: `{}()/\@`.
 
 ## Deprecated `SQLLogger` and its implementations.
 

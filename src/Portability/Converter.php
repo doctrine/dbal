@@ -34,7 +34,7 @@ final class Converter
      * @param bool     $convertEmptyStringToNull Whether each empty string should be converted to NULL
      * @param bool     $rightTrimString          Whether each string should right-trimmed
      * @param int|null $case                     Convert the case of the column names
-     *                                           (one of {@link CASE_LOWER} and {@link CASE_UPPER})
+     *                                           (one of {@see CASE_LOWER} and {@see CASE_UPPER})
      */
     public function __construct(bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case)
     {

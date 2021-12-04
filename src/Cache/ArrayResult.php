@@ -16,7 +16,7 @@ use function reset;
  */
 final class ArrayResult implements Result
 {
-    /** @var mixed[] */
+    /** @var list<array<string, mixed>> */
     private array $data;
 
     private int $columnCount = 0;
@@ -24,7 +24,7 @@ final class ArrayResult implements Result
     private int $num = 0;
 
     /**
-     * @param mixed[] $data
+     * @param list<array<string, mixed>> $data
      */
     public function __construct(array $data)
     {
@@ -102,7 +102,10 @@ final class ArrayResult implements Result
         $this->data = [];
     }
 
-    private function fetch(): mixed
+    /**
+     * @return array<string, mixed>|false
+     */
+    private function fetch(): array|false
     {
         if (! isset($this->data[$this->num])) {
             return false;

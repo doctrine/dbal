@@ -8,7 +8,7 @@ use Exception as BaseException;
 use Throwable;
 
 /**
- * Abstract base implementation of the {@link DriverException} interface.
+ * Abstract base implementation of the {@see DriverException} interface.
  *
  * @psalm-immutable
  */

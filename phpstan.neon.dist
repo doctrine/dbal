@@ -8,10 +8,6 @@ parameters:
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-        # legacy remnants from doctrine/common
-        - '~^Class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy) not found\.\z~'
-        - '~^.+ on an unknown class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy)\.\z~'
-
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
         -
             message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'

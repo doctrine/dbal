@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * MySQL 5.7 reserved keywords list.
+ *
+ * @deprecated Use {@see MySQLKeywords} instead.
  */
 class MySQL57Keywords extends MySQLKeywords
 {

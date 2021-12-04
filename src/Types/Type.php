@@ -13,7 +13,7 @@ use function array_map;
 /**
  * The base class for so-called Doctrine mapping types.
  *
- * A Type object is obtained by calling the static {@link getType()} method.
+ * A Type object is obtained by calling the static {@see getType()} method.
  */
 abstract class Type
 {
@@ -180,7 +180,7 @@ abstract class Type
      * Gets the (preferred) binding type for values of this type that
      * can be used when binding parameters to prepared statements.
      *
-     * This method should return one of the {@link ParameterType} constants.
+     * This method should return one of the {@see ParameterType} constants.
      */
     public function getBindingType(): int
     {
@@ -207,8 +207,8 @@ abstract class Type
      * Does working with this column require SQL conversion functions?
      *
      * This is a metadata function that is required for example in the ORM.
-     * Usage of {@link convertToDatabaseValueSQL} and
-     * {@link convertToPHPValueSQL} works for any type and mostly
+     * Usage of {@see convertToDatabaseValueSQL} and
+     * {@see convertToPHPValueSQL} works for any type and mostly
      * does nothing. This method can additionally be used for optimization purposes.
      */
     public function canRequireSQLConversion(): bool

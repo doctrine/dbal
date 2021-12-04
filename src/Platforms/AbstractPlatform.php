@@ -879,7 +879,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to drop a constraint.
      *
-     * @internal The method should be only used from within the {@link AbstractPlatform} class hierarchy.
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     protected function getDropConstraintSQL(string $name, string $table): string
     {

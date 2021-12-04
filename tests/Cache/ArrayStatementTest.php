@@ -11,7 +11,7 @@ use function array_values;
 
 class ArrayStatementTest extends TestCase
 {
-    /** @var array<int, array<string, mixed>> */
+    /** @var list<array<string, mixed>> */
     private array $users = [
         [
             'username' => 'jwage',
