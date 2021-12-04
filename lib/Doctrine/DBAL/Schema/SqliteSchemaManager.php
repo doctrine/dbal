@@ -12,7 +12,6 @@ use function array_change_key_case;
 use function array_map;
 use function array_merge;
 use function array_reverse;
-use function array_values;
 use function explode;
 use function file_exists;
 use function preg_match;
@@ -446,9 +445,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $result = [];
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']),
+                $constraint['local'],
                 $constraint['foreignTable'],
-                array_values($constraint['foreign']),
+                $constraint['foreign'],
                 $constraint['name'],
                 [
                     'onDelete' => $constraint['onDelete'],
