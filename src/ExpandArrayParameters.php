@@ -56,13 +56,13 @@ final class ExpandArrayParameters implements Visitor
         $this->originalParameterIndex++;
     }
 
-    public function acceptNamedParameter(string $name): void
+    public function acceptNamedParameter(string $sql): void
     {
-        if (! array_key_exists($name, $this->originalParameters)) {
-            throw MissingNamedParameter::new($name);
+        if (! array_key_exists($sql, $this->originalParameters)) {
+            throw MissingNamedParameter::new($sql);
         }
 
-        $this->acceptParameter($name, $this->originalParameters[$name]);
+        $this->acceptParameter($sql, $this->originalParameters[$sql]);
     }
 
     public function acceptOther(string $sql): void
