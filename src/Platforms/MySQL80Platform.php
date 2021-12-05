@@ -10,7 +10,7 @@ use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 8.0 (8.0 GA) database platform.
  */
-class MySQL80Platform extends MySQL57Platform
+class MySQL80Platform extends MySQLPlatform
 {
     protected function createReservedKeywordsList(): KeywordList
     {

@@ -9,7 +9,7 @@ use function array_merge;
 /**
  * MySQL 8.0 reserved keywords list.
  */
-class MySQL80Keywords extends MySQL57Keywords
+class MySQL80Keywords extends MySQLKeywords
 {
     public function getName(): string
     {

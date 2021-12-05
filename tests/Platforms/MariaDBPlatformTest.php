@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Types\Types;
 
-class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
+class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
     {
-        return new MariaDb1027Platform();
+        return new MariaDBPlatform();
     }
 
     public function testHasNativeJsonType(): void
@@ -38,6 +38,6 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
 
     public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void
     {
-        self::markTestSkipped('MariaDb1027Platform supports default values for BLOB and TEXT columns');
+        self::markTestSkipped('MariaDB supports default values for BLOB and TEXT columns');
     }
 }

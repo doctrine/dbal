@@ -9,7 +9,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -160,9 +160,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
     {
-        if ($this->schemaManager->getDatabasePlatform() instanceof MariaDb1027Platform) {
+        if ($this->schemaManager->getDatabasePlatform() instanceof MariaDBPlatform) {
             self::markTestSkipped(
-                'MariaDb102Platform supports default values for BLOB and TEXT columns and will propagate values'
+                'MariaDB supports default values for BLOB and TEXT columns and will propagate values'
             );
         }
 
@@ -472,8 +472,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testColumnDefaultValuesCurrentTimeAndDate(): void
     {
-        if (! $this->schemaManager->getDatabasePlatform() instanceof MariaDb1027Platform) {
-            self::markTestSkipped('Only relevant for MariaDb102Platform.');
+        if (! $this->schemaManager->getDatabasePlatform() instanceof MariaDBPlatform) {
+            self::markTestSkipped('Only relevant for MariaDB.');
         }
 
         $platform = $this->schemaManager->getDatabasePlatform();

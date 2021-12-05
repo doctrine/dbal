@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
-use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Types\Type;
 
@@ -190,8 +190,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        if ($this->_platform instanceof MariaDb1027Platform) {
-            $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default']);
+        if ($this->_platform instanceof MariaDBPlatform) {
+            $columnDefault = $this->getMariaDBColumnDefault($this->_platform, $tableColumn['default']);
         } else {
             $columnDefault = $tableColumn['default'];
         }
@@ -240,7 +240,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
      *
      * @param string|null $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
-    private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault): ?string
+    private function getMariaDBColumnDefault(MariaDBPlatform $platform, ?string $columnDefault): ?string
     {
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             return null;
