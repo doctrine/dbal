@@ -40,6 +40,7 @@ use function substr;
  *     platform?: Platforms\AbstractPlatform,
  *     port?: int,
  *     user?: string,
+ *     unix_socket?: string,
  * }
  * @psalm-type Params = array{
  *     charset?: string,
@@ -64,6 +65,7 @@ use function substr;
  *     slaves?: array<OverrideParams>,
  *     user?: string,
  *     wrapperClass?: class-string<Connection>,
+ *     unix_socket?: string,
  * }
  */
 final class DriverManager
