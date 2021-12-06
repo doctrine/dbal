@@ -66,12 +66,22 @@ jobs:
       matrix:
         php-version:
           - "8.1"
+        oracle-version:
+          - "11"
+          - "21"
 
     services:
       oracle:
-        image: "wnameless/oracle-xe-11g-r2"
+        image: gvenzl/oracle-xe:${{ matrix.oracle-version }}
+        env:
+          ORACLE_PASSWORD: oracle
         ports:
           - "1521:1521"
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 20s
+          --health-timeout 10s
+          --health-retries 10
 
     steps:
       - name: "Checkout"
@@ -108,12 +118,22 @@ jobs:
       matrix:
         php-version:
           - "8.1"
+        oracle-version:
+          - "11"
+          - "21"
 
     services:
       oracle:
-        image: "wnameless/oracle-xe-11g-r2"
+        image: gvenzl/oracle-xe:${{ matrix.oracle-version }}
+        env:
+          ORACLE_PASSWORD: oracle
         ports:
           - "1521:1521"
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 20s
+          --health-timeout 10s
+          --health-retries 10
 
     steps:
       - name: "Checkout"

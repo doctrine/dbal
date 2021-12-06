@@ -275,7 +275,7 @@ class Result
     public function fetch(int $mode = FetchMode::ASSOCIATIVE): mixed
     {
         if (func_num_args() > 1) {
-            throw new LogicException('Only invocations with one argument are still supported by this legecy API.');
+            throw new LogicException('Only invocations with one argument are still supported by this legacy API.');
         }
 
         if ($mode === FetchMode::ASSOCIATIVE) {
@@ -305,7 +305,7 @@ class Result
     public function fetchAll(int $mode = FetchMode::ASSOCIATIVE): array
     {
         if (func_num_args() > 1) {
-            throw new LogicException('Only invocations with one argument are still supported by this legecy API.');
+            throw new LogicException('Only invocations with one argument are still supported by this legacy API.');
         }
 
         if ($mode === FetchMode::ASSOCIATIVE) {

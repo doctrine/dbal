@@ -33,7 +33,7 @@ use function str_repeat;
 abstract class AbstractPlatformTestCase extends TestCase
 {
     /** @var T */
-    protected $platform;
+    protected AbstractPlatform $platform;
 
     /**
      * @return T
