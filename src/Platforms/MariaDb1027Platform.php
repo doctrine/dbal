@@ -19,7 +19,7 @@ class MariaDb1027Platform extends MySQLPlatform
      */
     public function getJsonTypeDeclarationSQL(array $column): string
     {
-        return 'LONGTEXT';
+        return 'JSON';
     }
 
     /**
