@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed the `Graphviz` visitor.
+
+The `Doctrine\DBAL\Schema\Visitor\Graphviz` class has been removed.
+
 ## BC BREAK: Removed active support for Postgres 9
 
 Postgres 9 is not actively supported anymore. The following classes have been merged into their respective parent class:
