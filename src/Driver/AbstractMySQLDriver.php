@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
@@ -124,7 +125,7 @@ abstract class AbstractMySQLDriver implements Driver
 
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): MySQLSchemaManager
     {
-        assert($platform instanceof MySQLPlatform);
+        assert($platform instanceof AbstractMySQLPlatform);
 
         return new MySQLSchemaManager($conn, $platform);
     }

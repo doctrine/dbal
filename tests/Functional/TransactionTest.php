@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Exception\ConnectionLost;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function sleep;
@@ -20,7 +20,7 @@ class TransactionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDatabasePlatform() instanceof MySQLPlatform) {
+        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
             return;
         }
 

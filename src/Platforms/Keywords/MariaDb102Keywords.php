@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  *
  * @link https://mariadb.com/kb/en/the-mariadb-library/reserved-words/
  */
-final class MariaDb102Keywords extends MySQLKeywords
+final class MariaDb102Keywords extends MariaDBKeywords
 {
     public function getName(): string
     {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema\MySQL;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
@@ -27,7 +27,7 @@ final class ComparatorTest extends FunctionalTestCase
     {
         $this->platform = $this->connection->getDatabasePlatform();
 
-        if (! $this->platform instanceof MySQLPlatform) {
+        if (! $this->platform instanceof AbstractMySQLPlatform) {
             self::markTestSkipped();
         }
 
@@ -65,13 +65,13 @@ final class ComparatorTest extends FunctionalTestCase
      */
     public static function lobColumnProvider(): iterable
     {
-        yield [Types::BLOB, MySQLPlatform::LENGTH_LIMIT_TINYBLOB];
-        yield [Types::BLOB, MySQLPlatform::LENGTH_LIMIT_BLOB];
-        yield [Types::BLOB, MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB];
+        yield [Types::BLOB, AbstractMySQLPlatform::LENGTH_LIMIT_TINYBLOB];
+        yield [Types::BLOB, AbstractMySQLPlatform::LENGTH_LIMIT_BLOB];
+        yield [Types::BLOB, AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB];
 
-        yield [Types::TEXT, MySQLPlatform::LENGTH_LIMIT_TINYTEXT];
-        yield [Types::TEXT, MySQLPlatform::LENGTH_LIMIT_TEXT];
-        yield [Types::TEXT, MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT];
+        yield [Types::TEXT, AbstractMySQLPlatform::LENGTH_LIMIT_TINYTEXT];
+        yield [Types::TEXT, AbstractMySQLPlatform::LENGTH_LIMIT_TEXT];
+        yield [Types::TEXT, AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT];
     }
 
     /**

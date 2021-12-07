@@ -79,8 +79,8 @@
                 -->
                 <file name="src/Driver/PDO/Connection.php"/>
                 <file name="src/DriverManager.php"/>
+                <file name="src/Platforms/AbstractMySQLPlatform.php"/>
                 <file name="src/Platforms/AbstractPlatform.php"/>
-                <file name="src/Platforms/MySQLPlatform.php"/>
                 <file name="src/Platforms/SQLServerPlatform.php"/>
                 <file name="src/Platforms/SqlitePlatform.php"/>
                 <file name="src/Schema/Column.php"/>
@@ -180,7 +180,7 @@
                     Fixing these issues requires support of union types at the language level
                     or breaking API changes.
                 -->
-                <file name="src/Platforms/MySQLPlatform.php"/>
+                <file name="src/Platforms/AbstractMySQLPlatform.php"/>
                 <file name="tests/Functional/Driver/AbstractDriverTest.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>

@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
@@ -22,7 +22,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! $this->connection->getDatabasePlatform() instanceof MySQLPlatform) {
+        if (! $this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
             self::markTestSkipped('Test works only on MySQL.');
         }
 

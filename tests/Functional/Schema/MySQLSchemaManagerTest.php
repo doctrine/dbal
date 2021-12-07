@@ -7,9 +7,9 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use DateTime;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\DatabaseRequired;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -28,7 +28,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
-        return $platform instanceof MySQLPlatform;
+        return $platform instanceof AbstractMySQLPlatform;
     }
 
     public function testSwitchPrimaryKeyColumns(): void
@@ -290,14 +290,14 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'lob_type_columns';
         $table     = new Table($tableName);
 
-        $table->addColumn('col_tinytext', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
-        $table->addColumn('col_text', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TEXT]);
-        $table->addColumn('col_mediumtext', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $table->addColumn('col_tinytext', 'text', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $table->addColumn('col_text', 'text', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_TEXT]);
+        $table->addColumn('col_mediumtext', 'text', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
         $table->addColumn('col_longtext', 'text');
 
-        $table->addColumn('col_tinyblob', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
-        $table->addColumn('col_blob', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_BLOB]);
-        $table->addColumn('col_mediumblob', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $table->addColumn('col_tinyblob', 'text', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $table->addColumn('col_blob', 'blob', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_BLOB]);
+        $table->addColumn('col_mediumblob', 'blob', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
         $table->addColumn('col_longblob', 'blob');
 
         $this->dropAndCreateTable($table);

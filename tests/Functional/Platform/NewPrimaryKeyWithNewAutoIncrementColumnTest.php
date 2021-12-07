@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function count;
@@ -14,7 +14,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
 {
     protected function setUp(): void
     {
-        if ($this->getPlatform() instanceof MySQLPlatform) {
+        if ($this->getPlatform() instanceof AbstractMySQLPlatform) {
             return;
         }
 
