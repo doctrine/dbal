@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\API\MySQL;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
@@ -121,7 +122,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
     /**
      * {@inheritdoc}
      *
-     * @return MySQLPlatform
+     * @return AbstractMySQLPlatform
      */
     public function getDatabasePlatform()
     {
@@ -135,7 +136,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
      */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform)
     {
-        assert($platform instanceof MySQLPlatform);
+        assert($platform instanceof AbstractMySQLPlatform);
 
         return new MySQLSchemaManager($conn, $platform);
     }

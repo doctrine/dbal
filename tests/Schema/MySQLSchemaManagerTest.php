@@ -6,7 +6,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
@@ -28,7 +28,7 @@ class MySQLSchemaManagerTest extends TestCase
         $eventManager = new EventManager();
         $driverMock   = $this->createMock(Driver::class);
 
-        $platform = $this->createMock(MySQLPlatform::class);
+        $platform = $this->createMock(AbstractMySQLPlatform::class);
         $platform->method('getListTableForeignKeysSQL')
             ->willReturn('');
 

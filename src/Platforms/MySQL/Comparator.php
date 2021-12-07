@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms\MySQL;
 
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\Table;
 
@@ -21,7 +21,7 @@ class Comparator extends BaseComparator
     /**
      * @internal The comparator can be only instantiated by a schema manager.
      */
-    public function __construct(MySQLPlatform $platform)
+    public function __construct(AbstractMySQLPlatform $platform)
     {
         parent::__construct($platform);
     }
