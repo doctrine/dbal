@@ -14,6 +14,14 @@ class MariaDb1027Platform extends MySQLPlatform
 {
     /**
      * {@inheritdoc}
+     */
+    public function hasNativeJsonType()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
      *
      * @link https://mariadb.com/kb/en/library/json-data-type/
      */
