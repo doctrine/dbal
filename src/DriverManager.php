@@ -66,6 +66,7 @@ use function substr;
  *     user?: string,
  *     wrapperClass?: class-string<Connection>,
  *     unix_socket?: string,
+ *     type_registry_name?: non-empty-string,
  * }
  */
 final class DriverManager

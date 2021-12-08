@@ -120,7 +120,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             $options['precision'] = $precision;
         }
 
-        return new Column($tableColumn['colname'], Type::getType($type), $options);
+        return new Column($tableColumn['colname'], Type::getType($type, $this->_conn->getTypeRegistryName()), $options);
     }
 
     /**

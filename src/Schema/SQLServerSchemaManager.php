@@ -116,7 +116,7 @@ SQL
             $options['length'] = $length;
         }
 
-        $column = new Column($tableColumn['name'], Type::getType($type), $options);
+        $column = new Column($tableColumn['name'], Type::getType($type, $this->_conn->getTypeRegistryName()), $options);
 
         if (isset($tableColumn['collation']) && $tableColumn['collation'] !== 'NULL') {
             $column->setPlatformOption('collation', $tableColumn['collation']);

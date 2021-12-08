@@ -314,7 +314,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $type = $this->extractDoctrineTypeFromComment($comment, '');
 
             if ($type !== '') {
-                $column->setType(Type::getType($type));
+                $column->setType(Type::getType($type, $this->_conn->getTypeRegistryName()));
 
                 $comment = $this->removeDoctrineTypeFromComment($comment, $type);
             }
@@ -401,7 +401,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             'autoincrement' => false,
         ];
 
-        return new Column($tableColumn['name'], Type::getType($type), $options);
+        return new Column($tableColumn['name'], Type::getType($type, $this->_conn->getTypeRegistryName()), $options);
     }
 
     /**

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
+use function array_key_exists;
 use function array_map;
 use function get_class;
 
@@ -47,8 +48,11 @@ abstract class Type
         Types::TIME_IMMUTABLE       => TimeImmutableType::class,
     ];
 
-    /** @var TypeRegistry|null */
-    private static $typeRegistry;
+    /**
+     * @var TypeRegistry[]
+     * @psalm-var array<non-empty-string, TypeRegistry>
+     */
+    private static $typeRegistries = [];
 
     /**
      * @internal Do not instantiate directly - use {@see Type::addType()} method instead.
@@ -108,13 +112,14 @@ abstract class Type
      */
     abstract public function getName();
 
-    final public static function getTypeRegistry(): TypeRegistry
+    /** @psalm-param non-empty-string $registryName */
+    final public static function getTypeRegistry(string $registryName = 'default'): TypeRegistry
     {
-        if (self::$typeRegistry === null) {
-            self::$typeRegistry = self::createTypeRegistry();
+        if (! array_key_exists($registryName, self::$typeRegistries)) {
+            self::$typeRegistries[$registryName] = self::createTypeRegistry();
         }
 
-        return self::$typeRegistry;
+        return self::$typeRegistries[$registryName];
     }
 
     private static function createTypeRegistry(): TypeRegistry
@@ -133,14 +138,15 @@ abstract class Type
      * Type instances are implemented as flyweights.
      *
      * @param string $name The name of the type (as returned by getName()).
+     * @psalm-param non-empty-string $registryName
      *
      * @return Type
      *
      * @throws Exception
      */
-    public static function getType($name)
+    public static function getType($name, string $registryName = 'default')
     {
-        return self::getTypeRegistry()->get($name);
+        return self::getTypeRegistry($registryName)->get($name);
     }
 
     /**
@@ -148,26 +154,28 @@ abstract class Type
      *
      * @param string             $name      The name of the type. This should correspond to what getName() returns.
      * @param class-string<Type> $className The class name of the custom type.
+     * @psalm-param non-empty-string $registryName
      *
      * @return void
      *
      * @throws Exception
      */
-    public static function addType($name, $className)
+    public static function addType($name, $className, string $registryName = 'default')
     {
-        self::getTypeRegistry()->register($name, new $className());
+        self::getTypeRegistry($registryName)->register($name, new $className());
     }
 
     /**
      * Checks if exists support for a type.
      *
      * @param string $name The name of the type.
+     * @psalm-param non-empty-string $registryName
      *
      * @return bool TRUE if type is supported; FALSE otherwise.
      */
-    public static function hasType($name)
+    public static function hasType($name, string $registryName = 'default')
     {
-        return self::getTypeRegistry()->has($name);
+        return self::getTypeRegistry($registryName)->has($name);
     }
 
     /**
@@ -175,14 +183,15 @@ abstract class Type
      *
      * @param string             $name
      * @param class-string<Type> $className
+     * @psalm-param non-empty-string $registryName
      *
      * @return void
      *
      * @throws Exception
      */
-    public static function overrideType($name, $className)
+    public static function overrideType($name, $className, string $registryName = 'default')
     {
-        self::getTypeRegistry()->override($name, new $className());
+        self::getTypeRegistry($registryName)->override($name, new $className());
     }
 
     /**
@@ -202,15 +211,17 @@ abstract class Type
      * Gets the types array map which holds all registered types and the corresponding
      * type class
      *
+     * @psalm-param non-empty-string $registryName
+     *
      * @return string[]
      */
-    public static function getTypesMap()
+    public static function getTypesMap(string $registryName = 'default')
     {
         return array_map(
             static function (Type $type): string {
                 return get_class($type);
             },
-            self::getTypeRegistry()->getMap()
+            self::getTypeRegistry($registryName)->getMap()
         );
     }
 

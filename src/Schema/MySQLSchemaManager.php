@@ -227,7 +227,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
             $options['precision'] = (int) $precision;
         }
 
-        $column = new Column($tableColumn['field'], Type::getType($type), $options);
+        $column = new Column($tableColumn['field'], Type::getType($type, $this->_conn->getTypeRegistryName()), $options);
 
         if (isset($tableColumn['characterset'])) {
             $column->setPlatformOption('charset', $tableColumn['characterset']);

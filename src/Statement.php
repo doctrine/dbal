@@ -100,7 +100,7 @@ class Statement
 
         if ($type !== null) {
             if (is_string($type)) {
-                $type = Type::getType($type);
+                $type = Type::getType($type, $this->conn->getTypeRegistryName());
             }
 
             $bindingType = $type;

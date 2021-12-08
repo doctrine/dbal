@@ -1595,7 +1595,7 @@ class Connection
      */
     public function convertToDatabaseValue($value, $type)
     {
-        return Type::getType($type)->convertToDatabaseValue($value, $this->getDatabasePlatform());
+        return Type::getType($type, $this->getTypeRegistryName())->convertToDatabaseValue($value, $this->getDatabasePlatform());
     }
 
     /**
@@ -1611,7 +1611,7 @@ class Connection
      */
     public function convertToPHPValue($value, $type)
     {
-        return Type::getType($type)->convertToPHPValue($value, $this->getDatabasePlatform());
+        return Type::getType($type, $this->getTypeRegistryName())->convertToPHPValue($value, $this->getDatabasePlatform());
     }
 
     /**
@@ -1668,7 +1668,7 @@ class Connection
     private function getBindingInfo($value, $type): array
     {
         if (is_string($type)) {
-            $type = Type::getType($type);
+            $type = Type::getType($type, $this->getTypeRegistryName());
         }
 
         if ($type instanceof Type) {
@@ -1804,5 +1804,13 @@ class Connection
     public function exec(string $sql): int
     {
         return $this->executeStatement($sql);
+    }
+
+    /**
+     * @psalm-return non-empty-string
+     */
+    public function getTypeRegistryName(): string
+    {
+        return $this->params['type_registry_name'] ?? 'default';
     }
 }

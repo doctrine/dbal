@@ -183,7 +183,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 : null,
         ];
 
-        return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
+        return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type, $this->_conn->getTypeRegistryName()), $options);
     }
 
     /**
