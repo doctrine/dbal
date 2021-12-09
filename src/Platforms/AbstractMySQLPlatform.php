@@ -145,6 +145,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      *
      * Two approaches to listing the table indexes. The information_schema is
@@ -172,6 +174,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string      $table
      * @param string|null $database
      *
@@ -314,6 +318,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTablesSQL()
@@ -322,6 +328,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)
@@ -334,6 +342,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                ' ORDER BY ORDINAL_POSITION ASC';
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableMetadataSQL(string $table, ?string $database = null): string
     {
         return sprintf(

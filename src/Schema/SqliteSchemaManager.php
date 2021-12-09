@@ -1,3 +1,4 @@
+<?php
 
 namespace Doctrine\DBAL\Schema;
 
