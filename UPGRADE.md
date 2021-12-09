@@ -36,9 +36,13 @@ following methods are deprecated:
 The protected property `AbstractPlatform::$doctrineTypeComments` is deprecated
 as well.
 
-## Deprecated support for MariaDB 10.1 and older
+## Deprecated support for MariaDB 10.2.6 and older
 
-MariaDB 10.1 and older won't be supported in DBAL 4. Consider upgrading to MariaDB 10.2.7 or later.
+MariaDB 10.2.6 and older won't be supported in DBAL 4. Consider upgrading to MariaDB 10.2.7 or later.
+The following classes have been deprecated:
+
+* `Doctrine\DBAL\Platforms\MariaDb1027Platform`
+* `Doctrine\DBAL\Platforms\Keywords\MariaDb102Keywords`
 
 ## Deprecated support for MySQL 5.6 and older
 
