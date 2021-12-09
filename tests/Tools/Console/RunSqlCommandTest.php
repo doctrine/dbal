@@ -5,12 +5,13 @@ namespace Doctrine\DBAL\Tests\Tools\Console;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider\SingleConnectionProvider;
-use LogicException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
+
+use function str_replace;
 
 class RunSqlCommandTest extends TestCase
 {
@@ -45,20 +46,6 @@ class RunSqlCommandTest extends TestCase
         }
     }
 
-    public function testIncorrectDepthOption(): void
-    {
-        try {
-            $this->commandTester->execute([
-                'command' => $this->command->getName(),
-                'sql' => 'SELECT 1',
-                '--depth' => 'string',
-            ]);
-            self::fail('Expected a logic exception when executing with a stringy depth');
-        } catch (LogicException $e) {
-            self::assertStringContainsString("Option 'depth'", $e->getMessage());
-        }
-    }
-
     public function testSelectStatementsPrintsResult(): void
     {
         $this->expectConnectionFetchAllAssociative();
@@ -69,8 +56,34 @@ class RunSqlCommandTest extends TestCase
         ]);
         self::assertSame(0, $exitCode);
 
-        self::assertMatchesRegularExpression('@int.*1.*@', $this->commandTester->getDisplay());
-        self::assertMatchesRegularExpression('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertStringEqualsFile(
+            __DIR__ . '/Fixtures/select-1.txt',
+            str_replace("\r\n", "\n", $this->commandTester->getDisplay())
+        );
+    }
+
+    public function testSelectWithEmptyResultSet(): void
+    {
+        $this->connectionMock
+            ->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->with('SELECT foo FROM bar')
+            ->willReturn([]);
+
+        $this->connectionMock
+            ->expects(self::never())
+            ->method('executeStatement');
+
+        $exitCode = $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            'sql' => 'SELECT foo FROM bar',
+        ]);
+        self::assertSame(0, $exitCode);
+
+        self::assertStringContainsString(
+            '[OK] The query yielded an empty result set.',
+            $this->commandTester->getDisplay()
+        );
     }
 
     public function testUpdateStatementsPrintsAffectedLines(): void
@@ -82,8 +95,7 @@ class RunSqlCommandTest extends TestCase
             'sql' => 'UPDATE foo SET bar = 42',
         ]);
 
-        self::assertMatchesRegularExpression('@int.*42.*@', $this->commandTester->getDisplay());
-        self::assertDoesNotMatchRegularExpression('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertStringContainsString('[OK] 42 rows affected.', $this->commandTester->getDisplay(true));
     }
 
     private function expectConnectionExecuteStatement(): void
@@ -120,7 +132,9 @@ class RunSqlCommandTest extends TestCase
             '--force-fetch' => true,
         ]);
 
-        self::assertMatchesRegularExpression('@int.*1.*@', $this->commandTester->getDisplay());
-        self::assertMatchesRegularExpression('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertStringEqualsFile(
+            __DIR__ . '/Fixtures/select-1.txt',
+            str_replace("\r\n", "\n", $this->commandTester->getDisplay())
+        );
     }
 }

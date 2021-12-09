@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PDOException;
 
@@ -12,7 +12,7 @@ class TransactionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if ($this->connection->getDatabasePlatform() instanceof MySQLPlatform) {
+        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
             return;
         }
 

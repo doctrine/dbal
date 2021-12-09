@@ -13,6 +13,8 @@ use function strtolower;
 
 /**
  * Create a Graphviz output of a Schema.
+ *
+ * @deprecated
  */
 class Graphviz extends AbstractVisitor
 {

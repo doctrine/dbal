@@ -89,10 +89,6 @@
         -->
         <exclude-pattern>src/Driver/IBMDB2/Connection.php</exclude-pattern>
         <exclude-pattern>src/Driver/Mysqli/Exception/ConnectionFailed.php</exclude-pattern>
-        <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
-        <exclude-pattern>src/Tools/Dumper.php</exclude-pattern>
-        <exclude-pattern>tests/Driver/StatementIteratorTest.php</exclude-pattern>
-        <exclude-pattern>tests/Tools/DumperTest.php</exclude-pattern>
     </rule>
 
     <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->

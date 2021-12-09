@@ -256,7 +256,7 @@ class Schema extends AbstractAsset
     /**
      * Gets all table names, prefixed with a schema name, even the default one if present.
      *
-     * @deprecated Use {@link getTables()} and {@link Table::getName()} instead.
+     * @deprecated Use {@see getTables()} and {@see Table::getName()} instead.
      *
      * @return string[]
      */

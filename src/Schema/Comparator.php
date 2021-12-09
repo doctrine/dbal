@@ -175,7 +175,7 @@ class Comparator
     }
 
     /**
-     * @deprecated Use non-static call to {@link compareSchemas()} instead.
+     * @deprecated Use non-static call to {@see compareSchemas()} instead.
      *
      * @return SchemaDiff
      *

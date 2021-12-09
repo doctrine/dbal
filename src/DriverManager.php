@@ -24,7 +24,7 @@ use function strpos;
 use function substr;
 
 /**
- * Factory for creating {@link Connection} instances.
+ * Factory for creating {@see Connection} instances.
  *
  * @psalm-type OverrideParams = array{
  *     charset?: string,
@@ -40,6 +40,7 @@ use function substr;
  *     platform?: Platforms\AbstractPlatform,
  *     port?: int,
  *     user?: string,
+ *     unix_socket?: string,
  * }
  * @psalm-type Params = array{
  *     charset?: string,
@@ -64,6 +65,7 @@ use function substr;
  *     slaves?: array<OverrideParams>,
  *     user?: string,
  *     wrapperClass?: class-string<Connection>,
+ *     unix_socket?: string,
  * }
  */
 final class DriverManager
@@ -71,7 +73,7 @@ final class DriverManager
     /**
      * List of supported drivers and their mappings to the driver classes.
      *
-     * To add your own driver use the 'driverClass' parameter to {@link DriverManager::getConnection()}.
+     * To add your own driver use the 'driverClass' parameter to {@see DriverManager::getConnection()}.
      */
     private const DRIVER_MAP = [
         'pdo_mysql'          => PDO\MySQL\Driver::class,
@@ -118,7 +120,7 @@ final class DriverManager
      *
      * $params must contain at least one of the following.
      *
-     * Either 'driver' with one of the array keys of {@link DRIVER_MAP},
+     * Either 'driver' with one of the array keys of {@see DRIVER_MAP},
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
      *
@@ -340,7 +342,7 @@ final class DriverManager
      * Parses the given connection URL and resolves the given connection parameters.
      *
      * Assumes that the connection URL scheme is already parsed and resolved into the given connection parameters
-     * via {@link parseDatabaseUrlScheme}.
+     * via {@see parseDatabaseUrlScheme}.
      *
      * @see parseDatabaseUrlScheme
      *
@@ -394,7 +396,7 @@ final class DriverManager
     /**
      * Parses the given regular connection URL and resolves the given connection parameters.
      *
-     * Assumes that the "path" URL part is already normalized via {@link normalizeDatabaseUrlPath}.
+     * Assumes that the "path" URL part is already normalized via {@see normalizeDatabaseUrlPath}.
      *
      * @see normalizeDatabaseUrlPath
      *
@@ -413,7 +415,7 @@ final class DriverManager
     /**
      * Parses the given SQLite connection URL and resolves the given connection parameters.
      *
-     * Assumes that the "path" URL part is already normalized via {@link normalizeDatabaseUrlPath}.
+     * Assumes that the "path" URL part is already normalized via {@see normalizeDatabaseUrlPath}.
      *
      * @see normalizeDatabaseUrlPath
      *

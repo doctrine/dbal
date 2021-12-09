@@ -8,6 +8,58 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated the `doctrine-dbal` binary.
+
+The documentation explains how the console tools can be bootstrapped for standalone usage.
+
+The method `ConsoleRunner::printCliConfigTemplate()` is deprecated because it was only useful in the context of the
+`doctrine-dbal` binary.
+
+## Deprecated the `Graphviz` visitor.
+
+This class is not part of the database abstraction provided by the library and will be removed in DBAL 4.
+
+## Deprecated the `--depth` option of `RunSqlCommand`.
+
+This option does not have any effect anymore and will be removed in DBAL 4.
+
+## Deprecated platform "commented type" API
+
+Since `Type::requiresSQLCommentTypeHint()` already allows determining whether a
+type should result in SQL columns with a type hint in their comments, the
+following methods are deprecated:
+
+- `AbstractPlatform::isCommentedDoctrineType()`
+- `AbstractPlatform::initializeCommentedDoctrineTypes()`
+- `AbstractPlatform::markDoctrineTypeCommented()`
+
+The protected property `AbstractPlatform::$doctrineTypeComments` is deprecated
+as well.
+
+## Deprecated support for MariaDB 10.2.6 and older
+
+MariaDB 10.2.6 and older won't be supported in DBAL 4. Consider upgrading to MariaDB 10.2.7 or later.
+The following classes have been deprecated:
+
+* `Doctrine\DBAL\Platforms\MariaDb1027Platform`
+* `Doctrine\DBAL\Platforms\Keywords\MariaDb102Keywords`
+
+## Deprecated support for MySQL 5.6 and older
+
+MySQL 5.6 and older won't be actively supported in DBAL 4. Consider upgrading to MySQL 5.7 or later.
+The following classes have been deprecated:
+
+* `Doctrine\DBAL\Platforms\MySQL57Platform`
+* `Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords`
+
+## Deprecated support for Postgres 9
+
+Postgres 9 won't be actively supported in DBAL 4. Consider upgrading to Postgres 10 or later.
+The following classes have been deprecated:
+
+* `Doctrine\DBAL\Platforms\PostgreSQL100Platform`
+* `Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords`
+
 ## Deprecated `Connection::getWrappedConnection()`, `Connection::connect()` made `@internal`.
 
 The wrapper-level `Connection::getWrappedConnection()` method has been deprecated.
@@ -31,6 +83,14 @@ The following methods have been deprecated:
 Call `getNativeConnection()` to access the underlying PDO or MySQLi connection.
 
 # Upgrade to 3.2
+
+## Minor BC Break: using cache keys with characters reserved by `psr/cache`
+
+We have been working on phasing out `doctrine/cache`, and 3.2.0 allows to use
+`psr/cache` instead. To help calling our own internal APIs in a unified way, we
+also wrap `doctrine/cache` implementations with a `psr/cache` adapter.
+Using cache keys containing characters reserved by `psr/cache` will result in
+an exception. The characters are the following: `{}()/\@`.
 
 ## Deprecated `SQLLogger` and its implementations.
 

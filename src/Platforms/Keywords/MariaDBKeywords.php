@@ -2,27 +2,17 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
-/**
- * MySQL 5.7 reserved keywords list.
- *
- * @deprecated Use {@link MySQLKeywords} instead.
- */
-class MySQL57Keywords extends MySQLKeywords
+class MariaDBKeywords extends MySQLKeywords
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
-        return 'MySQL57';
+        return 'MariaDB';
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @link http://dev.mysql.com/doc/mysqld-version-reference/en/mysqld-version-reference-reservedwords-5-7.html
      */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return [
             'ACCESSIBLE',
@@ -87,6 +77,7 @@ class MySQL57Keywords extends MySQLKeywords
             'ELSEIF',
             'ENCLOSED',
             'ESCAPED',
+            'EXCEPT',
             'EXISTS',
             'EXIT',
             'EXPLAIN',
@@ -102,6 +93,7 @@ class MySQL57Keywords extends MySQLKeywords
             'FULLTEXT',
             'GENERATED',
             'GET',
+            'GENERAL',
             'GRANT',
             'GROUP',
             'HAVING',
@@ -111,6 +103,7 @@ class MySQL57Keywords extends MySQLKeywords
             'HOUR_SECOND',
             'IF',
             'IGNORE',
+            'IGNORE_SERVER_IDS',
             'IN',
             'INDEX',
             'INFILE',
@@ -125,6 +118,7 @@ class MySQL57Keywords extends MySQLKeywords
             'INT4',
             'INT8',
             'INTEGER',
+            'INTERSECT',
             'INTERVAL',
             'INTO',
             'IO_AFTER_GTIDS',
@@ -152,6 +146,7 @@ class MySQL57Keywords extends MySQLKeywords
             'LOOP',
             'LOW_PRIORITY',
             'MASTER_BIND',
+            'MASTER_HEARTBEAT_PERIOD',
             'MASTER_SSL_VERIFY_SERVER_CERT',
             'MATCH',
             'MAXVALUE',
@@ -178,6 +173,7 @@ class MySQL57Keywords extends MySQLKeywords
             'OUT',
             'OUTER',
             'OUTFILE',
+            'OVER',
             'PARTITION',
             'PRECISION',
             'PRIMARY',
@@ -188,6 +184,7 @@ class MySQL57Keywords extends MySQLKeywords
             'READ_WRITE',
             'READS',
             'REAL',
+            'RECURSIVE',
             'REFERENCES',
             'REGEXP',
             'RELEASE',
@@ -198,9 +195,11 @@ class MySQL57Keywords extends MySQLKeywords
             'RESIGNAL',
             'RESTRICT',
             'RETURN',
+            'RETURNING',
             'REVOKE',
             'RIGHT',
             'RLIKE',
+            'ROWS',
             'SCHEMA',
             'SCHEMAS',
             'SECOND_MICROSECOND',
@@ -210,6 +209,7 @@ class MySQL57Keywords extends MySQLKeywords
             'SET',
             'SHOW',
             'SIGNAL',
+            'SLOW',
             'SMALLINT',
             'SPATIAL',
             'SPECIFIC',
@@ -255,6 +255,7 @@ class MySQL57Keywords extends MySQLKeywords
             'WHEN',
             'WHERE',
             'WHILE',
+            'WINDOW',
             'WITH',
             'WRITE',
             'XOR',

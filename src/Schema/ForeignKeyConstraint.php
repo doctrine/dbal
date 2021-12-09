@@ -105,7 +105,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * Returns the name of the referencing table
      * the foreign key constraint is associated with.
      *
-     * @deprecated Use the table that contains the foreign key as part of its {@link Table::$_fkConstraints} instead.
+     * @deprecated Use the table that contains the foreign key as part of its {@see Table::$_fkConstraints} instead.
      *
      * @return string
      */
@@ -118,7 +118,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * Sets the Table instance of the referencing table
      * the foreign key constraint is associated with.
      *
-     * @deprecated Use the table that contains the foreign key as part of its {@link Table::$_fkConstraints} instead.
+     * @deprecated Use the table that contains the foreign key as part of its {@see Table::$_fkConstraints} instead.
      *
      * @param Table $table Instance of the referencing table.
      *
@@ -130,7 +130,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     }
 
     /**
-     * @deprecated Use the table that contains the foreign key as part of its {@link Table::$_fkConstraints} instead.
+     * @deprecated Use the table that contains the foreign key as part of its {@see Table::$_fkConstraints} instead.
      *
      * @return Table
      */
@@ -196,7 +196,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use {@link getLocalColumns()} instead.
+     * @deprecated Use {@see getLocalColumns()} instead.
      *
      * @see getLocalColumns
      */
@@ -213,7 +213,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * is a keyword reserved by the platform.
      * Otherwise the plain unquoted value as inserted is returned.
      *
-     * @deprecated Use {@link getQuotedLocalColumns()} instead.
+     * @deprecated Use {@see getQuotedLocalColumns()} instead.
      *
      * @see getQuotedLocalColumns
      *

@@ -42,11 +42,6 @@
         <DeprecatedClass>
             <errorLevel type="suppress">
                 <!--
-                    This suppression should be removed once Composer 1
-                    is no longer supported.
-                -->
-                <file name="src/Tools/Console/ConsoleRunner.php"/>
-                <!--
                     This suppression should be removed in 4.0.0.
                 -->
                 <referencedClass name="Doctrine\DBAL\Id\TableGenerator"/>
@@ -59,8 +54,14 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
+                <referencedClass name="Doctrine\DBAL\Platforms\Keywords\MariaDb102Keywords"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\MariaDb1027Platform"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\MySQL57Platform"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL100Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL94Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\SQLServer2012Platform"/>
                 <!--
@@ -152,6 +153,13 @@
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getBinaryMaxLength"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIsNullExpression"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getUniqueFieldDeclarationSQL"/>
+                <!--
+                    See https://github.com/doctrine/dbal/pull/5058
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::isCommentedDoctrineType"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::initializeCommentedDoctrineTypes"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::markedDoctrineTypeCommented"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsAlterTable"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsViews"/>
                 <!--
@@ -237,6 +245,11 @@
                     See https://github.com/doctrine/dbal/pull/4822
                 -->
                 <referencedProperty name="Doctrine\DBAL\Schema\SchemaConfig::$hasExplicitForeignKeyIndexes"/>
+                <!--
+                    See https://github.com/doctrine/dbal/pull/5058
+                    TODO: remove in 4.0.0
+                -->
+                <referencedProperty name="Doctrine\DBAL\Platforms\AbstractPlatform::$doctrineTypeComments"/>
             </errorLevel>
         </DeprecatedProperty>
         <DocblockTypeContradiction>
@@ -254,8 +267,8 @@
                 <file name="src/Connection.php"/>
                 <file name="src/Driver/IBMDB2/Statement.php"/>
                 <file name="src/DriverManager.php"/>
+                <file name="src/Platforms/AbstractMySQLPlatform.php"/>
                 <file name="src/Platforms/AbstractPlatform.php"/>
-                <file name="src/Platforms/MySQLPlatform.php"/>
                 <file name="src/Platforms/SQLServerPlatform.php"/>
                 <file name="src/Platforms/SqlitePlatform.php"/>
                 <file name="src/Schema/Column.php"/>
@@ -282,12 +295,6 @@
                 <file name="src/Driver/SQLSrv/Connection.php"/>
             </errorLevel>
         </FalsableReturnStatement>
-        <ForbiddenCode>
-            <errorLevel type="suppress">
-                <!-- The call to var_dump() here is by design -->
-                <file name="src/Tools/Dumper.php"/>
-            </errorLevel>
-        </ForbiddenCode>
         <ImplementedReturnTypeMismatch>
             <errorLevel type="suppress">
                 <!-- Fixing this issue requires an API change -->
@@ -398,7 +405,7 @@
                     Fixing these issues requires support of union types at the language level
                     or breaking API changes.
                 -->
-                <file name="src/Platforms/MySQLPlatform.php"/>
+                <file name="src/Platforms/AbstractMySQLPlatform.php"/>
                 <file name="tests/Functional/Driver/AbstractDriverTest.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
@@ -411,6 +418,13 @@
                 <file name="src/Query/QueryBuilder.php"/>
             </errorLevel>
         </ReferenceConstraintViolation>
+        <!-- Workaround for https://github.com/vimeo/psalm/issues/7026 -->
+        <ReservedWord>
+            <errorLevel type="suppress">
+                <directory name="src"/>
+                <directory name="tests"/>
+            </errorLevel>
+        </ReservedWord>
         <TooManyArguments>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3562 -->
@@ -429,12 +443,6 @@
                 <file name="tests/Driver/PDO/PgSQL/DriverTest.php" />
             </errorLevel>
         </UndefinedConstant>
-        <UndefinedClass>
-            <errorLevel type="suppress">
-                <!-- Contains references to optional dependencies -->
-                <file name="src/Tools/Dumper.php"/>
-            </errorLevel>
-        </UndefinedClass>
         <UndefinedDocblockClass>
             <errorLevel type="suppress">
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->

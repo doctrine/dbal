@@ -80,6 +80,8 @@ abstract class AbstractPlatform
      * Contains a list of all columns that should generate parseable column comments for type-detection
      * in reverse engineering scenarios.
      *
+     * @deprecated This property is deprecated and will be removed in Doctrine DBAL 4.0.
+     *
      * @var string[]|null
      */
     protected $doctrineTypeComments;
@@ -420,10 +422,19 @@ abstract class AbstractPlatform
     /**
      * Initializes the Doctrine Type comments instance variable for in_array() checks.
      *
+     * @deprecated This API will be removed in Doctrine DBAL 4.0.
+     *
      * @return void
      */
     protected function initializeCommentedDoctrineTypes()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5058',
+            '%s is deprecated and will be removed in Doctrine DBAL 4.0.',
+            __METHOD__
+        );
+
         $this->doctrineTypeComments = [];
 
         foreach (Type::getTypesMap() as $typeName => $className) {
@@ -440,17 +451,24 @@ abstract class AbstractPlatform
     /**
      * Is it necessary for the platform to add a parsable type comment to allow reverse engineering the given type?
      *
+     * @deprecated Use {@link Type::requiresSQLCommentHint()} instead.
+     *
      * @return bool
      */
     public function isCommentedDoctrineType(Type $doctrineType)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5058',
+            '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
+            __METHOD__
+        );
+
         if ($this->doctrineTypeComments === null) {
             $this->initializeCommentedDoctrineTypes();
         }
 
-        assert(is_array($this->doctrineTypeComments));
-
-        return in_array($doctrineType->getName(), $this->doctrineTypeComments, true);
+        return $doctrineType->requiresSQLCommentHint($this);
     }
 
     /**
@@ -462,6 +480,13 @@ abstract class AbstractPlatform
      */
     public function markDoctrineTypeCommented($doctrineType)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5058',
+            '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
+            __METHOD__
+        );
+
         if ($this->doctrineTypeComments === null) {
             $this->initializeCommentedDoctrineTypes();
         }
@@ -490,7 +515,7 @@ abstract class AbstractPlatform
     {
         $comment = $column->getComment();
 
-        if ($this->isCommentedDoctrineType($column->getType())) {
+        if ($column->getType()->requiresSQLCommentHint($this)) {
             $comment .= $this->getDoctrineTypeComment($column->getType());
         }
 
@@ -634,7 +659,7 @@ abstract class AbstractPlatform
     /**
      * Gets all SQL wildcard characters of the platform.
      *
-     * @deprecated Use {@link AbstractPlatform::getLikeWildcardCharacters()} instead.
+     * @deprecated Use {@see AbstractPlatform::getLikeWildcardCharacters()} instead.
      *
      * @return string[]
      */
@@ -1657,7 +1682,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to drop a constraint.
      *
-     * @internal The method should be only used from within the {@link AbstractPlatform} class hierarchy.
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      *
      * @param Constraint|string $constraint
      * @param Table|string      $table
@@ -1980,8 +2005,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to create a constraint on a table on this platform.
      *
-     * @deprecated Use {@link getCreateIndexSQL()}, {@link getCreateForeignKeySQL()}
-     *             or {@link getCreateUniqueConstraintSQL()} instead.
+     * @deprecated Use {@see getCreateIndexSQL()}, {@see getCreateForeignKeySQL()}
+     *             or {@see getCreateUniqueConstraintSQL()} instead.
      *
      * @param Table|string $table
      *
@@ -3028,7 +3053,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL statement for retrieving the namespaces defined in the database.
      *
-     * @deprecated Use {@link AbstractSchemaManager::listSchemaNames()} instead.
+     * @deprecated Use {@see AbstractSchemaManager::listSchemaNames()} instead.
      *
      * @return string
      *
@@ -3517,7 +3542,7 @@ abstract class AbstractPlatform
      * @deprecated
      *
      * Platforms that either support or emulate schemas don't automatically
-     * filter a schema for the namespaced elements in {@link AbstractManager::createSchema()}.
+     * filter a schema for the namespaced elements in {@see AbstractManager::createSchema()}.
      *
      * @return bool
      */
@@ -3885,7 +3910,7 @@ abstract class AbstractPlatform
     /**
      * Returns the class name of the reserved keywords list.
      *
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     * @deprecated Implement {@see createReservedKeywordsList()} instead.
      *
      * @return string
      * @psalm-return class-string<KeywordList>

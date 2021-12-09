@@ -20,7 +20,7 @@ interface Statement
      *                          this will be a parameter name of the form :name. For a prepared statement
      *                          using question mark placeholders, this will be the 1-indexed position of the parameter.
      * @param mixed      $value The value to bind to the parameter.
-     * @param int        $type  Explicit data type for the parameter using the {@link ParameterType}
+     * @param int        $type  Explicit data type for the parameter using the {@see ParameterType}
      *                          constants.
      *
      * @return bool TRUE on success or FALSE on failure.
@@ -31,7 +31,7 @@ interface Statement
 
     /**
      * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
-     * mark placeholder in the SQL statement that was use to prepare the statement. Unlike {@link bindValue()},
+     * mark placeholder in the SQL statement that was use to prepare the statement. Unlike {@see bindValue()},
      * the variable is bound as a reference and will only be evaluated at the time
      * that PDOStatement->execute() is called.
      *
@@ -47,7 +47,7 @@ interface Statement
      *                             this will be a parameter name of the form :name. For a prepared statement using
      *                             question mark placeholders, this will be the 1-indexed position of the parameter.
      * @param mixed      $variable Name of the PHP variable to bind to the SQL statement parameter.
-     * @param int        $type     Explicit data type for the parameter using the {@link ParameterType}
+     * @param int        $type     Explicit data type for the parameter using the {@see ParameterType}
      *                             constants.
      * @param int|null   $length   You must specify maxlength when using an OUT bind
      *                             so that PHP allocates enough memory to hold the returned value.
@@ -62,7 +62,7 @@ interface Statement
      * Executes a prepared statement
      *
      * If the prepared statement included parameter markers, you must either:
-     * call {@link bindParam()} to bind PHP variables to the parameter markers:
+     * call {@see bindParam()} to bind PHP variables to the parameter markers:
      * bound variables pass their value as input and receive the output value,
      * if any, of their associated parameter markers or pass an array of input-only
      * parameter values.

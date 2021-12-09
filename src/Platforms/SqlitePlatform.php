@@ -588,7 +588,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction().
      *
-     * @deprecated The driver will use {@link sqrt()} in the next major release.
+     * @deprecated The driver will use {@see sqrt()} in the next major release.
      *
      * @param int|float $value
      *
@@ -602,7 +602,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * User-defined function for Sqlite that implements MOD(a, b).
      *
-     * @deprecated The driver will use {@link UserDefinedFunctions::mod()} in the next major release.
+     * @deprecated The driver will use {@see UserDefinedFunctions::mod()} in the next major release.
      *
      * @param int $a
      * @param int $b
@@ -615,7 +615,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * @deprecated The driver will use {@link UserDefinedFunctions::locate()} in the next major release.
+     * @deprecated The driver will use {@see UserDefinedFunctions::locate()} in the next major release.
      *
      * @param string $str
      * @param string $substr
@@ -693,7 +693,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     * @deprecated Implement {@see createReservedKeywordsList()} instead.
      */
     protected function getReservedKeywordsClass()
     {

@@ -1087,7 +1087,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * @deprecated Use {@link SQLServerSchemaManager::listSchemaNames()} instead.
+     * @deprecated Use {@see SQLServerSchemaManager::listSchemaNames()} instead.
      */
     public function getListNamespacesSQL()
     {
@@ -1483,7 +1483,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * @deprecated Implement {@link createReservedKeywordsList()} instead.
+     * @deprecated Implement {@see createReservedKeywordsList()} instead.
      */
     protected function getReservedKeywordsClass()
     {

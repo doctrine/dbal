@@ -1,4 +1,3 @@
-<?php
 
 namespace Doctrine\DBAL\Schema;
 
@@ -17,7 +16,6 @@ use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function array_reverse;
-use function array_values;
 use function assert;
 use function explode;
 use function file_exists;
@@ -112,7 +110,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use {@link dropForeignKey()} and {@link createForeignKey()} instead.
+     * @deprecated Use {@see dropForeignKey()} and {@see createForeignKey()} instead.
      */
     public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
@@ -464,9 +462,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $result = [];
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']),
+                $constraint['local'],
                 $constraint['foreignTable'],
-                array_values($constraint['foreign']),
+                $constraint['foreign'],
                 $constraint['name'],
                 [
                     'onDelete' => $constraint['onDelete'],
