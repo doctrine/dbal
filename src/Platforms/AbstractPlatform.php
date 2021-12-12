@@ -2597,7 +2597,7 @@ abstract class AbstractPlatform
         }
 
         if ($type instanceof Types\BooleanType) {
-            return " DEFAULT '" . $this->convertBooleans($default) . "'";
+            return ' DEFAULT ' . $this->convertBooleans($default);
         }
 
         return ' DEFAULT ' . $this->quoteStringLiteral($default);

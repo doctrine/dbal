@@ -33,7 +33,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             "ALTER TABLE mytable ALTER COLUMN baz SET DEFAULT 'def'",
             'ALTER TABLE mytable ALTER COLUMN bloo SET DATA TYPE SMALLINT',
             'ALTER TABLE mytable ALTER COLUMN bloo SET NOT NULL',
-            "ALTER TABLE mytable ALTER COLUMN bloo SET DEFAULT '0'",
+            'ALTER TABLE mytable ALTER COLUMN bloo SET DEFAULT 0',
             'ALTER TABLE mytable ' .
             'ADD COLUMN quota INTEGER DEFAULT NULL ' .
             'DROP COLUMN foo',
