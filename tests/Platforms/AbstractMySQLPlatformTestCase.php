@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -17,7 +18,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use function array_shift;
 
 /**
- * @extends AbstractPlatformTestCase<MySQLPlatform>
+ * @extends AbstractPlatformTestCase<AbstractMySQLPlatform>
  */
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
@@ -954,5 +955,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             ],
             $this->platform->getCreateTableSQL($table)
         );
+    }
+
+    protected function createComparator(): Comparator
+    {
+        return new MySQL\Comparator($this->platform);
     }
 }

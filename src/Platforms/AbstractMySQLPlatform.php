@@ -16,7 +16,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
 
-use function array_diff_key;
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -560,14 +559,12 @@ SQL
             $diff->removedForeignKeys = [];
         }
 
-        $sql = array_merge(
+        return array_merge(
             $sql,
             $this->getPreAlterTableAlterIndexForeignKeySQL($diff),
             parent::getPreAlterTableIndexForeignKeySQL($diff),
             $this->getPreAlterTableRenameIndexForeignKeySQL($diff)
         );
-
-        return $sql;
     }
 
     /**
@@ -658,92 +655,7 @@ SQL
      */
     protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
-        $sql       = [];
-        $tableName = $diff->getName($this)->getQuotedName($this);
-
-        foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
-            if (in_array($foreignKey, $diff->changedForeignKeys, true)) {
-                continue;
-            }
-
-            $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableName);
-        }
-
-        return $sql;
-    }
-
-    /**
-     * Returns the remaining foreign key constraints that require one of the renamed indexes.
-     *
-     * "Remaining" here refers to the diff between the foreign keys currently defined in the associated
-     * table and the foreign keys to be removed.
-     *
-     * @param TableDiff $diff The table diff to evaluate.
-     *
-     * @return ForeignKeyConstraint[]
-     */
-    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff): array
-    {
-        if (empty($diff->renamedIndexes) || ! $diff->fromTable instanceof Table) {
-            return [];
-        }
-
-        $foreignKeys = [];
-        /** @var ForeignKeyConstraint[] $remainingForeignKeys */
-        $remainingForeignKeys = array_diff_key(
-            $diff->fromTable->getForeignKeys(),
-            $diff->removedForeignKeys
-        );
-
-        foreach ($remainingForeignKeys as $foreignKey) {
-            foreach ($diff->renamedIndexes as $index) {
-                if ($foreignKey->intersectsIndexColumns($index)) {
-                    $foreignKeys[] = $foreignKey;
-
-                    break;
-                }
-            }
-        }
-
-        return $foreignKeys;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
-    {
-        return array_merge(
-            parent::getPostAlterTableIndexForeignKeySQL($diff),
-            $this->getPostAlterTableRenameIndexForeignKeySQL($diff)
-        );
-    }
-
-    /**
-     * @param TableDiff $diff The table diff to gather the SQL for.
-     *
-     * @return string[]
-     */
-    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
-    {
-        $sql     = [];
-        $newName = $diff->getNewName();
-
-        if ($newName !== null) {
-            $tableName = $newName->getQuotedName($this);
-        } else {
-            $tableName = $diff->getName($this)->getQuotedName($this);
-        }
-
-        foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
-            if (in_array($foreignKey, $diff->changedForeignKeys, true)) {
-                continue;
-            }
-
-            $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
-        }
-
-        return $sql;
+        return [];
     }
 
     protected function getCreateIndexSQLFlags(Index $index): string
@@ -884,6 +796,7 @@ SQL
             'float'      => 'float',
             'int'        => 'integer',
             'integer'    => 'integer',
+            'json'       => 'json',
             'longblob'   => 'blob',
             'longtext'   => 'text',
             'mediumblob' => 'blob',

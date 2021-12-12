@@ -10,8 +10,7 @@ use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\API\MySQL;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MariaDb1027Platform;
-use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -51,23 +50,14 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
     public static function platformVersionProvider(): array
     {
         return [
-            ['5.6.9', MySQLPlatform::class],
-            ['5.7', MySQL57Platform::class],
-            ['5.7.0', MySQLPlatform::class],
-            ['5.7.8', MySQLPlatform::class],
-            ['5.7.9', MySQL57Platform::class],
-            ['5.7.10', MySQL57Platform::class],
+            ['5.7', MySQLPlatform::class],
             ['8', MySQL80Platform::class],
             ['8.0', MySQL80Platform::class],
             ['8.0.11', MySQL80Platform::class],
-            ['6', MySQL57Platform::class],
-            ['10.0.15-MariaDB-1~wheezy', MySQLPlatform::class],
-            ['5.5.5-10.1.25-MariaDB', MySQLPlatform::class],
-            ['10.1.2a-MariaDB-a1~lenny-log', MySQLPlatform::class],
-            ['5.5.40-MariaDB-1~wheezy', MySQLPlatform::class],
-            ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
-            ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
-            ['10.2.8-MariaDB-1~lenny-log', MariaDb1027Platform::class],
+            ['5.5.40-MariaDB-1~wheezy', MariaDBPlatform::class],
+            ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],
+            ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],
+            ['10.2.8-MariaDB-1~lenny-log', MariaDBPlatform::class],
         ];
     }
 }

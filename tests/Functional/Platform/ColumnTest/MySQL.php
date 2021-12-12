@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
 
-use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
 
 final class MySQL extends ColumnTest
@@ -13,7 +13,7 @@ final class MySQL extends ColumnTest
     {
         parent::setUp();
 
-        $this->requirePlatform(MySQLPlatform::class);
+        $this->requirePlatform(AbstractMySQLPlatform::class);
     }
 
     public function testVariableLengthStringNoLength(): void

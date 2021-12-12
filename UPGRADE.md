@@ -12,6 +12,21 @@ awareness about deprecated code.
 
 The `Doctrine\DBAL\Schema\Visitor\Graphviz` class has been removed.
 
+## BC BREAK: Removed support for MariaDB 10.2.6 and older
+
+MariaDB 10.2.6 and older are not supported anymore. The following classes have been removed:
+
+* `Doctrine\DBAL\Platforms\MariaDb1027Platform`
+* `Doctrine\DBAL\Platforms\Keywords\MariaDb102Keywords`
+
+## BC BREAK: Removed support for MySQL 5.6 and older
+
+MySQL 5.6 and older are not supported anymore. The following classes have been merged into their respective
+parent classes:
+
+* `Doctrine\DBAL\Platforms\MySQL57Platform`
+* `Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords`
+
 ## BC BREAK: Removed active support for Postgres 9
 
 Postgres 9 is not actively supported anymore. The following classes have been merged into their respective parent class:
