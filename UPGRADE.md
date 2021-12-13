@@ -12,6 +12,10 @@ awareness about deprecated code.
 
 The `Doctrine\DBAL\Schema\Visitor\Graphviz` class has been removed.
 
+## BC BREAK: Removed support for Oracle 12c (12.2.0.1) and older
+
+Oracle 12c (12.2.0.1) and older are not supported anymore.
+
 ## BC BREAK: Removed support for MariaDB 10.2.6 and older
 
 MariaDB 10.2.6 and older are not supported anymore. The following classes have been removed:

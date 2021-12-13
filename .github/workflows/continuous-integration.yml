@@ -67,7 +67,7 @@ jobs:
         php-version:
           - "8.1"
         oracle-version:
-          - "11"
+          - "18"
           - "21"
 
     services:
@@ -119,7 +119,7 @@ jobs:
         php-version:
           - "8.1"
         oracle-version:
-          - "11"
+          - "18"
           - "21"
 
     services:
