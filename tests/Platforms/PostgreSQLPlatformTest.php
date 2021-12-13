@@ -57,7 +57,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             "ALTER TABLE mytable ALTER bar SET DEFAULT 'def'",
             'ALTER TABLE mytable ALTER bar SET NOT NULL',
             'ALTER TABLE mytable ALTER bloo TYPE BOOLEAN',
-            "ALTER TABLE mytable ALTER bloo SET DEFAULT 'false'",
+            'ALTER TABLE mytable ALTER bloo SET DEFAULT false',
             'ALTER TABLE mytable ALTER bloo SET NOT NULL',
             'ALTER TABLE mytable RENAME TO userlist',
         ];

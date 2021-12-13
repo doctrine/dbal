@@ -63,7 +63,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) NOT NULL',
             "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_78240498 DEFAULT 'def' FOR baz",
             'ALTER TABLE mytable ALTER COLUMN bloo BIT NOT NULL',
-            "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_CECED971 DEFAULT '0' FOR bloo",
+            'ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_CECED971 DEFAULT 0 FOR bloo',
             "sp_rename 'mytable', 'userlist'",
             "DECLARE @sql NVARCHAR(MAX) = N''; " .
             "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
