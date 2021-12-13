@@ -44,7 +44,7 @@ MariaDB
 Oracle
 ^^^^^^
 
--  ``OraclePlatform`` for all versions.
+-  ``OraclePlatform`` for version 18c (12.2.0.2) and above.
 
 Microsoft SQL Server
 ^^^^^^^^^^^^^^^^^^^^
