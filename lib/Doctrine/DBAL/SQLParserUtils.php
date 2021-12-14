@@ -158,7 +158,11 @@ class SQLParserUtils
         foreach ($types as $name => $type) {
             ++$bindIndex;
 
-            if ($type !== Connection::PARAM_INT_ARRAY && $type !== Connection::PARAM_STR_ARRAY) {
+            if (
+                $type !== Connection::PARAM_INT_ARRAY
+                && $type !== Connection::PARAM_STR_ARRAY
+                && $type !== Connection::PARAM_ASCII_STR_ARRAY
+            ) {
                 continue;
             }
 
