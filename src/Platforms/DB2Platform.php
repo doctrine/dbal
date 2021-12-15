@@ -418,14 +418,6 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function supportsReleaseSavepoints()
-    {
-        return false;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function supportsCommentOnStatement()
