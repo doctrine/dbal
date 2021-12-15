@@ -31,7 +31,7 @@
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
     ],
     "require": {
-        "php": "^7.3 || ^8.0",
+        "php": "^7.3 || ^8.0 || ^8.1",
         "composer/package-versions-deprecated": "^1.11.99",
         "doctrine/cache": "^1.11|^2.0",
         "doctrine/deprecations": "^0.5.3",
