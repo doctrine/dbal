@@ -57,6 +57,11 @@ class Connection
     public const PARAM_STR_ARRAY = ParameterType::STRING + self::ARRAY_PARAM_OFFSET;
 
     /**
+     * Represents an array of ascii strings to be expanded by Doctrine SQL parsing.
+     */
+    public const PARAM_ASCII_STR_ARRAY = ParameterType::ASCII + self::ARRAY_PARAM_OFFSET;
+
+    /**
      * Offset by which PARAM_* constants are detected as arrays of the param type.
      */
     public const ARRAY_PARAM_OFFSET = 100;
@@ -1786,7 +1791,11 @@ class Connection
         }
 
         foreach ($types as $type) {
-            if ($type === self::PARAM_INT_ARRAY || $type === self::PARAM_STR_ARRAY) {
+            if (
+                $type === self::PARAM_INT_ARRAY
+                || $type === self::PARAM_STR_ARRAY
+                || $type === self::PARAM_ASCII_STR_ARRAY
+            ) {
                 return true;
             }
         }

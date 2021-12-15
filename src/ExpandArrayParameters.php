@@ -100,7 +100,11 @@ final class ExpandArrayParameters implements Visitor
 
         $type = $this->originalTypes[$key];
 
-        if ($type !== Connection::PARAM_INT_ARRAY && $type !== Connection::PARAM_STR_ARRAY) {
+        if (
+            $type !== Connection::PARAM_INT_ARRAY
+            && $type !== Connection::PARAM_STR_ARRAY
+            && $type !== Connection::PARAM_ASCII_STR_ARRAY
+        ) {
             $this->appendTypedParameter([$value], $type);
 
             return;
