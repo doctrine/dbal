@@ -279,11 +279,19 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
+     * @deprecated
+     *
      * MySQL prefers "autoincrement" identity columns since sequences can only
      * be emulated with a table.
      */
     public function prefersIdentityColumns()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pulls/1519',
+            'AbstractMySQLPlatform::prefersIdentityColumns() is deprecated.'
+        );
+
         return true;
     }
 
