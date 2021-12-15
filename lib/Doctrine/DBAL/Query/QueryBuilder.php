@@ -201,7 +201,7 @@ class QueryBuilder
     /**
      * Executes this query using the bound parameters and their types.
      *
-     * @return ForwardCompatibility\DriverStatement|int
+     * @return ForwardCompatibility\Result|int
      *
      * @throws Exception
      */
