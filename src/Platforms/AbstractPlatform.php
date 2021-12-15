@@ -35,6 +35,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -1907,6 +1908,12 @@ abstract class AbstractPlatform
      */
     public function prefersIdentityColumns(): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pulls/1519',
+            'AbstractPlatform::prefersIdentityColumns() is deprecated.'
+        );
+
         return false;
     }
 

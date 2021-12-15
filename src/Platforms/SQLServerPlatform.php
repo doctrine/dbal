@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -91,9 +92,17 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * Microsoft SQL Server prefers "autoincrement" identity columns
      * since sequences can only be emulated with a table.
+     *
+     * @deprecated
      */
     public function prefersIdentityColumns(): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pulls/1519',
+            'SQLServerPlatform::prefersIdentityColumns() is deprecated.'
+        );
+
         return true;
     }
 

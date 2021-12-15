@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function count;
@@ -313,11 +314,6 @@ class DB2Platform extends AbstractPlatform
     }
 
     public function supportsCreateDropDatabase(): bool
-    {
-        return false;
-    }
-
-    public function supportsReleaseSavepoints(): bool
     {
         return false;
     }
@@ -703,8 +699,17 @@ class DB2Platform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * @deprecated
+     */
     public function prefersIdentityColumns(): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pulls/1519',
+            'DB2Platform::prefersIdentityColumns() is deprecated.'
+        );
+
         return true;
     }
 
