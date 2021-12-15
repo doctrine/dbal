@@ -847,9 +847,17 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function prefersIdentityColumns()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pulls/1519',
+            'DB2Platform::prefersIdentityColumns() is deprecated.'
+        );
+
         return true;
     }
 

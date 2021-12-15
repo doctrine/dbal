@@ -149,7 +149,7 @@ class WriteTest extends FunctionalTestCase
 
     public function testLastInsertId(): void
     {
-        if (! $this->connection->getDatabasePlatform()->prefersIdentityColumns()) {
+        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
             self::markTestSkipped('Test only works on platforms with identity columns.');
         }
 

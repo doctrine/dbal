@@ -2914,10 +2914,18 @@ abstract class AbstractPlatform
      * Whether the platform prefers identity columns (eg. autoincrement) for ID generation.
      * Subclasses should override this method to return TRUE if they prefer identity columns.
      *
+     * @deprecated
+     *
      * @return bool
      */
     public function prefersIdentityColumns()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pulls/1519',
+            'AbstractPlatform::prefersIdentityColumns() is deprecated.'
+        );
+
         return false;
     }
 
