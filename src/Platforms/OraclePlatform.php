@@ -462,6 +462,7 @@ class OraclePlatform extends AbstractPlatform
                            SELECT ucon.constraint_type
                            FROM   user_constraints ucon
                            WHERE  ucon.index_name = uind_col.index_name
+                             AND  ucon.table_name = uind_col.table_name
                        ) AS is_primary
              FROM      user_ind_columns uind_col
              WHERE     uind_col.table_name = " . $table . '
