@@ -16,7 +16,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_combine;
@@ -158,20 +157,6 @@ class SqlitePlatform extends AbstractPlatform
     public function getSetTransactionIsolationSQL(int $level): string
     {
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
-    }
-
-    /**
-     * @deprecated
-     */
-    public function prefersIdentityColumns(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pulls/1519',
-            'SqlitePlatform::prefersIdentityColumns() is deprecated.'
-        );
-
-        return true;
     }
 
     /**

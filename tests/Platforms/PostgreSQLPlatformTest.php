@@ -309,11 +309,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testDoesNotPreferIdentityColumns(): void
-    {
-        self::assertFalse($this->platform->prefersIdentityColumns());
-    }
-
     public function testSupportsIdentityColumns(): void
     {
         self::assertTrue($this->platform->supportsIdentityColumns());

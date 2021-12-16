@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function array_unique;
@@ -221,25 +220,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'TINYINT(1)';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated
-     *
-     * MySQL prefers "autoincrement" identity columns since sequences can only
-     * be emulated with a table.
-     */
-    public function prefersIdentityColumns(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pulls/1519',
-            'AbstractMySQLPlatform::prefersIdentityColumns() is deprecated.'
-        );
-
-        return true;
     }
 
     /**
