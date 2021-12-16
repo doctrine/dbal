@@ -139,9 +139,15 @@ class SchemaDiff
 
         $foreignKeySql = [];
         foreach ($this->newTables as $table) {
+            $tableCreateSQL = $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES);
+
+            if (empty($tableCreateSQL)) {
+                continue;
+            }
+
             $sql = array_merge(
                 $sql,
-                $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES)
+                $tableCreateSQL
             );
 
             if (! $platform->supportsForeignKeyConstraints()) {
