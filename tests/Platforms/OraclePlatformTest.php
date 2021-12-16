@@ -130,11 +130,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testPrefersIdentityColumns(): void
-    {
-        self::assertFalse($this->platform->prefersIdentityColumns());
-    }
-
     public function testSupportsIdentityColumns(): void
     {
         self::assertFalse($this->platform->supportsIdentityColumns());

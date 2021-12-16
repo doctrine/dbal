@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `AbstractPlatform::prefersIdentityColumns()`
+
+The `AbstractPlatform::prefersIdentityColumns()` method has been removed.
+
 ## BC BREAK: Removed the `Graphviz` visitor.
 
 The `Doctrine\DBAL\Schema\Visitor\Graphviz` class has been removed.

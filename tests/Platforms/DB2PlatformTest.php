@@ -420,11 +420,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testPrefersIdentityColumns(): void
-    {
-        self::assertTrue($this->platform->prefersIdentityColumns());
-    }
-
     public function testSupportsIdentityColumns(): void
     {
         self::assertTrue($this->platform->supportsIdentityColumns());

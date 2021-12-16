@@ -35,7 +35,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -1900,21 +1899,6 @@ abstract class AbstractPlatform
     public function getColumnCollationDeclarationSQL(string $collation): string
     {
         return $this->supportsColumnCollation() ? 'COLLATE ' . $collation : '';
-    }
-
-    /**
-     * Whether the platform prefers identity columns (eg. autoincrement) for ID generation.
-     * Subclasses should override this method to return TRUE if they prefer identity columns.
-     */
-    public function prefersIdentityColumns(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pulls/1519',
-            'AbstractPlatform::prefersIdentityColumns() is deprecated.'
-        );
-
-        return false;
     }
 
     /**

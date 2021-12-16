@@ -73,11 +73,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testPrefersIdentityColumns(): void
-    {
-        self::assertTrue($this->platform->prefersIdentityColumns());
-    }
-
     public function testIgnoresUnsignedIntegerDeclarationForAutoIncrementalIntegers(): void
     {
         self::assertSame(
