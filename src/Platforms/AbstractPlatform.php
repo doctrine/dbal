@@ -426,6 +426,17 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to get the remainder of the operation of division of dividend by divisor.
+     *
+     * @param string $dividend SQL expression producing the dividend.
+     * @param string $divisor  SQL expression producing the divisor.
+     */
+    public function getModExpression(string $dividend, string $divisor): string
+    {
+        return 'MOD(' . $dividend . ', ' . $divisor . ')';
+    }
+
+    /**
      * Returns the SQL snippet to trim a string.
      *
      * @param string      $str  The expression to apply the trim to.
