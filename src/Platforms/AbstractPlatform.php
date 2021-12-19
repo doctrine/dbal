@@ -536,8 +536,6 @@ abstract class AbstractPlatform
      *
      * @param string $date    SQL expression producing the date.
      * @param string $seconds SQL expression producing the number of seconds.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateAddSecondsExpression(string $date, string $seconds): string
     {
@@ -549,8 +547,6 @@ abstract class AbstractPlatform
      *
      * @param string $date    SQL expression producing the date.
      * @param string $seconds SQL expression producing the number of seconds.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateSubSecondsExpression(string $date, string $seconds): string
     {
@@ -562,8 +558,6 @@ abstract class AbstractPlatform
      *
      * @param string $date    SQL expression producing the date.
      * @param string $minutes SQL expression producing the number of minutes.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateAddMinutesExpression(string $date, string $minutes): string
     {
@@ -575,8 +569,6 @@ abstract class AbstractPlatform
      *
      * @param string $date    SQL expression producing the date.
      * @param string $minutes SQL expression producing the number of minutes.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateSubMinutesExpression(string $date, string $minutes): string
     {
@@ -588,8 +580,6 @@ abstract class AbstractPlatform
      *
      * @param string $date  SQL expression producing the date.
      * @param string $hours SQL expression producing the number of hours.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateAddHourExpression(string $date, string $hours): string
     {
@@ -601,8 +591,6 @@ abstract class AbstractPlatform
      *
      * @param string $date  SQL expression producing the date.
      * @param string $hours SQL expression producing the number of hours.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateSubHourExpression(string $date, string $hours): string
     {
@@ -614,8 +602,6 @@ abstract class AbstractPlatform
      *
      * @param string $date SQL expression producing the date.
      * @param string $days SQL expression producing the number of days.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateAddDaysExpression(string $date, string $days): string
     {
@@ -627,8 +613,6 @@ abstract class AbstractPlatform
      *
      * @param string $date SQL expression producing the date.
      * @param string $days SQL expression producing the number of days.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateSubDaysExpression(string $date, string $days): string
     {
@@ -640,8 +624,6 @@ abstract class AbstractPlatform
      *
      * @param string $date  SQL expression producing the date.
      * @param string $weeks SQL expression producing the number of weeks.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateAddWeeksExpression(string $date, string $weeks): string
     {
@@ -653,8 +635,6 @@ abstract class AbstractPlatform
      *
      * @param string $date  SQL expression producing the date.
      * @param string $weeks SQL expression producing the number of weeks.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateSubWeeksExpression(string $date, string $weeks): string
     {
@@ -666,8 +646,6 @@ abstract class AbstractPlatform
      *
      * @param string $date   SQL expression producing the date.
      * @param string $months SQL expression producing the number of months.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateAddMonthExpression(string $date, string $months): string
     {
@@ -679,8 +657,6 @@ abstract class AbstractPlatform
      *
      * @param string $date   SQL expression producing the date.
      * @param string $months SQL expression producing the number of months.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateSubMonthExpression(string $date, string $months): string
     {
@@ -692,8 +668,6 @@ abstract class AbstractPlatform
      *
      * @param string $date     SQL expression producing the date.
      * @param string $quarters SQL expression producing the number of quarters.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateAddQuartersExpression(string $date, string $quarters): string
     {
@@ -705,8 +679,6 @@ abstract class AbstractPlatform
      *
      * @param string $date     SQL expression producing the date.
      * @param string $quarters SQL expression producing the number of quarters.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateSubQuartersExpression(string $date, string $quarters): string
     {
@@ -718,8 +690,6 @@ abstract class AbstractPlatform
      *
      * @param string $date  SQL expression producing the date.
      * @param string $years SQL expression producing the number of years.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateAddYearsExpression(string $date, string $years): string
     {
@@ -731,8 +701,6 @@ abstract class AbstractPlatform
      *
      * @param string $date  SQL expression producing the date.
      * @param string $years SQL expression producing the number of years.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDateSubYearsExpression(string $date, string $years): string
     {
@@ -761,8 +729,6 @@ abstract class AbstractPlatform
      *
      * @param string $interval   SQL expression describing the interval value
      * @param int    $multiplier Interval multiplier
-     *
-     * @throws Exception
      */
     protected function multiplyInterval(string $interval, int $multiplier): string
     {
@@ -1286,8 +1252,6 @@ abstract class AbstractPlatform
      * This method returns an array of SQL statements, since some platforms need several statements.
      *
      * @return array<int, string>
-     *
-     * @throws Exception If not supported on this platform.
      */
     abstract public function getAlterTableSQL(TableDiff $diff): array;
 
@@ -2473,8 +2437,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the keyword list instance of this platform.
-     *
-     * @throws Exception If no keyword list is specified.
      */
     final public function getReservedKeywordsList(): KeywordList
     {
