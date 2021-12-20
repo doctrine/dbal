@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated `Type::canRequireSQLConversion()`.
+
+Consumers should call `Type::convertToDatabaseValueSQL()` and `Type::convertToPHPValueSQL()` regardless of the type.
+
 ## Deprecated the `doctrine-dbal` binary.
 
 The documentation explains how the console tools can be bootstrapped for standalone usage.
