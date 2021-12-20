@@ -52,7 +52,7 @@ abstract class AbstractAsset
         }
 
         if (strpos($name, '.') !== false) {
-            $parts            = explode('.', $name);
+            $parts            = explode('.', $name, 2);
             $this->_namespace = $parts[0];
             $name             = $parts[1];
         }

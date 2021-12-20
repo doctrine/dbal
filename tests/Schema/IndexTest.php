@@ -173,4 +173,16 @@ class IndexTest extends TestCase
         self::assertSame('name IS NULL', $idx2->getOption('WHERE'));
         self::assertSame(['where' => 'name IS NULL'], $idx2->getOptions());
     }
+
+    public function testIndexNamespaces(): void
+    {
+        $idx = new Index('namespace.product.fk', ['id']);
+        static::assertSame('namespace.product.fk', $idx->getName());
+        static::assertSame('namespace', $idx->getNamespaceName());
+        static::assertSame('product.fk', $idx->getShortestName('namespace'));
+
+        $idx = new Index('namespace.product', ['id']);
+        static::assertSame('namespace.product', $idx->getName());
+        static::assertSame('namespace', $idx->getNamespaceName());
+    }
 }
