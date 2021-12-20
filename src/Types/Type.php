@@ -222,6 +222,9 @@ abstract class Type
      * {@see convertToPHPValueSQL} works for any type and mostly
      * does nothing. This method can additionally be used for optimization purposes.
      *
+     * @deprecated Consumers should call {@see convertToDatabaseValueSQL} and {@see convertToPHPValueSQL}
+     * regardless of the type.
+     *
      * @return bool
      */
     public function canRequireSQLConversion()
