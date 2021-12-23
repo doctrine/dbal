@@ -4,9 +4,27 @@ on:
   pull_request:
     branches:
       - "*.x"
+    paths:
+      - .github/workflows/static-analysis.yml
+      - composer.*
+      - phpstan.neon.dist
+      - psalm.xml.dist
+      - psalm-strict.xml
+      - src/**
+      - static-analysis/**
+      - tests/**
   push:
     branches:
       - "*.x"
+    paths:
+      - .github/workflows/static-analysis.yml
+      - composer.*
+      - phpstan.neon.dist
+      - psalm.xml.dist
+      - psalm-strict.xml
+      - src/**
+      - static-analysis/**
+      - tests/**
 
 jobs:
   static-analysis-phpstan:
