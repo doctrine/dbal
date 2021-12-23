@@ -54,7 +54,11 @@
     },
     "bin": ["bin/doctrine-dbal"],
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/package-versions-deprecated": true
+        }
     },
     "autoload": {
         "psr-4": { "Doctrine\\DBAL\\": "lib/Doctrine/DBAL" }
