@@ -850,8 +850,8 @@ abstract class AbstractPlatform
      *
      * @deprecated Use ROUND() in SQL instead.
      *
-     * @param string $column
-     * @param int    $decimals
+     * @param string     $column
+     * @param string|int $decimals
      *
      * @return string
      */
@@ -1002,9 +1002,9 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to get the position of the first occurrence of substring $substr in string $str.
      *
-     * @param string    $str      Literal string.
-     * @param string    $substr   Literal string to find.
-     * @param int|false $startPos Position to start at, beginning of string by default.
+     * @param string           $str      Literal string.
+     * @param string           $substr   Literal string to find.
+     * @param string|int|false $startPos Position to start at, beginning of string by default.
      *
      * @return string
      *
@@ -1040,9 +1040,9 @@ abstract class AbstractPlatform
      *
      * SQLite only supports the 2 parameter variant of this function.
      *
-     * @param string   $string An sql string literal or column name/alias.
-     * @param int      $start  Where to start the substring portion.
-     * @param int|null $length The substring portion length.
+     * @param string          $string An sql string literal or column name/alias.
+     * @param string|int      $start  Where to start the substring portion.
+     * @param string|int|null $length The substring portion length.
      *
      * @return string
      */

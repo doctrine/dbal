@@ -4,9 +4,23 @@ on:
   pull_request:
     branches:
       - "*.x"
+    paths:
+      - .github/workflows/coding-standards.yml
+      - bin/**
+      - composer.*
+      - phpcs.xml.dist
+      - src/**
+      - tests/**
   push:
     branches:
       - "*.x"
+    paths:
+      - .github/workflows/coding-standards.yml
+      - bin/**
+      - composer.*
+      - phpcs.xml.dist
+      - src/**
+      - tests/**
 
 jobs:
   coding-standards:
