@@ -5,9 +5,23 @@ on:
   pull_request:
     branches:
       - "*.x"
+    paths:
+      - .github/workflows/continuous-integration.yml
+      - ci/**
+      - composer.*
+      - phpunit.xml.dist
+      - src/**
+      - tests/**
   push:
     branches:
       - "*.x"
+    paths:
+      - .github/workflows/continuous-integration.yml
+      - ci/**
+      - composer.*
+      - phpunit.xml.dist
+      - src/**
+      - tests/**
   schedule:
     - cron: "42 3 * * *"
 
