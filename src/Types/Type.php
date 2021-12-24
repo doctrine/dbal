@@ -204,22 +204,6 @@ abstract class Type
     }
 
     /**
-     * Does working with this column require SQL conversion functions?
-     *
-     * This is a metadata function that is required for example in the ORM.
-     * Usage of {@see convertToDatabaseValueSQL} and
-     * {@see convertToPHPValueSQL} works for any type and mostly
-     * does nothing. This method can additionally be used for optimization purposes.
-     *
-     * @deprecated Consumers should call {@see convertToDatabaseValueSQL} and {@see convertToPHPValueSQL}
-     * regardless of the type.
-     */
-    public function canRequireSQLConversion(): bool
-    {
-        return false;
-    }
-
-    /**
      * Modifies the SQL expression (identifier, parameter) to convert to a database value.
      */
     public function convertToDatabaseValueSQL(string $sqlExpr, AbstractPlatform $platform): string
