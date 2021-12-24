@@ -44,7 +44,6 @@ class StringTest extends TestCase
 
     public function testSQLConversion(): void
     {
-        self::assertFalse($this->type->canRequireSQLConversion());
         self::assertEquals('t.foo', $this->type->convertToDatabaseValueSQL('t.foo', $this->platform));
         self::assertEquals('t.foo', $this->type->convertToPHPValueSQL('t.foo', $this->platform));
     }

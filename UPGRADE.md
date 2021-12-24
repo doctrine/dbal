@@ -55,6 +55,10 @@ following methods are removed:
 The protected property `AbstractPlatform::$doctrineTypeComments` is removed as
 well.
 
+## BC BREAK: Removed `Type::canRequireSQLConversion()`
+
+The `Type::canRequireSQLConversion()` method has been removed.
+
 ## BC BREAK: Removed `Connection::getWrappedConnection()`, `Connection::connect()` made `protected`.
 
 The wrapper-level `Connection::getWrappedConnection()` method has been removed. The `Connection::connect()` method
