@@ -224,6 +224,18 @@ EOF
         self::assertEquals(2, $result->fetchOne());
     }
 
+    public function testBindParamWithNullLength(): void
+    {
+        $this->connection->insert('stmt_test', ['id' => 1]);
+
+        $stmt = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
+
+        $value = 1;
+        $stmt->bindParam(1, $value, ParameterType::INTEGER, null);
+
+        self::assertEquals(1, $stmt->executeQuery()->fetchOne());
+    }
+
     /**
      * @param mixed $expected
      *
