@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Tests\Tools\TestAsset\TestInterface;
+use Doctrine\DBAL\Tests\Tools\TestAsset\Test;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\PolymorphicType;
@@ -15,11 +15,13 @@ use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\TypeRegistry;
 use PHPUnit\Framework\TestCase;
 
+use function get_class;
+
 class TypeRegistryTest extends TestCase
 {
     private const TEST_TYPE_NAME       = 'test';
     private const OTHER_TEST_TYPE_NAME = 'other';
-    private const INTERFACE_TYPE_NAME = TestInterface::class;
+    private const INTERFACE_TYPE_NAME  = Test::class;
 
     /** @var TypeRegistry */
     private $registry;
@@ -38,11 +40,17 @@ class TypeRegistryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->testType      = new BlobType();
-        $this->otherTestType = new BinaryType();
-        $this->implementationTypeName = get_class(new class implements TestInterface {});
-        $this->polymorphicTestType = new class extends PolymorphicType {
-            public function getSQLDeclaration(array $column, AbstractPlatform $platform)
+        $this->testType               = new BlobType();
+        $this->otherTestType          = new BinaryType();
+        $this->implementationTypeName = get_class(new class implements Test
+        {
+        });
+        $this->polymorphicTestType    = new class extends PolymorphicType {
+            /**
+             * @param mixed[]          $column   The column definition
+             * @param AbstractPlatform $platform The currently used database platform.
+             */
+            public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
             {
                 return $platform->getVarcharTypeDeclarationSQL($column);
             }
@@ -60,7 +68,10 @@ class TypeRegistryTest extends TestCase
         self::assertSame($this->testType, $this->registry->get(self::TEST_TYPE_NAME));
         self::assertSame($this->otherTestType, $this->registry->get(self::OTHER_TEST_TYPE_NAME));
         self::assertSame($this->polymorphicTestType, $this->registry->get(self::INTERFACE_TYPE_NAME));
-        self::assertInstanceOf(get_class($this->polymorphicTestType), $this->registry->get($this->implementationTypeName));
+        self::assertInstanceOf(
+            get_class($this->polymorphicTestType),
+            $this->registry->get($this->implementationTypeName)
+        );
 
         $this->expectException(Exception::class);
         $this->registry->get('unknown');

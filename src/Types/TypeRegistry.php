@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\Exception;
 
 use function array_search;
+use function class_exists;
+use function class_implements;
 use function in_array;
 
 /**
@@ -48,12 +50,15 @@ final class TypeRegistry
     private function getPolymorphic(string $name): Type
     {
         if (class_exists($name)) {
-            foreach (class_implements($name) as $interface) {
+            $interfaces = class_implements($name);
+            $interfaces = $interfaces === false ? [] : $interfaces;
+            foreach ($interfaces as $interface) {
                 $interfaceType = $this->has($interface) ? $this->get($interface) : null;
                 if ($interfaceType instanceof PolymorphicType) {
                     $type = clone $interfaceType;
                     $type->setName($name);
                     $this->register($name, $type);
+
                     return $type;
                 }
             }

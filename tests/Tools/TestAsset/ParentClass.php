@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Tools\TestAsset;
 
-abstract class ParentClass implements TestInterface
+abstract class ParentClass implements Test
 {
     /** @var int */
     public $parentPublicAttribute = 1;
