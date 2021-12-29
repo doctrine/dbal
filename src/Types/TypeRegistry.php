@@ -34,10 +34,30 @@ final class TypeRegistry
     public function get(string $name): Type
     {
         if (! isset($this->instances[$name])) {
-            throw Exception::unknownColumnType($name);
+            return $this->getPolymorphic($name);
         }
 
         return $this->instances[$name];
+    }
+
+    /**
+     * Finds an interface type by the given implementation class name.
+     *
+     * @throws Exception
+     */
+    private function getPolymorphic(string $name): Type
+    {
+        if (class_exists($name)) {
+            foreach (class_implements($name) as $interface) {
+                if (isset($this->instances[$interface]) && $this->instances[$interface] instanceof PolymorphicType) {
+                    $this->instances[$name] = clone $this->instances[$interface];
+                    $this->instances[$name]->setName($name);
+                    return $this->instances[$name];
+                }
+            }
+        }
+
+        throw Exception::unknownColumnType($name);
     }
 
     /**

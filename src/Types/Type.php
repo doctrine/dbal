@@ -34,6 +34,7 @@ abstract class Type
         Types::DATETIMETZ_MUTABLE   => DateTimeTzType::class,
         Types::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
         Types::DECIMAL              => DecimalType::class,
+        Types::ENUM                 => EnumType::class,
         Types::FLOAT                => FloatType::class,
         Types::GUID                 => GuidType::class,
         Types::INTEGER              => IntegerType::class,
