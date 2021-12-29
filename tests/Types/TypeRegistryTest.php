@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Tests\Tools\TestAsset\TestInterface;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\PolymorphicType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\TypeRegistry;
@@ -16,6 +19,7 @@ class TypeRegistryTest extends TestCase
 {
     private const TEST_TYPE_NAME       = 'test';
     private const OTHER_TEST_TYPE_NAME = 'other';
+    private const INTERFACE_TYPE_NAME = TestInterface::class;
 
     /** @var TypeRegistry */
     private $registry;
@@ -26,14 +30,28 @@ class TypeRegistryTest extends TestCase
     /** @var BinaryType */
     private $otherTestType;
 
+    /** @var PolymorphicType */
+    private $polymorphicTestType;
+
+    /** @var string */
+    private $implementationTypeName;
+
     protected function setUp(): void
     {
         $this->testType      = new BlobType();
         $this->otherTestType = new BinaryType();
+        $this->implementationTypeName = get_class(new class implements TestInterface {});
+        $this->polymorphicTestType = new class extends PolymorphicType {
+            public function getSQLDeclaration(array $column, AbstractPlatform $platform)
+            {
+                return $platform->getVarcharTypeDeclarationSQL($column);
+            }
+        };
 
         $this->registry = new TypeRegistry([
             self::TEST_TYPE_NAME       => $this->testType,
             self::OTHER_TEST_TYPE_NAME => $this->otherTestType,
+            self::INTERFACE_TYPE_NAME  => $this->polymorphicTestType,
         ]);
     }
 
@@ -41,6 +59,8 @@ class TypeRegistryTest extends TestCase
     {
         self::assertSame($this->testType, $this->registry->get(self::TEST_TYPE_NAME));
         self::assertSame($this->otherTestType, $this->registry->get(self::OTHER_TEST_TYPE_NAME));
+        self::assertSame($this->polymorphicTestType, $this->registry->get(self::INTERFACE_TYPE_NAME));
+        self::assertInstanceOf(get_class($this->polymorphicTestType), $this->registry->get($this->implementationTypeName));
 
         $this->expectException(Exception::class);
         $this->registry->get('unknown');
@@ -54,6 +74,14 @@ class TypeRegistryTest extends TestCase
         );
     }
 
+    public function testPolymorphicGetReturnsSameInstances(): void
+    {
+        self::assertSame(
+            $this->registry->get($this->implementationTypeName),
+            $this->registry->get($this->implementationTypeName)
+        );
+    }
+
     public function testLookupName(): void
     {
         self::assertSame(
@@ -64,6 +92,10 @@ class TypeRegistryTest extends TestCase
             self::OTHER_TEST_TYPE_NAME,
             $this->registry->lookupName($this->otherTestType)
         );
+        self::assertSame(
+            $this->implementationTypeName,
+            $this->registry->lookupName($this->registry->get($this->implementationTypeName))
+        );
 
         $this->expectException(Exception::class);
         $this->registry->lookupName(new TextType());
@@ -73,6 +105,9 @@ class TypeRegistryTest extends TestCase
     {
         self::assertTrue($this->registry->has(self::TEST_TYPE_NAME));
         self::assertTrue($this->registry->has(self::OTHER_TEST_TYPE_NAME));
+        self::assertFalse($this->registry->has($this->implementationTypeName));
+        $this->registry->get($this->implementationTypeName);
+        self::assertTrue($this->registry->has($this->implementationTypeName));
         self::assertFalse($this->registry->has('unknown'));
     }
 
@@ -144,12 +179,18 @@ class TypeRegistryTest extends TestCase
 
     public function testGetMap(): void
     {
+        $this->registry->get($this->implementationTypeName);
         $registeredTypes = $this->registry->getMap();
 
-        self::assertCount(2, $registeredTypes);
+        self::assertCount(4, $registeredTypes);
         self::assertArrayHasKey(self::TEST_TYPE_NAME, $registeredTypes);
         self::assertArrayHasKey(self::OTHER_TEST_TYPE_NAME, $registeredTypes);
+        self::assertArrayHasKey(self::INTERFACE_TYPE_NAME, $registeredTypes);
+        self::assertArrayHasKey($this->implementationTypeName, $registeredTypes);
         self::assertSame($this->testType, $registeredTypes[self::TEST_TYPE_NAME]);
         self::assertSame($this->otherTestType, $registeredTypes[self::OTHER_TEST_TYPE_NAME]);
+        self::assertSame($this->polymorphicTestType, $registeredTypes[self::INTERFACE_TYPE_NAME]);
+        self::assertInstanceOf(get_class($this->polymorphicTestType), $registeredTypes[$this->implementationTypeName]);
+        self::assertNotSame($this->polymorphicTestType, $registeredTypes[$this->implementationTypeName]);
     }
 }

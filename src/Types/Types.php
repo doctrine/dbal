@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types;
 
-use BackedEnum as BackedEnum;
-
 /**
  * Default built-in types provided by Doctrine DBAL.
  */
@@ -25,7 +23,6 @@ final class Types
     public const DATETIMETZ_MUTABLE   = 'datetimetz';
     public const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
     public const DECIMAL              = 'decimal';
-    public const ENUM                 = BackedEnum::class;
     public const FLOAT                = 'float';
     public const GUID                 = 'guid';
     public const INTEGER              = 'integer';

@@ -6,14 +6,14 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 abstract class PolymorphicType extends Type
 {
-    private $name;
+    private $name = null;
 
     public function setName(string $name)
     {
         $this->name = $name;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

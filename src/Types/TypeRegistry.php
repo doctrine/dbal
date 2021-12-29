@@ -49,10 +49,12 @@ final class TypeRegistry
     {
         if (class_exists($name)) {
             foreach (class_implements($name) as $interface) {
-                if (isset($this->instances[$interface]) && $this->instances[$interface] instanceof PolymorphicType) {
-                    $this->instances[$name] = clone $this->instances[$interface];
-                    $this->instances[$name]->setName($name);
-                    return $this->instances[$name];
+                $interfaceType = $this->has($interface) ? $this->get($interface) : null;
+                if ($interfaceType instanceof PolymorphicType) {
+                    $type = clone $interfaceType;
+                    $type->setName($name);
+                    $this->register($name, $type);
+                    return $type;
                 }
             }
         }
