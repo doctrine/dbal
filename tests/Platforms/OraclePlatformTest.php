@@ -201,54 +201,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function testModifyLimitQuery(): void
-    {
-        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
-        self::assertEquals('SELECT a.* FROM (SELECT * FROM user) a WHERE ROWNUM <= 10', $sql);
-    }
-
-    public function testModifyLimitQueryWithEmptyOffset(): void
-    {
-        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10);
-        self::assertEquals('SELECT a.* FROM (SELECT * FROM user) a WHERE ROWNUM <= 10', $sql);
-    }
-
-    public function testModifyLimitQueryWithNonEmptyOffset(): void
-    {
-        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 10);
-
-        self::assertEquals(
-            'SELECT * FROM ('
-                . 'SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 20'
-                . ') WHERE doctrine_rownum >= 11',
-            $sql
-        );
-    }
-
-    public function testModifyLimitQueryWithEmptyLimit(): void
-    {
-        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', null, 10);
-
-        self::assertEquals(
-            'SELECT * FROM ('
-                . 'SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a'
-                . ') WHERE doctrine_rownum >= 11',
-            $sql
-        );
-    }
-
-    public function testModifyLimitQueryWithAscOrderBy(): void
-    {
-        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
-        self::assertEquals('SELECT a.* FROM (SELECT * FROM user ORDER BY username ASC) a WHERE ROWNUM <= 10', $sql);
-    }
-
-    public function testModifyLimitQueryWithDescOrderBy(): void
-    {
-        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
-        self::assertEquals('SELECT a.* FROM (SELECT * FROM user ORDER BY username DESC) a WHERE ROWNUM <= 10', $sql);
-    }
-
     public function testGenerateTableWithAutoincrement(): void
     {
         $columnName = strtoupper('id' . uniqid());
