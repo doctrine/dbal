@@ -87,12 +87,6 @@ parameters:
             paths:
                 - lib/Doctrine/DBAL/Connection.php
 
-        # PHPStan fails to parse this type alias which is meant for Psalm only.
-        -
-            message: '~^Invalid type definition detected in type alias (Override)?Params\.$~'
-            paths:
-                - lib/Doctrine/DBAL/DriverManager.php
-
         -
             message: '~Template type T of method Doctrine\\DBAL\\DriverManager::getConnection\(\) is not referenced in a parameter\.~'
             paths:
