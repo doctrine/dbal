@@ -20,7 +20,6 @@ use function array_merge;
 use function count;
 use function explode;
 use function implode;
-use function preg_match;
 use function sprintf;
 use function str_contains;
 use function strlen;
@@ -859,30 +858,12 @@ SQL
 
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
-        if ($limit === null && $offset <= 0) {
-            return $query;
+        if ($offset > 0) {
+            $query .= sprintf(' OFFSET %d ROWS', $offset);
         }
 
-        if (preg_match('/^\s*SELECT/i', $query) === 1) {
-            if (preg_match('/\sFROM\s/i', $query) === 0) {
-                $query .= ' FROM dual';
-            }
-
-            $columns = ['a.*'];
-
-            if ($offset > 0) {
-                $columns[] = 'ROWNUM AS doctrine_rownum';
-            }
-
-            $query = sprintf('SELECT %s FROM (%s) a', implode(', ', $columns), $query);
-
-            if ($limit !== null) {
-                $query .= sprintf(' WHERE ROWNUM <= %d', $offset + $limit);
-            }
-
-            if ($offset > 0) {
-                $query = sprintf('SELECT * FROM (%s) WHERE doctrine_rownum >= %d', $query, $offset + 1);
-            }
+        if ($limit !== null) {
+            $query .= sprintf(' FETCH NEXT %d ROWS ONLY', $limit);
         }
 
         return $query;
