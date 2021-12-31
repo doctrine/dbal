@@ -132,8 +132,18 @@ parameters:
             path: src/Driver/Mysqli/Result.php
 
         -
-            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int\|string\.~'
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int(:?<0, max>)?\|string\.~'
             paths:
                 - src/Driver/Mysqli/Result.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::exec\(\) should return int but returns int\|string\.~'
+            paths:
+                - src/Driver/Mysqli/Connection.php
+
+        -
+            message: '~^Parameter #1 \$message of class Doctrine\\DBAL\\Driver\\Mysqli\\Exception\\ConnectionFailed constructor expects string, string\|null given\.$~'
+            paths:
+                - src/Driver/Mysqli/Exception/ConnectionFailed.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
