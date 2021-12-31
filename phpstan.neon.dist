@@ -74,12 +74,6 @@ parameters:
             paths:
                 - src/Driver/OCI8/Result.php
 
-        # PHPStan fails to parse this type alias which is meant for Psalm only.
-        -
-            message: '~^Invalid type definition detected in type alias (Override)?Params\.$~'
-            paths:
-                - src/DriverManager.php
-
         -
             message: '~Template type T of method Doctrine\\DBAL\\DriverManager::getConnection\(\) is not referenced in a parameter\.~'
             paths:
@@ -128,15 +122,20 @@ parameters:
             message: '~Only numeric types are allowed in \-, float\|null given on the right side\.~'
             path: src/Logging/DebugStack.php
 
-        # https://github.com/phpstan/phpstan-src/pull/731
         -
-            message: '~Parameter #1 \$array of function array_column expects array, array\|false given\.~'
-            path: src/Driver/Mysqli/Result.php
-
-        -
-            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int\|string\.~'
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int(:?<0, max>)?\|string\.~'
             paths:
                 - src/Driver/Mysqli/Result.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::exec\(\) should return int but returns int\|string\.~'
+            paths:
+                - src/Driver/Mysqli/Connection.php
+
+        -
+            message: '~^Parameter #1 \$message of class Doctrine\\DBAL\\Driver\\Mysqli\\Exception\\ConnectionFailed constructor expects string, string\|null given\.$~'
+            paths:
+                - src/Driver/Mysqli/Exception/ConnectionFailed.php
 
         # Type check for legacy implementations of the Connection interface
         # TODO: remove in 4.0.0
