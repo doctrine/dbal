@@ -14,10 +14,6 @@ class RenameColumnTest extends FunctionalTestCase
      */
     public function testColumnPositionRetainedAfterRenaming(string $columnName, string $newColumnName): void
     {
-        if ($columnName === 'C1' || $columnName === 'importantColumn') {
-            self::markTestIncomplete('See https://github.com/doctrine/dbal/issues/4816');
-        }
-
         $table = new Table('test_rename');
         $table->addColumn($columnName, 'string', ['length' => 16]);
         $table->addColumn('c2', 'integer');

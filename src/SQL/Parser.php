@@ -71,7 +71,7 @@ final class Parser
             self::OTHER,
         ]);
 
-        $this->sqlPattern = sprintf('(%s)+', implode('|', $patterns));
+        $this->sqlPattern = sprintf('(%s)', implode('|', $patterns));
     }
 
     /**

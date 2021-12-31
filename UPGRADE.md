@@ -638,6 +638,10 @@ following methods are deprecated:
 The protected property `AbstractPlatform::$doctrineTypeComments` is deprecated
 as well.
 
+## Deprecated support for IBM DB2 10.5 and older
+
+IBM DB2 10.5 and older won't be supported in DBAL 4. Consider upgrading to IBM DB2 11.1 or later.
+
 ## Deprecated support for Oracle 12c (12.2.0.1) and older
 
 Oracle 12c (12.2.0.1) won't be supported in DBAL 4. Consider upgrading to Oracle 18c (12.2.0.2) or later.

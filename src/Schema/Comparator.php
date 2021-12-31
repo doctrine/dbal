@@ -326,7 +326,7 @@ class Comparator
             }
 
             [$removedColumn, $addedColumn] = $candidateColumns[0];
-            $removedColumnName             = strtolower($removedColumn->getName());
+            $removedColumnName             = $removedColumn->getName();
             $addedColumnName               = strtolower($addedColumn->getName());
 
             if (isset($tableDifferences->renamedColumns[$removedColumnName])) {
@@ -336,7 +336,7 @@ class Comparator
             $tableDifferences->renamedColumns[$removedColumnName] = $addedColumn;
             unset(
                 $tableDifferences->addedColumns[$addedColumnName],
-                $tableDifferences->removedColumns[$removedColumnName]
+                $tableDifferences->removedColumns[strtolower($removedColumnName)]
             );
         }
     }

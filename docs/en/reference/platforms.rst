@@ -57,6 +57,11 @@ PostgreSQL
 -  ``PostgreSQLPlatform`` for version 9.4 and above.
 -  ``PostgreSQL100Platform`` for version 10.0 and above.
 
+IBM DB2
+^^^^^^^
+
+-  ``Db2Platform`` for all versions.
+
 SQLite
 ^^^^^^
 

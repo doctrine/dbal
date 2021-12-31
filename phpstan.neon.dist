@@ -80,12 +80,6 @@ parameters:
             paths:
                 - src/Driver/OCI8/Result.php
 
-        # PHPStan fails to parse this type alias which is meant for Psalm only.
-        -
-            message: '~^Invalid type definition detected in type alias (Override)?Params\.$~'
-            paths:
-                - src/DriverManager.php
-
         -
             message: '~Template type T of method Doctrine\\DBAL\\DriverManager::getConnection\(\) is not referenced in a parameter\.~'
             paths:
@@ -102,10 +96,15 @@ parameters:
             paths:
                 - src/Driver/OCI8/Statement.php
 
-        # https://github.com/phpstan/phpstan-src/pull/731
         -
-            message: '~Parameter #1 \$array of function array_column expects array, array\|false given\.~'
-            path: src/Driver/Mysqli/Result.php
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int(:?<0, max>)?\|string\.~'
+            paths:
+                - src/Driver/Mysqli/Result.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::exec\(\) should return int but returns int\|string\.~'
+            paths:
+                - src/Driver/Mysqli/Connection.php
 
         # Requires a release of https://github.com/phpstan/phpstan-src/pull/719
         -
@@ -117,11 +116,15 @@ parameters:
             message: '~Strict comparison using === between Doctrine\\DBAL\\Schema\\AbstractSchemaManager and null will always evaluate to false\.~'
             path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
-        # https://github.com/phpstan/phpstan-src/pull/700
         -
-            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int\|string\.~'
+            message: '~^Parameter #1 \$message of class Doctrine\\DBAL\\Driver\\Mysqli\\Exception\\ConnectionFailed constructor expects string, string\|null given\.$~'
             paths:
-                - src/Driver/Mysqli/Result.php
+                - src/Driver/Mysqli/Exception/ConnectionFailed.php
+
+        -
+            message: '~^Cannot use array destructuring on array\|null\.$~'
+            paths:
+                - src/Driver/PDO/Connection.php
 
         # These properties are accessed via var_dump()
         -

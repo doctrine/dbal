@@ -816,7 +816,7 @@ abstract class ComparatorTest extends TestCase
         $tableDiff = $this->comparator->diffTable($table, $newtable);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
-        self::assertEquals(['twitterid', 'displayname'], array_keys($tableDiff->renamedColumns));
+        self::assertEquals(['twitterId', 'displayName'], array_keys($tableDiff->renamedColumns));
         self::assertEquals(['logged_in_at'], array_keys($tableDiff->addedColumns));
         self::assertCount(0, $tableDiff->removedColumns);
     }
