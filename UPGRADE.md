@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.3
 
+## Deprecated `Type::canRequireSQLConversion()`.
+
+Consumers should call `Type::convertToDatabaseValueSQL()` and `Type::convertToPHPValueSQL()` regardless of the type.
+
 ## Deprecated the `doctrine-dbal` binary.
 
 The documentation explains how the console tools can be bootstrapped for standalone usage.
@@ -35,6 +39,14 @@ following methods are deprecated:
 
 The protected property `AbstractPlatform::$doctrineTypeComments` is deprecated
 as well.
+
+## Deprecated support for IBM DB2 10.5 and older
+
+IBM DB2 10.5 and older won't be supported in DBAL 4. Consider upgrading to IBM DB2 11.1 or later.
+
+## Deprecated support for Oracle 12c (12.2.0.1) and older
+
+Oracle 12c (12.2.0.1) won't be supported in DBAL 4. Consider upgrading to Oracle 18c (12.2.0.2) or later.
 
 ## Deprecated support for MariaDB 10.2.6 and older
 
@@ -215,6 +227,11 @@ Relying on the name of the platform is discouraged. To identify the platform, us
 
 The `ServerInfoAwareConnection` and `VersionAwarePlatformDriver` interfaces are deprecated. In the next major version,
 all drivers and driver connections will be required to implement the APIs aware of the server version.
+
+## Deprecated `AbstractPlatform::prefersIdentityColumns()`.
+
+Whether to use identity columns should be decided by the application developer. For example, based on the set
+of supported database platforms.
 
 ## Deprecated `AbstractPlatform::getNowExpression()`.
 

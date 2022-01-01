@@ -122,7 +122,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             $str = $this->getSubstringExpression($str, $startPos);
 
             return 'CASE WHEN (POSITION(' . $substr . ' IN ' . $str . ') = 0) THEN 0'
-                . ' ELSE (POSITION(' . $substr . ' IN ' . $str . ') + ' . ($startPos - 1) . ') END';
+                . ' ELSE (POSITION(' . $substr . ' IN ' . $str . ') + ' . $startPos . ' - 1) END';
         }
 
         return 'POSITION(' . $substr . ' IN ' . $str . ')';

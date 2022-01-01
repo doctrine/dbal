@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function array_keys;
+use function strtolower;
 
 class RenameColumnTest extends FunctionalTestCase
 {
@@ -15,10 +16,6 @@ class RenameColumnTest extends FunctionalTestCase
      */
     public function testColumnPositionRetainedAfterRenaming(string $columnName, string $newColumnName): void
     {
-        if ($columnName === 'C1' || $columnName === 'importantColumn') {
-            self::markTestIncomplete('See https://github.com/doctrine/dbal/issues/4816');
-        }
-
         $table = new Table('test_rename');
         $table->addColumn($columnName, 'string');
         $table->addColumn('c2', 'integer');
@@ -36,7 +33,7 @@ class RenameColumnTest extends FunctionalTestCase
         $sm->alterTable($diff);
 
         $table = $sm->listTableDetails('test_rename');
-        self::assertSame([$newColumnName, 'c2'], array_keys($table->getColumns()));
+        self::assertSame([strtolower($newColumnName), 'c2'], array_keys($table->getColumns()));
     }
 
     /**

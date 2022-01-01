@@ -298,7 +298,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'DROP TABLE mytable',
             'CREATE TABLE mytable (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, '
                 . "baz VARCHAR(255) DEFAULT 'def' NOT NULL, "
-                . "bloo BOOLEAN DEFAULT '0' NOT NULL, "
+                . 'bloo BOOLEAN DEFAULT 0 NOT NULL, '
                 . 'quota INTEGER DEFAULT NULL)',
             'INSERT INTO mytable (id, baz, bloo) SELECT id, bar, bloo FROM __temp__mytable',
             'DROP TABLE __temp__mytable',

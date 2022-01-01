@@ -237,6 +237,19 @@
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableColumnsSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableForeignKeysSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableIndexesSQL"/>
+                <!--
+                    See https://github.com/doctrine/dbal/pull/1519
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractMySQLPlatform::prefersIdentityColumns"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::prefersIdentityColumns"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::prefersIdentityColumns"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::prefersIdentityColumns"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::prefersIdentityColumns"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/5136
+                -->
+                <referencedMethod name="Doctrine\DBAL\Types\Type::canRequireSQLConversion"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
