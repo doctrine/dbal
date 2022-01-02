@@ -300,6 +300,12 @@
                 <file name="src/Driver/OCI8/Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
+        <InvalidArgument>
+            <errorLevel type="suppress">
+                <!-- We're testing with invalid input here. -->
+                <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
+            </errorLevel>
+        </InvalidArgument>
         <InvalidDocblock>
             <errorLevel type="suppress">
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->
