@@ -508,10 +508,16 @@ class Comparator
         // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
         if ($properties1['default'] === 'NULL') {
             $properties1['default'] = null;
+        } elseif ($properties1['default'] === 'current_timestamp()') {
+            $properties1['default'] = 'CURRENT_TIMESTAMP';
         }
+
         if ($properties2['default'] === 'NULL') {
             $properties2['default'] = null;
+        } elseif ($properties2['default'] === 'current_timestamp()') {
+            $properties2['default'] = 'CURRENT_TIMESTAMP';
         }
+
         if (
             ($properties1['default'] === null) !== ($properties2['default'] === null)
             || $properties1['default'] != $properties2['default']
