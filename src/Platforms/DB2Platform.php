@@ -643,26 +643,15 @@ class DB2Platform extends AbstractPlatform
 
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
-        $where = [];
-
         if ($offset > 0) {
-            $where[] = sprintf('db22.DC_ROWNUM >= %d', $offset + 1);
+            $query .= sprintf(' OFFSET %d ROWS', $offset);
         }
 
         if ($limit !== null) {
-            $where[] = sprintf('db22.DC_ROWNUM <= %d', $offset + $limit);
+            $query .= sprintf(' FETCH NEXT %d ROWS ONLY', $limit);
         }
 
-        if (empty($where)) {
-            return $query;
-        }
-
-        // Todo OVER() needs ORDER BY data!
-        return sprintf(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
-            $query,
-            implode(' AND ', $where)
-        );
+        return $query;
     }
 
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string

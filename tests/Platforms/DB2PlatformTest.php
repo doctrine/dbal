@@ -392,34 +392,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('SUBSTR(column, 5, 2)', $this->platform->getSubstringExpression('column', '5', '2'));
     }
 
-    public function testModifiesLimitQuery(): void
-    {
-        self::assertEquals(
-            'SELECT * FROM user',
-            $this->platform->modifyLimitQuery('SELECT * FROM user', null, 0)
-        );
-
-        self::assertEquals(
-            'SELECT db22.* FROM ('
-                . 'SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21'
-                . ') db22 WHERE db22.DC_ROWNUM <= 10',
-            $this->platform->modifyLimitQuery('SELECT * FROM user', 10)
-        );
-
-        self::assertEquals(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM ('
-                . 'SELECT * FROM user) db21'
-                . ') db22 WHERE db22.DC_ROWNUM >= 6 AND db22.DC_ROWNUM <= 15',
-            $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 5)
-        );
-        self::assertEquals(
-            'SELECT db22.* FROM ('
-                . 'SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21'
-                . ') db22 WHERE db22.DC_ROWNUM >= 6 AND db22.DC_ROWNUM <= 5',
-            $this->platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
-        );
-    }
-
     public function testSupportsIdentityColumns(): void
     {
         self::assertTrue($this->platform->supportsIdentityColumns());
