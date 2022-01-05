@@ -51,5 +51,6 @@ class StatementTest extends FunctionalTestCase
         $result = $stmt->execute([[]])->fetchAllAssociative();
         $this->assertCount(1, $result);
         $this->assertArrayHasKey('TIME', $result[0]);
+        $this->iniSet('error_reporting', (string) (E_ALL & ~E_WARNING & ~E_NOTICE));
     }
 }

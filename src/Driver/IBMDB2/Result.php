@@ -35,7 +35,7 @@ final class Result implements ResultInterface
      */
     public function fetchNumeric()
     {
-        $row = @db2_fetch_array($this->statement);
+        $row = db2_fetch_array($this->statement);
 
         if ($row === false && @db2_stmt_error($this->statement) !== '02000') {
             throw StatementError::new($this->statement);
@@ -49,7 +49,7 @@ final class Result implements ResultInterface
      */
     public function fetchAssociative()
     {
-        $row = @db2_fetch_assoc($this->statement);
+        $row = db2_fetch_assoc($this->statement);
 
         if ($row === false && @db2_stmt_error($this->statement) !== '02000') {
             throw StatementError::new($this->statement);
