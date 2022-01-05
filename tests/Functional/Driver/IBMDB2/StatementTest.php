@@ -38,4 +38,18 @@ class StatementTest extends FunctionalTestCase
         $this->expectException(StatementError::class);
         $stmt->execute([[]]);
     }
+
+    public function testWarningDoNotBreakFetchAll(): void
+    {
+        $driverConnection = $this->connection->getWrappedConnection();
+
+        $stmt = $driverConnection->prepare('SELECT current time AS time FROM sysibm.sysdummy1');
+
+        // prevent the PHPUnit error handler from handling the errors that db2_execute() may trigger
+        $this->iniSet('error_reporting', (string) E_ALL);
+
+        $result = $stmt->execute([[]])->fetchAllAssociative();
+        $this->assertCount(1, $result);
+        $this->assertArrayHasKey('TIME', $result[0]);
+    }
 }

@@ -37,7 +37,7 @@ final class Result implements ResultInterface
     {
         $row = @db2_fetch_array($this->statement);
 
-        if ($row === false && db2_stmt_error($this->statement) !== '02000') {
+        if ($row === false && @db2_stmt_error($this->statement) !== '02000') {
             throw StatementError::new($this->statement);
         }
 
@@ -51,7 +51,7 @@ final class Result implements ResultInterface
     {
         $row = @db2_fetch_assoc($this->statement);
 
-        if ($row === false && db2_stmt_error($this->statement) !== '02000') {
+        if ($row === false && @db2_stmt_error($this->statement) !== '02000') {
             throw StatementError::new($this->statement);
         }
 
