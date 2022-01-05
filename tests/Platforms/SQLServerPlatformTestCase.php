@@ -1822,6 +1822,8 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /**
+     * @psalm-param LockMode::* $lockMode
+     *
      * @dataProvider getLockHints
      */
     public function testAppendsLockHint(int $lockMode, string $lockHint): void
