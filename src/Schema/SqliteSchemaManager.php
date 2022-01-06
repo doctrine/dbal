@@ -17,7 +17,6 @@ use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function array_reverse;
-use function assert;
 use function explode;
 use function file_exists;
 use function implode;
@@ -569,46 +568,6 @@ SQL
         }
 
         return '';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param string $name
-     */
-    public function listTableDetails($name): Table
-    {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        assert($currentDatabase !== null);
-
-        $options = [];
-
-        $comment = $this->parseTableCommentFromSQL($name, $this->getCreateTableSQL($name));
-        if ($comment !== null) {
-            $options['comment'] = $comment;
-        }
-
-        return new Table(
-            $name,
-            $this->_getPortableTableColumnList(
-                $name,
-                $currentDatabase,
-                $this->selectDatabaseColumns($currentDatabase, $name)
-                    ->fetchAllAssociative()
-            ),
-            $this->_getPortableTableIndexesList(
-                $this->selectDatabaseIndexes($currentDatabase, $name)
-                    ->fetchAllAssociative(),
-                $name
-            ),
-            [],
-            $this->_getPortableTableForeignKeysList(
-                $this->selectDatabaseForeignKeys($currentDatabase, $name)
-                    ->fetchAllAssociative()
-            ),
-            $options
-        );
     }
 
     public function createComparator(): Comparator

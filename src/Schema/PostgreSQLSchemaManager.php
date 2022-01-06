@@ -565,39 +565,6 @@ SQL
         return str_replace("''", "'", $default);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTableDetails($name): Table
-    {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        assert($currentDatabase !== null);
-
-        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, $name);
-
-        return new Table(
-            $name,
-            $this->_getPortableTableColumnList(
-                $name,
-                $currentDatabase,
-                $this->selectDatabaseColumns($currentDatabase, $name)
-                    ->fetchAllAssociative()
-            ),
-            $this->_getPortableTableIndexesList(
-                $this->selectDatabaseIndexes($currentDatabase, $name)
-                    ->fetchAllAssociative(),
-                $name
-            ),
-            [],
-            $this->_getPortableTableForeignKeysList(
-                $this->selectDatabaseForeignKeys($currentDatabase, $name)
-                    ->fetchAllAssociative()
-            ),
-            $tableOptions[$name] ?? []
-        );
-    }
-
     protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';

@@ -330,37 +330,6 @@ class MySQLSchemaManager extends AbstractSchemaManager
         return $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTableDetails($name)
-    {
-        $currentDatabase = $this->_conn->getDatabase() ?? '';
-
-        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, $name);
-
-        return new Table(
-            $name,
-            $this->_getPortableTableColumnList(
-                $name,
-                $currentDatabase,
-                $this->selectDatabaseColumns($currentDatabase, $name)
-                    ->fetchAllAssociative()
-            ),
-            $this->_getPortableTableIndexesList(
-                $this->selectDatabaseIndexes($currentDatabase, $name)
-                    ->fetchAllAssociative(),
-                $name
-            ),
-            [],
-            $this->_getPortableTableForeignKeysList(
-                $this->selectDatabaseForeignKeys($currentDatabase, $name)
-                    ->fetchAllAssociative()
-            ),
-            $tableOptions[$name] ?? []
-        );
-    }
-
     public function createComparator(): Comparator
     {
         return new MySQL\Comparator($this->getDatabasePlatform());

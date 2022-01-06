@@ -373,16 +373,32 @@ abstract class AbstractSchemaManager
      */
     public function listTableDetails($name)
     {
-        $columns     = $this->listTableColumns($name);
-        $foreignKeys = [];
+        $currentDatabase = $this->_conn->getDatabase();
 
-        if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->listTableForeignKeys($name);
-        }
+        assert($currentDatabase !== null);
 
-        $indexes = $this->listTableIndexes($name);
+        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, $name);
 
-        return new Table($name, $columns, $indexes, [], $foreignKeys);
+        return new Table(
+            $name,
+            $this->_getPortableTableColumnList(
+                $name,
+                $currentDatabase,
+                $this->selectDatabaseColumns($currentDatabase, $name)
+                    ->fetchAllAssociative()
+            ),
+            $this->_getPortableTableIndexesList(
+                $this->selectDatabaseIndexes($currentDatabase, $name)
+                    ->fetchAllAssociative(),
+                $name
+            ),
+            [],
+            $this->_getPortableTableForeignKeysList(
+                $this->selectDatabaseForeignKeys($currentDatabase, $name)
+                    ->fetchAllAssociative()
+            ),
+            $tableOptions[$name] ?? []
+        );
     }
 
     /**

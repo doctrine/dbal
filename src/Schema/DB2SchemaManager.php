@@ -9,7 +9,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
-use function assert;
 use function implode;
 use function preg_match;
 use function str_replace;
@@ -238,31 +237,15 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     public function listTableDetails($name): Table
     {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        assert($currentDatabase !== null);
-
-        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, strtoupper($name));
+        $table = parent::listTableDetails(strtoupper($name));
 
         return new Table(
             $name,
-            $this->_getPortableTableColumnList(
-                $name,
-                $currentDatabase,
-                $this->selectDatabaseColumns($currentDatabase, $name)
-                    ->fetchAllAssociative()
-            ),
-            $this->_getPortableTableIndexesList(
-                $this->selectDatabaseIndexes($currentDatabase, $name)
-                    ->fetchAllAssociative(),
-                $name
-            ),
-            [],
-            $this->_getPortableTableForeignKeysList(
-                $this->selectDatabaseForeignKeys($currentDatabase, $name)
-                    ->fetchAllAssociative()
-            ),
-            $tableOptions[strtoupper($name)] ?? []
+            $table->getColumns(),
+            $table->getIndexes(),
+            $table->getUniqueConstraints(),
+            $table->getForeignKeys(),
+            $table->getOptions()
         );
     }
 
