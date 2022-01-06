@@ -40,6 +40,7 @@ use function key;
  * configuration, emulated transaction nesting, lazy connecting and more.
  *
  * @psalm-import-type Params from DriverManager
+ * @psalm-consistent-constructor
  */
 class Connection
 {
