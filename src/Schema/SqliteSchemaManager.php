@@ -611,48 +611,6 @@ SQL
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTables()
-    {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        assert($currentDatabase !== null);
-
-        /** @var array<string,list<array<string,mixed>>> $columns */
-        $columns = $this->selectDatabaseColumns($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $indexes = $this->selectDatabaseIndexes($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $foreignKeys = $this->selectDatabaseForeignKeys($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $tables = [];
-
-        foreach ($columns as $tableName => $tableColumns) {
-            $options = [];
-
-            $comment = $this->parseTableCommentFromSQL($tableName, $this->getCreateTableSQL($tableName));
-            if ($comment !== null) {
-                $options['comment'] = $comment;
-            }
-
-            $tables[] = new Table(
-                $tableName,
-                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
-                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
-                [],
-                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
-                $options
-            );
-        }
-
-        return $tables;
-    }
-
     public function createComparator(): Comparator
     {
         return new SQLite\Comparator($this->getDatabasePlatform());
@@ -675,13 +633,7 @@ SQL
         return [];
     }
 
-    /**
-     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = <<<SQL
             SELECT m.name "table_name", p.*
@@ -708,13 +660,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
     {
         $sql = <<<SQL
             SELECT m.name "table_name", p.*
@@ -741,13 +687,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
-     * narrows down the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
     {
         $sql = <<<SQL
             SELECT m.name, p.*
@@ -772,5 +712,30 @@ SQL;
             . ' ORDER BY m.name';
 
         return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * @return array<string,array<string,mixed>>
+     */
+    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
+    {
+        if ($tableName === null) {
+            $tables = $this->listTableNames();
+        } else {
+            $tables = [$tableName];
+        }
+
+        $tableOptions = [];
+        foreach ($tables as $table) {
+            $comment = $this->parseTableCommentFromSQL($table, $this->getCreateTableSQL($table));
+
+            if ($comment === null) {
+                continue;
+            }
+
+            $tableOptions[$table]['comment'] = $comment;
+        }
+
+        return $tableOptions;
     }
 }

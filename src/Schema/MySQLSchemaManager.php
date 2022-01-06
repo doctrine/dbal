@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL;
@@ -338,13 +337,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     {
         $currentDatabase = $this->_conn->getDatabase() ?? '';
 
-        $options  = [];
-        $metadata = $this->selectDatabaseTableMetadata($currentDatabase, $name)
-            ->fetchAssociative();
-
-        if ($metadata !== false) {
-            $options = $this->buildTableOptions($metadata);
-        }
+        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, $name);
 
         return new Table(
             $name,
@@ -364,50 +357,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 $this->selectDatabaseForeignKeys($currentDatabase, $name)
                     ->fetchAllAssociative()
             ),
-            $options,
+            $tableOptions[$name] ?? []
         );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function listTables()
-    {
-        $currentDatabase = $this->_conn->getDatabase() ?? '';
-
-        /** @var array<string,list<array<string,mixed>>> $columns */
-        $columns = $this->selectDatabaseColumns($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $indexes = $this->selectDatabaseIndexes($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $foreignKeys = $this->selectDatabaseForeignKeys($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $metadata = $this->selectDatabaseTableMetadata($currentDatabase)
-            ->fetchAllAssociativeIndexed();
-
-        $tables = [];
-
-        foreach ($columns as $tableName => $tableColumns) {
-            $options = [];
-
-            if (isset($metadata[$tableName])) {
-                $options = $this->buildTableOptions($metadata[$tableName]);
-            }
-
-            $tables[] = new Table(
-                $tableName,
-                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
-                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
-                [],
-                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
-                $options
-            );
-        }
-
-        return $tables;
     }
 
     public function createComparator(): Comparator
@@ -415,50 +366,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
         return new MySQL\Comparator($this->getDatabasePlatform());
     }
 
-    /**
-     * @param array<string,mixed> $row
-     *
-     * @return array<string,mixed>
-     */
-    private function buildTableOptions(array $row): array
-    {
-        return [
-            'engine'         => $row['ENGINE'],
-            'collation'      => $row['TABLE_COLLATION'],
-            'charset'        => $row['CHARACTER_SET_NAME'],
-            'autoincrement'  => $row['AUTO_INCREMENT'],
-            'comment'        => $row['TABLE_COMMENT'],
-            'create_options' => $this->parseCreateOptions($row['CREATE_OPTIONS']),
-        ];
-    }
-
-    /**
-     * @return string[]|true[]
-     */
-    private function parseCreateOptions(?string $string): array
-    {
-        $options = [];
-
-        if ($string === null || $string === '') {
-            return $options;
-        }
-
-        foreach (explode(' ', $string) as $pair) {
-            $parts = explode('=', $pair, 2);
-
-            $options[$parts[0]] = $parts[1] ?? true;
-        }
-
-        return $options;
-    }
-
-    /**
-     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -493,13 +401,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -530,13 +432,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
-     * narrows down the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT DISTINCT';
 
@@ -576,29 +472,21 @@ SQL;
     }
 
     /**
-     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
+     * @return array<string,array<string,mixed>>
      */
-    private function selectDatabaseTableMetadata(string $databaseName, ?string $tableName = null): Result
+    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
     {
-        $sql = 'SELECT';
-
-        if ($tableName === null) {
-            $sql .= ' t.TABLE_NAME,';
-        }
-
-        $sql .= <<<'SQL'
-       t.ENGINE,
-       t.AUTO_INCREMENT,
-       t.TABLE_COMMENT,
-       t.CREATE_OPTIONS,
-       t.TABLE_COLLATION,
-       ccsa.CHARACTER_SET_NAME
-FROM information_schema.TABLES t
-    INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY ccsa
-        ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
+        $sql = <<<'SQL'
+    SELECT t.TABLE_NAME,
+           t.ENGINE,
+           t.AUTO_INCREMENT,
+           t.TABLE_COMMENT,
+           t.CREATE_OPTIONS,
+           t.TABLE_COLLATION,
+           ccsa.CHARACTER_SET_NAME
+      FROM information_schema.TABLES t
+        INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY ccsa
+            ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
 SQL;
 
         $conditions = ['t.TABLE_SCHEMA = ?'];
@@ -613,6 +501,41 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
-        return $this->_conn->executeQuery($sql, $params);
+        $metadata = $this->_conn->executeQuery($sql, $params)
+            ->fetchAllAssociativeIndexed();
+
+        $tableOptions = [];
+        foreach ($metadata as $table => $data) {
+            $tableOptions[(string) $table] = [
+                'engine'         => $data['ENGINE'],
+                'collation'      => $data['TABLE_COLLATION'],
+                'charset'        => $data['CHARACTER_SET_NAME'],
+                'autoincrement'  => $data['AUTO_INCREMENT'],
+                'comment'        => $data['TABLE_COMMENT'],
+                'create_options' => $this->parseCreateOptions($data['CREATE_OPTIONS']),
+            ];
+        }
+
+        return $tableOptions;
+    }
+
+    /**
+     * @return string[]|true[]
+     */
+    private function parseCreateOptions(?string $string): array
+    {
+        $options = [];
+
+        if ($string === null || $string === '') {
+            return $options;
+        }
+
+        foreach (explode(' ', $string) as $pair) {
+            $parts = explode('=', $pair, 2);
+
+            $options[$parts[0]] = $parts[1] ?? true;
+        }
+
+        return $options;
     }
 }

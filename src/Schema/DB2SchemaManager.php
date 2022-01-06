@@ -15,6 +15,7 @@ use function preg_match;
 use function str_replace;
 use function strpos;
 use function strtolower;
+use function strtoupper;
 use function substr;
 
 use const CASE_LOWER;
@@ -241,13 +242,7 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         assert($currentDatabase !== null);
 
-        $options = [];
-        $comment = $this->selectDatabaseTableComments($currentDatabase, $name)
-            ->fetchOne();
-
-        if ($comment !== false) {
-            $options['comment'] = $comment;
-        }
+        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, strtoupper($name));
 
         return new Table(
             $name,
@@ -267,61 +262,11 @@ class DB2SchemaManager extends AbstractSchemaManager
                 $this->selectDatabaseForeignKeys($currentDatabase, $name)
                     ->fetchAllAssociative()
             ),
-            $options
+            $tableOptions[strtoupper($name)] ?? []
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTables()
-    {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        assert($currentDatabase !== null);
-
-        /** @var array<string,list<array<string,mixed>>> $columns */
-        $columns = $this->selectDatabaseColumns($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $indexes = $this->selectDatabaseIndexes($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $foreignKeys = $this->selectDatabaseForeignKeys($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $comments = $this->selectDatabaseTableComments($currentDatabase)
-            ->fetchAllKeyValue();
-
-        $tables = [];
-
-        foreach ($columns as $tableName => $tableColumns) {
-            $options = [];
-
-            if (isset($comments[$tableName])) {
-                $options['comment'] = $comments[$tableName];
-            }
-
-            $tables[] = new Table(
-                $tableName,
-                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
-                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
-                [],
-                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
-                $options
-            );
-        }
-
-        return $tables;
-    }
-
-    /**
-     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
     {
         // We do the funky subquery and join syscat.columns.default this crazy way because
         // as of db2 v10, the column is CLOB(64k) and the distinct operator won't allow a CLOB,
@@ -388,13 +333,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -435,13 +374,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
-     * narrows down the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -489,20 +422,11 @@ SQL;
     }
 
     /**
-     * Selects comments of the tables in the specified database. If the table name is specified, narrows down the
-     * selection to this table.
-     *
-     * @throws Exception
+     * @return array<string,array<string,mixed>>
      */
-    private function selectDatabaseTableComments(string $databaseName, ?string $tableName = null): Result
+    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
     {
-        $sql = 'SELECT';
-
-        if ($tableName === null) {
-            $sql .= ' NAME,';
-        }
-
-        $sql .= ' REMARKS';
+        $sql = 'SELECT  NAME, REMARKS';
 
         $conditions = [];
         $params     = [];
@@ -518,6 +442,16 @@ SQL;
             $sql .= ' WHERE ' . implode(' AND ', $conditions);
         }
 
-        return $this->_conn->executeQuery($sql, $params);
+        $metadata = $this->_conn->executeQuery($sql, $params)
+            ->fetchAllAssociativeIndexed();
+
+        $tableOptions = [];
+        foreach ($metadata as $table => $data) {
+            $tableOptions[(string) $table] = [
+                'comment' => $data['REMARKS'],
+            ];
+        }
+
+        return $tableOptions;
     }
 }

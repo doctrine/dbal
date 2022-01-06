@@ -325,26 +325,6 @@ SQL
     }
 
     /**
-     * @param string $name
-     *
-     * @throws Exception
-     */
-/*    public function listTableDetails($name): Table
-    {
-        $table = parent::listTableDetails($name);
-
-        $sql = $this->_platform->getListTableMetadataSQL($name);
-
-        $tableOptions = $this->_conn->fetchAssociative($sql);
-
-        if ($tableOptions !== false) {
-            $table->addOption('comment', $tableOptions['table_comment']);
-        }
-
-        return $table;
-    }*/
-
-    /**
      * @throws Exception
      */
     public function createComparator(): Comparator
@@ -381,13 +361,7 @@ SQL
 
         assert($currentDatabase !== null);
 
-        $options = [];
-        $comment = $this->selectDatabaseTableComments($currentDatabase, $name)
-            ->fetchOne();
-
-        if ($comment !== false) {
-            $options['comment'] = $comment;
-        }
+        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, $name);
 
         return new Table(
             $name,
@@ -407,61 +381,11 @@ SQL
                 $this->selectDatabaseForeignKeys($currentDatabase, $name)
                     ->fetchAllAssociative()
             ),
-            $options
+            $tableOptions[$name] ?? []
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTables()
-    {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        assert($currentDatabase !== null);
-
-        /** @var array<string,list<array<string,mixed>>> $columns */
-        $columns = $this->selectDatabaseColumns($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $indexes = $this->selectDatabaseIndexes($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $foreignKeys = $this->selectDatabaseForeignKeys($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $comments = $this->selectDatabaseTableComments($currentDatabase)
-            ->fetchAllKeyValue();
-
-        $tables = [];
-
-        foreach ($columns as $tableName => $tableColumns) {
-            $options = [];
-
-            if (isset($comments[$tableName])) {
-                $options['comment'] = $comments[$tableName];
-            }
-
-            $tables[] = new Table(
-                $tableName,
-                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
-                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
-                [],
-                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
-                $options
-            );
-        }
-
-        return $tables;
-    }
-
-    /**
-     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -508,13 +432,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -552,13 +470,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
-     * narrows down the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -600,24 +512,17 @@ SQL;
     }
 
     /**
-     * Selects comments of the tables in the specified database. If the table name is specified, narrows down the
-     * selection to this table.
-     *
-     * @throws Exception
+     * @return array<string,array<string,mixed>>
      */
-    private function selectDatabaseTableComments(string $databaseName, ?string $tableName = null): Result
+    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
     {
-        $sql = 'SELECT';
-
-        if ($tableName === null) {
-            $sql .= ' tbl.name,';
-        }
-
-        $sql .=  <<<'SQL'
-                  p.value AS [table_comment]
-                FROM
-                  sys.tables AS tbl
-                  INNER JOIN sys.extended_properties AS p ON p.major_id=tbl.object_id AND p.minor_id=0 AND p.class=1
+        $sql = <<<'SQL'
+          SELECT
+            tbl.name,
+            p.value AS [table_comment]
+          FROM
+            sys.tables AS tbl
+            INNER JOIN sys.extended_properties AS p ON p.major_id=tbl.object_id AND p.minor_id=0 AND p.class=1
 SQL;
 
         $conditions = ['SCHEMA_NAME(tbl.schema_id)=N\'dbo\'', 'p.name=N\'MS_Description\''];
@@ -629,7 +534,17 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
-        return $this->_conn->executeQuery($sql, $params);
+        $metadata = $this->_conn->executeQuery($sql, $params)
+            ->fetchAllAssociativeIndexed();
+
+        $tableOptions = [];
+        foreach ($metadata as $table => $data) {
+            $tableOptions[(string) $table] = [
+                'comment' => $data['table_comment'],
+            ];
+        }
+
+        return $tableOptions;
     }
 
     /**

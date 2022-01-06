@@ -333,13 +333,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         $tableName = $this->normalizeIdentifier($name);
 
-        $options = [];
-        $comment = $this->selectDatabaseTableComments($currentDatabase, $tableName)
-            ->fetchOne();
-
-        if ($comment !== false) {
-            $options['comment'] = $comment;
-        }
+        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, $tableName);
 
         return new Table(
             $name,
@@ -359,61 +353,11 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $this->selectDatabaseForeignKeys($currentDatabase, $tableName)
                     ->fetchAllAssociative()
             ),
-            $options
+            $tableOptions[$tableName] ?? []
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTables()
-    {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        assert($currentDatabase !== null);
-
-        /** @var array<string,list<array<string,mixed>>> $columns */
-        $columns = $this->selectDatabaseColumns($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $indexes = $this->selectDatabaseIndexes($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $foreignKeys = $this->selectDatabaseForeignKeys($currentDatabase)
-            ->fetchAllAssociativeGrouped();
-
-        $comments = $this->selectDatabaseTableComments($currentDatabase)
-            ->fetchAllKeyValue();
-
-        $tables = [];
-
-        foreach ($columns as $tableName => $tableColumns) {
-            $options = [];
-
-            if (isset($comments[$tableName])) {
-                $options['comment'] = $comments[$tableName];
-            }
-
-            $tables[] = new Table(
-                $tableName,
-                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
-                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
-                [],
-                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
-                $options
-            );
-        }
-
-        return $tables;
-    }
-
-    /**
-     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -452,13 +396,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -492,13 +430,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    /**
-     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
-     * narrows down the selection to this table.
-     *
-     * @throws Exception
-     */
-    private function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -535,20 +467,11 @@ SQL;
     }
 
     /**
-     * Selects comments of the tables in the specified database. If the table name is specified, narrows down the
-     * selection to this table.
-     *
-     * @throws Exception
+     * @return array<string,array<string,mixed>>
      */
-    private function selectDatabaseTableComments(string $databaseName, ?string $tableName = null): Result
+    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
     {
-        $sql = 'SELECT';
-
-        if ($tableName === null) {
-            $sql .= ' TABLE_NAME,';
-        }
-
-        $sql .= ' COMMENTS';
+        $sql = 'SELECT TABLE_NAME, COMMENTS';
 
         $conditions = ['OWNER = :OWNER'];
         $params     = ['OWNER' => $databaseName];
@@ -560,7 +483,17 @@ SQL;
 
         $sql .= ' FROM ALL_TAB_COMMENTS WHERE ' . implode(' AND ', $conditions);
 
-        return $this->_conn->executeQuery($sql, $params);
+        $metadata = $this->_conn->executeQuery($sql, $params)
+            ->fetchAllAssociativeIndexed();
+
+        $tableOptions = [];
+        foreach ($metadata as $table => $data) {
+            $tableOptions[(string) $table] = [
+                'comment' => $data['COMMENTS'],
+            ];
+        }
+
+        return $tableOptions;
     }
 
     /**
