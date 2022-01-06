@@ -41,6 +41,7 @@ use function key;
  * lazy connecting and more.
  *
  * @psalm-import-type Params from DriverManager
+ * @psalm-consistent-constructor
  */
 class Connection implements DriverConnection
 {
