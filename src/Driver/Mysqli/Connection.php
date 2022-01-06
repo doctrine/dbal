@@ -37,7 +37,7 @@ final class Connection implements ServerInfoAwareConnection
      *
      * Could be used if part of your application is not using DBAL.
      */
-    public function getWrappedResourceHandle(): mysqli
+    public function getWrappedConnection(): mysqli
     {
         return $this->connection;
     }
