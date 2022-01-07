@@ -22,9 +22,9 @@ use const CASE_LOWER;
 /**
  * IBM Db2 Schema Manager.
  *
- * @extends AbstractSchemaManager<DB2Platform>
+ * @extends AbstractDatabaseIntrospectionSchemaManager<DB2Platform>
  */
-class DB2SchemaManager extends AbstractSchemaManager
+class DB2SchemaManager extends AbstractDatabaseIntrospectionSchemaManager
 {
     /**
      * {@inheritdoc}

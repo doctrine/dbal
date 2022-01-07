@@ -24,9 +24,9 @@ use const CASE_LOWER;
 /**
  * Oracle Schema Manager.
  *
- * @extends AbstractSchemaManager<OraclePlatform>
+ * @extends AbstractDatabaseIntrospectionSchemaManager<OraclePlatform>
  */
-class OracleSchemaManager extends AbstractSchemaManager
+class OracleSchemaManager extends AbstractDatabaseIntrospectionSchemaManager
 {
     /**
      * {@inheritdoc}

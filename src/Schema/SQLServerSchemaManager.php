@@ -23,9 +23,9 @@ use function strtok;
 /**
  * SQL Server Schema Manager.
  *
- * @extends AbstractSchemaManager<SQLServerPlatform>
+ * @extends AbstractDatabaseIntrospectionSchemaManager<SQLServerPlatform>
  */
-class SQLServerSchemaManager extends AbstractSchemaManager
+class SQLServerSchemaManager extends AbstractDatabaseIntrospectionSchemaManager
 {
     /** @var string|null */
     private $databaseCollation;

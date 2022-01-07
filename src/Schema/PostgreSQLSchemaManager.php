@@ -31,9 +31,9 @@ use const CASE_LOWER;
 /**
  * PostgreSQL Schema Manager.
  *
- * @extends AbstractSchemaManager<PostgreSQLPlatform>
+ * @extends AbstractDatabaseIntrospectionSchemaManager<PostgreSQLPlatform>
  */
-class PostgreSQLSchemaManager extends AbstractSchemaManager
+class PostgreSQLSchemaManager extends AbstractDatabaseIntrospectionSchemaManager
 {
     /** @var string[]|null */
     private $existingSchemaPaths;

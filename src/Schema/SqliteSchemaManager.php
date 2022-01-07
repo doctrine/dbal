@@ -37,9 +37,9 @@ use const CASE_LOWER;
 /**
  * Sqlite SchemaManager.
  *
- * @extends AbstractSchemaManager<SqlitePlatform>
+ * @extends AbstractDatabaseIntrospectionSchemaManager<SqlitePlatform>
  */
-class SqliteSchemaManager extends AbstractSchemaManager
+class SqliteSchemaManager extends AbstractDatabaseIntrospectionSchemaManager
 {
     /**
      * {@inheritdoc}

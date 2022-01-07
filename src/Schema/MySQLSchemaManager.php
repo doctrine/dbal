@@ -25,9 +25,9 @@ use const CASE_LOWER;
 /**
  * Schema manager for the MySQL RDBMS.
  *
- * @extends AbstractSchemaManager<AbstractMySQLPlatform>
+ * @extends AbstractDatabaseIntrospectionSchemaManager<AbstractMySQLPlatform>
  */
-class MySQLSchemaManager extends AbstractSchemaManager
+class MySQLSchemaManager extends AbstractDatabaseIntrospectionSchemaManager
 {
     /**
      * @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences
