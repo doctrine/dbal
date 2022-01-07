@@ -329,7 +329,11 @@ SQL
      */
     public function createComparator(): Comparator
     {
-        return new SQLServer\Comparator($this->getDatabasePlatform(), $this->getDatabaseCollation());
+        $platform = $this->getDatabasePlatform();
+
+        assert($platform instanceof SQLServerPlatform);
+
+        return new SQLServer\Comparator($platform, $this->getDatabaseCollation());
     }
 
     /**

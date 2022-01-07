@@ -17,6 +17,7 @@ use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function array_reverse;
+use function assert;
 use function explode;
 use function file_exists;
 use function implode;
@@ -572,7 +573,11 @@ SQL
 
     public function createComparator(): Comparator
     {
-        return new SQLite\Comparator($this->getDatabasePlatform());
+        $platform = $this->getDatabasePlatform();
+
+        assert($platform instanceof SqlitePlatform);
+
+        return new SQLite\Comparator($platform);
     }
 
     /**

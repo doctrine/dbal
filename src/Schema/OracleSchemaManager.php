@@ -287,6 +287,8 @@ class OracleSchemaManager extends AbstractDatabaseIntrospectionSchemaManager
      */
     public function dropAutoincrement($table)
     {
+        assert($this->_platform instanceof OraclePlatform);
+
         $sql = $this->_platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
             $this->_conn->executeStatement($query);
