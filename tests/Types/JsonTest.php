@@ -62,7 +62,7 @@ class JsonTest extends TestCase
     public function testJsonStringConvertsToPHPValue(): void
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = json_encode($value, 0, JSON_THROW_ON_ERROR);
+        $databaseValue = json_encode($value);
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertEquals($value, $phpValue);
@@ -87,7 +87,7 @@ class JsonTest extends TestCase
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
         $databaseValue = fopen(
-            'data://text/plain;base64,' . base64_encode(json_encode($value, JSON_THROW_ON_ERROR)),
+            'data://text/plain;base64,' . base64_encode(json_encode($value, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION)),
             'r'
         );
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
@@ -98,6 +98,27 @@ class JsonTest extends TestCase
     public function testRequiresSQLCommentHint(): void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
+    }
+
+    public function testPHPNullValueConvertsToJsonNull(): void
+    {
+        self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
+    }
+
+    public function testPHPValueConvertsToJsonString(): void
+    {
+        $source = ['foo' => 'bar', 'bar' => 'foo'];
+        $databaseValue = $this->type->convertToDatabaseValue($source, $this->platform);
+
+        self::assertEquals('{"foo":"bar","bar":"foo"}', $databaseValue);
+    }
+
+    public function testPHPFloatValueConvertsToJsonString(): void
+    {
+        $source        = ['foo' => 11.4, 'bar' => 10.0];
+        $databaseValue = $this->type->convertToDatabaseValue($source, $this->platform);
+
+        self::assertEquals('{"foo":11.4,"bar":10.0}', $databaseValue);
     }
 
     public function testSerializationFailure(): void
