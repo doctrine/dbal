@@ -62,7 +62,7 @@ class JsonTest extends TestCase
     public function testJsonStringConvertsToPHPValue(): void
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = json_encode($value);
+        $databaseValue = json_encode($value, 0, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertEquals($value, $phpValue);
@@ -110,7 +110,7 @@ class JsonTest extends TestCase
         $source = ['foo' => 'bar', 'bar' => 'foo'];
         $databaseValue = $this->type->convertToDatabaseValue($source, $this->platform);
 
-        self::assertEquals('{"foo":"bar","bar":"foo"}', $databaseValue);
+        self::assertSame('{"foo":"bar","bar":"foo"}', $databaseValue);
     }
 
     public function testPHPFloatValueConvertsToJsonString(): void
@@ -118,7 +118,7 @@ class JsonTest extends TestCase
         $source        = ['foo' => 11.4, 'bar' => 10.0];
         $databaseValue = $this->type->convertToDatabaseValue($source, $this->platform);
 
-        self::assertEquals('{"foo":11.4,"bar":10.0}', $databaseValue);
+        self::assertSame('{"foo":11.4,"bar":10.0}', $databaseValue);
     }
 
     public function testSerializationFailure(): void
