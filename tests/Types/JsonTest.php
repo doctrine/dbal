@@ -14,6 +14,7 @@ use function base64_encode;
 use function fopen;
 use function json_encode;
 
+use const JSON_PRESERVE_ZERO_FRACTION;
 use const JSON_THROW_ON_ERROR;
 
 class JsonTest extends TestCase
@@ -87,7 +88,10 @@ class JsonTest extends TestCase
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
         $databaseValue = fopen(
-            'data://text/plain;base64,' . base64_encode(json_encode($value, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION)),
+            'data://text/plain;base64,' . base64_encode(json_encode(
+                $value,
+                JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION
+            )),
             'r'
         );
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
@@ -107,7 +111,7 @@ class JsonTest extends TestCase
 
     public function testPHPValueConvertsToJsonString(): void
     {
-        $source = ['foo' => 'bar', 'bar' => 'foo'];
+        $source        = ['foo' => 'bar', 'bar' => 'foo'];
         $databaseValue = $this->type->convertToDatabaseValue($source, $this->platform);
 
         self::assertSame('{"foo":"bar","bar":"foo"}', $databaseValue);

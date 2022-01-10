@@ -10,8 +10,8 @@ use function json_decode;
 use function json_encode;
 use function stream_get_contents;
 
-use const JSON_THROW_ON_ERROR;
 use const JSON_PRESERVE_ZERO_FRACTION;
+use const JSON_THROW_ON_ERROR;
 
 /**
  * Type generating json objects values
