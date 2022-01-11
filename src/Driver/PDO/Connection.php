@@ -12,6 +12,7 @@ use PDOException;
 use PDOStatement;
 
 use function assert;
+use function preg_replace;
 
 final class Connection implements ServerInfoAwareConnection
 {
@@ -46,7 +47,15 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
+        // remove "5.5.5-" prefix for MariaDB introduced in
+        // https://jira.mariadb.org/browse/MDEV-4088
+        // as a pure protocol fix to match version from "SELECT VERSION()"
+
+        return preg_replace(
+            '~^5\.5\.5-(?=\d+\.\d+\.\d+.*MariaDB)~i',
+            '',
+            $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION)
+        );
     }
 
     /**

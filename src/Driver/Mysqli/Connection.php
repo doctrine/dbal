@@ -42,26 +42,15 @@ final class Connection implements ServerInfoAwareConnection
         return $this->connection;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * The server version detection includes a special case for MariaDB
-     * to support '5.5.5-' prefixed versions introduced in Maria 10+
-     *
-     * @link https://jira.mariadb.org/browse/MDEV-4088
-     */
     public function getServerVersion(): string
     {
-        $serverInfos = $this->connection->get_server_info();
-        if (stripos($serverInfos, 'mariadb') !== false) {
-            return $serverInfos;
-        }
+        $isMariadb = stripos($this->connection->get_server_info(), 'mariadb') !== false;
 
         $majorVersion = floor($this->connection->server_version / 10000);
         $minorVersion = floor(($this->connection->server_version - $majorVersion * 10000) / 100);
         $patchVersion = floor($this->connection->server_version - $majorVersion * 10000 - $minorVersion * 100);
 
-        return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+        return $majorVersion . '.' . $minorVersion . '.' . $patchVersion . ($isMariadb ? '-MariaDB' : '');
     }
 
     public function prepare(string $sql): DriverStatement
