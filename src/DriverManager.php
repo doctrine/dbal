@@ -300,40 +300,40 @@ final class DriverManager
 
         // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
         $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $params['url']);
-        $url = parse_url($url);
+        $parsedUrl = parse_url($url);
 
-        if ($url === false) {
-            throw new Exception('Malformed parameter "url".');
+        if ($parsedUrl === false) {
+            throw new Exception(sprintf('Malformed parameter "url": "%s".', $url));
         }
 
-        foreach ($url as $param => $value) {
+        foreach ($parsedUrl as $param => $value) {
             if (! is_string($value)) {
                 continue;
             }
 
-            $url[$param] = rawurldecode($value);
+            $parsedUrl[$param] = rawurldecode($value);
         }
 
-        $params = self::parseDatabaseUrlScheme($url['scheme'] ?? null, $params);
+        $params = self::parseDatabaseUrlScheme($parsedUrl['scheme'] ?? null, $params);
 
-        if (isset($url['host'])) {
-            $params['host'] = $url['host'];
+        if (isset($parsedUrl['host'])) {
+            $params['host'] = $parsedUrl['host'];
         }
 
-        if (isset($url['port'])) {
-            $params['port'] = $url['port'];
+        if (isset($parsedUrl['port'])) {
+            $params['port'] = $parsedUrl['port'];
         }
 
-        if (isset($url['user'])) {
-            $params['user'] = $url['user'];
+        if (isset($parsedUrl['user'])) {
+            $params['user'] = $parsedUrl['user'];
         }
 
-        if (isset($url['pass'])) {
-            $params['password'] = $url['pass'];
+        if (isset($parsedUrl['pass'])) {
+            $params['password'] = $parsedUrl['pass'];
         }
 
-        $params = self::parseDatabaseUrlPath($url, $params);
-        $params = self::parseDatabaseUrlQuery($url, $params);
+        $params = self::parseDatabaseUrlPath($parsedUrl, $params);
+        $params = self::parseDatabaseUrlQuery($parsedUrl, $params);
 
         return $params;
     }
