@@ -79,7 +79,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $buffer['non_unique'] = ! $tableIndex['is_unique'];
             }
 
-            $buffer['key_name']    = $keyName;
+            $buffer['key_name']    = $this->getQuotedIdentifierName($tableIndex['name']);
             $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
             $indexBuffer[]         = $buffer;
         }
