@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -38,6 +39,22 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
     /** @var string[]|null */
     private $existingSchemaPaths;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTables()
+    {
+        return $this->doListTables();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableDetails($name)
+    {
+        return $this->doListTableDetails($name);
+    }
 
     /**
      * Gets all the existing schema names.
@@ -571,21 +588,180 @@ SQL
         return str_replace("''", "'", $default);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTableDetails($name): Table
+    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $table = parent::listTableDetails($name);
+        $sql = 'SELECT';
 
-        $sql = $this->_platform->getListTableMetadataSQL($name);
-
-        $tableOptions = $this->_conn->fetchAssociative($sql);
-
-        if ($tableOptions !== false) {
-            $table->addOption('comment', $tableOptions['table_comment']);
+        if ($tableName === null) {
+            $sql .= ' c.relname,';
         }
 
-        return $table;
+        $sql .= <<<'SQL'
+            a.attnum,
+            quote_ident(a.attname) AS field,
+            t.typname AS type,
+            format_type(a.atttypid, a.atttypmod) AS complete_type,
+            (SELECT tc.collcollate FROM pg_catalog.pg_collation tc WHERE tc.oid = a.attcollation) AS collation,
+            (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
+            (SELECT format_type(t2.typbasetype, t2.typtypmod) FROM
+              pg_catalog.pg_type t2 WHERE t2.typtype = 'd' AND t2.oid = a.atttypid) AS domain_complete_type,
+            a.attnotnull AS isnotnull,
+            (SELECT 't'
+             FROM pg_index
+             WHERE c.oid = pg_index.indrelid
+                AND pg_index.indkey[0] = a.attnum
+                AND pg_index.indisprimary = 't'
+            ) AS pri,
+            (SELECT pg_get_expr(adbin, adrelid)
+             FROM pg_attrdef
+             WHERE c.oid = pg_attrdef.adrelid
+                AND pg_attrdef.adnum=a.attnum
+            ) AS default,
+            (SELECT pg_description.description
+                FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
+            ) AS comment
+            FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
+SQL;
+
+        $conditions = [
+            'a.attnum > 0',
+            'a.attrelid = c.oid',
+            'a.atttypid = t.oid',
+            'n.oid = c.relnamespace',
+            "c.relkind = 'r'",
+        ];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = $this->getTableWhereClause($tableName, 'c', 'n');
+        } else {
+            $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
+            $conditions[] = 'n.nspname = ANY(current_schemas(false))';
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY a.attnum';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' pg_index.indrelid::REGCLASS AS tablename,';
+        }
+
+        $sql .= <<<'SQL'
+                   quote_ident(relname) AS relname,
+                   pg_index.indisunique,
+                   pg_index.indisprimary,
+                   pg_index.indkey,
+                   pg_index.indrelid,
+                   pg_get_expr(indpred, indrelid) AS where
+              FROM pg_class, pg_index
+             WHERE oid IN (
+                SELECT indexrelid
+                FROM pg_index si, pg_class sc, pg_namespace sn
+SQL;
+
+        $conditions = ['sc.oid=si.indrelid', 'sc.relnamespace = sn.oid'];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = $this->getTableWhereClause($tableName, 'sc', 'sn');
+        } else {
+            $conditions[] = "sn.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
+            $conditions[] = 'sn.nspname = ANY(current_schemas(false))';
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ') AND pg_index.indexrelid = oid';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' r.conrelid :: REGCLASS as tablename,';
+        }
+
+        $sql .= <<<'SQL'
+                  quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
+                  FROM pg_catalog.pg_constraint r
+                  WHERE r.conrelid IN
+                  (
+                      SELECT c.oid
+                      FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
+SQL;
+
+        $conditions = ['n.oid = c.relnamespace'];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = $this->getTableWhereClause($tableName);
+        } else {
+            $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
+            $conditions[] = 'n.nspname = ANY(current_schemas(false))';
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ") AND r.contype = 'f'";
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
+    {
+        if ($tableName === null) {
+            $tables = $this->listTableNames();
+        } else {
+            $tables = [$tableName];
+        }
+
+        $tableOptions = [];
+        foreach ($tables as $table) {
+            $sql     = 'SELECT obj_description(?::regclass) AS table_comment;';
+            $comment = $this->_conn->executeQuery($sql, [$table])->fetchOne();
+
+            if ($comment === null) {
+                continue;
+            }
+
+            $tableOptions[$table]['comment'] = $comment;
+        }
+
+        return $tableOptions;
+    }
+
+    /**
+     * @param string $table
+     * @param string $classAlias
+     * @param string $namespaceAlias
+     */
+    private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n'): string
+    {
+        $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
+        if (strpos($table, '.') !== false) {
+            [$schema, $table] = explode('.', $table);
+            $schema           = $this->_platform->quoteStringLiteral($schema);
+        } else {
+            $schema = 'ANY(current_schemas(false))';
+        }
+
+        $table = new Identifier($table);
+        $table = $this->_platform->quoteStringLiteral($table->getName());
+
+        return $whereClause . sprintf(
+            '%s.relname = %s AND %s.nspname = %s',
+            $classAlias,
+            $table,
+            $namespaceAlias,
+            $schema
+        );
     }
 }

@@ -147,6 +147,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      *
      * Two approaches to listing the table indexes. The information_schema is
@@ -174,6 +176,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * @param string      $table
      * @param string|null $database
      *
@@ -327,6 +331,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      */
     public function getListTablesSQL()
@@ -335,6 +341,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)
@@ -347,6 +355,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                ' ORDER BY ORDINAL_POSITION ASC';
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableMetadataSQL(string $table, ?string $database = null): string
     {
         return sprintf(

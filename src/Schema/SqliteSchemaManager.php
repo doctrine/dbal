@@ -6,6 +6,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -17,6 +18,7 @@ use function array_merge;
 use function array_reverse;
 use function explode;
 use function file_exists;
+use function implode;
 use function preg_match;
 use function preg_match_all;
 use function preg_quote;
@@ -38,6 +40,22 @@ use const CASE_LOWER;
  */
 class SqliteSchemaManager extends AbstractSchemaManager
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function listTables()
+    {
+        return $this->doListTables();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableDetails($name)
+    {
+        return $this->doListTableDetails($name);
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -562,26 +580,6 @@ SQL
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param string $name
-     */
-    public function listTableDetails($name): Table
-    {
-        $table = parent::listTableDetails($name);
-
-        $tableCreateSql = $this->getCreateTableSQL($name);
-
-        $comment = $this->parseTableCommentFromSQL($name, $tableCreateSql);
-
-        if ($comment !== null) {
-            $table->addOption('comment', $comment);
-        }
-
-        return $table;
-    }
-
     public function createComparator(): Comparator
     {
         return new SQLite\Comparator($this->getDatabasePlatform());
@@ -602,5 +600,106 @@ SQL
 
         // SQLite does not support schemas or databases
         return [];
+    }
+
+    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = <<<SQL
+            SELECT t.name AS table_name,
+                   c.*
+              FROM sqlite_master t
+              JOIN pragma_table_info(t.name) c
+SQL;
+
+        $conditions = [
+            "t.type = 'table'",
+            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
+        ];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = 't.name = ?';
+            $params[]     = str_replace('.', '__', $tableName);
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, c.cid';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = <<<SQL
+            SELECT t.name AS table_name,
+                   i.*
+              FROM sqlite_master t
+              JOIN pragma_index_list(t.name) i
+SQL;
+
+        $conditions = [
+            "t.type = 'table'",
+            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
+        ];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = 't.name = ?';
+            $params[]     = str_replace('.', '__', $tableName);
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, i.seq';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = <<<SQL
+            SELECT t.name AS table_name,
+                   p.*
+              FROM sqlite_master t
+              JOIN pragma_foreign_key_list(t.name) p
+                ON p."seq" != "-1"
+SQL;
+
+        $conditions = [
+            "t.type = 'table'",
+            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
+        ];
+        $params     = [];
+
+        if ($tableName !== null) {
+            $conditions[] = 't.name = ?';
+            $params[]     = str_replace('.', '__', $tableName);
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
+    {
+        if ($tableName === null) {
+            $tables = $this->listTableNames();
+        } else {
+            $tables = [$tableName];
+        }
+
+        $tableOptions = [];
+        foreach ($tables as $table) {
+            $comment = $this->parseTableCommentFromSQL($table, $this->getCreateTableSQL($table));
+
+            if ($comment === null) {
+                continue;
+            }
+
+            $tableOptions[$table]['comment'] = $comment;
+        }
+
+        return $tableOptions;
     }
 }

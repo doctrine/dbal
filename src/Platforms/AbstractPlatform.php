@@ -3125,6 +3125,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * @param string $table
      * @param string $database
      *
@@ -3138,6 +3140,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * @return string
      *
      * @throws Exception If not supported on this platform.
@@ -3180,6 +3184,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * Returns the list of indexes for the current database.
      *
      * The current database parameter is optional but will always be passed
@@ -3202,6 +3208,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * @param string $table
      *
      * @return string

@@ -297,6 +297,8 @@ class PostgreSQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * @param string      $table
      * @param string|null $database
      *
@@ -345,6 +347,8 @@ SQL
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
@@ -391,6 +395,8 @@ SQL
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)
@@ -1265,6 +1271,9 @@ SQL
         return $columnDiff->fromColumn !== null ? $this->getColumnComment($columnDiff->fromColumn) : null;
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableMetadataSQL(string $table, ?string $schema = null): string
     {
         if ($schema !== null) {
