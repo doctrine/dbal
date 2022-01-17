@@ -100,6 +100,27 @@ class JsonTest extends TestCase
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }
 
+    public function testPHPNullValueConvertsToJsonNull(): void
+    {
+        self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
+    }
+
+    public function testPHPValueConvertsToJsonString(): void
+    {
+        $source        = ['foo' => 'bar', 'bar' => 'foo'];
+        $databaseValue = $this->type->convertToDatabaseValue($source, $this->platform);
+
+        self::assertSame('{"foo":"bar","bar":"foo"}', $databaseValue);
+    }
+
+    public function testPHPFloatValueConvertsToJsonString(): void
+    {
+        $source        = ['foo' => 11.4, 'bar' => 10.0];
+        $databaseValue = $this->type->convertToDatabaseValue($source, $this->platform);
+
+        self::assertSame('{"foo":11.4,"bar":10.0}', $databaseValue);
+    }
+
     public function testSerializationFailure(): void
     {
         $object            = (object) [];

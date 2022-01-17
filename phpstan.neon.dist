@@ -8,16 +8,6 @@ parameters:
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
-        -
-            message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
-            path: src/Driver/PDO/Connection.php
-
-        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/923
-        -
-            message: '~^Instanceof between PDOStatement and PDOStatement will always evaluate to true\.$~'
-            path: src/Driver/PDO/Connection.php
-
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1158
         -
             message: '~^Strict comparison using === between string and null will always evaluate to false\.$~'
@@ -50,25 +40,7 @@ parameters:
         -
             message: '~^Variable method call on .*~'
             paths:
-                - src/Schema/AbstractSchemaManager.php
                 - src/Schema/Column.php
-
-        # Temporaily suppressed during up-merging an upgrade to PHPStan 0.12.33
-        -
-            message: '~^Parameter #1 \$expected of static method PHPUnit\\Framework\\Assert::assertInstanceOf\(\) expects class-string<Doctrine\\DBAL\\Connection&PHPUnit\\Framework\\MockObject\\MockObject>, class-string<Doctrine\\DBAL\\Connection>&class-string<PHPUnit\\Framework\\MockObject\\MockObject> given\.$~'
-            path: %currentWorkingDirectory%/tests/DriverManagerTest.php
-
-        # Unlike Psalm, PHPStan doesn't understand the shape of the parse_str() return value
-        -
-            message: '~^Parameter #1 \$scheme of static method Doctrine\\DBAL\\DriverManager::parseDatabaseUrlScheme\(\) expects string\|null, int\|string\|null given\.$~'
-            paths:
-                - src/DriverManager.php
-
-        # https://github.com/phpstan/phpstan-src/pull/692
-        -
-            message: '~^Parameter #2 \$count of function array_fill expects int<0, max>, int given\.~'
-            paths:
-                - %currentWorkingDirectory%/src/Driver/Mysqli/Statement.php
 
         # TODO: remove this once the support for PHP 7 is dropped
         -
@@ -83,7 +55,7 @@ parameters:
         -
             message: '~Template type T of method Doctrine\\DBAL\\DriverManager::getConnection\(\) is not referenced in a parameter\.~'
             paths:
-                - src/DriverManager.ph
+                - src/DriverManager.php
 
         -
             message: '~Method Doctrine\\DBAL\\DriverManager::createDriver\(\) should return Doctrine\\DBAL\\Driver but returns object\.~'
@@ -101,35 +73,29 @@ parameters:
             paths:
                 - src/Driver/Mysqli/Result.php
 
-        -
-            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::exec\(\) should return int but returns int\|string\.~'
-            paths:
-                - src/Driver/Mysqli/Connection.php
-
-        # Requires a release of https://github.com/phpstan/phpstan-src/pull/719
-        -
-            message: '~Strict comparison using === between non-empty-string and false will always evaluate to false\.~'
-            path: src/Driver/PDO/Connection.php
-
         # The schema manager isn't initialized if the test is skipped
         -
             message: '~Strict comparison using === between Doctrine\\DBAL\\Schema\\AbstractSchemaManager and null will always evaluate to false\.~'
             path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
 
+        # Removing the (int) cast will make Psalm unhappy.
         -
-            message: '~^Parameter #1 \$message of class Doctrine\\DBAL\\Driver\\Mysqli\\Exception\\ConnectionFailed constructor expects string, string\|null given\.$~'
+            message: '~^Casting to int something that''s already int\.$~'
             paths:
+                - src/Driver/Mysqli/Exception/ConnectionError.php
                 - src/Driver/Mysqli/Exception/ConnectionFailed.php
+                - src/Driver/Mysqli/Exception/InvalidCharset.php
+                - src/Driver/Mysqli/Exception/StatementError.php
 
         -
-            message: '~^Cannot use array destructuring on array\|null\.$~'
+            message: '~^Unable to resolve the template type T in call to method Doctrine\\DBAL\\Portability\\Converter\:\:compose\(\)$~'
             paths:
-                - src/Driver/PDO/Connection.php
+                - src/Portability/Converter.php
 
-        # These properties are accessed via var_dump()
+        # We're testing with invalid input.
         -
-            message: '~Property Doctrine\\DBAL\\Tests\\Tools\\TestAsset\\.*::\$.* is never read, only written\.~'
-            path: tests/Tools/TestAsset/*.php
+            message: '~^Parameter #2 \$lockMode of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:appendLockHint\(\) expects 0\|1\|2\|4, 128 given\.$~'
+            path: tests/Platforms/AbstractPlatformTestCase.php
 
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon

@@ -10,9 +10,6 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use mysqli;
 use mysqli_sql_exception;
 
-use function floor;
-use function stripos;
-
 final class Connection implements ConnectionInterface
 {
     /**
@@ -30,26 +27,9 @@ final class Connection implements ConnectionInterface
         $this->connection = $connection;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * The server version detection includes a special case for MariaDB
-     * to support '5.5.5-' prefixed versions introduced in Maria 10+
-     *
-     * @link https://jira.mariadb.org/browse/MDEV-4088
-     */
     public function getServerVersion(): string
     {
-        $serverInfos = $this->connection->get_server_info();
-        if (stripos($serverInfos, 'mariadb') !== false) {
-            return $serverInfos;
-        }
-
-        $majorVersion = floor($this->connection->server_version / 10000);
-        $minorVersion = floor(($this->connection->server_version - $majorVersion * 10000) / 100);
-        $patchVersion = floor($this->connection->server_version - $majorVersion * 10000 - $minorVersion * 100);
-
-        return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+        return $this->connection->get_server_info();
     }
 
     public function prepare(string $sql): Statement

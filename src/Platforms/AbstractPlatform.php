@@ -776,6 +776,7 @@ abstract class AbstractPlatform
      *
      * @param string $fromClause The FROM clause to append the hint for the given lock mode to
      * @param int    $lockMode   One of the Doctrine\DBAL\LockMode::* constants
+     * @psalm-param LockMode::* $lockMode
      */
     public function appendLockHint(string $fromClause, int $lockMode): string
     {
