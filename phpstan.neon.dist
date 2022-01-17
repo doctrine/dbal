@@ -18,16 +18,6 @@ parameters:
         - '~^Class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy) not found\.\z~'
         - '~^.+ on an unknown class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy)\.\z~'
 
-        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
-        -
-            message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
-            path: src/Driver/PDO/Connection.php
-
-        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/923
-        -
-            message: '~^Instanceof between PDOStatement and PDOStatement will always evaluate to true\.$~'
-            path: src/Driver/PDO/Connection.php
-
         # https://github.com/phpstan/phpstan/issues/3134
         -
             message: '~^Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with Doctrine\\DBAL\\Types\\Type and Doctrine\\DBAL\\Types\\Type will always evaluate to true\.$~'
@@ -56,12 +46,6 @@ parameters:
             message: '~^Variable method call on .*~'
             paths:
                 - src/Schema/Column.php
-
-        # Unlike Psalm, PHPStan doesn't understand the shape of the parse_str() return value
-        -
-            message: '~^Parameter #1 \$scheme of static method Doctrine\\DBAL\\DriverManager::parseDatabaseUrlScheme\(\) expects string\|null, int\|string\|null given\.$~'
-            paths:
-                - src/DriverManager.php
 
         -
             message: '~^Instanceof between Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList and Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList will always evaluate to true\.~'
@@ -126,24 +110,24 @@ parameters:
             message: '~Only numeric types are allowed in \-, float\|null given on the right side\.~'
             path: src/Logging/DebugStack.php
 
-        # https://github.com/phpstan/phpstan-src/pull/731
-        -
-            message: '~Parameter #1 \$array of function array_column expects array, array\|false given\.~'
-            path: src/Driver/Mysqli/Result.php
-
         -
             message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int(:?<0, max>)?\|string\.~'
             paths:
                 - src/Driver/Mysqli/Result.php
 
+        # Removing the (int) cast will make Psalm unhappy.
         -
-            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::exec\(\) should return int but returns int\|string\.~'
+            message: '~^Casting to int something that''s already int\.$~'
             paths:
-                - src/Driver/Mysqli/Connection.php
+                - src/Driver/Mysqli/Exception/ConnectionError.php
+                - src/Driver/Mysqli/Exception/ConnectionFailed.php
+                - src/Driver/Mysqli/Exception/InvalidCharset.php
+                - src/Driver/Mysqli/Exception/StatementError.php
 
         -
-            message: '~^Parameter #1 \$message of class Doctrine\\DBAL\\Driver\\Mysqli\\Exception\\ConnectionFailed constructor expects string, string\|null given\.$~'
+            message: '~^Unable to resolve the template type T in call to method Doctrine\\DBAL\\Portability\\Converter\:\:compose\(\)$~'
             paths:
-                - src/Driver/Mysqli/Exception/ConnectionFailed.php
+                - src/Portability/Converter.php
+
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
