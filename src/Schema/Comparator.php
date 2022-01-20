@@ -537,6 +537,15 @@ class Comparator
             }
         }
 
+        if ($properties1['type'] instanceof Types\TextType) {
+            // check if value of length is set at all, default value assumed otherwise.
+            $length1 = $properties1['length'] ?? 4294967295;
+            $length2 = $properties2['length'] ?? 4294967295;
+            if ($length1 !== $length2) {
+                $changedProperties[] = 'length';
+            }
+        }
+
         // A null value and an empty string are actually equal for a comment so they should not trigger a change.
         if (
             $properties1['comment'] !== $properties2['comment'] &&
