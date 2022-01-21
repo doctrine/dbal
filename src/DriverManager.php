@@ -41,6 +41,7 @@ use function substr;
  *     port?: int,
  *     user?: string,
  *     unix_socket?: string,
+ *     serverVersion?: string,
  * }
  * @psalm-type Params = array{
  *     charset?: string,
@@ -66,6 +67,7 @@ use function substr;
  *     user?: string,
  *     wrapperClass?: class-string<Connection>,
  *     unix_socket?: string,
+ *     serverVersion?: string,
  * }
  */
 final class DriverManager
@@ -169,6 +171,7 @@ final class DriverManager
      *     slaves?: array<OverrideParams>,
      *     user?: string,
      *     wrapperClass?: class-string<T>,
+     *     serverVersion?: string,
      * } $params
      * @phpstan-param array<string,mixed> $params
      *
@@ -197,6 +200,9 @@ final class DriverManager
         // URL support for PrimaryReplicaConnection
         if (isset($params['primary'])) {
             $params['primary'] = self::parseDatabaseUrl($params['primary']);
+            if (isset($params['primary']['serverVersion'])) {
+                $params['serverVersion'] = $params['primary']['serverVersion'];
+            }
         }
 
         if (isset($params['replica'])) {

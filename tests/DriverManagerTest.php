@@ -149,6 +149,28 @@ class DriverManagerTest extends TestCase
         );
     }
 
+    public function testDatabaseUrlPrimaryReplicaWithServerVersionInUrl(): void
+    {
+        $serverVersion = 11.2;
+
+        $options = [
+            'driver' => 'pdo_mysql',
+            'primary' => ['url' => 'mysql://foo:bar@localhost:11211/baz?serverVersion=' . $serverVersion],
+            'replica' => [
+                'replica1' => ['url' => 'mysql://foo:bar@localhost:11211/baz_replica?serverVersion=' . $serverVersion],
+            ],
+            'wrapperClass' => PrimaryReadReplicaConnection::class,
+        ];
+
+        $conn = DriverManager::getConnection($options);
+
+        $params = $conn->getParams();
+        self::assertInstanceOf(PDO\MySQL\Driver::class, $conn->getDriver());
+
+        self::assertArrayHasKey('serverVersion', $params);
+        self::assertEquals($serverVersion, $params['serverVersion'] ?? null);
+    }
+
     /**
      * @param mixed $url
      * @param mixed $expected
