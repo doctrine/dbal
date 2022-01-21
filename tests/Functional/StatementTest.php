@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
@@ -12,6 +13,10 @@ use Doctrine\DBAL\Types\Type;
 
 use function base64_decode;
 use function stream_get_contents;
+
+use const E_ALL;
+use const E_WARNING;
+use const PHP_VERSION_ID;
 
 class StatementTest extends FunctionalTestCase
 {
@@ -234,6 +239,28 @@ EOF
         $stmt->bindParam(1, $value, ParameterType::INTEGER, null);
 
         self::assertEquals(1, $stmt->executeQuery()->fetchOne());
+    }
+
+    public function testBindInvalidNamedParameter(): void
+    {
+        if (TestUtil::isDriverOneOf('ibm_db2', 'mysqli', 'sqlsrv')) {
+            self::markTestSkipped('The driver does not support named statement parameters');
+        }
+
+        if (PHP_VERSION_ID < 80000 && TestUtil::isDriverOneOf('pdo_oci')) {
+            self::markTestSkipped('pdo_oci on PHP 7 does not report this error');
+        }
+
+        $platform  = $this->connection->getDatabasePlatform();
+        $statement = $this->connection->prepare($platform->getDummySelectSQL(':foo'));
+        $this->expectException(DriverException::class);
+
+        // prevent the PHPUnit error handler from handling the warning that oci_bind_by_name() may trigger
+        if (TestUtil::isDriverOneOf('oci8')) {
+            $this->iniSet('error_reporting', (string) (E_ALL & ~E_WARNING));
+        }
+
+        $statement->executeQuery(['bar' => 'baz']);
     }
 
     /**
