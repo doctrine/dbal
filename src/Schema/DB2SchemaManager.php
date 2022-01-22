@@ -61,8 +61,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             }
         }
 
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
-            ?? $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
+        $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
 
         switch (strtolower($tableColumn['typename'])) {
             case 'varchar':

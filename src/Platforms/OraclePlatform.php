@@ -671,7 +671,7 @@ SQL
             }
 
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-            $comment  = $this->getColumnComment($column);
+            $comment  = $column->getComment();
 
             if ($comment === '') {
                 continue;
@@ -730,7 +730,7 @@ SQL
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
                 $column->getQuotedName($this),
-                $this->getColumnComment($column)
+                $column->getComment()
             );
         }
 

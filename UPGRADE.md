@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Deployed database schema no longer contains the information about abstract data types
+
+Database column comments no longer contain type comments added by DBAL.
+If you use `doctrine/migrations`, it should generate a migration dropping those
+comments from all columns that have them.
+As a consequence, introspecting a table no longer guarantees getting the same
+column types that were used when creating that table.
+
 ## BC BREAK: Removed `AbstractPlatform::prefersIdentityColumns()`
 
 The `AbstractPlatform::prefersIdentityColumns()` method has been removed.

@@ -16,7 +16,6 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
@@ -1217,14 +1216,6 @@ abstract class ComparatorTest extends TestCase
 
             ['0', 'foo', false],
         ];
-    }
-
-    public function testCompareCommentedTypes(): void
-    {
-        $column1 = new Column('foo', Type::getType(Types::ARRAY));
-        $column2 = new Column('foo', Type::getType(Types::OBJECT));
-
-        self::assertFalse($this->comparator->columnsEqual($column1, $column2));
     }
 
     public function testForeignKeyRemovalWithRenamedLocalColumn(): void

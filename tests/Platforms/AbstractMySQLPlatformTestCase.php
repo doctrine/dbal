@@ -218,17 +218,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateTableColumnTypeCommentsSQL(): array
-    {
-        return [
-            "CREATE TABLE test (id INT NOT NULL, data LONGTEXT NOT NULL COMMENT '(DC2Type:array)', "
-                . 'PRIMARY KEY(id))',
-        ];
-    }
-
     public function testChangeIndexWithForeignKeys(): void
     {
         $index  = new Index('idx', ['col'], false);

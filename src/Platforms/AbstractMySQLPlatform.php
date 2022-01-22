@@ -411,7 +411,7 @@ SQL
             }
 
             $columnArray = array_merge($column->toArray(), [
-                'comment' => $this->getColumnComment($column),
+                'comment' => $column->getComment(),
             ]);
 
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
@@ -442,7 +442,7 @@ SQL
                 continue;
             }
 
-            $columnArray['comment'] = $this->getColumnComment($column);
+            $columnArray['comment'] = $column->getComment();
             $queryParts[]           =  'CHANGE ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
                 . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
@@ -454,7 +454,7 @@ SQL
 
             $oldColumnName          = new Identifier($oldColumnName);
             $columnArray            = $column->toArray();
-            $columnArray['comment'] = $this->getColumnComment($column);
+            $columnArray['comment'] = $column->getComment();
             $queryParts[]           =  'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
                 . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }

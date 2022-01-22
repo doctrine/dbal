@@ -127,8 +127,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
         $scale     = 0;
         $precision = null;
 
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
-            ?? $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
 
         switch ($dbType) {
             case 'char':

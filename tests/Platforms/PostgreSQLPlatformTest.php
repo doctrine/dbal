@@ -368,17 +368,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getCreateTableColumnTypeCommentsSQL(): array
-    {
-        return [
-            'CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))',
-            "COMMENT ON COLUMN test.data IS '(DC2Type:array)'",
-        ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY("create"))'];
@@ -646,8 +635,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         // BINARY    -> VARBINARY
         // BLOB      -> VARBINARY
         $diff = $comparator->diffTable($table1, $table2);
-        self::assertNotNull($diff);
-        self::assertEmpty($this->platform->getAlterTableSQL($diff));
+        self::assertNull($diff);
 
         $table2 = new Table('mytable');
         $table2->addColumn('column_varbinary', 'binary', ['length' => 42]);
@@ -658,8 +646,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         // BINARY    -> BLOB
         // BLOB      -> BINARY
         $diff = $comparator->diffTable($table1, $table2);
-        self::assertNotNull($diff);
-        self::assertEmpty($this->platform->getAlterTableSQL($diff));
+        self::assertNull($diff);
 
         $table2 = new Table('mytable');
         $table2->addColumn('column_varbinary', 'blob');
@@ -670,8 +657,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         // BINARY    -> BINARY with changed length
         // BLOB      -> BLOB
         $diff = $comparator->diffTable($table1, $table2);
-        self::assertNotNull($diff);
-        self::assertEmpty($this->platform->getAlterTableSQL($diff));
+        self::assertNull($diff);
     }
 
     /**
@@ -826,25 +812,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertSame(
             ['COMMENT ON COLUMN "foo"."bar" IS \'baz\''],
-            $this->platform->getAlterTableSQL($tableDiff)
-        );
-    }
-
-    public function testAltersTableColumnCommentIfRequiredByType(): void
-    {
-        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime'))]);
-        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime_immutable'))]);
-
-        $tableDiff = $this->createComparator()
-            ->diffTable($table1, $table2);
-
-        self::assertNotNull($tableDiff);
-        self::assertSame(
-            [
-                'ALTER TABLE "foo" ALTER "bar" TYPE TIMESTAMP(0) WITHOUT TIME ZONE',
-                'ALTER TABLE "foo" ALTER "bar" DROP DEFAULT',
-                'COMMENT ON COLUMN "foo"."bar" IS \'(DC2Type:datetime_immutable)\'',
-            ],
             $this->platform->getAlterTableSQL($tableDiff)
         );
     }

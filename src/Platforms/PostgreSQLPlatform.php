@@ -355,7 +355,7 @@ SQL
             $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
 
-            $comment = $this->getColumnComment($column);
+            $comment = $column->getComment();
 
             if ($comment === '') {
                 continue;
@@ -436,8 +436,8 @@ SQL
                 }
             }
 
-            $newComment = $this->getColumnComment($column);
-            $oldComment = $this->getColumnComment($columnDiff->fromColumn);
+            $newComment = $column->getComment();
+            $oldComment = $columnDiff->fromColumn->getComment();
 
             if ($columnDiff->hasChanged('comment') || $oldComment !== $newComment) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(

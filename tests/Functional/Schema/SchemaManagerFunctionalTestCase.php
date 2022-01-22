@@ -33,7 +33,6 @@ use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use ReflectionMethod;
 
 use function array_filter;
 use function array_keys;
@@ -1126,32 +1125,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             ->diffTable($this->schemaManager->listTableDetails('json_test'), $table);
 
         self::assertNull($tableDiff);
-    }
-
-    /**
-     * @dataProvider commentsProvider
-     */
-    public function testExtractDoctrineTypeFromComment(string $comment, ?string $expectedType): void
-    {
-        $re = new ReflectionMethod($this->schemaManager, 'extractDoctrineTypeFromComment');
-        $re->setAccessible(true);
-
-        self::assertSame($expectedType, $re->invokeArgs($this->schemaManager, [&$comment]));
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function commentsProvider(): iterable
-    {
-        return [
-            'invalid custom type comments'      => ['should.return.null', null],
-            'valid doctrine type'               => ['(DC2Type:guid)', 'guid'],
-            'valid with dots'                   => ['(DC2Type:type.should.return)', 'type.should.return'],
-            'valid with namespace'              => ['(DC2Type:Namespace\Class)', 'Namespace\Class'],
-            'valid with extra closing bracket'  => ['(DC2Type:should.stop)).before)', 'should.stop'],
-            'valid with extra opening brackets' => ['(DC2Type:should((.stop)).before)', 'should((.stop'],
-        ];
     }
 
     public function testCreateAndListSequences(): void

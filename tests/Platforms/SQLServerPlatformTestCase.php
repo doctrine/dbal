@@ -754,18 +754,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateTableColumnTypeCommentsSQL(): array
-    {
-        return [
-            'CREATE TABLE test (id INT NOT NULL, data VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))',
-            "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:array)', "
-                . "N'SCHEMA', 'dbo', N'TABLE', 'test', N'COLUMN', data",
-        ];
-    }
-
     public function testGeneratesCreateTableSQLWithColumnComments(): void
     {
         $table = new Table('mytable');
@@ -809,11 +797,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                 "EXEC sp_addextendedproperty N'MS_Description', "
                     . "N'Doctrine 0wnz comments for reserved keyword columns!', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [create]",
-                "EXEC sp_addextendedproperty N'MS_Description', "
-                    . "N'(DC2Type:object)', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type",
-                "EXEC sp_addextendedproperty N'MS_Description', "
-                    . "N'Doctrine array type.(DC2Type:array)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type_with_comment",
                 "EXEC sp_addextendedproperty N'MS_Description', N'O''Reilly', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_with_string_literal_char",
             ],
@@ -977,30 +960,18 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [added_comment_quoted]",
                 "EXEC sp_addextendedproperty N'MS_Description', N'666', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [select]",
-                "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_commented_type",
-                "EXEC sp_addextendedproperty N'MS_Description', N'666(DC2Type:array)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_commented_type_with_comment",
                 "EXEC sp_addextendedproperty N'MS_Description', N'''''', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment_with_string_literal_char",
 
                 // Changed columns.
                 "EXEC sp_addextendedproperty N'MS_Description', N'primary', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', id",
-                "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_empty_string",
                 "EXEC sp_dropextendedproperty N'MS_Description', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_string_0",
                 "EXEC sp_dropextendedproperty N'MS_Description', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment",
-                "EXEC sp_updateextendedproperty N'MS_Description', N'Doctrine array.(DC2Type:array)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [comment_quoted]",
-                "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:object)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [create]",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'foo', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type",
-                "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:array)', "
-                    . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type_with_comment",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'''', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_with_string_literal_char",
             ],
