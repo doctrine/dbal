@@ -1972,6 +1972,17 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Creates a SchemaManager that can be used to inspect or change the
+     * database schema through the connection.
+     *
+     * This method is an improvement in the upgrade path to DBAL 3.
+     */
+    public function createSchemaManager(): AbstractSchemaManager
+    {
+        return $this->getSchemaManager();
+    }
+
+    /**
      * Marks the current transaction so that the only possible
      * outcome for the transaction to be rolled back.
      *
