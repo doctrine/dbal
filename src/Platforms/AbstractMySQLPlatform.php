@@ -179,15 +179,18 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
+        // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
+        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
+        // caused by https://bugs.mysql.com/bug.php?id=81347
         return 'SELECT k.CONSTRAINT_NAME, k.COLUMN_NAME, k.REFERENCED_TABLE_NAME, ' .
                'k.REFERENCED_COLUMN_NAME /*!50116 , c.UPDATE_RULE, c.DELETE_RULE */ ' .
                'FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE k /*!50116 ' .
                'INNER JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS c ON ' .
                'c.CONSTRAINT_NAME = k.CONSTRAINT_NAME AND ' .
-               'c.TABLE_NAME = k.TABLE_NAME AND ' .
-               'c.CONSTRAINT_SCHEMA = k.CONSTRAINT_SCHEMA */ ' .
+               'c.TABLE_NAME = k.TABLE_NAME */ ' .
                'WHERE k.TABLE_NAME = ' . $this->quoteStringLiteral($table) . ' ' .
-               'AND k.TABLE_SCHEMA = ' . $this->getDatabaseNameSQL($database) . ' ' .
+               'AND k.TABLE_SCHEMA = ' . $this->getDatabaseNameSQL($database) . ' /*!50116 ' .
+               'AND c.CONSTRAINT_SCHEMA = ' . $this->getDatabaseNameSQL($database) . ' */' .
                'ORDER BY k.ORDINAL_POSITION';
     }
 
