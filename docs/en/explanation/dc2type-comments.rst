@@ -37,3 +37,11 @@ A table with such a column may have a declaration that looks as follows:
         …,
         PRIMARY KEY(uuid)
    )
+
+In the past, these comments were also useful to avoid false positives
+when diffing a schema created with the DBAL API with a schema
+introspected from the database. Since `platform-aware comparison was
+introduced in 3.2.0
+<https://www.doctrine-project.org/2021/11/26/dbal-3.2.0.html>`_, this is
+no longer the case. They must be kept in order to keep the
+platform-unaware comparison APIs working though.
