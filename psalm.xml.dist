@@ -224,6 +224,11 @@
                     See https://github.com/doctrine/dbal/pull/5136
                 -->
                 <referencedMethod name="Doctrine\DBAL\Types\Type::canRequireSQLConversion"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/5204
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getColumnComment"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

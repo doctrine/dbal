@@ -499,20 +499,38 @@ abstract class AbstractPlatform
     /**
      * Gets the comment to append to a column comment that helps parsing this type in reverse engineering.
      *
+     * @deprecated This method will be removed without replacement.
+     *
      * @return string
      */
     public function getDoctrineTypeComment(Type $doctrineType)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5107',
+            '%s is deprecated and will be removed in Doctrine DBAL 4.0.',
+            __METHOD__
+        );
+
         return '(DC2Type:' . $doctrineType->getName() . ')';
     }
 
     /**
      * Gets the comment of a passed column modified by potential doctrine type comment hints.
      *
+     * @deprecated This method will be removed without replacement.
+     *
      * @return string|null
      */
     protected function getColumnComment(Column $column)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5107',
+            '%s is deprecated and will be removed in Doctrine DBAL 4.0.',
+            __METHOD__
+        );
+
         $comment = $column->getComment();
 
         if ($column->getType()->requiresSQLCommentHint($this)) {
