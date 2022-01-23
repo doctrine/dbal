@@ -47,4 +47,5 @@ no longer the case. They must be kept in order to keep the
 platform-unaware comparison APIs working though.
 
 It is important to note that these comments are an implementation detail
-of the DBAL and should not be relied upon by application code.
+of the DBAL and should not be relied upon by application code. They are
+removed in DBAL 4.0.
