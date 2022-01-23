@@ -10,6 +10,8 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function array_merge;
+use function sprintf;
+use function var_export;
 
 class ComparatorTest extends FunctionalTestCase
 {
@@ -44,14 +46,19 @@ class ComparatorTest extends FunctionalTestCase
      */
     public static function defaultValueProvider(): iterable
     {
-        foreach (ComparatorTestUtils::comparatorProvider() as $comparatorArguments) {
+        foreach (ComparatorTestUtils::comparatorProvider() as $comparatorType => $comparatorArguments) {
             foreach (
                 [
                     ['integer', 1],
                     ['boolean', false],
                 ] as $testArguments
             ) {
-                yield array_merge($comparatorArguments, $testArguments);
+                yield sprintf(
+                    '%s with default %s value %s',
+                    $comparatorType,
+                    $testArguments[0],
+                    var_export($testArguments[1], true)
+                ) => array_merge($comparatorArguments, $testArguments);
             }
         }
     }
