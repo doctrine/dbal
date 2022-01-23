@@ -139,8 +139,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $scale = (int) $tableColumn['data_scale'];
         }
 
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comments'])
-            ?? $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
 
         switch ($dbType) {
             case 'number':

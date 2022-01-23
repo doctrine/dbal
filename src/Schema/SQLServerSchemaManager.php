@@ -108,8 +108,7 @@ SQL
             $fixed = true;
         }
 
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
-            ?? $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
 
         $options = [
             'fixed'         => $fixed,

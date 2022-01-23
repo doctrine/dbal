@@ -376,28 +376,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Gets the comment to append to a column comment that helps parsing this type in reverse engineering.
-     */
-    public function getDoctrineTypeComment(Type $doctrineType): string
-    {
-        return '(DC2Type:' . $doctrineType->getName() . ')';
-    }
-
-    /**
-     * Gets the comment of a passed column modified by potential doctrine type comment hints.
-     */
-    protected function getColumnComment(Column $column): string
-    {
-        $comment = $column->getComment();
-
-        if ($column->getType()->requiresSQLCommentHint($this)) {
-            $comment .= $this->getDoctrineTypeComment($column->getType());
-        }
-
-        return $comment;
-    }
-
-    /**
      * Gets the character used for identifier quoting.
      */
     public function getIdentifierQuoteCharacter(): string
@@ -971,7 +949,7 @@ abstract class AbstractPlatform
             }
 
             foreach ($table->getColumns() as $column) {
-                $comment = $this->getColumnComment($column);
+                $comment = $column->getComment();
 
                 if ($comment === '') {
                     continue;
@@ -2510,7 +2488,7 @@ abstract class AbstractPlatform
         return array_merge($column->toArray(), [
             'name' => $column->getQuotedName($this),
             'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
-            'comment' => $this->getColumnComment($column),
+            'comment' => $column->getComment(),
         ]);
     }
 
@@ -2546,10 +2524,6 @@ abstract class AbstractPlatform
             return true;
         }
 
-        if ($column1->getComment() !== $column2->getComment()) {
-            return false;
-        }
-
-        return $column1->getType() === $column2->getType();
+        return $column1->getComment() === $column2->getComment();
     }
 }

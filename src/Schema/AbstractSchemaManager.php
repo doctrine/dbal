@@ -20,7 +20,6 @@ use function array_shift;
 use function array_values;
 use function assert;
 use function count;
-use function preg_match;
 use function strtolower;
 
 /**
@@ -843,23 +842,6 @@ abstract class AbstractSchemaManager
         $schemaConfig->setDefaultTableOptions($params['defaultTableOptions']);
 
         return $schemaConfig;
-    }
-
-    /**
-     * Given a table comment this method tries to extract a type hint for Doctrine Type. If the type hint is found,
-     * it's removed from the comment.
-     *
-     * @return string|null The extracted Doctrine type or NULL of the type hint was not found.
-     */
-    final protected function extractDoctrineTypeFromComment(?string &$comment): ?string
-    {
-        if ($comment === null || preg_match('/(.*)\(DC2Type:(((?!\)).)+)\)(.*)/', $comment, $match) === 0) {
-            return null;
-        }
-
-        $comment = $match[1] . $match[4];
-
-        return $match[2];
     }
 
     /**

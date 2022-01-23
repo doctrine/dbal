@@ -381,7 +381,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $queryParts[] = $addColumnSql;
 
-            $comment = $this->getColumnComment($column);
+            $comment = $column->getComment();
 
             if ($comment === '') {
                 continue;
@@ -408,10 +408,10 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             $column     = $columnDiff->column;
-            $comment    = $this->getColumnComment($column);
+            $comment    = $column->getComment();
             $hasComment = $comment !== '';
 
-            $fromComment    = $this->getColumnComment($columnDiff->fromColumn);
+            $fromComment    = $columnDiff->fromColumn->getComment();
             $hasFromComment = $fromComment !== '';
 
             if ($hasFromComment && $hasComment && $fromComment !== $comment) {

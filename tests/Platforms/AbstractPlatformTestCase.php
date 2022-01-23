@@ -448,16 +448,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertEquals($this->getAlterTableColumnCommentsSQL(), $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    public function testCreateTableColumnTypeComments(): void
-    {
-        $table = new Table('test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('data', 'array');
-        $table->setPrimaryKey(['id']);
-
-        self::assertEquals($this->getCreateTableColumnTypeCommentsSQL(), $this->platform->getCreateTableSQL($table));
-    }
-
     /**
      * @return string[]
      */
@@ -470,14 +460,6 @@ abstract class AbstractPlatformTestCase extends TestCase
      * @return string[]
      */
     public function getAlterTableColumnCommentsSQL(): array
-    {
-        self::markTestSkipped('Platform does not support Column comments.');
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCreateTableColumnTypeCommentsSQL(): array
     {
         self::markTestSkipped('Platform does not support Column comments.');
     }

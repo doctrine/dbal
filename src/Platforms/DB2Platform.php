@@ -393,7 +393,7 @@ class DB2Platform extends AbstractPlatform
 
             $queryParts[] = $queryPart;
 
-            $comment = $this->getColumnComment($column);
+            $comment = $column->getComment();
 
             if ($comment === '') {
                 continue;
@@ -423,7 +423,7 @@ class DB2Platform extends AbstractPlatform
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $columnDiff->column->getQuotedName($this),
-                    $this->getColumnComment($columnDiff->column)
+                    $columnDiff->column->getComment()
                 );
 
                 if (count($columnDiff->changedProperties) === 1) {

@@ -159,17 +159,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateTableColumnTypeCommentsSQL(): array
-    {
-        return [
-            'CREATE TABLE test (id INTEGER NOT NULL, "data" CLOB(1M) NOT NULL, PRIMARY KEY(id))',
-            'COMMENT ON COLUMN test."data" IS \'(DC2Type:array)\'',
-        ];
-    }
-
     public function testGeneratesCreateTableSQLWithCommonIndexes(): void
     {
         $table = new Table('test');

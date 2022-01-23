@@ -260,12 +260,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
             $comment = $this->parseColumnCommentFromSQL($columnName, $createSql);
 
-            $type = $this->extractDoctrineTypeFromComment($comment);
-
-            if ($type !== null) {
-                $column->setType(Type::getType($type));
-            }
-
             $column->setComment($comment);
         }
 
