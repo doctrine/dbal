@@ -304,7 +304,7 @@ prepare()
 ~~~~~~~~~
 
 Prepare a given SQL statement and return the
-``\Doctrine\DBAL\Driver\Statement`` instance:
+``\Doctrine\DBAL\Statement`` instance:
 
 .. code-block:: php
 

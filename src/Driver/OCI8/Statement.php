@@ -77,7 +77,7 @@ final class Statement implements StatementInterface
         }
 
         if (
-            ! oci_bind_by_name(
+            ! @oci_bind_by_name(
                 $this->statement,
                 $param,
                 $variable,

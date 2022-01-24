@@ -612,6 +612,14 @@ The following methods have been removed.
 | `QueryCacheProfile` | `setResultCacheDriver()` | `setResultCache()` |
 | `QueryCacheProfile` | `getResultCacheDriver()` | `getResultCache()` |
 
+# Upgrade to 3.4
+
+# Deprecated `AbstractPlatform::getColumnComment()` and `AbstractPlatform::getDoctrineTypeComment()`
+
+DBAL no longer needs column comments to ensure proper diffing. Note that both
+methods should probably have been marked as internal as these comments were an
+implementation detail of the DBAL.
+
 # Upgrade to 3.3
 
 ## Deprecated `Type::canRequireSQLConversion()`.

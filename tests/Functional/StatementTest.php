@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Driver\Exception as DriverException;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
@@ -22,8 +23,6 @@ use function base64_decode;
 use function get_debug_type;
 use function sprintf;
 use function stream_get_contents;
-
-use const PHP_VERSION_ID;
 
 class StatementTest extends FunctionalTestCase
 {
@@ -248,6 +247,19 @@ EOF
         self::assertEquals(1, $stmt->executeQuery()->fetchOne());
     }
 
+    public function testBindInvalidNamedParameter(): void
+    {
+        if (TestUtil::isDriverOneOf('ibm_db2', 'mysqli', 'sqlsrv')) {
+            self::markTestSkipped('The driver does not support named statement parameters');
+        }
+
+        $platform  = $this->connection->getDatabasePlatform();
+        $statement = $this->connection->prepare($platform->getDummySelectSQL(':foo'));
+        $this->expectException(DriverException::class);
+
+        $statement->executeQuery(['bar' => 'baz']);
+    }
+
     /**
      * @dataProvider emptyFetchProvider
      */
@@ -263,7 +275,7 @@ EOF
             // some drivers will trigger a PHP error here which, if not suppressed,
             // would be converted to a PHPUnit exception prior to DBAL throwing its own one
             $value = @$fetch($result);
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             // The drivers that enforce the command sequencing internally will throw an exception
             $this->expectNotToPerformAssertions();
 
@@ -350,7 +362,7 @@ EOF
         $query    = $platform->getDummySelectSQL();
         $stmt     = $this->connection->prepare($query);
 
-        if (PHP_VERSION_ID >= 80000 && $driver instanceof Mysqli\Driver) {
+        if ($driver instanceof Mysqli\Driver) {
             $this->expectException(Error::class);
         } else {
             // we want to make sure the exception is thrown by the DBAL code, not by PHPUnit due to a PHP-level error,
