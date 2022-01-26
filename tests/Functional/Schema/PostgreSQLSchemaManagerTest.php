@@ -16,6 +16,7 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 use function array_map;
 use function array_merge;
@@ -28,6 +29,8 @@ use function strtolower;
 
 class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    use VerifyDeprecations;
+
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof PostgreSQLPlatform;
@@ -420,6 +423,38 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertSame(Types::JSON, $columns['foo']->getType()->getName());
         self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
+    }
+
+    public function testItTriggersADeprecationWhenAttemptingToUseJsonbWithATypeNotExtendingJsonType(): void
+    {
+        $backedUpType = Type::getType('json');
+        try {
+            Type::getTypeRegistry()->override(Types::JSON, new class extends Type {
+                /**
+                 * {@inheritdoc}
+                 */
+                public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+                {
+                    return $platform->getJsonTypeDeclarationSQL($column);
+                }
+
+                public function getName(): string
+                {
+                    return 'json';
+                }
+            });
+            $table = new Table('test_jsonb');
+            $table->addColumn('foo', Types::JSON)->setPlatformOption('jsonb', true);
+            $this->dropAndCreateTable($table);
+
+            $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5049');
+            $columns = $this->schemaManager->listTableColumns('test_jsonb');
+
+            self::assertSame(Types::JSON, $columns['foo']->getType()->getName());
+            self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
+        } finally {
+            Type::getTypeRegistry()->override(Types::JSON, $backedUpType);
+        }
     }
 
     public function testListNegativeColumnDefaultValue(): void
