@@ -102,9 +102,9 @@ abstract class Type
     /**
      * Gets the name of this type.
      *
-     * @return string
+     * @deprecated this method will be removed in Doctrine DBAL 4.0.
      *
-     * @todo Needed?
+     * @return string
      */
     abstract public function getName();
 
