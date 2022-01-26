@@ -16,11 +16,6 @@ use const PHP_VERSION_ID;
  */
 class DecimalType extends Type
 {
-    public function getName(): string
-    {
-        return Types::DECIMAL;
-    }
-
     /**
      * {@inheritdoc}
      */

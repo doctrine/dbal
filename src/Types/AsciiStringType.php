@@ -21,9 +21,4 @@ final class AsciiStringType extends StringType
     {
         return ParameterType::ASCII;
     }
-
-    public function getName(): string
-    {
-        return Types::ASCII_STRING;
-    }
 }

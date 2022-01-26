@@ -16,11 +16,6 @@ use function date_create_immutable;
  */
 class DateTimeImmutableType extends DateTimeType
 {
-    public function getName(): string
-    {
-        return Types::DATETIME_IMMUTABLE;
-    }
-
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -33,7 +28,7 @@ class DateTimeImmutableType extends DateTimeType
 
         throw InvalidType::new(
             $value,
-            $this->getName(),
+            static::class,
             ['null', DateTimeImmutable::class]
         );
     }
@@ -53,7 +48,7 @@ class DateTimeImmutableType extends DateTimeType
         if ($dateTime === false) {
             throw InvalidFormat::new(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getDateTimeFormatString()
             );
         }

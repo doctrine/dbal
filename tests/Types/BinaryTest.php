@@ -8,7 +8,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -34,11 +33,6 @@ class BinaryTest extends TestCase
     public function testReturnsBindingType(): void
     {
         self::assertSame(ParameterType::BINARY, $this->type->getBindingType());
-    }
-
-    public function testReturnsName(): void
-    {
-        self::assertSame(Types::BINARY, $this->type->getName());
     }
 
     /**

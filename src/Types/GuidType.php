@@ -19,11 +19,6 @@ class GuidType extends StringType
         return $platform->getGuidTypeDeclarationSQL($column);
     }
 
-    public function getName(): string
-    {
-        return Types::GUID;
-    }
-
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return ! $platform->hasNativeGuidType();

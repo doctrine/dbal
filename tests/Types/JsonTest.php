@@ -8,7 +8,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
-use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -31,11 +30,6 @@ class JsonTest extends TestCase
     public function testReturnsBindingType(): void
     {
         self::assertSame(ParameterType::STRING, $this->type->getBindingType());
-    }
-
-    public function testReturnsName(): void
-    {
-        self::assertSame(Types::JSON, $this->type->getName());
     }
 
     public function testReturnsSQLDeclaration(): void

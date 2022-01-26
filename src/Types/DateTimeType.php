@@ -17,13 +17,8 @@ use function date_create;
  */
 class DateTimeType extends Type implements PhpDateTimeMappingType
 {
-    public function getName(): string
-    {
-        return Types::DATETIME_MUTABLE;
-    }
-
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
@@ -40,7 +35,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
             return $value->format($platform->getDateTimeFormatString());
         }
 
-        throw InvalidType::new($value, $this->getName(), ['null', 'DateTime']);
+        throw InvalidType::new($value, static::class, ['null', 'DateTime']);
     }
 
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeInterface
@@ -58,7 +53,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
         if ($val === false) {
             throw InvalidFormat::new(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getDateTimeFormatString()
             );
         }

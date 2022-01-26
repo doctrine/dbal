@@ -33,11 +33,6 @@ class TimeImmutableTypeTest extends TestCase
         self::assertSame(TimeImmutableType::class, get_class($this->type));
     }
 
-    public function testReturnsName(): void
-    {
-        self::assertSame('time_immutable', $this->type->getName());
-    }
-
     public function testReturnsBindingType(): void
     {
         self::assertSame(ParameterType::STRING, $this->type->getBindingType());

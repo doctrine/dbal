@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `Type::getName()`
+
+As a consequence, only types extending `JsonType` or that type itself can have
+the `jsonb` platform option set.
+
 ## BC BREAK: Deployed database schema no longer contains the information about abstract data types
 
 Database column comments no longer contain type comments added by DBAL.

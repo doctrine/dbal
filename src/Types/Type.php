@@ -99,13 +99,6 @@ abstract class Type
      */
     abstract public function getSQLDeclaration(array $column, AbstractPlatform $platform): string;
 
-    /**
-     * Gets the name of this type.
-     *
-     * @todo Needed?
-     */
-    abstract public function getName(): string;
-
     final public static function getTypeRegistry(): TypeRegistry
     {
         if (self::$typeRegistry === null) {

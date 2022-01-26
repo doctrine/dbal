@@ -18,9 +18,4 @@ class StringType extends Type
     {
         return $platform->getStringTypeDeclarationSQL($column);
     }
-
-    public function getName(): string
-    {
-        return Types::STRING;
-    }
 }

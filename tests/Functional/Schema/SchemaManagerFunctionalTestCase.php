@@ -27,10 +27,12 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\DBAL\Types\DateType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\TimeType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -42,6 +44,7 @@ use function array_shift;
 use function array_values;
 use function count;
 use function current;
+use function get_class;
 use function get_debug_type;
 use function sprintf;
 use function strcasecmp;
@@ -273,13 +276,19 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         self::assertEquals('baz2', strtolower($columns['baz2']->getName()));
         self::assertEquals(5, array_search('baz2', $columnsKeys, true));
-        self::assertContains($columns['baz2']->getType()->getName(), ['time', 'date', 'datetime']);
+        self::assertContains(
+            get_class($columns['baz2']->getType()),
+            [TimeType::class, DateType::class, DateTimeType::class]
+        );
         self::assertEquals(true, $columns['baz2']->getNotnull());
         self::assertEquals(null, $columns['baz2']->getDefault());
 
         self::assertEquals('baz3', strtolower($columns['baz3']->getName()));
         self::assertEquals(6, array_search('baz3', $columnsKeys, true));
-        self::assertContains($columns['baz3']->getType()->getName(), ['time', 'date', 'datetime']);
+        self::assertContains(
+            get_class($columns['baz3']->getType()),
+            [TimeType::class, DateType::class, DateTimeType::class]
+        );
         self::assertEquals(true, $columns['baz3']->getNotnull());
         self::assertEquals(null, $columns['baz3']->getDefault());
     }
