@@ -42,6 +42,7 @@ use function sprintf;
  * A database abstraction-level connection that implements features like events, transaction isolation levels,
  * configuration, emulated transaction nesting, lazy connecting and more.
  *
+ * @template P of AbstractPlatform
  * @psalm-import-type Params from DriverManager
  * @psalm-consistent-constructor
  */
@@ -127,7 +128,7 @@ class Connection
     /**
      * The database platform object used by the connection or NULL before it's initialized.
      *
-     * @var AbstractPlatform|null
+     * @var P|null
      */
     private $platform;
 
@@ -170,7 +171,7 @@ class Connection
      * @param Configuration|null  $config       The configuration, optional.
      * @param EventManager|null   $eventManager The event manager, optional.
      * @psalm-param Params $params
-     * @phpstan-param array<string,mixed> $params
+     * @phpstan-param array<string,array{platform?: P}> $params
      *
      * @throws Exception
      */
@@ -275,7 +276,7 @@ class Connection
     /**
      * Gets the DatabasePlatform for the connection.
      *
-     * @return AbstractPlatform
+     * @return P
      *
      * @throws Exception
      */
@@ -362,6 +363,8 @@ class Connection
      * Evaluates custom platform class and version in order to set the correct platform.
      *
      * @throws Exception If an invalid platform was specified for this connection.
+     *
+     * @return P
      */
     private function detectDatabasePlatform(): AbstractPlatform
     {
