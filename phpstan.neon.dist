@@ -128,5 +128,10 @@ parameters:
         # Type check for legacy implementations of the Connection interface
         # TODO: remove in 4.0.0
         - "~Call to function method_exists\\(\\) with Doctrine\\\\DBAL\\\\Driver\\\\Connection and 'getNativeConnection' will always evaluate to true\\.~"
+
+        # TODO: remove in 4.0.0
+        -
+            message: '~PHPDoc tag @param references unknown parameter: \$comparator~'
+            path: src/Schema/Comparator.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

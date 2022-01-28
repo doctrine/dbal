@@ -799,8 +799,9 @@ abstract class AbstractSchemaManager
      */
     public function migrateSchema(Schema $toSchema): void
     {
-        $schemaDiff = $this->createComparator()
-            ->compareSchemas($this->createSchema(), $toSchema);
+        $comparator = $this->createComparator();
+        $schemaDiff = $comparator
+            ->compareSchemas($this->createSchema(), $toSchema, $comparator);
 
         $this->alterSchema($schemaDiff);
     }

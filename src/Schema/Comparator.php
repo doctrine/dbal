@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types;
 use Doctrine\Deprecations\Deprecation;
+use TypeError;
 
 use function array_intersect_key;
 use function array_key_exists;
@@ -15,7 +16,10 @@ use function array_merge;
 use function array_unique;
 use function assert;
 use function count;
+use function func_get_arg;
+use function func_num_args;
 use function get_class;
+use function sprintf;
 use function strtolower;
 
 /**
@@ -48,6 +52,9 @@ class Comparator
      * Returns a SchemaDiff object containing the differences between the schemas $fromSchema and $toSchema.
      *
      * This method should be called non-statically since it will be declared as non-static in the next major release.
+     * Its third argument should be itself.
+     *
+     * @param $this $comparator
      *
      * @return SchemaDiff
      *
@@ -55,9 +62,29 @@ class Comparator
      */
     public static function compareSchemas(
         Schema $fromSchema,
-        Schema $toSchema
+        Schema $toSchema /*, self $comparator = null*/
     ) {
-        $comparator       = new self();
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5216',
+                'Passing a %s instance to %s as a third argument is necessary'
+                . ' to benefit from platform-aware comparison.',
+                static::class,
+                __METHOD__
+            );
+            $comparator = new self();
+        } else {
+            if (! (func_get_arg(2) instanceof static)) {
+                throw new TypeError(sprintf(
+                    'The third argument to %s must be the instance it was called on.',
+                    __METHOD__,
+                ));
+            }
+
+            $comparator = func_get_arg(2);
+        }
+
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
@@ -189,7 +216,7 @@ class Comparator
             'Method compare() is deprecated. Use a non-static call to compareSchemas() instead.'
         );
 
-        return $this->compareSchemas($fromSchema, $toSchema);
+        return $this->compareSchemas($fromSchema, $toSchema, $this);
     }
 
     /**
