@@ -12,4 +12,9 @@ class ComparatorTest extends BaseComparatorTest
     {
         $this->comparator = new Comparator(new SqlitePlatform());
     }
+
+    public function testChangedBinaryColumn(): void
+    {
+        self::markTestSkipped('All columns are already binary in SQLite');
+    }
 }
