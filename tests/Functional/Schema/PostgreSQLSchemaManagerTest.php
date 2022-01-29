@@ -409,12 +409,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testJsonbColumn(): void
     {
-        if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQLPlatform) {
-            $this->markTestSkipped('Requires PostgresSQL 9.4+');
-
-            return;
-        }
-
         $table = new Table('test_jsonb');
         $table->addColumn('foo', Types::JSON)->setPlatformOption('jsonb', true);
         $this->dropAndCreateTable($table);
