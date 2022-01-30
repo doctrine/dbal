@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use BadMethodCallException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types;
@@ -16,10 +17,13 @@ use function array_unique;
 use function assert;
 use function count;
 use function get_class;
+use function sprintf;
 use function strtolower;
 
 /**
  * Compares two Schemas and return an instance of SchemaDiff.
+ *
+ * @method SchemaDiff compareSchemas(Schema $fromSchema, Schema $toSchema)
  */
 class Comparator
 {
@@ -45,6 +49,32 @@ class Comparator
     }
 
     /**
+     * @param list<mixed> $args
+     */
+    public function __call(string $method, array $args): SchemaDiff
+    {
+        if ($method !== 'compareSchemas') {
+            throw new BadMethodCallException(sprintf('Unknown method "%s"', $method));
+        }
+
+        return $this->doCompareSchemas(...$args);
+    }
+
+    /**
+     * @param list<mixed> $args
+     */
+    public static function __callStatic(string $method, array $args): SchemaDiff
+    {
+        if ($method !== 'compareSchemas') {
+            throw new BadMethodCallException(sprintf('Unknown method "%s"', $method));
+        }
+
+        $comparator = new self();
+
+        return $comparator->doCompareSchemas(...$args);
+    }
+
+    /**
      * Returns a SchemaDiff object containing the differences between the schemas $fromSchema and $toSchema.
      *
      * This method should be called non-statically since it will be declared as non-static in the next major release.
@@ -53,11 +83,10 @@ class Comparator
      *
      * @throws SchemaException
      */
-    public static function compareSchemas(
+    private function doCompareSchemas(
         Schema $fromSchema,
         Schema $toSchema
     ) {
-        $comparator       = new self();
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
@@ -84,7 +113,7 @@ class Comparator
             if (! $fromSchema->hasTable($tableName)) {
                 $diff->newTables[$tableName] = $toSchema->getTable($tableName);
             } else {
-                $tableDifferences = $comparator->diffTable(
+                $tableDifferences = $this->diffTable(
                     $fromSchema->getTable($tableName),
                     $toSchema->getTable($tableName)
                 );
@@ -147,18 +176,18 @@ class Comparator
         foreach ($toSchema->getSequences() as $sequence) {
             $sequenceName = $sequence->getShortestName($toSchema->getName());
             if (! $fromSchema->hasSequence($sequenceName)) {
-                if (! $comparator->isAutoIncrementSequenceInSchema($fromSchema, $sequence)) {
+                if (! $this->isAutoIncrementSequenceInSchema($fromSchema, $sequence)) {
                     $diff->newSequences[] = $sequence;
                 }
             } else {
-                if ($comparator->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
+                if ($this->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
                     $diff->changedSequences[] = $toSchema->getSequence($sequenceName);
                 }
             }
         }
 
         foreach ($fromSchema->getSequences() as $sequence) {
-            if ($comparator->isAutoIncrementSequenceInSchema($toSchema, $sequence)) {
+            if ($this->isAutoIncrementSequenceInSchema($toSchema, $sequence)) {
                 continue;
             }
 
