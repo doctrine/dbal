@@ -69,6 +69,14 @@ class Comparator
             throw new BadMethodCallException(sprintf('Unknown method "%s"', $method));
         }
 
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4707',
+            'Calling %s::%s() statically is deprecated.',
+            self::class,
+            $method
+        );
+
         $comparator = new self();
 
         return $comparator->doCompareSchemas(...$args);

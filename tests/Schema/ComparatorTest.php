@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
@@ -22,6 +23,8 @@ use function get_class;
 
 class ComparatorTest extends TestCase
 {
+    use VerifyDeprecations;
+
     /** @var Comparator */
     protected $comparator;
 
@@ -1285,5 +1288,11 @@ class ComparatorTest extends TestCase
         self::assertEquals('fk_table2_table1', $actual->orphanedForeignKeys[0]->getName());
         self::assertCount(1, $actual->changedTables['table2']->addedForeignKeys, 'FK to table3 should be added.');
         self::assertEquals('table3', $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
+    }
+
+    public function testCallingCompareSchemasStaticallyIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4707');
+        Comparator::compareSchemas(new Schema(), new Schema());
     }
 }
