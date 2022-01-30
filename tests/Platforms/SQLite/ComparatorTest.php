@@ -12,4 +12,9 @@ class ComparatorTest extends BaseComparatorTest
     {
         $this->comparator = new Comparator(new SqlitePlatform());
     }
+
+    public function testCompareChangedBinaryColumn(): void
+    {
+        self::markTestSkipped('Binary columns are BLOB in SQLite and do not support $length or $fixed.');
+    }
 }
