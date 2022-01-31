@@ -619,6 +619,13 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+# Deprecated `Type::getName()`
+
+This will method is not useful for the DBAL anymore, and will be removed in 4.0.
+As a consequence, depending on the name of a type being `json` for `jsonb` to
+be used for the Postgres platform is deprecated in favor of extending
+`Doctrine\DBAL\Types\JsonType`.
+
 # Deprecated `AbstractPlatform::getColumnComment()` and `AbstractPlatform::getDoctrineTypeComment()`
 
 DBAL no longer needs column comments to ensure proper diffing. Note that both
