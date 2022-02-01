@@ -234,6 +234,12 @@
                     See https://github.com/doctrine/dbal/pull/5049
                 -->
                 <referencedMethod name="Doctrine\DBAL\Types\Type::getName"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableConstraintsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableConstraintsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableConstraintsSQL"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

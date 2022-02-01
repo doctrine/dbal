@@ -3111,6 +3111,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @param string $table
      *
      * @return string

@@ -313,6 +313,8 @@ class PostgreSQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableConstraintsSQL($table)
