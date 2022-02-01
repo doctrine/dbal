@@ -296,8 +296,12 @@ API
 ---
 
 The DBAL contains several methods for executing queries against
-your configured database for data retrieval and manipulation. Below
-we'll introduce these methods and provide some examples for each of
+your configured database for data retrieval and manipulation.
+
+These DBAL methods retrieve data from the database using the underlying database driver and do not perform any type conversion.
+So the result php type for a database column can vary between database drivers and php versions.
+
+Below we'll introduce these methods and provide some examples for each of
 them.
 
 prepare()
