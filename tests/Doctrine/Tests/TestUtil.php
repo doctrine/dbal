@@ -39,6 +39,7 @@ class TestUtil
      * 'db_server':   The server name of the database to connect to
      *                (optional, some vendors allow multiple server instances with different names on the same host).
      * 'db_dbname':   The name of the database to connect to.
+     * 'db_charset':  The character set to use.
      * 'db_port':     The port of the database to connect to.
      *
      * Usually these variables of the $GLOBALS array are filled by PHPUnit based
@@ -185,6 +186,7 @@ class TestUtil
                 'password',
                 'host',
                 'dbname',
+                'charset',
                 'port',
                 'server',
                 'ssl_key',
