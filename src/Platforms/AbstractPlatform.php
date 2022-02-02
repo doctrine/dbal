@@ -1981,6 +1981,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @deprecated
+     *
      * @throws Exception If not supported on this platform.
      */
     public function getListTableConstraintsSQL(string $table): string

@@ -619,6 +619,10 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+# Deprecated `AbstractPlatform::getListTableConstraintsSQL()`
+
+This method is unused by the DBAL since 2.0.
+
 # Deprecated `Type::getName()`
 
 This will method is not useful for the DBAL anymore, and will be removed in 4.0.

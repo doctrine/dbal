@@ -113,6 +113,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'SHOW DATABASES';
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableConstraintsSQL(string $table): string
     {
         return 'SHOW INDEX FROM ' . $table;

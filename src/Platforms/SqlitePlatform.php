@@ -378,6 +378,9 @@ class SqlitePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableConstraintsSQL(string $table): string
     {
         return sprintf(

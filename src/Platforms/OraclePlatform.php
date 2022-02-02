@@ -554,6 +554,9 @@ END;';
     ORDER BY cols.constraint_name ASC, cols.position ASC';
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableConstraintsSQL(string $table): string
     {
         $table = $this->normalizeIdentifier($table);

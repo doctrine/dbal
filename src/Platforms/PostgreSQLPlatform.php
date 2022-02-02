@@ -211,6 +211,9 @@ class PostgreSQLPlatform extends AbstractPlatform
                   AND r.contype = 'f'";
     }
 
+    /**
+     * @deprecated
+     */
     public function getListTableConstraintsSQL(string $table): string
     {
         $table = new Identifier($table);
