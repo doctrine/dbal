@@ -20,19 +20,19 @@ environment:
   - db: mssql
     driver: sqlsrv
     db_version: sql2008r2sp2
-    php: 7.3
+    php: 7.4
   - db: mssql
     driver: sqlsrv
     db_version: sql2012sp1
-    php: 7.3
+    php: 7.4
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
-    php: 7.3
+    php: 7.4
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 7.3
+    php: 7.4
 
 init:
   - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;%PATH%
@@ -44,7 +44,7 @@ install:
     - ps: |
         # Check if installation is cached
         if (!(Test-Path c:\tools\php)) {
-          appveyor-retry cinst --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version 7.3.12
+          appveyor-retry cinst --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version 7.4.27
           # install sqlite
           appveyor-retry cinst -y sqlite
           Get-ChildItem -Path c:\tools\php
@@ -75,7 +75,7 @@ install:
           Invoke-WebRequest $source -OutFile $destination
           7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
           $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/pcov/stable.txt").Content
-          Invoke-WebRequest https://windows.php.net/downloads/pecl/releases/pcov/$($DLLVersion)/php_pcov-$($DLLVersion)-7.3-nts-vc15-$($env:platform).zip -OutFile pcov.zip
+          Invoke-WebRequest https://windows.php.net/downloads/pecl/releases/pcov/$($DLLVersion)/php_pcov-$($DLLVersion)-$($env:php)-nts-vc15-$($env:platform).zip -OutFile pcov.zip
           7z x -y pcov.zip > $null
           Remove-Item c:\tools\php\* -include .zip
           cd c:\tools\php
