@@ -57,7 +57,7 @@ class Comparator
             throw new BadMethodCallException(sprintf('Unknown method "%s"', $method));
         }
 
-        return $this->doCompareSchemas(...$args);
+        return (new self())->doCompareSchemas(...$args);
     }
 
     /**
@@ -69,9 +69,7 @@ class Comparator
             throw new BadMethodCallException(sprintf('Unknown method "%s"', $method));
         }
 
-        $comparator = new self();
-
-        return $comparator->doCompareSchemas(...$args);
+        return (new self())->doCompareSchemas(...$args);
     }
 
     /**
