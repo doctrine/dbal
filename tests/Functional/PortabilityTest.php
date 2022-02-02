@@ -8,50 +8,12 @@ use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Middleware;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Throwable;
 
 use function array_merge;
 use function strlen;
 
 class PortabilityTest extends FunctionalTestCase
 {
-    protected function setUp(): void
-    {
-        $configuration = $this->connection->getConfiguration();
-        $configuration->setMiddlewares(
-            array_merge(
-                $configuration->getMiddlewares(),
-                [new Middleware(Connection::PORTABILITY_ALL, ColumnCase::LOWER)]
-            )
-        );
-
-        $this->connection = DriverManager::getConnection($this->connection->getParams(), $configuration);
-
-        try {
-            $table = new Table('portability_table');
-            $table->addColumn('Test_Int', 'integer');
-            $table->addColumn('Test_String', 'string', ['fixed' => true, 'length' => 32]);
-            $table->addColumn('Test_Null', 'string', ['notnull' => false]);
-            $table->setPrimaryKey(['Test_Int']);
-
-            $sm = $this->connection->getSchemaManager();
-            $sm->createTable($table);
-
-            $this->connection->insert('portability_table', [
-                'Test_Int' => 1,
-                'Test_String' => 'foo',
-                'Test_Null' => '',
-            ]);
-
-            $this->connection->insert('portability_table', [
-                'Test_Int' => 2,
-                'Test_String' => 'foo  ',
-                'Test_Null' => null,
-            ]);
-        } catch (Throwable $e) {
-        }
-    }
-
     protected function tearDown(): void
     {
         // the connection that overrides the shared one has to be manually closed prior to 4.0.0 to prevent leak
@@ -61,6 +23,9 @@ class PortabilityTest extends FunctionalTestCase
 
     public function testFullFetchMode(): void
     {
+        $this->connectWithPortability(Connection::PORTABILITY_ALL, ColumnCase::LOWER);
+        $this->createTable();
+
         $rows = $this->connection->fetchAllAssociative('SELECT * FROM portability_table');
         $this->assertFetchResultRows($rows);
 
@@ -72,24 +37,6 @@ class PortabilityTest extends FunctionalTestCase
 
         $result = $this->connection
             ->prepare('SELECT * FROM portability_table')
-            ->execute();
-
-        while (($row = $result->fetchAssociative())) {
-            $this->assertFetchResultRow($row);
-        }
-    }
-
-    public function testConnFetchMode(): void
-    {
-        $rows = $this->connection->fetchAllAssociative('SELECT * FROM portability_table');
-        $this->assertFetchResultRows($rows);
-
-        $result = $this->connection->executeQuery('SELECT * FROM portability_table');
-        while (($row = $result->fetchAssociative())) {
-            $this->assertFetchResultRow($row);
-        }
-
-        $result = $this->connection->prepare('SELECT * FROM portability_table')
             ->execute();
 
         while (($row = $result->fetchAssociative())) {
@@ -131,6 +78,9 @@ class PortabilityTest extends FunctionalTestCase
      */
     public function testFetchColumn(string $column, array $expected): void
     {
+        $this->connectWithPortability(Connection::PORTABILITY_RTRIM, 0);
+        $this->createTable();
+
         $result = $this->connection->executeQuery('SELECT ' . $column . ' FROM portability_table');
 
         self::assertEquals($expected, $result->fetchFirstColumn());
@@ -155,8 +105,50 @@ class PortabilityTest extends FunctionalTestCase
 
     public function testFetchAllNullColumn(): void
     {
+        $this->connectWithPortability(Connection::PORTABILITY_EMPTY_TO_NULL, 0);
+        $this->createTable();
+
         $column = $this->connection->fetchFirstColumn('SELECT Test_Null FROM portability_table');
 
         self::assertSame([null, null], $column);
+    }
+
+    private function connectWithPortability(int $mode, int $case): void
+    {
+        // closing the default connection prior to 4.0.0 to prevent connection leak
+        $this->connection->close();
+
+        $configuration = $this->connection->getConfiguration();
+        $configuration->setMiddlewares(
+            array_merge(
+                $configuration->getMiddlewares(),
+                [new Middleware($mode, $case)]
+            )
+        );
+
+        $this->connection = DriverManager::getConnection($this->connection->getParams(), $configuration);
+    }
+
+    private function createTable(): void
+    {
+        $table = new Table('portability_table');
+        $table->addColumn('Test_Int', 'integer');
+        $table->addColumn('Test_String', 'string', ['fixed' => true, 'length' => 32]);
+        $table->addColumn('Test_Null', 'string', ['notnull' => false]);
+        $table->setPrimaryKey(['Test_Int']);
+
+        $this->dropAndCreateTable($table);
+
+        $this->connection->insert('portability_table', [
+            'Test_Int' => 1,
+            'Test_String' => 'foo',
+            'Test_Null' => '',
+        ]);
+
+        $this->connection->insert('portability_table', [
+            'Test_Int' => 2,
+            'Test_String' => 'foo  ',
+            'Test_Null' => null,
+        ]);
     }
 }
