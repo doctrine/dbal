@@ -9,6 +9,7 @@ use Doctrine\DBAL\Portability\Middleware;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
+use function array_keys;
 use function array_merge;
 use function strlen;
 
@@ -42,6 +43,31 @@ class PortabilityTest extends FunctionalTestCase
         while (($row = $result->fetchAssociative())) {
             $this->assertFetchResultRow($row);
         }
+    }
+
+    /**
+     * @param array{int, list<string>} $expected
+     *
+     * @dataProvider caseProvider
+     */
+    public function testCaseConversion(int $case, array $expected): void
+    {
+        $this->connectWithPortability(Connection::PORTABILITY_FIX_CASE, $case);
+        $this->createTable();
+
+        $row = $this->connection->fetchAssociative('SELECT * FROM portability_table');
+
+        self::assertNotFalse($row);
+        self::assertSame($expected, array_keys($row));
+    }
+
+    /**
+     * @return iterable<string, array{int, list<string>}>
+     */
+    public static function caseProvider(): iterable
+    {
+        yield 'lower' => [ColumnCase::LOWER, ['test_int', 'test_string', 'test_null']];
+        yield 'upper' => [ColumnCase::UPPER, ['TEST_INT', 'TEST_STRING', 'TEST_NULL']];
     }
 
     /**

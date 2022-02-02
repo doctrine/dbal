@@ -41,7 +41,7 @@ final class Driver extends AbstractDriverMiddleware
             $this->mode
         );
 
-        $case = 0;
+        $case = null;
 
         if ($this->case !== 0 && ($portability & Connection::PORTABILITY_FIX_CASE) !== 0) {
             $nativeConnection = null;
@@ -63,7 +63,7 @@ final class Driver extends AbstractDriverMiddleware
         $convertEmptyStringToNull = ($portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0;
         $rightTrimString          = ($portability & Connection::PORTABILITY_RTRIM) !== 0;
 
-        if (! $convertEmptyStringToNull && ! $rightTrimString && $case === 0) {
+        if (! $convertEmptyStringToNull && ! $rightTrimString && $case === null) {
             return $connection;
         }
 
