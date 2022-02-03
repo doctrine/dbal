@@ -300,12 +300,12 @@ final class DriverManager
 
         // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
         $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $params['url']);
-        
+
         // parse_url() split the url after '#' (https://www.php.net/manual/en/function.parse-url.php#refsect1-function.parse-url-returnvalues)
         // so it temporarily replace by the string 'DOCTRINE_HASHTAG_CHARACTER_REPLACEMENT'
         $url = preg_replace('/#/', 'DOCTRINE_HASHTAG_CHARACTER_REPLACEMENT', $url);
-        $url = parse_url($url); 
-        $url['path'] = preg_replace('/DOCTRINE_HASHTAG_CHARACTER_REPLACEMENT/', '#', $url['path']);
+        $url = parse_url($url || '');
+        $url['path'] = preg_replace('/DOCTRINE_HASHTAG_CHARACTER_REPLACEMENT/', '#', $url['path'] || '');
 
         if ($url === false) {
             throw new Exception('Malformed parameter "url".');
