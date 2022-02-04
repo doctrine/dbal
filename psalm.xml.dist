@@ -250,6 +250,22 @@
                     See https://github.com/doctrine/dbal/pull/5136
                 -->
                 <referencedMethod name="Doctrine\DBAL\Types\Type::canRequireSQLConversion"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/5204
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getColumnComment"/>
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/5049
+                -->
+                <referencedMethod name="Doctrine\DBAL\Types\Type::getName"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableConstraintsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableConstraintsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableConstraintsSQL"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
@@ -480,15 +496,6 @@
                 <referencedClass name="Doctrine\DBAL\Portability\T"/>
             </errorLevel>
         </UndefinedDocblockClass>
-        <UnsafeInstantiation>
-            <errorLevel type="suppress">
-                <!-- See https://github.com/doctrine/dbal/issues/4510 -->
-                <file name="src/Platforms/AbstractPlatform.php"/>
-                <file name="src/Tools/Console/Command/ReservedWordsCommand.php"/>
-                <!-- See https://github.com/doctrine/dbal/issues/4511 -->
-                <file name="src/DriverManager.php"/>
-            </errorLevel>
-        </UnsafeInstantiation>
         <InvalidReturnType>
             <errorLevel type="suppress">
                 <!-- lastInsertId has a return type that does not match the one defined in the interface-->

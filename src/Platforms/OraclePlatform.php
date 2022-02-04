@@ -662,6 +662,8 @@ END;';
     }
 
     /**
+     * @deprecated
+     *
      * {@inheritDoc}
      */
     public function getListTableConstraintsSQL($table)

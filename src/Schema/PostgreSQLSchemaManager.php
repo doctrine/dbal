@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
@@ -16,6 +17,7 @@ use function array_map;
 use function array_shift;
 use function assert;
 use function explode;
+use function get_class;
 use function implode;
 use function in_array;
 use function preg_match;
@@ -531,6 +533,20 @@ SQL
         }
 
         if ($column->getType()->getName() === Types::JSON) {
+            if (! $column->getType() instanceof JsonType) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5049',
+                    <<<'DEPRECATION'
+                    %s not extending %s while being named %s is deprecated,
+                    and will lead to jsonb never to being used in 4.0.,
+                    DEPRECATION,
+                    get_class($column->getType()),
+                    JsonType::class,
+                    Types::JSON
+                );
+            }
+
             $column->setPlatformOption('jsonb', $jsonb);
         }
 

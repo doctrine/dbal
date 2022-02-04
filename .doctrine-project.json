@@ -6,14 +6,20 @@
     "docsSlug": "doctrine-dbal",
     "versions": [
         {
-            "name": "3.2",
-            "branchName": "3.2.x",
+            "name": "3.3",
+            "branchName": "3.3.x",
             "slug": "latest",
             "current": true,
             "aliases": [
                 "current",
                 "stable"
             ]
+        },
+        {
+            "name": "3.2",
+            "branchName": "3.2.x",
+            "slug": "3.2",
+            "maintained": false
         },
         {
             "name": "3.1",

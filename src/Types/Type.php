@@ -102,9 +102,9 @@ abstract class Type
     /**
      * Gets the name of this type.
      *
-     * @return string
+     * @deprecated this method will be removed in Doctrine DBAL 4.0.
      *
-     * @todo Needed?
+     * @return string
      */
     abstract public function getName();
 
@@ -202,7 +202,7 @@ abstract class Type
      * Gets the types array map which holds all registered types and the corresponding
      * type class
      *
-     * @return string[]
+     * @return array<string, string>
      */
     public static function getTypesMap()
     {
