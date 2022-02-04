@@ -233,6 +233,47 @@ class DriverManagerTest extends TestCase
                     'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
+            'sqlite relative URL without host and spetial characters in path' => [
+                'sqlite:///foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                [
+                    'path'   => 'foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                    'driver' => PDO\SQLite\Driver::class,
+                ],
+            ],
+            'sqlite relative URL with host and spetial characters in path' => [
+                'sqlite://localhost/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                [
+                    'host'     => 'localhost',
+                    'path'   => 'foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                    'driver' => PDO\SQLite\Driver::class,
+                ],
+            ],
+            'sqlite absolute URL with host and spetial characters in path' => [
+                'sqlite:////tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                [
+                    'path'   => '/tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                    'driver' => PDO\SQLite\Driver::class,
+                ],
+            ],
+            'sqlite absolute URL without host and spetial characters in path' => [
+                'sqlite://localhost//tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                [
+                    'host' => 'localhost',
+                    'path'   => '/tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                    'driver' => PDO\SQLite\Driver::class,
+                ],
+            ],
+            'sqlite relative URL with host, port, user, password and spetial characters in path' => [
+                'sqlite://fo+o:b##`~&ar@loca~lhost:11211//tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                [
+                    'user'     => 'fo+o',
+                    'password' => 'b##`~&ar',
+                    'host'     => 'loca~lhost',
+                    'port'     => 11211,
+                    'path'   => '/tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                    'driver' => PDO\SQLite\Driver::class,
+                ],
+            ],
             'sqlite memory' => [
                 'sqlite:///:memory:',
                 [
