@@ -305,7 +305,6 @@ final class DriverManager
             return !preg_match('/[\w:\\\\\/]/', $e) ? urlencode($e) : $e;
         }, str_split($url)) );
         $url = parse_url($url);
-        $url['path'] = urldecode($url['path']);
 
         if ($url === false) {
             throw new Exception('Malformed parameter "url".');
