@@ -300,10 +300,11 @@ final class DriverManager
 
         // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
         $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $params['url']);
-
-        $url = join( array_map(function($e){
-            return !preg_match('/[\w:\\\\\/]/', $e) ? urlencode($e) : $e;
-        }, str_split($url)) );
+        if(preg_match('/sqlite:\\/\\//', $url)){
+            $url = join( array_map(function($e){
+                return !preg_match('/[\w=\-\?:\\\\\/@%]/', $e) ? rawurlencode($e) : $e;
+            }, str_split($url)) );
+        }
         $url = parse_url($url);
 
         if ($url === false) {
