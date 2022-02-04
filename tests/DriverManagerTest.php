@@ -264,13 +264,13 @@ class DriverManagerTest extends TestCase
                 ],
             ],
             'sqlite relative URL with host, port, user, password and spetial characters in path' => [
-                'sqlite://fo+o:b##`~&ar@loca~lhost:11211//tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                'sqlite://fo+o:b##`~&ar@loca~lhost:11211/tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
                 [
                     'user'     => 'fo+o',
                     'password' => 'b##`~&ar',
                     'host'     => 'loca~lhost',
                     'port'     => 11211,
-                    'path'   => '/tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
+                    'path'   => 'tmp/foo/u~z/#f`aa/*  *o/dbna] me.sqlite',
                     'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
