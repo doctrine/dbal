@@ -452,12 +452,16 @@ SQL
 
         $tableOptions[] = sprintf('DEFAULT CHARACTER SET %s', $options['charset']);
 
-        // Collate
-        if (! isset($options['collate'])) {
-            $options['collate'] = $options['charset'] . '_unicode_ci';
+        if (isset($options['collate'])) {
+            $options['collation'] = $options['collate'];
         }
 
-        $tableOptions[] = $this->getColumnCollationDeclarationSQL($options['collate']);
+        // Collation
+        if (! isset($options['collation'])) {
+            $options['collation'] = $options['charset'] . '_unicode_ci';
+        }
+
+        $tableOptions[] = $this->getColumnCollationDeclarationSQL($options['collation']);
 
         // Engine
         if (! isset($options['engine'])) {
