@@ -135,7 +135,7 @@ final class ComparatorTest extends FunctionalTestCase
     {
         $table = new Table('comparator_test');
         $table->addOption('charset', 'utf8mb4');
-        $table->addOption('collate', 'utf8mb4_general_ci');
+        $table->addOption('collation', 'utf8mb4_general_ci');
         $column = $table->addColumn('id', Types::STRING);
         $this->dropAndCreateTable($table);
 
