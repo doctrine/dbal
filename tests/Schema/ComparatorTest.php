@@ -1295,4 +1295,34 @@ class ComparatorTest extends TestCase
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4707');
         Comparator::compareSchemas(new Schema(), new Schema());
     }
+
+    public function testWillNotProduceSchemaDiffOnTableWithAddedCustomSchemaDefinition(): void
+    {
+        $fromSchema = new Schema(
+            [
+                new Table(
+                    'a_table',
+                    [
+                        new Column('is_default', Type::getType('string')),
+                    ]
+                ),
+            ]
+        );
+        $toSchema   = new Schema(
+            [
+                new Table(
+                    'a_table',
+                    [
+                        new Column('is_default', Type::getType('string'), ['columnDefinition' => 'ENUM(\'default\')']),
+                    ]
+                ),
+            ]
+        );
+
+        self::assertEmpty(
+            $this->comparator->compareSchemas($fromSchema, $toSchema)
+                ->changedTables,
+            'Schema diff is empty, since only `columnDefinition` changed from `null` (not detected) to a defined one'
+        );
+    }
 }

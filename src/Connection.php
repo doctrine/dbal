@@ -540,7 +540,7 @@ class Connection
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return list< mixed>|false False is returned if no rows are found.
+     * @return list<mixed>|false False is returned if no rows are found.
      *
      * @throws Exception
      */
