@@ -455,6 +455,11 @@ SQL
         $tableOptions[] = sprintf('DEFAULT CHARACTER SET %s', $options['charset']);
 
         if (isset($options['collate'])) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5214',
+                'The "collate" option is deprecated in favor of "collation" and will be removed in 4.0.'
+            );
             $options['collation'] = $options['collate'];
         }
 
