@@ -9,7 +9,6 @@ about: Something is broken? 🔨
 
 |    Q        |   A
 |------------ | ------
-| BC Break    | yes/no
 | Version     | x.y.z
 
 #### Summary
