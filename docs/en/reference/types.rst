@@ -905,3 +905,41 @@ hook it into the database platform:
 This would allow using a money type in the ORM for example and
 have Doctrine automatically convert it back and forth to the
 database.
+
+It is also possible to register type instances directly, in case you
+need to pass parameters to your instance::
+
+    <?php
+    namespace My\Project\Types;
+
+    use Doctrine\DBAL\Types\Type;
+    use Doctrine\DBAL\Platforms\AbstractPlatform;
+
+    final class StringReplacingType extends StringType
+    {
+        /**
+         * @param array<string, string> $replacements
+         */
+        public function __construct(
+            private array $replacements,
+        ) {
+        }
+
+        public function convertToDatabaseValue($value, AbstractPlatform $platform): string
+        {
+            return strtr($value, $this->replacements);
+        }
+    }
+
+To do that, you can obtain the ``TypeRegistry`` singleton from ``Type``
+and register your type in it::
+
+    <?php
+    Type::getTypeRegistry()->register('emojifyingType', new StringReplacingType(
+        [
+            ':)' => '😊',
+            ':(' => '😞',
+            ':D' => '😄',
+            ':P' => '😛',
+        ]
+    ));

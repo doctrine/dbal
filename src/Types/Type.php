@@ -121,7 +121,6 @@ abstract class Type
 
     /**
      * Factory method to create type instances.
-     * Type instances are implemented as flyweights.
      *
      * @param string $name The name of the type.
      *
