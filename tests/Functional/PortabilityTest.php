@@ -46,7 +46,7 @@ class PortabilityTest extends FunctionalTestCase
     }
 
     /**
-     * @param array{int, list<string>} $expected
+     * @param list<string> $expected
      *
      * @dataProvider caseProvider
      */
