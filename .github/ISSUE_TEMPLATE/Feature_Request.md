@@ -11,7 +11,6 @@ about: You have a neat idea that should be implemented? 🎩
 |------------ | ------
 | New Feature | yes
 | RFC         | yes/no
-| BC Break    | yes/no
 
 #### Summary
 

@@ -619,6 +619,10 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+# Deprecated `collate` option for MySQL
+
+This undocumented option is deprecated in favor of `collation`.
+
 # Deprecated `AbstractPlatform::getListTableConstraintsSQL()`
 
 This method is unused by the DBAL since 2.0.

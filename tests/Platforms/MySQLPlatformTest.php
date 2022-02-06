@@ -6,11 +6,15 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
 {
+    use VerifyDeprecations;
+
     public function createPlatform(): AbstractPlatform
     {
         return new MySQLPlatform();
@@ -83,6 +87,29 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
         self::assertEquals(
             TransactionIsolationLevel::REPEATABLE_READ,
             $this->platform->getDefaultTransactionIsolationLevel()
+        );
+    }
+
+    public function testCollationOptionIsTakenIntoAccount(): void
+    {
+        $table = new Table('quotations');
+        $table->addColumn('id', 'integer');
+        $table->addOption('collation', 'my_collation');
+        self::assertStringContainsString(
+            'my_collation',
+            $this->platform->getCreateTableSQL($table)[0]
+        );
+    }
+
+    public function testCollateOptionIsStillSupportedButDeprecated(): void
+    {
+        $table = new Table('quotations');
+        $table->addColumn('id', 'integer');
+        $table->addOption('collate', 'my_collation');
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/5214');
+        self::assertStringContainsString(
+            'my_collation',
+            $this->platform->getCreateTableSQL($table)[0]
         );
     }
 }

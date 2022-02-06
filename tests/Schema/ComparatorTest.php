@@ -1268,4 +1268,41 @@ abstract class ComparatorTest extends TestCase
         self::assertCount(1, $actual->changedTables['table2']->addedForeignKeys, 'FK to table3 should be added.');
         self::assertEquals('table3', $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
     }
+
+    public function testWillNotProduceSchemaDiffOnTableWithAddedCustomSchemaDefinition(): void
+    {
+        $fromSchema = new Schema(
+            [
+                new Table(
+                    'a_table',
+                    [
+                        new Column(
+                            'is_default',
+                            Type::getType('string'),
+                            ['length' => 32]
+                        ),
+                    ]
+                ),
+            ]
+        );
+        $toSchema   = new Schema(
+            [
+                new Table(
+                    'a_table',
+                    [
+                        new Column('is_default', Type::getType('string'), [
+                            'columnDefinition' => 'ENUM(\'default\')',
+                            'length' => 32,
+                        ]),
+                    ]
+                ),
+            ]
+        );
+
+        self::assertEmpty(
+            $this->comparator->compareSchemas($fromSchema, $toSchema)
+                ->changedTables,
+            'Schema diff is empty, since only `columnDefinition` changed from `null` (not detected) to a defined one'
+        );
+    }
 }
