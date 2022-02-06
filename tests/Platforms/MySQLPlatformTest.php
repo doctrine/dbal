@@ -100,16 +100,4 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
             $this->platform->getCreateTableSQL($table)[0]
         );
     }
-
-    public function testCollateOptionIsStillSupportedButDeprecated(): void
-    {
-        $table = new Table('quotations');
-        $table->addColumn('id', 'integer');
-        $table->addOption('collate', 'my_collation');
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/5214');
-        self::assertStringContainsString(
-            'my_collation',
-            $this->platform->getCreateTableSQL($table)[0]
-        );
-    }
 }
