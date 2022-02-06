@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+# BC Break: Dropped support for `collate` option for MySQL
+
+Use `collation` instead.
+
 ## BC BREAK: Removed `Type::getName()`
 
 As a consequence, only types extending `JsonType` or that type itself can have

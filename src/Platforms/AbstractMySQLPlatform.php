@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function array_unique;
@@ -371,15 +370,6 @@ SQL
 
         if (isset($options['charset'])) {
             $tableOptions[] = sprintf('DEFAULT CHARACTER SET %s', $options['charset']);
-        }
-
-        if (isset($options['collate'])) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/5214',
-                'The "collate" option is deprecated in favor of "collation" and will be removed in 4.0.'
-            );
-            $options['collation'] = $options['collate'];
         }
 
         if (isset($options['collation'])) {
