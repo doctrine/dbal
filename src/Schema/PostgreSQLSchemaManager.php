@@ -366,7 +366,9 @@ SQL
 
         $autoincrement = false;
 
-        if (
+        if (in_array($tableColumn['identity'], ['a', 'd'])) {
+            $autoincrement = true;
+        } elseif (
             $tableColumn['default'] !== null
             && preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches) === 1
         ) {

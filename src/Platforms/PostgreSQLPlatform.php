@@ -199,7 +199,7 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function usesSequenceEmulatedIdentityColumns()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -413,7 +413,8 @@ SQL
                     ) AS default,
                     (SELECT pg_description.description
                         FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
-                    ) AS comment
+                    ) AS comment,
+                    a.attidentity AS identity
                     FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
                     WHERE " . $this->getTableWhereClause($table, 'c', 'n') . '
                         AND a.attnum > 0
@@ -920,7 +921,7 @@ SQL
     public function getIntegerTypeDeclarationSQL(array $column)
     {
         if (! empty($column['autoincrement'])) {
-            return 'SERIAL';
+            return 'INT GENERATED ALWAYS AS IDENTITY';
         }
 
         return 'INT';
