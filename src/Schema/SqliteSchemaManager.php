@@ -22,6 +22,7 @@ use function preg_match_all;
 use function preg_quote;
 use function preg_replace;
 use function rtrim;
+use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtolower;
