@@ -204,7 +204,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $indexBuffer = [];
 
         // fetch primary
-        $indexArray = $this->_conn->fetchAllAssociative('SELECT * FROM PRAGMA_TABLE_INFO (?)', [$tableName]);
+        $indexArray = $this->_conn->fetchAllAssociative(sprintf(
+            'PRAGMA TABLE_INFO (%s)',
+            $this->_conn->quote($tableName)
+        ));
 
         usort(
             $indexArray,
@@ -247,7 +250,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $idx['primary']    = false;
             $idx['non_unique'] = ! $tableIndex['unique'];
 
-            $indexArray = $this->_conn->fetchAllAssociative('SELECT * FROM PRAGMA_INDEX_INFO (?)', [$keyName]);
+            $indexArray = $this->_conn->fetchAllAssociative(sprintf(
+                'PRAGMA INDEX_INFO (%s)',
+                $this->_conn->quote($keyName)
+            ));
 
             foreach ($indexArray as $indexColumnRow) {
                 $idx['column_name'] = $indexColumnRow['name'];
