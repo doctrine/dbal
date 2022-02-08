@@ -74,15 +74,6 @@ parameters:
             paths:
                 - src/Schema/AbstractSchemaManager.php
 
-        # See https://github.com/doctrine/dbal/pull/4707
-        # TODO: remove in 4.0.0
-        -
-            message: '~^Dynamic call to static method Doctrine\\DBAL\\Schema\\Comparator::compareSchemas\(\)\.$~'
-            paths:
-                - src/Schema/AbstractSchemaManager.php
-                - src/Schema/Comparator.php
-                - src/Schema/Schema.php
-
         # https://github.com/phpstan/phpstan/issues/1901
         -
             message: '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::escapeStringForLike\(\) should return string but returns string\|null\.$~'
@@ -129,12 +120,5 @@ parameters:
         # TODO: remove in 4.0.0
         - "~Call to function method_exists\\(\\) with Doctrine\\\\DBAL\\\\Driver\\\\Connection and 'getNativeConnection' will always evaluate to true\\.~"
 
-        # TODO: remove in 4.0.0
-        -
-            message: '~^Call to an undefined method.*compareSchemas.*$~'
-            paths:
-                - src/Schema/AbstractSchemaManager.php
-                - src/Schema/Comparator.php
-                - src/Schema/Schema.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
