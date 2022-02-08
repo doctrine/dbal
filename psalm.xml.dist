@@ -334,6 +334,12 @@
                 <file name="tests/Doctrine/Tests/DBAL/Functional/PortabilityTest.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
+        <RedundantFunctionCallGivenDocblockType>
+            <errorLevel type="suppress">
+                <!-- see https://github.com/vimeo/psalm/issues/7536 -->
+                <file name="lib/Doctrine/DBAL/Schema/Visitor/Graphviz.php"/>
+            </errorLevel>
+        </RedundantFunctionCallGivenDocblockType>
         <ReferenceConstraintViolation>
             <errorLevel type="suppress">
                 <!--
