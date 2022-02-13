@@ -39,7 +39,7 @@ interface Connection extends ServerVersionProvider
      *
      * @throws Exception
      */
-    public function exec(string $sql): int;
+    public function exec(string $sql): int|string;
 
     /**
      * Returns the ID of the last inserted row.

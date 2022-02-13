@@ -482,11 +482,11 @@ class Connection implements ServerVersionProvider
      * @param array<string, mixed>                                                 $criteria Deletion criteria
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
      *
-     * @return int The number of affected rows.
+     * @return int|string The number of affected rows.
      *
      * @throws Exception
      */
-    public function delete(string $table, array $criteria, array $types = []): int
+    public function delete(string $table, array $criteria, array $types = []): int|string
     {
         if (count($criteria) === 0) {
             throw EmptyCriteriaNotAllowed::new();
@@ -551,11 +551,11 @@ class Connection implements ServerVersionProvider
      * @param array<string, mixed>                                                 $criteria Update criteria
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
      *
-     * @return int The number of affected rows.
+     * @return int|string The number of affected rows.
      *
      * @throws Exception
      */
-    public function update(string $table, array $data, array $criteria, array $types = []): int
+    public function update(string $table, array $data, array $criteria, array $types = []): int|string
     {
         $columns = $values = $conditions = $set = [];
 
@@ -585,11 +585,11 @@ class Connection implements ServerVersionProvider
      * @param array<string, mixed>                                                 $data  Column-value pairs
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types Parameter types
      *
-     * @return int The number of affected rows.
+     * @return int|string The number of affected rows.
      *
      * @throws Exception
      */
-    public function insert(string $table, array $data, array $types = []): int
+    public function insert(string $table, array $data, array $types = []): int|string
     {
         if (count($data) === 0) {
             return $this->executeStatement('INSERT INTO ' . $table . ' () VALUES ()');
@@ -950,7 +950,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function executeStatement(string $sql, array $params = [], array $types = []): int
+    public function executeStatement(string $sql, array $params = [], array $types = []): int|string
     {
         $connection = $this->connect();
 
@@ -1496,7 +1496,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function executeUpdate(string $sql, array $params = [], array $types = []): int
+    public function executeUpdate(string $sql, array $params = [], array $types = []): int|string
     {
         return $this->executeStatement($sql, $params, $types);
     }
@@ -1516,7 +1516,7 @@ class Connection implements ServerVersionProvider
      *
      * @deprecated This API is deprecated and will be removed after 2022
      */
-    public function exec(string $sql): int
+    public function exec(string $sql): int|string
     {
         return $this->executeStatement($sql);
     }

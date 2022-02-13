@@ -97,13 +97,6 @@ parameters:
             message: '~^Parameter #2 \$lockMode of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:appendLockHint\(\) expects 0\|1\|2\|4, 128 given\.$~'
             path: tests/Platforms/AbstractPlatformTestCase.php
 
-        # Fixing the issue would cause a BC break.
-        # TODO: fix in 4.0.0
-        -
-            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::exec\(\) should return int but returns int\|string\.$~'
-            paths:
-                - src/Driver/Mysqli/Connection.php
-
         # DriverManagerTest::testDatabaseUrl() should be refactored as it's too dynamic.
         -
             message: '~^Offset string does not exist on array{.+}\.$~'
