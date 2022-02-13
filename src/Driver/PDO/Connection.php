@@ -79,6 +79,7 @@ final class Connection implements ConnectionInterface
         try {
             $value = $this->connection->lastInsertId();
         } catch (PDOException $exception) {
+            assert($exception->errorInfo !== null);
             [$sqlState] = $exception->errorInfo;
 
             // if the PDO driver does not support this capability, PDO::lastInsertId() triggers an IM001 SQLSTATE

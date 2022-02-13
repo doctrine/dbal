@@ -151,9 +151,11 @@ class DriverManagerTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed>|false $expected
+     *
      * @dataProvider databaseUrls
      */
-    public function testDatabaseUrl(mixed $url, mixed $expected): void
+    public function testDatabaseUrl(array|string $url, array|false $expected): void
     {
         $options = is_array($url) ? $url : ['url' => $url];
 
@@ -162,6 +164,8 @@ class DriverManagerTest extends TestCase
         }
 
         $conn = DriverManager::getConnection($options);
+
+        self::assertNotFalse($expected);
 
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {

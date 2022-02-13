@@ -31,18 +31,24 @@ env:
 jobs:
   phpunit-smoke-check:
     name: "PHPUnit with SQLite"
-    runs-on: "ubuntu-20.04"
+    runs-on: "${{ matrix.os }}"
 
     strategy:
       matrix:
+        os:
+          - "ubuntu-20.04"
         php-version:
           - "8.0"
           - "8.1"
         dependencies:
           - "highest"
         include:
-          - dependencies: "lowest"
+          - os: "ubuntu-20.04"
             php-version: "8.0"
+            dependencies: "lowest"
+          - os: "ubuntu-18.04"
+            php-version: "8.1"
+            dependencies: "highest"
 
     steps:
       - name: "Checkout"
@@ -61,6 +67,10 @@ jobs:
         uses: "ramsey/composer-install@v1"
         with:
           dependency-versions: "${{ matrix.dependencies }}"
+
+      - name: "Print SQLite version"
+        run: >
+          php -r 'printf("Testing with libsqlite version %s\n", (new PDO("sqlite::memory:"))->query("select sqlite_version()")->fetch()[0]);'
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/sqlite.xml --coverage-clover=coverage.xml"

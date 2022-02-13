@@ -103,7 +103,6 @@ class Connection implements ServerVersionProvider
      * The parameters used during creation of the Connection instance.
      *
      * @var array<string,mixed>
-     * @phpstan-var array<string,mixed>
      * @psalm-var Params
      */
     private array $params;
@@ -180,7 +179,6 @@ class Connection implements ServerVersionProvider
      *
      * @return array<string,mixed>
      * @psalm-return Params
-     * @phpstan-return array<string,mixed>
      */
     public function getParams(): array
     {

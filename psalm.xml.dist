@@ -177,6 +177,14 @@
                 <directory name="tests"/>
             </errorLevel>
         </PropertyNotSetInConstructor>
+        <RedundantCondition>
+            <errorLevel type="suppress">
+                <!--
+                    See https://github.com/vimeo/psalm/pull/7660
+                -->
+                <file name="src/Driver/Mysqli/Exception/ConnectionFailed.php"/>
+            </errorLevel>
+        </RedundantCondition>
         <RedundantConditionGivenDocblockType>
             <errorLevel type="suppress">
                 <!--
@@ -208,6 +216,12 @@
                 <referencedClass name="Doctrine\DBAL\Portability\T"/>
             </errorLevel>
         </UndefinedDocblockClass>
+        <InvalidReturnStatement>
+            <errorLevel type="suppress">
+                <!-- lastInsertId has a return type that does not match the one defined in the interface-->
+                <file name="src/Driver/Mysqli/Connection.php"/>
+            </errorLevel>
+        </InvalidReturnStatement>
         <InvalidReturnType>
             <errorLevel type="suppress">
                 <!-- lastInsertId has a return type that does not match the one defined in the interface-->
@@ -223,11 +237,5 @@
                 <referencedFunction name="db2_autocommit"/>
             </errorLevel>
         </InvalidScalarArgument>
-        <InvalidReturnStatement>
-            <errorLevel type="suppress">
-                <!-- lastInsertId has a return type that does not match the one defined in the interface-->
-                <file name="src/Driver/Mysqli/Connection.php"/>
-            </errorLevel>
-        </InvalidReturnStatement>
     </issueHandlers>
 </psalm>
