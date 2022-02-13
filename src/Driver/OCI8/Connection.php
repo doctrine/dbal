@@ -88,7 +88,7 @@ final class Connection implements ConnectionInterface
      * @throws Exception
      * @throws Parser\Exception
      */
-    public function exec(string $sql): int
+    public function exec(string $sql): int|string
     {
         return $this->prepare($sql)->execute()->rowCount();
     }

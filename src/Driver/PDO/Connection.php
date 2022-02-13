@@ -27,7 +27,7 @@ final class Connection implements ConnectionInterface
         $this->connection = $connection;
     }
 
-    public function exec(string $sql): int
+    public function exec(string $sql): int|string
     {
         try {
             $result = $this->connection->exec($sql);

@@ -53,7 +53,7 @@ final class Connection implements ConnectionInterface
         return "'" . str_replace("'", "''", $value) . "'";
     }
 
-    public function exec(string $sql): int
+    public function exec(string $sql): int|string
     {
         $stmt = sqlsrv_query($this->connection, $sql);
 

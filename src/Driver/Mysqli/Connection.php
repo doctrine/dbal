@@ -57,7 +57,7 @@ final class Connection implements ConnectionInterface
         return "'" . $this->connection->escape_string($value) . "'";
     }
 
-    public function exec(string $sql): int
+    public function exec(string $sql): int|string
     {
         try {
             $result = $this->connection->query($sql);

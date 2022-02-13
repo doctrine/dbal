@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+# BC Break: The number of affected rows is returned as `int|string`
+
+The signatures of the methods returning the number of affected rows changed as returning `int|string` instead of `int`.
+
 # BC Break: Dropped support for `collate` option for MySQL
 
 Use `collation` instead.

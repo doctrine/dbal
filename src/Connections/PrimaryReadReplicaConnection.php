@@ -264,7 +264,7 @@ class PrimaryReadReplicaConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function executeStatement(string $sql, array $params = [], array $types = []): int
+    public function executeStatement(string $sql, array $params = [], array $types = []): int|string
     {
         $this->ensureConnectedToPrimary();
 
