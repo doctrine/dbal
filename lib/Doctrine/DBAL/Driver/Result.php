@@ -70,7 +70,7 @@ interface Result
      * some database drivers may return the number of rows returned by that query. However, this behaviour
      * is not guaranteed for all drivers and should not be relied on in portable applications.
      *
-     * @return int The number of rows.
+     * @return int|string The number of rows.
      */
     public function rowCount();
 

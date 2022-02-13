@@ -779,7 +779,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * Returns the number of rows affected by the last execution of this statement.
      *
-     * @return int The number of affected rows.
+     * @return int|string The number of affected rows.
      */
     public function rowCount()
     {
