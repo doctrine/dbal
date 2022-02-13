@@ -301,7 +301,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
      * this behaviour is not guaranteed for all databases and should not be
      * relied on for portable applications.
      *
-     * @return int The number of rows.
+     * @return int|string The number of rows.
      */
     public function rowCount()
     {

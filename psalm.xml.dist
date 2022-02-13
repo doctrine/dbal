@@ -402,10 +402,24 @@
                 <file name="tests/Doctrine/Tests/DBAL/DriverManagerTest.php"/>
             </errorLevel>
         </InvalidArgument>
+        <InvalidReturnStatement>
+            <errorLevel type="suppress">
+                <!-- lastInsertId has a return type that does not match the one defined in the interface-->
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php"/>
+                <!--
+                    This issue should be fixed in 4.0
+                -->
+                <file name="lib/Doctrine/DBAL/Statement.php"/>
+            </errorLevel>
+        </InvalidReturnStatement>
         <InvalidReturnType>
             <errorLevel type="suppress">
                 <!-- lastInsertId has a return type that does not match the one defined in the interface-->
                 <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php"/>
+                <!--
+                    This issue should be fixed in 4.0
+                -->
+                <file name="lib/Doctrine/DBAL/Statement.php"/>
             </errorLevel>
         </InvalidReturnType>
         <InvalidScalarArgument>
@@ -439,11 +453,5 @@
                 <referencedFunction name="db2_autocommit"/>
             </errorLevel>
         </InvalidScalarArgument>
-        <InvalidReturnStatement>
-            <errorLevel type="suppress">
-                <!-- lastInsertId has a return type that does not match the one defined in the interface-->
-                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php"/>
-            </errorLevel>
-        </InvalidReturnStatement>
     </issueHandlers>
 </psalm>

@@ -201,7 +201,7 @@ class QueryBuilder
     /**
      * Executes this query using the bound parameters and their types.
      *
-     * @return ForwardCompatibility\Result|int
+     * @return ForwardCompatibility\Result|int|string
      *
      * @throws Exception
      */
