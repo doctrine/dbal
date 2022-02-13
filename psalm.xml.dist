@@ -394,6 +394,14 @@
                 <file name="src/Schema/View.php"/>
             </errorLevel>
         </PropertyNotSetInConstructor>
+        <RedundantCondition>
+            <errorLevel type="suppress">
+                <!--
+                    See https://github.com/vimeo/psalm/pull/7660
+                -->
+                <file name="src/Driver/Mysqli/Exception/ConnectionFailed.php"/>
+            </errorLevel>
+        </RedundantCondition>
         <!-- This is necessary pre 4.0  -->
         <RedundantCastGivenDocblockType>
             <errorLevel type="suppress">
@@ -454,10 +462,28 @@
                 <referencedClass name="Doctrine\DBAL\Portability\T"/>
             </errorLevel>
         </UndefinedDocblockClass>
+        <InvalidReturnStatement>
+            <errorLevel type="suppress">
+                <!-- lastInsertId has a return type that does not match the one defined in the interface-->
+                <file name="src/Driver/Mysqli/Connection.php"/>
+                <!--
+                    This issue should be fixed in 4.0
+                -->
+                <file name="src/Connection.php"/>
+                <file name="src/Statement.php"/>
+                <file name="src/Query/QueryBuilder.php"/>
+            </errorLevel>
+        </InvalidReturnStatement>
         <InvalidReturnType>
             <errorLevel type="suppress">
                 <!-- lastInsertId has a return type that does not match the one defined in the interface-->
                 <file name="src/Driver/Mysqli/Connection.php"/>
+                <!--
+                    This issue should be fixed in 4.0
+                -->
+                <file name="src/Connection.php"/>
+                <file name="src/Statement.php"/>
+                <file name="src/Query/QueryBuilder.php"/>
             </errorLevel>
         </InvalidReturnType>
         <InvalidScalarArgument>
@@ -479,11 +505,5 @@
                 <referencedFunction name="db2_autocommit"/>
             </errorLevel>
         </InvalidScalarArgument>
-        <InvalidReturnStatement>
-            <errorLevel type="suppress">
-                <!-- lastInsertId has a return type that does not match the one defined in the interface-->
-                <file name="src/Driver/Mysqli/Connection.php"/>
-            </errorLevel>
-        </InvalidReturnStatement>
     </issueHandlers>
 </psalm>
