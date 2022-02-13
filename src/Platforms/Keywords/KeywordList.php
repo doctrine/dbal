@@ -10,8 +10,6 @@ use function strtoupper;
 
 /**
  * Abstract interface for a SQL reserved keyword dictionary.
- *
- * @psalm-consistent-constructor
  */
 abstract class KeywordList
 {
