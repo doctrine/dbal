@@ -1990,8 +1990,14 @@ abstract class AbstractPlatform
         throw NotSupported::new(__METHOD__);
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     abstract public function getListTableColumnsSQL(string $table, ?string $database = null): string;
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     abstract public function getListTablesSQL(): string;
 
     /**
@@ -2000,6 +2006,8 @@ abstract class AbstractPlatform
     abstract public function getListViewsSQL(string $database): string;
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * Returns the list of indexes for the current database.
      *
      * The current database parameter is optional but will always be passed
@@ -2011,6 +2019,9 @@ abstract class AbstractPlatform
      */
     abstract public function getListTableIndexesSQL(string $table, ?string $database = null): string;
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     abstract public function getListTableForeignKeysSQL(string $table, ?string $database = null): string;
 
     public function getCreateViewSQL(string $name, string $sql): string

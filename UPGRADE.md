@@ -627,6 +627,17 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+# Deprecated `AbstractPlatform` schema introspection methods
+
+The following schema introspection methods have been deprecated:
+
+- `AbstractPlatform::getListTablesSQL()`,
+- `AbstractPlatform::getListTableColumnsSQL()`,
+- `AbstractPlatform::getListTableIndexesSQL()`,
+- `AbstractPlatform::getListTableForeignKeysSQL()`.
+
+The queries used for schema introspection are an internal implementation detail of the DBAL.
+
 # Deprecated `collate` option for MySQL
 
 This undocumented option is deprecated in favor of `collation`.

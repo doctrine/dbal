@@ -49,6 +49,34 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractMySQLPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractMySQLPlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractMySQLPlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListTablesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getListTableCommentsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableMetadataSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableIndexesSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableMetadataSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableColumnsSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableForeignKeysSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableIndexesSQL"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableConstraintsSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableConstraintsSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableConstraintsSQL"/>

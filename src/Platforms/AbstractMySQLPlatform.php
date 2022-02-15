@@ -122,6 +122,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      *
      * Two approaches to listing the table indexes. The information_schema is
@@ -145,6 +147,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = ' . $this->quoteStringLiteral($database);
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
     {
         // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
@@ -248,11 +253,17 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTablesSQL(): string
     {
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableColumnsSQL(string $table, ?string $database = null): string
     {
         return 'SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ' .
@@ -262,6 +273,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             'AND TABLE_NAME = ' . $this->quoteStringLiteral($table) . ' ORDER BY ORDINAL_POSITION';
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableMetadataSQL(string $table, ?string $database = null): string
     {
         return sprintf(

@@ -12,6 +12,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Result;
 
 use function array_filter;
 use function array_intersect;
@@ -230,6 +231,54 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @return list<Table>
+     *
+     * @throws Exception
+     */
+    protected function doListTables(): array
+    {
+        $currentDatabase = $this->_conn->getDatabase();
+
+        if ($currentDatabase === null) {
+            throw DatabaseRequired::new(__METHOD__);
+        }
+
+        /** @var array<string,list<array<string,mixed>>> $columns */
+        $columns = $this->fetchAllAssociativeGrouped(
+            $this->selectDatabaseColumns($currentDatabase)
+        );
+
+        $indexes = $this->fetchAllAssociativeGrouped(
+            $this->selectDatabaseIndexes($currentDatabase)
+        );
+
+        if ($this->_platform->supportsForeignKeyConstraints()) {
+            $foreignKeys = $this->fetchAllAssociativeGrouped(
+                $this->selectDatabaseForeignKeys($currentDatabase)
+            );
+        } else {
+            $foreignKeys = [];
+        }
+
+        $tableOptions = $this->getDatabaseTableOptions($currentDatabase);
+
+        $tables = [];
+
+        foreach ($columns as $tableName => $tableColumns) {
+            $tables[] = new Table(
+                $tableName,
+                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
+                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
+                [],
+                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
+                $tableOptions[$tableName] ?? []
+            );
+        }
+
+        return $tables;
+    }
+
+    /**
      * @throws Exception
      */
     public function listTableDetails(string $name): Table
@@ -244,6 +293,107 @@ abstract class AbstractSchemaManager
         $indexes = $this->listTableIndexes($name);
 
         return new Table($name, $columns, $indexes, [], $foreignKeys, []);
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function doListTableDetails(string $name): Table
+    {
+        $currentDatabase = $this->_conn->getDatabase();
+
+        if ($currentDatabase === null) {
+            throw DatabaseRequired::new(__METHOD__);
+        }
+
+        $normalizedName = $this->normalizeName($name);
+
+        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, $normalizedName);
+
+        if ($this->_platform->supportsForeignKeyConstraints()) {
+            $foreignKeys = $this->_getPortableTableForeignKeysList(
+                $this->selectDatabaseForeignKeys($currentDatabase, $normalizedName)
+                    ->fetchAllAssociative()
+            );
+        } else {
+            $foreignKeys = [];
+        }
+
+        return new Table(
+            $name,
+            $this->_getPortableTableColumnList(
+                $name,
+                $currentDatabase,
+                $this->selectDatabaseColumns($currentDatabase, $normalizedName)
+                    ->fetchAllAssociative()
+            ),
+            $this->_getPortableTableIndexesList(
+                $this->selectDatabaseIndexes($currentDatabase, $normalizedName)
+                    ->fetchAllAssociative(),
+                $name
+            ),
+            [],
+            $foreignKeys,
+            $tableOptions[$normalizedName] ?? []
+        );
+    }
+
+    /**
+     * An extension point for those platforms where case sensitivity of the object name depends on whether it's quoted.
+     *
+     * Such platforms should convert a possibly quoted name into a value of the corresponding case.
+     */
+    protected function normalizeName(string $name): string
+    {
+        return $name;
+    }
+
+    /**
+     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @throws Exception
+     *
+     * @abstract
+     */
+    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @throws Exception
+     */
+    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
+     * narrows down the selection to this table.
+     *
+     * @throws Exception
+     */
+    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * Returns table options for the tables in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @return array<string,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**
@@ -859,5 +1009,21 @@ abstract class AbstractSchemaManager
     public function createComparator(): Comparator
     {
         return new Comparator($this->getDatabasePlatform());
+    }
+
+    /**
+     * @return array<mixed,list<array<string,mixed>>>
+     *
+     * @throws Exception
+     */
+    private function fetchAllAssociativeGrouped(Result $result): array
+    {
+        $data = [];
+
+        foreach ($result->fetchAllAssociative() as $row) {
+            $data[array_shift($row)][] = $row;
+        }
+
+        return $data;
     }
 }

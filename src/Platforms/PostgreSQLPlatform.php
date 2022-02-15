@@ -198,6 +198,9 @@ class PostgreSQLPlatform extends AbstractPlatform
                 WHERE  view_definition IS NOT NULL';
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
     {
         return 'SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
@@ -239,6 +242,8 @@ SQL
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
@@ -279,6 +284,9 @@ SQL
         );
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableColumnsSQL(string $table, ?string $database = null): string
     {
         return "SELECT
@@ -1013,6 +1021,9 @@ SQL
         return $type instanceof IntegerType || $type instanceof BigIntType;
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableMetadataSQL(string $table, ?string $schema = null): string
     {
         if ($schema !== null) {

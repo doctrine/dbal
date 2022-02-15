@@ -762,6 +762,9 @@ class SQLServerPlatform extends AbstractPlatform
             . " WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableColumnsSQL(string $table, ?string $database = null): string
     {
         return "SELECT    col.name,
@@ -792,6 +795,9 @@ class SQLServerPlatform extends AbstractPlatform
                 AND       " . $this->getTableWhereClause($table, 'scm.name', 'obj.name');
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
     {
         return 'SELECT f.name AS ForeignKey,
@@ -812,6 +818,9 @@ class SQLServerPlatform extends AbstractPlatform
                 ' ORDER BY fc.constraint_column_id';
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
         return "SELECT idx.name AS key_name,
@@ -1338,6 +1347,9 @@ class SQLServerPlatform extends AbstractPlatform
         );
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableMetadataSQL(string $table): string
     {
         return sprintf(

@@ -389,11 +389,17 @@ class SqlitePlatform extends AbstractPlatform
         );
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableColumnsSQL(string $table, ?string $database = null): string
     {
         return sprintf('PRAGMA table_info(%s)', $this->quoteStringLiteral($table));
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
         return sprintf('PRAGMA index_list(%s)', $this->quoteStringLiteral($table));
@@ -631,6 +637,9 @@ class SqlitePlatform extends AbstractPlatform
         return parent::getCreateTableSQL($table, $createFlags);
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
     {
         return sprintf('PRAGMA foreign_key_list(%s)', $this->quoteStringLiteral($table));

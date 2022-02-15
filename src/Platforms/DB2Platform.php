@@ -199,6 +199,8 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * This code fragment is originally from the Zend_Db_Adapter_Db2 class, but has been edited.
      */
     public function getListTableColumnsSQL(string $table, ?string $database = null): string
@@ -260,6 +262,9 @@ class DB2Platform extends AbstractPlatform
         return 'SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS';
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
         $table = $this->quoteStringLiteral($table);
@@ -281,6 +286,9 @@ class DB2Platform extends AbstractPlatform
                 ORDER BY idxcol.COLSEQ ASC';
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
     {
         $table = $this->quoteStringLiteral($table);
@@ -714,6 +722,9 @@ class DB2Platform extends AbstractPlatform
         return new DB2Keywords();
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableCommentsSQL(string $table): string
     {
         return sprintf(
