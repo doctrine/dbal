@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated omitting the charset when using MySQL
+
+Omitting the charset when using MySQL results in the deprecated `utf8` MySQL
+charset being used. Configure it explicitly when creating a table:
+```php
+use Doctrine\DBAL\Schema\Table;
+
+$table = new Table('a_table', [new Column('a_column', Type::getType('string'))]);
+$table->addOption('charset', 'utf8mb4');
+```
+
 ## Deprecated `AbstractPlatform` schema introspection methods
 
 The following schema introspection methods have been deprecated:

@@ -460,6 +460,11 @@ SQL
 
         // Charset
         if (! isset($options['charset'])) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5278',
+                'Omitting the charset option is deprecated, be explicit about it instead. We recommend using "utf8b4"'
+            );
             $options['charset'] = 'utf8';
         }
 
