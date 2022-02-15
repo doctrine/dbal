@@ -279,6 +279,8 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * This code fragment is originally from the Zend_Db_Adapter_Db2 class, but has been edited.
      *
      * @param string $table
@@ -352,6 +354,8 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      */
     public function getListTableIndexesSQL($table, $database = null)
@@ -376,6 +380,8 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      */
     public function getListTableForeignKeysSQL($table)
@@ -900,6 +906,9 @@ class DB2Platform extends AbstractPlatform
         return Keywords\DB2Keywords::class;
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableCommentsSQL(string $table): string
     {
         return sprintf(

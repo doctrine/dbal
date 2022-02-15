@@ -430,6 +430,8 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaOracleReader.html
@@ -626,6 +628,8 @@ END;';
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      */
     public function getListTableForeignKeysSQL($table)
@@ -671,6 +675,8 @@ END;';
     }
 
     /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     *
      * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)
@@ -1192,6 +1198,9 @@ SQL
         return 'BLOB';
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableCommentsSQL(string $table, ?string $database = null): string
     {
         $tableCommentsName = 'user_tab_comments';

@@ -4,15 +4,18 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function array_values;
+use function implode;
 use function is_string;
 use function preg_match;
 use function str_replace;
 use function strpos;
 use function strtolower;
+use function strtoupper;
 use function trim;
 
 use const CASE_LOWER;
@@ -24,6 +27,22 @@ use const CASE_LOWER;
  */
 class OracleSchemaManager extends AbstractSchemaManager
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function listTables()
+    {
+        return $this->doListTables();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableDetails($name)
+    {
+        return $this->doListTableDetails($name);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -318,22 +337,155 @@ class OracleSchemaManager extends AbstractSchemaManager
         return $identifier;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTableDetails($name): Table
+    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $table = parent::listTableDetails($name);
+        $sql = 'SELECT';
 
-        $sql = $this->_platform->getListTableCommentsSQL($name);
-
-        $tableOptions = $this->_conn->fetchAssociative($sql);
-
-        if ($tableOptions !== false) {
-            $tableOptions = array_change_key_case($tableOptions, CASE_LOWER);
-            $table->addOption('comment', $tableOptions['comments']);
+        if ($tableName === null) {
+            $sql .= ' C.TABLE_NAME,';
         }
 
-        return $table;
+        $sql .= <<<'SQL'
+                 C.COLUMN_NAME,
+                 C.DATA_TYPE,
+                 C.DATA_DEFAULT,
+                 C.DATA_PRECISION,
+                 C.DATA_SCALE,
+                 C.CHAR_LENGTH,
+                 C.DATA_LENGTH,
+                 C.NULLABLE,
+                 D.COMMENTS
+            FROM ALL_TAB_COLUMNS C
+       LEFT JOIN ALL_COL_COMMENTS D
+           ON D.OWNER = C.OWNER
+                  AND D.TABLE_NAME = C.TABLE_NAME
+                  AND D.COLUMN_NAME = C.COLUMN_NAME
+SQL;
+
+        $conditions = ['C.OWNER = :OWNER'];
+        $params     = ['OWNER' => $databaseName];
+
+        if ($tableName !== null) {
+            $conditions[]         = 'C.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY C.COLUMN_ID';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' IND_COL.TABLE_NAME,';
+        }
+
+        $sql .= <<<'SQL'
+                 IND_COL.INDEX_NAME AS NAME,
+                 IND.INDEX_TYPE AS TYPE,
+                 DECODE(IND.UNIQUENESS, 'NONUNIQUE', 0, 'UNIQUE', 1) AS IS_UNIQUE,
+                 IND_COL.COLUMN_NAME,
+                 IND_COL.COLUMN_POSITION AS COLUMN_POS,
+                 CON.CONSTRAINT_TYPE AS IS_PRIMARY
+            FROM ALL_IND_COLUMNS IND_COL
+       LEFT JOIN ALL_INDEXES IND
+              ON IND.OWNER = IND_COL.INDEX_OWNER
+             AND IND.INDEX_NAME = IND_COL.INDEX_NAME
+       LEFT JOIN ALL_CONSTRAINTS CON
+              ON CON.OWNER = IND_COL.INDEX_OWNER
+             AND CON.INDEX_NAME = IND_COL.INDEX_NAME
+SQL;
+
+        $conditions = ['IND_COL.INDEX_OWNER = :OWNER'];
+        $params     = ['OWNER' => $databaseName];
+
+        if ($tableName !== null) {
+            $conditions[]         = 'IND_COL.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY IND_COL.TABLE_NAME, IND_COL.INDEX_NAME'
+            . ', IND_COL.COLUMN_POSITION';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    {
+        $sql = 'SELECT';
+
+        if ($tableName === null) {
+            $sql .= ' COLS.TABLE_NAME,';
+        }
+
+        $sql .= <<<'SQL'
+                 ALC.CONSTRAINT_NAME,
+                 ALC.DELETE_RULE,
+                 COLS.COLUMN_NAME LOCAL_COLUMN,
+                 COLS.POSITION,
+                 R_COLS.TABLE_NAME REFERENCES_TABLE,
+                 R_COLS.COLUMN_NAME FOREIGN_COLUMN
+            FROM ALL_CONS_COLUMNS COLS
+       LEFT JOIN ALL_CONSTRAINTS ALC ON ALC.OWNER = COLS.OWNER AND ALC.CONSTRAINT_NAME = COLS.CONSTRAINT_NAME
+       LEFT JOIN ALL_CONS_COLUMNS R_COLS ON R_COLS.OWNER = ALC.R_OWNER AND
+                 R_COLS.CONSTRAINT_NAME = ALC.R_CONSTRAINT_NAME AND
+                 R_COLS.POSITION = COLS.POSITION
+SQL;
+
+        $conditions = ["ALC.CONSTRAINT_TYPE = 'R'", 'COLS.OWNER = :OWNER'];
+        $params     = ['OWNER' => $databaseName];
+
+        if ($tableName !== null) {
+            $conditions[]         = 'COLS.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
+        }
+
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME'
+            . ', COLS.POSITION';
+
+        return $this->_conn->executeQuery($sql, $params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
+    {
+        $sql = 'SELECT TABLE_NAME, COMMENTS';
+
+        $conditions = ['OWNER = :OWNER'];
+        $params     = ['OWNER' => $databaseName];
+
+        if ($tableName !== null) {
+            $conditions[]         = 'TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
+        }
+
+        $sql .= ' FROM ALL_TAB_COMMENTS WHERE ' . implode(' AND ', $conditions);
+
+        /** @var array<string,array<string,mixed>> $metadata */
+        $metadata = $this->_conn->executeQuery($sql, $params)
+            ->fetchAllAssociativeIndexed();
+
+        $tableOptions = [];
+        foreach ($metadata as $table => $data) {
+            $data = array_change_key_case($data, CASE_LOWER);
+
+            $tableOptions[$table] = [
+                'comment' => $data['comments'],
+            ];
+        }
+
+        return $tableOptions;
+    }
+
+    protected function normalizeName(string $name): string
+    {
+        $identifier = new Identifier($name);
+
+        return $identifier->isQuoted() ? $identifier->getName() : strtoupper($name);
     }
 }
