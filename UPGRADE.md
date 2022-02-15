@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Abstract methods in the `AbstractSchemaManager` class have been declared as `abstract`
+
+The following abstract methods in the `AbstractSchemaManager` class have been declared as `abstract`:
+
+- `selectDatabaseColumns()`,
+- `selectDatabaseIndexes()`,
+- `selectDatabaseForeignKeys()`,
+- `getDatabaseTableOptions()`.
+
+Every non-abstract schema manager class must implement them in order to satisfy the API.
+
 # BC Break: The number of affected rows is returned as `int|string`
 
 The signatures of the methods returning the number of affected rows changed as returning `int|string` instead of `int`.
