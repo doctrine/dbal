@@ -36,30 +36,6 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    public function listTableColumns(string $table, ?string $database = null): array
-    {
-        return $this->doListTableColumns($table, $database);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function listTableIndexes(string $table): array
-    {
-        return $this->doListTableIndexes($table);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function listTableForeignKeys(string $table, ?string $database = null): array
-    {
-        return $this->doListTableForeignKeys($table, $database);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function listSchemaNames(): array
     {
         return $this->_conn->fetchFirstColumn(

@@ -674,28 +674,4 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return ['RENAME INDEX idx_foo TO idx_foo_renamed'];
     }
-
-    public function testQuotesTableNameInListTableColumnsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableIndexesSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableForeignKeysSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
-        );
-    }
 }

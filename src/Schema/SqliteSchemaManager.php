@@ -41,22 +41,6 @@ use const CASE_LOWER;
  */
 class SqliteSchemaManager extends AbstractSchemaManager
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function listTableColumns(string $table, ?string $database = null): array
-    {
-        return $this->doListTableColumns($table, $database);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function listTableIndexes(string $table): array
-    {
-        return $this->doListTableIndexes($table);
-    }
-
     public function renameTable(string $name, string $newName): void
     {
         $tableDiff            = new TableDiff($name);

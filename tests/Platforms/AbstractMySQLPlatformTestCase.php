@@ -836,72 +836,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    public function testQuotesTableNameInListTableIndexesSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\", 'foo_db')
-        );
-    }
-
-    public function testQuotesDatabaseNameInListTableIndexesSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\\\'",
-            $this->platform->getListTableIndexesSQL('foo_table', "Foo'Bar\\")
-        );
-    }
-
     public function testQuotesDatabaseNameInListViewsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\\\'",
             $this->platform->getListViewsSQL("Foo'Bar\\")
         );
-    }
-
-    public function testQuotesTableNameInListTableForeignKeysSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesDatabaseNameInListTableForeignKeysSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\\\'",
-            $this->platform->getListTableForeignKeysSQL('foo_table', "Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableColumnsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesDatabaseNameInListTableColumnsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\\\'",
-            $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\")
-        );
-    }
-
-    public function testListTableForeignKeysSQLEvaluatesDatabase(): void
-    {
-        $sql = $this->platform->getListTableForeignKeysSQL('foo');
-
-        self::assertStringContainsString('DATABASE()', $sql);
-
-        $sql = $this->platform->getListTableForeignKeysSQL('foo', 'bar');
-
-        self::assertStringContainsString('bar', $sql);
-        self::assertStringNotContainsString('DATABASE()', $sql);
     }
 
     public function testColumnCharsetDeclarationSQL(): void

@@ -8,6 +8,15 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed `AbstractPlatform` schema introspection methods
+
+The following schema introspection methods have been removed:
+
+- `AbstractPlatform::getListTableColumnsSQL()`,
+- `AbstractPlatform::getListTableIndexesSQL()`,
+- `AbstractPlatform::getListTableForeignKeysSQL()`,
+- `AbstractPlatform::getListTableConstraintsSQL()`.
+
 ## Abstract methods in the `AbstractSchemaManager` class have been declared as `abstract`
 
 The following abstract methods in the `AbstractSchemaManager` class have been declared as `abstract`:

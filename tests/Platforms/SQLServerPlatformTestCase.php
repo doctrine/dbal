@@ -1615,54 +1615,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $sql);
     }
 
-    public function testQuotesTableNameInListTableColumnsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesSchemaNameInListTableColumnsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table")
-        );
-    }
-
-    public function testQuotesTableNameInListTableForeignKeysSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesSchemaNameInListTableForeignKeysSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table")
-        );
-    }
-
-    public function testQuotesTableNameInListTableIndexesSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesSchemaNameInListTableIndexesSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table")
-        );
-    }
-
     public function testGetDefaultValueDeclarationSQLForDateType(): void
     {
         $currentDateSql = $this->platform->getCurrentDateSQL();

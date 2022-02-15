@@ -1981,21 +1981,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @deprecated
-     *
-     * @throws Exception If not supported on this platform.
-     */
-    public function getListTableConstraintsSQL(string $table): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    abstract public function getListTableColumnsSQL(string $table, ?string $database = null): string;
-
-    /**
      * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
      */
     abstract public function getListTablesSQL(): string;
@@ -2004,25 +1989,6 @@ abstract class AbstractPlatform
      * Returns the SQL to list all views of a database or user.
      */
     abstract public function getListViewsSQL(string $database): string;
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     *
-     * Returns the list of indexes for the current database.
-     *
-     * The current database parameter is optional but will always be passed
-     * when using the SchemaManager API and is the database the given table is in.
-     *
-     * Attention: Some platforms only support currentDatabase when they
-     * are connected with that database. Cross-database information schema
-     * requests may be impossible.
-     */
-    abstract public function getListTableIndexesSQL(string $table, ?string $database = null): string;
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    abstract public function getListTableForeignKeysSQL(string $table, ?string $database = null): string;
 
     public function getCreateViewSQL(string $name, string $sql): string
     {

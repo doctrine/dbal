@@ -341,48 +341,6 @@ class OraclePlatform extends AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     *
-     * {@inheritDoc}
-     *
-     * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaOracleReader.html
-     */
-    public function getListTableIndexesSQL(string $table, ?string $database = null): string
-    {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        return "SELECT uind_col.index_name AS name,
-                       (
-                           SELECT uind.index_type
-                           FROM   user_indexes uind
-                           WHERE  uind.index_name = uind_col.index_name
-                       ) AS type,
-                       decode(
-                           (
-                               SELECT uind.uniqueness
-                               FROM   user_indexes uind
-                               WHERE  uind.index_name = uind_col.index_name
-                           ),
-                           'NONUNIQUE',
-                           0,
-                           'UNIQUE',
-                           1
-                       ) AS is_unique,
-                       uind_col.column_name AS column_name,
-                       uind_col.column_position AS column_pos,
-                       (
-                           SELECT ucon.constraint_type
-                           FROM   user_constraints ucon
-                           WHERE  ucon.index_name = uind_col.index_name
-                             AND  ucon.table_name = uind_col.table_name
-                       ) AS is_primary
-             FROM      user_ind_columns uind_col
-             WHERE     uind_col.table_name = " . $table . '
-             ORDER BY  uind_col.column_position ASC';
-    }
-
     public function getListTablesSQL(): string
     {
         return 'SELECT * FROM sys.user_tables';
@@ -525,93 +483,6 @@ END;';
         return $table->isQuoted()
             ? $this->quoteSingleIdentifier($identifierName)
             : $identifierName;
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
-    {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        return "SELECT alc.constraint_name,
-          alc.DELETE_RULE,
-          cols.column_name \"local_column\",
-          cols.position,
-          (
-              SELECT r_cols.table_name
-              FROM   user_cons_columns r_cols
-              WHERE  alc.r_constraint_name = r_cols.constraint_name
-              AND    r_cols.position = cols.position
-          ) AS \"references_table\",
-          (
-              SELECT r_cols.column_name
-              FROM   user_cons_columns r_cols
-              WHERE  alc.r_constraint_name = r_cols.constraint_name
-              AND    r_cols.position = cols.position
-          ) AS \"foreign_column\"
-     FROM user_cons_columns cols
-     JOIN user_constraints alc
-       ON alc.constraint_name = cols.constraint_name
-      AND alc.constraint_type = 'R'
-      AND alc.table_name = " . $table . '
-    ORDER BY cols.constraint_name ASC, cols.position ASC';
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getListTableConstraintsSQL(string $table): string
-    {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        return 'SELECT * FROM user_constraints WHERE table_name = ' . $table;
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableColumnsSQL(string $table, ?string $database = null): string
-    {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        $tabColumnsTableName       = 'user_tab_columns';
-        $colCommentsTableName      = 'user_col_comments';
-        $tabColumnsOwnerCondition  = '';
-        $colCommentsOwnerCondition = '';
-
-        if ($database !== null && $database !== '/') {
-            $database                  = $this->normalizeIdentifier($database);
-            $database                  = $this->quoteStringLiteral($database->getName());
-            $tabColumnsTableName       = 'all_tab_columns';
-            $colCommentsTableName      = 'all_col_comments';
-            $tabColumnsOwnerCondition  = ' AND c.owner = ' . $database;
-            $colCommentsOwnerCondition = ' AND d.OWNER = c.OWNER';
-        }
-
-        return sprintf(
-            <<<'SQL'
-SELECT   c.*,
-         (
-             SELECT d.comments
-             FROM   %s d
-             WHERE  d.TABLE_NAME = c.TABLE_NAME%s
-             AND    d.COLUMN_NAME = c.COLUMN_NAME
-         ) AS comments
-FROM     %s c
-WHERE    c.table_name = %s%s
-ORDER BY c.column_id
-SQL
-            ,
-            $colCommentsTableName,
-            $colCommentsOwnerCondition,
-            $tabColumnsTableName,
-            $table,
-            $tabColumnsOwnerCondition
-        );
     }
 
     public function getDropForeignKeySQL(string $foreignKey, string $table): string
@@ -972,31 +843,5 @@ SQL
     public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BLOB';
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableCommentsSQL(string $table, ?string $database = null): string
-    {
-        $tableCommentsName = 'user_tab_comments';
-        $ownerCondition    = '';
-
-        if ($database !== null && $database !== '/') {
-            $tableCommentsName = 'all_tab_comments';
-            $ownerCondition    = ' AND owner = ' . $this->quoteStringLiteral(
-                $this->normalizeIdentifier($database)->getName()
-            );
-        }
-
-        return sprintf(
-            <<<'SQL'
-SELECT comments FROM %s WHERE table_name = %s%s
-SQL
-            ,
-            $tableCommentsName,
-            $this->quoteStringLiteral($this->normalizeIdentifier($table)->getName()),
-            $ownerCondition
-        );
     }
 }

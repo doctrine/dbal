@@ -113,58 +113,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'SHOW DATABASES';
     }
 
-    /**
-     * @deprecated
-     */
-    public function getListTableConstraintsSQL(string $table): string
-    {
-        return 'SHOW INDEX FROM ' . $table;
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     *
-     * {@inheritDoc}
-     *
-     * Two approaches to listing the table indexes. The information_schema is
-     * preferred, because it doesn't cause problems with SQL keywords such as "order" or "table".
-     */
-    public function getListTableIndexesSQL(string $table, ?string $database = null): string
-    {
-        if ($database !== null) {
-            return 'SELECT NON_UNIQUE AS Non_Unique, INDEX_NAME AS Key_name, COLUMN_NAME AS Column_Name,' .
-                ' SUB_PART AS Sub_Part, INDEX_TYPE AS Index_Type' .
-                ' FROM information_schema.STATISTICS WHERE TABLE_NAME = ' . $this->quoteStringLiteral($table) .
-                ' AND TABLE_SCHEMA = ' . $this->quoteStringLiteral($database) .
-                ' ORDER BY SEQ_IN_INDEX ASC';
-        }
-
-        return 'SHOW INDEX FROM ' . $table;
-    }
-
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = ' . $this->quoteStringLiteral($database);
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
-    {
-        // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
-        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
-        // caused by https://bugs.mysql.com/bug.php?id=81347
-        return 'SELECT k.CONSTRAINT_NAME, k.COLUMN_NAME, k.REFERENCED_TABLE_NAME, ' .
-            'k.REFERENCED_COLUMN_NAME /*!50116 , c.UPDATE_RULE, c.DELETE_RULE */ ' .
-            'FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE k /*!50116 ' .
-            'INNER JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS c ON ' .
-            'c.CONSTRAINT_NAME = k.CONSTRAINT_NAME AND ' .
-            'c.TABLE_NAME = k.TABLE_NAME  */ ' .
-            'WHERE k.TABLE_NAME = ' . $this->quoteStringLiteral($table) . ' ' .
-            'AND k.TABLE_SCHEMA = ' . $this->getDatabaseNameSQL($database) . ' /*!50116 ' .
-            'AND c.CONSTRAINT_SCHEMA = ' . $this->getDatabaseNameSQL($database) . ' */' .
-            'ORDER BY k.ORDINAL_POSITION';
     }
 
     /**
@@ -259,42 +210,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getListTablesSQL(): string
     {
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableColumnsSQL(string $table, ?string $database = null): string
-    {
-        return 'SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ' .
-            'COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, ' .
-            'CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation ' .
-            'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $this->getDatabaseNameSQL($database) . ' ' .
-            'AND TABLE_NAME = ' . $this->quoteStringLiteral($table) . ' ORDER BY ORDINAL_POSITION';
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableMetadataSQL(string $table, ?string $database = null): string
-    {
-        return sprintf(
-            <<<'SQL'
-SELECT t.ENGINE,
-       t.AUTO_INCREMENT,
-       t.TABLE_COMMENT,
-       t.CREATE_OPTIONS,
-       t.TABLE_COLLATION,
-       ccsa.CHARACTER_SET_NAME
-FROM information_schema.TABLES t
-    INNER JOIN information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` ccsa
-        ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
-WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = %s AND TABLE_NAME = %s
-SQL
-            ,
-            $this->getDatabaseNameSQL($database),
-            $this->quoteStringLiteral($table)
-        );
     }
 
     /**
@@ -889,17 +804,5 @@ SQL
     public function supportsColumnLengthIndexes(): bool
     {
         return true;
-    }
-
-    /**
-     * Returns an SQL expression representing the given database name or current database name
-     */
-    private function getDatabaseNameSQL(?string $databaseName): string
-    {
-        if ($databaseName === null) {
-            return $this->getCurrentDatabaseExpression();
-        }
-
-        return $this->quoteStringLiteral($databaseName);
     }
 }

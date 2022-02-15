@@ -198,60 +198,6 @@ class DB2Platform extends AbstractPlatform
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     *
-     * This code fragment is originally from the Zend_Db_Adapter_Db2 class, but has been edited.
-     */
-    public function getListTableColumnsSQL(string $table, ?string $database = null): string
-    {
-        $table = $this->quoteStringLiteral($table);
-
-        // We do the funky subquery and join syscat.columns.default this crazy way because
-        // as of db2 v10, the column is CLOB(64k) and the distinct operator won't allow a CLOB,
-        // it wants shorter stuff like a varchar.
-        return "
-        SELECT
-          cols.default,
-          subq.*
-        FROM (
-               SELECT DISTINCT
-                 c.tabschema,
-                 c.tabname,
-                 c.colname,
-                 c.colno,
-                 c.typename,
-                 c.codepage,
-                 c.nulls,
-                 c.length,
-                 c.scale,
-                 c.identity,
-                 tc.type AS tabconsttype,
-                 c.remarks AS comment,
-                 k.colseq,
-                 CASE
-                 WHEN c.generated = 'D' THEN 1
-                 ELSE 0
-                 END     AS autoincrement
-               FROM syscat.columns c
-                 LEFT JOIN (syscat.keycoluse k JOIN syscat.tabconst tc
-                     ON (k.tabschema = tc.tabschema
-                         AND k.tabname = tc.tabname
-                         AND tc.type = 'P'))
-                   ON (c.tabschema = k.tabschema
-                       AND c.tabname = k.tabname
-                       AND c.colname = k.colname)
-               WHERE UPPER(c.tabname) = UPPER(" . $table . ')
-               ORDER BY c.colno
-             ) subq
-          JOIN syscat.columns cols
-            ON subq.tabschema = cols.tabschema
-               AND subq.tabname = cols.tabname
-               AND subq.colno = cols.colno
-        ORDER BY subq.colno
-        ';
-    }
-
     public function getListTablesSQL(): string
     {
         return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = 'T'";
@@ -260,64 +206,6 @@ class DB2Platform extends AbstractPlatform
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS';
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableIndexesSQL(string $table, ?string $database = null): string
-    {
-        $table = $this->quoteStringLiteral($table);
-
-        return "SELECT   idx.INDNAME AS key_name,
-                         idxcol.COLNAME AS column_name,
-                         CASE
-                             WHEN idx.UNIQUERULE = 'P' THEN 1
-                             ELSE 0
-                         END AS primary,
-                         CASE
-                             WHEN idx.UNIQUERULE = 'D' THEN 1
-                             ELSE 0
-                         END AS non_unique
-                FROM     SYSCAT.INDEXES AS idx
-                JOIN     SYSCAT.INDEXCOLUSE AS idxcol
-                ON       idx.INDSCHEMA = idxcol.INDSCHEMA AND idx.INDNAME = idxcol.INDNAME
-                WHERE    idx.TABNAME = UPPER(" . $table . ')
-                ORDER BY idxcol.COLSEQ ASC';
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
-    {
-        $table = $this->quoteStringLiteral($table);
-
-        return "SELECT   fkcol.COLNAME AS local_column,
-                         fk.REFTABNAME AS foreign_table,
-                         pkcol.COLNAME AS foreign_column,
-                         fk.CONSTNAME AS index_name,
-                         CASE
-                             WHEN fk.UPDATERULE = 'R' THEN 'RESTRICT'
-                             ELSE NULL
-                         END AS on_update,
-                         CASE
-                             WHEN fk.DELETERULE = 'C' THEN 'CASCADE'
-                             WHEN fk.DELETERULE = 'N' THEN 'SET NULL'
-                             WHEN fk.DELETERULE = 'R' THEN 'RESTRICT'
-                             ELSE NULL
-                         END AS on_delete
-                FROM     SYSCAT.REFERENCES AS fk
-                JOIN     SYSCAT.KEYCOLUSE AS fkcol
-                ON       fk.CONSTNAME = fkcol.CONSTNAME
-                AND      fk.TABSCHEMA = fkcol.TABSCHEMA
-                AND      fk.TABNAME = fkcol.TABNAME
-                JOIN     SYSCAT.KEYCOLUSE AS pkcol
-                ON       fk.REFKEYNAME = pkcol.CONSTNAME
-                AND      fk.REFTABSCHEMA = pkcol.TABSCHEMA
-                AND      fk.REFTABNAME = pkcol.TABNAME
-                WHERE    fk.TABNAME = UPPER(" . $table . ')
-                ORDER BY fkcol.COLSEQ ASC';
     }
 
     public function supportsCreateDropDatabase(): bool
@@ -720,21 +608,5 @@ class DB2Platform extends AbstractPlatform
     protected function createReservedKeywordsList(): KeywordList
     {
         return new DB2Keywords();
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableCommentsSQL(string $table): string
-    {
-        return sprintf(
-            <<<'SQL'
-SELECT REMARKS
-  FROM SYSIBM.SYSTABLES
-  WHERE NAME = UPPER( %s )
-SQL
-            ,
-            $this->quoteStringLiteral($table)
-        );
     }
 }

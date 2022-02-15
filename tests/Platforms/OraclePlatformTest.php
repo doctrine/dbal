@@ -731,74 +731,6 @@ EOD;
         self::assertEquals($createTriggerStatement, $sql[3]);
     }
 
-    /**
-     * @dataProvider getReturnsGetListTableColumnsSQL
-     */
-    public function testReturnsGetListTableColumnsSQL(?string $database, string $expectedSql): void
-    {
-        // note: this assertion is a bit strict, as it compares a full SQL string.
-        // Should this break in future, then please try to reduce the matching to substring matching while reworking
-        // the tests
-        self::assertEquals($expectedSql, $this->platform->getListTableColumnsSQL('"test"', $database));
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function getReturnsGetListTableColumnsSQL(): iterable
-    {
-        return [
-            [
-                null,
-                <<<'SQL'
-SELECT   c.*,
-         (
-             SELECT d.comments
-             FROM   user_col_comments d
-             WHERE  d.TABLE_NAME = c.TABLE_NAME
-             AND    d.COLUMN_NAME = c.COLUMN_NAME
-         ) AS comments
-FROM     user_tab_columns c
-WHERE    c.table_name = 'test'
-ORDER BY c.column_id
-SQL
-,
-            ],
-            [
-                '/',
-                <<<'SQL'
-SELECT   c.*,
-         (
-             SELECT d.comments
-             FROM   user_col_comments d
-             WHERE  d.TABLE_NAME = c.TABLE_NAME
-             AND    d.COLUMN_NAME = c.COLUMN_NAME
-         ) AS comments
-FROM     user_tab_columns c
-WHERE    c.table_name = 'test'
-ORDER BY c.column_id
-SQL
-,
-            ],
-            [
-                'scott',
-                <<<'SQL'
-SELECT   c.*,
-         (
-             SELECT d.comments
-             FROM   all_col_comments d
-             WHERE  d.TABLE_NAME = c.TABLE_NAME AND d.OWNER = c.OWNER
-             AND    d.COLUMN_NAME = c.COLUMN_NAME
-         ) AS comments
-FROM     all_tab_columns c
-WHERE    c.table_name = 'test' AND c.owner = 'SCOTT'
-ORDER BY c.column_id
-SQL
-,
-            ],
-        ];
-    }
-
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
@@ -835,46 +767,6 @@ SQL
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
             $this->platform->getListSequencesSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableIndexesSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableForeignKeysSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableConstraintsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableConstraintsSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableColumnsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesDatabaseNameInListTableColumnsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\")
         );
     }
 
