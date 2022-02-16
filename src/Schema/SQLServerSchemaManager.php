@@ -52,6 +52,30 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
+    public function listTableColumns($table, $database = null)
+    {
+        return $this->doListTableColumns($table, $database);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableIndexes($table)
+    {
+        return $this->doListTableIndexes($table);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableForeignKeys($table, $database = null)
+    {
+        return $this->doListTableForeignKeys($table, $database);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function listSchemaNames(): array
     {
         return $this->_conn->fetchFirstColumn(
@@ -270,26 +294,6 @@ SQL
     {
         // @todo
         return new View($view['name'], $view['definition']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function listTableIndexes($table)
-    {
-        $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
-
-        try {
-            $tableIndexes = $this->_conn->fetchAllAssociative($sql);
-        } catch (Exception $e) {
-            if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
-                return [];
-            }
-
-            throw $e;
-        }
-
-        return $this->_getPortableTableIndexesList($tableIndexes, $table);
     }
 
     /**
