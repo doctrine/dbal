@@ -44,19 +44,6 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function listTables(): array
-    {
-        return $this->doListTables();
-    }
-
-    public function listTableDetails(string $name): Table
-    {
-        return $this->doListTableDetails($name);
-    }
-
-    /**
      * {@inheritdoc}
      *
      * @throws Exception

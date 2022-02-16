@@ -220,23 +220,6 @@ abstract class AbstractSchemaManager
      */
     public function listTables(): array
     {
-        $tableNames = $this->listTableNames();
-
-        $tables = [];
-        foreach ($tableNames as $tableName) {
-            $tables[] = $this->listTableDetails($tableName);
-        }
-
-        return $tables;
-    }
-
-    /**
-     * @return list<Table>
-     *
-     * @throws Exception
-     */
-    protected function doListTables(): array
-    {
         $currentDatabase = $this->_conn->getDatabase();
 
         if ($currentDatabase === null) {
@@ -282,23 +265,6 @@ abstract class AbstractSchemaManager
      * @throws Exception
      */
     public function listTableDetails(string $name): Table
-    {
-        $columns     = $this->listTableColumns($name);
-        $foreignKeys = [];
-
-        if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->listTableForeignKeys($name);
-        }
-
-        $indexes = $this->listTableIndexes($name);
-
-        return new Table($name, $columns, $indexes, [], $foreignKeys, []);
-    }
-
-    /**
-     * @throws Exception
-     */
-    protected function doListTableDetails(string $name): Table
     {
         $currentDatabase = $this->_conn->getDatabase();
 
@@ -353,13 +319,8 @@ abstract class AbstractSchemaManager
      * the selection to this table.
      *
      * @throws Exception
-     *
-     * @abstract
      */
-    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result;
 
     /**
      * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
@@ -367,10 +328,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result;
 
     /**
      * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
@@ -378,10 +336,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result;
 
     /**
      * Returns table options for the tables in the specified database. If the table name is specified, narrows down
@@ -391,10 +346,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array;
 
     /**
      * Lists the views this connection has.
