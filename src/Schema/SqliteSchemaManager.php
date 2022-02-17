@@ -57,6 +57,22 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function listTableColumns($table, $database = null)
+    {
+        return $this->doListTableColumns($table, $database);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableIndexes($table)
+    {
+        return $this->doListTableIndexes($table);
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @deprecated Delete the database file using the filesystem.
@@ -158,12 +174,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     public function listTableForeignKeys($table, $database = null)
     {
-        if ($database === null) {
-            $database = $this->_conn->getDatabase();
-        }
-
-        $sql              = $this->_platform->getListTableForeignKeysSQL($table, $database);
-        $tableForeignKeys = $this->_conn->fetchAllAssociative($sql);
+        $tableForeignKeys = $this->selectDatabaseForeignKeys('', $this->normalizeName($table))
+            ->fetchAllAssociative();
 
         if (! empty($tableForeignKeys)) {
             $createSql = $this->getCreateTableSQL($table);

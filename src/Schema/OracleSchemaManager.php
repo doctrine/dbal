@@ -44,6 +44,30 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function listTableColumns($table, $database = null)
+    {
+        return $this->doListTableColumns($table, $database);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableIndexes($table)
+    {
+        return $this->doListTableIndexes($table);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableForeignKeys($table, $database = null)
+    {
+        return $this->doListTableForeignKeys($table, $database);
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function _getPortableViewDefinition($view)

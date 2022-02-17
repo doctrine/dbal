@@ -57,6 +57,30 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function listTableColumns($table, $database = null)
+    {
+        return $this->doListTableColumns($table, $database);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableIndexes($table)
+    {
+        return $this->doListTableIndexes($table);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableForeignKeys($table, $database = null)
+    {
+        return $this->doListTableForeignKeys($table, $database);
+    }
+
+    /**
      * Gets all the existing schema names.
      *
      * @deprecated Use {@see listSchemaNames()} instead.
