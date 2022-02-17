@@ -140,6 +140,26 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @return Column[]
+     *
+     * @throws Exception
+     */
+    protected function doListTableColumns(string $table, ?string $database = null): array
+    {
+        $database = $this->ensureDatabase(
+            $database ?? $this->_conn->getDatabase(),
+            __METHOD__
+        );
+
+        return $this->_getPortableTableColumnList(
+            $table,
+            $database,
+            $this->selectDatabaseColumns($database, $this->normalizeName($table))
+                ->fetchAllAssociative()
+        );
+    }
+
+    /**
      * Lists the indexes for a given table returning an array of Index instances.
      *
      * Keys of the portable indexes list are all lower-cased.
@@ -155,6 +175,27 @@ abstract class AbstractSchemaManager
         $tableIndexes = $this->_conn->fetchAllAssociative($sql);
 
         return $this->_getPortableTableIndexesList($tableIndexes, $table);
+    }
+
+    /**
+     * @return Index[]
+     *
+     * @throws Exception
+     */
+    protected function doListTableIndexes(string $table): array
+    {
+        $database = $this->ensureDatabase(
+            $this->_conn->getDatabase(),
+            __METHOD__
+        );
+
+        return $this->_getPortableTableIndexesList(
+            $this->selectDatabaseIndexes(
+                $database,
+                $this->normalizeName($table)
+            )->fetchAllAssociative(),
+            $table
+        );
     }
 
     /**
@@ -220,11 +261,10 @@ abstract class AbstractSchemaManager
      */
     public function listTables(): array
     {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        if ($currentDatabase === null) {
-            throw DatabaseRequired::new(__METHOD__);
-        }
+        $currentDatabase = $this->ensureDatabase(
+            $this->_conn->getDatabase(),
+            __METHOD__
+        );
 
         /** @var array<string,list<array<string,mixed>>> $columns */
         $columns = $this->fetchAllAssociativeGrouped(
@@ -266,38 +306,25 @@ abstract class AbstractSchemaManager
      */
     public function listTableDetails(string $name): Table
     {
-        $currentDatabase = $this->_conn->getDatabase();
-
-        if ($currentDatabase === null) {
-            throw DatabaseRequired::new(__METHOD__);
-        }
+        $currentDatabase = $this->ensureDatabase(
+            $this->_conn->getDatabase(),
+            __METHOD__
+        );
 
         $normalizedName = $this->normalizeName($name);
 
         $tableOptions = $this->getDatabaseTableOptions($currentDatabase, $normalizedName);
 
         if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->_getPortableTableForeignKeysList(
-                $this->selectDatabaseForeignKeys($currentDatabase, $normalizedName)
-                    ->fetchAllAssociative()
-            );
+            $foreignKeys = $this->listTableForeignKeys($name);
         } else {
             $foreignKeys = [];
         }
 
         return new Table(
             $name,
-            $this->_getPortableTableColumnList(
-                $name,
-                $currentDatabase,
-                $this->selectDatabaseColumns($currentDatabase, $normalizedName)
-                    ->fetchAllAssociative()
-            ),
-            $this->_getPortableTableIndexesList(
-                $this->selectDatabaseIndexes($currentDatabase, $normalizedName)
-                    ->fetchAllAssociative(),
-                $name
-            ),
+            $this->listTableColumns($name, $currentDatabase),
+            $this->listTableIndexes($name),
             [],
             $foreignKeys,
             $tableOptions[$normalizedName] ?? []
@@ -385,6 +412,26 @@ abstract class AbstractSchemaManager
         $tableForeignKeys = $this->_conn->fetchAllAssociative($sql);
 
         return $this->_getPortableTableForeignKeysList($tableForeignKeys);
+    }
+
+    /**
+     * @return ForeignKeyConstraint[]
+     *
+     * @throws Exception
+     */
+    protected function doListTableForeignKeys(string $table, ?string $database = null): array
+    {
+        $database = $this->ensureDatabase(
+            $database ?? $this->_conn->getDatabase(),
+            __METHOD__
+        );
+
+        return $this->_getPortableTableForeignKeysList(
+            $this->selectDatabaseForeignKeys(
+                $database,
+                $this->normalizeName($table)
+            )->fetchAllAssociative()
+        );
     }
 
     /* drop*() Methods */

@@ -10,7 +10,6 @@ use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
@@ -547,9 +546,6 @@ SQL;
         $schemaManager = $connection->createSchemaManager();
 
         $this->expectException(DatabaseRequired::class);
-        $this->expectExceptionMessage(
-            'A database is required for the method: ' . AbstractSchemaManager::class . '::listTableColumns'
-        );
 
         $schemaManager->listTableColumns('users');
     }

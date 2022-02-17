@@ -19,7 +19,6 @@ use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
-use function str_starts_with;
 use function strpos;
 use function strtok;
 
@@ -33,6 +32,30 @@ use const CASE_LOWER;
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
     private ?string $databaseCollation = null;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableColumns(string $table, ?string $database = null): array
+    {
+        return $this->doListTableColumns($table, $database);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableIndexes(string $table): array
+    {
+        return $this->doListTableIndexes($table);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableForeignKeys(string $table, ?string $database = null): array
+    {
+        return $this->doListTableForeignKeys($table, $database);
+    }
 
     /**
      * {@inheritDoc}
@@ -249,26 +272,6 @@ SQL
     {
         // @todo
         return new View($view['name'], $view['definition']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function listTableIndexes(string $table): array
-    {
-        $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
-
-        try {
-            $tableIndexes = $this->_conn->fetchAllAssociative($sql);
-        } catch (Exception $e) {
-            if (str_starts_with($e->getMessage(), 'SQLSTATE [01000, 15472]')) {
-                return [];
-            }
-
-            throw $e;
-        }
-
-        return $this->_getPortableTableIndexesList($tableIndexes, $table);
     }
 
     public function alterTable(TableDiff $tableDiff): void
