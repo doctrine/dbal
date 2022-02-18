@@ -95,7 +95,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 
     /**
      * Detect MariaDB server version, including hack for some mariadb distributions
-     * that starts with the prefix '5.5.5-'
+     * that starts with the prefix '5.5.5-' (fixed since PHP 8.0.16/8.1.3)
      *
      * @param string $versionString Version string as returned by mariadb server, i.e. '5.5.5-Mariadb-10.0.8-xenial'
      *
