@@ -132,25 +132,6 @@ abstract class AbstractSchemaManager
             __METHOD__
         );
 
-        $sql = $this->_platform->getListTableColumnsSQL($table, $database);
-
-        $tableColumns = $this->_conn->fetchAllAssociative($sql);
-
-        return $this->_getPortableTableColumnList($table, $database, $tableColumns);
-    }
-
-    /**
-     * @return Column[]
-     *
-     * @throws Exception
-     */
-    protected function doListTableColumns(string $table, ?string $database = null): array
-    {
-        $database = $this->ensureDatabase(
-            $database ?? $this->_conn->getDatabase(),
-            __METHOD__
-        );
-
         return $this->_getPortableTableColumnList(
             $table,
             $database,
@@ -169,20 +150,6 @@ abstract class AbstractSchemaManager
      * @throws Exception
      */
     public function listTableIndexes(string $table): array
-    {
-        $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
-
-        $tableIndexes = $this->_conn->fetchAllAssociative($sql);
-
-        return $this->_getPortableTableIndexesList($tableIndexes, $table);
-    }
-
-    /**
-     * @return Index[]
-     *
-     * @throws Exception
-     */
-    protected function doListTableIndexes(string $table): array
     {
         $database = $this->ensureDatabase(
             $this->_conn->getDatabase(),
@@ -403,23 +370,6 @@ abstract class AbstractSchemaManager
      * @throws Exception
      */
     public function listTableForeignKeys(string $table, ?string $database = null): array
-    {
-        if ($database === null) {
-            $database = $this->_conn->getDatabase();
-        }
-
-        $sql              = $this->_platform->getListTableForeignKeysSQL($table, $database);
-        $tableForeignKeys = $this->_conn->fetchAllAssociative($sql);
-
-        return $this->_getPortableTableForeignKeysList($tableForeignKeys);
-    }
-
-    /**
-     * @return ForeignKeyConstraint[]
-     *
-     * @throws Exception
-     */
-    protected function doListTableForeignKeys(string $table, ?string $database = null): array
     {
         $database = $this->ensureDatabase(
             $database ?? $this->_conn->getDatabase(),

@@ -720,38 +720,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function testQuotesTableNameInListTableConstraintsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableConstraintsSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableColumnsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableIndexesSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
-        );
-    }
-
-    public function testQuotesTableNameInListTableForeignKeysSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
-        );
-    }
-
     public function testDateAddStaticNumberOfDays(): void
     {
         self::assertSame(

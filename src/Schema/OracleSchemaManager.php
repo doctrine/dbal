@@ -32,30 +32,6 @@ use const CASE_LOWER;
 class OracleSchemaManager extends AbstractSchemaManager
 {
     /**
-     * {@inheritDoc}
-     */
-    public function listTableColumns(string $table, ?string $database = null): array
-    {
-        return $this->doListTableColumns($table, $database);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function listTableIndexes(string $table): array
-    {
-        return $this->doListTableIndexes($table);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function listTableForeignKeys(string $table, ?string $database = null): array
-    {
-        return $this->doListTableForeignKeys($table, $database);
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function _getPortableViewDefinition(array $view): View

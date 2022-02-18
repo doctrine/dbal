@@ -198,70 +198,6 @@ class PostgreSQLPlatform extends AbstractPlatform
                 WHERE  view_definition IS NOT NULL';
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
-    {
-        return 'SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
-                  FROM pg_catalog.pg_constraint r
-                  WHERE r.conrelid =
-                  (
-                      SELECT c.oid
-                      FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
-                      WHERE ' . $this->getTableWhereClause($table) . " AND n.oid = c.relnamespace
-                  )
-                  AND r.contype = 'f'";
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getListTableConstraintsSQL(string $table): string
-    {
-        $table = new Identifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        return sprintf(
-            <<<'SQL'
-SELECT
-    quote_ident(relname) as relname
-FROM
-    pg_class
-WHERE oid IN (
-    SELECT indexrelid
-    FROM pg_index, pg_class
-    WHERE pg_class.relname = %s
-        AND pg_class.oid = pg_index.indrelid
-        AND (indisunique = 't' OR indisprimary = 't')
-    )
-SQL
-            ,
-            $table
-        );
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     *
-     * {@inheritDoc}
-     *
-     * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
-     */
-    public function getListTableIndexesSQL(string $table, ?string $database = null): string
-    {
-        return 'SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
-                       pg_index.indkey, pg_index.indrelid,
-                       pg_get_expr(indpred, indrelid) AS where
-                 FROM pg_class, pg_index
-                 WHERE oid IN (
-                    SELECT indexrelid
-                    FROM pg_index si, pg_class sc, pg_namespace sn
-                    WHERE ' . $this->getTableWhereClause($table, 'sc', 'sn') . '
-                    AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
-                 ) AND pg_index.indexrelid = oid';
-    }
-
     private function getTableWhereClause(string $table, string $classAlias = 'c', string $namespaceAlias = 'n'): string
     {
         $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
@@ -282,44 +218,6 @@ SQL
             $namespaceAlias,
             $schema
         );
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableColumnsSQL(string $table, ?string $database = null): string
-    {
-        return "SELECT
-                    a.attnum,
-                    quote_ident(a.attname) AS field,
-                    t.typname AS type,
-                    format_type(a.atttypid, a.atttypmod) AS complete_type,
-                    (SELECT tc.collcollate FROM pg_catalog.pg_collation tc WHERE tc.oid = a.attcollation) AS collation,
-                    (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
-                    (SELECT format_type(t2.typbasetype, t2.typtypmod) FROM
-                      pg_catalog.pg_type t2 WHERE t2.typtype = 'd' AND t2.oid = a.atttypid) AS domain_complete_type,
-                    a.attnotnull AS isnotnull,
-                    (SELECT 't'
-                     FROM pg_index
-                     WHERE c.oid = pg_index.indrelid
-                        AND pg_index.indkey[0] = a.attnum
-                        AND pg_index.indisprimary = 't'
-                    ) AS pri,
-                    (SELECT pg_get_expr(adbin, adrelid)
-                     FROM pg_attrdef
-                     WHERE c.oid = pg_attrdef.adrelid
-                        AND pg_attrdef.adnum=a.attnum
-                    ) AS default,
-                    (SELECT pg_description.description
-                        FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
-                    ) AS comment
-                    FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
-                    WHERE " . $this->getTableWhereClause($table, 'c', 'n') . '
-                        AND a.attnum > 0
-                        AND a.attrelid = c.oid
-                        AND a.atttypid = t.oid
-                        AND n.oid = c.relnamespace
-                    ORDER BY a.attnum';
     }
 
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
@@ -1019,23 +917,5 @@ SQL
     private function isNumericType(Type $type): bool
     {
         return $type instanceof IntegerType || $type instanceof BigIntType;
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableMetadataSQL(string $table, ?string $schema = null): string
-    {
-        if ($schema !== null) {
-            $table = $schema . '.' . $table;
-        }
-
-        return sprintf(
-            <<<'SQL'
-SELECT obj_description(%s::regclass) AS table_comment;
-SQL
-            ,
-            $this->quoteStringLiteral($table)
-        );
     }
 }

@@ -378,33 +378,6 @@ class SqlitePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
-    /**
-     * @deprecated
-     */
-    public function getListTableConstraintsSQL(string $table): string
-    {
-        return sprintf(
-            "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = %s AND sql NOT NULL ORDER BY name",
-            $this->quoteStringLiteral($table)
-        );
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableColumnsSQL(string $table, ?string $database = null): string
-    {
-        return sprintf('PRAGMA table_info(%s)', $this->quoteStringLiteral($table));
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableIndexesSQL(string $table, ?string $database = null): string
-    {
-        return sprintf('PRAGMA index_list(%s)', $this->quoteStringLiteral($table));
-    }
-
     public function getListTablesSQL(): string
     {
         return 'SELECT name FROM sqlite_master'
@@ -635,14 +608,6 @@ class SqlitePlatform extends AbstractPlatform
         int $createFlags = self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS
     ): array {
         return parent::getCreateTableSQL($table, $createFlags);
-    }
-
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
-    {
-        return sprintf('PRAGMA foreign_key_list(%s)', $this->quoteStringLiteral($table));
     }
 
     /**
