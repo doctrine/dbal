@@ -93,7 +93,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableForeignKeys(string $table, ?string $database = null): array
+    public function listTableForeignKeys(string $table): array
     {
         $tableForeignKeys = $this->selectDatabaseForeignKeys('', $this->normalizeName($table))
             ->fetchAllAssociative();

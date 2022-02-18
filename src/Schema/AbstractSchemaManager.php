@@ -13,7 +13,6 @@ use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_intersect;
@@ -98,17 +97,9 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function listSequences(?string $database = null): array
+    public function listSequences(): array
     {
-        if ($database === null) {
-            $database = $this->getDatabase(__METHOD__);
-        } else {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/5284',
-                'Passing $database to AbstractSchemaManager::listSequences() is deprecated.'
-            );
-        }
+        $database = $this->getDatabase(__METHOD__);
 
         $sql = $this->_platform->getListSequencesSQL($database);
 
@@ -131,17 +122,9 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function listTableColumns(string $table, ?string $database = null): array
+    public function listTableColumns(string $table): array
     {
-        if ($database === null) {
-            $database = $this->getDatabase(__METHOD__);
-        } else {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/5284',
-                'Passing $database to AbstractSchemaManager::listTableColumns() is deprecated.'
-            );
-        }
+        $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableColumnList(
             $table,
@@ -292,7 +275,7 @@ abstract class AbstractSchemaManager
 
         return new Table(
             $name,
-            $this->listTableColumns($name, $database),
+            $this->listTableColumns($name),
             $this->listTableIndexes($name),
             [],
             $foreignKeys,
@@ -368,17 +351,9 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function listTableForeignKeys(string $table, ?string $database = null): array
+    public function listTableForeignKeys(string $table): array
     {
-        if ($database === null) {
-            $database = $this->getDatabase(__METHOD__);
-        } else {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/5284',
-                'Passing $database to AbstractSchemaManager::listTableForeignKeys() is deprecated.'
-            );
-        }
+        $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableForeignKeysList(
             $this->selectDatabaseForeignKeys(
