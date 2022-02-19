@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed support for the `$database` parameter of `AbstractSchemaManager::list*()` methods
+
+Passing `$database` to the following methods is no longer supported:
+
+- `AbstractSchemaManager::listSequences()`,
+- `AbstractSchemaManager::listTableColumns()`,
+- `AbstractSchemaManager::listTableForeignKeys()`.
+
 ## Removed `AbstractPlatform` schema introspection methods
 
 The following schema introspection methods have been removed:
