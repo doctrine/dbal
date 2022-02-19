@@ -13,6 +13,7 @@ use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_intersect;
@@ -99,10 +100,15 @@ abstract class AbstractSchemaManager
      */
     public function listSequences(?string $database = null): array
     {
-        $database = $this->ensureDatabase(
-            $database ?? $this->_conn->getDatabase(),
-            __METHOD__
-        );
+        if ($database === null) {
+            $database = $this->getDatabase(__METHOD__);
+        } else {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5284',
+                'Passing $database to AbstractSchemaManager::listSequences() is deprecated.'
+            );
+        }
 
         $sql = $this->_platform->getListSequencesSQL($database);
 
@@ -127,10 +133,15 @@ abstract class AbstractSchemaManager
      */
     public function listTableColumns(string $table, ?string $database = null): array
     {
-        $database = $this->ensureDatabase(
-            $database ?? $this->_conn->getDatabase(),
-            __METHOD__
-        );
+        if ($database === null) {
+            $database = $this->getDatabase(__METHOD__);
+        } else {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5284',
+                'Passing $database to AbstractSchemaManager::listTableColumns() is deprecated.'
+            );
+        }
 
         return $this->_getPortableTableColumnList(
             $table,
@@ -151,10 +162,7 @@ abstract class AbstractSchemaManager
      */
     public function listTableIndexes(string $table): array
     {
-        $database = $this->ensureDatabase(
-            $this->_conn->getDatabase(),
-            __METHOD__
-        );
+        $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableIndexesList(
             $this->selectDatabaseIndexes(
@@ -228,36 +236,33 @@ abstract class AbstractSchemaManager
      */
     public function listTables(): array
     {
-        $currentDatabase = $this->ensureDatabase(
-            $this->_conn->getDatabase(),
-            __METHOD__
-        );
+        $database = $this->getDatabase(__METHOD__);
 
         /** @var array<string,list<array<string,mixed>>> $columns */
         $columns = $this->fetchAllAssociativeGrouped(
-            $this->selectDatabaseColumns($currentDatabase)
+            $this->selectDatabaseColumns($database)
         );
 
         $indexes = $this->fetchAllAssociativeGrouped(
-            $this->selectDatabaseIndexes($currentDatabase)
+            $this->selectDatabaseIndexes($database)
         );
 
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->fetchAllAssociativeGrouped(
-                $this->selectDatabaseForeignKeys($currentDatabase)
+                $this->selectDatabaseForeignKeys($database)
             );
         } else {
             $foreignKeys = [];
         }
 
-        $tableOptions = $this->getDatabaseTableOptions($currentDatabase);
+        $tableOptions = $this->getDatabaseTableOptions($database);
 
         $tables = [];
 
         foreach ($columns as $tableName => $tableColumns) {
             $tables[] = new Table(
                 $tableName,
-                $this->_getPortableTableColumnList($tableName, $currentDatabase, $tableColumns),
+                $this->_getPortableTableColumnList($tableName, $database, $tableColumns),
                 $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
                 [],
                 $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
@@ -273,14 +278,11 @@ abstract class AbstractSchemaManager
      */
     public function listTableDetails(string $name): Table
     {
-        $currentDatabase = $this->ensureDatabase(
-            $this->_conn->getDatabase(),
-            __METHOD__
-        );
+        $database = $this->getDatabase(__METHOD__);
 
         $normalizedName = $this->normalizeName($name);
 
-        $tableOptions = $this->getDatabaseTableOptions($currentDatabase, $normalizedName);
+        $tableOptions = $this->getDatabaseTableOptions($database, $normalizedName);
 
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->listTableForeignKeys($name);
@@ -290,7 +292,7 @@ abstract class AbstractSchemaManager
 
         return new Table(
             $name,
-            $this->listTableColumns($name, $currentDatabase),
+            $this->listTableColumns($name, $database),
             $this->listTableIndexes($name),
             [],
             $foreignKeys,
@@ -351,10 +353,7 @@ abstract class AbstractSchemaManager
      */
     public function listViews(): array
     {
-        $database = $this->ensureDatabase(
-            $this->_conn->getDatabase(),
-            __METHOD__
-        );
+        $database = $this->getDatabase(__METHOD__);
 
         $sql   = $this->_platform->getListViewsSQL($database);
         $views = $this->_conn->fetchAllAssociative($sql);
@@ -371,10 +370,15 @@ abstract class AbstractSchemaManager
      */
     public function listTableForeignKeys(string $table, ?string $database = null): array
     {
-        $database = $this->ensureDatabase(
-            $database ?? $this->_conn->getDatabase(),
-            __METHOD__
-        );
+        if ($database === null) {
+            $database = $this->getDatabase(__METHOD__);
+        } else {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5284',
+                'Passing $database to AbstractSchemaManager::listTableForeignKeys() is deprecated.'
+            );
+        }
 
         return $this->_getPortableTableForeignKeysList(
             $this->selectDatabaseForeignKeys(
@@ -944,10 +948,12 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @throws DatabaseRequired
+     * @throws Exception
      */
-    private function ensureDatabase(?string $database, string $methodName): string
+    private function getDatabase(string $methodName): string
     {
+        $database = $this->_conn->getDatabase();
+
         if ($database === null) {
             throw DatabaseRequired::new($methodName);
         }

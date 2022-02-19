@@ -647,6 +647,16 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+## Deprecated `$database` parameter of `AbstractSchemaManager::list*()` methods
+
+Passing `$database` to the following methods has been deprecated:
+
+- `AbstractSchemaManager::listSequences()`,
+- `AbstractSchemaManager::listTableColumns()`,
+- `AbstractSchemaManager::listTableForeignKeys()`.
+
+Only introspection of the current database will be supported in DBAL 4.0.
+
 ## Deprecated `AbstractPlatform` schema introspection methods
 
 The following schema introspection methods have been deprecated:
