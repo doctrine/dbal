@@ -217,7 +217,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $schemaManager->createTable($otherTable);
         $connection->close();
 
-        $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getDatabase());
+        $columns = $this->schemaManager->listTableColumns($table->getName());
         self::assertCount(7, $columns);
     }
 
