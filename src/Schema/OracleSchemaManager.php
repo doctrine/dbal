@@ -80,18 +80,6 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition($user)
-    {
-        $user = array_change_key_case($user, CASE_LOWER);
-
-        return [
-            'user' => $user['username'],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function _getPortableTableDefinition($table)
     {
         $table = array_change_key_case($table, CASE_LOWER);

@@ -257,17 +257,6 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition($user)
-    {
-        return [
-            'user' => $user['usename'],
-            'password' => $user['passwd'],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function _getPortableTableDefinition($table)
     {
         $currentSchema = $this->getCurrentSchema();
