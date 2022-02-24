@@ -24,17 +24,17 @@ example shows:
     <?php
     $schema = new \Doctrine\DBAL\Schema\Schema();
     $myTable = $schema->createTable("my_table");
-    $myTable->addColumn("id", "integer", array("unsigned" => true));
-    $myTable->addColumn("username", "string", array("length" => 32));
-    $myTable->setPrimaryKey(array("id"));
-    $myTable->addUniqueIndex(array("username"));
+    $myTable->addColumn("id", "integer", ["unsigned" => true]);
+    $myTable->addColumn("username", "string", ["length" => 32]);
+    $myTable->setPrimaryKey(["id"]);
+    $myTable->addUniqueIndex(["username"]);
     $myTable->setComment('Some comment');
     $schema->createSequence("my_table_seq");
 
     $myForeign = $schema->createTable("my_foreign");
     $myForeign->addColumn("id", "integer");
     $myForeign->addColumn("user_id", "integer");
-    $myForeign->addForeignKeyConstraint($myTable, array("user_id"), array("id"), array("onUpdate" => "CASCADE"));
+    $myForeign->addForeignKeyConstraint($myTable, ["user_id"], ["id"], ["onUpdate" => "CASCADE"]);
 
     $queries = $schema->toSql($myPlatform); // get queries to create this schema.
     $dropSchema = $schema->toDropSql($myPlatform); // get queries to safely delete this schema.

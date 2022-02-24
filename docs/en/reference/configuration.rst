@@ -11,13 +11,13 @@ You can get a DBAL Connection through the
 
     <?php
     //..
-    $connectionParams = array(
+    $connectionParams = [
         'dbname' => 'mydb',
         'user' => 'user',
         'password' => 'secret',
         'host' => 'localhost',
         'driver' => 'pdo_mysql',
-    );
+    ];
     $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 
 Or, using the simpler URL form:
@@ -26,9 +26,9 @@ Or, using the simpler URL form:
 
     <?php
     //..
-    $connectionParams = array(
+    $connectionParams = [
         'url' => 'mysql://user:secret@localhost/mydb',
-    );
+    ];
     $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 
 The ``DriverManager`` returns an instance of
