@@ -55,13 +55,13 @@ Using the following code block in your initialization will:
     use Doctrine\DBAL\ColumnCase;
     use Doctrine\DBAL\Portability\Connection as PortableConnection;
 
-    $params = array(
+    $params = [
         // vendor specific configuration
         //...
         'wrapperClass' => PortableConnection::class,
         'portability'  => PortableConnection::PORTABILITY_ALL,
         'fetch_case'   => ColumnCase::LOWER,
-    );
+    ];
 
 This sort of portability handling is pretty expensive because all the result
 rows and columns have to be looped inside PHP before being returned to you.

@@ -11,7 +11,7 @@ You can access the QueryBuilder by calling ``Doctrine\DBAL\Connection#createQuer
 
     <?php
 
-    $conn = DriverManager::getConnection(array(/*..*/));
+    $conn = DriverManager::getConnection([/*..*/]);
     $queryBuilder = $conn->createQueryBuilder();
 
 Security: Safely preventing SQL Injection
@@ -233,10 +233,10 @@ done with the ``values()`` method on the query builder:
     $queryBuilder
         ->insert('users')
         ->values(
-            array(
+            [
                 'name' => '?',
-                'password' => '?'
-            )
+                'password' => '?',
+            ]
         )
         ->setParameter(0, $username)
         ->setParameter(1, $password)
@@ -269,9 +269,9 @@ Of course you can also use both methods in combination:
     $queryBuilder
         ->insert('users')
         ->values(
-            array(
-                'name' => '?'
-            )
+            [
+                'name' => '?',
+            ]
         )
         ->setParameter(0, $username)
     ;
