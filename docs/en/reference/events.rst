@@ -31,9 +31,9 @@ instance passed to the Connection factory:
 
     <?php
     $evm = new EventManager();
-    $evm->addEventSubscriber(new OracleSessionInit(array(
+    $evm->addEventSubscriber(new OracleSessionInit([
         'NLS_TIME_FORMAT' => 'HH24:MI:SS',
-    )));
+    ]));
 
     $conn = DriverManager::getConnection($connectionParams, null, $evm);
 
@@ -59,7 +59,7 @@ methods must be named like the events itself.
 
     <?php
     $evm = new EventManager();
-    $eventNames = array(Events::onSchemaCreateTable, Events::onSchemaCreateTableColumn);
+    $eventNames = [Events::onSchemaCreateTable, Events::onSchemaCreateTableColumn];
     $evm->addEventListener($eventNames, new MyEventListener());
 
 The following events are available.
