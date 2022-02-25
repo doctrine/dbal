@@ -245,7 +245,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
      *
      * - Since MariaDb 10.2.7 column defaults stored in information_schema are now quoted
      *   to distinguish them from expressions (see MDEV-10134).
-     * - CURRENT_TIMESTAMP, CURRENT_TIME, CURRENT_DATE are stored in information_schema
+     * - CURRENT_TIMESTAMP, CURRENT_TIME, CURRENT_DATE, JSON_OBJECT are stored in information_schema
      *   as current_timestamp(), currdate(), currtime()
      * - Quoted 'NULL' is not enforced by Maria, it is technically possible to have
      *   null in some circumstances (see https://jira.mariadb.org/browse/MDEV-14053)
@@ -275,6 +275,9 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
             case 'curtime()':
                 return $platform->getCurrentTimeSQL();
+
+            case 'json_object()':
+                return $platform->getJsonObjectSQL();
         }
 
         return $columnDefault;
