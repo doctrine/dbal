@@ -10,7 +10,7 @@ jobs:
       - uses: actions/stale@v4
         with:
           stale-pr-message: >
-            There hasn't been any activity on this pull request in the past year, so
+            There hasn't been any activity on this pull request in the past 90 days, so
             it has been marked as stale and it will be closed automatically if no
             further activity occurs in the next 7 days.
 
@@ -20,5 +20,5 @@ jobs:
             This pull request was closed due to a year of no activity.
 
           days-before-stale:    -1
-          days-before-pr-stale: 365
+          days-before-pr-stale: 90
           days-before-pr-close: 7
