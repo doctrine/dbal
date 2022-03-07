@@ -72,6 +72,10 @@ abstract class AbstractPlatform
     public const CREATE_INDEXES = 1;
 
     public const CREATE_FOREIGNKEYS = 2;
+    
+    protected const DEFAULT_DECIMAL_PRECISION = 10;
+    
+    protected const DEFAULT_DECIMAL_SCALE = 0;
 
     /** @var string[]|null */
     protected $doctrineTypeMapping;
@@ -2552,9 +2556,9 @@ abstract class AbstractPlatform
     public function getDecimalTypeDeclarationSQL(array $column)
     {
         $column['precision'] = ! isset($column['precision']) || empty($column['precision'])
-            ? 10 : $column['precision'];
+            ? self::DEFAULT_DECIMAL_PRECISION : $column['precision'];
         $column['scale']     = ! isset($column['scale']) || empty($column['scale'])
-            ? 0 : $column['scale'];
+            ? self::DEFAULT_DECIMAL_SCALE : $column['scale'];
 
         return 'NUMERIC(' . $column['precision'] . ', ' . $column['scale'] . ')';
     }
