@@ -894,7 +894,12 @@ SQL
      */
     public function getDecimalTypeDeclarationSQL(array $column)
     {
-        return parent::getDecimalTypeDeclarationSQL($column) . $this->getUnsignedDeclaration($column);
+        $column['precision'] = ! isset($column['precision']) || empty($column['precision'])
+            ? self::DEFAULT_DECIMAL_PRECISION : $column['precision'];
+        $column['scale']     = ! isset($column['scale']) || empty($column['scale'])
+            ? self::DEFAULT_DECIMAL_SCALE : $column['scale'];
+
+        return 'DECIMAL(' . $column['precision'] . ', ' . $column['scale'] . ')' . $this->getUnsignedDeclaration($column);
     }
 
     /**
