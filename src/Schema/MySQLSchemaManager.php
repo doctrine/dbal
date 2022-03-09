@@ -61,17 +61,6 @@ class MySQLSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition(array $user): array
-    {
-        return [
-            'user' => $user['User'],
-            'password' => $user['Password'],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
     {
         foreach ($tableIndexes as $k => $v) {

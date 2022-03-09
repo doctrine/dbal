@@ -11,13 +11,13 @@ You can get a DBAL Connection through the
 
     <?php
     //..
-    $connectionParams = array(
+    $connectionParams = [
         'dbname' => 'mydb',
         'user' => 'user',
         'password' => 'secret',
         'host' => 'localhost',
         'driver' => 'pdo_mysql',
-    );
+    ];
     $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 
 Or, using the simpler URL form:
@@ -26,9 +26,9 @@ Or, using the simpler URL form:
 
     <?php
     //..
-    $connectionParams = array(
+    $connectionParams = [
         'url' => 'mysql://user:secret@localhost/mydb',
-    );
+    ];
     $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 
 The ``DriverManager`` returns an instance of
@@ -61,15 +61,15 @@ following simplified driver names that serve as aliases:
 -  ``sqlite``/``sqlite3``: alias for ``pdo_sqlite``
 
 For example, to connect to a "foo" MySQL DB using the ``pdo_mysql``
-driver on localhost port 4486 with the charset set to UTF-8, you
-would use the following URL::
+driver on localhost port 4486 with the "charset" option set to ``utf8mb4``,
+you would use the following URL::
 
-    mysql://localhost:4486/foo?charset=UTF8
+    mysql://localhost:4486/foo?charset=utf8mb4
 
 This is identical to the following connection string using the
 full driver name::
 
-    pdo-mysql://localhost:4486/foo?charset=UTF8
+    pdo-mysql://localhost:4486/foo?charset=utf8mb4
 
 In the example above, mind the dashes instead of the
 underscores in the URL scheme.

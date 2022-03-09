@@ -789,31 +789,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array<int, array<string, mixed>> $users
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    protected function _getPortableUsersList(array $users): array
-    {
-        $list = [];
-        foreach ($users as $value) {
-            $list[] = $this->_getPortableUserDefinition($value);
-        }
-
-        return $list;
-    }
-
-    /**
-     * @param array<string, mixed> $user
-     *
-     * @return array<string, mixed>
-     */
-    protected function _getPortableUserDefinition(array $user): array
-    {
-        return $user;
-    }
-
-    /**
      * @param array<int, array<string, mixed>> $views
      *
      * @return array<string, View>

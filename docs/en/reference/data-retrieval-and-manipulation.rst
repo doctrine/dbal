@@ -238,7 +238,7 @@ Since you are using an ``IN`` expression you would really like to use it in the 
     <?php
     $stmt = $conn->prepare('SELECT * FROM articles WHERE id IN (?)');
     // THIS WILL NOT WORK:
-    $stmt->bindValue(1, array(1, 2, 3, 4, 5, 6));
+    $stmt->bindValue(1, [1, 2, 3, 4, 5, 6]);
     $resultSet = $stmt->executeQuery();
 
 Implementing a generic way to handle this kind of query is tedious work. This is why most
@@ -260,8 +260,8 @@ the SQL and flattens the specified values into the set of parameters. Consider o
 
     <?php
     $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?)',
-        array(array(1, 2, 3, 4, 5, 6)),
-        array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+        [[1, 2, 3, 4, 5, 6]],
+        [\Doctrine\DBAL\Connection::PARAM_INT_ARRAY]
     );
 
 The SQL statement passed to ``Connection#executeQuery`` is not the one actually passed to the
@@ -273,15 +273,15 @@ be specified as well:
     <?php
     // Same SQL WITHOUT usage of Doctrine\DBAL\Connection::PARAM_INT_ARRAY
     $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?, ?, ?, ?, ?, ?)',
-        array(1, 2, 3, 4, 5, 6),
-        array(
+        [1, 2, 3, 4, 5, 6],
+        [
             ParameterType::INTEGER,
             ParameterType::INTEGER,
             ParameterType::INTEGER,
             ParameterType::INTEGER,
             ParameterType::INTEGER,
             ParameterType::INTEGER,
-        )
+        ]
     );
 
 This is much more complicated and is ugly to write generically.
@@ -335,7 +335,7 @@ returns the affected rows count:
 .. code-block:: php
 
     <?php
-    $count = $conn->executeStatement('UPDATE user SET username = ? WHERE id = ?', array('jwage', 1));
+    $count = $conn->executeStatement('UPDATE user SET username = ? WHERE id = ?', ['jwage', 1]);
     echo $count; // 1
 
 The ``$types`` variable contains the PDO or Doctrine Type constants
@@ -352,7 +352,7 @@ parameters to the executeQuery method, then returning the result set:
 .. code-block:: php
 
     <?php
-    $resultSet = $conn->executeQuery('SELECT * FROM user WHERE username = ?', array('jwage'));
+    $resultSet = $conn->executeQuery('SELECT * FROM user WHERE username = ?', ['jwage']);
     $user = $resultSet->fetchAssociative();
 
     /*
@@ -433,7 +433,7 @@ Numeric index retrieval of first result row of the given query:
 .. code-block:: php
 
     <?php
-    $user = $conn->fetchNumeric('SELECT * FROM user WHERE username = ?', array('jwage'));
+    $user = $conn->fetchNumeric('SELECT * FROM user WHERE username = ?', ['jwage']);
 
     /*
     array(
@@ -450,7 +450,7 @@ Retrieve only the value of the first column of the first result row.
 .. code-block:: php
 
     <?php
-    $username = $conn->fetchOne('SELECT username FROM user WHERE id = ?', array(1), 0);
+    $username = $conn->fetchOne('SELECT username FROM user WHERE id = ?', [1], 0);
     echo $username; // jwage
 
 fetchAssociative()
@@ -461,7 +461,7 @@ Retrieve associative array of the first result row.
 .. code-block:: php
 
     <?php
-    $user = $conn->fetchAssociative('SELECT * FROM user WHERE username = ?', array('jwage'));
+    $user = $conn->fetchAssociative('SELECT * FROM user WHERE username = ?', ['jwage']);
     /*
     array(
       'username' => 'jwage',
@@ -508,7 +508,7 @@ keys are column names.
 .. code-block:: php
 
     <?php
-    $conn->delete('user', array('id' => 1));
+    $conn->delete('user', ['id' => 1]);
     // DELETE FROM user WHERE id = ? (1)
 
 insert()
@@ -520,7 +520,7 @@ data.
 .. code-block:: php
 
     <?php
-    $conn->insert('user', array('username' => 'jwage'));
+    $conn->insert('user', ['username' => 'jwage']);
     // INSERT INTO user (username) VALUES (?) (jwage)
 
 update()
@@ -532,5 +532,5 @@ given data.
 .. code-block:: php
 
     <?php
-    $conn->update('user', array('username' => 'jwage'), array('id' => 1));
+    $conn->update('user', ['username' => 'jwage'], ['id' => 1]);
     // UPDATE user (username) VALUES (?) WHERE id = ? (jwage, 1)

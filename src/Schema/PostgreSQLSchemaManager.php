@@ -140,17 +140,6 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition(array $user): array
-    {
-        return [
-            'user' => $user['usename'],
-            'password' => $user['passwd'],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function _getPortableTableDefinition(array $table): string
     {
         $currentSchema = $this->getCurrentSchema();

@@ -80,11 +80,11 @@ an instance of the platform you want the connection to use:
 
     <?php
     $myPlatform = new MyPlatform();
-    $options = array(
+    $options = [
         'driver' => 'pdo_sqlite',
         'path' => 'database.sqlite',
-        'platform' => $myPlatform
-    );
+        'platform' => $myPlatform,
+    ];
     $conn = DriverManager::getConnection($options);
 
 This way you can optimize your schema or generated SQL code with

@@ -6,6 +6,14 @@ platform:
 clone_folder: C:\projects\dbal
 clone_depth: 2
 
+only_commits:
+  files:
+    - .appveyor.yml
+    - ci\appveyor\
+    - composer.*
+    - src\
+    - tests\
+
 cache:
   - C:\ProgramData\chocolatey\bin -> .appveyor.yml
   - C:\ProgramData\chocolatey\lib -> .appveyor.yml

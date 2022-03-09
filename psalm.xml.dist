@@ -175,14 +175,6 @@
                 <directory name="tests"/>
             </errorLevel>
         </PropertyNotSetInConstructor>
-        <RedundantCondition>
-            <errorLevel type="suppress">
-                <!--
-                    See https://github.com/vimeo/psalm/pull/7660
-                -->
-                <file name="src/Driver/Mysqli/Exception/ConnectionFailed.php"/>
-            </errorLevel>
-        </RedundantCondition>
         <RedundantConditionGivenDocblockType>
             <errorLevel type="suppress">
                 <!--
