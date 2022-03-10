@@ -624,6 +624,7 @@ class Connection
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
      *
      * @return int|string The number of affected rows.
+     * @psalm-return int<0,max>|numeric-string
      *
      * @throws Exception
      */
@@ -661,6 +662,7 @@ class Connection
      * @param int $level The level to set.
      *
      * @return int|string
+     * @psalm-return int<0,max>|numeric-string
      *
      * @throws Exception
      */
@@ -698,6 +700,7 @@ class Connection
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
      *
      * @return int|string The number of affected rows.
+     * @psalm-return int<0,max>|numeric-string
      *
      * @throws Exception
      */
@@ -733,6 +736,7 @@ class Connection
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types Parameter types
      *
      * @return int|string The number of affected rows.
+     * @psalm-return int<0,max>|numeric-string
      *
      * @throws Exception
      */
@@ -1126,6 +1130,7 @@ class Connection
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return int|string The number of affected rows.
+     * @psalm-return int<0,max>|numeric-string
      *
      * @throws Exception
      */
@@ -1826,8 +1831,11 @@ class Connection
      *
      * @param array<mixed>           $params The query parameters
      * @param array<int|string|null> $types  The parameter types
+     *
+     * @return int|string
+     * @psalm-return int<0,max>|numeric-string
      */
-    public function executeUpdate(string $sql, array $params = [], array $types = []): int
+    public function executeUpdate(string $sql, array $params = [], array $types = [])
     {
         return $this->executeStatement($sql, $params, $types);
     }
@@ -1846,8 +1854,11 @@ class Connection
      * BC layer for a wide-spread use-case of old DBAL APIs
      *
      * @deprecated This API is deprecated and will be removed after 2022
+     *
+     * @return int|string
+     * @psalm-return int<0,max>|numeric-string
      */
-    public function exec(string $sql): int
+    public function exec(string $sql)
     {
         return $this->executeStatement($sql);
     }

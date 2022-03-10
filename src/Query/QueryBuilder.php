@@ -315,11 +315,12 @@ class QueryBuilder
      *
      * Should be used for INSERT, UPDATE and DELETE
      *
-     * @return int The number of affected rows.
+     * @return int|string The number of affected rows.
+     * @psalm-return int<0,max>|numeric-string
      *
      * @throws Exception
      */
-    public function executeStatement(): int
+    public function executeStatement()
     {
         return $this->connection->executeStatement($this->getSQL(), $this->params, $this->paramTypes);
     }
@@ -330,6 +331,7 @@ class QueryBuilder
      * @deprecated Use {@see executeQuery()} or {@see executeStatement()} instead.
      *
      * @return Result|int|string
+     * @psalm-return Result|int<0,max>|numeric-string
      *
      * @throws Exception
      */

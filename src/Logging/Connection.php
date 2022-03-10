@@ -46,7 +46,10 @@ final class Connection extends AbstractConnectionMiddleware
         return parent::query($sql);
     }
 
-    public function exec(string $sql): int
+    /**
+     * {@inheritDoc}
+     */
+    public function exec(string $sql)
     {
         $this->logger->debug('Executing statement: {sql}', ['sql' => $sql]);
 

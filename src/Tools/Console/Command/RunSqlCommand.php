@@ -124,6 +124,6 @@ EOT
      */
     private function runStatement(SymfonyStyle $io, Connection $conn, string $sql): void
     {
-        $io->success(sprintf('%d rows affected.', $conn->executeStatement($sql)));
+        $io->success(sprintf('%s rows affected.', $conn->executeStatement($sql)));
     }
 }

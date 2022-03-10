@@ -84,7 +84,10 @@ final class Connection implements ServerInfoAwareConnection
         return "'" . $value . "'";
     }
 
-    public function exec(string $sql): int
+    /**
+     * {@inheritdoc}
+     */
+    public function exec(string $sql)
     {
         $stmt = @db2_exec($this->connection, $sql);
 

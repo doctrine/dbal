@@ -71,7 +71,10 @@ final class Connection implements ServerInfoAwareConnection
         return "'" . str_replace("'", "''", $value) . "'";
     }
 
-    public function exec(string $sql): int
+    /**
+     * {@inheritdoc}
+     */
+    public function exec(string $sql)
     {
         $stmt = sqlsrv_query($this->connection, $sql);
 

@@ -28,7 +28,10 @@ final class Connection implements ServerInfoAwareConnection
         $this->connection = $connection;
     }
 
-    public function exec(string $sql): int
+    /**
+     * {@inheritdoc}
+     */
+    public function exec(string $sql)
     {
         try {
             $result = $this->connection->exec($sql);

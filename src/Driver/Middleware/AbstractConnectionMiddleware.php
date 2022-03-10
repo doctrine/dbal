@@ -42,7 +42,10 @@ abstract class AbstractConnectionMiddleware implements ServerInfoAwareConnection
         return $this->wrappedConnection->quote($value, $type);
     }
 
-    public function exec(string $sql): int
+    /**
+     * {@inheritdoc}
+     */
+    public function exec(string $sql)
     {
         return $this->wrappedConnection->exec($sql);
     }

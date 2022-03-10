@@ -100,10 +100,12 @@ final class Connection implements ServerInfoAwareConnection
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @throws Exception
      * @throws Parser\Exception
      */
-    public function exec(string $sql): int
+    public function exec(string $sql)
     {
         return $this->prepare($sql)->execute()->rowCount();
     }

@@ -81,7 +81,10 @@ final class Connection implements ServerInfoAwareConnection
         return "'" . $this->connection->escape_string($value) . "'";
     }
 
-    public function exec(string $sql): int
+    /**
+     * {@inheritdoc}
+     */
+    public function exec(string $sql)
     {
         try {
             $result = $this->connection->query($sql);

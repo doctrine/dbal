@@ -42,9 +42,12 @@ interface Connection
     /**
      * Executes an SQL statement and return the number of affected rows.
      *
+     * @return int|string
+     * @psalm-return int<0,max>|numeric-string
+     *
      * @throws Exception
      */
-    public function exec(string $sql): int;
+    public function exec(string $sql);
 
     /**
      * Returns the ID of the last inserted row or sequence value.
