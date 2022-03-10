@@ -592,6 +592,18 @@ abstract class AbstractPlatformTestCase extends TestCase
         }
     }
 
+    public function testGetDefaultValueDeclarationSQLForJsonType(): void
+    {
+        $jsonObjectSql = $this->platform->getJsonObjectSQL();
+        self::assertSame(
+            ' DEFAULT ' . $jsonObjectSql,
+            $this->platform->getDefaultValueDeclarationSQL([
+                'type'    => Type::getType('json'),
+                'default' => $jsonObjectSql,
+            ])
+        );
+    }
+
     public function testKeywordList(): void
     {
         $keywordList = $this->platform->getReservedKeywordsList();

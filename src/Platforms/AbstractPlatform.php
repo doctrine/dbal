@@ -2619,6 +2619,10 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $this->convertBooleans($default);
         }
 
+        if ($type instanceof Types\JsonType && $default === $this->getJsonObjectSQL()) {
+            return ' DEFAULT ' . $this->getJsonObjectSQL();
+        }
+
         return ' DEFAULT ' . $this->quoteStringLiteral($default);
     }
 
@@ -3036,6 +3040,16 @@ abstract class AbstractPlatform
     public function getCurrentTimestampSQL()
     {
         return 'CURRENT_TIMESTAMP';
+    }
+
+    /**
+     * Returns the SQL specific for the platform to get an empty JSON object
+     *
+     * @return string
+     */
+    public function getJsonObjectSQL()
+    {
+        return 'JSON_OBJECT';
     }
 
     /**
