@@ -124,8 +124,8 @@ final class ComparatorTest extends FunctionalTestCase
     public function testChangeColumnCharsetAndCollation(): void
     {
         [$table, $column] = $this->createCollationTable();
-        $column->setPlatformOption('charset', 'utf8');
-        $column->setPlatformOption('collation', 'utf8_bin');
+        $column->setPlatformOption('charset', 'latin1');
+        $column->setPlatformOption('collation', 'latin1_bin');
 
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
