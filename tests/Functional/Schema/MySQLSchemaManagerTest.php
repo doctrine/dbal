@@ -202,25 +202,13 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $diff = $this->schemaManager->createComparator()
             ->diffTable($table, $onlineTable);
-        self::assertNotFalse($diff);
-
-        $this->schemaManager->alterTable($diff);
-
-        $onlineTable = $this->schemaManager->listTableDetails('text_blob_default_value');
-
-        self::assertNull($onlineTable->getColumn('def_text')->getDefault());
-        self::assertNull($onlineTable->getColumn('def_text_null')->getDefault());
-        self::assertFalse($onlineTable->getColumn('def_text_null')->getNotnull());
-        self::assertNull($onlineTable->getColumn('def_blob')->getDefault());
-        self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
-        self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
+        self::assertFalse($diff);
     }
 
     public function testColumnCharset(): void
     {
         $table = new Table('test_column_charset');
         $table->addColumn('id', 'integer');
-        $table->addColumn('no_charset', 'text');
         $table->addColumn('foo', 'text')->setPlatformOption('charset', 'ascii');
         $table->addColumn('bar', 'text')->setPlatformOption('charset', 'latin1');
         $this->dropAndCreateTable($table);
@@ -228,7 +216,6 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $columns = $this->schemaManager->listTableColumns('test_column_charset');
 
         self::assertFalse($columns['id']->hasPlatformOption('charset'));
-        self::assertEquals('utf8', $columns['no_charset']->getPlatformOption('charset'));
         self::assertEquals('ascii', $columns['foo']->getPlatformOption('charset'));
         self::assertEquals('latin1', $columns['bar']->getPlatformOption('charset'));
     }
@@ -286,7 +273,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->addColumn('text', 'text');
         $table->addColumn('foo', 'text')->setPlatformOption('collation', 'latin1_swedish_ci');
-        $table->addColumn('bar', 'text')->setPlatformOption('collation', 'utf8_general_ci');
+        $table->addColumn('bar', 'text')->setPlatformOption('collation', 'utf8mb4_general_ci');
         $table->addColumn('baz', 'text')->setPlatformOption('collation', 'binary');
         $this->dropAndCreateTable($table);
 
@@ -295,7 +282,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
         self::assertEquals('latin1_swedish_ci', $columns['text']->getPlatformOption('collation'));
         self::assertEquals('latin1_swedish_ci', $columns['foo']->getPlatformOption('collation'));
-        self::assertEquals('utf8_general_ci', $columns['bar']->getPlatformOption('collation'));
+        self::assertEquals('utf8mb4_general_ci', $columns['bar']->getPlatformOption('collation'));
         self::assertInstanceOf(BlobType::class, $columns['baz']->getType());
     }
 
@@ -520,9 +507,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 CREATE TABLE test_table_metadata(
   col1 INT NOT NULL AUTO_INCREMENT PRIMARY KEY
 )
-COLLATE utf8_general_ci
+COLLATE utf8mb4_general_ci
 ENGINE InnoDB
-ROW_FORMAT COMPRESSED
+ROW_FORMAT DYNAMIC
 COMMENT 'This is a test'
 AUTO_INCREMENT=42
 PARTITION BY HASH (col1)
@@ -532,11 +519,11 @@ SQL;
         $onlineTable = $this->schemaManager->listTableDetails('test_table_metadata');
 
         self::assertEquals('InnoDB', $onlineTable->getOption('engine'));
-        self::assertEquals('utf8_general_ci', $onlineTable->getOption('collation'));
+        self::assertEquals('utf8mb4_general_ci', $onlineTable->getOption('collation'));
         self::assertEquals(42, $onlineTable->getOption('autoincrement'));
         self::assertEquals('This is a test', $onlineTable->getOption('comment'));
         self::assertEquals([
-            'row_format' => 'COMPRESSED',
+            'row_format' => 'DYNAMIC',
             'partitioned' => true,
         ], $onlineTable->getOption('create_options'));
     }
