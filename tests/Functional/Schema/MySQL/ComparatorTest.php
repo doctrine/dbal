@@ -43,7 +43,13 @@ final class ComparatorTest extends FunctionalTestCase
         $table = $this->createLobTable($type, $length - 1);
         $this->setBlobLength($table, $length);
 
-        self::assertNull(ComparatorTestUtils::diffOnlineAndOfflineTable(
+        self::assertNull(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table
+        ));
+
+        self::assertNull(ComparatorTestUtils::diffFromDesiredToActualTable(
             $this->schemaManager,
             $this->comparator,
             $table
@@ -100,7 +106,13 @@ final class ComparatorTest extends FunctionalTestCase
         [$table, $column] = $this->createCollationTable();
         $column->setPlatformOption('collation', 'utf8mb4_general_ci');
 
-        self::assertNull(ComparatorTestUtils::diffOnlineAndOfflineTable(
+        self::assertNull(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table
+        ));
+
+        self::assertNull(ComparatorTestUtils::diffFromDesiredToActualTable(
             $this->schemaManager,
             $this->comparator,
             $table
@@ -110,8 +122,8 @@ final class ComparatorTest extends FunctionalTestCase
     public function testChangeColumnCharsetAndCollation(): void
     {
         [$table, $column] = $this->createCollationTable();
-        $column->setPlatformOption('charset', 'utf8');
-        $column->setPlatformOption('collation', 'utf8_bin');
+        $column->setPlatformOption('charset', 'latin1');
+        $column->setPlatformOption('collation', 'latin1_bin');
 
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }

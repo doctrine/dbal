@@ -17,14 +17,28 @@ final class ComparatorTestUtils
     /**
      * @throws Exception
      */
-    public static function diffOnlineAndOfflineTable(
+    public static function diffFromActualToDesiredTable(
         AbstractSchemaManager $schemaManager,
         Comparator $comparator,
-        Table $table
+        Table $desiredTable
     ): ?TableDiff {
         return $comparator->diffTable(
-            $schemaManager->listTableDetails($table->getName()),
-            $table
+            $schemaManager->listTableDetails($desiredTable->getName()),
+            $desiredTable
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function diffFromDesiredToActualTable(
+        AbstractSchemaManager $schemaManager,
+        Comparator $comparator,
+        Table $desiredTable
+    ): ?TableDiff {
+        return $comparator->diffTable(
+            $desiredTable,
+            $schemaManager->listTableDetails($desiredTable->getName())
         );
     }
 
@@ -32,12 +46,13 @@ final class ComparatorTestUtils
     {
         $schemaManager = $connection->createSchemaManager();
 
-        $diff = self::diffOnlineAndOfflineTable($schemaManager, $comparator, $table);
+        $diff = self::diffFromActualToDesiredTable($schemaManager, $comparator, $table);
 
         TestCase::assertNotNull($diff);
 
         $schemaManager->alterTable($diff);
 
-        TestCase::assertNull(self::diffOnlineAndOfflineTable($schemaManager, $comparator, $table));
+        TestCase::assertNull(self::diffFromActualToDesiredTable($schemaManager, $comparator, $table));
+        TestCase::assertNull(self::diffFromDesiredToActualTable($schemaManager, $comparator, $table));
     }
 }
