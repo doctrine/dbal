@@ -11,6 +11,17 @@ use Doctrine\Deprecations\Deprecation;
 class MariaDBPlatform extends MySQLPlatform
 {
     /**
+     * {@inheritDoc}
+     *
+     * Hop over the {@see AbstractMySQLPlatform} implementation until 4.0.x
+     * where {@see MariaDBPlatform} no longer extends {@see MySQLPlatform}.
+     */
+    public function getDefaultValueDeclarationSQL($column)
+    {
+        return AbstractPlatform::getDefaultValueDeclarationSQL($column);
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @link https://mariadb.com/kb/en/library/json-data-type/

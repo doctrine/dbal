@@ -559,15 +559,6 @@ SQL
             $column      = $columnDiff->column;
             $columnArray = $column->toArray();
 
-            // Don't propagate default value changes for unsupported column types.
-            if (
-                $columnDiff->hasChanged('default') &&
-                count($columnDiff->changedProperties) === 1 &&
-                ($columnArray['type'] instanceof TextType || $columnArray['type'] instanceof BlobType)
-            ) {
-                continue;
-            }
-
             $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[]           =  'CHANGE ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
