@@ -1761,6 +1761,7 @@ abstract class AbstractPlatform
      * on this platform.
      *
      * @param int $createFlags
+     * @psalm-param int-mask-of<self::CREATE_*> $createFlags
      *
      * @return string[] The sequence of SQL statements.
      *
