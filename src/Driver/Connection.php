@@ -42,6 +42,8 @@ interface Connection
     /**
      * Executes an SQL statement and return the number of affected rows.
      *
+     * @psalm-return int<0, max>
+     *
      * @throws Exception
      */
     public function exec(string $sql): int;

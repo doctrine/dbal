@@ -316,6 +316,7 @@ class QueryBuilder
      * Should be used for INSERT, UPDATE and DELETE
      *
      * @return int The number of affected rows.
+     * @psalm-return int<0, max>
      *
      * @throws Exception
      */
@@ -329,7 +330,8 @@ class QueryBuilder
      *
      * @deprecated Use {@see executeQuery()} or {@see executeStatement()} instead.
      *
-     * @return Result|int|string
+     * @return Result|int
+     * @psalm-return Result|int<0, max>
      *
      * @throws Exception
      */

@@ -71,6 +71,7 @@ interface Result
      * is not guaranteed for all drivers and should not be relied on in portable applications.
      *
      * @return int The number of rows.
+     * @psalm-return int<0, max>
      *
      * @throws Exception
      */

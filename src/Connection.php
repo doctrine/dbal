@@ -623,7 +623,8 @@ class Connection
      * @param array<string, mixed>                                                 $criteria Deletion criteria
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
      *
-     * @return int|string The number of affected rows.
+     * @return int The number of affected rows.
+     * @psalm-return int<0, max>
      *
      * @throws Exception
      */
@@ -660,7 +661,8 @@ class Connection
      *
      * @param int $level The level to set.
      *
-     * @return int|string
+     * @return int
+     * @psalm-return int<0, max>
      *
      * @throws Exception
      */
@@ -697,7 +699,8 @@ class Connection
      * @param array<string, mixed>                                                 $criteria Update criteria
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
      *
-     * @return int|string The number of affected rows.
+     * @return int The number of affected rows.
+     * @psalm-return int<0, max>
      *
      * @throws Exception
      */
@@ -732,7 +735,8 @@ class Connection
      * @param array<string, mixed>                                                 $data  Column-value pairs
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types Parameter types
      *
-     * @return int|string The number of affected rows.
+     * @return int The number of affected rows.
+     * @psalm-return int<0, max>
      *
      * @throws Exception
      */
@@ -1125,7 +1129,8 @@ class Connection
      * @param list<mixed>|array<string, mixed>                                     $params Statement parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return int|string The number of affected rows.
+     * @return int The number of affected rows.
+     * @psalm-return int<0, max>
      *
      * @throws Exception
      */
@@ -1826,6 +1831,9 @@ class Connection
      *
      * @param array<mixed>           $params The query parameters
      * @param array<int|string|null> $types  The parameter types
+     *
+     * @return int The number of affected rows.
+     * @psalm-return int<0, max>
      */
     public function executeUpdate(string $sql, array $params = [], array $types = []): int
     {
@@ -1846,6 +1854,9 @@ class Connection
      * BC layer for a wide-spread use-case of old DBAL APIs
      *
      * @deprecated This API is deprecated and will be removed after 2022
+     *
+     * @return int The number of affected rows.
+     * @psalm-return int<0, max>
      */
     public function exec(string $sql): int
     {

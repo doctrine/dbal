@@ -83,7 +83,7 @@ final class Result implements ResultInterface
         $count = sqlsrv_rows_affected($this->statement);
 
         if ($count !== false) {
-            return $count;
+            return max(0, $count);
         }
 
         return 0;

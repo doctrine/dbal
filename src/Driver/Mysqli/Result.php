@@ -164,10 +164,16 @@ final class Result implements ResultInterface
     public function rowCount(): int
     {
         if ($this->hasColumns) {
-            return $this->statement->num_rows;
+            $count = $this->statement->num_rows;
+        } else {
+            $count = $this->statement->affected_rows;
         }
 
-        return $this->statement->affected_rows;
+        if (is_string($count)) {
+            $count = PHP_INT_MAX;
+        }
+
+        return max(0, $count);
     }
 
     public function columnCount(): int

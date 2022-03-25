@@ -85,7 +85,7 @@ final class Connection implements ServerInfoAwareConnection
             throw Error::new();
         }
 
-        return $rowsAffected;
+        return max(0, $rowsAffected);
     }
 
     /**

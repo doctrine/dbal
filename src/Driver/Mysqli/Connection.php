@@ -93,7 +93,13 @@ final class Connection implements ServerInfoAwareConnection
             throw ConnectionError::new($this->connection);
         }
 
-        return $this->connection->affected_rows;
+        $count = $this->connection->affected_rows;
+
+        if (is_string($count)) {
+            $count = PHP_INT_MAX;
+        }
+
+        return max(0, $count);
     }
 
     /**
