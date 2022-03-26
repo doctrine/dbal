@@ -2578,6 +2578,10 @@ abstract class AbstractPlatform
         if (! isset($column['type'])) {
             return " DEFAULT '" . $default . "'";
         }
+        
+        if ($default instanceof \BackedEnum) {
+            return ' DEFAULT ' . $this->quoteStringLiteral($default->value);
+        }
 
         $type = $column['type'];
 
