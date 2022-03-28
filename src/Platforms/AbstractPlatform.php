@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use BackedEnum;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
@@ -2578,9 +2579,9 @@ abstract class AbstractPlatform
         if (! isset($column['type'])) {
             return " DEFAULT '" . $default . "'";
         }
-        
-        if ($default instanceof \BackedEnum) {
-            return ' DEFAULT ' . $this->quoteStringLiteral($default->value);
+
+        if ($default instanceof BackedEnum) {
+            return ' DEFAULT ' . is_string($default->value) ? $this->quoteStringLiteral($default->value) : $default->value;
         }
 
         $type = $column['type'];
