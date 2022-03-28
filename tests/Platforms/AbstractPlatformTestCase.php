@@ -608,12 +608,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         self::assertSame(" DEFAULT 'foo'", $this->platform->getDefaultValueDeclarationSQL([
             'type' => Type::getType('string'),
-            'default' => \EnumString::Foo
+            'default' => \EnumString::Foo,
         ]));
 
-        self::assertSame(" DEFAULT 1", $this->platform->getDefaultValueDeclarationSQL([
+        self::assertSame(' DEFAULT 1', $this->platform->getDefaultValueDeclarationSQL([
             'type' => Type::getType('integer'),
-            'default' => \EnumInt::Foo
+            'default' => \EnumInt::Foo,
         ]));
     }
 
