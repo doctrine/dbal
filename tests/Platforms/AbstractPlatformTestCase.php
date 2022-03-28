@@ -592,6 +592,33 @@ abstract class AbstractPlatformTestCase extends TestCase
         }
     }
 
+    public function testGetDefaultValueDeclarationSQLForBackedEnum(): void
+    {
+        if (\PHP_VERSION_ID >= 80100) {
+            eval(<<<'EOD'
+                enum EnumString: string {
+                    case Foo = 'foo';
+                }
+                enum EnumInt: int {
+                    case Foo = 1;
+                }
+            EOD);
+
+            self::assertSame(" DEFAULT 'foo'", $this->platform->getDefaultValueDeclarationSQL([
+                'type' => Type::getType('string'),
+                'default' => \EnumString::Foo
+            ]));
+
+            self::assertSame(" DEFAULT '1'", $this->platform->getDefaultValueDeclarationSQL([
+                'type' => Type::getType('integer'),
+                'default' => \EnumInt::Foo
+            ]));
+        } else {
+            self::markTestSkipped('Enums are only supported in PHP >= 8.1');
+        }
+
+    }
+
     public function testKeywordList(): void
     {
         $keywordList = $this->platform->getReservedKeywordsList();
