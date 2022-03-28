@@ -2576,12 +2576,12 @@ abstract class AbstractPlatform
 
         $default = $column['default'];
 
-        if (! isset($column['type'])) {
-            return " DEFAULT '" . $default . "'";
+        if ($default instanceof BackedEnum) {
+            $default = $default->value;
         }
 
-        if ($default instanceof BackedEnum) {
-            return ' DEFAULT ' . $this->quoteStringLiteral($default->value);
+        if (! isset($column['type'])) {
+            return " DEFAULT '" . $default . "'";
         }
 
         $type = $column['type'];

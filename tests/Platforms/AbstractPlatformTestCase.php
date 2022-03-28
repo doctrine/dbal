@@ -611,7 +611,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             'default' => \EnumString::Foo
         ]));
 
-        self::assertSame(" DEFAULT '1'", $this->platform->getDefaultValueDeclarationSQL([
+        self::assertSame(" DEFAULT 1", $this->platform->getDefaultValueDeclarationSQL([
             'type' => Type::getType('integer'),
             'default' => \EnumInt::Foo
         ]));
