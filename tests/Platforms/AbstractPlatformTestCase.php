@@ -616,7 +616,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         } else {
             self::markTestSkipped('Enums are only supported in PHP >= 8.1');
         }
-
     }
 
     public function testKeywordList(): void
