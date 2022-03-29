@@ -54,7 +54,6 @@
     "suggest": {
         "symfony/console": "For helpful console commands such as SQL execution and import of files."
     },
-    "bin": ["bin/doctrine-dbal"],
     "config": {
         "sort-packages": true,
         "allow-plugins": {
