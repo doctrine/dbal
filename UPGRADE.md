@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed the `doctrine-dbal` binary.
+
+The documentation explains how the console tools can be bootstrapped for standalone usage.
+
+The method `ConsoleRunner::printCliConfigTemplate()` has been removed as well because it was only useful in the context
+of the `doctrine-dbal` binary.
+
 ## Removed support for the `$database` parameter of `AbstractSchemaManager::list*()` methods
 
 Passing `$database` to the following methods is no longer supported:

@@ -14,7 +14,6 @@
 
     <config name="php_version" value="80000"/>
 
-    <file>bin</file>
     <file>src</file>
     <file>tests</file>
 
