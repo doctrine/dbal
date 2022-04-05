@@ -54,6 +54,7 @@ class MiddlewareTest extends TestCase
         $this->driver->connect([
             'username' => 'admin',
             'password' => 'Passw0rd!',
+            'url' => 'contains a password',
         ]);
     }
 
