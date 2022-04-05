@@ -44,6 +44,7 @@ class MiddlewareTest extends TestCase
                         'params' => [
                             'username' => 'admin',
                             'password' => '<redacted>',
+                            'url' => '<redacted>',
                         ],
                     ],
                 ],
@@ -53,6 +54,7 @@ class MiddlewareTest extends TestCase
         $this->driver->connect([
             'username' => 'admin',
             'password' => 'Passw0rd!',
+            'url' => 'mysql://user:secret@localhost/mydb',
         ]);
     }
 

@@ -20,6 +20,17 @@ use function in_array;
 class MariaDBPlatform extends AbstractMySQLPlatform
 {
     /**
+     * {@inheritDoc}
+     *
+     * Hop over the {@see AbstractMySQLPlatform} implementation until 4.0.x
+     * where {@see MariaDBPlatform} no longer extends {@see MySQLPlatform}.
+     */
+    public function getDefaultValueDeclarationSQL(array $column): string
+    {
+        return AbstractPlatform::getDefaultValueDeclarationSQL($column);
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @link https://mariadb.com/kb/en/library/json-data-type/

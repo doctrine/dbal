@@ -36,8 +36,6 @@ can use to write a portable application.
 Connection Wrapper
 ------------------
 
-This functionality is only implemented with Doctrine DBAL 2.1 upwards.
-
 To handle all the points 1-3 you have to use a special wrapper around the database
 connection. The handling and differences to tackle are all taken from the great
 `PEAR MDB2 library <http://pear.php.net/package/MDB2/redirected>`_.
@@ -78,8 +76,6 @@ at all the different methods that the platforms allow you to access.
 
 Keyword Lists
 -------------
-
-This functionality is only implemented with Doctrine DBAL 2.1 upwards.
 
 Doctrine ships with lists of keywords for every supported vendor. You
 can access a keyword list through the schema manager of the vendor you

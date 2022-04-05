@@ -262,10 +262,6 @@ The immutable variant of the ``date`` type.
 Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
 object or ``null`` if no data is present.
 
-.. note::
-
-    Available since version ``2.6``.
-
 datetime
 ^^^^^^^^
 
@@ -296,10 +292,6 @@ The immutable variant of the ``datetime`` type.
 Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
 object or ``null`` if no data is present.
 
-.. note::
-
-    Available since version ``2.6``.
-
 datetimetz
 ^^^^^^^^^^
 
@@ -316,10 +308,6 @@ The immutable variant of the ``datetimetz`` type.
 Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
 object or ``null`` if no data is present.
 
-.. note::
-
-    Available since version ``2.6``.
-
 time
 ^^^^
 
@@ -335,10 +323,6 @@ time_immutable
 The immutable variant of the ``time`` type.
 Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
 object or ``null`` if no data is present.
-
-.. note::
-
-    Available since version ``2.6``.
 
 dateinterval
 ^^^^^^^^^^^^
@@ -453,29 +437,6 @@ JSON objects are always converted to PHP associative arrays.
     You should never rely on the order of your JSON object keys, as some vendors
     like MySQL sort the keys of its native JSON type using an internal order
     which is also subject to change.
-
-json_array
-^^^^^^^^^^
-
-.. warning::
-
-    This type is deprecated since 2.6, you should use ``json`` instead.
-
-Maps and converts array data based on PHP's JSON encoding functions.
-If you know that the data to be stored always is in a valid UTF-8
-encoded JSON format string, you should consider using this type.
-Values retrieved from the database are always converted to PHP's ``array`` type
-using PHP's ``json_decode()`` function.
-
-.. note::
-
-    Some vendors have a native JSON type and Doctrine will use it if possible
-    and otherwise silently fall back to the vendor's ``text`` type to ensure
-    the most efficient storage requirements.
-    If the vendor does not have a native JSON type, this type requires an SQL
-    column comment hint so that it can be reverse engineered from the database.
-    Doctrine cannot map back this type properly on vendors not supporting column
-    comments and will fall back to ``text`` type instead.
 
 Object types
 ~~~~~~~~~~~~

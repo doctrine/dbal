@@ -862,6 +862,8 @@ abstract class AbstractPlatform
      * Returns the SQL statement(s) to create a table with the specified name, columns and constraints
      * on this platform.
      *
+     * @psalm-param int-mask-of<self::CREATE_*> $createFlags
+     *
      * @return array<int, string> The sequence of SQL statements.
      *
      * @throws Exception
