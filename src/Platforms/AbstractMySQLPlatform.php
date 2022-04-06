@@ -13,8 +13,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\BlobType;
-use Doctrine\DBAL\Types\TextType;
 
 use function array_merge;
 use function array_unique;
@@ -269,19 +267,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         }
 
         return $sql;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefaultValueDeclarationSQL(array $column): string
-    {
-        // Unset the default value if the given column definition does not allow default values.
-        if ($column['type'] instanceof TextType || $column['type'] instanceof BlobType) {
-            $column['default'] = null;
-        }
-
-        return parent::getDefaultValueDeclarationSQL($column);
     }
 
     /**
