@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\TextType;
 
 /**
  * Provides the behavior, features and SQL dialect of the Oracle MySQL database platform
@@ -14,6 +16,22 @@ use Doctrine\DBAL\Schema\Index;
  */
 class MySQLPlatform extends AbstractMySQLPlatform
 {
+    /**
+     * {@inheritDoc}
+     *
+     * Oracle MySQL does not support default values on TEXT/BLOB columns until 8.0.13.
+     *
+     * @link https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-13.html#mysqld-8-0-13-data-types
+     */
+    public function getDefaultValueDeclarationSQL(array $column): string
+    {
+        if ($column['type'] instanceof TextType || $column['type'] instanceof BlobType) {
+            unset($column['default']);
+        }
+
+        return parent::getDefaultValueDeclarationSQL($column);
+    }
+
     public function hasNativeJsonType(): bool
     {
         return true;
