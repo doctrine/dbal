@@ -133,6 +133,10 @@ class SqlitePlatform extends AbstractPlatform
             case DateIntervalUnit::SECOND:
             case DateIntervalUnit::MINUTE:
             case DateIntervalUnit::HOUR:
+                if (! is_numeric($interval)) {
+                    $interval = "' || " . $interval . " || '";
+                }
+
                 return 'DATETIME(' . $date . ",'" . $operator . $interval . ' ' . $unit . "')";
         }
 
