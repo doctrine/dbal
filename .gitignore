@@ -6,7 +6,6 @@ reports/
 dist/
 download/
 vendor/
-.idea/
 /*.phpunit.xml
 /phpunit.xml
 /.phpcs-cache
