@@ -8,7 +8,9 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Event\TransactionBeginEventArgs;
@@ -16,11 +18,13 @@ use Doctrine\DBAL\Event\TransactionCommitEventArgs;
 use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\NoActiveTransactionException;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Query;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -900,6 +904,32 @@ class ConnectionTest extends TestCase
         self::assertSame($params, $connection->getParams());
 
         $connection->executeCacheQuery($query, [], [], $queryCacheProfile);
+    }
+
+    public function testDeadLockExceptionResetsTransactionLevel(): void
+    {
+        $driverException = $this->getMockBuilder(TheDriverException::class)
+            ->setConstructorArgs(['Deadlock happened', 1213])
+            ->getMock();
+
+        $driverConnectionMock = $this->createMock(DriverConnection::class);
+        $driverConnectionMock->method('query')
+            ->willThrowException(new DeadlockException($driverException, new Query('', [], [])));
+        $driverMock = $this->createMock(Driver::class);
+        $driverMock->expects(self::any())
+            ->method('connect')
+            ->willReturn($driverConnectionMock);
+        $driverMock->method('getExceptionConverter')
+            ->willReturn(new ExceptionConverter());
+
+        $conn = new Connection([], $driverMock);
+
+        try {
+            $conn->executeQuery('Should rise deadlock exception');
+            self::fail('Should produce deadlock exception');
+        } catch (DeadlockException $ex) {
+            $this->assertSame(0, $conn->getTransactionNestingLevel());
+        }
     }
 }
 
