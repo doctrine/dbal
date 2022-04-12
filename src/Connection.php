@@ -14,10 +14,14 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Event\TransactionBeginEventArgs;
 use Doctrine\DBAL\Event\TransactionCommitEventArgs;
 use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
+use Doctrine\DBAL\Exception\CommitFailedRollbackOnlyException;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Exception\NoActiveTransactionException;
+use Doctrine\DBAL\Exception\NoAlterOfSavePointsDuringTransactionException;
+use Doctrine\DBAL\Exception\SavePointNotSupportedException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -1250,11 +1254,11 @@ class Connection
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
         if ($this->transactionNestingLevel > 0) {
-            throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
+            throw new NoAlterOfSavePointsDuringTransactionException();
         }
 
         if (! $this->getDatabasePlatform()->supportsSavepoints()) {
-            throw ConnectionException::savepointsNotSupported();
+            throw new SavePointNotSupportedException();
         }
 
         $this->nestTransactionsWithSavepoints = (bool) $nestTransactionsWithSavepoints;
@@ -1327,11 +1331,11 @@ class Connection
     public function commit()
     {
         if ($this->transactionNestingLevel === 0) {
-            throw ConnectionException::noActiveTransaction();
+            throw new NoActiveTransactionException();
         }
 
         if ($this->isRollbackOnly) {
-            throw ConnectionException::commitFailedRollbackOnly();
+            throw new CommitFailedRollbackOnlyException();
         }
 
         $result = true;
@@ -1404,7 +1408,7 @@ class Connection
     public function rollBack()
     {
         if ($this->transactionNestingLevel === 0) {
-            throw ConnectionException::noActiveTransaction();
+            throw new NoActiveTransactionException();
         }
 
         $connection = $this->getWrappedConnection();
@@ -1460,7 +1464,7 @@ class Connection
         $platform = $this->getDatabasePlatform();
 
         if (! $platform->supportsSavepoints()) {
-            throw ConnectionException::savepointsNotSupported();
+            throw new SavePointNotSupportedException();
         }
 
         $this->executeStatement($platform->createSavePoint($savepoint));
@@ -1480,7 +1484,7 @@ class Connection
         $platform = $this->getDatabasePlatform();
 
         if (! $platform->supportsSavepoints()) {
-            throw ConnectionException::savepointsNotSupported();
+            throw new SavePointNotSupportedException();
         }
 
         if (! $platform->supportsReleaseSavepoints()) {
@@ -1504,7 +1508,7 @@ class Connection
         $platform = $this->getDatabasePlatform();
 
         if (! $platform->supportsSavepoints()) {
-            throw ConnectionException::savepointsNotSupported();
+            throw new SavePointNotSupportedException();
         }
 
         $this->executeStatement($platform->rollbackSavePoint($savepoint));
@@ -1603,7 +1607,7 @@ class Connection
     public function setRollbackOnly()
     {
         if ($this->transactionNestingLevel === 0) {
-            throw ConnectionException::noActiveTransaction();
+            throw new NoActiveTransactionException();
         }
 
         $this->isRollbackOnly = true;
@@ -1619,7 +1623,7 @@ class Connection
     public function isRollbackOnly()
     {
         if ($this->transactionNestingLevel === 0) {
-            throw ConnectionException::noActiveTransaction();
+            throw new NoActiveTransactionException();
         }
 
         return $this->isRollbackOnly;

@@ -7,7 +7,10 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\CommitFailedRollbackOnlyException;
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\NoAlterOfSavePointsDuringTransactionException;
+use Doctrine\DBAL\Exception\SavePointNotSupportedException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -49,7 +52,7 @@ class ConnectionTest extends FunctionalTestCase
         $this->connection->beginTransaction();
         $this->connection->setRollbackOnly();
 
-        $this->expectException(ConnectionException::class);
+        $this->expectException(CommitFailedRollbackOnlyException::class);
         $this->connection->commit();
     }
 
@@ -152,7 +155,7 @@ class ConnectionTest extends FunctionalTestCase
             try {
                 $this->connection->setNestTransactionsWithSavepoints(false);
                 self::fail('Should not be able to disable savepoints in usage inside a nested open transaction.');
-            } catch (ConnectionException $e) {
+            } catch (NoAlterOfSavePointsDuringTransactionException $e) {
                 self::assertTrue($this->connection->getNestTransactionsWithSavepoints());
             }
 
@@ -169,7 +172,7 @@ class ConnectionTest extends FunctionalTestCase
         }
 
         $this->connection->beginTransaction();
-        $this->expectException(ConnectionException::class);
+        $this->expectException(NoAlterOfSavePointsDuringTransactionException::class);
         $this->connection->setNestTransactionsWithSavepoints(true);
     }
 
@@ -187,8 +190,7 @@ class ConnectionTest extends FunctionalTestCase
             self::markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
-        $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
+        $this->expectException(SavePointNotSupportedException::class);
 
         $this->connection->setNestTransactionsWithSavepoints(true);
     }
@@ -199,8 +201,7 @@ class ConnectionTest extends FunctionalTestCase
             self::markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
-        $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
+        $this->expectException(SavePointNotSupportedException::class);
 
         $this->connection->createSavepoint('foo');
     }
@@ -211,8 +212,7 @@ class ConnectionTest extends FunctionalTestCase
             self::markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
-        $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
+        $this->expectException(SavePointNotSupportedException::class);
 
         $this->connection->releaseSavepoint('foo');
     }
@@ -223,8 +223,7 @@ class ConnectionTest extends FunctionalTestCase
             self::markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
-        $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
+        $this->expectException(SavePointNotSupportedException::class);
 
         $this->connection->rollbackSavepoint('foo');
     }

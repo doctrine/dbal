@@ -17,6 +17,7 @@ use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Exception\NoActiveTransactionException;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -83,25 +84,25 @@ class ConnectionTest extends TestCase
 
     public function testCommitWithNoActiveTransactionThrowsException(): void
     {
-        $this->expectException(ConnectionException::class);
+        $this->expectException(NoActiveTransactionException::class);
         $this->connection->commit();
     }
 
     public function testRollbackWithNoActiveTransactionThrowsException(): void
     {
-        $this->expectException(ConnectionException::class);
+        $this->expectException(NoActiveTransactionException::class);
         $this->connection->rollBack();
     }
 
     public function testSetRollbackOnlyNoActiveTransactionThrowsException(): void
     {
-        $this->expectException(ConnectionException::class);
+        $this->expectException(NoActiveTransactionException::class);
         $this->connection->setRollbackOnly();
     }
 
     public function testIsRollbackOnlyNoActiveTransactionThrowsException(): void
     {
-        $this->expectException(ConnectionException::class);
+        $this->expectException(NoActiveTransactionException::class);
         $this->connection->isRollbackOnly();
     }
 
