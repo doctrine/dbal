@@ -254,10 +254,6 @@
         <DocblockTypeContradiction>
             <errorLevel type="suppress">
                 <!--
-                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/766
-                -->
-                <file name="src/Driver/Mysqli/Result.php"/>
-                <!--
                     These issues can be mostly divided in the following categories:
                       1. Union types not supported at the language level (require dropping PHP 7 support)
                       2. Associative arrays with typed elements used instead of classes (require breaking API changes)
@@ -439,19 +435,15 @@
                 <file name="tests/Platforms/AbstractMySQLPlatformTestCase.php"/>
             </errorLevel>
         </TooManyArguments>
-        <UndefinedConstant>
-            <errorLevel type="suppress">
-                <!--
-                    Requires a release of
-                    https://github.com/JetBrains/phpstorm-stubs/pull/732
-                -->
-                <file name="tests/Driver/PDO/PgSQL/DriverTest.php" />
-            </errorLevel>
-        </UndefinedConstant>
         <UndefinedDocblockClass>
             <errorLevel type="suppress">
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->
                 <referencedClass name="Doctrine\DBAL\Portability\T"/>
+                <!--
+                    The OCI-Lob class was renamed to OCILob in PHP 8 while Psalm infers PHP 7.3 from composer.json
+                    and may not properly interpret the LanguageLevelTypeAware annotation from the stubs.
+                -->
+                <referencedClass name="OCILob"/>
             </errorLevel>
         </UndefinedDocblockClass>
         <InvalidReturnStatement>
