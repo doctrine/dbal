@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
@@ -376,6 +377,28 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->getDatabasePlatform()->setEventManager($eventManager);
 
         $this->schemaManager->listTableIndexes('list_table_indexes_test');
+    }
+
+    public function testDispatchEventWhenDatabasePlatformIsExplicitlyPassed(): void
+    {
+        $params             = $this->connection->getParams();
+        $params['platform'] = $this->connection->getDriver()->getDatabasePlatform();
+
+        $listenerMock = $this->createMock(CreateTableDispatchEventListener::class);
+        $listenerMock
+            ->expects(self::once())
+            ->method('onSchemaCreateTable');
+
+        $eventManager = new EventManager();
+        $eventManager->addEventListener([Events::onSchemaCreateTable], $listenerMock);
+
+        // We need to work with a new connection because the shared one has an auto-detected platform already set.
+        $connection = DriverManager::getConnection($params, null, $eventManager);
+
+        $table = $this->getTestTable('explicit_db_platform_test');
+
+        $schemaManager = $connection->createSchemaManager();
+        $schemaManager->createTable($table);
     }
 
     /**
@@ -1627,4 +1650,9 @@ interface ListTableColumnsDispatchEventListener
 interface ListTableIndexesDispatchEventListener
 {
     public function onSchemaIndexDefinition(): void;
+}
+
+interface CreateTableDispatchEventListener
+{
+    public function onSchemaCreateTable(): void;
 }
