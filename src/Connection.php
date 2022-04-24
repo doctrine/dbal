@@ -1674,27 +1674,40 @@ class Connection
             $bindIndex = 1;
 
             foreach ($params as $key => $value) {
-                if (isset($types[$key])) {
-                    $type                  = $types[$key];
-                    [$value, $bindingType] = $this->getBindingInfo($value, $type);
-                    $stmt->bindValue($bindIndex, $value, $bindingType);
-                } else {
-                    $stmt->bindValue($bindIndex, $value);
-                }
-
+                $this->bindTypedValue($stmt, $bindIndex, $key, $value, $types);
                 ++$bindIndex;
             }
         } else {
             // Named parameters
             foreach ($params as $name => $value) {
-                if (isset($types[$name])) {
-                    $type                  = $types[$name];
-                    [$value, $bindingType] = $this->getBindingInfo($value, $type);
-                    $stmt->bindValue($name, $value, $bindingType);
-                } else {
-                    $stmt->bindValue($name, $value);
-                }
+                $this->bindTypedValue($stmt, $name, $name, $value, $types);
             }
+        }
+    }
+
+    /**
+     * @param DriverStatement                                                      $stmt  Prepared statement
+     * @param int|string                                                           $param Parameter name or position
+     * @param int|string                                                           $key   The key to look up the type
+     * @param mixed                                                                $value Value to bind
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types Parameter types
+     *
+     * @throws Exception
+     */
+    private function bindTypedValue(DriverStatement $stmt, $param, $key, $value, array $types): void
+    {
+        if ($value === null) {
+            $parameterType = ParameterType::NULL;
+        } elseif (isset($types[$key])) {
+            [$value, $parameterType] = $this->getBindingInfo($value, $types[$key]);
+        } else {
+            $parameterType = ParameterType::STRING;
+        }
+
+        try {
+            $stmt->bindValue($param, $value, $parameterType);
+        } catch (Driver\Exception $e) {
+            throw $this->convertException($e);
         }
     }
 

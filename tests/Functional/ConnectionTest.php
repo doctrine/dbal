@@ -416,6 +416,36 @@ class ConnectionTest extends FunctionalTestCase
         $this->connection->prepare('foo')->executeStatement();
     }
 
+    /**
+     * @dataProvider parameterTypeProvider
+     */
+    public function testNullIsBoundAsNull(int $type): void
+    {
+        self::assertNull(
+            $this->connection->fetchOne(
+                $this->connection->getDatabasePlatform()->getDummySelectSQL('?'),
+                [null],
+                [$type]
+            )
+        );
+    }
+
+    /**
+     * @return array<array{int}>
+     */
+    public static function parameterTypeProvider(): array
+    {
+        return [
+            [ParameterType::NULL],
+            [ParameterType::INTEGER],
+            [ParameterType::STRING],
+            [ParameterType::LARGE_OBJECT],
+            [ParameterType::BOOLEAN],
+            [ParameterType::BINARY],
+            [ParameterType::ASCII],
+        ];
+    }
+
     private function createTestTable(): void
     {
         $table = new Table(self::TABLE);
