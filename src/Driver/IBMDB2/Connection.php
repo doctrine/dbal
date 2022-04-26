@@ -89,7 +89,7 @@ final class Connection implements ConnectionInterface
             throw NoIdentityValue::new();
         }
 
-        return db2_last_insert_id($this->connection);
+        return $lastInsertId;
     }
 
     public function beginTransaction(): void

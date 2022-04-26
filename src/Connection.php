@@ -149,14 +149,6 @@ class Connection implements ServerVersionProvider
         $this->_driver = $driver;
         $this->params  = $params;
 
-        if (isset($params['platform'])) {
-            if (! $params['platform'] instanceof Platforms\AbstractPlatform) {
-                throw InvalidPlatformType::new($params['platform']);
-            }
-
-            $this->platform = $params['platform'];
-        }
-
         // Create default config and event manager if none given
         if ($config === null) {
             $config = new Configuration();
@@ -168,6 +160,15 @@ class Connection implements ServerVersionProvider
 
         $this->_config       = $config;
         $this->_eventManager = $eventManager;
+
+        if (isset($params['platform'])) {
+            if (! $params['platform'] instanceof Platforms\AbstractPlatform) {
+                throw InvalidPlatformType::new($params['platform']);
+            }
+
+            $this->platform = $params['platform'];
+            $this->platform->setEventManager($this->_eventManager);
+        }
 
         $this->autoCommit = $config->getAutoCommit();
     }
