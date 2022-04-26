@@ -86,6 +86,12 @@ parameters:
             paths:
                 - src/Driver/OCI8/Statement.php
 
+        # https://github.com/phpstan/phpstan-src/pull/1214
+        -
+            message: '~^Expression on left side of \?\? is not nullable\.$~'
+            paths:
+                - src/Driver/IBMDB2/Connection.php
+
         # TODO: check for null after calling Connection::getDatabase()
         -
             message: '~Parameter.*\$database of method.*expects string, string\|null given\.~'
