@@ -1217,11 +1217,13 @@ class Connection
      * If an exception occurs during execution of the function or transaction commit,
      * the transaction is rolled back and the exception re-thrown.
      *
-     * @param Closure $func The function to execute transactionally.
+     * @param Closure(self):T $func The function to execute transactionally.
      *
-     * @return mixed The value returned by $func
+     * @return T The value returned by $func
      *
      * @throws Throwable
+     *
+     * @template T
      */
     public function transactional(Closure $func)
     {
