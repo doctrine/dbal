@@ -514,9 +514,6 @@
         </InvalidReturnType>
         <InvalidScalarArgument>
             <errorLevel type="suppress">
-                <!-- See https://github.com/vimeo/psalm/issues/4295 -->
-                <file name="src/Exception/DriverException.php"/>
-
                 <!-- See https://github.com/doctrine/dbal/pull/3498 -->
                 <file name="tests/Functional/DataAccessTest.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
