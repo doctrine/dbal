@@ -227,17 +227,17 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'CHAR(10)',
-            $this->platform->getVarcharTypeDeclarationSQL(
+            $this->platform->getStringTypeDeclarationSQL(
                 ['length' => 10, 'fixed' => true]
             )
         );
         self::assertEquals(
             'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50])
+            $this->platform->getStringTypeDeclarationSQL(['length' => 50])
         );
         self::assertEquals(
             'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([])
+            $this->platform->getStringTypeDeclarationSQL([])
         );
     }
 

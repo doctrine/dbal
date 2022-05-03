@@ -21,13 +21,13 @@ class StringTest extends TestCase
         $this->type     = new StringType();
     }
 
-    public function testReturnsSqlDeclarationFromPlatformVarchar(): void
+    public function testReturnsSqlDeclarationFromPlatformString(): void
     {
         $this->platform->expects(self::once())
-            ->method('getVarcharTypeDeclarationSQL')
-            ->willReturn('TEST_VARCHAR');
+            ->method('getStringTypeDeclarationSQL')
+            ->willReturn('TEST_STRING');
 
-        self::assertEquals('TEST_VARCHAR', $this->type->getSQLDeclaration([], $this->platform));
+        self::assertEquals('TEST_STRING', $this->type->getSQLDeclaration([], $this->platform));
     }
 
     public function testConvertToPHPValue(): void

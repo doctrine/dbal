@@ -191,11 +191,13 @@ abstract class AbstractPlatform
      */
     public function getAsciiStringTypeDeclarationSQL(array $column): string
     {
-        return $this->getVarcharTypeDeclarationSQL($column);
+        return $this->getStringTypeDeclarationSQL($column);
     }
 
     /**
      * Returns the SQL snippet used to declare a VARCHAR column type.
+     *
+     * @deprecated Use {@link getStringTypeDeclarationSQL()} instead.
      *
      * @param mixed[] $column
      *
@@ -218,6 +220,18 @@ abstract class AbstractPlatform
         }
 
         return $this->getVarcharTypeDeclarationSQLSnippet($column['length'], $fixed);
+    }
+
+    /**
+     * Returns the SQL snippet used to declare a string column type.
+     *
+     * @param mixed[] $column
+     *
+     * @return string
+     */
+    public function getStringTypeDeclarationSQL(array $column)
+    {
+        return $this->getVarcharTypeDeclarationSQL($column);
     }
 
     /**
@@ -270,7 +284,7 @@ abstract class AbstractPlatform
         $column['length'] = 36;
         $column['fixed']  = true;
 
-        return $this->getVarcharTypeDeclarationSQL($column);
+        return $this->getStringTypeDeclarationSQL($column);
     }
 
     /**

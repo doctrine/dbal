@@ -14,7 +14,7 @@ class StringType extends Type
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return $platform->getVarcharTypeDeclarationSQL($column);
+        return $platform->getStringTypeDeclarationSQL($column);
     }
 
     /**
