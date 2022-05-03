@@ -18,7 +18,6 @@ cache:
   - C:\ProgramData\chocolatey\bin -> .appveyor.yml
   - C:\ProgramData\chocolatey\lib -> .appveyor.yml
   - C:\tools\php -> .appveyor.yml
-  - C:\tools\cacert -> .appveyor.yml
   - C:\tools\composer -> .appveyor.yml
   - '%LOCALAPPDATA%\Composer\files -> composer.json'
 
@@ -69,7 +68,6 @@ install:
           Add-Content php.ini "`n extension=php_pdo_sqlite.dll"
           Add-Content php.ini "`n extension=php_sqlite3.dll"
           Add-Content php.ini "`n extension=php_curl.dll"
-          Add-Content php.ini "`n curl.cainfo=C:\tools\cacert\bundle.pem"
 
           # Get and install the latest stable sqlsrv DLL's
           $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/sqlsrv/stable.txt").Content
@@ -99,14 +97,6 @@ install:
           if (!(Test-Path c:\tools\composer\composer.phar)) {
             appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar -Filename C:\tools\composer\composer.phar
             Set-Content -path 'C:\tools\composer\composer.bat' -Value ('@php C:\tools\composer\composer.phar %*')
-          }
-
-          # download CA bundle
-          if (!(Test-Path C:\tools\cacert)) {
-            New-Item -path c:\tools\ -name cacert -itemtype directory
-          }
-          if (!(Test-Path c:\tools\cacert\bundle.pem)) {
-            appveyor-retry appveyor DownloadFile https://curl.haxx.se/ca/cacert.pem -Filename C:\tools\cacert\bundle.pem
           }
         }
     # install composer dependencies
