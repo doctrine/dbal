@@ -139,10 +139,8 @@ class PrimaryReadReplicaConnection extends Connection
 
     /**
      * @param string|null $connectionName
-     *
-     * @return bool
      */
-    public function connect($connectionName = null)
+    public function connect($connectionName = null): bool
     {
         if ($connectionName !== null) {
             throw new InvalidArgumentException(
@@ -233,11 +231,9 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @param string $connectionName
      *
-     * @return DriverConnection
-     *
      * @throws Exception
      */
-    protected function connectTo($connectionName)
+    protected function connectTo($connectionName): DriverConnection
     {
         $params = $this->getParams();
 

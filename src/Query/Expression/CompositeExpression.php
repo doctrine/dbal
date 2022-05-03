@@ -82,10 +82,8 @@ class CompositeExpression implements Countable
      * @deprecated This class will be made immutable. Use with() instead.
      *
      * @param self[]|string[] $parts
-     *
-     * @return CompositeExpression
      */
-    public function addMultiple(array $parts = [])
+    public function addMultiple(array $parts = []): CompositeExpression
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
@@ -106,10 +104,8 @@ class CompositeExpression implements Countable
      * @deprecated This class will be made immutable. Use with() instead.
      *
      * @param mixed $part
-     *
-     * @return CompositeExpression
      */
-    public function add($part)
+    public function add($part): CompositeExpression
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
@@ -147,21 +143,17 @@ class CompositeExpression implements Countable
 
     /**
      * Retrieves the amount of expressions on composite expression.
-     *
-     * @return int
      */
     #[ReturnTypeWillChange]
-    public function count()
+    public function count(): int
     {
         return count($this->parts);
     }
 
     /**
      * Retrieves the string representation of this composite expression.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->count() === 1) {
             return (string) $this->parts[0];
@@ -172,10 +164,8 @@ class CompositeExpression implements Countable
 
     /**
      * Returns the type of this composite expression (AND/OR).
-     *
-     * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }

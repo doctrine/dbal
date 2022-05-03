@@ -71,10 +71,8 @@ class QueryCacheProfile
 
     /**
      * @deprecated Use {@see getResultCache()} instead.
-     *
-     * @return Cache|null
      */
-    public function getResultCacheDriver()
+    public function getResultCacheDriver(): ?Cache
     {
         Deprecation::trigger(
             'doctrine/dbal',
@@ -86,20 +84,15 @@ class QueryCacheProfile
         return $this->resultCache !== null ? DoctrineProvider::wrap($this->resultCache) : null;
     }
 
-    /**
-     * @return int
-     */
-    public function getLifetime()
+    public function getLifetime(): int
     {
         return $this->lifetime;
     }
 
     /**
-     * @return string
-     *
      * @throws CacheException
      */
-    public function getCacheKey()
+    public function getCacheKey(): string
     {
         if ($this->cacheKey === null) {
             throw CacheException::noCacheKey();
@@ -118,7 +111,7 @@ class QueryCacheProfile
      *
      * @return string[]
      */
-    public function generateCacheKeys($sql, $params, $types, array $connectionParams = [])
+    public function generateCacheKeys($sql, $params, $types, array $connectionParams = []): array
     {
         if (isset($connectionParams['password'])) {
             unset($connectionParams['password']);
@@ -146,10 +139,8 @@ class QueryCacheProfile
 
     /**
      * @deprecated Use {@see setResultCache()} instead.
-     *
-     * @return QueryCacheProfile
      */
-    public function setResultCacheDriver(Cache $cache)
+    public function setResultCacheDriver(Cache $cache): QueryCacheProfile
     {
         Deprecation::trigger(
             'doctrine/dbal',
@@ -163,20 +154,16 @@ class QueryCacheProfile
 
     /**
      * @param string|null $cacheKey
-     *
-     * @return QueryCacheProfile
      */
-    public function setCacheKey($cacheKey)
+    public function setCacheKey($cacheKey): QueryCacheProfile
     {
         return new QueryCacheProfile($this->lifetime, $cacheKey, $this->resultCache);
     }
 
     /**
      * @param int $lifetime
-     *
-     * @return QueryCacheProfile
      */
-    public function setLifetime($lifetime)
+    public function setLifetime($lifetime): QueryCacheProfile
     {
         return new QueryCacheProfile($lifetime, $this->cacheKey, $this->resultCache);
     }

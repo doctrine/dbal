@@ -13,9 +13,7 @@ interface ServerInfoAwareConnection extends Connection
     /**
      * Returns information about the version of the database server connected to.
      *
-     * @return string
-     *
      * @throws Exception
      */
-    public function getServerVersion();
+    public function getServerVersion(): string;
 }

@@ -41,10 +41,8 @@ abstract class AbstractAsset
      * Sets the name of this asset.
      *
      * @param string $name
-     *
-     * @return void
      */
-    protected function _setName($name)
+    protected function _setName($name): void
     {
         if ($this->isIdentifierQuoted($name)) {
             $this->_quoted = true;
@@ -64,10 +62,8 @@ abstract class AbstractAsset
      * Is this asset in the default namespace?
      *
      * @param string $defaultNamespaceName
-     *
-     * @return bool
      */
-    public function isInDefaultNamespace($defaultNamespaceName)
+    public function isInDefaultNamespace($defaultNamespaceName): bool
     {
         return $this->_namespace === $defaultNamespaceName || $this->_namespace === null;
     }
@@ -76,10 +72,8 @@ abstract class AbstractAsset
      * Gets the namespace name of this asset.
      *
      * If NULL is returned this means the default namespace is used.
-     *
-     * @return string|null
      */
-    public function getNamespaceName()
+    public function getNamespaceName(): ?string
     {
         return $this->_namespace;
     }
@@ -89,10 +83,8 @@ abstract class AbstractAsset
      * namespaced elements are returned as full-qualified names.
      *
      * @param string|null $defaultNamespaceName
-     *
-     * @return string
      */
-    public function getShortestName($defaultNamespaceName)
+    public function getShortestName($defaultNamespaceName): string
     {
         $shortestName = $this->getName();
         if ($this->_namespace === $defaultNamespaceName) {
@@ -114,10 +106,8 @@ abstract class AbstractAsset
      * @deprecated Use {@see getNamespaceName()} and {@see getName()} instead.
      *
      * @param string $defaultNamespaceName
-     *
-     * @return string
      */
-    public function getFullQualifiedName($defaultNamespaceName)
+    public function getFullQualifiedName($defaultNamespaceName): string
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
@@ -136,10 +126,8 @@ abstract class AbstractAsset
 
     /**
      * Checks if this asset's name is quoted.
-     *
-     * @return bool
      */
-    public function isQuoted()
+    public function isQuoted(): bool
     {
         return $this->_quoted;
     }
@@ -148,10 +136,8 @@ abstract class AbstractAsset
      * Checks if this identifier is quoted.
      *
      * @param string $identifier
-     *
-     * @return bool
      */
-    protected function isIdentifierQuoted($identifier)
+    protected function isIdentifierQuoted($identifier): bool
     {
         return isset($identifier[0]) && ($identifier[0] === '`' || $identifier[0] === '"' || $identifier[0] === '[');
     }
@@ -160,20 +146,16 @@ abstract class AbstractAsset
      * Trim quotes from the identifier.
      *
      * @param string $identifier
-     *
-     * @return string
      */
-    protected function trimQuotes($identifier)
+    protected function trimQuotes($identifier): string
     {
         return str_replace(['`', '"', '[', ']'], '', $identifier);
     }
 
     /**
      * Returns the name of this schema asset.
-     *
-     * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         if ($this->_namespace !== null) {
             return $this->_namespace . '.' . $this->_name;
@@ -185,10 +167,8 @@ abstract class AbstractAsset
     /**
      * Gets the quoted representation of this asset but only if it was defined with one. Otherwise
      * return the plain unquoted value as inserted.
-     *
-     * @return string
      */
-    public function getQuotedName(AbstractPlatform $platform)
+    public function getQuotedName(AbstractPlatform $platform): string
     {
         $keywords = $platform->getReservedKeywordsList();
         $parts    = explode('.', $this->getName());
@@ -209,10 +189,8 @@ abstract class AbstractAsset
      * @param string[] $columnNames
      * @param string   $prefix
      * @param int      $maxSize
-     *
-     * @return string
      */
-    protected function _generateIdentifierName($columnNames, $prefix = '', $maxSize = 30)
+    protected function _generateIdentifierName($columnNames, $prefix = '', $maxSize = 30): string
     {
         $hash = implode('', array_map(static function ($column): string {
             return dechex(crc32($column));

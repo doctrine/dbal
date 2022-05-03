@@ -180,10 +180,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      *
      * @param string      $table
      * @param string|null $database
-     *
-     * @return string
      */
-    public function getListTableForeignKeysSQL($table, $database = null)
+    public function getListTableForeignKeysSQL($table, $database = null): string
     {
         // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
         // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
@@ -759,7 +757,7 @@ SQL
      *
      * @return string[]
      */
-    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql       = [];
         $tableName = $diff->getName($this)->getQuotedName($this);
@@ -827,7 +825,7 @@ SQL
      *
      * @return string[]
      */
-    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql     = [];
         $newName = $diff->getNewName();
@@ -994,10 +992,8 @@ SQL
 
     /**
      * @param string $table
-     *
-     * @return string
      */
-    protected function getDropPrimaryKeySQL($table)
+    protected function getDropPrimaryKeySQL($table): string
     {
         return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
     }

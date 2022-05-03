@@ -358,10 +358,8 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string      $tableName  The quoted table name to which the column belongs.
      * @param string      $columnName The quoted column name to create the comment for.
      * @param string|null $comment    The column's comment.
-     *
-     * @return string
      */
-    protected function getCreateColumnCommentSQL($tableName, $columnName, $comment)
+    protected function getCreateColumnCommentSQL($tableName, $columnName, $comment): string
     {
         if (strpos($tableName, '.') !== false) {
             [$schemaSQL, $tableSQL] = explode('.', $tableName);
@@ -392,11 +390,9 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string  $table  Name of the table to return the default constraint declaration for.
      * @param mixed[] $column Column definition.
      *
-     * @return string
-     *
      * @throws InvalidArgumentException
      */
-    public function getDefaultConstraintDeclarationSQL($table, array $column)
+    public function getDefaultConstraintDeclarationSQL($table, array $column): string
     {
         if (! isset($column['default'])) {
             throw new InvalidArgumentException("Incomplete column definition. 'default' required.");
@@ -703,10 +699,8 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string      $tableName  The quoted table name to which the column belongs.
      * @param string      $columnName The quoted column name to alter the comment for.
      * @param string|null $comment    The column's comment.
-     *
-     * @return string
      */
-    protected function getAlterColumnCommentSQL($tableName, $columnName, $comment)
+    protected function getAlterColumnCommentSQL($tableName, $columnName, $comment): string
     {
         if (strpos($tableName, '.') !== false) {
             [$schemaSQL, $tableSQL] = explode('.', $tableName);
@@ -742,10 +736,8 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to drop the comment for.
-     *
-     * @return string
      */
-    protected function getDropColumnCommentSQL($tableName, $columnName)
+    protected function getDropColumnCommentSQL($tableName, $columnName): string
     {
         if (strpos($tableName, '.') !== false) {
             [$schemaSQL, $tableSQL] = explode('.', $tableName);
@@ -796,8 +788,6 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string|null $level1Name The name of the object at level 1 the property belongs to.
      * @param string|null $level2Type The type of the object at level 2 the property belongs to.
      * @param string|null $level2Name The name of the object at level 2 the property belongs to.
-     *
-     * @return string
      */
     public function getAddExtendedPropertySQL(
         $name,
@@ -808,7 +798,7 @@ class SQLServerPlatform extends AbstractPlatform
         $level1Name = null,
         $level2Type = null,
         $level2Name = null
-    ) {
+    ): string {
         return 'EXEC sp_addextendedproperty ' .
             'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral((string) $value) . ', ' .
             'N' . $this->quoteStringLiteral((string) $level0Type) . ', ' . $level0Name . ', ' .
@@ -830,8 +820,6 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string|null $level1Name The name of the object at level 1 the property belongs to.
      * @param string|null $level2Type The type of the object at level 2 the property belongs to.
      * @param string|null $level2Name The name of the object at level 2 the property belongs to.
-     *
-     * @return string
      */
     public function getDropExtendedPropertySQL(
         $name,
@@ -841,7 +829,7 @@ class SQLServerPlatform extends AbstractPlatform
         $level1Name = null,
         $level2Type = null,
         $level2Name = null
-    ) {
+    ): string {
         return 'EXEC sp_dropextendedproperty ' .
             'N' . $this->quoteStringLiteral($name) . ', ' .
             'N' . $this->quoteStringLiteral((string) $level0Type) . ', ' . $level0Name . ', ' .
@@ -864,8 +852,6 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string|null $level1Name The name of the object at level 1 the property belongs to.
      * @param string|null $level2Type The type of the object at level 2 the property belongs to.
      * @param string|null $level2Name The name of the object at level 2 the property belongs to.
-     *
-     * @return string
      */
     public function getUpdateExtendedPropertySQL(
         $name,
@@ -876,7 +862,7 @@ class SQLServerPlatform extends AbstractPlatform
         $level1Name = null,
         $level2Type = null,
         $level2Name = null
-    ) {
+    ): string {
         return 'EXEC sp_updateextendedproperty ' .
             'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral((string) $value) . ', ' .
             'N' . $this->quoteStringLiteral((string) $level0Type) . ', ' . $level0Name . ', ' .
@@ -943,10 +929,8 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param string      $table
      * @param string|null $database
-     *
-     * @return string
      */
-    public function getListTableForeignKeysSQL($table, $database = null)
+    public function getListTableForeignKeysSQL($table, $database = null): string
     {
         return 'SELECT f.name AS ForeignKey,
                 SCHEMA_NAME (f.SCHEMA_ID) AS SchemaName,

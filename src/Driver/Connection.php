@@ -64,7 +64,7 @@ interface Connection
      *
      * @throws Exception
      */
-    public function beginTransaction();
+    public function beginTransaction(): bool;
 
     /**
      * Commits a transaction.
@@ -73,7 +73,7 @@ interface Connection
      *
      * @throws Exception
      */
-    public function commit();
+    public function commit(): bool;
 
     /**
      * Rolls back the current transaction, as initiated by beginTransaction().
@@ -82,5 +82,5 @@ interface Connection
      *
      * @throws Exception
      */
-    public function rollBack();
+    public function rollBack(): bool;
 }

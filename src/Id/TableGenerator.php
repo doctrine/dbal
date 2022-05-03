@@ -97,11 +97,9 @@ class TableGenerator
      *
      * @param string $sequence
      *
-     * @return int
-     *
      * @throws Exception
      */
-    public function nextValue($sequence)
+    public function nextValue($sequence): int
     {
         if (isset($this->sequences[$sequence])) {
             $value = $this->sequences[$sequence]['value'];

@@ -87,14 +87,12 @@ class Comparator
      *
      * This method should be called non-statically since it will be declared as non-static in the next major release.
      *
-     * @return SchemaDiff
-     *
      * @throws SchemaException
      */
     private function doCompareSchemas(
         Schema $fromSchema,
         Schema $toSchema
-    ) {
+    ): SchemaDiff {
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
@@ -214,11 +212,9 @@ class Comparator
     /**
      * @deprecated Use non-static call to {@see compareSchemas()} instead.
      *
-     * @return SchemaDiff
-     *
      * @throws SchemaException
      */
-    public function compare(Schema $fromSchema, Schema $toSchema)
+    public function compare(Schema $fromSchema, Schema $toSchema): SchemaDiff
     {
         Deprecation::trigger(
             'doctrine/dbal',
@@ -244,10 +240,7 @@ class Comparator
         return false;
     }
 
-    /**
-     * @return bool
-     */
-    public function diffSequence(Sequence $sequence1, Sequence $sequence2)
+    public function diffSequence(Sequence $sequence1, Sequence $sequence2): bool
     {
         if ($sequence1->getAllocationSize() !== $sequence2->getAllocationSize()) {
             return true;
@@ -470,10 +463,7 @@ class Comparator
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2)
+    public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2): bool
     {
         if (
             array_map('strtolower', $key1->getUnquotedLocalColumns())
@@ -522,7 +512,7 @@ class Comparator
      *
      * @return string[]
      */
-    public function diffColumn(Column $column1, Column $column2)
+    public function diffColumn(Column $column1, Column $column2): array
     {
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
@@ -613,10 +603,8 @@ class Comparator
      *
      * Compares $index1 with $index2 and returns $index2 if there are any
      * differences or false in case there are no differences.
-     *
-     * @return bool
      */
-    public function diffIndex(Index $index1, Index $index2)
+    public function diffIndex(Index $index1, Index $index2): bool
     {
         return ! ($index1->isFullfilledBy($index2) && $index2->isFullfilledBy($index1));
     }

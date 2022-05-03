@@ -138,10 +138,8 @@ class Graphviz extends AbstractVisitor
 
     /**
      * Get Graphviz Output
-     *
-     * @return string
      */
-    public function getOutput()
+    public function getOutput(): string
     {
         return $this->output . '}';
     }
@@ -155,10 +153,8 @@ class Graphviz extends AbstractVisitor
      *  neato -Tpng -o er.png er.dot
      *
      * @param string $filename
-     *
-     * @return void
      */
-    public function write($filename)
+    public function write($filename): void
     {
         file_put_contents($filename, $this->getOutput());
     }

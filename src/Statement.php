@@ -91,7 +91,7 @@ class Statement
      *
      * @throws Exception
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING): bool
     {
         $this->params[$param] = $value;
         $this->types[$param]  = $type;
@@ -133,7 +133,7 @@ class Statement
      *
      * @throws Exception
      */
-    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null): bool
     {
         $this->params[$param] = $variable;
         $this->types[$param]  = $type;
@@ -223,10 +223,8 @@ class Statement
 
     /**
      * Gets the wrapped driver statement.
-     *
-     * @return Driver\Statement
      */
-    public function getWrappedStatement()
+    public function getWrappedStatement(): Driver\Statement
     {
         return $this->stmt;
     }

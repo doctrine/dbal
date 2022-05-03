@@ -16,36 +16,20 @@ use Doctrine\DBAL\Schema\Table;
 interface Visitor
 {
     /**
-     * @return void
-     *
      * @throws SchemaException
      */
-    public function acceptSchema(Schema $schema);
+    public function acceptSchema(Schema $schema): void;
+
+    public function acceptTable(Table $table): void;
+
+    public function acceptColumn(Table $table, Column $column): void;
 
     /**
-     * @return void
-     */
-    public function acceptTable(Table $table);
-
-    /**
-     * @return void
-     */
-    public function acceptColumn(Table $table, Column $column);
-
-    /**
-     * @return void
-     *
      * @throws SchemaException
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint);
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void;
 
-    /**
-     * @return void
-     */
-    public function acceptIndex(Table $table, Index $index);
+    public function acceptIndex(Table $table, Index $index): void;
 
-    /**
-     * @return void
-     */
-    public function acceptSequence(Sequence $sequence);
+    public function acceptSequence(Sequence $sequence): void;
 }

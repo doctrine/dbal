@@ -51,10 +51,8 @@ class SqlitePlatform extends AbstractPlatform
      * @deprecated Generate dates within the application.
      *
      * @param string $type
-     *
-     * @return string
      */
-    public function getNowExpression($type = 'timestamp')
+    public function getNowExpression($type = 'timestamp'): string
     {
         Deprecation::trigger(
             'doctrine/dbal',
@@ -250,10 +248,8 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * @param array<string, mixed> $column
-     *
-     * @return string
      */
-    public function getTinyIntTypeDeclarationSQL(array $column)
+    public function getTinyIntTypeDeclarationSQL(array $column): string
     {
         // SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT columns
         if (! empty($column['autoincrement'])) {
@@ -278,10 +274,8 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * @param array<string, mixed> $column
-     *
-     * @return string
      */
-    public function getMediumIntTypeDeclarationSQL(array $column)
+    public function getMediumIntTypeDeclarationSQL(array $column): string
     {
         // SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT columns
         if (! empty($column['autoincrement'])) {
@@ -603,10 +597,8 @@ class SqlitePlatform extends AbstractPlatform
      * @deprecated The driver will use {@see sqrt()} in the next major release.
      *
      * @param int|float $value
-     *
-     * @return float
      */
-    public static function udfSqrt($value)
+    public static function udfSqrt($value): float
     {
         return sqrt($value);
     }
@@ -618,10 +610,8 @@ class SqlitePlatform extends AbstractPlatform
      *
      * @param int $a
      * @param int $b
-     *
-     * @return int
      */
-    public static function udfMod($a, $b)
+    public static function udfMod($a, $b): int
     {
         return UserDefinedFunctions::mod($a, $b);
     }
@@ -632,10 +622,8 @@ class SqlitePlatform extends AbstractPlatform
      * @param string $str
      * @param string $substr
      * @param int    $offset
-     *
-     * @return int
      */
-    public static function udfLocate($str, $substr, $offset = 0)
+    public static function udfLocate($str, $substr, $offset = 0): int
     {
         return UserDefinedFunctions::locate($str, $substr, $offset);
     }
@@ -885,10 +873,8 @@ class SqlitePlatform extends AbstractPlatform
      *
      * @param string      $table
      * @param string|null $database
-     *
-     * @return string
      */
-    public function getListTableForeignKeysSQL($table, $database = null)
+    public function getListTableForeignKeysSQL($table, $database = null): string
     {
         $table = str_replace('.', '__', $table);
 

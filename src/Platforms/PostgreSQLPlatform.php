@@ -69,10 +69,8 @@ class PostgreSQLPlatform extends AbstractPlatform
      * Enables use of 'true'/'false' or otherwise 1 and 0 instead.
      *
      * @param bool $flag
-     *
-     * @return void
      */
-    public function setUseBooleanTrueFalseStrings($flag)
+    public function setUseBooleanTrueFalseStrings($flag): void
     {
         $this->useBooleanTrueFalseStrings = (bool) $flag;
     }
@@ -301,10 +299,8 @@ class PostgreSQLPlatform extends AbstractPlatform
      *
      * @param string      $table
      * @param string|null $database
-     *
-     * @return string
      */
-    public function getListTableForeignKeysSQL($table, $database = null)
+    public function getListTableForeignKeysSQL($table, $database = null): string
     {
         return 'SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
                   FROM pg_catalog.pg_constraint r

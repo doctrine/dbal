@@ -39,20 +39,15 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
 
     /**
      * Allows to clear the index which means the index will be excluded from tables index list.
-     *
-     * @return SchemaIndexDefinitionEventArgs
      */
-    public function setIndex(?Index $index = null)
+    public function setIndex(?Index $index = null): SchemaIndexDefinitionEventArgs
     {
         $this->index = $index;
 
         return $this;
     }
 
-    /**
-     * @return Index|null
-     */
-    public function getIndex()
+    public function getIndex(): ?Index
     {
         return $this->index;
     }
@@ -60,23 +55,17 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return mixed[]
      */
-    public function getTableIndex()
+    public function getTableIndex(): array
     {
         return $this->tableIndex;
     }
 
-    /**
-     * @return string
-     */
-    public function getTable()
+    public function getTable(): string
     {
         return $this->table;
     }
 
-    /**
-     * @return Connection
-     */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         return $this->connection;
     }

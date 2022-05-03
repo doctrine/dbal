@@ -121,33 +121,25 @@ class Index extends AbstractAsset implements Constraint
     /**
      * @return string[]
      */
-    public function getUnquotedColumns()
+    public function getUnquotedColumns(): array
     {
         return array_map([$this, 'trimQuotes'], $this->getColumns());
     }
 
     /**
      * Is the index neither unique nor primary key?
-     *
-     * @return bool
      */
-    public function isSimpleIndex()
+    public function isSimpleIndex(): bool
     {
         return ! $this->_isPrimary && ! $this->_isUnique;
     }
 
-    /**
-     * @return bool
-     */
-    public function isUnique()
+    public function isUnique(): bool
     {
         return $this->_isUnique;
     }
 
-    /**
-     * @return bool
-     */
-    public function isPrimary()
+    public function isPrimary(): bool
     {
         return $this->_isPrimary;
     }
@@ -155,10 +147,8 @@ class Index extends AbstractAsset implements Constraint
     /**
      * @param string $name
      * @param int    $pos
-     *
-     * @return bool
      */
-    public function hasColumnAtPosition($name, $pos = 0)
+    public function hasColumnAtPosition($name, $pos = 0): bool
     {
         $name         = $this->trimQuotes(strtolower($name));
         $indexColumns = array_map('strtolower', $this->getUnquotedColumns());
@@ -170,10 +160,8 @@ class Index extends AbstractAsset implements Constraint
      * Checks if this index exactly spans the given column names in the correct order.
      *
      * @param string[] $columnNames
-     *
-     * @return bool
      */
-    public function spansColumns(array $columnNames)
+    public function spansColumns(array $columnNames): bool
     {
         $columns         = $this->getColumns();
         $numberOfColumns = count($columns);
@@ -195,10 +183,8 @@ class Index extends AbstractAsset implements Constraint
 
     /**
      * Checks if the other index already fulfills all the indexing and constraint needs of the current one.
-     *
-     * @return bool
      */
-    public function isFullfilledBy(Index $other)
+    public function isFullfilledBy(Index $other): bool
     {
         // allow the other index to be equally large only. It being larger is an option
         // but it creates a problem with scenarios of the kind PRIMARY KEY(foo,bar) UNIQUE(foo)
@@ -238,10 +224,8 @@ class Index extends AbstractAsset implements Constraint
 
     /**
      * Detects if the other index is a non-unique, non primary index that can be overwritten by this one.
-     *
-     * @return bool
      */
-    public function overrules(Index $other)
+    public function overrules(Index $other): bool
     {
         if ($other->isPrimary()) {
             return false;
@@ -261,7 +245,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @return string[]
      */
-    public function getFlags()
+    public function getFlags(): array
     {
         return array_keys($this->_flags);
     }
@@ -271,11 +255,9 @@ class Index extends AbstractAsset implements Constraint
      *
      * @param string $flag
      *
-     * @return Index
-     *
      * @example $index->addFlag('CLUSTERED')
      */
-    public function addFlag($flag)
+    public function addFlag($flag): Index
     {
         $this->_flags[strtolower($flag)] = true;
 
@@ -286,10 +268,8 @@ class Index extends AbstractAsset implements Constraint
      * Does this index have a specific flag?
      *
      * @param string $flag
-     *
-     * @return bool
      */
-    public function hasFlag($flag)
+    public function hasFlag($flag): bool
     {
         return isset($this->_flags[strtolower($flag)]);
     }
@@ -298,20 +278,16 @@ class Index extends AbstractAsset implements Constraint
      * Removes a flag.
      *
      * @param string $flag
-     *
-     * @return void
      */
-    public function removeFlag($flag)
+    public function removeFlag($flag): void
     {
         unset($this->_flags[strtolower($flag)]);
     }
 
     /**
      * @param string $name
-     *
-     * @return bool
      */
-    public function hasOption($name)
+    public function hasOption($name): bool
     {
         return isset($this->options[strtolower($name)]);
     }
@@ -329,7 +305,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * @return mixed[]
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }

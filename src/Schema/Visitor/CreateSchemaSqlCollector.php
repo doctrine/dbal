@@ -71,10 +71,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $this->createSequenceQueries[] = $this->platform->getCreateSequenceSQL($sequence);
     }
 
-    /**
-     * @return void
-     */
-    public function resetQueries()
+    public function resetQueries(): void
     {
         $this->createNamespaceQueries    = [];
         $this->createTableQueries        = [];
@@ -87,7 +84,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      *
      * @return string[]
      */
-    public function getQueries()
+    public function getQueries(): array
     {
         return array_merge(
             $this->createNamespaceQueries,

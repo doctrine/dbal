@@ -285,10 +285,8 @@ class DB2Platform extends AbstractPlatform
      *
      * @param string $table
      * @param string $database
-     *
-     * @return string
      */
-    public function getListTableColumnsSQL($table, $database = null)
+    public function getListTableColumnsSQL($table, $database = null): string
     {
         $table = $this->quoteStringLiteral($table);
 

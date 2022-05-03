@@ -18,15 +18,11 @@ interface SQLLogger
      * @param string                                                                    $sql    SQL statement
      * @param list<mixed>|array<string, mixed>|null                                     $params Statement parameters
      * @param array<int, Type|int|string|null>|array<string, Type|int|string|null>|null $types  Parameter types
-     *
-     * @return void
      */
-    public function startQuery($sql, ?array $params = null, ?array $types = null);
+    public function startQuery($sql, ?array $params = null, ?array $types = null): void;
 
     /**
      * Marks the last started query as stopped. This can be used for timing of queries.
-     *
-     * @return void
      */
-    public function stopQuery();
+    public function stopQuery(): void;
 }

@@ -14,10 +14,8 @@ class QueryException extends Exception
     /**
      * @param string   $alias
      * @param string[] $registeredAliases
-     *
-     * @return QueryException
      */
-    public static function unknownAlias($alias, $registeredAliases)
+    public static function unknownAlias($alias, $registeredAliases): QueryException
     {
         return new self("The given alias '" . $alias . "' is not part of " .
             'any FROM or JOIN clause table. The currently registered ' .
@@ -27,10 +25,8 @@ class QueryException extends Exception
     /**
      * @param string   $alias
      * @param string[] $registeredAliases
-     *
-     * @return QueryException
      */
-    public static function nonUniqueAlias($alias, $registeredAliases)
+    public static function nonUniqueAlias($alias, $registeredAliases): QueryException
     {
         return new self("The given alias '" . $alias . "' is not unique " .
             'in FROM and JOIN clause table. The currently registered ' .

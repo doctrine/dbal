@@ -34,26 +34,17 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
         $this->platform = $platform;
     }
 
-    /**
-     * @return Column
-     */
-    public function getColumn()
+    public function getColumn(): Column
     {
         return $this->column;
     }
 
-    /**
-     * @return Table
-     */
-    public function getTable()
+    public function getTable(): Table
     {
         return $this->table;
     }
 
-    /**
-     * @return AbstractPlatform
-     */
-    public function getPlatform()
+    public function getPlatform(): AbstractPlatform
     {
         return $this->platform;
     }
@@ -62,10 +53,8 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
      * Passing multiple SQL statements as an array is deprecated. Pass each statement as an individual argument instead.
      *
      * @param string|string[] $sql
-     *
-     * @return SchemaCreateTableColumnEventArgs
      */
-    public function addSql($sql)
+    public function addSql($sql): SchemaCreateTableColumnEventArgs
     {
         $this->sql = array_merge($this->sql, is_array($sql) ? $sql : func_get_args());
 
@@ -75,7 +64,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     /**
      * @return string[]
      */
-    public function getSql()
+    public function getSql(): array
     {
         return $this->sql;
     }

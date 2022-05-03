@@ -71,10 +71,8 @@ class ReservedWordsCommand extends Command
      *
      * @param string                    $name
      * @param class-string<KeywordList> $class
-     *
-     * @return void
      */
-    public function setKeywordListClass($name, $class)
+    public function setKeywordListClass($name, $class): void
     {
         Deprecation::trigger(
             'doctrine/dbal',
@@ -86,8 +84,7 @@ class ReservedWordsCommand extends Command
         $this->keywordLists[$name] = new $class();
     }
 
-    /** @return void */
-    protected function configure()
+    protected function configure(): void
     {
         $this
         ->setName('dbal:reserved-words')

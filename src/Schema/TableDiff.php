@@ -128,10 +128,8 @@ class TableDiff
 
     /**
      * @param AbstractPlatform $platform The platform to use for retrieving this table diff's name.
-     *
-     * @return Identifier
      */
-    public function getName(AbstractPlatform $platform)
+    public function getName(AbstractPlatform $platform): Identifier
     {
         return new Identifier(
             $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name

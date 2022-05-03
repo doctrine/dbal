@@ -12,20 +12,14 @@ class SchemaEventArgs extends EventArgs
     /** @var bool */
     private $preventDefault = false;
 
-    /**
-     * @return SchemaEventArgs
-     */
-    public function preventDefault()
+    public function preventDefault(): SchemaEventArgs
     {
         $this->preventDefault = true;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isDefaultPrevented()
+    public function isDefaultPrevented(): bool
     {
         return $this->preventDefault;
     }

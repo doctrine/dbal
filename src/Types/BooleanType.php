@@ -51,10 +51,7 @@ class BooleanType extends Type
         return ParameterType::BOOLEAN;
     }
 
-    /**
-     * @return bool
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         // We require a commented boolean type in order to distinguish between
         // boolean and smallint as both (have to) map to the same native type.

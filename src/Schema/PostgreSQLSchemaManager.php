@@ -89,7 +89,7 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function getSchemaNames()
+    public function getSchemaNames(): array
     {
         Deprecation::trigger(
             'doctrine/dbal',
@@ -154,7 +154,7 @@ SQL
      *
      * @throws Exception
      */
-    public function getExistingSchemaSearchPaths()
+    public function getExistingSchemaSearchPaths(): array
     {
         if ($this->existingSchemaPaths === null) {
             $this->determineExistingSchemaSearchPaths();
@@ -168,11 +168,9 @@ SQL
     /**
      * Returns the name of the current schema.
      *
-     * @return string|null
-     *
      * @throws Exception
      */
-    protected function getCurrentSchema()
+    protected function getCurrentSchema(): ?string
     {
         $schemas = $this->getExistingSchemaSearchPaths();
 
@@ -186,11 +184,9 @@ SQL
      *
      * @internal The method should be only used from within the PostgreSQLSchemaManager class hierarchy.
      *
-     * @return void
-     *
      * @throws Exception
      */
-    public function determineExistingSchemaSearchPaths()
+    public function determineExistingSchemaSearchPaths(): void
     {
         $names = $this->listSchemaNames();
         $paths = $this->getSchemaSearchPaths();

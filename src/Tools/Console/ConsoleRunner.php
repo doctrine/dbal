@@ -21,11 +21,9 @@ class ConsoleRunner
      *
      * @param Command[] $commands
      *
-     * @return void
-     *
      * @throws Exception
      */
-    public static function run(ConnectionProvider $connectionProvider, $commands = [])
+    public static function run(ConnectionProvider $connectionProvider, $commands = []): void
     {
         $version = InstalledVersions::getVersion('doctrine/dbal');
         assert($version !== null);
@@ -38,10 +36,7 @@ class ConsoleRunner
         $cli->run();
     }
 
-    /**
-     * @return void
-     */
-    public static function addCommands(Application $cli, ConnectionProvider $connectionProvider)
+    public static function addCommands(Application $cli, ConnectionProvider $connectionProvider): void
     {
         $cli->addCommands([
             new RunSqlCommand($connectionProvider),
@@ -53,10 +48,8 @@ class ConsoleRunner
      * Prints the instructions to create a configuration file
      *
      * @deprecated This method will be removed without replacement.
-     *
-     * @return void
      */
-    public static function printCliConfigTemplate()
+    public static function printCliConfigTemplate(): void
     {
         echo <<<'HELP'
 You are missing a "cli-config.php" or "config/cli-config.php" file in your

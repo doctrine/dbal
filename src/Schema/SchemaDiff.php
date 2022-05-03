@@ -90,7 +90,7 @@ class SchemaDiff
      *
      * @return string[]
      */
-    public function toSaveSql(AbstractPlatform $platform)
+    public function toSaveSql(AbstractPlatform $platform): array
     {
         return $this->_toSql($platform, true);
     }
@@ -98,7 +98,7 @@ class SchemaDiff
     /**
      * @return string[]
      */
-    public function toSql(AbstractPlatform $platform)
+    public function toSql(AbstractPlatform $platform): array
     {
         return $this->_toSql($platform, false);
     }
@@ -108,7 +108,7 @@ class SchemaDiff
      *
      * @return string[]
      */
-    protected function _toSql(AbstractPlatform $platform, $saveMode = false)
+    protected function _toSql(AbstractPlatform $platform, $saveMode = false): array
     {
         $sql = [];
 

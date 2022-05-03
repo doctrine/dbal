@@ -23,7 +23,7 @@ interface Driver
      *
      * @throws Exception
      */
-    public function connect(array $params);
+    public function connect(array $params): DriverConnection;
 
     /**
      * Gets the DatabasePlatform instance that provides all the metadata about
@@ -31,15 +31,13 @@ interface Driver
      *
      * @return AbstractPlatform The database platform.
      */
-    public function getDatabasePlatform();
+    public function getDatabasePlatform(): AbstractPlatform;
 
     /**
      * Gets the SchemaManager that can be used to inspect and change the underlying
      * database schema of the platform this driver connects to.
-     *
-     * @return AbstractSchemaManager
      */
-    public function getSchemaManager(Connection $conn, AbstractPlatform $platform);
+    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager;
 
     /**
      * Gets the ExceptionConverter that can be used to convert driver-level exceptions into DBAL exceptions.

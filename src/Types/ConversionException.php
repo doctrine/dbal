@@ -29,10 +29,8 @@ class ConversionException extends Exception
      *
      * @param mixed  $value
      * @param string $toType
-     *
-     * @return ConversionException
      */
-    public static function conversionFailed($value, $toType, ?Throwable $previous = null)
+    public static function conversionFailed($value, $toType, ?Throwable $previous = null): ConversionException
     {
         $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
@@ -46,10 +44,8 @@ class ConversionException extends Exception
      * @param mixed  $value
      * @param string $toType
      * @param string $expectedFormat
-     *
-     * @return ConversionException
      */
-    public static function conversionFailedFormat($value, $toType, $expectedFormat, ?Throwable $previous = null)
+    public static function conversionFailedFormat($value, $toType, $expectedFormat, ?Throwable $previous = null): ConversionException
     {
         $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
@@ -67,15 +63,13 @@ class ConversionException extends Exception
      * @param mixed    $value
      * @param string   $toType
      * @param string[] $possibleTypes
-     *
-     * @return ConversionException
      */
     public static function conversionFailedInvalidType(
         $value,
         $toType,
         array $possibleTypes,
         ?Throwable $previous = null
-    ) {
+    ): ConversionException {
         if (is_scalar($value) || $value === null) {
             return new self(sprintf(
                 'Could not convert PHP value %s to type %s. Expected one of the following types: %s',
@@ -97,10 +91,8 @@ class ConversionException extends Exception
      * @param mixed  $value
      * @param string $format
      * @param string $error
-     *
-     * @return ConversionException
      */
-    public static function conversionFailedSerialization($value, $format, $error /*, ?Throwable $previous = null */)
+    public static function conversionFailedSerialization($value, $format, $error /*, ?Throwable $previous = null */): ConversionException
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 

@@ -50,18 +50,13 @@ class ColumnDiff
 
     /**
      * @param string $propertyName
-     *
-     * @return bool
      */
-    public function hasChanged($propertyName)
+    public function hasChanged($propertyName): bool
     {
         return in_array($propertyName, $this->changedProperties, true);
     }
 
-    /**
-     * @return Identifier
-     */
-    public function getOldColumnName()
+    public function getOldColumnName(): Identifier
     {
         $quote = $this->fromColumn !== null && $this->fromColumn->isQuoted();
 

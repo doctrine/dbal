@@ -160,30 +160,24 @@ class QueryBuilder
      *
      * For more complex expression construction, consider storing the expression
      * builder object in a local variable.
-     *
-     * @return ExpressionBuilder
      */
-    public function expr()
+    public function expr(): ExpressionBuilder
     {
         return $this->connection->getExpressionBuilder();
     }
 
     /**
      * Gets the type of the currently built query.
-     *
-     * @return int
      */
-    public function getType()
+    public function getType(): int
     {
         return $this->type;
     }
 
     /**
      * Gets the associated DBAL Connection for this query builder.
-     *
-     * @return Connection
      */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         return $this->connection;
     }
@@ -193,7 +187,7 @@ class QueryBuilder
      *
      * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
      */
-    public function getState()
+    public function getState(): int
     {
         return $this->state;
     }
@@ -366,7 +360,7 @@ class QueryBuilder
      *
      * @return string The SQL query string.
      */
-    public function getSQL()
+    public function getSQL(): string
     {
         if ($this->sql !== null && $this->state === self::STATE_CLEAN) {
             return $this->sql;
@@ -480,7 +474,7 @@ class QueryBuilder
      * @return array<int, int|string|Type|null>|array<string, int|string|Type|null> The currently defined
      *                                                                              query parameter types
      */
-    public function getParameterTypes()
+    public function getParameterTypes(): array
     {
         return $this->paramTypes;
     }
@@ -517,7 +511,7 @@ class QueryBuilder
      *
      * @return int The position of the first result.
      */
-    public function getFirstResult()
+    public function getFirstResult(): int
     {
         return $this->firstResult;
     }
@@ -543,7 +537,7 @@ class QueryBuilder
      *
      * @return int|null The maximum number of results.
      */
-    public function getMaxResults()
+    public function getMaxResults(): ?int
     {
         return $this->maxResults;
     }
@@ -1273,7 +1267,7 @@ class QueryBuilder
      *
      * @return mixed[]
      */
-    public function getQueryParts()
+    public function getQueryParts(): array
     {
         return $this->sqlParts;
     }
@@ -1429,7 +1423,7 @@ class QueryBuilder
      *
      * @return string The string representation of this QueryBuilder.
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getSQL();
     }
@@ -1460,7 +1454,7 @@ class QueryBuilder
      *
      * @return string the placeholder name used.
      */
-    public function createNamedParameter($value, $type = ParameterType::STRING, $placeHolder = null)
+    public function createNamedParameter($value, $type = ParameterType::STRING, $placeHolder = null): string
     {
         if ($placeHolder === null) {
             $this->boundCounter++;
@@ -1491,10 +1485,8 @@ class QueryBuilder
      *
      * @param mixed                $value
      * @param int|string|Type|null $type
-     *
-     * @return string
      */
-    public function createPositionalParameter($value, $type = ParameterType::STRING)
+    public function createPositionalParameter($value, $type = ParameterType::STRING): string
     {
         $this->setParameter($this->boundCounter, $value, $type);
         $this->boundCounter++;

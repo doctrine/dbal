@@ -27,7 +27,7 @@ interface Statement
      *
      * @throws Exception
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING);
+    public function bindValue($param, $value, $type = ParameterType::STRING): bool;
 
     /**
      * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
@@ -56,7 +56,7 @@ interface Statement
      *
      * @throws Exception
      */
-    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null);
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null): bool;
 
     /**
      * Executes a prepared statement

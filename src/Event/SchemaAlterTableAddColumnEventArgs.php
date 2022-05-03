@@ -35,26 +35,17 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
         $this->platform  = $platform;
     }
 
-    /**
-     * @return Column
-     */
-    public function getColumn()
+    public function getColumn(): Column
     {
         return $this->column;
     }
 
-    /**
-     * @return TableDiff
-     */
-    public function getTableDiff()
+    public function getTableDiff(): TableDiff
     {
         return $this->tableDiff;
     }
 
-    /**
-     * @return AbstractPlatform
-     */
-    public function getPlatform()
+    public function getPlatform(): AbstractPlatform
     {
         return $this->platform;
     }
@@ -63,10 +54,8 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
      * Passing multiple SQL statements as an array is deprecated. Pass each statement as an individual argument instead.
      *
      * @param string|string[] $sql
-     *
-     * @return SchemaAlterTableAddColumnEventArgs
      */
-    public function addSql($sql)
+    public function addSql($sql): SchemaAlterTableAddColumnEventArgs
     {
         if (is_array($sql)) {
             Deprecation::trigger(
@@ -85,7 +74,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
     /**
      * @return string[]
      */
-    public function getSql()
+    public function getSql(): array
     {
         return $this->sql;
     }

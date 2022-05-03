@@ -44,11 +44,9 @@ class OracleSessionInit implements EventSubscriber
     }
 
     /**
-     * @return void
-     *
      * @throws Exception
      */
-    public function postConnect(ConnectionEventArgs $args)
+    public function postConnect(ConnectionEventArgs $args): void
     {
         if (count($this->_defaultSessionVars) === 0) {
             return;

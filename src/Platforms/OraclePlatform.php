@@ -41,11 +41,9 @@ class OraclePlatform extends AbstractPlatform
      *
      * @param string $identifier
      *
-     * @return void
-     *
      * @throws Exception
      */
-    public static function assertValidIdentifier($identifier)
+    public static function assertValidIdentifier($identifier): void
     {
         if (preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier) === 0) {
             throw new Exception('Invalid Oracle identifier');
@@ -68,10 +66,8 @@ class OraclePlatform extends AbstractPlatform
      * @deprecated Generate dates within the application.
      *
      * @param string $type
-     *
-     * @return string
      */
-    public function getNowExpression($type = 'timestamp')
+    public function getNowExpression($type = 'timestamp'): string
     {
         Deprecation::trigger(
             'doctrine/dbal',
@@ -496,7 +492,7 @@ class OraclePlatform extends AbstractPlatform
      *
      * @return string[]
      */
-    public function getCreateAutoincrementSql($name, $table, $start = 1)
+    public function getCreateAutoincrementSql($name, $table, $start = 1): array
     {
         $tableIdentifier   = $this->normalizeIdentifier($table);
         $quotedTableName   = $tableIdentifier->getQuotedName($this);
@@ -565,7 +561,7 @@ END;';
      *
      * @return string[]
      */
-    public function getDropAutoincrementSql($table)
+    public function getDropAutoincrementSql($table): array
     {
         $table                       = $this->normalizeIdentifier($table);
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);

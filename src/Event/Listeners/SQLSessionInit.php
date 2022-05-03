@@ -24,11 +24,9 @@ class SQLSessionInit implements EventSubscriber
     }
 
     /**
-     * @return void
-     *
      * @throws Exception
      */
-    public function postConnect(ConnectionEventArgs $args)
+    public function postConnect(ConnectionEventArgs $args): void
     {
         $args->getConnection()->executeStatement($this->sql);
     }

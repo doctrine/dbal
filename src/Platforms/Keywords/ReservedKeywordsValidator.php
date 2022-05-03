@@ -33,7 +33,7 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * @return string[]
      */
-    public function getViolations()
+    public function getViolations(): array
     {
         return $this->violations;
     }

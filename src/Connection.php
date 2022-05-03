@@ -216,7 +216,7 @@ class Connection
      * @return array<string,mixed>
      * @psalm-return Params
      */
-    public function getParams()
+    public function getParams(): array
     {
         return $this->params;
     }
@@ -230,7 +230,7 @@ class Connection
      *
      * @throws Exception
      */
-    public function getDatabase()
+    public function getDatabase(): ?string
     {
         $platform = $this->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL($platform->getCurrentDatabaseExpression());
@@ -243,30 +243,24 @@ class Connection
 
     /**
      * Gets the DBAL driver instance.
-     *
-     * @return Driver
      */
-    public function getDriver()
+    public function getDriver(): Driver
     {
         return $this->_driver;
     }
 
     /**
      * Gets the Configuration used by the Connection.
-     *
-     * @return Configuration
      */
-    public function getConfiguration()
+    public function getConfiguration(): Configuration
     {
         return $this->_config;
     }
 
     /**
      * Gets the EventManager used by the Connection.
-     *
-     * @return EventManager
      */
-    public function getEventManager()
+    public function getEventManager(): EventManager
     {
         return $this->_eventManager;
     }
@@ -274,11 +268,9 @@ class Connection
     /**
      * Gets the DatabasePlatform for the connection.
      *
-     * @return AbstractPlatform
-     *
      * @throws Exception
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): AbstractPlatform
     {
         if ($this->platform === null) {
             $this->platform = $this->detectDatabasePlatform();
@@ -300,10 +292,8 @@ class Connection
      * Gets the ExpressionBuilder for the connection.
      *
      * @deprecated Use {@see createExpressionBuilder()} instead.
-     *
-     * @return ExpressionBuilder
      */
-    public function getExpressionBuilder()
+    public function getExpressionBuilder(): ExpressionBuilder
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
@@ -325,7 +315,7 @@ class Connection
      *
      * @throws Exception
      */
-    public function connect()
+    public function connect(): bool
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
@@ -383,11 +373,9 @@ class Connection
      * or the underlying driver connection cannot determine the platform
      * version without having to query it (performance reasons).
      *
-     * @return string|null
-     *
      * @throws Throwable
      */
-    private function getDatabasePlatformVersion()
+    private function getDatabasePlatformVersion(): ?string
     {
         // Driver does not support version specific platforms.
         if (! $this->_driver instanceof VersionAwarePlatformDriver) {
@@ -439,11 +427,9 @@ class Connection
     /**
      * Returns the database server version if the underlying driver supports it.
      *
-     * @return string|null
-     *
      * @throws Exception
      */
-    private function getServerVersion()
+    private function getServerVersion(): ?string
     {
         $connection = $this->getWrappedConnection();
 
@@ -474,7 +460,7 @@ class Connection
      *
      * @return bool True if auto-commit mode is currently enabled for this connection, false otherwise.
      */
-    public function isAutoCommit()
+    public function isAutoCommit(): bool
     {
         return $this->autoCommit === true;
     }
@@ -492,10 +478,8 @@ class Connection
      * @see   isAutoCommit
      *
      * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
-     *
-     * @return void
      */
-    public function setAutoCommit($autoCommit)
+    public function setAutoCommit($autoCommit): void
     {
         $autoCommit = (bool) $autoCommit;
 
@@ -567,10 +551,8 @@ class Connection
 
     /**
      * Whether an actual connection to the database is established.
-     *
-     * @return bool
      */
-    public function isConnected()
+    public function isConnected(): bool
     {
         return $this->_conn !== null;
     }
@@ -580,7 +562,7 @@ class Connection
      *
      * @return bool TRUE if a transaction is currently active, FALSE otherwise.
      */
-    public function isTransactionActive()
+    public function isTransactionActive(): bool
     {
         return $this->transactionNestingLevel > 0;
     }
@@ -647,10 +629,8 @@ class Connection
 
     /**
      * Closes the connection.
-     *
-     * @return void
      */
-    public function close()
+    public function close(): void
     {
         $this->_conn                   = null;
         $this->transactionNestingLevel = 0;
@@ -679,7 +659,7 @@ class Connection
      *
      * @throws Exception
      */
-    public function getTransactionIsolation()
+    public function getTransactionIsolation(): int
     {
         if ($this->transactionIsolationLevel === null) {
             $this->transactionIsolationLevel = $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
@@ -794,7 +774,7 @@ class Connection
      *
      * @return string The quoted name.
      */
-    public function quoteIdentifier($str)
+    public function quoteIdentifier($str): string
     {
         return $this->getDatabasePlatform()->quoteIdentifier($str);
     }
@@ -1173,7 +1153,7 @@ class Connection
      *
      * @return int The nesting level. A value of 0 means there's no active transaction.
      */
-    public function getTransactionNestingLevel()
+    public function getTransactionNestingLevel(): int
     {
         return $this->transactionNestingLevel;
     }
@@ -1245,11 +1225,9 @@ class Connection
      *
      * @param bool $nestTransactionsWithSavepoints
      *
-     * @return void
-     *
      * @throws Exception
      */
-    public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
+    public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints): void
     {
         if ($this->transactionNestingLevel > 0) {
             throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
@@ -1264,30 +1242,24 @@ class Connection
 
     /**
      * Gets if nested transactions should use savepoints.
-     *
-     * @return bool
      */
-    public function getNestTransactionsWithSavepoints()
+    public function getNestTransactionsWithSavepoints(): bool
     {
         return $this->nestTransactionsWithSavepoints;
     }
 
     /**
      * Returns the savepoint name to use for nested transactions.
-     *
-     * @return string
      */
-    protected function _getNestedTransactionSavePointName()
+    protected function _getNestedTransactionSavePointName(): string
     {
         return 'DOCTRINE2_SAVEPOINT_' . $this->transactionNestingLevel;
     }
 
     /**
-     * @return bool
-     *
      * @throws Exception
      */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         $connection = $this->getWrappedConnection();
 
@@ -1322,11 +1294,9 @@ class Connection
     }
 
     /**
-     * @return bool
-     *
      * @throws Exception
      */
-    public function commit()
+    public function commit(): bool
     {
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
@@ -1399,11 +1369,9 @@ class Connection
     /**
      * Cancels any database changes done during the current transaction.
      *
-     * @return bool
-     *
      * @throws Exception
      */
-    public function rollBack()
+    public function rollBack(): bool
     {
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
@@ -1453,11 +1421,9 @@ class Connection
      *
      * @param string $savepoint The name of the savepoint to create.
      *
-     * @return void
-     *
      * @throws Exception
      */
-    public function createSavepoint($savepoint)
+    public function createSavepoint($savepoint): void
     {
         $platform = $this->getDatabasePlatform();
 
@@ -1473,11 +1439,9 @@ class Connection
      *
      * @param string $savepoint The name of the savepoint to release.
      *
-     * @return void
-     *
      * @throws Exception
      */
-    public function releaseSavepoint($savepoint)
+    public function releaseSavepoint($savepoint): void
     {
         $platform = $this->getDatabasePlatform();
 
@@ -1497,11 +1461,9 @@ class Connection
      *
      * @param string $savepoint The name of the savepoint to rollback to.
      *
-     * @return void
-     *
      * @throws Exception
      */
-    public function rollbackSavepoint($savepoint)
+    public function rollbackSavepoint($savepoint): void
     {
         $platform = $this->getDatabasePlatform();
 
@@ -1517,11 +1479,9 @@ class Connection
      *
      * @deprecated Use {@link getNativeConnection()} to access the native connection.
      *
-     * @return DriverConnection
-     *
      * @throws Exception
      */
-    public function getWrappedConnection()
+    public function getWrappedConnection(): DriverConnection
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
@@ -1575,11 +1535,9 @@ class Connection
      *
      * @deprecated Use {@see createSchemaManager()} instead.
      *
-     * @return AbstractSchemaManager
-     *
      * @throws Exception
      */
-    public function getSchemaManager()
+    public function getSchemaManager(): AbstractSchemaManager
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
@@ -1598,11 +1556,9 @@ class Connection
      * Marks the current transaction so that the only possible
      * outcome for the transaction to be rolled back.
      *
-     * @return void
-     *
      * @throws ConnectionException If no transaction is active.
      */
-    public function setRollbackOnly()
+    public function setRollbackOnly(): void
     {
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
@@ -1614,11 +1570,9 @@ class Connection
     /**
      * Checks whether the current transaction is marked for rollback only.
      *
-     * @return bool
-     *
      * @throws ConnectionException If no transaction is active.
      */
-    public function isRollbackOnly()
+    public function isRollbackOnly(): bool
     {
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
@@ -1728,10 +1682,8 @@ class Connection
 
     /**
      * Creates a new instance of a SQL query builder.
-     *
-     * @return QueryBuilder
      */
-    public function createQueryBuilder()
+    public function createQueryBuilder(): QueryBuilder
     {
         return new Query\QueryBuilder($this);
     }

@@ -308,11 +308,9 @@ class OracleSchemaManager extends AbstractSchemaManager
      *
      * @param string $table
      *
-     * @return bool
-     *
      * @throws Exception
      */
-    public function dropAutoincrement($table)
+    public function dropAutoincrement($table): bool
     {
         $sql = $this->_platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {

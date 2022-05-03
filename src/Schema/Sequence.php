@@ -35,36 +35,25 @@ class Sequence extends AbstractAsset
         $this->cache = $cache;
     }
 
-    /**
-     * @return int
-     */
-    public function getAllocationSize()
+    public function getAllocationSize(): int
     {
         return $this->allocationSize;
     }
 
-    /**
-     * @return int
-     */
-    public function getInitialValue()
+    public function getInitialValue(): int
     {
         return $this->initialValue;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getCache()
+    public function getCache(): ?int
     {
         return $this->cache;
     }
 
     /**
      * @param int $allocationSize
-     *
-     * @return Sequence
      */
-    public function setAllocationSize($allocationSize)
+    public function setAllocationSize($allocationSize): Sequence
     {
         if ($allocationSize > 0) {
             $this->allocationSize = $allocationSize;
@@ -77,10 +66,8 @@ class Sequence extends AbstractAsset
 
     /**
      * @param int $initialValue
-     *
-     * @return Sequence
      */
-    public function setInitialValue($initialValue)
+    public function setInitialValue($initialValue): Sequence
     {
         if ($initialValue > 0) {
             $this->initialValue = $initialValue;
@@ -93,10 +80,8 @@ class Sequence extends AbstractAsset
 
     /**
      * @param int $cache
-     *
-     * @return Sequence
      */
-    public function setCache($cache)
+    public function setCache($cache): Sequence
     {
         $this->cache = $cache;
 
@@ -108,10 +93,8 @@ class Sequence extends AbstractAsset
      *
      * This is used inside the comparator to not report sequences as missing,
      * when the "from" schema implicitly creates the sequences.
-     *
-     * @return bool
      */
-    public function isAutoIncrementsFor(Table $table)
+    public function isAutoIncrementsFor(Table $table): bool
     {
         $primaryKey = $table->getPrimaryKey();
 
@@ -138,10 +121,7 @@ class Sequence extends AbstractAsset
         return $tableSequenceName === $sequenceName;
     }
 
-    /**
-     * @return void
-     */
-    public function visit(Visitor $visitor)
+    public function visit(Visitor $visitor): void
     {
         $visitor->acceptSequence($this);
     }
