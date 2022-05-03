@@ -246,10 +246,10 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             'autoincrement' => true,
         ];
 
-        self::assertEquals('VARCHAR(255)', $this->platform->getVarcharTypeDeclarationSQL([]));
-        self::assertEquals('VARCHAR(10)', $this->platform->getVarcharTypeDeclarationSQL(['length' => 10]));
-        self::assertEquals('CHAR(254)', $this->platform->getVarcharTypeDeclarationSQL(['fixed' => true]));
-        self::assertEquals('CHAR(10)', $this->platform->getVarcharTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('VARCHAR(255)', $this->platform->getStringTypeDeclarationSQL([]));
+        self::assertEquals('VARCHAR(10)', $this->platform->getStringTypeDeclarationSQL(['length' => 10]));
+        self::assertEquals('CHAR(254)', $this->platform->getStringTypeDeclarationSQL(['fixed' => true]));
+        self::assertEquals('CHAR(10)', $this->platform->getStringTypeDeclarationSQL($fullColumnDef));
 
         self::assertEquals('SMALLINT', $this->platform->getSmallIntTypeDeclarationSQL([]));
         self::assertEquals('SMALLINT', $this->platform->getSmallIntTypeDeclarationSQL(['unsigned' => true]));

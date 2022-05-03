@@ -30,7 +30,7 @@ class DateIntervalType extends Type
     {
         $column['length'] = 255;
 
-        return $platform->getVarcharTypeDeclarationSQL($column);
+        return $platform->getStringTypeDeclarationSQL($column);
     }
 
     /**

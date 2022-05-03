@@ -266,6 +266,10 @@
                 <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getListTableConstraintsSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getListTableConstraintsSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableConstraintsSQL"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getVarcharTypeDeclarationSQL"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

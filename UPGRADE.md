@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `AbstractPlatform::getVarcharTypeDeclarationSQL()`
+
+The `AbstractPlatform::getVarcharTypeDeclarationSQL()` method has been deprecated.
+Use `AbstractPlatform::getStringTypeDeclarationSQL()` instead.
+
 ## Deprecated `$database` parameter of `AbstractSchemaManager::list*()` methods
 
 Passing `$database` to the following methods has been deprecated:
