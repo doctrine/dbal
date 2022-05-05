@@ -3395,7 +3395,7 @@ abstract class AbstractPlatform
      *
      * @see TransactionIsolationLevel
      *
-     * @return int The default isolation level.
+     * @return TransactionIsolationLevel::* The default isolation level.
      */
     public function getDefaultTransactionIsolationLevel()
     {
