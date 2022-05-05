@@ -474,6 +474,11 @@
         </ReservedWord>
         <TooManyArguments>
             <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 4.0.x
+                    See https://github.com/doctrine/dbal/issues/3263
+                -->
+                <file name="src/Platforms/AbstractPlatform.php"/>
                 <!-- See https://github.com/doctrine/dbal/pull/3562 -->
                 <file name="src/Schema/AbstractSchemaManager.php"/>
                 <file name="src/Schema/SqliteSchemaManager.php"/>

@@ -205,8 +205,11 @@ abstract class AbstractPlatform
      */
     public function getVarcharTypeDeclarationSQL(array $column)
     {
-        if (! isset($column['length'])) {
+        if (isset($column['length'])) {
+            $lengthOmitted = false;
+        } else {
             $column['length'] = $this->getVarcharDefaultLength();
+            $lengthOmitted    = true;
         }
 
         $fixed = $column['fixed'] ?? false;
@@ -219,7 +222,7 @@ abstract class AbstractPlatform
             return $this->getClobTypeDeclarationSQL($column);
         }
 
-        return $this->getVarcharTypeDeclarationSQLSnippet($column['length'], $fixed);
+        return $this->getVarcharTypeDeclarationSQLSnippet($column['length'], $fixed, $lengthOmitted);
     }
 
     /**
@@ -243,8 +246,11 @@ abstract class AbstractPlatform
      */
     public function getBinaryTypeDeclarationSQL(array $column)
     {
-        if (! isset($column['length'])) {
+        if (isset($column['length'])) {
+            $lengthOmitted = false;
+        } else {
             $column['length'] = $this->getBinaryDefaultLength();
+            $lengthOmitted    = true;
         }
 
         $fixed = $column['fixed'] ?? false;
@@ -266,7 +272,7 @@ abstract class AbstractPlatform
             return $this->getBlobTypeDeclarationSQL($column);
         }
 
-        return $this->getBinaryTypeDeclarationSQLSnippet($column['length'], $fixed);
+        return $this->getBinaryTypeDeclarationSQLSnippet($column['length'], $fixed, $lengthOmitted);
     }
 
     /**
@@ -310,7 +316,7 @@ abstract class AbstractPlatform
      *
      * @throws Exception If not supported on this platform.
      */
-    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed/*, $lengthOmitted = false*/)
     {
         throw Exception::notSupported('VARCHARs not supported by Platform.');
     }
@@ -325,7 +331,7 @@ abstract class AbstractPlatform
      *
      * @throws Exception If not supported on this platform.
      */
-    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed/*, $lengthOmitted = false*/)
     {
         throw Exception::notSupported('BINARY/VARBINARY column types are not supported by this platform.');
     }
@@ -4027,17 +4033,11 @@ abstract class AbstractPlatform
     {
         $name = $column->getQuotedName($this);
 
-        $columnData = array_merge($column->toArray(), [
+        return array_merge($column->toArray(), [
             'name' => $name,
             'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
             'comment' => $this->getColumnComment($column),
         ]);
-
-        if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
-            $columnData['length'] = $this->getVarcharDefaultLength();
-        }
-
-        return $columnData;
     }
 
     /**

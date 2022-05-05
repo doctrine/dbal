@@ -22,7 +22,9 @@ use function count;
 use function crc32;
 use function dechex;
 use function explode;
+use function func_get_arg;
 use function func_get_args;
+use function func_num_args;
 use function implode;
 use function is_array;
 use function is_bool;
@@ -1203,8 +1205,17 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed/*, $lengthOmitted = false*/)
     {
+        if ($length <= 0 || (func_num_args() > 2 && func_get_arg(2))) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/3263',
+                'Relying on the default string column length on SQL Server is deprecated'
+                    . ', specify the length explicitly.'
+            );
+        }
+
         return $fixed
             ? ($length > 0 ? 'NCHAR(' . $length . ')' : 'CHAR(255)')
             : ($length > 0 ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
@@ -1213,8 +1224,17 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed/*, $lengthOmitted = false*/)
     {
+        if ($length <= 0 || (func_num_args() > 2 && func_get_arg(2))) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/3263',
+                'Relying on the default binary column length on SQL Server is deprecated'
+                    . ', specify the length explicitly.'
+            );
+        }
+
         return $fixed
             ? 'BINARY(' . ($length > 0 ? $length : 255) . ')'
             : 'VARBINARY(' . ($length > 0 ? $length : 255) . ')';

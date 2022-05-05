@@ -19,7 +19,9 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
+use function func_get_arg;
 use function func_get_args;
+use function func_num_args;
 use function implode;
 use function in_array;
 use function is_numeric;
@@ -203,8 +205,17 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed/*, $lengthOmitted = false*/)
     {
+        if ($length <= 0 || (func_num_args() > 2 && func_get_arg(2))) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/3263',
+                'Relying on the default string column length on MySQL is deprecated'
+                    . ', specify the length explicitly.'
+            );
+        }
+
         return $fixed ? ($length > 0 ? 'CHAR(' . $length . ')' : 'CHAR(255)')
                 : ($length > 0 ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
@@ -212,8 +223,17 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed/*, $lengthOmitted = false*/)
     {
+        if ($length <= 0 || (func_num_args() > 2 && func_get_arg(2))) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/3263',
+                'Relying on the default binary column length on MySQL is deprecated'
+                . ', specify the length explicitly.'
+            );
+        }
+
         return $fixed
             ? 'BINARY(' . ($length > 0 ? $length : 255) . ')'
             : 'VARBINARY(' . ($length > 0 ? $length : 255) . ')';
