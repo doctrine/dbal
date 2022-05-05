@@ -28,7 +28,7 @@ is functionally equivalent to the previous one:
 ::
 
     <?php
-    $conn->transactional(function($conn) {
+    $conn->transactional(function(Connection $conn): void {
         // do stuff
     });
 
