@@ -32,7 +32,7 @@ is functionally equivalent to the previous one:
         // do stuff
     });
 
-The ``Doctrine\DBAL\Connection`` also has methods to control the
+The ``Doctrine\DBAL\Connection`` class also has methods to control the
 transaction isolation level as supported by the underlying
 database. ``Connection#setTransactionIsolation($level)`` and
 ``Connection#getTransactionIsolation()`` can be used for that purpose.
@@ -48,8 +48,8 @@ constants:
     TransactionIsolationLevel::SERIALIZABLE
 
 The default transaction isolation level of a
-``Doctrine\DBAL\Connection`` is chosen by the underlying platform
-but it is always at least ``READ_COMMITTED``.
+``Doctrine\DBAL\Connection`` instance is chosen by the underlying
+platform but it is always at least ``READ_COMMITTED``.
 
 Transaction Nesting
 -------------------
