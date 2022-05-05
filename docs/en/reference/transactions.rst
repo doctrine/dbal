@@ -32,6 +32,18 @@ is functionally equivalent to the previous one:
         // do stuff
     });
 
+Note that the closure above doesn't have to be a void, anything it
+returns will be returned by ``transactional()``:
+
+::
+
+    <?php
+    $one = $conn->transactional(function(Connection $conn): int {
+        // do stuff
+        return $conn->fetchOne('SELECT 1');
+    });
+
+
 The ``Doctrine\DBAL\Connection`` class also has methods to control the
 transaction isolation level as supported by the underlying
 database. ``Connection#setTransactionIsolation($level)`` and
