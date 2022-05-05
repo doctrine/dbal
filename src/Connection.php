@@ -104,7 +104,7 @@ class Connection
     /**
      * The currently active transaction isolation level or NULL before it has been determined.
      *
-     * @var int|null
+     * @var TransactionIsolationLevel::*|null
      */
     private $transactionIsolationLevel;
 
@@ -659,7 +659,7 @@ class Connection
     /**
      * Sets the transaction isolation level.
      *
-     * @param int $level The level to set.
+     * @param TransactionIsolationLevel::* $level The level to set.
      *
      * @return int|string
      *
@@ -675,7 +675,7 @@ class Connection
     /**
      * Gets the currently active transaction isolation level.
      *
-     * @return int The current transaction isolation level.
+     * @return TransactionIsolationLevel::* The current transaction isolation level.
      *
      * @throws Exception
      */
