@@ -22,6 +22,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
@@ -33,6 +34,8 @@ use stdClass;
  */
 class ConnectionTest extends TestCase
 {
+    use VerifyDeprecations;
+
     /** @var Connection */
     private $connection;
 

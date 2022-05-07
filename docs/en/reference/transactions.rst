@@ -77,8 +77,15 @@ disabled. The value for that setting can be set on a per-connection
 basis, with
 ``Doctrine\DBAL\Connection#setNestTransactionsWithSavepoints()``.
 
+Nesting transactions without savepoints is deprecated, but is the
+default behavior for backward compatibility reasons.
+
 Dummy mode
 ~~~~~~~~~~
+.. warning::
+
+    This behavior is deprecated, avoid it with
+    ``Doctrine\DBAL\Connection#setNestTransactionsWithSavepoints(true)``.
 
 When transaction nesting with savepoints is disabled, what happens is
 not so much transaction nesting as propagating transaction control up

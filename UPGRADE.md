@@ -8,6 +8,18 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated transaction nesting without savepoints
+
+Starting a transaction inside another transaction with
+`Doctrine\DBAL\Connection::beginTransaction()` without enabling transaction
+nesting with savepoints beforehand is deprecated.
+
+Transaction nesting with savepoints can be enabled with
+`$connection->setNestTransactionsWithSavepoints(true);`
+
+In case your platform does not support savepoints, you will have to rework your
+application logic so as to avoid nested transaction blocks.
+
 ## Added runtime deprecations for the default string column length.
 
 In addition to the formal deprecation introduced in DBAL 3.2, the library will now emit a deprecation message at runtime
