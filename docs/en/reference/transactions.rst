@@ -28,11 +28,23 @@ is functionally equivalent to the previous one:
 ::
 
     <?php
-    $conn->transactional(function($conn) {
+    $conn->transactional(function(Connection $conn): void {
         // do stuff
     });
 
-The ``Doctrine\DBAL\Connection`` also has methods to control the
+Note that the closure above doesn't have to be a void, anything it
+returns will be returned by ``transactional()``:
+
+::
+
+    <?php
+    $one = $conn->transactional(function(Connection $conn): int {
+        // do stuff
+        return $conn->fetchOne('SELECT 1');
+    });
+
+
+The ``Doctrine\DBAL\Connection`` class also has methods to control the
 transaction isolation level as supported by the underlying
 database. ``Connection#setTransactionIsolation($level)`` and
 ``Connection#getTransactionIsolation()`` can be used for that purpose.
@@ -42,33 +54,51 @@ constants:
 ::
 
     <?php
-    Connection::TRANSACTION_READ_UNCOMMITTED
-    Connection::TRANSACTION_READ_COMMITTED
-    Connection::TRANSACTION_REPEATABLE_READ
-    Connection::TRANSACTION_SERIALIZABLE
+    TransactionIsolationLevel::READ_UNCOMMITTED
+    TransactionIsolationLevel::READ_COMMITTED
+    TransactionIsolationLevel::REPEATABLE_READ
+    TransactionIsolationLevel::SERIALIZABLE
 
 The default transaction isolation level of a
-``Doctrine\DBAL\Connection`` is chosen by the underlying platform
-but it is always at least ``READ_COMMITTED``.
+``Doctrine\DBAL\Connection`` instance is chosen by the underlying
+platform but it is always at least ``READ_COMMITTED``.
 
 Transaction Nesting
 -------------------
 
-A ``Doctrine\DBAL\Connection`` also adds support for nesting
-transactions, or rather propagating transaction control up the call
-stack. For that purpose, the ``Connection`` class keeps an internal
-counter that represents the nesting level and is
+Calling ``beginTransaction()`` while already in a transaction will
+result in two very different behaviors depending on whether transaction
+nesting with savepoints is enabled or not. In both cases though, there
+won't be an actual transaction inside a transaction, even if your RDBMS
+supports it. There is always only a single, real database transaction.
+
+By default, transaction nesting at the SQL level with savepoints is
+disabled. The value for that setting can be set on a per-connection
+basis, with
+``Doctrine\DBAL\Connection#setNestTransactionsWithSavepoints()``.
+
+Dummy mode
+~~~~~~~~~~
+
+When transaction nesting with savepoints is disabled, what happens is
+not so much transaction nesting as propagating transaction control up
+the call stack. For that purpose, the ``Connection`` class keeps an
+internal counter that represents the nesting level and is
 increased/decreased as ``beginTransaction()``, ``commit()`` and
-``rollBack()`` are invoked. ``beginTransaction()`` increases the
-nesting level whilst
-``commit()`` and ``rollBack()`` decrease the nesting level. The nesting level starts at 0. Whenever the nesting level transitions from 0 to 1, ``beginTransaction()`` is invoked on the underlying driver connection and whenever the nesting level transitions from 1 to 0, ``commit()`` or ``rollBack()`` is invoked on the underlying driver, depending on whether the transition was caused by ``Connection#commit()`` or ``Connection#rollBack()``.
+``rollBack()`` are invoked. ``beginTransaction()`` increases the nesting
+level whilst ``commit()`` and ``rollBack()`` decrease the nesting level.
+The nesting level starts at 0.
+Whenever the nesting level transitions from 0 to 1,
+``beginTransaction()`` is invoked on the underlying driver connection
+and whenever the nesting level transitions from 1 to 0, ``commit()`` or
+``rollBack()`` is invoked on the underlying driver, depending on whether
+the transition was caused by ``Connection#commit()`` or
+``Connection#rollBack()``.
 
 What this means is that transaction control is basically passed to
-code higher up in the call stack and the inner transaction block is
-ignored, with one important exception that is described further
-below. Do not confuse this with "real" nested transactions or
-savepoints. These are not supported by Doctrine. There is always
-only a single, real database transaction.
+code higher up in the call stack and the inner transaction block does
+not actually result in an SQL transaction. It is not ignored either
+though.
 
 To visualize what this means in practice, consider the following
 example:
@@ -102,22 +132,20 @@ example:
         throw $e;
     }
 
-However,
-**a rollback in a nested transaction block will always mark the current transaction so that the only possible outcome of the transaction is to be rolled back**.
+However, **a rollback in a nested transaction block will always mark the
+current transaction so that the only possible outcome of the transaction
+is to be rolled back**.
 That means in the above example, the rollback in the inner
 transaction block marks the whole transaction for rollback only.
 Even if the nested transaction block would not rethrow the
 exception, the transaction is marked for rollback only and the
 commit of the outer transaction would trigger an exception, leading
-to the final rollback. This also means that you can not
+to the final rollback. This also means that you cannot
 successfully commit some changes in an outer transaction if an
 inner transaction block fails and issues a rollback, even if this
 would be the desired behavior (i.e. because the nested operation is
 "optional" for the purpose of the outer transaction block). To
-achieve that, you need to restructure your application logic so as
-to avoid nesting transaction blocks. If this is not possible
-because the nested transaction blocks are in a third-party API
-you're out of luck.
+achieve that, you need to resort to transaction nesting with savepoint.
 
 All that is guaranteed to the inner transaction is that it still
 happens atomically, all or nothing, the transaction just gets a
@@ -141,6 +169,45 @@ wider scope and the control is handed to the outer scope.
     by ``Doctrine\DBAL\Connection`` and can therefore corrupt the
     nesting level, causing errors with broken transaction boundaries
     that may be hard to debug.
+
+Emulated Transaction Nesting with Savepoints
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let's now examine what happens when transaction nesting with savepoints
+is enabled, with the same example as above
+
+::
+
+    <?php
+    // $conn instanceof Doctrine\DBAL\Connection
+    $conn->beginTransaction(); // 0 => 1, "real" transaction started
+    try {
+
+        ...
+
+        // nested transaction block, this might be in some other API/library code that is
+        // unaware of the outer transaction.
+        $conn->beginTransaction(); // 1 => 2, savepoint created
+        try {
+            ...
+
+            $conn->commit(); // 2 => 1
+        } catch (\Exception $e) {
+            $conn->rollBack(); // 2 => 1, rollback to savepoint
+            throw $e;
+        }
+
+        ...
+
+        $conn->commit(); // 1 => 0, "real" transaction committed
+    } catch (\Exception $e) {
+        $conn->rollBack(); // 1 => 0, "real" transaction rollback
+        throw $e;
+    }
+
+This time, everything is handled at the SQL level: the main transaction
+is not marked for rollback only, but the inner emulated transaction is
+rolled back to the savepoint.
 
 Auto-commit mode
 ----------------

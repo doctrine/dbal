@@ -273,21 +273,21 @@ class ConnectionTest extends FunctionalTestCase
 
                 throw new Error('Ooops!');
             });
-            self::fail('Expected exception');
         } catch (Error $expected) {
-            self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
+
+        self::assertEquals(0, $this->connection->getTransactionNestingLevel());
     }
 
     public function testTransactional(): void
     {
         $this->createTestTable();
 
-        $res = $this->connection->transactional(static function (Connection $connection): void {
-            $connection->insert(self::TABLE, ['id' => 2]);
+        $res = $this->connection->transactional(static function (Connection $connection) {
+            return $connection->insert(self::TABLE, ['id' => 2]);
         });
 
-        self::assertNull($res);
+        self::assertSame(1, $res);
         self::assertSame(0, $this->connection->getTransactionNestingLevel());
     }
 

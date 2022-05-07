@@ -53,11 +53,6 @@ parameters:
                 - src/Driver/OCI8/Result.php
 
         -
-            message: '~Template type T of method Doctrine\\DBAL\\DriverManager::getConnection\(\) is not referenced in a parameter\.~'
-            paths:
-                - src/DriverManager.php
-
-        -
             message: '~Method Doctrine\\DBAL\\DriverManager::createDriver\(\) should return Doctrine\\DBAL\\Driver but returns object\.~'
             paths:
                 - src/DriverManager.php
@@ -96,12 +91,34 @@ parameters:
         -
             message: '~^Parameter #2 \$lockMode of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:appendLockHint\(\) expects 0\|1\|2\|4, 128 given\.$~'
             path: tests/Platforms/AbstractPlatformTestCase.php
+        -
+            message: '~^Unable to resolve the template type T in call to method static method Doctrine\\DBAL\\DriverManager::getConnection\(\)~'
+            path: tests/DriverManagerTest.php
+        -
+            message: '~array{driver: ''invalid_driver''} given\.$~'
+            path: tests/DriverManagerTest.php
+        -
+            message: '~array{url: ''sqlite::memory:'', wrapperClass: ''stdClass''} given\.$~'
+            path: tests/DriverManagerTest.php
+        -
+            message: '~array{driverClass: ''stdClass''} given\.$~'
+            path: tests/DriverManagerTest.php
 
         # DriverManagerTest::testDatabaseUrl() should be refactored as it's too dynamic.
         -
             message: '~^Offset string does not exist on array{.+}\.$~'
             paths:
                 - tests/DriverManagerTest.php
+
+        # It is not clear how to address this error (it should be an intersection type)
+        -
+            message: '~array{url: ''sqlite::memory:'', wrapperClass: class-string<Doctrine\\DBAL\\Connection>\|class-string<PHPUnit\\Framework\\MockObject\\MockObject>} given\.$~'
+            path: tests/DriverManagerTest.php
+
+        # It is not clear how to address this error (one of the types is a sub-type of the other)
+        -
+            message: '~^Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) .* will always evaluate to false\.$~'
+            path: tests/ConnectionTest.php
 
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon

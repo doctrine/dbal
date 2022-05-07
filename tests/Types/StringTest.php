@@ -26,9 +26,9 @@ class StringTest extends TestCase
     {
         $this->platform->expects(self::once())
             ->method('getStringTypeDeclarationSQL')
-            ->willReturn('TEST_VARCHAR');
+            ->willReturn('TEST_STRING');
 
-        self::assertEquals('TEST_VARCHAR', $this->type->getSQLDeclaration([], $this->platform));
+        self::assertEquals('TEST_STRING', $this->type->getSQLDeclaration([], $this->platform));
     }
 
     public function testConvertToPHPValue(): void

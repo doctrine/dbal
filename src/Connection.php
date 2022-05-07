@@ -91,6 +91,8 @@ class Connection implements ServerVersionProvider
 
     /**
      * The currently active transaction isolation level or NULL before it has been determined.
+     *
+     * @var TransactionIsolationLevel::*|null
      */
     private ?int $transactionIsolationLevel = null;
 
@@ -516,7 +518,7 @@ class Connection implements ServerVersionProvider
     /**
      * Sets the transaction isolation level.
      *
-     * @param int $level The level to set.
+     * @param TransactionIsolationLevel::* $level The level to set.
      *
      * @throws Exception
      */
@@ -530,7 +532,7 @@ class Connection implements ServerVersionProvider
     /**
      * Gets the currently active transaction isolation level.
      *
-     * @return int The current transaction isolation level.
+     * @return TransactionIsolationLevel::* The current transaction isolation level.
      *
      * @throws Exception
      */
@@ -1016,11 +1018,13 @@ class Connection implements ServerVersionProvider
      * If an exception occurs during execution of the function or transaction commit,
      * the transaction is rolled back and the exception re-thrown.
      *
-     * @param Closure $func The function to execute transactionally.
+     * @param Closure(self):T $func The function to execute transactionally.
      *
-     * @return mixed The value returned by $func
+     * @return T The value returned by $func
      *
      * @throws Throwable
+     *
+     * @template T
      */
     public function transactional(Closure $func): mixed
     {

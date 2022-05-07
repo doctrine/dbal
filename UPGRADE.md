@@ -662,6 +662,16 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+## Added runtime deprecations for the default string column length.
+
+In addition to the formal deprecation introduced in DBAL 3.2, the library will now emit a deprecation message at runtime
+if the string or binary column length is omitted, but it's required by the target database platform.
+
+## Deprecated `AbstractPlatform::getVarcharTypeDeclarationSQL()`
+
+The `AbstractPlatform::getVarcharTypeDeclarationSQL()` method has been deprecated.
+Use `AbstractPlatform::getStringTypeDeclarationSQL()` instead.
+
 ## Deprecated `$database` parameter of `AbstractSchemaManager::list*()` methods
 
 Passing `$database` to the following methods has been deprecated:
