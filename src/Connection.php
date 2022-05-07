@@ -1251,6 +1251,18 @@ class Connection
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
+        if (! $nestTransactionsWithSavepoints) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5383',
+                <<<'DEPRECATION'
+                Nesting transactions without enabling savepoints is deprecated.
+                Call %s::setNestTransactionsWithSavepoints(true) to enable savepoints.
+                DEPRECATION,
+                self::class
+            );
+        }
+
         if ($this->transactionNestingLevel > 0) {
             throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
         }
@@ -1314,6 +1326,16 @@ class Connection
             if ($logger !== null) {
                 $logger->stopQuery();
             }
+        } else {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5383',
+                <<<'DEPRECATION'
+                Nesting transactions without enabling savepoints is deprecated.
+                Call %s::setNestTransactionsWithSavepoints(true) to enable savepoints.
+                DEPRECATION,
+                self::class
+            );
         }
 
         $this->getEventManager()->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
