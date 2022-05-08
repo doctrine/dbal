@@ -8,6 +8,29 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated passing date interval parameters as integer.
+
+Passing date interval parameters to the following `AbstractPlatform` methods as integer has been deprecated:
+
+- the `$seconds` argument in `::getDateAddSecondsExpression()`,
+- the `$seconds` parameter in `::getDateSubSecondsExpression()`,
+- the `$minutes` parameter in `::getDateAddMinutesExpression()`,
+- the `$minutes` parameter in `::getDateSubMinutesExpression()`,
+- the `$hours` parameter in `::getDateAddHourExpression()`,
+- the `$hours` parameter in `::getDateAddHourExpression()`,
+- the `$days` parameter in `::getDateAddDaysExpression()`,
+- the `$days` parameter in `::getDateSubDaysExpression()`,
+- the `$weeks` parameter in `::getDateAddWeeksExpression()`,
+- the `$weeks` parameter in `::getDateSubWeeksExpression()`,
+- the `$months` parameter in `::getDateAddMonthExpression()`,
+- the `$months` parameter in `::getDateSubMonthExpression()`,
+- the `$quarters` parameter in `::getDateAddQuartersExpression()`,
+- the `$quarters` parameter in `::getDateSubQuartersExpression()`,
+- the `$years` parameter in `::getDateAddYearsExpression()`,
+- the `$years` parameter in `::getDateSubYearsExpression()`.
+
+Use the strings representing numeric SQL literals instead (e.g. `'1'` instead of `1`).
+
 ## Deprecated transaction nesting without savepoints
 
 Starting a transaction inside another transaction with

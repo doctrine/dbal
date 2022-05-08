@@ -1299,8 +1299,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given seconds to a date.
      *
-     * @param string $date
-     * @param int    $seconds
+     * @param string             $date
+     * @param int|numeric-string $seconds
      *
      * @return string
      *
@@ -1308,14 +1308,22 @@ abstract class AbstractPlatform
      */
     public function getDateAddSecondsExpression($date, $seconds)
     {
+        if (is_int($seconds)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $seconds as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '+', $seconds, DateIntervalUnit::SECOND);
     }
 
     /**
      * Returns the SQL to subtract the number of given seconds from a date.
      *
-     * @param string $date
-     * @param int    $seconds
+     * @param string             $date
+     * @param int|numeric-string $seconds
      *
      * @return string
      *
@@ -1323,14 +1331,22 @@ abstract class AbstractPlatform
      */
     public function getDateSubSecondsExpression($date, $seconds)
     {
+        if (is_int($seconds)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $seconds as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '-', $seconds, DateIntervalUnit::SECOND);
     }
 
     /**
      * Returns the SQL to add the number of given minutes to a date.
      *
-     * @param string $date
-     * @param int    $minutes
+     * @param string             $date
+     * @param int|numeric-string $minutes
      *
      * @return string
      *
@@ -1338,14 +1354,22 @@ abstract class AbstractPlatform
      */
     public function getDateAddMinutesExpression($date, $minutes)
     {
+        if (is_int($minutes)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $minutes as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '+', $minutes, DateIntervalUnit::MINUTE);
     }
 
     /**
      * Returns the SQL to subtract the number of given minutes from a date.
      *
-     * @param string $date
-     * @param int    $minutes
+     * @param string             $date
+     * @param int|numeric-string $minutes
      *
      * @return string
      *
@@ -1353,14 +1377,22 @@ abstract class AbstractPlatform
      */
     public function getDateSubMinutesExpression($date, $minutes)
     {
+        if (is_int($minutes)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $minutes as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '-', $minutes, DateIntervalUnit::MINUTE);
     }
 
     /**
      * Returns the SQL to add the number of given hours to a date.
      *
-     * @param string $date
-     * @param int    $hours
+     * @param string             $date
+     * @param int|numeric-string $hours
      *
      * @return string
      *
@@ -1368,14 +1400,22 @@ abstract class AbstractPlatform
      */
     public function getDateAddHourExpression($date, $hours)
     {
+        if (is_int($hours)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $hours as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '+', $hours, DateIntervalUnit::HOUR);
     }
 
     /**
      * Returns the SQL to subtract the number of given hours to a date.
      *
-     * @param string $date
-     * @param int    $hours
+     * @param string             $date
+     * @param int|numeric-string $hours
      *
      * @return string
      *
@@ -1383,14 +1423,22 @@ abstract class AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
+        if (is_int($hours)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $hours as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '-', $hours, DateIntervalUnit::HOUR);
     }
 
     /**
      * Returns the SQL to add the number of given days to a date.
      *
-     * @param string $date
-     * @param int    $days
+     * @param string             $date
+     * @param int|numeric-string $days
      *
      * @return string
      *
@@ -1398,14 +1446,22 @@ abstract class AbstractPlatform
      */
     public function getDateAddDaysExpression($date, $days)
     {
+        if (is_int($days)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $days as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '+', $days, DateIntervalUnit::DAY);
     }
 
     /**
      * Returns the SQL to subtract the number of given days to a date.
      *
-     * @param string $date
-     * @param int    $days
+     * @param string             $date
+     * @param int|numeric-string $days
      *
      * @return string
      *
@@ -1413,14 +1469,22 @@ abstract class AbstractPlatform
      */
     public function getDateSubDaysExpression($date, $days)
     {
+        if (is_int($days)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $days as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '-', $days, DateIntervalUnit::DAY);
     }
 
     /**
      * Returns the SQL to add the number of given weeks to a date.
      *
-     * @param string $date
-     * @param int    $weeks
+     * @param string             $date
+     * @param int|numeric-string $weeks
      *
      * @return string
      *
@@ -1428,14 +1492,22 @@ abstract class AbstractPlatform
      */
     public function getDateAddWeeksExpression($date, $weeks)
     {
+        if (is_int($weeks)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $weeks as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '+', $weeks, DateIntervalUnit::WEEK);
     }
 
     /**
      * Returns the SQL to subtract the number of given weeks from a date.
      *
-     * @param string $date
-     * @param int    $weeks
+     * @param string             $date
+     * @param int|numeric-string $weeks
      *
      * @return string
      *
@@ -1443,14 +1515,22 @@ abstract class AbstractPlatform
      */
     public function getDateSubWeeksExpression($date, $weeks)
     {
+        if (is_int($weeks)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $weeks as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '-', $weeks, DateIntervalUnit::WEEK);
     }
 
     /**
      * Returns the SQL to add the number of given months to a date.
      *
-     * @param string $date
-     * @param int    $months
+     * @param string             $date
+     * @param int|numeric-string $months
      *
      * @return string
      *
@@ -1458,14 +1538,22 @@ abstract class AbstractPlatform
      */
     public function getDateAddMonthExpression($date, $months)
     {
+        if (is_int($months)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $months as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '+', $months, DateIntervalUnit::MONTH);
     }
 
     /**
      * Returns the SQL to subtract the number of given months to a date.
      *
-     * @param string $date
-     * @param int    $months
+     * @param string             $date
+     * @param int|numeric-string $months
      *
      * @return string
      *
@@ -1473,14 +1561,22 @@ abstract class AbstractPlatform
      */
     public function getDateSubMonthExpression($date, $months)
     {
+        if (is_int($months)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $months as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '-', $months, DateIntervalUnit::MONTH);
     }
 
     /**
      * Returns the SQL to add the number of given quarters to a date.
      *
-     * @param string $date
-     * @param int    $quarters
+     * @param string             $date
+     * @param int|numeric-string $quarters
      *
      * @return string
      *
@@ -1488,14 +1584,22 @@ abstract class AbstractPlatform
      */
     public function getDateAddQuartersExpression($date, $quarters)
     {
+        if (is_int($quarters)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $quarters as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '+', $quarters, DateIntervalUnit::QUARTER);
     }
 
     /**
      * Returns the SQL to subtract the number of given quarters from a date.
      *
-     * @param string $date
-     * @param int    $quarters
+     * @param string             $date
+     * @param int|numeric-string $quarters
      *
      * @return string
      *
@@ -1503,14 +1607,22 @@ abstract class AbstractPlatform
      */
     public function getDateSubQuartersExpression($date, $quarters)
     {
+        if (is_int($quarters)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $quarters as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '-', $quarters, DateIntervalUnit::QUARTER);
     }
 
     /**
      * Returns the SQL to add the number of given years to a date.
      *
-     * @param string $date
-     * @param int    $years
+     * @param string             $date
+     * @param int|numeric-string $years
      *
      * @return string
      *
@@ -1518,14 +1630,22 @@ abstract class AbstractPlatform
      */
     public function getDateAddYearsExpression($date, $years)
     {
+        if (is_int($years)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $years as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '+', $years, DateIntervalUnit::YEAR);
     }
 
     /**
      * Returns the SQL to subtract the number of given years from a date.
      *
-     * @param string $date
-     * @param int    $years
+     * @param string             $date
+     * @param int|numeric-string $years
      *
      * @return string
      *
@@ -1533,17 +1653,26 @@ abstract class AbstractPlatform
      */
     public function getDateSubYearsExpression($date, $years)
     {
+        if (is_int($years)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/3498',
+                'Passing $years as an integer is deprecated. Pass it as a numeric string instead.'
+            );
+        }
+
         return $this->getDateArithmeticIntervalExpression($date, '-', $years, DateIntervalUnit::YEAR);
     }
 
     /**
      * Returns the SQL for a date arithmetic expression.
      *
-     * @param string $date     The column or literal representing a date to perform the arithmetic operation on.
-     * @param string $operator The arithmetic operator (+ or -).
-     * @param int    $interval The interval that shall be calculated into the date.
-     * @param string $unit     The unit of the interval that shall be calculated into the date.
-     *                         One of the DATE_INTERVAL_UNIT_* constants.
+     * @param string             $date     The column or literal representing a date
+     *                                     to perform the arithmetic operation on.
+     * @param string             $operator The arithmetic operator (+ or -).
+     * @param int|numeric-string $interval The interval that shall be calculated into the date.
+     * @param string             $unit     The unit of the interval that shall be calculated into the date.
+     *                                     One of the DATE_INTERVAL_UNIT_* constants.
      *
      * @return string
      *
