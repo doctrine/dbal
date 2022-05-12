@@ -110,7 +110,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column  = $tableTo->addColumn('id', 'integer');
         $column->setAutoincrement(true);
 
-        $platform = $this->schemaManager->getDatabasePlatform();
+        $platform = $this->connection->getDatabasePlatform();
         $diff     = $comparatorFactory($this->schemaManager)->diffTable($tableFrom, $tableTo);
         self::assertNotFalse($diff);
 
@@ -143,7 +143,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableTo = new Table('autoinc_table_drop');
         $tableTo->addColumn('id', 'integer');
 
-        $platform = $this->schemaManager->getDatabasePlatform();
+        $platform = $this->connection->getDatabasePlatform();
         $diff     = $comparatorFactory($this->schemaManager)->diffTable($tableFrom, $tableTo);
         self::assertNotFalse($diff);
 

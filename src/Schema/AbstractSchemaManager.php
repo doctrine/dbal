@@ -62,10 +62,19 @@ abstract class AbstractSchemaManager
     /**
      * Returns the associated platform.
      *
+     * @deprecated Use {@link Connection::getDatabasePlatform()} instead.
+     *
      * @return T
      */
     public function getDatabasePlatform()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5387',
+            'AbstractSchemaManager::getDatabasePlatform() is deprecated.'
+                . ' Use Connection::getDatabasePlatform() instead.'
+        );
+
         return $this->_platform;
     }
 
@@ -1551,7 +1560,7 @@ abstract class AbstractSchemaManager
 
     public function createComparator(): Comparator
     {
-        return new Comparator($this->getDatabasePlatform());
+        return new Comparator($this->_platform);
     }
 
     /**

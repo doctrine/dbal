@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `AbstractSchemaManager::getDatabasePlatform()`
+
+The `AbstractSchemaManager::getDatabasePlatform()` method has been deprecated. Use `Connection::getDatabasePlatform()`
+instead.
+
 ## Deprecated passing date interval parameters as integer.
 
 Passing date interval parameters to the following `AbstractPlatform` methods as integer has been deprecated:

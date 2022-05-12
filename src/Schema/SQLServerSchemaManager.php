@@ -352,7 +352,7 @@ SQL
      */
     public function createComparator(): Comparator
     {
-        return new SQLServer\Comparator($this->getDatabasePlatform(), $this->getDatabaseCollation());
+        return new SQLServer\Comparator($this->_platform, $this->getDatabaseCollation());
     }
 
     /**
