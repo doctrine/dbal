@@ -594,7 +594,7 @@ SQL
 
     public function createComparator(): Comparator
     {
-        return new SQLite\Comparator($this->getDatabasePlatform());
+        return new SQLite\Comparator($this->_platform);
     }
 
     /**
