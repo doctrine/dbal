@@ -431,7 +431,7 @@ SQL
         }
 
         // Unset the default value if the given column definition is an integer and the default value is a string
-        if ($column['type'] instanceof PhpIntegerMappingType && is_string( $column['default'])) {
+        if ($column['type'] instanceof PhpIntegerMappingType && is_string($column['default'])) {
             $column['default'] = null;
         }
 
