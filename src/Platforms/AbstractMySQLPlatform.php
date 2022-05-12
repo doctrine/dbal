@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\PhpIntegerMappingType;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
@@ -426,6 +427,11 @@ SQL
     {
         // Unset the default value if the given column definition does not allow default values.
         if ($column['type'] instanceof TextType || $column['type'] instanceof BlobType) {
+            $column['default'] = null;
+        }
+
+        // Unset the default value if the given column definition is an integer and the default value is an empty string
+        if ($column['type'] instanceof PhpIntegerMappingType && $column['default'] === '') {
             $column['default'] = null;
         }
 
