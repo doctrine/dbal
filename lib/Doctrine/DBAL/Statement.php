@@ -779,10 +779,20 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * Returns the number of rows affected by the last execution of this statement.
      *
+     * @deprecated Use Result::rowCount() instead
+     *
      * @return int|string The number of affected rows.
      */
     public function rowCount()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4035',
+            'Statement::%s() is deprecated, use Result::%s() instead.',
+            __FUNCTION__,
+            __FUNCTION__
+        );
+
         return $this->stmt->rowCount();
     }
 

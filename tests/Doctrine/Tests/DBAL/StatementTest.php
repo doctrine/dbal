@@ -11,12 +11,15 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use Doctrine\Tests\DbalTestCase;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class StatementTest extends DbalTestCase
 {
+    use VerifyDeprecations;
+
     /** @var Connection&MockObject */
     private $conn;
 
@@ -29,7 +32,7 @@ class StatementTest extends DbalTestCase
     protected function setUp(): void
     {
         $this->pdoStatement = (new MockBuilderProxy($this->getMockBuilder(PDOStatement::class)))
-            ->onlyMethods(['execute', 'bindParam', 'bindValue', 'fetchAll'])
+            ->onlyMethods(['execute', 'bindParam', 'bindValue', 'fetchAll', 'rowCount'])
             ->getMock();
 
         $driverConnection = $this->createMock(DriverConnection::class);
@@ -58,6 +61,8 @@ class StatementTest extends DbalTestCase
 
     public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound(): void
     {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4580');
+
         $name   = 'foo';
         $var    = 'bar';
         $type   = ParameterType::STRING;
@@ -81,6 +86,8 @@ class StatementTest extends DbalTestCase
 
     public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute(): void
     {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4580');
+
         $name   = 'foo';
         $var    = 'bar';
         $values = [$name => $var];
@@ -102,6 +109,8 @@ class StatementTest extends DbalTestCase
 
     public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam(): void
     {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4580');
+
         $name   = 'foo';
         $var    = 'bar';
         $values = [$name => $var];
@@ -124,6 +133,8 @@ class StatementTest extends DbalTestCase
 
     public function testExecuteCallsLoggerStopQueryOnException(): void
     {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4580');
+
         $logger = $this->createMock(SQLLogger::class);
 
         $this->configuration->expects($this->once())
@@ -153,6 +164,8 @@ class StatementTest extends DbalTestCase
 
     public function testPDOCustomClassConstructorArgs(): void
     {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4019');
+
         $statement = new Statement('', $this->conn);
 
         $this->pdoStatement->expects($this->once())
@@ -160,5 +173,20 @@ class StatementTest extends DbalTestCase
             ->with(self::equalTo(FetchMode::CUSTOM_OBJECT), self::equalTo('Example'), self::equalTo(['arg1']));
 
         $statement->fetchAll(FetchMode::CUSTOM_OBJECT, 'Example', ['arg1']);
+    }
+
+    public function testRowCountThrowsDeprecation(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4035');
+
+        $statement = new Statement('', $this->conn);
+
+        $rowCount = 666;
+
+        $this->pdoStatement->expects($this->once())
+            ->method('rowCount')
+            ->willReturn($rowCount);
+
+        self::assertSame($rowCount, $statement->rowCount());
     }
 }
