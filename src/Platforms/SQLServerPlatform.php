@@ -1242,9 +1242,17 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getBinaryMaxLength()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'SQLServerPlatform::getBinaryMaxLength() is deprecated.'
+        );
+
         return 8000;
     }
 

@@ -382,9 +382,17 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getBinaryMaxLength()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'OraclePlatform::getBinaryMaxLength() is deprecated.'
+        );
+
         return 2000;
     }
 
