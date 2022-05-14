@@ -23,24 +23,51 @@ use function strpos;
 
 class DB2Platform extends AbstractPlatform
 {
+    /**
+     * {@inheritdoc}
+     *
+     * @deprecated
+     */
     public function getCharMaxLength(): int
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'DB2Platform::getCharMaxLength() is deprecated.'
+        );
+
         return 254;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getBinaryMaxLength()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'DB2Platform::getBinaryMaxLength() is deprecated.'
+        );
+
         return 32704;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getBinaryDefaultLength()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'Relying on the default binary column length is deprecated, specify the length explicitly.'
+        );
+
         return 1;
     }
 

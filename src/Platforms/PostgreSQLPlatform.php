@@ -1139,9 +1139,17 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function getVarcharMaxLength()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'PostgreSQLPlatform::getVarcharMaxLength() is deprecated.'
+        );
+
         return 65535;
     }
 
@@ -1150,14 +1158,28 @@ SQL
      */
     public function getBinaryMaxLength()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'PostgreSQLPlatform::getBinaryMaxLength() is deprecated.'
+        );
+
         return 0;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getBinaryDefaultLength()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'Relying on the default binary column length is deprecated, specify the length explicitly.'
+        );
+
         return 0;
     }
 

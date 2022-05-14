@@ -1111,17 +1111,33 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function getVarcharMaxLength()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'AbstractMySQLPlatform::getVarcharMaxLength() is deprecated.'
+        );
+
         return 65535;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getBinaryMaxLength()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/3263',
+            'AbstractMySQLPlatform::getBinaryMaxLength() is deprecated.'
+        );
+
         return 65535;
     }
 

@@ -153,6 +153,8 @@
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getBinaryMaxLength"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIsNullExpression"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getUniqueFieldDeclarationSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getCharMaxLength"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::getBinaryMaxLength"/>
                 <!--
                     See https://github.com/doctrine/dbal/pull/5058
                     TODO: remove in 4.0.0
