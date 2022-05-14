@@ -309,7 +309,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ]);
 
         $expected = [
-            'ALTER TABLE user ADD COLUMN foo VARCHAR(255) NOT NULL',
+            'ALTER TABLE user ADD COLUMN foo VARCHAR NOT NULL',
             'ALTER TABLE user ADD COLUMN count INTEGER DEFAULT 1',
         ];
 
