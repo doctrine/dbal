@@ -9,11 +9,8 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
-use Doctrine\DBAL\Types\IntegerType;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
@@ -522,7 +519,7 @@ SQL
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
-            if ($columnDiff->hasChanged('default') || $this->typeChangeBreaksDefaultValue($columnDiff)) {
+            if ($columnDiff->hasChanged('default')) {
                 $defaultClause = $column->getDefault() === null
                     ? ' DROP DEFAULT'
                     : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
@@ -1188,7 +1185,7 @@ SQL
      */
     public function getDefaultValueDeclarationSQL($column)
     {
-        if ($this->isSerialColumn($column)) {
+        if (isset($column['autoincrement']) && $column['autoincrement'] === true) {
             return '';
         }
 
@@ -1221,38 +1218,6 @@ SQL
         }
 
         return 'JSON';
-    }
-
-    /**
-     * @param mixed[] $column
-     */
-    private function isSerialColumn(array $column): bool
-    {
-        return isset($column['type'], $column['autoincrement'])
-            && $column['autoincrement'] === true
-            && $this->isNumericType($column['type']);
-    }
-
-    /**
-     * Check whether the type of a column is changed in a way that invalidates the default value for the column
-     */
-    private function typeChangeBreaksDefaultValue(ColumnDiff $columnDiff): bool
-    {
-        if ($columnDiff->fromColumn === null) {
-            return $columnDiff->hasChanged('type');
-        }
-
-        $oldTypeIsNumeric = $this->isNumericType($columnDiff->fromColumn->getType());
-        $newTypeIsNumeric = $this->isNumericType($columnDiff->column->getType());
-
-        // default should not be changed when switching between numeric types and the default comes from a sequence
-        return $columnDiff->hasChanged('type')
-            && ! ($oldTypeIsNumeric && $newTypeIsNumeric && $columnDiff->column->getAutoincrement());
-    }
-
-    private function isNumericType(Type $type): bool
-    {
-        return $type instanceof IntegerType || $type instanceof BigIntType;
     }
 
     private function getOldColumnComment(ColumnDiff $columnDiff): ?string
