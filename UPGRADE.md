@@ -8,6 +8,12 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `AbstractPlatform` methods exposing quote characters.
+
+The `AbstractPlatform::getStringLiteralQuoteCharacter()` and `::getIdentifierQuoteCharacter()` methods
+have been deprecated. Use `::quoteStringLiteral()` and `::quoteIdentifier()` to quote string literals and identifiers
+respectively.
+
 ## Deprecated `AbstractSchemaManager::getDatabasePlatform()`
 
 The `AbstractSchemaManager::getDatabasePlatform()` method has been deprecated. Use `Connection::getDatabasePlatform()`

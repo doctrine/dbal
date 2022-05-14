@@ -563,10 +563,18 @@ abstract class AbstractPlatform
     /**
      * Gets the character used for identifier quoting.
      *
+     * @deprecated Use {@see quoteIdentifier()} to quote identifiers instead.
+     *
      * @return string
      */
     public function getIdentifierQuoteCharacter()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5388',
+            'AbstractPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.'
+        );
+
         return '"';
     }
 
@@ -4130,10 +4138,19 @@ abstract class AbstractPlatform
     /**
      * Gets the character used for string literal quoting.
      *
+     * @deprecated Use {@see quoteStringLiteral()} to quote string literals instead.
+     *
      * @return string
      */
     public function getStringLiteralQuoteCharacter()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5388',
+            'AbstractPlatform::getStringLiteralQuoteCharacter() is deprecated.'
+                . ' Use quoteStringLiteral() instead.'
+        );
+
         return "'";
     }
 

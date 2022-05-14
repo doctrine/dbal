@@ -65,9 +65,17 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@see quoteIdentifier()} to quote identifiers instead.
      */
     public function getIdentifierQuoteCharacter()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5388',
+            'AbstractMySQLPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.'
+        );
+
         return '`';
     }
 
