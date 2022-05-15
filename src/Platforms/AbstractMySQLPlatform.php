@@ -452,7 +452,7 @@ SQL
 
         // Propagate foreign key constraints only for InnoDB.
         if (isset($options['foreignKeys']) && $engine === 'INNODB') {
-            foreach ((array) $options['foreignKeys'] as $definition) {
+            foreach ($options['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
