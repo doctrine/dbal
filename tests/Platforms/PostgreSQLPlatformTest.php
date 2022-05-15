@@ -891,7 +891,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertSame(
             [
                 'ALTER TABLE "foo" ALTER "bar" TYPE TIMESTAMP(0) WITHOUT TIME ZONE',
-                'ALTER TABLE "foo" ALTER "bar" DROP DEFAULT',
                 'COMMENT ON COLUMN "foo"."bar" IS \'(DC2Type:datetime_immutable)\'',
             ],
             $this->platform->getAlterTableSQL($tableDiff)
