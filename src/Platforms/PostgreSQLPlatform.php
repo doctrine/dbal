@@ -9,10 +9,9 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
-use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\PhpIntegerMappingType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
@@ -1230,7 +1229,7 @@ SQL
     {
         return isset($column['type'], $column['autoincrement'])
             && $column['autoincrement'] === true
-            && $this->isNumericType($column['type']);
+            && $this->isIntegerType($column['type']);
     }
 
     /**
@@ -1242,17 +1241,17 @@ SQL
             return $columnDiff->hasChanged('type');
         }
 
-        $oldTypeIsNumeric = $this->isNumericType($columnDiff->fromColumn->getType());
-        $newTypeIsNumeric = $this->isNumericType($columnDiff->column->getType());
+        $oldTypeIsInteger = $this->isIntegerType($columnDiff->fromColumn->getType());
+        $newTypeIsInteger = $this->isIntegerType($columnDiff->column->getType());
 
-        // default should not be changed when switching between numeric types and the default comes from a sequence
+        // default should not be changed when switching between integer types and the default comes from a sequence
         return $columnDiff->hasChanged('type')
-            && ! ($oldTypeIsNumeric && $newTypeIsNumeric && $columnDiff->column->getAutoincrement());
+            && ! ($oldTypeIsInteger && $newTypeIsInteger && $columnDiff->column->getAutoincrement());
     }
 
-    private function isNumericType(Type $type): bool
+    private function isIntegerType(Type $type): bool
     {
-        return $type instanceof IntegerType || $type instanceof BigIntType;
+        return $type instanceof PhpIntegerMappingType;
     }
 
     private function getOldColumnComment(ColumnDiff $columnDiff): ?string
