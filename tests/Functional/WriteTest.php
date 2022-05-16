@@ -145,8 +145,8 @@ class WriteTest extends FunctionalTestCase
 
     public function testLastInsertId(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            self::markTestSkipped('This test targets platforms that support identity columns.');
+        if (TestUtil::isDriverOneOf('pdo_oci', 'oci8')) {
+            self::markTestSkipped('The pdo_oci and oci8 drivers do not support lastInsertId().');
         }
 
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
@@ -168,8 +168,8 @@ class WriteTest extends FunctionalTestCase
 
     public function testLastInsertIdNewConnection(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            self::markTestSkipped('This test targets platforms that support identity columns.');
+        if (TestUtil::isDriverOneOf('pdo_oci', 'oci8')) {
+            self::markTestSkipped('The pdo_oci and oci8 drivers do not support lastInsertId().');
         }
 
         $connection = TestUtil::getConnection();
@@ -248,17 +248,15 @@ class WriteTest extends FunctionalTestCase
 
     public function testEmptyIdentityInsert(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if (! $platform->supportsIdentityColumns()) {
-            self::markTestSkipped(
-                'Test only works on platforms with native support for identity columns.'
-            );
+        if (TestUtil::isDriverOneOf('pdo_oci', 'oci8')) {
+            self::markTestSkipped('The pdo_oci and oci8 drivers do not support lastInsertId().');
         }
 
         $table = new Table('test_empty_identity');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
+
+        $platform = $this->connection->getDatabasePlatform();
 
         try {
             $this->connection->createSchemaManager()->dropTable($table->getQuotedName($platform));

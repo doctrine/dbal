@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
@@ -165,12 +163,13 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         $options = [
-            'notnull'    => $tableColumn['nullable'] === 'N',
-            'fixed'      => $fixed,
-            'default'    => $tableColumn['data_default'],
-            'length'     => $length,
-            'precision'  => $precision,
-            'scale'      => $scale,
+            'notnull'       => $tableColumn['nullable'] === 'N',
+            'fixed'         => $fixed,
+            'default'       => $tableColumn['data_default'],
+            'length'        => $length,
+            'precision'     => $precision,
+            'scale'         => $scale,
+            'autoincrement' => $tableColumn['identity_column'] === 'YES',
         ];
 
         if (isset($tableColumn['comments'])) {
@@ -264,29 +263,6 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @throws Exception
-     */
-    protected function dropAutoincrement(string $table): bool
-    {
-        $sql = $this->_platform->getDropAutoincrementSql($table);
-        foreach ($sql as $query) {
-            $this->_conn->executeStatement($query);
-        }
-
-        return true;
-    }
-
-    public function dropTable(string $name): void
-    {
-        try {
-            $this->dropAutoincrement($name);
-        } catch (DatabaseObjectNotFoundException $e) {
-        }
-
-        parent::dropTable($name);
-    }
-
-    /**
      * Returns the quoted representation of the given identifier name.
      *
      * Quotes non-uppercase identifiers explicitly to preserve case
@@ -318,6 +294,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                  C.CHAR_LENGTH,
                  C.DATA_LENGTH,
                  C.NULLABLE,
+                 C.IDENTITY_COLUMN,
                  D.COMMENTS
             FROM ALL_TAB_COLUMNS C
        LEFT JOIN ALL_COL_COMMENTS D

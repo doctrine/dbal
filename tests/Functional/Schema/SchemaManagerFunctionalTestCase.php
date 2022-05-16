@@ -677,10 +677,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testAutoincrementDetection(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            self::markTestSkipped('This test is only supported on platforms that have autoincrement');
-        }
-
         $table = new Table('test_autoincrement');
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -963,7 +959,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $columns = $this->schemaManager->listTableColumns('col_def_lifecycle');
 
-        self::assertNull($columns['id']->getDefault());
         self::assertNull($columns['column1']->getDefault());
         self::assertSame('', $columns['column2']->getDefault());
         self::assertSame('default1', $columns['column3']->getDefault());
