@@ -17,7 +17,6 @@
     reference/portability
     reference/caching
     reference/known-vendor-issues
-    reference/upgrading
     reference/testing
 
     explanation/dc2type-comments.rst
