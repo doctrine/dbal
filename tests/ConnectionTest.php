@@ -167,11 +167,20 @@ class ConnectionTest extends TestCase
         $conn->commit();
     }
 
-    public function testTransactionCommitEventNotCalledAfterRollBack(): void
+    public function testTransactionCommitEventCalledAfterRollBack(): void
     {
         $eventManager = new EventManager();
-        $driverMock   = $this->createMock(Driver::class);
-        $conn         = new Connection([], $driverMock, new Configuration(), $eventManager);
+        $platform     = $this->createStub(AbstractPlatform::class);
+        $platform
+            ->method('supportsSavepoints')
+            ->willReturn(true);
+
+        $driverMock = $this->createMock(Driver::class);
+        $driverMock
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
+
+        $conn = new Connection([], $driverMock, new Configuration(), $eventManager);
 
         $rollBackListenerMock = $this->createMock(TransactionRollBackDispatchEventListener::class);
         $rollBackListenerMock
@@ -187,7 +196,7 @@ class ConnectionTest extends TestCase
         $eventManager->addEventListener([Events::onTransactionRollBack], $rollBackListenerMock);
 
         $commitListenerMock = $this->createMock(TransactionCommitDispatchEventListener::class);
-        $commitListenerMock->expects(self::never())->method('onTransactionCommit');
+        $commitListenerMock->expects(self::exactly(1))->method('onTransactionCommit');
         $eventManager->addEventListener([Events::onTransactionCommit], $commitListenerMock);
 
         $conn->beginTransaction();
@@ -345,7 +354,15 @@ class ConnectionTest extends TestCase
 
     public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions(): void
     {
+        $platform = $this->createStub(AbstractPlatform::class);
+        $platform
+            ->method('supportsSavepoints')
+            ->willReturn(true);
+
         $driverMock = $this->createMock(Driver::class);
+        $driverMock
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
 
         $conn = new Connection([], $driverMock);
 
