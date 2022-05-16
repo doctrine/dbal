@@ -123,7 +123,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $onlinePrimaryTable = $this->schemaManager->listTableDetails($primaryTableName);
         $onlineForeignTable = $this->schemaManager->listTableDetails($foreignTableName);
 
-        $platform = $this->schemaManager->getDatabasePlatform();
+        $platform = $this->connection->getDatabasePlatform();
 
         // Primary table assertions
         self::assertSame($primaryTableName, $onlinePrimaryTable->getQuotedName($platform));

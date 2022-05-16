@@ -31,6 +31,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use Throwable;
 use Traversable;
 
@@ -1048,6 +1049,18 @@ class Connection implements ServerVersionProvider
      */
     public function setNestTransactionsWithSavepoints(bool $nestTransactionsWithSavepoints): void
     {
+        if (! $nestTransactionsWithSavepoints) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5383',
+                <<<'DEPRECATION'
+                Nesting transactions without enabling savepoints is deprecated.
+                Call %s::setNestTransactionsWithSavepoints(true) to enable savepoints.
+                DEPRECATION,
+                self::class
+            );
+        }
+
         if ($this->transactionNestingLevel > 0) {
             throw MayNotAlterNestedTransactionWithSavepointsInTransaction::new();
         }
@@ -1088,6 +1101,16 @@ class Connection implements ServerVersionProvider
             $connection->beginTransaction();
         } elseif ($this->nestTransactionsWithSavepoints) {
             $this->createSavepoint($this->_getNestedTransactionSavePointName());
+        } else {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5383',
+                <<<'DEPRECATION'
+                Nesting transactions without enabling savepoints is deprecated.
+                Call %s::setNestTransactionsWithSavepoints(true) to enable savepoints.
+                DEPRECATION,
+                self::class
+            );
         }
 
         $this->getEventManager()->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));

@@ -35,6 +35,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -377,9 +378,17 @@ abstract class AbstractPlatform
 
     /**
      * Gets the character used for identifier quoting.
+     *
+     * @deprecated Use {@see quoteIdentifier()} to quote identifiers instead.
      */
     public function getIdentifierQuoteCharacter(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5388',
+            'AbstractPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.'
+        );
+
         return '"';
     }
 
@@ -1042,7 +1051,7 @@ abstract class AbstractPlatform
         $sql = [$query];
 
         if (isset($options['foreignKeys'])) {
-            foreach ((array) $options['foreignKeys'] as $definition) {
+            foreach ($options['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
@@ -2433,9 +2442,18 @@ abstract class AbstractPlatform
 
     /**
      * Gets the character used for string literal quoting.
+     *
+     * @deprecated Use {@see quoteStringLiteral()} to quote string literals instead.
      */
     public function getStringLiteralQuoteCharacter(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5388',
+            'AbstractPlatform::getStringLiteralQuoteCharacter() is deprecated.'
+                . ' Use quoteStringLiteral() instead.'
+        );
+
         return "'";
     }
 

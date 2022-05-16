@@ -158,7 +158,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
     {
-        if ($this->schemaManager->getDatabasePlatform() instanceof MariaDBPlatform) {
+        if ($this->connection->getDatabasePlatform() instanceof MariaDBPlatform) {
             self::markTestSkipped(
                 'MariaDB supports default values for BLOB and TEXT columns and will propagate values'
             );
@@ -289,7 +289,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $platform      = $this->schemaManager->getDatabasePlatform();
+        $platform      = $this->connection->getDatabasePlatform();
         $onlineColumns = $this->schemaManager->listTableColumns($tableName);
 
         self::assertSame(
@@ -380,7 +380,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testColumnDefaultCurrentTimestamp(): void
     {
-        $platform = $this->schemaManager->getDatabasePlatform();
+        $platform = $this->connection->getDatabasePlatform();
 
         $table = new Table('test_column_defaults_current_timestamp');
 
@@ -403,7 +403,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('test_column_defaults_are_valid');
 
-        $currentTimeStampSql = $this->schemaManager->getDatabasePlatform()->getCurrentTimestampSQL();
+        $currentTimeStampSql = $this->connection->getDatabasePlatform()->getCurrentTimestampSQL();
         $table->addColumn('col_datetime', 'datetime', ['default' => $currentTimeStampSql]);
         $table->addColumn('col_datetime_null', 'datetime', ['notnull' => false, 'default' => null]);
         $table->addColumn('col_int', 'integer', ['default' => 1]);
@@ -448,11 +448,11 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testColumnDefaultValuesCurrentTimeAndDate(): void
     {
-        if (! $this->schemaManager->getDatabasePlatform() instanceof MariaDBPlatform) {
+        if (! $this->connection->getDatabasePlatform() instanceof MariaDBPlatform) {
             self::markTestSkipped('Only relevant for MariaDB.');
         }
 
-        $platform = $this->schemaManager->getDatabasePlatform();
+        $platform = $this->connection->getDatabasePlatform();
 
         $table = new Table('test_column_defaults_current_time_and_date');
 

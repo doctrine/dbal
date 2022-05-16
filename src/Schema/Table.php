@@ -344,7 +344,7 @@ class Table extends AbstractAsset
     ): self {
         if ($name === null) {
             $name = $this->_generateIdentifierName(
-                array_merge((array) $this->getName(), $localColumnNames),
+                array_merge([$this->getName()], $localColumnNames),
                 'fk',
                 $this->_getMaxIdentifierLength()
             );

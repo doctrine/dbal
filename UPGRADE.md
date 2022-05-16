@@ -670,6 +670,52 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+## Deprecated `AbstractPlatform` methods exposing quote characters.
+
+The `AbstractPlatform::getStringLiteralQuoteCharacter()` and `::getIdentifierQuoteCharacter()` methods
+have been deprecated. Use `::quoteStringLiteral()` and `::quoteIdentifier()` to quote string literals and identifiers
+respectively.
+
+## Deprecated `AbstractSchemaManager::getDatabasePlatform()`
+
+The `AbstractSchemaManager::getDatabasePlatform()` method has been deprecated. Use `Connection::getDatabasePlatform()`
+instead.
+
+## Deprecated passing date interval parameters as integer.
+
+Passing date interval parameters to the following `AbstractPlatform` methods as integer has been deprecated:
+
+- the `$seconds` argument in `::getDateAddSecondsExpression()`,
+- the `$seconds` parameter in `::getDateSubSecondsExpression()`,
+- the `$minutes` parameter in `::getDateAddMinutesExpression()`,
+- the `$minutes` parameter in `::getDateSubMinutesExpression()`,
+- the `$hours` parameter in `::getDateAddHourExpression()`,
+- the `$hours` parameter in `::getDateAddHourExpression()`,
+- the `$days` parameter in `::getDateAddDaysExpression()`,
+- the `$days` parameter in `::getDateSubDaysExpression()`,
+- the `$weeks` parameter in `::getDateAddWeeksExpression()`,
+- the `$weeks` parameter in `::getDateSubWeeksExpression()`,
+- the `$months` parameter in `::getDateAddMonthExpression()`,
+- the `$months` parameter in `::getDateSubMonthExpression()`,
+- the `$quarters` parameter in `::getDateAddQuartersExpression()`,
+- the `$quarters` parameter in `::getDateSubQuartersExpression()`,
+- the `$years` parameter in `::getDateAddYearsExpression()`,
+- the `$years` parameter in `::getDateSubYearsExpression()`.
+
+Use the strings representing numeric SQL literals instead (e.g. `'1'` instead of `1`).
+
+## Deprecated transaction nesting without savepoints
+
+Starting a transaction inside another transaction with
+`Doctrine\DBAL\Connection::beginTransaction()` without enabling transaction
+nesting with savepoints beforehand is deprecated.
+
+Transaction nesting with savepoints can be enabled with
+`$connection->setNestTransactionsWithSavepoints(true);`
+
+In case your platform does not support savepoints, you will have to rework your
+application logic so as to avoid nested transaction blocks.
+
 ## Added runtime deprecations for the default string column length.
 
 In addition to the formal deprecation introduced in DBAL 3.2, the library will now emit a deprecation message at runtime

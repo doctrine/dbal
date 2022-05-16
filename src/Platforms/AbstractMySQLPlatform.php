@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function array_unique;
@@ -56,8 +57,17 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $query;
     }
 
+    /**
+     * @deprecated Use {@see quoteIdentifier()} to quote identifiers instead.
+     */
     public function getIdentifierQuoteCharacter(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5388',
+            'AbstractMySQLPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.'
+        );
+
         return '`';
     }
 

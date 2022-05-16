@@ -304,7 +304,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
     public function createComparator(): Comparator
     {
-        return new MySQL\Comparator($this->getDatabasePlatform());
+        return new MySQL\Comparator($this->_platform);
     }
 
     protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result

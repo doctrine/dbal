@@ -487,7 +487,7 @@ SQL
 
     public function createComparator(): Comparator
     {
-        return new SQLite\Comparator($this->getDatabasePlatform());
+        return new SQLite\Comparator($this->_platform);
     }
 
     protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result

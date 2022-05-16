@@ -13,6 +13,7 @@ use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_intersect;
@@ -55,10 +56,19 @@ abstract class AbstractSchemaManager
     /**
      * Returns the associated platform.
      *
+     * @deprecated Use {@link Connection::getDatabasePlatform()} instead.
+     *
      * @return T
      */
     public function getDatabasePlatform(): AbstractPlatform
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5387',
+            'AbstractSchemaManager::getDatabasePlatform() is deprecated.'
+                . ' Use Connection::getDatabasePlatform() instead.'
+        );
+
         return $this->_platform;
     }
 
@@ -913,7 +923,7 @@ abstract class AbstractSchemaManager
 
     public function createComparator(): Comparator
     {
-        return new Comparator($this->getDatabasePlatform());
+        return new Comparator($this->_platform);
     }
 
     /**

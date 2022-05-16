@@ -98,7 +98,7 @@ abstract class FunctionalTestCase extends TestCase
     public function dropAndCreateTable(Table $table): void
     {
         $schemaManager = $this->connection->createSchemaManager();
-        $platform      = $schemaManager->getDatabasePlatform();
+        $platform      = $this->connection->getDatabasePlatform();
         $tableName     = $table->getQuotedName($platform);
 
         $this->dropTableIfExists($tableName);

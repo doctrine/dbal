@@ -16,6 +16,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use Error;
 use PDO;
 use Throwable;
@@ -25,6 +26,8 @@ use function unlink;
 
 class ConnectionTest extends FunctionalTestCase
 {
+    use VerifyDeprecations;
+
     private const TABLE = 'connection_test';
 
     protected function tearDown(): void
@@ -45,6 +48,16 @@ class ConnectionTest extends FunctionalTestCase
         $this->connection->commit();
     }
 
+    public function testNestingTransactionsWithoutSavepointsIsDeprecated(): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsSavepoints()) {
+            self::markTestSkipped('This test is only supported on platforms that support savepoints.');
+        }
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5383');
+        $this->connection->setNestTransactionsWithSavepoints(false);
+    }
+
     public function testTransactionNestingBehavior(): void
     {
         $this->createTestTable();
@@ -54,6 +67,7 @@ class ConnectionTest extends FunctionalTestCase
             self::assertSame(1, $this->connection->getTransactionNestingLevel());
 
             try {
+                $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5383');
                 $this->connection->beginTransaction();
                 self::assertSame(2, $this->connection->getTransactionNestingLevel());
 
