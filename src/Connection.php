@@ -22,7 +22,6 @@ use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\EmptyCriteriaNotAllowed;
 use Doctrine\DBAL\Exception\InvalidPlatformType;
-use Doctrine\DBAL\Exception\MayNotAlterNestedTransactionWithSavepointsInTransaction;
 use Doctrine\DBAL\Exception\NoActiveTransaction;
 use Doctrine\DBAL\Exception\SavepointsNotSupported;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -32,6 +31,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
+use InvalidArgumentException;
 use Throwable;
 use Traversable;
 
@@ -41,6 +41,7 @@ use function implode;
 use function is_int;
 use function is_string;
 use function key;
+use function sprintf;
 
 /**
  * A database abstraction-level connection that implements features like events, transaction isolation levels,
@@ -96,11 +97,6 @@ class Connection implements ServerVersionProvider
      * @var TransactionIsolationLevel::*|null
      */
     private ?int $transactionIsolationLevel = null;
-
-    /**
-     * If nested transactions should use savepoints.
-     */
-    private bool $nestTransactionsWithSavepoints = false;
 
     /**
      * The parameters used during creation of the Connection instance.
@@ -1045,39 +1041,44 @@ class Connection implements ServerVersionProvider
     /**
      * Sets if nested transactions should use savepoints.
      *
+     * @deprecated No replacement planned
+     *
      * @throws Exception
      */
     public function setNestTransactionsWithSavepoints(bool $nestTransactionsWithSavepoints): void
     {
         if (! $nestTransactionsWithSavepoints) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5383',
-                <<<'DEPRECATION'
-                Nesting transactions without enabling savepoints is deprecated.
-                Call %s::setNestTransactionsWithSavepoints(true) to enable savepoints.
-                DEPRECATION,
-                self::class
-            );
+            throw new InvalidArgumentException(sprintf(
+                'Calling %s with false to enable nesting transactions without savepoints is no longer supported.',
+                __METHOD__
+            ));
         }
 
-        if ($this->transactionNestingLevel > 0) {
-            throw MayNotAlterNestedTransactionWithSavepointsInTransaction::new();
-        }
-
-        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
-            throw SavepointsNotSupported::new();
-        }
-
-        $this->nestTransactionsWithSavepoints = $nestTransactionsWithSavepoints;
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5383',
+            '%s is deprecated and will be removed in 5.0',
+            __METHOD__
+        );
     }
 
     /**
      * Gets if nested transactions should use savepoints.
+     *
+     * @deprecated No replacement planned
+     *
+     * @return true
      */
     public function getNestTransactionsWithSavepoints(): bool
     {
-        return $this->nestTransactionsWithSavepoints;
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5383',
+            '%s is deprecated and will be removed in 5.0',
+            __METHOD__
+        );
+
+        return true;
     }
 
     /**
@@ -1099,18 +1100,8 @@ class Connection implements ServerVersionProvider
 
         if ($this->transactionNestingLevel === 1) {
             $connection->beginTransaction();
-        } elseif ($this->nestTransactionsWithSavepoints) {
-            $this->createSavepoint($this->_getNestedTransactionSavePointName());
         } else {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5383',
-                <<<'DEPRECATION'
-                Nesting transactions without enabling savepoints is deprecated.
-                Call %s::setNestTransactionsWithSavepoints(true) to enable savepoints.
-                DEPRECATION,
-                self::class
-            );
+            $this->createSavepoint($this->_getNestedTransactionSavePointName());
         }
 
         $this->getEventManager()->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
@@ -1137,7 +1128,7 @@ class Connection implements ServerVersionProvider
             } catch (Driver\Exception $e) {
                 throw $this->convertException($e);
             }
-        } elseif ($this->nestTransactionsWithSavepoints) {
+        } else {
             $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
         }
 
@@ -1197,11 +1188,8 @@ class Connection implements ServerVersionProvider
                     $this->beginTransaction();
                 }
             }
-        } elseif ($this->nestTransactionsWithSavepoints) {
-            $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
-            --$this->transactionNestingLevel;
         } else {
-            $this->isRollbackOnly = true;
+            $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
             --$this->transactionNestingLevel;
         }
 

@@ -8,6 +8,25 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: remove support for transaction nesting without savepoints
+
+Starting a transaction inside another transaction with
+`Doctrine\DBAL\Connection::beginTransaction()` now always results in
+savepoints being used.
+
+In case your platform does not support savepoints, you will have to
+rework your application logic so as to avoid nested transaction blocks.
+
+## Deprecated: configuration methods related to transaction nesting
+
+Since it is no longer possible to configure whether transaction nesting is
+emulated with savepoints or not, configuring that behavior has no effect and it
+is deprecated to attempt to change it or to know how it is configured. As a
+result, the following methods are deprecated:
+
+- `Connection::setNestTransactionsWithSavepoints()`
+- `Connection::getNestTransactionsWithSavepoints()`
+
 ## BC BREAK: Auto-increment columns on PostgreSQL are implemented as `IDENTITY`, not `SERIAL`.
 
 Instead of using `SERIAL*` column types for `autoincrement` columns, the DBAL will now use
