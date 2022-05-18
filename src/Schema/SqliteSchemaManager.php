@@ -178,11 +178,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $columns = $this->selectForeignKeyColumns('', $this->normalizeName($table))
             ->fetchAllAssociative();
 
-        if (! empty($columns)) {
+        if (count($columns) > 0) {
             $foreignKeyDetails = $this->getForeignKeyDetails($table);
+            $foreignKeyCount   = count($foreignKeyDetails);
 
             foreach ($columns as $i => $column) {
-                $columns[$i] = array_merge($column, $foreignKeyDetails[$i]);
+                // SQLite identifies foreign keys in reverse order of appearance in SQL
+                $columns[$i] = array_merge($column, $foreignKeyDetails[$foreignKeyCount - $column['id'] - 1]);
             }
         }
 
