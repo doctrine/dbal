@@ -5,9 +5,11 @@ namespace Doctrine\DBAL\Tests;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Event\Listeners\SQLiteSessionInit;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 
 use function array_keys;
@@ -19,6 +21,8 @@ use function file_exists;
 use function implode;
 use function in_array;
 use function is_string;
+use function is_subclass_of;
+use function sprintf;
 use function strlen;
 use function strpos;
 use function substr;
@@ -58,11 +62,15 @@ class TestUtil
             self::$initialized = true;
         }
 
-        $conn = DriverManager::getConnection(self::getConnectionParams());
+        $params = self::getConnectionParams();
 
-        self::addDbEventSubscribers($conn);
+        $connection = DriverManager::getConnection($params);
 
-        return $conn;
+        if (isset($params['event_subscribers'])) {
+            self::addDbEventSubscribers($connection, explode(',', $params['event_subscribers']));
+        }
+
+        return $connection;
     }
 
     /**
@@ -139,23 +147,29 @@ class TestUtil
         }
 
         return [
-            'driver' => 'pdo_sqlite',
-            'memory' => true,
+            'driver'            => 'pdo_sqlite',
+            'memory'            => true,
+            'event_subscribers' => SQLiteSessionInit::class,
         ];
     }
 
-    private static function addDbEventSubscribers(Connection $conn): void
+    /**
+     * @param list<string> $subscribers
+     */
+    private static function addDbEventSubscribers(Connection $connection, array $subscribers): void
     {
-        if (! isset($GLOBALS['db_event_subscribers'])) {
-            return;
-        }
+        $evm = $connection->getEventManager();
 
-        $evm = $conn->getEventManager();
+        foreach ($subscribers as $subscriber) {
+            if (! is_subclass_of($subscriber, EventSubscriber::class)) {
+                throw new InvalidArgumentException(sprintf(
+                    '"%s" is not a valid event subscriber. It must be a class that implements "%s".',
+                    $subscriber,
+                    EventSubscriber::class
+                ));
+            }
 
-        /** @psalm-var class-string<EventSubscriber> $subscriberClass */
-        foreach (explode(',', $GLOBALS['db_event_subscribers']) as $subscriberClass) {
-            $subscriberInstance = new $subscriberClass();
-            $evm->addEventSubscriber($subscriberInstance);
+            $evm->addEventSubscriber(new $subscriber());
         }
     }
 
@@ -208,6 +222,7 @@ class TestUtil
                 'unix_socket',
                 'path',
                 'charset',
+                'event_subscribers',
             ] as $parameter
         ) {
             if (! isset($configuration[$prefix . $parameter])) {

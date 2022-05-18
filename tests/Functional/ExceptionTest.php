@@ -64,10 +64,6 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnInsert(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
@@ -98,10 +94,6 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnUpdate(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
@@ -132,10 +124,6 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnDelete(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
@@ -167,10 +155,6 @@ class ExceptionTest extends FunctionalTestCase
     public function testForeignKeyConstraintViolationExceptionOnTruncate(): void
     {
         $platform = $this->connection->getDatabasePlatform();
-
-        if (! $platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
