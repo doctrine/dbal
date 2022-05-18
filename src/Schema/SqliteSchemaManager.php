@@ -15,7 +15,7 @@ use Doctrine\Deprecations\Deprecation;
 use function array_change_key_case;
 use function array_map;
 use function array_merge;
-use function array_reverse;
+use function count;
 use function explode;
 use function file_exists;
 use function implode;
@@ -25,6 +25,7 @@ use function preg_quote;
 use function preg_replace;
 use function rtrim;
 use function str_replace;
+use function strcasecmp;
 use function strpos;
 use function strtolower;
 use function trim;
@@ -178,38 +179,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
             ->fetchAllAssociative();
 
         if (! empty($tableForeignKeys)) {
-            $createSql = $this->getCreateTableSQL($table);
+            $details = $this->getTableForeignKeyDetails($table);
 
-            if (
-                preg_match_all(
-                    '#
-                    (?:CONSTRAINT\s+([^\s]+)\s+)?
-                    (?:FOREIGN\s+KEY[^\)]+\)\s*)?
-                    REFERENCES\s+[^\s]+\s+(?:\([^)]+\))?
-                    (?:
-                        [^,]*?
-                        (NOT\s+DEFERRABLE|DEFERRABLE)
-                        (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
-                    )?#isx',
-                    $createSql,
-                    $match
-                ) > 0
-            ) {
-                $names      = array_reverse($match[1]);
-                $deferrable = array_reverse($match[2]);
-                $deferred   = array_reverse($match[3]);
-            } else {
-                $names = $deferrable = $deferred = [];
-            }
-
-            foreach ($tableForeignKeys as $key => $value) {
-                $id = $value['id'];
-
-                $tableForeignKeys[$key] = array_merge($tableForeignKeys[$key], [
-                    'constraint_name' => isset($names[$id]) && $names[$id] !== '' ? $names[$id] : $id,
-                    'deferrable'      => isset($deferrable[$id]) && strtolower($deferrable[$id]) === 'deferrable',
-                    'deferred'        => isset($deferred[$id]) && strtolower($deferred[$id]) === 'deferred',
-                ]);
+            foreach ($tableForeignKeys as $i => $foreignKey) {
+                $tableForeignKeys[$i] = array_merge($foreignKey, $details[$i]);
             }
         }
 
@@ -592,6 +565,51 @@ SQL
         return '';
     }
 
+    /**
+     * @param string $table
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    private function getTableForeignKeyDetails($table)
+    {
+        $createSql = $this->getCreateTableSQL($table);
+
+        if (
+            preg_match_all(
+                '#
+                    (?:CONSTRAINT\s+(\S+)\s+)?
+                    (?:FOREIGN\s+KEY[^)]+\)\s*)?
+                    REFERENCES\s+\S+\s+(?:\([^)]+\))?
+                    (?:
+                        [^,]*?
+                        (NOT\s+DEFERRABLE|DEFERRABLE)
+                        (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
+                    )?#isx',
+                $createSql,
+                $match
+            ) === 0
+        ) {
+            return [];
+        }
+
+        $names      = $match[1];
+        $deferrable = $match[2];
+        $deferred   = $match[3];
+        $details    = [];
+
+        for ($i = 0, $count = count($match[0]); $i < $count; $i++) {
+            $details[] = [
+                'constraint_name' => isset($names[$i]) && $names[$i] !== '' ? $names[$i] : $i,
+                'deferrable'      => isset($deferrable[$i]) && strcasecmp($deferrable[$i], 'deferrable') === 0,
+                'deferred'        => isset($deferred[$i]) && strcasecmp($deferred[$i], 'deferred') === 0,
+            ];
+        }
+
+        return $details;
+    }
+
     public function createComparator(): Comparator
     {
         return new SQLite\Comparator($this->_platform);
@@ -685,7 +703,7 @@ SQL;
             $params[]     = str_replace('.', '__', $tableName);
         }
 
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name';
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, p.id DESC, p.seq';
 
         return $this->_conn->executeQuery($sql, $params);
     }

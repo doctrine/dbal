@@ -73,11 +73,11 @@ EOS
 
         $expected = [
             new ForeignKeyConstraint(
-                ['log'],
-                'log',
-                [],
-                'FK_3',
-                ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false]
+                ['page'],
+                'page',
+                ['key'],
+                'FK_1',
+                ['onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true]
             ),
             new ForeignKeyConstraint(
                 ['parent'],
@@ -87,11 +87,11 @@ EOS
                 ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false]
             ),
             new ForeignKeyConstraint(
-                ['page'],
-                'page',
-                ['key'],
-                'FK_1',
-                ['onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true]
+                ['log'],
+                'log',
+                [],
+                'FK_3',
+                ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false]
             ),
         ];
 
