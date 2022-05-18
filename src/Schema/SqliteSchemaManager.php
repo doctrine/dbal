@@ -175,18 +175,18 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     public function listTableForeignKeys($table, $database = null)
     {
-        $tableForeignKeys = $this->selectDatabaseForeignKeys('', $this->normalizeName($table))
+        $columns = $this->selectForeignKeyColumns('', $this->normalizeName($table))
             ->fetchAllAssociative();
 
-        if (! empty($tableForeignKeys)) {
-            $details = $this->getTableForeignKeyDetails($table);
+        if (! empty($columns)) {
+            $foreignKeyDetails = $this->getForeignKeyDetails($table);
 
-            foreach ($tableForeignKeys as $i => $foreignKey) {
-                $tableForeignKeys[$i] = array_merge($foreignKey, $details[$i]);
+            foreach ($columns as $i => $column) {
+                $columns[$i] = array_merge($column, $foreignKeyDetails[$i]);
             }
         }
 
-        return $this->_getPortableTableForeignKeysList($tableForeignKeys);
+        return $this->_getPortableTableForeignKeysList($columns);
     }
 
     /**
@@ -572,7 +572,7 @@ SQL
      *
      * @throws Exception
      */
-    private function getTableForeignKeyDetails($table)
+    private function getForeignKeyDetails($table)
     {
         $createSql = $this->getCreateTableSQL($table);
 
@@ -632,7 +632,7 @@ SQL
         return [];
     }
 
-    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = <<<SQL
             SELECT t.name AS table_name,
@@ -657,7 +657,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = <<<SQL
             SELECT t.name AS table_name,
@@ -682,7 +682,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = <<<SQL
             SELECT t.name AS table_name,
@@ -711,7 +711,7 @@ SQL;
     /**
      * {@inheritDoc}
      */
-    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
+    protected function getTableOptions(string $databaseName, ?string $tableName = null): array
     {
         if ($tableName === null) {
             $tables = $this->listTableNames();

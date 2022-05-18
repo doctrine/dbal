@@ -601,7 +601,7 @@ SQL
         return str_replace("''", "'", $default);
     }
 
-    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -657,7 +657,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -693,7 +693,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
 
@@ -728,7 +728,7 @@ SQL;
     /**
      * {@inheritDoc}
      */
-    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
+    protected function getTableOptions(string $databaseName, ?string $tableName = null): array
     {
         if ($tableName === null) {
             $tables = $this->listTableNames();
