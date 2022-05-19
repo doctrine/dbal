@@ -74,6 +74,22 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * {@inheritDoc}
+     */
+    protected function fetchForeignKeyColumnsByTable(string $databaseName): array
+    {
+        $columnsByTable = parent::fetchForeignKeyColumnsByTable($databaseName);
+
+        if (count($columnsByTable) > 0) {
+            foreach ($columnsByTable as $table => $columns) {
+                $columnsByTable[$table] = $this->addDetailsToTableForeignKeyColumns($table, $columns);
+            }
+        }
+
+        return $columnsByTable;
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @deprecated Delete the database file using the filesystem.
@@ -179,13 +195,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             ->fetchAllAssociative();
 
         if (count($columns) > 0) {
-            $foreignKeyDetails = $this->getForeignKeyDetails($table);
-            $foreignKeyCount   = count($foreignKeyDetails);
-
-            foreach ($columns as $i => $column) {
-                // SQLite identifies foreign keys in reverse order of appearance in SQL
-                $columns[$i] = array_merge($column, $foreignKeyDetails[$foreignKeyCount - $column['id'] - 1]);
-            }
+            $columns = $this->addDetailsToTableForeignKeyColumns($table, $columns);
         }
 
         return $this->_getPortableTableForeignKeysList($columns);
@@ -565,6 +575,26 @@ SQL
         }
 
         return '';
+    }
+
+    /**
+     * @param list<array<string,mixed>> $columns
+     *
+     * @return list<array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    private function addDetailsToTableForeignKeyColumns(string $table, array $columns): array
+    {
+        $foreignKeyDetails = $this->getForeignKeyDetails($table);
+        $foreignKeyCount   = count($foreignKeyDetails);
+
+        foreach ($columns as $i => $column) {
+            // SQLite identifies foreign keys in reverse order of appearance in SQL
+            $columns[$i] = array_merge($column, $foreignKeyDetails[$foreignKeyCount - $column['id'] - 1]);
+        }
+
+        return $columns;
     }
 
     /**

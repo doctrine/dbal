@@ -774,6 +774,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testQuotesDropForeignKeySQL(): void
+    {
+        $this->markTestSkipped('SQLite does not support altering foreign key constraints.');
+    }
+
     public function testDateAddStaticNumberOfDays(): void
     {
         self::assertSame(
