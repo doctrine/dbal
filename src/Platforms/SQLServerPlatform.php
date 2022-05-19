@@ -12,6 +12,8 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types as DBALTypes;
+use Doctrine\DBAL\Platforms\SQLServer\Types as PlatformTypes;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
@@ -44,6 +46,10 @@ use const PREG_OFFSET_CAPTURE;
  */
 class SQLServerPlatform extends AbstractPlatform
 {
+    protected $types = [
+        DBALTypes\BooleanType::class => PlatformTypes\BooleanType::class
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -1262,14 +1268,6 @@ class SQLServerPlatform extends AbstractPlatform
     public function getTimeTypeDeclarationSQL(array $column)
     {
         return 'TIME(0)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getBooleanTypeDeclarationSQL(array $column)
-    {
-        return 'BIT';
     }
 
     /**

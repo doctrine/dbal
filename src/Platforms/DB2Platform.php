@@ -9,6 +9,8 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\DBAL\Types as DBALTypes;
+use Doctrine\DBAL\Platforms\DB2\Types as PlatformTypes;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
@@ -23,6 +25,10 @@ use function strpos;
 
 class DB2Platform extends AbstractPlatform
 {
+    protected $types = [
+        DBALTypes\BooleanType::class => PlatformTypes\BooleanType::class
+    ];
+
     public function getCharMaxLength(): int
     {
         return 254;
@@ -149,14 +155,6 @@ class DB2Platform extends AbstractPlatform
         );
 
         return 'db2';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getBooleanTypeDeclarationSQL(array $column)
-    {
-        return 'SMALLINT';
     }
 
     /**

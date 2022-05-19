@@ -11,6 +11,8 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\DBAL\Types as DBALTypes;
+use Doctrine\DBAL\Platforms\Oracle\Types as PlatformTypes;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
@@ -32,6 +34,10 @@ use function substr;
  */
 class OraclePlatform extends AbstractPlatform
 {
+    protected $types = [
+        DBALTypes\BooleanType::class => PlatformTypes\BooleanType::class
+    ];
+
     /**
      * Assertion for Oracle identifiers.
      *
@@ -271,14 +277,6 @@ class OraclePlatform extends AbstractPlatform
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getBooleanTypeDeclarationSQL(array $column)
-    {
-        return 'NUMBER(1)';
     }
 
     /**

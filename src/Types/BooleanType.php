@@ -5,18 +5,30 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\Types\UnsupportedTypeException;
 
 /**
  * Type that maps an SQL boolean to a PHP boolean.
  */
 class BooleanType extends Type
 {
+    private function getPlatformType(AbstractPlatform $platform) : \Doctrine\DBAL\Platforms\Types\Type
+    {
+        $type = $platform->getType(self::class);
+
+        if ($type === null) {
+            throw new UnsupportedTypeException('Basic types need to be implemented by platform');
+        }
+
+        return $type;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return $platform->getBooleanTypeDeclarationSQL($column);
+        return $this->getPlatformType($platform)->getSQLDeclaration($column);
     }
 
     /**
@@ -24,7 +36,7 @@ class BooleanType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return $platform->convertBooleansToDatabaseValue($value);
+        return $this->getPlatformType($platform)->convertToDatabaseValue($value);
     }
 
     /**
@@ -32,7 +44,7 @@ class BooleanType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return $platform->convertFromBoolean($value);
+        return $this->getPlatformType($platform)->convertToPHPValue($value);
     }
 
     /**
@@ -56,8 +68,6 @@ class BooleanType extends Type
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {
-        // We require a commented boolean type in order to distinguish between
-        // boolean and smallint as both (have to) map to the same native type.
-        return $platform instanceof DB2Platform;
+        return $this->getPlatformType($platform)->requiresSQLCommentHint();
     }
 }

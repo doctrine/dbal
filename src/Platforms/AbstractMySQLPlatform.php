@@ -273,14 +273,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     */
-    public function getBooleanTypeDeclarationSQL(array $column)
-    {
-        return 'TINYINT(1)';
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * @deprecated
      *

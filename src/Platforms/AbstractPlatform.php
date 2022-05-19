@@ -16,6 +16,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
+use Doctrine\DBAL\Platforms\Types as PlatformTypes;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Constraint;
@@ -33,7 +34,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
-
 use function addcslashes;
 use function array_map;
 use function array_merge;
@@ -72,6 +72,10 @@ abstract class AbstractPlatform
     public const CREATE_INDEXES = 1;
 
     public const CREATE_FOREIGNKEYS = 2;
+
+    private $types = [
+        Types\BooleanType::class => PlatformTypes\BooleanType::class
+    ];
 
     /** @var string[]|null */
     protected $doctrineTypeMapping;
@@ -117,13 +121,39 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns a platform specific type declaration
+     *
+     * @param string $type The type class
+     *
+     * @return null|PlatformTypes\Type
+     */
+    public function getType(string $type) : ?PlatformTypes\Type
+    {
+        if (!isset($this->types[$type])) {
+            throw new PlatformTypes\UnsupportedTypeException('Could not find type ' . $type);
+        }
+
+        $class = $this->types[$type];
+
+        if (!is_a($class, PlatformTypes\Type::class)) {
+            throw new PlatformTypes\UnsupportedTypeException('Class ' . $class . ' is not a ' . PlatformTypes\Type::class);
+        }
+
+        return new $class($this);
+    }
+
+    /**
      * Returns the SQL snippet that declares a boolean column.
      *
      * @param mixed[] $column
      *
      * @return string
+     * @deprecated
      */
-    abstract public function getBooleanTypeDeclarationSQL(array $column);
+    public function getBooleanTypeDeclarationSQL(array $column)
+    {
+        return $this->getType(Types\BooleanType::class)->getSQLDeclaration($column);
+    }
 
     /**
      * Returns the SQL snippet that declares a 4 byte integer column.
@@ -2969,10 +2999,11 @@ abstract class AbstractPlatform
      * @param mixed $item
      *
      * @return bool|null
+     * @deprecated
      */
     public function convertFromBoolean($item)
     {
-        return $item === null ? null : (bool) $item;
+        return $this->getType(Types\BooleanType::class)->convertToPHPValue($item);
     }
 
     /**
@@ -2984,10 +3015,11 @@ abstract class AbstractPlatform
      * @param mixed $item A boolean or an array of them.
      *
      * @return mixed A boolean database value or an array of them.
+     * @deprecated
      */
     public function convertBooleansToDatabaseValue($item)
     {
-        return $this->convertBooleans($item);
+        return $this->getType(Types\BooleanType::class)->convertToDatabaseValue($item);
     }
 
     /**

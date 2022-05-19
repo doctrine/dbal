@@ -13,6 +13,8 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\PhpIntegerMappingType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types as DBALTypes;
+use Doctrine\DBAL\Platforms\Oracle\Types as PlatformTypes;
 use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
@@ -38,6 +40,10 @@ use function trim;
  */
 class PostgreSQLPlatform extends AbstractPlatform
 {
+    protected $types = [
+        DBALTypes\BooleanType::class => PlatformTypes\BooleanType::class
+    ];
+
     /** @var bool */
     private $useBooleanTrueFalseStrings = true;
 
@@ -62,6 +68,14 @@ class PostgreSQLPlatform extends AbstractPlatform
     ];
 
     /**
+     * @return \string[][]
+     */
+    public function getBooleanLiterals()
+    {
+        return $this->booleanLiterals;
+    }
+
+    /**
      * PostgreSQL has different behavior with some drivers
      * with regard to how booleans have to be handled.
      *
@@ -74,6 +88,14 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function setUseBooleanTrueFalseStrings($flag)
     {
         $this->useBooleanTrueFalseStrings = (bool) $flag;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUseBooleanTrueFalseStrings()
+    {
+        return $this->useBooleanTrueFalseStrings;
     }
 
     /**
@@ -817,7 +839,7 @@ SQL
      *
      * @return mixed
      */
-    private function doConvertBooleans($item, $callback)
+    public function doConvertBooleans($item, $callback)
     {
         if (is_array($item)) {
             foreach ($item as $key => $value) {
@@ -859,38 +881,6 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function convertBooleansToDatabaseValue($item)
-    {
-        if (! $this->useBooleanTrueFalseStrings) {
-            return parent::convertBooleansToDatabaseValue($item);
-        }
-
-        return $this->doConvertBooleans(
-            $item,
-            /**
-             * @param mixed $value
-             */
-            static function ($value): ?int {
-                return $value === null ? null : (int) $value;
-            }
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function convertFromBoolean($item)
-    {
-        if ($item !== null && in_array(strtolower($item), $this->booleanLiterals['false'], true)) {
-            return false;
-        }
-
-        return parent::convertFromBoolean($item);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getSequenceNextValSQL($sequence)
     {
         return "SELECT NEXTVAL('" . $sequence . "')";
@@ -903,14 +893,6 @@ SQL
     {
         return 'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL '
             . $this->_getTransactionIsolationLevelSQL($level);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getBooleanTypeDeclarationSQL(array $column)
-    {
-        return 'BOOLEAN';
     }
 
     /**
