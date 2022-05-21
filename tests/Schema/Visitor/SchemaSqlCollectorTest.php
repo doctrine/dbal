@@ -27,7 +27,7 @@ class SchemaSqlCollectorTest extends TestCase
 
         $sql = $schema->toSql($platformMock);
 
-        self::assertEquals(['foo', 'foo', 'bar', 'baz'], $sql);
+        self::assertEquals(['bar', 'foo', 'foo', 'baz'], $sql);
     }
 
     public function testDropSchema(): void
