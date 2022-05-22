@@ -512,7 +512,7 @@ SQL;
     /**
      * {@inheritDoc}
      */
-    protected function getTableOptions(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
         $sql = <<<'SQL'
           SELECT

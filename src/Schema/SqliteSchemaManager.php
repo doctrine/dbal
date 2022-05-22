@@ -713,7 +713,7 @@ SQL;
     /**
      * {@inheritDoc}
      */
-    protected function getTableOptions(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
         if ($tableName === null) {
             $tables = $this->listTableNames();
