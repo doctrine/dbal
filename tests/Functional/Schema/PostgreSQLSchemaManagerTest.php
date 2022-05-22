@@ -242,10 +242,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListForeignKeys(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('Does not support foreign key constraints.');
-        }
-
         $fkOptions   = ['SET NULL', 'SET DEFAULT', 'NO ACTION', 'CASCADE', 'RESTRICT'];
         $foreignKeys = [];
         $fkTable     = $this->getTestTable('test_create_fk1');

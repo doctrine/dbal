@@ -255,7 +255,7 @@ abstract class AbstractSchemaManager
         return $this->_getPortableTableColumnList(
             $table,
             $database,
-            $this->selectDatabaseColumns($database, $this->normalizeName($table))
+            $this->selectTableColumns($database, $this->normalizeName($table))
                 ->fetchAllAssociative()
         );
     }
@@ -292,7 +292,7 @@ abstract class AbstractSchemaManager
         $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableIndexesList(
-            $this->selectDatabaseIndexes(
+            $this->selectIndexColumns(
                 $database,
                 $this->normalizeName($table)
             )->fetchAllAssociative(),
@@ -390,35 +390,35 @@ abstract class AbstractSchemaManager
     {
         $database = $this->getDatabase(__METHOD__);
 
-        /** @var array<string,list<array<string,mixed>>> $columns */
-        $columns = $this->fetchAllAssociativeGrouped(
-            $this->selectDatabaseColumns($database)
+        /** @var array<string,list<array<string,mixed>>> $tableColumnsByTable */
+        $tableColumnsByTable = $this->fetchAllAssociativeGrouped(
+            $this->selectTableColumns($database)
         );
 
-        $indexes = $this->fetchAllAssociativeGrouped(
-            $this->selectDatabaseIndexes($database)
+        $indexColumnsByTable = $this->fetchAllAssociativeGrouped(
+            $this->selectIndexColumns($database)
         );
 
         if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->fetchAllAssociativeGrouped(
-                $this->selectDatabaseForeignKeys($database)
+            $foreignKeyColumnsByTable = $this->fetchAllAssociativeGrouped(
+                $this->selectForeignKeyColumns($database)
             );
         } else {
-            $foreignKeys = [];
+            $foreignKeyColumnsByTable = [];
         }
 
-        $tableOptions = $this->getDatabaseTableOptions($database);
+        $optionsByTable = $this->getTableOptions($database);
 
         $tables = [];
 
-        foreach ($columns as $tableName => $tableColumns) {
+        foreach ($tableColumnsByTable as $tableName => $tableColumns) {
             $tables[] = new Table(
                 $tableName,
                 $this->_getPortableTableColumnList($tableName, $database, $tableColumns),
-                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
+                $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName),
                 [],
-                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
-                $tableOptions[$tableName] ?? []
+                $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName] ?? []),
+                $optionsByTable[$tableName] ?? []
             );
         }
 
@@ -457,7 +457,7 @@ abstract class AbstractSchemaManager
 
         $normalizedName = $this->normalizeName($name);
 
-        $tableOptions = $this->getDatabaseTableOptions($database, $normalizedName);
+        $tableOptionsByTable = $this->getTableOptions($database, $normalizedName);
 
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->listTableForeignKeys($name);
@@ -471,7 +471,7 @@ abstract class AbstractSchemaManager
             $this->listTableIndexes($name),
             [],
             $foreignKeys,
-            $tableOptions[$normalizedName] ?? []
+            $tableOptionsByTable[$normalizedName] ?? []
         );
     }
 
@@ -486,36 +486,36 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
+     * Selects definitions of table columns in the specified database. If the table name is specified, narrows down
      * the selection to this table.
      *
      * @throws Exception
      *
      * @abstract
      */
-    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
         throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
+     * Selects definitions of index columns in the specified database. If the table name is specified, narrows down
      * the selection to this table.
      *
      * @throws Exception
      */
-    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
         throw Exception::notSupported(__METHOD__);
     }
 
     /**
-     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
+     * Selects definitions of foreign key columns in the specified database. If the table name is specified,
      * narrows down the selection to this table.
      *
      * @throws Exception
      */
-    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
         throw Exception::notSupported(__METHOD__);
     }
@@ -528,7 +528,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
+    protected function getTableOptions(string $databaseName, ?string $tableName = null): array
     {
         throw Exception::notSupported(__METHOD__);
     }
@@ -598,7 +598,7 @@ abstract class AbstractSchemaManager
         }
 
         return $this->_getPortableTableForeignKeysList(
-            $this->selectDatabaseForeignKeys(
+            $this->selectForeignKeyColumns(
                 $database,
                 $this->normalizeName($table)
             )->fetchAllAssociative()

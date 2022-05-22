@@ -526,10 +526,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testListForeignKeys(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('Does not support foreign key constraints.');
-        }
-
         $this->createTestTable('test_create_fk1');
         $this->createTestTable('test_create_fk2');
 
@@ -1092,10 +1088,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testListForeignKeysComposite(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('Does not support foreign key constraints.');
-        }
-
         $this->schemaManager->createTable($this->getTestTable('test_create_fk3'));
         $this->schemaManager->createTable($this->getTestCompositeTable('test_create_fk4'));
 
@@ -1381,10 +1373,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testDoesNotListIndexesImplicitlyCreatedByForeignKeys(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('This test is only supported on platforms that have foreign keys.');
-        }
-
         $primaryTable = new Table('test_list_index_impl_primary');
         $primaryTable->addColumn('id', 'integer');
         $primaryTable->setPrimaryKey(['id']);
