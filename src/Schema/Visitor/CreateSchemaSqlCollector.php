@@ -91,8 +91,8 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     {
         return array_merge(
             $this->createNamespaceQueries,
-            $this->createTableQueries,
             $this->createSequenceQueries,
+            $this->createTableQueries,
             $this->createFkConstraintQueries
         );
     }
