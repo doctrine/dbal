@@ -22,6 +22,7 @@ use function array_shift;
 use function array_values;
 use function assert;
 use function count;
+use function is_string;
 use function strtolower;
 
 /**
@@ -139,7 +140,7 @@ abstract class AbstractSchemaManager
         return $this->_getPortableTableColumnList(
             $table,
             $database,
-            $this->selectDatabaseColumns($database, $this->normalizeName($table))
+            $this->selectTableColumns($database, $this->normalizeName($table))
                 ->fetchAllAssociative()
         );
     }
@@ -158,7 +159,7 @@ abstract class AbstractSchemaManager
         $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableIndexesList(
-            $this->selectDatabaseIndexes(
+            $this->selectIndexColumns(
                 $database,
                 $this->normalizeName($table)
             )->fetchAllAssociative(),
@@ -231,35 +232,21 @@ abstract class AbstractSchemaManager
     {
         $database = $this->getDatabase(__METHOD__);
 
-        /** @var array<string,list<array<string,mixed>>> $columns */
-        $columns = $this->fetchAllAssociativeGrouped(
-            $this->selectDatabaseColumns($database)
-        );
-
-        $indexes = $this->fetchAllAssociativeGrouped(
-            $this->selectDatabaseIndexes($database)
-        );
-
-        if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->fetchAllAssociativeGrouped(
-                $this->selectDatabaseForeignKeys($database)
-            );
-        } else {
-            $foreignKeys = [];
-        }
-
-        $tableOptions = $this->getDatabaseTableOptions($database);
+        $tableColumnsByTable      = $this->fetchTableColumnsByTable($database);
+        $indexColumnsByTable      = $this->fetchIndexColumnsByTable($database);
+        $foreignKeyColumnsByTable = $this->fetchForeignKeyColumnsByTable($database);
+        $tableOptionsByTable      = $this->fetchTableOptionsByTable($database);
 
         $tables = [];
 
-        foreach ($columns as $tableName => $tableColumns) {
+        foreach ($tableColumnsByTable as $tableName => $tableColumns) {
             $tables[] = new Table(
                 $tableName,
                 $this->_getPortableTableColumnList($tableName, $database, $tableColumns),
-                $this->_getPortableTableIndexesList($indexes[$tableName] ?? [], $tableName),
+                $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName),
                 [],
-                $this->_getPortableTableForeignKeysList($foreignKeys[$tableName] ?? []),
-                $tableOptions[$tableName] ?? []
+                $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName] ?? []),
+                $tableOptionsByTable[$tableName] ?? []
             );
         }
 
@@ -275,7 +262,7 @@ abstract class AbstractSchemaManager
 
         $normalizedName = $this->normalizeName($name);
 
-        $tableOptions = $this->getDatabaseTableOptions($database, $normalizedName);
+        $tableOptionsByTable = $this->fetchTableOptionsByTable($database, $normalizedName);
 
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->listTableForeignKeys($name);
@@ -289,7 +276,7 @@ abstract class AbstractSchemaManager
             $this->listTableIndexes($name),
             [],
             $foreignKeys,
-            $tableOptions[$normalizedName] ?? []
+            $tableOptionsByTable[$normalizedName] ?? []
         );
     }
 
@@ -304,38 +291,80 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Selects column definitions of the tables in the specified database. If the table name is specified, narrows down
+     * Selects definitions of table columns in the specified database. If the table name is specified, narrows down
      * the selection to this table.
      *
      * @throws Exception
      */
-    abstract protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result;
+    abstract protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result;
 
     /**
-     * Selects index definitions of the tables in the specified database. If the table name is specified, narrows down
+     * Selects definitions of index columns in the specified database. If the table name is specified, narrows down
      * the selection to this table.
      *
      * @throws Exception
      */
-    abstract protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result;
+    abstract protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result;
 
     /**
-     * Selects foreign key definitions of the tables in the specified database. If the table name is specified,
+     * Selects definitions of foreign key columns in the specified database. If the table name is specified,
      * narrows down the selection to this table.
      *
      * @throws Exception
      */
-    abstract protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result;
+    abstract protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result;
 
     /**
-     * Returns table options for the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
+     * Fetches definitions of table columns in the specified database and returns them grouped by table name.
+     *
+     * @return array<string,list<array<string,mixed>>>
+     *
+     * @throws Exception
+     */
+    protected function fetchTableColumnsByTable(string $databaseName): array
+    {
+        return $this->fetchAllAssociativeGrouped($this->selectTableColumns($databaseName));
+    }
+
+    /**
+     * Fetches definitions of index columns in the specified database and returns them grouped by table name.
+     *
+     * @return array<string,list<array<string,mixed>>>
+     *
+     * @throws Exception
+     */
+    protected function fetchIndexColumnsByTable(string $databaseName): array
+    {
+        return $this->fetchAllAssociativeGrouped($this->selectIndexColumns($databaseName));
+    }
+
+    /**
+     * Fetches definitions of foreign key columns in the specified database and returns them grouped by table name.
+     *
+     * @return array<string, list<array<string, mixed>>>
+     *
+     * @throws Exception
+     */
+    protected function fetchForeignKeyColumnsByTable(string $databaseName): array
+    {
+        if (! $this->_platform->supportsForeignKeyConstraints()) {
+            return [];
+        }
+
+        return $this->fetchAllAssociativeGrouped(
+            $this->selectForeignKeyColumns($databaseName)
+        );
+    }
+
+    /**
+     * Fetches table options for the tables in the specified database and returns them grouped by table name.
+     * If the table name is specified, narrows down the selection to this table.
      *
      * @return array<string,array<string,mixed>>
      *
      * @throws Exception
      */
-    abstract protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array;
+    abstract protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array;
 
     /**
      * Lists the views this connection has.
@@ -366,7 +395,7 @@ abstract class AbstractSchemaManager
         $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableForeignKeysList(
-            $this->selectDatabaseForeignKeys(
+            $this->selectForeignKeyColumns(
                 $database,
                 $this->normalizeName($table)
             )->fetchAllAssociative()
@@ -927,7 +956,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @return array<mixed,list<array<string,mixed>>>
+     * @return array<string,list<array<string,mixed>>>
      *
      * @throws Exception
      */
@@ -936,7 +965,9 @@ abstract class AbstractSchemaManager
         $data = [];
 
         foreach ($result->fetchAllAssociative() as $row) {
-            $data[array_shift($row)][] = $row;
+            $group = array_shift($row);
+            assert(is_string($group));
+            $data[$group][] = $row;
         }
 
         return $data;

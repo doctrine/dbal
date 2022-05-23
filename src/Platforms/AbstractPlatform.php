@@ -2192,9 +2192,17 @@ abstract class AbstractPlatform
 
     /**
      * Whether the platform supports foreign key constraints.
+     *
+     * @deprecated All platforms should support foreign key constraints.
      */
     public function supportsForeignKeyConstraints(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pulls/5409',
+            'AbstractPlatform::supportsForeignKeyConstraints() is deprecated.'
+        );
+
         return true;
     }
 

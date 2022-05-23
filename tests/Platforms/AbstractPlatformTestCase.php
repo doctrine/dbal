@@ -218,19 +218,6 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     abstract protected function getGenerateForeignKeySql(): string;
 
-    public function testGeneratesForeignKeySqlOnlyWhenSupportingForeignKeys(): void
-    {
-        if ($this->platform->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('The platform supports foreign key constraints');
-        }
-
-        $this->expectException(Exception::class);
-        $this->platform->getCreateForeignKeySQL(
-            new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk'),
-            'test'
-        );
-    }
-
     protected function getBitAndComparisonExpressionSql(string $value1, string $value2): string
     {
         return '(' . $value1 . ' & ' . $value2 . ')';

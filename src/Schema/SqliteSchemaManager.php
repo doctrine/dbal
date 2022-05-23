@@ -15,7 +15,6 @@ use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
 use function array_merge;
-use function array_reverse;
 use function assert;
 use function count;
 use function implode;
@@ -28,6 +27,7 @@ use function rtrim;
 use function str_contains;
 use function str_replace;
 use function str_starts_with;
+use function strcasecmp;
 use function strtolower;
 use function trim;
 use function usort;
@@ -41,6 +41,22 @@ use const CASE_LOWER;
  */
 class SqliteSchemaManager extends AbstractSchemaManager
 {
+    /**
+     * {@inheritDoc}
+     */
+    protected function fetchForeignKeyColumnsByTable(string $databaseName): array
+    {
+        $columnsByTable = parent::fetchForeignKeyColumnsByTable($databaseName);
+
+        if (count($columnsByTable) > 0) {
+            foreach ($columnsByTable as $table => $columns) {
+                $columnsByTable[$table] = $this->addDetailsToTableForeignKeyColumns($table, $columns);
+            }
+        }
+
+        return $columnsByTable;
+    }
+
     public function renameTable(string $name, string $newName): void
     {
         $tableDiff            = new TableDiff($name);
@@ -95,46 +111,14 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     public function listTableForeignKeys(string $table): array
     {
-        $tableForeignKeys = $this->selectDatabaseForeignKeys('', $this->normalizeName($table))
+        $columns = $this->selectForeignKeyColumns('', $this->normalizeName($table))
             ->fetchAllAssociative();
 
-        if (! empty($tableForeignKeys)) {
-            $createSql = $this->getCreateTableSQL($table);
-
-            if (
-                preg_match_all(
-                    '#
-                    (?:CONSTRAINT\s+([^\s]+)\s+)?
-                    (?:FOREIGN\s+KEY[^\)]+\)\s*)?
-                    REFERENCES\s+[^\s]+\s+(?:\([^)]+\))?
-                    (?:
-                        [^,]*?
-                        (NOT\s+DEFERRABLE|DEFERRABLE)
-                        (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
-                    )?#isx',
-                    $createSql,
-                    $match
-                ) > 0
-            ) {
-                $names      = array_reverse($match[1]);
-                $deferrable = array_reverse($match[2]);
-                $deferred   = array_reverse($match[3]);
-            } else {
-                $names = $deferrable = $deferred = [];
-            }
-
-            foreach ($tableForeignKeys as $key => $value) {
-                $id = $value['id'];
-
-                $tableForeignKeys[$key] = array_merge($tableForeignKeys[$key], [
-                    'constraint_name' => isset($names[$id]) && $names[$id] !== '' ? $names[$id] : (string) $id,
-                    'deferrable'      => isset($deferrable[$id]) && strtolower($deferrable[$id]) === 'deferrable',
-                    'deferred'        => isset($deferred[$id]) && strtolower($deferred[$id]) === 'deferred',
-                ]);
-            }
+        if (count($columns) > 0) {
+            $columns = $this->addDetailsToTableForeignKeyColumns($table, $columns);
         }
 
-        return $this->_getPortableTableForeignKeysList($tableForeignKeys);
+        return $this->_getPortableTableForeignKeysList($columns);
     }
 
     /**
@@ -485,12 +469,75 @@ SQL
         return '';
     }
 
+    /**
+     * @param list<array<string,mixed>> $columns
+     *
+     * @return list<array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    private function addDetailsToTableForeignKeyColumns(string $table, array $columns): array
+    {
+        $foreignKeyDetails = $this->getForeignKeyDetails($table);
+        $foreignKeyCount   = count($foreignKeyDetails);
+
+        foreach ($columns as $i => $column) {
+            // SQLite identifies foreign keys in reverse order of appearance in SQL
+            $columns[$i] = array_merge($column, $foreignKeyDetails[$foreignKeyCount - $column['id'] - 1]);
+        }
+
+        return $columns;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    private function getForeignKeyDetails(string $table)
+    {
+        $createSql = $this->getCreateTableSQL($table);
+
+        if (
+            preg_match_all(
+                '#
+                    (?:CONSTRAINT\s+(\S+)\s+)?
+                    (?:FOREIGN\s+KEY[^)]+\)\s*)?
+                    REFERENCES\s+\S+\s+(?:\([^)]+\))?
+                    (?:
+                        [^,]*?
+                        (NOT\s+DEFERRABLE|DEFERRABLE)
+                        (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
+                    )?#isx',
+                $createSql,
+                $match
+            ) === 0
+        ) {
+            return [];
+        }
+
+        $names      = $match[1];
+        $deferrable = $match[2];
+        $deferred   = $match[3];
+        $details    = [];
+
+        for ($i = 0, $count = count($match[0]); $i < $count; $i++) {
+            $details[] = [
+                'constraint_name' => isset($names[$i]) && $names[$i] !== '' ? $names[$i] : (string) $i,
+                'deferrable'      => isset($deferrable[$i]) && strcasecmp($deferrable[$i], 'deferrable') === 0,
+                'deferred'        => isset($deferred[$i]) && strcasecmp($deferred[$i], 'deferred') === 0,
+            ];
+        }
+
+        return $details;
+    }
+
     public function createComparator(): Comparator
     {
         return new SQLite\Comparator($this->_platform);
     }
 
-    protected function selectDatabaseColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = <<<SQL
             SELECT t.name AS table_name,
@@ -515,7 +562,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    protected function selectDatabaseIndexes(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = <<<SQL
             SELECT t.name AS table_name,
@@ -540,7 +587,7 @@ SQL;
         return $this->_conn->executeQuery($sql, $params);
     }
 
-    protected function selectDatabaseForeignKeys(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = <<<SQL
             SELECT t.name AS table_name,
@@ -561,7 +608,7 @@ SQL;
             $params[]     = str_replace('.', '__', $tableName);
         }
 
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name';
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, p.id DESC, p.seq';
 
         return $this->_conn->executeQuery($sql, $params);
     }
@@ -569,7 +616,7 @@ SQL;
     /**
      * {@inheritDoc}
      */
-    protected function getDatabaseTableOptions(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
         if ($tableName === null) {
             $tables = $this->listTableNames();
