@@ -390,24 +390,10 @@ abstract class AbstractSchemaManager
     {
         $database = $this->getDatabase(__METHOD__);
 
-        /** @var array<string,list<array<string,mixed>>> $tableColumnsByTable */
-        $tableColumnsByTable = $this->fetchAllAssociativeGrouped(
-            $this->selectTableColumns($database)
-        );
-
-        $indexColumnsByTable = $this->fetchAllAssociativeGrouped(
-            $this->selectIndexColumns($database)
-        );
-
-        if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeyColumnsByTable = $this->fetchAllAssociativeGrouped(
-                $this->selectForeignKeyColumns($database)
-            );
-        } else {
-            $foreignKeyColumnsByTable = [];
-        }
-
-        $optionsByTable = $this->getTableOptions($database);
+        $tableColumnsByTable      = $this->fetchTableColumnsByTable($database);
+        $indexColumnsByTable      = $this->fetchIndexColumnsByTable($database);
+        $foreignKeyColumnsByTable = $this->fetchForeignKeyColumnsByTable($database);
+        $tableOptionsByTable      = $this->fetchTableOptionsByTable($database);
 
         $tables = [];
 
@@ -418,7 +404,7 @@ abstract class AbstractSchemaManager
                 $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName),
                 [],
                 $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName] ?? []),
-                $optionsByTable[$tableName] ?? []
+                $tableOptionsByTable[$tableName] ?? []
             );
         }
 
@@ -457,7 +443,7 @@ abstract class AbstractSchemaManager
 
         $normalizedName = $this->normalizeName($name);
 
-        $tableOptionsByTable = $this->getTableOptions($database, $normalizedName);
+        $tableOptionsByTable = $this->fetchTableOptionsByTable($database, $normalizedName);
 
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->listTableForeignKeys($name);
@@ -521,14 +507,56 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Returns table options for the tables in the specified database. If the table name is specified, narrows down
-     * the selection to this table.
+     * Fetches definitions of table columns in the specified database and returns them grouped by table name.
+     *
+     * @return array<string,list<array<string,mixed>>>
+     *
+     * @throws Exception
+     */
+    protected function fetchTableColumnsByTable(string $databaseName): array
+    {
+        return $this->fetchAllAssociativeGrouped($this->selectTableColumns($databaseName));
+    }
+
+    /**
+     * Fetches definitions of index columns in the specified database and returns them grouped by table name.
+     *
+     * @return array<string,list<array<string,mixed>>>
+     *
+     * @throws Exception
+     */
+    protected function fetchIndexColumnsByTable(string $databaseName): array
+    {
+        return $this->fetchAllAssociativeGrouped($this->selectIndexColumns($databaseName));
+    }
+
+    /**
+     * Fetches definitions of foreign key columns in the specified database and returns them grouped by table name.
+     *
+     * @return array<string, list<array<string, mixed>>>
+     *
+     * @throws Exception
+     */
+    protected function fetchForeignKeyColumnsByTable(string $databaseName): array
+    {
+        if (! $this->_platform->supportsForeignKeyConstraints()) {
+            return [];
+        }
+
+        return $this->fetchAllAssociativeGrouped(
+            $this->selectForeignKeyColumns($databaseName)
+        );
+    }
+
+    /**
+     * Fetches table options for the tables in the specified database and returns them grouped by table name.
+     * If the table name is specified, narrows down the selection to this table.
      *
      * @return array<string,array<string,mixed>>
      *
      * @throws Exception
      */
-    protected function getTableOptions(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
         throw Exception::notSupported(__METHOD__);
     }
@@ -1564,7 +1592,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @return array<mixed,list<array<string,mixed>>>
+     * @return array<string,list<array<string,mixed>>>
      *
      * @throws Exception
      */
@@ -1573,7 +1601,9 @@ abstract class AbstractSchemaManager
         $data = [];
 
         foreach ($result->fetchAllAssociative() as $row) {
-            $data[array_shift($row)][] = $row;
+            $group = array_shift($row);
+            assert(is_string($group));
+            $data[$group][] = $row;
         }
 
         return $data;

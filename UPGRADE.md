@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `AbstractPlatform::supportsForeignKeyConstraints()`.
+
+The `AbstractPlatform::supportsForeignKeyConstraints()` method has been deprecated. All platforms should support
+foreign key constraints.
+
 ## Deprecated `AbstractPlatform` methods exposing quote characters.
 
 The `AbstractPlatform::getStringLiteralQuoteCharacter()` and `::getIdentifierQuoteCharacter()` methods

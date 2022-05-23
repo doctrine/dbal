@@ -273,18 +273,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertEquals($this->getGenerateConstraintForeignKeySql($fk), $sql);
     }
 
-    public function testGeneratesForeignKeySqlOnlyWhenSupportingForeignKeys(): void
-    {
-        $fk = new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk');
-
-        if ($this->platform->supportsForeignKeyConstraints()) {
-            self::assertIsString($this->platform->getCreateForeignKeySQL($fk, 'test'));
-        } else {
-            $this->expectException(Exception::class);
-            $this->platform->getCreateForeignKeySQL($fk, 'test');
-        }
-    }
-
     protected function getBitAndComparisonExpressionSql(string $value1, string $value2): string
     {
         return '(' . $value1 . ' & ' . $value2 . ')';
@@ -1084,12 +1072,6 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotesDropForeignKeySQL(): void
     {
-        if (! $this->platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped(
-                sprintf('%s does not support foreign key constraints.', get_class($this->platform))
-            );
-        }
-
         $tableName      = 'table';
         $table          = new Table($tableName);
         $foreignKeyName = 'select';
