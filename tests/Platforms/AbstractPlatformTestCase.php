@@ -1072,6 +1072,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotesDropForeignKeySQL(): void
     {
+        if (! $this->platform->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped(
+                sprintf('%s does not support foreign key constraints.', get_class($this->platform))
+            );
+        }
+
         $tableName      = 'table';
         $table          = new Table($tableName);
         $foreignKeyName = 'select';
