@@ -580,6 +580,11 @@ class SqlitePlatform extends AbstractPlatform
         return $tableName;
     }
 
+    public function supportsForeignKeyConstraints(): bool
+    {
+        return false;
+    }
+
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
         throw new Exception('Sqlite platform does not support alter primary key.');
