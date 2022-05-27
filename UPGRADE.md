@@ -13,6 +13,11 @@ awareness about deprecated code.
 The `AbstractPlatform::supportsForeignKeyConstraints()` method has been deprecated. All platforms should support
 foreign key constraints.
 
+## Deprecated `AbstractPlatform::supportsForeignKeyConstraints()`.
+
+Relying on the DBAL not generating DDL for foreign keys on MySQL engines other than InnoDB is deprecated.
+Define foreign key constraints only if they are necessary.
+
 ## Deprecated `AbstractPlatform` methods exposing quote characters.
 
 The `AbstractPlatform::getStringLiteralQuoteCharacter()` and `::getIdentifierQuoteCharacter()` methods

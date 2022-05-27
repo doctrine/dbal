@@ -451,9 +451,18 @@ SQL
         }
 
         // Propagate foreign key constraints only for InnoDB.
-        if (isset($options['foreignKeys']) && $engine === 'INNODB') {
-            foreach ($options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
+        if (isset($options['foreignKeys'])) {
+            if ($engine === 'INNODB') {
+                foreach ($options['foreignKeys'] as $definition) {
+                    $sql[] = $this->getCreateForeignKeySQL($definition, $name);
+                }
+            } elseif (count($options['foreignKeys']) > 0) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pulls/5414',
+                    'Relying on the DBAL not generating DDL for foreign keys on MySQL engines'
+                        . ' other than InnoDB is deprecated. Define foreign key constraints only if they are necessary.'
+                );
             }
         }
 
