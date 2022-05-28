@@ -766,6 +766,14 @@ abstract class AbstractSchemaManager
     /* create*() Methods */
 
     /**
+     * @throws Exception
+     */
+    public function createSchemaObjects(Schema $schema): void
+    {
+        $this->_execSql($schema->toSql($this->_platform));
+    }
+
+    /**
      * Creates a new database.
      *
      * @param string $database The name of the database to create.
@@ -874,6 +882,14 @@ abstract class AbstractSchemaManager
     }
 
     /* dropAndCreate*() Methods */
+
+    /**
+     * @throws Exception
+     */
+    public function dropSchemaObjects(Schema $schema): void
+    {
+        $this->_execSql($schema->toDropSql($this->_platform));
+    }
 
     /**
      * Drops and creates a constraint.

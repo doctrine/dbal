@@ -28,6 +28,7 @@ use function is_numeric;
 use function is_string;
 use function sprintf;
 use function str_replace;
+use function strcasecmp;
 use function strtoupper;
 use function trim;
 
@@ -410,6 +411,38 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getCreateTablesSQL(array $tables): array
+    {
+        $sql = [];
+
+        foreach ($tables as $table) {
+            $sql = array_merge($sql, $this->getCreateTableWithoutForeignKeysSQL($table));
+        }
+
+        foreach ($tables as $table) {
+            if (! $table->hasOption('engine') || $this->engineSupportsForeignKeys($table->getOption('engine'))) {
+                foreach ($table->getForeignKeys() as $foreignKey) {
+                    $sql[] = $this->getCreateForeignKeySQL(
+                        $foreignKey,
+                        $table->getQuotedName($this)
+                    );
+                }
+            } elseif (count($table->getForeignKeys()) > 0) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5414',
+                    'Relying on the DBAL not generating DDL for foreign keys on MySQL engines'
+                        . ' other than InnoDB is deprecated. Define foreign key constraints only if they are necessary.'
+                );
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
@@ -443,23 +476,18 @@ SQL
         $query .= $this->buildTableOptions($options);
         $query .= $this->buildPartitionOptions($options);
 
-        $sql    = [$query];
-        $engine = 'INNODB';
-
-        if (isset($options['engine'])) {
-            $engine = strtoupper(trim($options['engine']));
-        }
+        $sql = [$query];
 
         // Propagate foreign key constraints only for InnoDB.
         if (isset($options['foreignKeys'])) {
-            if ($engine === 'INNODB') {
+            if (! isset($options['engine']) || $this->engineSupportsForeignKeys($options['engine'])) {
                 foreach ($options['foreignKeys'] as $definition) {
                     $sql[] = $this->getCreateForeignKeySQL($definition, $name);
                 }
             } elseif (count($options['foreignKeys']) > 0) {
                 Deprecation::trigger(
                     'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pulls/5414',
+                    'https://github.com/doctrine/dbal/pull/5414',
                     'Relying on the DBAL not generating DDL for foreign keys on MySQL engines'
                         . ' other than InnoDB is deprecated. Define foreign key constraints only if they are necessary.'
                 );
@@ -553,6 +581,11 @@ SQL
         return isset($options['partition_options'])
             ? ' ' . $options['partition_options']
             : '';
+    }
+
+    private function engineSupportsForeignKeys(string $engine): bool
+    {
+        return strcasecmp(trim($engine), 'InnoDB') === 0;
     }
 
     /**

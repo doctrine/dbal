@@ -8,6 +8,19 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `CreateSchemaSqlCollector` and `DropSchemaSqlCollector`.
+
+The `CreateSchemaSqlCollector` and `DropSchemaSqlCollector` classes have been deprecated in favor of
+`CreateSchemaObjectsSQLBuilder` and `DropSchemaObjectsSQLBuilder` respectively.
+
+## Deprecated calling `AbstractPlatform::getCreateTableSQL()` with any of the `CREATE_INDEXES` and `CREATE_FOREIGNKEYS`
+flags unset.
+
+Not setting the `CREATE_FOREIGNKEYS` flag and unsetting the `CREATE_INDEXES` flag when calling
+`AbstractPlatform::getCreateTableSQL()` has been deprecated. The table should be always created with indexes.
+In order to build the statements that create multiple tables referencing each other via foreign keys,
+use `AbstractPlatform::getCreateTablesSQL()`.
+
 ## Deprecated `AbstractPlatform::supportsForeignKeyConstraints()`.
 
 The `AbstractPlatform::supportsForeignKeyConstraints()` method has been deprecated. All platforms should support
