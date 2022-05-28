@@ -844,14 +844,6 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function supportsForeignKeyConstraints()
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateTablesSQL(array $tables): array
     {
         $sql = [];
