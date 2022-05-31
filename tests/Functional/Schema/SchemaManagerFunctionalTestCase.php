@@ -1249,6 +1249,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('Database does not support column comments.');
         }
 
+        $this->dropTableIfExists('my_table');
+
         $table = new Table('my_table');
         $table->addColumn('id', 'integer', ['comment' => "It's a comment with a quote"]);
         $table->setPrimaryKey(['id']);
@@ -1264,6 +1266,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments()) {
             self::markTestSkipped('Database does not support column comments.');
         }
+
+        $this->dropTableIfExists('my_table');
 
         $options = [
             'type' => Type::getType('integer'),
