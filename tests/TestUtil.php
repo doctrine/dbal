@@ -125,11 +125,7 @@ class TestUtil
             $sm = $testConn->getSchemaManager();
 
             $schema = $sm->createSchema();
-            $stmts  = $schema->toDropSql($testConn->getDatabasePlatform());
-
-            foreach ($stmts as $stmt) {
-                $testConn->executeStatement($stmt);
-            }
+            $sm->dropSchemaObjects($schema);
 
             $testConn->close();
         }

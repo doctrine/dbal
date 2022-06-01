@@ -6,9 +6,13 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 
+/**
+ * @deprecated Use {@link CreateSchemaObjectsSQLBuilder} instead.
+ */
 class CreateSchemaSqlCollector extends AbstractVisitor
 {
     /** @var string[] */
@@ -28,6 +32,12 @@ class CreateSchemaSqlCollector extends AbstractVisitor
 
     public function __construct(AbstractPlatform $platform)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5416',
+            'CreateSchemaSqlCollector is deprecated. Use CreateSchemaObjectsSQLBuilder instead.'
+        );
+
         $this->platform = $platform;
     }
 
