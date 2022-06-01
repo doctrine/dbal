@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `CreateSchemaSqlCollector` and `DropSchemaSqlCollector`
+
+The `CreateSchemaSqlCollector` and `DropSchemaSqlCollector` classes have been removed.
+
 ## BC BREAK: remove support for transaction nesting without savepoints
 
 Starting a transaction inside another transaction with

@@ -40,15 +40,6 @@
                 <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
-        <DeprecatedClass>
-            <errorLevel type="suppress">
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedClass name="Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector"/>
-                <referencedClass name="Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector"/>
-            </errorLevel>
-        </DeprecatedClass>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!--
