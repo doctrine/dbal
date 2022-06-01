@@ -71,8 +71,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testGeneratesSqlSnippets(): void
     {
         self::assertEquals('RLIKE', $this->platform->getRegexpExpression());
-        self::assertEquals('`', $this->platform->getIdentifierQuoteCharacter());
-
         self::assertEquals(
             'CONCAT(column1, column2, column3)',
             $this->platform->getConcatExpression('column1', 'column2', 'column3')
@@ -872,6 +870,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             ],
             $this->platform->getCreateTableSQL($table)
         );
+    }
+
+    public function testQuoteIdentifier(): void
+    {
+        self::assertEquals('`test`.`test`', $this->platform->quoteIdentifier('test.test'));
     }
 
     protected function createComparator(): Comparator

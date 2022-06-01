@@ -57,18 +57,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $query;
     }
 
-    /**
-     * @deprecated Use {@see quoteIdentifier()} to quote identifiers instead.
-     */
-    public function getIdentifierQuoteCharacter(): string
+    public function quoteSingleIdentifier(string $str): string
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5388',
-            'AbstractMySQLPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.'
-        );
-
-        return '`';
+        return '`' . str_replace('`', '``', $str) . '`';
     }
 
     public function getRegexpExpression(): string
@@ -820,7 +811,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
     public function quoteStringLiteral(string $str): string
     {
-        $str = str_replace('\\', '\\\\', $str); // MySQL requires backslashes to be escaped aswell.
+        // MySQL requires backslashes to be escaped as well.
+        $str = str_replace('\\', '\\\\', $str);
 
         return parent::quoteStringLiteral($str);
     }

@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `AbstractPlatform` methods exposing quote characters.
+
+The `AbstractPlatform::getStringLiteralQuoteCharacter()` and `::getIdentifierQuoteCharacter()` methods
+have been removed.
+
 ## Deprecated: `AbstractPlatform::CREATE_*` constants
 
 The `AbstractPlatform::CREATE_INDEXES` and `::CREATE_FOREIGNKEYS` constants have been deprecated

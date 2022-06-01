@@ -9,7 +9,6 @@ use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -25,7 +24,6 @@ use PHPUnit\Framework\TestCase;
 use function get_class;
 use function implode;
 use function sprintf;
-use function str_repeat;
 
 /**
  * @template T of AbstractPlatform
@@ -52,26 +50,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuoteIdentifier(): void
     {
-        if ($this->platform instanceof SQLServerPlatform) {
-            self::markTestSkipped('Not working this way on mssql.');
-        }
-
-        $c = $this->platform->getIdentifierQuoteCharacter();
-        self::assertEquals($c . 'test' . $c, $this->platform->quoteIdentifier('test'));
-        self::assertEquals($c . 'test' . $c . '.' . $c . 'test' . $c, $this->platform->quoteIdentifier('test.test'));
-        self::assertEquals(str_repeat($c, 4), $this->platform->quoteIdentifier($c));
-    }
-
-    public function testQuoteSingleIdentifier(): void
-    {
-        if ($this->platform instanceof SQLServerPlatform) {
-            self::markTestSkipped('Not working this way on mssql.');
-        }
-
-        $c = $this->platform->getIdentifierQuoteCharacter();
-        self::assertEquals($c . 'test' . $c, $this->platform->quoteSingleIdentifier('test'));
-        self::assertEquals($c . 'test.test' . $c, $this->platform->quoteSingleIdentifier('test.test'));
-        self::assertEquals(str_repeat($c, 4), $this->platform->quoteSingleIdentifier($c));
+        self::assertEquals('"test"."test"', $this->platform->quoteIdentifier('test.test'));
     }
 
     /**
@@ -1072,16 +1051,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         ];
     }
 
-    protected function getStringLiteralQuoteCharacter(): string
-    {
-        return "'";
-    }
-
-    public function testGetStringLiteralQuoteCharacter(): void
-    {
-        self::assertSame($this->getStringLiteralQuoteCharacter(), $this->platform->getStringLiteralQuoteCharacter());
-    }
-
     protected function getQuotedCommentOnColumnSQLWithoutQuoteCharacter(): string
     {
         return "COMMENT ON COLUMN mytable.id IS 'This is a comment'";
@@ -1102,11 +1071,9 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetCommentOnColumnSQLWithQuoteCharacter(): void
     {
-        $c = $this->getStringLiteralQuoteCharacter();
-
         self::assertEquals(
             $this->getQuotedCommentOnColumnSQLWithQuoteCharacter(),
-            $this->platform->getCommentOnColumnSQL('mytable', 'id', 'It' . $c . 's a quote !')
+            $this->platform->getCommentOnColumnSQL('mytable', 'id', "It's a quote !")
         );
     }
 
@@ -1179,21 +1146,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         return "COMMENT ''";
     }
 
-    protected function getQuotedStringLiteralWithoutQuoteCharacter(): string
-    {
-        return "'No quote'";
-    }
-
-    protected function getQuotedStringLiteralWithQuoteCharacter(): string
-    {
-        return "'It''s a quote'";
-    }
-
-    protected function getQuotedStringLiteralQuoteCharacter(): string
-    {
-        return "''''";
-    }
-
     public function testThrowsExceptionOnGeneratingInlineColumnCommentSQLIfUnsupported(): void
     {
         if ($this->platform->supportsInlineColumnComments()) {
@@ -1211,20 +1163,9 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuoteStringLiteral(): void
     {
-        $c = $this->getStringLiteralQuoteCharacter();
-
-        self::assertEquals(
-            $this->getQuotedStringLiteralWithoutQuoteCharacter(),
-            $this->platform->quoteStringLiteral('No quote')
-        );
-        self::assertEquals(
-            $this->getQuotedStringLiteralWithQuoteCharacter(),
-            $this->platform->quoteStringLiteral('It' . $c . 's a quote')
-        );
-        self::assertEquals(
-            $this->getQuotedStringLiteralQuoteCharacter(),
-            $this->platform->quoteStringLiteral($c)
-        );
+        self::assertEquals("'No quote'", $this->platform->quoteStringLiteral('No quote'));
+        self::assertEquals("'It''s a quote'", $this->platform->quoteStringLiteral("It's a quote"));
+        self::assertEquals("''''", $this->platform->quoteStringLiteral("'"));
     }
 
     public function testReturnsGuidTypeDeclarationSQL(): void

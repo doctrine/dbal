@@ -35,7 +35,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -380,22 +379,6 @@ abstract class AbstractPlatform
         $dbType = strtolower($dbType);
 
         return isset($this->doctrineTypeMapping[$dbType]);
-    }
-
-    /**
-     * Gets the character used for identifier quoting.
-     *
-     * @deprecated Use {@see quoteIdentifier()} to quote identifiers instead.
-     */
-    public function getIdentifierQuoteCharacter(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5388',
-            'AbstractPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.'
-        );
-
-        return '"';
     }
 
     /**
@@ -1296,9 +1279,7 @@ abstract class AbstractPlatform
      */
     public function quoteSingleIdentifier(string $str): string
     {
-        $c = $this->getIdentifierQuoteCharacter();
-
-        return $c . str_replace($c, $c . $c, $str) . $c;
+        return '"' . str_replace('"', '""', $str) . '"';
     }
 
     /**
@@ -2511,26 +2492,7 @@ abstract class AbstractPlatform
      */
     public function quoteStringLiteral(string $str): string
     {
-        $c = $this->getStringLiteralQuoteCharacter();
-
-        return $c . str_replace($c, $c . $c, $str) . $c;
-    }
-
-    /**
-     * Gets the character used for string literal quoting.
-     *
-     * @deprecated Use {@see quoteStringLiteral()} to quote string literals instead.
-     */
-    public function getStringLiteralQuoteCharacter(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5388',
-            'AbstractPlatform::getStringLiteralQuoteCharacter() is deprecated.'
-                . ' Use quoteStringLiteral() instead.'
-        );
-
-        return "'";
+        return "'" . str_replace("'", "''", $str) . "'";
     }
 
     /**

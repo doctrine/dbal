@@ -159,7 +159,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testGeneratesSqlSnippets(): void
     {
         self::assertEquals('SIMILAR TO', $this->platform->getRegexpExpression());
-        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
 
         self::assertEquals(
             'column1 || column2 || column3',

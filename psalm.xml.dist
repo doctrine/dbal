@@ -54,12 +54,6 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractMySQLPlatform::getIdentifierQuoteCharacter"/>
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIdentifierQuoteCharacter"/>
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getStringLiteralQuoteCharacter"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsForeignKeyConstraints"/>
             </errorLevel>
         </DeprecatedMethod>
