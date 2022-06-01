@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Deprecated: `AbstractPlatform::CREATE_*` constants
+
+The `AbstractPlatform::CREATE_INDEXES` and `::CREATE_FOREIGNKEYS` constants have been deprecated
+as they no longer have any effect on the behavior of the `AbstractPlatform::getCreateTableSQL()` method.
+
 ## BC BREAK: removed `$createFlags` from `AbstractPlatform::getCreateTableSQL()`
 
 The `$createFlags` parameter of `AbstractPlatform::getCreateTableSQL()` has been removed.

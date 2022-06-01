@@ -72,8 +72,14 @@ use function strtoupper;
  */
 abstract class AbstractPlatform
 {
+    /**
+     * @deprecated
+     */
     public const CREATE_INDEXES = 1;
 
+    /**
+     * @deprecated
+     */
     public const CREATE_FOREIGNKEYS = 2;
 
     /** @var string[]|null */
