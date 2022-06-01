@@ -205,10 +205,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
                     . ' REFERENCES foreign_table2 (pk_1, pk_2)',
                 'CREATE INDEX IDX_D87F7E0C177612A38E7F4319 ON test (fk_1, fk_2)',
             ],
-            $this->platform->getCreateTableSQL(
-                $table,
-                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
-            )
+            $this->platform->getCreateTableSQL($table)
         );
     }
 

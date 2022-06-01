@@ -625,10 +625,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             'FK_WITH_INTENDED_QUOTATION'
         );
 
-        $sql = $this->platform->getCreateTableSQL(
-            $table,
-            AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
-        );
+        $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
     }
 

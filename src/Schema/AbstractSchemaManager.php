@@ -513,8 +513,7 @@ abstract class AbstractSchemaManager
      */
     public function createTable(Table $table): void
     {
-        $createFlags = AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS;
-        $this->_execSql($this->_platform->getCreateTableSQL($table, $createFlags));
+        $this->_execSql($this->_platform->getCreateTableSQL($table));
     }
 
     /**

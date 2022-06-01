@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -557,10 +556,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                     . 'INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) '
                     . 'ENGINE = MyISAM',
             ],
-            $this->platform->getCreateTableSQL(
-                $table,
-                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
-            )
+            $this->platform->getCreateTableSQL($table)
         );
 
         $table = clone $table;
@@ -574,10 +570,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D0 FOREIGN KEY (fk_id)'
                     . ' REFERENCES foreign_table (id)',
             ],
-            $this->platform->getCreateTableSQL(
-                $table,
-                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
-            )
+            $this->platform->getCreateTableSQL($table)
         );
     }
 

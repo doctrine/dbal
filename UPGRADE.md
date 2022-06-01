@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `$createFlags` from `AbstractPlatform::getCreateTableSQL()`
+
+The `$createFlags` parameter of `AbstractPlatform::getCreateTableSQL()` has been removed.
+
 ## BC BREAK: removed `CreateSchemaSqlCollector` and `DropSchemaSqlCollector`
 
 The `CreateSchemaSqlCollector` and `DropSchemaSqlCollector` classes have been removed.
