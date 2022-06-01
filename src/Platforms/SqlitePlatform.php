@@ -585,6 +585,34 @@ class SqlitePlatform extends AbstractPlatform
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreateTablesSQL(array $tables): array
+    {
+        $sql = [];
+
+        foreach ($tables as $table) {
+            $sql = array_merge($sql, $this->getCreateTableSQL($table));
+        }
+
+        return $sql;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDropTablesSQL(array $tables): array
+    {
+        $sql = [];
+
+        foreach ($tables as $table) {
+            $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
+        }
+
+        return $sql;
+    }
+
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
         throw new Exception('Sqlite platform does not support alter primary key.');

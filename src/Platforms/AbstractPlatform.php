@@ -873,11 +873,55 @@ abstract class AbstractPlatform
      *
      * @psalm-param int-mask-of<self::CREATE_*> $createFlags
      *
-     * @return array<int, string> The sequence of SQL statements.
+     * @return list<string> The list of SQL statements.
      *
      * @throws Exception
      */
     public function getCreateTableSQL(Table $table, int $createFlags = self::CREATE_INDEXES): array
+    {
+        if (($createFlags & self::CREATE_INDEXES) === 0) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5416',
+                'Unsetting the CREATE_INDEXES flag in AbstractPlatform::getCreateTableSQL() is deprecated.'
+            );
+        }
+
+        if (($createFlags & self::CREATE_FOREIGNKEYS) === 0) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5416',
+                'Not setting the CREATE_FOREIGNKEYS flag in AbstractPlatform::getCreateTableSQL()'
+                . ' is deprecated. In order to build the statements that create multiple tables'
+                . ' referencing each other via foreign keys, use AbstractPlatform::getCreateTablesSQL().'
+            );
+        }
+
+        return $this->buildCreateTableSQL(
+            $table,
+            ($createFlags & self::CREATE_INDEXES) > 0,
+            ($createFlags & self::CREATE_FOREIGNKEYS) > 0
+        );
+    }
+
+    /**
+     * @internal
+     *
+     * @return list<string>
+     *
+     * @throws Exception
+     */
+    final protected function getCreateTableWithoutForeignKeysSQL(Table $table): array
+    {
+        return $this->buildCreateTableSQL($table, true, false);
+    }
+
+    /**
+     * @return list<string>
+     *
+     * @throws Exception
+     */
+    private function buildCreateTableSQL(Table $table, bool $createIndexes, bool $createForeignKeys): array
     {
         if (count($table->getColumns()) === 0) {
             throw NoColumnsSpecifiedForTable::new($table->getName());
@@ -889,7 +933,7 @@ abstract class AbstractPlatform
         $options['indexes']           = [];
         $options['primary']           = [];
 
-        if (($createFlags & self::CREATE_INDEXES) > 0) {
+        if ($createIndexes) {
             foreach ($table->getIndexes() as $index) {
                 if (! $index->isPrimary()) {
                     $options['indexes'][$index->getQuotedName($this)] = $index;
@@ -906,7 +950,7 @@ abstract class AbstractPlatform
             }
         }
 
-        if (($createFlags & self::CREATE_FOREIGNKEYS) > 0) {
+        if ($createForeignKeys) {
             $options['foreignKeys'] = [];
 
             foreach ($table->getForeignKeys() as $fkConstraint) {
@@ -971,6 +1015,58 @@ abstract class AbstractPlatform
         }
 
         return array_merge($sql, $columnSql);
+    }
+
+    /**
+     * @param list<Table> $tables
+     *
+     * @return list<string>
+     *
+     * @throws Exception
+     */
+    public function getCreateTablesSQL(array $tables): array
+    {
+        $sql = [];
+
+        foreach ($tables as $table) {
+            $sql = array_merge($sql, $this->getCreateTableWithoutForeignKeysSQL($table));
+        }
+
+        foreach ($tables as $table) {
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                $sql[] = $this->getCreateForeignKeySQL(
+                    $foreignKey,
+                    $table->getQuotedName($this)
+                );
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
+     * @param list<Table> $tables
+     *
+     * @return list<string>
+     */
+    public function getDropTablesSQL(array $tables): array
+    {
+        $sql = [];
+
+        foreach ($tables as $table) {
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                $sql[] = $this->getDropForeignKeySQL(
+                    $foreignKey->getQuotedName($this),
+                    $table->getQuotedName($this)
+                );
+            }
+        }
+
+        foreach ($tables as $table) {
+            $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
+        }
+
+        return $sql;
     }
 
     protected function getCommentOnTableSQL(string $tableName, string $comment): string

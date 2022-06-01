@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Exception\NamespaceAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\SequenceAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\TableAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
-use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
-use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
 
 use function array_values;
 use function str_contains;
@@ -366,27 +367,29 @@ class Schema extends AbstractAsset
     /**
      * Returns an array of necessary SQL queries to create the schema on the given platform.
      *
-     * @return array<int, string>
+     * @return list<string>
+     *
+     * @throws Exception
      */
     public function toSql(AbstractPlatform $platform): array
     {
-        $sqlCollector = new CreateSchemaSqlCollector($platform);
-        $this->visit($sqlCollector);
+        $builder = new CreateSchemaObjectsSQLBuilder($platform);
 
-        return $sqlCollector->getQueries();
+        return $builder->buildSQL($this);
     }
 
     /**
      * Return an array of necessary SQL queries to drop the schema on the given platform.
      *
-     * @return array<int, string>
+     * @return list<string>
+     *
+     * @throws Exception
      */
     public function toDropSql(AbstractPlatform $platform): array
     {
-        $dropSqlCollector = new DropSchemaSqlCollector($platform);
-        $this->visit($dropSqlCollector);
+        $builder = new DropSchemaObjectsSQLBuilder($platform);
 
-        return $dropSqlCollector->getQueries();
+        return $builder->buildSQL($this);
     }
 
     public function visit(Visitor $visitor): void

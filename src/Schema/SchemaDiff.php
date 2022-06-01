@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use function array_merge;
+use function array_values;
 
 /**
  * Differences between two schemas.
@@ -152,23 +153,7 @@ class SchemaDiff
             }
         }
 
-        $foreignKeySql = [];
-        foreach ($this->newTables as $table) {
-            $sql = array_merge(
-                $sql,
-                $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES)
-            );
-
-            if (! $platform->supportsForeignKeyConstraints()) {
-                continue;
-            }
-
-            foreach ($table->getForeignKeys() as $foreignKey) {
-                $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table->getQuotedName($platform));
-            }
-        }
-
-        $sql = array_merge($sql, $foreignKeySql);
+        $sql = array_merge($sql, $platform->getCreateTablesSQL(array_values($this->newTables)));
 
         if ($saveMode === false) {
             foreach ($this->removedTables as $table) {

@@ -9,12 +9,15 @@ use Doctrine\DBAL\Schema\Exception\NamedForeignKeyRequired;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\Deprecations\Deprecation;
 use SplObjectStorage;
 
 use function strlen;
 
 /**
  * Gathers SQL statements that allow to completely drop the current schema.
+ *
+ * @deprecated Use {@link DropSchemaObjectsSQLBuilder} instead.
  */
 class DropSchemaSqlCollector extends AbstractVisitor
 {
@@ -31,6 +34,12 @@ class DropSchemaSqlCollector extends AbstractVisitor
 
     public function __construct(AbstractPlatform $platform)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5416',
+            'DropSchemaSqlCollector is deprecated. Use DropSchemaObjectsSQLBuilder instead.'
+        );
+
         $this->platform = $platform;
         $this->initializeQueries();
     }

@@ -90,6 +90,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
                 . ' REFERENCES foo ("create", bar, "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar")'
                 . ' REFERENCES "foo-bar" ("create", bar, "foo-bar")',
+            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D79164E3 ON "quoted" ("create", foo, "bar")',
         ];
     }
 
@@ -196,13 +197,18 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
         self::assertEquals(
             [
-                'CREATE TABLE test (id INTEGER NOT NULL, fk_1 INTEGER NOT NULL, fk_2 INTEGER NOT NULL)',
+                'CREATE TABLE test (id INTEGER NOT NULL, fk_1 INTEGER NOT NULL, fk_2 INTEGER NOT NULL'
+                    . ', PRIMARY KEY(id))',
                 'ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C177612A38E7F4319 FOREIGN KEY (fk_1, fk_2)'
                     . ' REFERENCES foreign_table (pk_1, pk_2)',
                 'ALTER TABLE test ADD CONSTRAINT named_fk FOREIGN KEY (fk_1, fk_2)'
                     . ' REFERENCES foreign_table2 (pk_1, pk_2)',
+                'CREATE INDEX IDX_D87F7E0C177612A38E7F4319 ON test (fk_1, fk_2)',
             ],
-            $this->platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS)
+            $this->platform->getCreateTableSQL(
+                $table,
+                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
+            )
         );
     }
 

@@ -489,6 +489,14 @@ abstract class AbstractSchemaManager
     /* create*() Methods */
 
     /**
+     * @throws Exception
+     */
+    public function createSchemaObjects(Schema $schema): void
+    {
+        $this->_execSql($schema->toSql($this->_platform));
+    }
+
+    /**
      * Creates a new database.
      *
      * @throws Exception
@@ -562,6 +570,14 @@ abstract class AbstractSchemaManager
     public function createView(View $view): void
     {
         $this->_execSql($this->_platform->getCreateViewSQL($view->getQuotedName($this->_platform), $view->getSql()));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function dropSchemaObjects(Schema $schema): void
+    {
+        $this->_execSql($schema->toDropSql($this->_platform));
     }
 
     /**
