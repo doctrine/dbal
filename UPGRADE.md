@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: foreign key DDL is generated on MySQL regardless of the storage engine.
+
+The DBAL generates DDL for foreign keys regardless of the MySQL storage engines used by the table
+that owns the foreign key constraint.
+
 ## BC BREAK: removed `AbstractPlatform` methods exposing quote characters.
 
 The `AbstractPlatform::getStringLiteralQuoteCharacter()` and `::getIdentifierQuoteCharacter()` methods
