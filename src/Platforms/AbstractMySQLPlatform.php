@@ -391,7 +391,7 @@ SQL
             if (!$options['primary_index']->hasOption('lengths')) {
                 $lengths=[];
                 foreach ($options['primary'] as $columnName) {
-                    if ($columns[$columnName]['type'] instanceof TextType) {
+                    if ($columns[$columnName]['type'] instanceof TextType || $columns[$columnName]['type'] instanceof BlobType) {
                         $lengths[]=255;
                     } else {
                         $lengths[]=null;

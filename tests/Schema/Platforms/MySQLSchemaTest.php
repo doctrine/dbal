@@ -52,15 +52,16 @@ class MySQLSchemaTest extends TestCase
         $schema= new Schema();
         $tableOld = $schema->createTable('test');
 
-        $tableOld->addColumn('foo_id', 'text');
-        $tableOld->addColumn('bar_id', 'integer');
+        $tableOld->addColumn('bar_integer', 'integer');
+        $tableOld->addColumn('foo_text', 'text');
+        $tableOld->addColumn('foo_blob', 'blob');
 
-        $tableOld->setPrimaryKey(['foo_id', 'bar_id']);
+        $tableOld->setPrimaryKey(['bar_integer', 'foo_text', 'foo_blob']);
 
         $sql = $schema->toSql($this->platform);
 
         self::assertEquals(
-            ['CREATE TABLE test (foo_id LONGTEXT NOT NULL, bar_id INT NOT NULL, PRIMARY KEY(foo_id(255), bar_id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
+            ['CREATE TABLE test (bar_integer INT NOT NULL, foo_text LONGTEXT NOT NULL, foo_blob LONGBLOB NOT NULL, PRIMARY KEY(bar_integer, foo_text(255), foo_blob(255))) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
             $sql
         );
     }
@@ -70,15 +71,16 @@ class MySQLSchemaTest extends TestCase
         $schema= new Schema();
         $tableOld = $schema->createTable('test');
 
-        $tableOld->addColumn('foo_id', 'text');
-        $tableOld->addColumn('bar_id', 'integer');
+        $tableOld->addColumn('bar_integer', 'integer');
+        $tableOld->addColumn('foo_text', 'text');
+        $tableOld->addColumn('foo_blob', 'blob');
 
-        $tableOld->setPrimaryKey(['foo_id', 'bar_id'],false,["lengths"=>[200,null]]);
+        $tableOld->setPrimaryKey(['bar_integer', 'foo_text', 'foo_blob'],false,["lengths"=>[null,200,210]]);
 
         $sql = $schema->toSql($this->platform);
 
         self::assertEquals(
-            ['CREATE TABLE test (foo_id LONGTEXT NOT NULL, bar_id INT NOT NULL, PRIMARY KEY(foo_id(200), bar_id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
+            ['CREATE TABLE test (bar_integer INT NOT NULL, foo_text LONGTEXT NOT NULL, foo_blob LONGBLOB NOT NULL, PRIMARY KEY(bar_integer, foo_text(200), foo_blob(210))) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
             $sql
         );
     }

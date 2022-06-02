@@ -8,11 +8,12 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 
 final class SchemaTest extends FunctionalTestCase
 {
-    public function testCreatePrimaryKeyWithTextType(): void
+    public function testCreatePrimaryKeyWithBigTypes(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -22,9 +23,9 @@ final class SchemaTest extends FunctionalTestCase
 
         $this->dropTableIfExists('my_table');
 
-        $table    = new Table('my_table', [new Column('id', new TextType()), new Column('id_2', new IntegerType())]);
+        $table    = new Table('my_table', [new Column('id_integer', new IntegerType()), new Column('id_text', new TextType()), new Column('id_blob', new BlobType())]);
 
-        $table->setPrimaryKey(['id','id_2']);
+        $table->setPrimaryKey(['id_integer','id_text','id_blob']);
 
         $schema = new Schema([$table]);
         foreach ($schema->toSql($platform) as $sql) {
