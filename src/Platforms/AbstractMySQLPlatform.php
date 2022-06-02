@@ -388,8 +388,18 @@ SQL
 
         // attach all primary keys
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $keyColumns   = array_unique(array_values($options['primary']));
-            $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+            if (!$options['primary_index']->hasOption('lengths')) {
+                $lengths=[];
+                foreach ($options['primary'] as $columnName) {
+                    if ($columns[$columnName]['type'] instanceof TextType) {
+                        $lengths[]=255;
+                    } else {
+                        $lengths[]=null;
+                    }
+                }
+                $options['primary_index']->setOption('lengths',$lengths);
+            }
+            $queryFields .= ', PRIMARY KEY(' .$this->getIndexFieldDeclarationListSQL($options['primary_index']). ')';
         }
 
         $query = 'CREATE ';

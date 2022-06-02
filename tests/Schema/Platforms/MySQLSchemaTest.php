@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\TestCase;
 
@@ -42,6 +43,42 @@ class MySQLSchemaTest extends TestCase
                 'ALTER TABLE test DROP PRIMARY KEY',
                 'ALTER TABLE test ADD PRIMARY KEY (bar_id, foo_id)',
             ],
+            $sql
+        );
+    }
+
+    public function testPrimaryKeyLengthAutoFix(): void
+    {
+        $schema= new Schema();
+        $tableOld = $schema->createTable('test');
+
+        $tableOld->addColumn('foo_id', 'text');
+        $tableOld->addColumn('bar_id', 'integer');
+
+        $tableOld->setPrimaryKey(['foo_id', 'bar_id']);
+
+        $sql = $schema->toSql($this->platform);
+
+        self::assertEquals(
+            ['CREATE TABLE test (foo_id LONGTEXT NOT NULL, bar_id INT NOT NULL, PRIMARY KEY(foo_id(255), bar_id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
+            $sql
+        );
+    }
+
+    public function testPrimaryKeyLengthOptions(): void
+    {
+        $schema= new Schema();
+        $tableOld = $schema->createTable('test');
+
+        $tableOld->addColumn('foo_id', 'text');
+        $tableOld->addColumn('bar_id', 'integer');
+
+        $tableOld->setPrimaryKey(['foo_id', 'bar_id'],false,["lengths"=>[255,null]]);
+
+        $sql = $schema->toSql($this->platform);
+
+        self::assertEquals(
+            ['CREATE TABLE test (foo_id LONGTEXT NOT NULL, bar_id INT NOT NULL, PRIMARY KEY(foo_id(255), bar_id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
             $sql
         );
     }

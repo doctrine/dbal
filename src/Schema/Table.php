@@ -116,18 +116,19 @@ class Table extends AbstractAsset
      *
      * @param string[]     $columnNames
      * @param string|false $indexName
+     * @param mixed[]      $options
      *
      * @return self
      *
      * @throws SchemaException
      */
-    public function setPrimaryKey(array $columnNames, $indexName = false)
+    public function setPrimaryKey(array $columnNames, $indexName = false, array $options = [])
     {
         if ($indexName === false) {
             $indexName = 'primary';
         }
 
-        $this->_addIndex($this->_createIndex($columnNames, $indexName, true, true));
+        $this->_addIndex($this->_createIndex($columnNames, $indexName, true, true, [], $options));
 
         foreach ($columnNames as $columnName) {
             $column = $this->getColumn($columnName);

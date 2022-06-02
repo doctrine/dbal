@@ -318,6 +318,17 @@ class Index extends AbstractAsset implements Constraint
 
     /**
      * @param string $name
+     * @param mixed $value
+     * @return Index
+     */
+    public function setOption($name,$value)
+    {
+        $this->options[strtolower($name)]=$value;
+        return $this;
+    }
+
+    /**
+     * @param string $name
      *
      * @return mixed
      */
