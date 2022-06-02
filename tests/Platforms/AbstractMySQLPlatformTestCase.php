@@ -6,10 +6,8 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Schema\Comparator;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -72,8 +70,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testGeneratesSqlSnippets(): void
     {
         self::assertEquals('RLIKE', $this->platform->getRegexpExpression());
-        self::assertEquals('`', $this->platform->getIdentifierQuoteCharacter());
-
         self::assertEquals(
             'CONCAT(column1, column2, column3)',
             $this->platform->getConcatExpression('column1', 'column2', 'column3')
@@ -542,85 +538,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }
 
-    public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines(): void
-    {
-        $table = new Table('foreign_table');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('fk_id', 'integer');
-        $table->addForeignKeyConstraint('foreign_table', ['fk_id'], ['id']);
-        $table->setPrimaryKey(['id']);
-        $table->addOption('engine', 'MyISAM');
-
-        self::assertSame(
-            [
-                'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, '
-                    . 'INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) '
-                    . 'ENGINE = MyISAM',
-            ],
-            $this->platform->getCreateTableSQL(
-                $table,
-                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
-            )
-        );
-
-        $table = clone $table;
-        $table->addOption('engine', 'InnoDB');
-
-        self::assertSame(
-            [
-                'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, '
-                    . 'INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) '
-                    . 'ENGINE = InnoDB',
-                'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D0 FOREIGN KEY (fk_id)'
-                    . ' REFERENCES foreign_table (id)',
-            ],
-            $this->platform->getCreateTableSQL(
-                $table,
-                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
-            )
-        );
-    }
-
-    public function testDoesNotPropagateForeignKeyAlterationForNonSupportingEngines(): void
-    {
-        $table = new Table('foreign_table');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('fk_id', 'integer');
-        $table->addForeignKeyConstraint('foreign_table', ['fk_id'], ['id']);
-        $table->setPrimaryKey(['id']);
-        $table->addOption('engine', 'MyISAM');
-
-        $addedForeignKeys   = [new ForeignKeyConstraint(['fk_id'], 'foo', ['id'], 'fk_add')];
-        $changedForeignKeys = [new ForeignKeyConstraint(['fk_id'], 'bar', ['id'], 'fk_change')];
-        $removedForeignKeys = [new ForeignKeyConstraint(['fk_id'], 'baz', ['id'], 'fk_remove')];
-
-        $tableDiff                     = new TableDiff('foreign_table');
-        $tableDiff->fromTable          = $table;
-        $tableDiff->addedForeignKeys   = $addedForeignKeys;
-        $tableDiff->changedForeignKeys = $changedForeignKeys;
-        $tableDiff->removedForeignKeys = $removedForeignKeys;
-
-        self::assertEmpty($this->platform->getAlterTableSQL($tableDiff));
-
-        $table->addOption('engine', 'InnoDB');
-
-        $tableDiff                     = new TableDiff('foreign_table');
-        $tableDiff->fromTable          = $table;
-        $tableDiff->addedForeignKeys   = $addedForeignKeys;
-        $tableDiff->changedForeignKeys = $changedForeignKeys;
-        $tableDiff->removedForeignKeys = $removedForeignKeys;
-
-        self::assertSame(
-            [
-                'ALTER TABLE foreign_table DROP FOREIGN KEY fk_remove',
-                'ALTER TABLE foreign_table DROP FOREIGN KEY fk_change',
-                'ALTER TABLE foreign_table ADD CONSTRAINT fk_add FOREIGN KEY (fk_id) REFERENCES foo (id)',
-                'ALTER TABLE foreign_table ADD CONSTRAINT fk_change FOREIGN KEY (fk_id) REFERENCES bar (id)',
-            ],
-            $this->platform->getAlterTableSQL($tableDiff)
-        );
-    }
-
     /**
      * @return string[]
      */
@@ -879,6 +796,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             ],
             $this->platform->getCreateTableSQL($table)
         );
+    }
+
+    public function testQuoteIdentifier(): void
+    {
+        self::assertEquals('`test`.`test`', $this->platform->quoteIdentifier('test.test'));
     }
 
     protected function createComparator(): Comparator

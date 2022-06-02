@@ -631,16 +631,6 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateTableSQL(
-        Table $table,
-        int $createFlags = self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS
-    ): array {
-        return parent::getCreateTableSQL($table, $createFlags);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getAlterTableSQL(TableDiff $diff): array
     {
         $sql = $this->getSimpleAlterTableSQL($diff);

@@ -8,6 +8,29 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: foreign key DDL is generated on MySQL regardless of the storage engine.
+
+The DBAL generates DDL for foreign keys regardless of the MySQL storage engines used by the table
+that owns the foreign key constraint.
+
+## BC BREAK: removed `AbstractPlatform` methods exposing quote characters.
+
+The `AbstractPlatform::getStringLiteralQuoteCharacter()` and `::getIdentifierQuoteCharacter()` methods
+have been removed.
+
+## Deprecated: `AbstractPlatform::CREATE_*` constants
+
+The `AbstractPlatform::CREATE_INDEXES` and `::CREATE_FOREIGNKEYS` constants have been deprecated
+as they no longer have any effect on the behavior of the `AbstractPlatform::getCreateTableSQL()` method.
+
+## BC BREAK: removed `$createFlags` from `AbstractPlatform::getCreateTableSQL()`
+
+The `$createFlags` parameter of `AbstractPlatform::getCreateTableSQL()` has been removed.
+
+## BC BREAK: removed `CreateSchemaSqlCollector` and `DropSchemaSqlCollector`
+
+The `CreateSchemaSqlCollector` and `DropSchemaSqlCollector` classes have been removed.
+
 ## BC BREAK: remove support for transaction nesting without savepoints
 
 Starting a transaction inside another transaction with

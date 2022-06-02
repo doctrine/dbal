@@ -35,7 +35,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -72,8 +71,14 @@ use function strtoupper;
  */
 abstract class AbstractPlatform
 {
+    /**
+     * @deprecated
+     */
     public const CREATE_INDEXES = 1;
 
+    /**
+     * @deprecated
+     */
     public const CREATE_FOREIGNKEYS = 2;
 
     /** @var string[]|null */
@@ -374,22 +379,6 @@ abstract class AbstractPlatform
         $dbType = strtolower($dbType);
 
         return isset($this->doctrineTypeMapping[$dbType]);
-    }
-
-    /**
-     * Gets the character used for identifier quoting.
-     *
-     * @deprecated Use {@see quoteIdentifier()} to quote identifiers instead.
-     */
-    public function getIdentifierQuoteCharacter(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5388',
-            'AbstractPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.'
-        );
-
-        return '"';
     }
 
     /**
@@ -871,37 +860,13 @@ abstract class AbstractPlatform
      * Returns the SQL statement(s) to create a table with the specified name, columns and constraints
      * on this platform.
      *
-     * @psalm-param int-mask-of<self::CREATE_*> $createFlags
-     *
      * @return list<string> The list of SQL statements.
      *
      * @throws Exception
      */
-    public function getCreateTableSQL(Table $table, int $createFlags = self::CREATE_INDEXES): array
+    public function getCreateTableSQL(Table $table): array
     {
-        if (($createFlags & self::CREATE_INDEXES) === 0) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5416',
-                'Unsetting the CREATE_INDEXES flag in AbstractPlatform::getCreateTableSQL() is deprecated.'
-            );
-        }
-
-        if (($createFlags & self::CREATE_FOREIGNKEYS) === 0) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5416',
-                'Not setting the CREATE_FOREIGNKEYS flag in AbstractPlatform::getCreateTableSQL()'
-                . ' is deprecated. In order to build the statements that create multiple tables'
-                . ' referencing each other via foreign keys, use AbstractPlatform::getCreateTablesSQL().'
-            );
-        }
-
-        return $this->buildCreateTableSQL(
-            $table,
-            ($createFlags & self::CREATE_INDEXES) > 0,
-            ($createFlags & self::CREATE_FOREIGNKEYS) > 0
-        );
+        return $this->buildCreateTableSQL($table, true);
     }
 
     /**
@@ -913,7 +878,7 @@ abstract class AbstractPlatform
      */
     final protected function getCreateTableWithoutForeignKeysSQL(Table $table): array
     {
-        return $this->buildCreateTableSQL($table, true, false);
+        return $this->buildCreateTableSQL($table, false);
     }
 
     /**
@@ -921,7 +886,7 @@ abstract class AbstractPlatform
      *
      * @throws Exception
      */
-    private function buildCreateTableSQL(Table $table, bool $createIndexes, bool $createForeignKeys): array
+    private function buildCreateTableSQL(Table $table, bool $createForeignKeys): array
     {
         if (count($table->getColumns()) === 0) {
             throw NoColumnsSpecifiedForTable::new($table->getName());
@@ -933,21 +898,19 @@ abstract class AbstractPlatform
         $options['indexes']           = [];
         $options['primary']           = [];
 
-        if ($createIndexes) {
-            foreach ($table->getIndexes() as $index) {
-                if (! $index->isPrimary()) {
-                    $options['indexes'][$index->getQuotedName($this)] = $index;
+        foreach ($table->getIndexes() as $index) {
+            if (! $index->isPrimary()) {
+                $options['indexes'][$index->getQuotedName($this)] = $index;
 
-                    continue;
-                }
-
-                $options['primary']       = $index->getQuotedColumns($this);
-                $options['primary_index'] = $index;
+                continue;
             }
 
-            foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
-                $options['uniqueConstraints'][$uniqueConstraint->getQuotedName($this)] = $uniqueConstraint;
-            }
+            $options['primary']       = $index->getQuotedColumns($this);
+            $options['primary_index'] = $index;
+        }
+
+        foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
+            $options['uniqueConstraints'][$uniqueConstraint->getQuotedName($this)] = $uniqueConstraint;
         }
 
         if ($createForeignKeys) {
@@ -1316,9 +1279,7 @@ abstract class AbstractPlatform
      */
     public function quoteSingleIdentifier(string $str): string
     {
-        $c = $this->getIdentifierQuoteCharacter();
-
-        return $c . str_replace($c, $c . $c, $str) . $c;
+        return '"' . str_replace('"', '""', $str) . '"';
     }
 
     /**
@@ -2531,26 +2492,7 @@ abstract class AbstractPlatform
      */
     public function quoteStringLiteral(string $str): string
     {
-        $c = $this->getStringLiteralQuoteCharacter();
-
-        return $c . str_replace($c, $c . $c, $str) . $c;
-    }
-
-    /**
-     * Gets the character used for string literal quoting.
-     *
-     * @deprecated Use {@see quoteStringLiteral()} to quote string literals instead.
-     */
-    public function getStringLiteralQuoteCharacter(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5388',
-            'AbstractPlatform::getStringLiteralQuoteCharacter() is deprecated.'
-                . ' Use quoteStringLiteral() instead.'
-        );
-
-        return "'";
+        return "'" . str_replace("'", "''", $str) . "'";
     }
 
     /**

@@ -70,7 +70,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesSqlSnippets(): void
     {
-        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
         self::assertEquals(
             'column1 || column2 || column3',
             $this->platform->getConcatExpression('column1', 'column2', 'column3')

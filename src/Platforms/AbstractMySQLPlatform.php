@@ -13,7 +13,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function array_unique;
@@ -24,7 +23,6 @@ use function in_array;
 use function is_numeric;
 use function sprintf;
 use function str_replace;
-use function strcasecmp;
 use function strtoupper;
 use function trim;
 
@@ -57,18 +55,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $query;
     }
 
-    /**
-     * @deprecated Use {@see quoteIdentifier()} to quote identifiers instead.
-     */
-    public function getIdentifierQuoteCharacter(): string
+    public function quoteSingleIdentifier(string $str): string
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5388',
-            'AbstractMySQLPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.'
-        );
-
-        return '`';
+        return '`' . str_replace('`', '``', $str) . '`';
     }
 
     public function getRegexpExpression(): string
@@ -223,38 +212,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateTablesSQL(array $tables): array
-    {
-        $sql = [];
-
-        foreach ($tables as $table) {
-            $sql = array_merge($sql, $this->getCreateTableWithoutForeignKeysSQL($table));
-        }
-
-        foreach ($tables as $table) {
-            if (! $table->hasOption('engine') || $this->engineSupportsForeignKeys($table->getOption('engine'))) {
-                foreach ($table->getForeignKeys() as $foreignKey) {
-                    $sql[] = $this->getCreateForeignKeySQL(
-                        $foreignKey,
-                        $table->getQuotedName($this)
-                    );
-                }
-            } elseif (count($table->getForeignKeys()) > 0) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5414',
-                    'Relying on the DBAL not generating DDL for foreign keys on MySQL engines'
-                    . ' other than InnoDB is deprecated. Define foreign key constraints only if they are necessary.'
-                );
-            }
-        }
-
-        return $sql;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
@@ -300,17 +257,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         // Propagate foreign key constraints only for InnoDB.
         if (isset($options['foreignKeys'])) {
-            if (! isset($options['engine']) || $this->engineSupportsForeignKeys($options['engine'])) {
-                foreach ($options['foreignKeys'] as $definition) {
-                    $sql[] = $this->getCreateForeignKeySQL($definition, $name);
-                }
-            } elseif (count($options['foreignKeys']) > 0) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5414',
-                    'Relying on the DBAL not generating DDL for foreign keys on MySQL engines'
-                    . ' other than InnoDB is deprecated. Define foreign key constraints only if they are necessary.'
-                );
+            foreach ($options['foreignKeys'] as $definition) {
+                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
 
@@ -358,11 +306,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         }
 
         return implode(' ', $tableOptions);
-    }
-
-    private function engineSupportsForeignKeys(string $engine): bool
-    {
-        return strcasecmp(trim($engine), 'InnoDB') === 0;
     }
 
     /**
@@ -820,7 +763,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
     public function quoteStringLiteral(string $str): string
     {
-        $str = str_replace('\\', '\\\\', $str); // MySQL requires backslashes to be escaped aswell.
+        // MySQL requires backslashes to be escaped as well.
+        $str = str_replace('\\', '\\\\', $str);
 
         return parent::quoteStringLiteral($str);
     }

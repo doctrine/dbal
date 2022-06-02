@@ -87,8 +87,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('CONVERT(date, GETDATE())', $this->platform->getCurrentDateSQL());
         self::assertEquals('CONVERT(time, GETDATE())', $this->platform->getCurrentTimeSQL());
         self::assertEquals('CURRENT_TIMESTAMP', $this->platform->getCurrentTimestampSQL());
-        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
-
         self::assertEquals(
             '(column1 + column2 + column3)',
             $this->platform->getConcatExpression('column1', 'column2', 'column3')
@@ -564,16 +562,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
     public function testQuoteIdentifier(): void
     {
-        self::assertEquals('[fo]]o]', $this->platform->quoteIdentifier('fo]o'));
-        self::assertEquals('[test]', $this->platform->quoteIdentifier('test'));
         self::assertEquals('[test].[test]', $this->platform->quoteIdentifier('test.test'));
-    }
-
-    public function testQuoteSingleIdentifier(): void
-    {
-        self::assertEquals('[fo]]o]', $this->platform->quoteSingleIdentifier('fo]o'));
-        self::assertEquals('[test]', $this->platform->quoteSingleIdentifier('test'));
-        self::assertEquals('[test.test]', $this->platform->quoteSingleIdentifier('test.test'));
     }
 
     public function testCreateClusteredIndex(): void
