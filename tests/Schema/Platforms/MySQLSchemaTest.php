@@ -73,12 +73,12 @@ class MySQLSchemaTest extends TestCase
         $tableOld->addColumn('foo_id', 'text');
         $tableOld->addColumn('bar_id', 'integer');
 
-        $tableOld->setPrimaryKey(['foo_id', 'bar_id'],false,["lengths"=>[255,null]]);
+        $tableOld->setPrimaryKey(['foo_id', 'bar_id'],false,["lengths"=>[200,null]]);
 
         $sql = $schema->toSql($this->platform);
 
         self::assertEquals(
-            ['CREATE TABLE test (foo_id LONGTEXT NOT NULL, bar_id INT NOT NULL, PRIMARY KEY(foo_id(255), bar_id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
+            ['CREATE TABLE test (foo_id LONGTEXT NOT NULL, bar_id INT NOT NULL, PRIMARY KEY(foo_id(200), bar_id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
             $sql
         );
     }
