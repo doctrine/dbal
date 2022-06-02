@@ -172,5 +172,10 @@ class IndexTest extends TestCase
         self::assertSame('name IS NULL', $idx2->getOption('where'));
         self::assertSame('name IS NULL', $idx2->getOption('WHERE'));
         self::assertSame(['where' => 'name IS NULL'], $idx2->getOptions());
+
+        $idx3 = $this->createIndex(true, true);
+        $idx3->setOption('lengths',[255]);
+        self::assertTrue($idx3->hasOption('lengths'));
+        self::assertSame([255], $idx3->getOption('lengths'));
     }
 }
