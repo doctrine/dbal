@@ -1325,4 +1325,23 @@ class ComparatorTest extends TestCase
             'Schema diff is empty, since only `columnDefinition` changed from `null` (not detected) to a defined one'
         );
     }
+
+    public function testNoOrphanedForeignKeyIfReferencingTableIsDropped(): void
+    {
+        $schema1 = new Schema();
+
+        $parent = $schema1->createTable('parent');
+        $parent->addColumn('id', 'integer');
+
+        $child = $schema1->createTable('child');
+        $child->addColumn('id', 'integer');
+        $child->addColumn('parent_id', 'integer');
+        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id']);
+
+        $schema2 = new Schema();
+
+        $diff = $this->comparator->compareSchemas($schema1, $schema2);
+
+        self::assertEmpty($diff->orphanedForeignKeys);
+    }
 }

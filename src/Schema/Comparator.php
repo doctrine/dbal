@@ -157,7 +157,13 @@ class Comparator
                 continue;
             }
 
-            $diff->orphanedForeignKeys = array_merge($diff->orphanedForeignKeys, $foreignKeysToTable[$tableName]);
+            foreach ($foreignKeysToTable[$tableName] as $foreignKey) {
+                if (isset($diff->removedTables[strtolower($foreignKey->getLocalTableName())])) {
+                    continue;
+                }
+
+                $diff->orphanedForeignKeys[] = $foreignKey;
+            }
 
             // deleting duplicated foreign keys present on both on the orphanedForeignKey
             // and the removedForeignKeys from changedTables

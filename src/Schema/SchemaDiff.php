@@ -143,9 +143,7 @@ class SchemaDiff
         $sql = array_merge($sql, $platform->getCreateTablesSQL($this->newTables));
 
         if ($saveMode === false) {
-            foreach ($this->removedTables as $table) {
-                $sql[] = $platform->getDropTableSQL($table);
-            }
+            $sql = array_merge($sql, $platform->getDropTablesSQL($this->removedTables));
         }
 
         foreach ($this->changedTables as $tableDiff) {
