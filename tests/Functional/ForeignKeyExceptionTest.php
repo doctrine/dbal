@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -51,14 +50,6 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnInsert(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if ($platform instanceof SqlitePlatform) {
-            $this->connection->executeStatement('PRAGMA foreign_keys = ON');
-        } elseif (! $platform->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
         $this->connection->insert('constraint_error_table', ['id' => 1]);
         $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
 
@@ -69,14 +60,6 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnUpdate(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if ($platform instanceof SqlitePlatform) {
-            $this->connection->executeStatement('PRAGMA foreign_keys = ON');
-        } elseif (! $platform->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
         $this->connection->insert('constraint_error_table', ['id' => 1]);
         $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
 
@@ -87,14 +70,6 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnDelete(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if ($platform instanceof SqlitePlatform) {
-            $this->connection->executeStatement('PRAGMA foreign_keys = ON');
-        } elseif (! $platform->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
         $this->connection->insert('constraint_error_table', ['id' => 1]);
         $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
 
@@ -106,12 +81,6 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
     public function testForeignKeyConstraintViolationExceptionOnTruncate(): void
     {
         $platform = $this->connection->getDatabasePlatform();
-
-        if ($platform instanceof SqlitePlatform) {
-            $this->connection->executeStatement('PRAGMA foreign_keys = ON');
-        } elseif (! $platform->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
 
         $this->connection->insert('constraint_error_table', ['id' => 1]);
         $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
