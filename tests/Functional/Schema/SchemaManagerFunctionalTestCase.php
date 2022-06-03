@@ -445,10 +445,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testCreateTableWithForeignKeys(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('Platform does not support foreign keys.');
-        }
-
         $tableB = $this->getTestTable('test_foreign');
 
         $this->dropAndCreateTable($tableB);
@@ -625,10 +621,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         // dont check for index size here, some platforms automatically add indexes for foreign keys.
         self::assertFalse($table->hasIndex('bar_idx'));
 
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            return;
-        }
-
         $fks = $table->getForeignKeys();
         self::assertCount(1, $fks);
         $foreignKey = array_shift($fks);
@@ -722,12 +714,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testUpdateSchemaWithForeignKeyRenaming(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if (! $platform->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('This test is only supported on platforms that have foreign keys.');
-        }
-
         $table = new Table('test_fk_base');
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
@@ -773,12 +759,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testRenameIndexUsedInForeignKeyConstraint(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if (! $platform->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('This test is only supported on platforms that have foreign keys.');
-        }
-
         $primaryTable = new Table('test_rename_index_primary');
         $primaryTable->addColumn('id', 'integer');
         $primaryTable->setPrimaryKey(['id']);
@@ -1257,10 +1237,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testCreatedCompositeForeignKeyOrderIsCorrectAfterCreation(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            self::markTestSkipped('Platform does not support foreign keys.');
-        }
-
         $foreignKey     = 'fk_test_order';
         $localTable     = 'test_table_foreign';
         $foreignTable   = 'test_table_local';

@@ -35,6 +35,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -2249,9 +2250,17 @@ abstract class AbstractPlatform
 
     /**
      * Whether the platform supports foreign key constraints.
+     *
+     * @deprecated All platforms should support foreign key constraints.
      */
     public function supportsForeignKeyConstraints(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5409',
+            'AbstractPlatform::supportsForeignKeyConstraints() is deprecated.'
+        );
+
         return true;
     }
 

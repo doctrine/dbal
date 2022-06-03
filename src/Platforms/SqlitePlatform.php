@@ -580,11 +580,6 @@ class SqlitePlatform extends AbstractPlatform
         return $tableName;
     }
 
-    public function supportsForeignKeyConstraints(): bool
-    {
-        return false;
-    }
-
     /**
      * {@inheritDoc}
      */

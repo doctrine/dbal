@@ -44,7 +44,7 @@ class Comparator
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
-        /** @var array<string,list<ForeignKeyConstraint>> $foreignKeysToTable */
+        /** @var array<string,list<array{ForeignKeyConstraint,string}>> $foreignKeysToTable */
         $foreignKeysToTable = [];
 
         /** @var array<string,array<string,null>> $localTablesByForeignTable */
@@ -95,7 +95,7 @@ class Comparator
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $foreignTable = strtolower($foreignKey->getForeignTableName());
 
-                $foreignKeysToTable[$foreignTable][]                  = $foreignKey;
+                $foreignKeysToTable[$foreignTable][]                  = [$foreignKey, $table->getName()];
                 $localTablesByForeignTable[$foreignTable][$tableName] = null;
             }
         }
@@ -105,7 +105,11 @@ class Comparator
                 continue;
             }
 
-            foreach ($foreignKeysToTable[$tableName] as $foreignKey) {
+            foreach ($foreignKeysToTable[$tableName] as [$foreignKey, $localTableName]) {
+                if (isset($diff->removedTables[strtolower($localTableName)])) {
+                    continue;
+                }
+
                 $diff->orphanedForeignKeys[$tableName][] = $foreignKey;
             }
 
