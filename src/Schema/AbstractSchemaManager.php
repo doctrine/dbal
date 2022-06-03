@@ -264,18 +264,12 @@ abstract class AbstractSchemaManager
 
         $tableOptionsByTable = $this->fetchTableOptionsByTable($database, $normalizedName);
 
-        if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->listTableForeignKeys($name);
-        } else {
-            $foreignKeys = [];
-        }
-
         return new Table(
             $name,
             $this->listTableColumns($name),
             $this->listTableIndexes($name),
             [],
-            $foreignKeys,
+            $this->listTableForeignKeys($name),
             $tableOptionsByTable[$normalizedName] ?? []
         );
     }
@@ -347,10 +341,6 @@ abstract class AbstractSchemaManager
      */
     protected function fetchForeignKeyColumnsByTable(string $databaseName): array
     {
-        if (! $this->_platform->supportsForeignKeyConstraints()) {
-            return [];
-        }
-
         return $this->fetchAllAssociativeGrouped(
             $this->selectForeignKeyColumns($databaseName)
         );

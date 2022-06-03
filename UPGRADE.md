@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `AbstractPlatform::supportsForeignKeyConstraints()`.
+
+The `AbstractPlatform::supportsForeignKeyConstraints()` method has been removed.
+
 ## BC BREAK: foreign key DDL is generated on MySQL regardless of the storage engine.
 
 The DBAL generates DDL for foreign keys regardless of the MySQL storage engines used by the table
