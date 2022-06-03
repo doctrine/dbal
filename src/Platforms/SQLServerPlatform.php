@@ -1217,8 +1217,8 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return $fixed
-            ? ($length > 0 ? 'NCHAR(' . $length . ')' : 'CHAR(255)')
-            : ($length > 0 ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
+            ? 'NCHAR(' . ($length > 0 ? $length : 255) . ')'
+            : 'NVARCHAR(' . ($length > 0 ? $length : 255) . ')';
     }
 
     /**
