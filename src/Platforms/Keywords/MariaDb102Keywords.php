@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use Doctrine\Deprecations\Deprecation;
+
 /**
  * MariaDb reserved keywords list.
  *
@@ -11,8 +13,17 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 final class MariaDb102Keywords extends MariaDBKeywords
 {
+    /**
+     * @deprecated
+     */
     public function getName(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5433',
+            'MariaDb102Keywords::getName() is deprecated.'
+        );
+
         return 'MariaDb102';
     }
 }

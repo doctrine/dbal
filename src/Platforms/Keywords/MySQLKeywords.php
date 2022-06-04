@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use Doctrine\Deprecations\Deprecation;
+
 /**
  * MySQL Keywordlist.
  */
@@ -9,9 +11,17 @@ class MySQLKeywords extends KeywordList
 {
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getName()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5433',
+            'MySQLKeywords::getName() is deprecated.'
+        );
+
         return 'MySQL';
     }
 
