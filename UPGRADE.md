@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated the functionality of checking schema for the usage of reserved keywords.
+
+The `dbal:reserved-words` console command and the `ReservedWordsCommand` and `ReservedKeywordsValidator` classes
+have been deprecated. Use the documentation on the used database platform(s) instead.
+
 ## Deprecated `CreateSchemaSqlCollector` and `DropSchemaSqlCollector`.
 
 The `CreateSchemaSqlCollector` and `DropSchemaSqlCollector` classes have been deprecated in favor of
