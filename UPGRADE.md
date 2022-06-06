@@ -8,6 +8,20 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed Schema Visitor API.
+
+The following interfaces and classes have been removed:
+
+1. `Doctrine\DBAL\Schema\Visitor`,
+2. `Doctrine\DBAL\Schema\NamespaceVisitor`,
+3. `Doctrine\DBAL\Schema\AbstractVisitor`.
+
+The following methods have been removed:
+
+1. `Doctrine\DBAL\Schema\Schema::visit()`,
+2. `Doctrine\DBAL\Schema\Table::visit()`,
+3. `Doctrine\DBAL\Schema\Sequence::visit()`.
+
 ## BC BREAK: removed `RemoveNamespacedAssets`.
 
 The `RemoveNamespacedAssets` schema visitor has been removed.

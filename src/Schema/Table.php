@@ -13,9 +13,7 @@ use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
-use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_merge;
@@ -617,34 +615,6 @@ class Table extends AbstractAsset
     public function getOptions(): array
     {
         return $this->_options;
-    }
-
-    /**
-     * @deprecated
-     *
-     * @throws SchemaException
-     */
-    public function visit(Visitor $visitor): void
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5435',
-            'Table::visit() is deprecated.'
-        );
-
-        $visitor->acceptTable($this);
-
-        foreach ($this->getColumns() as $column) {
-            $visitor->acceptColumn($this, $column);
-        }
-
-        foreach ($this->getIndexes() as $index) {
-            $visitor->acceptIndex($this, $index);
-        }
-
-        foreach ($this->getForeignKeys() as $constraint) {
-            $visitor->acceptForeignKey($this, $constraint);
-        }
     }
 
     /**
