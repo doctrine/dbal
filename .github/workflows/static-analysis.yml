@@ -26,6 +26,9 @@ on:
       - static-analysis/**
       - tests/**
 
+permissions:
+  contents: read
+
 jobs:
   static-analysis-phpstan:
     name: "Static Analysis with PHPStan"
