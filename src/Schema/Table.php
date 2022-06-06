@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_keys;
@@ -904,12 +905,20 @@ class Table extends AbstractAsset
     }
 
     /**
+     * @deprecated
+     *
      * @return void
      *
      * @throws SchemaException
      */
     public function visit(Visitor $visitor)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5435',
+            'Table::visit() is deprecated.'
+        );
+
         $visitor->acceptTable($this);
 
         foreach ($this->getColumns() as $column) {

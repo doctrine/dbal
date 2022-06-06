@@ -8,6 +8,22 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `Visitor` interfaces and `visit()` methods on schema objects.
+
+The following interfaces and classes have been deprecated:
+
+1. `Visitor`,
+2. `NamespaceVisitor`,
+3. `AbstractVisitor`.
+
+The following methods have been deprecated:
+
+1. `Schema::visit()`,
+2. `Table::visit()`,
+3. `Sequence::visit()`.
+
+Instead of having schema objects call the visitor API, call the API of the schema objects.
+
 ## Deprecated removal of namespaced assets from schema.
 
 The `RemoveNamespacedAssets` schema visitor and the usage of namespaced database object names with the platforms
