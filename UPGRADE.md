@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed the functionality of checking schema for the usage of reserved keywords.
+
+The following components have been removed:
+
+1. The `dbal:reserved-words` console command.
+2. The `ReservedWordsCommand` and `ReservedKeywordsValidator` classes.
+3. The `KeywordList::getName()` method.
+
 ## BC BREAK: removed `AbstractPlatform::supportsForeignKeyConstraints()`.
 
 The `AbstractPlatform::supportsForeignKeyConstraints()` method has been removed.

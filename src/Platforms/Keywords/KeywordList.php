@@ -39,11 +39,4 @@ abstract class KeywordList
      * @return string[]
      */
     abstract protected function getKeywords(): array;
-
-    /**
-     * Returns the name of this keyword list.
-     *
-     * @deprecated
-     */
-    abstract public function getName(): string;
 }
