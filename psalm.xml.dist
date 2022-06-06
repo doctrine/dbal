@@ -45,10 +45,6 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
-                <referencedClass name="Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
                 <referencedClass name="Doctrine\DBAL\Schema\Visitor\AbstractVisitor"/>
                 <referencedClass name="Doctrine\DBAL\Schema\Visitor\Visitor"/>
             </errorLevel>
