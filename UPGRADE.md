@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated removal of namespaced assets from schema.
+
+The `RemoveNamespacedAssets` schema visitor and the usage of namespaced database object names with the platforms
+that don't support them have been deprecated.
+
 ## Deprecated the functionality of checking schema for the usage of reserved keywords.
 
 The following components have been deprecated:
