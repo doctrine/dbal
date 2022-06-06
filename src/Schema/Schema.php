@@ -482,10 +482,18 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * @deprecated
+     *
      * @return void
      */
     public function visit(Visitor $visitor)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5435',
+            'Schema::visit() is deprecated.'
+        );
+
         $visitor->acceptSchema($this);
 
         if ($visitor instanceof NamespaceVisitor) {
