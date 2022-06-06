@@ -4,13 +4,24 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use Doctrine\Deprecations\Deprecation;
+
 /**
  * Reserved keywords list corresponding to the Microsoft SQL Server database platform of the oldest supported version.
  */
 class SQLServerKeywords extends KeywordList
 {
+    /**
+     * @deprecated
+     */
     public function getName(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5433',
+            'SQLServerKeywords::getName() is deprecated.'
+        );
+
         return 'SQLServer';
     }
 

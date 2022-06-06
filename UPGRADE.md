@@ -716,6 +716,37 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+## Deprecated `Visitor` interfaces and `visit()` methods on schema objects.
+
+The following interfaces and classes have been deprecated:
+
+1. `Visitor`,
+2. `NamespaceVisitor`,
+3. `AbstractVisitor`.
+
+The following methods have been deprecated:
+
+1. `Schema::visit()`,
+2. `Table::visit()`,
+3. `Sequence::visit()`.
+
+Instead of having schema objects call the visitor API, call the API of the schema objects.
+
+## Deprecated removal of namespaced assets from schema.
+
+The `RemoveNamespacedAssets` schema visitor and the usage of namespaced database object names with the platforms
+that don't support them have been deprecated.
+
+## Deprecated the functionality of checking schema for the usage of reserved keywords.
+
+The following components have been deprecated:
+
+1. The `dbal:reserved-words` console command.
+2. The `ReservedWordsCommand` and `ReservedKeywordsValidator` classes.
+3. The `KeywordList::getName()` method.
+
+Use the documentation on the used database platform(s) instead.
+
 ## Deprecated `CreateSchemaSqlCollector` and `DropSchemaSqlCollector`.
 
 The `CreateSchemaSqlCollector` and `DropSchemaSqlCollector` classes have been deprecated in favor of

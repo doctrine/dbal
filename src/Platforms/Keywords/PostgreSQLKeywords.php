@@ -4,13 +4,24 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use Doctrine\Deprecations\Deprecation;
+
 /**
  * Reserved keywords list corresponding to the PostgreSQL database platform of the oldest supported version.
  */
 class PostgreSQLKeywords extends KeywordList
 {
+    /**
+     * @deprecated
+     */
     public function getName(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5433',
+            'PostgreSQLKeywords::getName() is deprecated.'
+        );
+
         return 'PostgreSQL';
     }
 

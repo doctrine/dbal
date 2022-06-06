@@ -14,6 +14,8 @@ use Doctrine\DBAL\Schema\Table;
 
 /**
  * Schema Visitor used for Validation or Generation purposes.
+ *
+ * @deprecated
  */
 interface Visitor
 {

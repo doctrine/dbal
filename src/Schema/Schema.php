@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_values;
 use function str_contains;
@@ -392,8 +393,17 @@ class Schema extends AbstractAsset
         return $builder->buildSQL($this);
     }
 
+    /**
+     * @deprecated
+     */
     public function visit(Visitor $visitor): void
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5435',
+            'Schema::visit() is deprecated.'
+        );
+
         $visitor->acceptSchema($this);
 
         if ($visitor instanceof NamespaceVisitor) {
