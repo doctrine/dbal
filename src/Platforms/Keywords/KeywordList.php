@@ -50,6 +50,8 @@ abstract class KeywordList
     /**
      * Returns the name of this keyword list.
      *
+     * @deprecated
+     *
      * @return string
      */
     abstract public function getName();

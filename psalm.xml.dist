@@ -293,6 +293,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsForeignKeyConstraints"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\Keywords\KeywordList::getName"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
