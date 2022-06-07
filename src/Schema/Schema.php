@@ -11,11 +11,8 @@ use Doctrine\DBAL\Schema\Exception\SequenceAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\TableAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
-use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
-use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_values;
 use function str_contains;
@@ -391,34 +388,6 @@ class Schema extends AbstractAsset
         $builder = new DropSchemaObjectsSQLBuilder($platform);
 
         return $builder->buildSQL($this);
-    }
-
-    /**
-     * @deprecated
-     */
-    public function visit(Visitor $visitor): void
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5435',
-            'Schema::visit() is deprecated.'
-        );
-
-        $visitor->acceptSchema($this);
-
-        if ($visitor instanceof NamespaceVisitor) {
-            foreach ($this->namespaces as $namespace) {
-                $visitor->acceptNamespace($namespace);
-            }
-        }
-
-        foreach ($this->_tables as $table) {
-            $table->visit($visitor);
-        }
-
-        foreach ($this->_sequences as $sequence) {
-            $sequence->visit($visitor);
-        }
     }
 
     /**

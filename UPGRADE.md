@@ -8,6 +8,32 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed Schema Visitor API.
+
+The following interfaces and classes have been removed:
+
+1. `Doctrine\DBAL\Schema\Visitor`,
+2. `Doctrine\DBAL\Schema\NamespaceVisitor`,
+3. `Doctrine\DBAL\Schema\AbstractVisitor`.
+
+The following methods have been removed:
+
+1. `Doctrine\DBAL\Schema\Schema::visit()`,
+2. `Doctrine\DBAL\Schema\Table::visit()`,
+3. `Doctrine\DBAL\Schema\Sequence::visit()`.
+
+## BC BREAK: removed `RemoveNamespacedAssets`.
+
+The `RemoveNamespacedAssets` schema visitor has been removed.
+
+## BC BREAK: removed the functionality of checking schema for the usage of reserved keywords.
+
+The following components have been removed:
+
+1. The `dbal:reserved-words` console command.
+2. The `ReservedWordsCommand` and `ReservedKeywordsValidator` classes.
+3. The `KeywordList::getName()` method.
+
 ## BC BREAK: removed `AbstractPlatform::supportsForeignKeyConstraints()`.
 
 The `AbstractPlatform::supportsForeignKeyConstraints()` method has been removed.
@@ -533,7 +559,6 @@ Table columns are no longer indexed by column name. Use the `name` attribute of 
 - Class `Doctrine\DBAL\Cache\ResultCacheStatement` was made final.
 - Class `Doctrine\DBAL\Cache\ArrayStatement` was made final.
 - Class `Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer` was made final.
-- Class `Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets` was made final.
 - Class `Doctrine\DBAL\Portability\Statement` was made final.
 
 ## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API

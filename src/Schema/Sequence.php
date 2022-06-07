@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Schema\Visitor\Visitor;
-use Doctrine\Deprecations\Deprecation;
-
 use function count;
 use function sprintf;
 
@@ -96,19 +93,5 @@ class Sequence extends AbstractAsset
         $tableSequenceName = sprintf('%s_%s_seq', $tableName, $column->getShortestName($table->getNamespaceName()));
 
         return $tableSequenceName === $sequenceName;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function visit(Visitor $visitor): void
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5435',
-            'Sequence::visit() is deprecated.'
-        );
-
-        $visitor->acceptSequence($this);
     }
 }

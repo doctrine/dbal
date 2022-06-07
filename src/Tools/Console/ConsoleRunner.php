@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tools\Console;
 
 use Composer\InstalledVersions;
-use Doctrine\DBAL\Tools\Console\Command\ReservedWordsCommand;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Exception;
 use Symfony\Component\Console\Application;
@@ -40,9 +39,6 @@ class ConsoleRunner
 
     public static function addCommands(Application $cli, ConnectionProvider $connectionProvider): void
     {
-        $cli->addCommands([
-            new RunSqlCommand($connectionProvider),
-            new ReservedWordsCommand($connectionProvider),
-        ]);
+        $cli->addCommands([new RunSqlCommand($connectionProvider)]);
     }
 }

@@ -9,8 +9,6 @@ use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Visitor\AbstractVisitor;
-use Doctrine\DBAL\Schema\Visitor\Visitor;
 use PHPUnit\Framework\TestCase;
 
 use function array_shift;
@@ -329,79 +327,5 @@ class SchemaTest extends TestCase
 
         self::assertTrue($schema->hasNamespace('baz'));
         self::assertFalse($schema->hasNamespace('moo'));
-    }
-
-    public function testVisitsVisitor(): void
-    {
-        $schema  = new Schema();
-        $visitor = $this->createMock(Visitor::class);
-
-        $schema->createNamespace('foo');
-        $schema->createNamespace('bar');
-
-        $schema->createTable('baz');
-        $schema->createTable('bla.bloo');
-
-        $schema->createSequence('moo');
-        $schema->createSequence('war');
-
-        $visitor->expects(self::once())
-            ->method('acceptSchema')
-            ->with($schema);
-
-        $visitor->expects(self::exactly(2))
-            ->method('acceptTable')
-            ->withConsecutive(
-                [$schema->getTable('baz')],
-                [$schema->getTable('bla.bloo')]
-            );
-
-        $visitor->expects(self::exactly(2))
-            ->method('acceptSequence')
-            ->withConsecutive(
-                [$schema->getSequence('moo')],
-                [$schema->getSequence('war')]
-            );
-
-        $schema->visit($visitor);
-    }
-
-    public function testVisitsNamespaceVisitor(): void
-    {
-        $schema  = new Schema();
-        $visitor = $this->createMock(AbstractVisitor::class);
-
-        $schema->createNamespace('foo');
-        $schema->createNamespace('bar');
-
-        $schema->createTable('baz');
-        $schema->createTable('bla.bloo');
-
-        $schema->createSequence('moo');
-        $schema->createSequence('war');
-
-        $visitor->expects(self::once())
-            ->method('acceptSchema')
-            ->with($schema);
-
-        $visitor->expects(self::exactly(3))
-            ->method('acceptNamespace')
-            ->withConsecutive(['foo'], ['bar'], ['bla']);
-
-        $visitor->expects(self::exactly(2))
-            ->method('acceptTable')
-            ->withConsecutive(
-                [$schema->getTable('baz')],
-                [$schema->getTable('bla.bloo')]
-            );
-
-        $visitor->expects(self::exactly(2))
-            ->method('acceptSequence')
-            ->withConsecutive(
-                [$schema->getSequence('moo')],
-                [$schema->getSequence('war')]
-            );
-
-        $schema->visit($visitor);
     }
 }

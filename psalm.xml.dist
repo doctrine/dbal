@@ -40,33 +40,6 @@
                 <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
-        <DeprecatedClass>
-            <errorLevel type="suppress">
-               <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedClass name="Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator"/>
-                <referencedClass name="Doctrine\DBAL\Tools\Console\Command\ReservedWordsCommand"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedClass name="Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedClass name="Doctrine\DBAL\Schema\Visitor\AbstractVisitor"/>
-                <referencedClass name="Doctrine\DBAL\Schema\Visitor\Visitor"/>
-            </errorLevel>
-        </DeprecatedClass>
-        <DeprecatedInterface>
-            <errorLevel type="suppress">
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedClass name="Doctrine\DBAL\Schema\Visitor\Visitor"/>
-                <referencedClass name="Doctrine\DBAL\Schema\Visitor\NamespaceVisitor"/>
-            </errorLevel>
-        </DeprecatedInterface>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!--
@@ -78,16 +51,6 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getListTablesSQL"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedMethod name="Doctrine\DBAL\Platforms\Keywords\KeywordList::getName"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedMethod name="Doctrine\DBAL\Schema\Schema::visit"/>
-                <referencedMethod name="Doctrine\DBAL\Schema\Sequence::visit"/>
-                <referencedMethod name="Doctrine\DBAL\Schema\Table::visit"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
