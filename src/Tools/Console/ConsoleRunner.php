@@ -13,6 +13,8 @@ use function assert;
 
 /**
  * Handles running the Console Tools inside Symfony Console context.
+ *
+ * @deprecated Use Symfony Console documentation to bootstrap a command-line application.
  */
 class ConsoleRunner
 {
