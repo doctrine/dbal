@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `AbstractSchemaManager::getDatabasePlatform()`
+
+The `AbstractSchemaManager::getDatabasePlatform()` method has been removed.
+
 ## BC BREAK: removed Schema Visitor API.
 
 The following interfaces and classes have been removed:
