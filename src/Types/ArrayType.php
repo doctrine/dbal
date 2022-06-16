@@ -29,7 +29,10 @@ class ArrayType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        // @todo 3.0 - $value === null check to save real NULL in database
+        if ($value === null) {
+            return null;
+        }
+
         return serialize($value);
     }
 

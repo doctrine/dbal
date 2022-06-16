@@ -29,6 +29,11 @@ class ArrayTest extends TestCase
         self::assertIsString($this->type->convertToDatabaseValue([], $this->platform));
     }
 
+    public function testConvertsNullToDatabaseValue(): void
+    {
+        self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
+    }
+
     public function testArrayConvertsToPHPValue(): void
     {
         self::assertIsArray($this->type->convertToPHPValue(serialize([]), $this->platform));
