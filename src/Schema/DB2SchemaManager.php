@@ -27,21 +27,6 @@ use const CASE_LOWER;
 class DB2SchemaManager extends AbstractSchemaManager
 {
     /**
-     * {@inheritdoc}
-     *
-     * Apparently creator is the schema not the user who created it:
-     * {@link http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/index.jsp?topic=/com.ibm.db29.doc.sqlref/db2z_sysibmsystablestable.htm}
-     */
-    public function listTableNames()
-    {
-        $sql = $this->_platform->getListTablesSQL() . ' AND CREATOR = CURRENT_USER';
-
-        $tables = $this->_conn->fetchAllAssociative($sql);
-
-        return $this->filterAssetNames($this->_getPortableTablesList($tables));
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function listTables()
