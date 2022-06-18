@@ -710,25 +710,19 @@ SQL;
      */
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
-        if ($tableName === null) {
-            $tables = $this->listTableNames();
-        } else {
-            $tables = [$tableName];
-        }
+        $sql = <<<'SQL'
+SELECT c.relname,
+       obj_description(c.oid, 'pg_class') AS comment
+FROM pg_class c
+     INNER JOIN pg_namespace n
+         ON n.oid = c.relnamespace
+SQL;
 
-        $tableOptions = [];
-        foreach ($tables as $table) {
-            $sql     = 'SELECT obj_description(?::regclass) AS table_comment;';
-            $comment = $this->_conn->executeQuery($sql, [$table])->fetchOne();
+        $conditions = array_merge(["c.relkind = 'r'"], $this->buildQueryConditions($tableName));
 
-            if ($comment === null) {
-                continue;
-            }
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
-            $tableOptions[$table]['comment'] = $comment;
-        }
-
-        return $tableOptions;
+        return $this->_conn->fetchAllAssociativeIndexed($sql);
     }
 
     /**
