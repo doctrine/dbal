@@ -675,17 +675,17 @@ SQL;
               FROM pg_class, pg_index
              WHERE oid IN (
                 SELECT indexrelid
-                FROM pg_index si, pg_class sc, pg_namespace sn
+                FROM pg_index i, pg_class c, pg_namespace n
 SQL;
 
-        $conditions = ['sc.oid=si.indrelid', 'sc.relnamespace = sn.oid'];
+        $conditions = ['c.oid = i.indrelid', 'c.relnamespace = n.oid'];
         $params     = [];
 
         if ($tableName !== null) {
-            $conditions[] = $this->getTableWhereClause($tableName, 'sc', 'sn');
+            $conditions[] = $this->getTableWhereClause($tableName);
         } else {
-            $conditions[] = "sn.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
-            $conditions[] = 'sn.nspname = ANY(current_schemas(false))';
+            $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
+            $conditions[] = 'n.nspname = ANY(current_schemas(false))';
         }
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ') AND pg_index.indexrelid = oid';
@@ -714,7 +714,7 @@ SQL;
         $params     = [];
 
         if ($tableName !== null) {
-            $conditions[] = $this->getTableWhereClause($tableName);
+            $conditions[] = $this->getTableWhereClause($tableName, 'c', 'n');
         } else {
             $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
             $conditions[] = 'n.nspname = ANY(current_schemas(false))';
@@ -753,12 +753,10 @@ SQL;
 
     /**
      * @param string $table
-     * @param string $classAlias
-     * @param string $namespaceAlias
      */
-    private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n'): string
+    private function getTableWhereClause($table): string
     {
-        $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
+        $whereClause = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
         if (strpos($table, '.') !== false) {
             [$schema, $table] = explode('.', $table);
             $schema           = $this->_platform->quoteStringLiteral($schema);
@@ -769,12 +767,6 @@ SQL;
         $table = new Identifier($table);
         $table = $this->_platform->quoteStringLiteral($table->getName());
 
-        return $whereClause . sprintf(
-            '%s.relname = %s AND %s.nspname = %s',
-            $classAlias,
-            $table,
-            $namespaceAlias,
-            $schema
-        );
+        return $whereClause . sprintf('c.relname = %s AND n.nspname = %s', $table, $schema);
     }
 }
