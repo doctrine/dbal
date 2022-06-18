@@ -169,15 +169,11 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTablesList($tables)
+    protected function _getPortableTableDefinition($table)
     {
-        $tableNames = [];
-        foreach ($tables as $tableRow) {
-            $tableRow     = array_change_key_case($tableRow, CASE_LOWER);
-            $tableNames[] = $tableRow['name'];
-        }
+        $table = array_change_key_case($table, CASE_LOWER);
 
-        return $tableNames;
+        return $table['name'];
     }
 
     /**
