@@ -29,6 +29,14 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
+    public function listTableNames()
+    {
+        return $this->doListTableNames();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function listTables()
     {
         return $this->doListTables();
@@ -258,6 +266,18 @@ class DB2SchemaManager extends AbstractSchemaManager
         $identifier = new Identifier($name);
 
         return $identifier->isQuoted() ? $identifier->getName() : strtoupper($name);
+    }
+
+    protected function selectTableNames(string $databaseName): Result
+    {
+        $sql = <<<'SQL'
+SELECT NAME
+FROM SYSIBM.SYSTABLES
+WHERE TYPE = 'T'
+  AND CREATOR = ?
+SQL;
+
+        return $this->_conn->executeQuery($sql, [$databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result

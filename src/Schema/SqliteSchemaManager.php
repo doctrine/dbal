@@ -44,6 +44,14 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
+    public function listTableNames()
+    {
+        return $this->doListTableNames();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function listTables()
     {
         return $this->doListTables();
@@ -662,6 +670,25 @@ SQL
 
         // SQLite does not support schemas or databases
         return [];
+    }
+
+    protected function selectTableNames(string $databaseName): Result
+    {
+        $sql = <<<'SQL'
+SELECT name
+FROM sqlite_master
+WHERE type = 'table'
+  AND name != 'sqlite_sequence'
+  AND name != 'geometry_columns'
+  AND name != 'spatial_ref_sys'
+UNION ALL
+SELECT name
+FROM sqlite_temp_master
+WHERE type = 'table'
+ORDER BY name
+SQL;
+
+        return $this->_conn->executeQuery($sql);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result

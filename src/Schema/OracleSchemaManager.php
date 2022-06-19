@@ -30,6 +30,14 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
+    public function listTableNames()
+    {
+        return $this->doListTableNames();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function listTables()
     {
         return $this->doListTables();
@@ -347,6 +355,18 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         return $identifier;
+    }
+
+    protected function selectTableNames(string $databaseName): Result
+    {
+        $sql = <<<'SQL'
+SELECT TABLE_NAME
+FROM ALL_TABLES
+WHERE OWNER = :OWNER
+ORDER BY TABLE_NAME
+SQL;
+
+        return $this->_conn->executeQuery($sql, ['OWNER' => $databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
