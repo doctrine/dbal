@@ -107,9 +107,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     }
 
     /**
-     * @param AbstractAsset[] $items
+     * @param T[] $items
      *
-     * @return AbstractAsset[]
+     * @return T[]
+     *
+     * @template T of AbstractAsset
      */
     private function filterElementsByName(array $items, string $name): array
     {
@@ -671,8 +673,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $filtered = array_values($this->filterElementsByName($views, $name));
         self::assertCount(1, $filtered);
 
-        $viewKey = strtolower($filtered[0]->getName());
-        self::assertStringContainsString('view_test_table', $views[$viewKey]->getSql());
+        self::assertStringContainsString('view_test_table', $filtered[0]->getSql());
     }
 
     public function testAutoincrementDetection(): void
