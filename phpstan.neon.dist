@@ -110,15 +110,25 @@ parameters:
             paths:
                 - tests/DriverManagerTest.php
 
-        # It is not clear how to address this error (it should be an intersection type)
+        # It is not clear how to address these errors (it should be an intersection type)
         -
             message: '~array{url: ''sqlite::memory:'', wrapperClass: class-string<Doctrine\\DBAL\\Connection>\|class-string<PHPUnit\\Framework\\MockObject\\MockObject>} given\.$~'
+            path: tests/DriverManagerTest.php
+        -
+            message: '~class-string<Doctrine\\DBAL\\Connection>&class-string<PHPUnit\\Framework\\MockObject\\MockObject> given\.$~'
             path: tests/DriverManagerTest.php
 
         # It is not clear how to address this error (one of the types is a sub-type of the other)
         -
             message: '~^Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) .* will always evaluate to false\.$~'
             path: tests/ConnectionTest.php
+
+        # There is no way to make this assertion in the code,
+        # and the API doesn't support parametrization of returned column types.
+        -
+            message: '~^Method Doctrine\\DBAL\\Schema\\PostgreSQLSchemaManager::fetchTableOptionsByTable\(\) should return array<string, array<string, mixed>> but returns array<int\|string, array<string, mixed>>\.$~'
+            paths:
+                - src/Schema/PostgreSQLSchemaManager.php
 
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon

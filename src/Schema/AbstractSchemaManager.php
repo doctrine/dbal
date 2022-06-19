@@ -184,6 +184,23 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @return list<string>
+     *
+     * @throws Exception
+     */
+    protected function doListTableNames(): array
+    {
+        $database = $this->getDatabase(__METHOD__);
+
+        return $this->filterAssetNames(
+            $this->_getPortableTablesList(
+                $this->selectTableNames($database)
+                    ->fetchAllAssociative()
+            )
+        );
+    }
+
+    /**
      * Filters asset names if they are configured to return only a subset of all
      * the found elements.
      *
@@ -262,6 +279,18 @@ abstract class AbstractSchemaManager
     protected function normalizeName(string $name): string
     {
         return $name;
+    }
+
+    /**
+     * Selects names of tables in the specified database.
+     *
+     * @throws Exception
+     *
+     * @abstract
+     */
+    protected function selectTableNames(string $databaseName): Result
+    {
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

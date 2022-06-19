@@ -51,6 +51,14 @@ class MySQLSchemaManager extends AbstractSchemaManager
     ];
 
     /**
+     * {@inheritDoc}
+     */
+    public function listTableNames(): array
+    {
+        return $this->doListTableNames();
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function _getPortableViewDefinition(array $view): View
@@ -305,6 +313,19 @@ class MySQLSchemaManager extends AbstractSchemaManager
     public function createComparator(): Comparator
     {
         return new MySQL\Comparator($this->_platform);
+    }
+
+    protected function selectTableNames(string $databaseName): Result
+    {
+        $sql = <<<'SQL'
+SELECT TABLE_NAME
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = ?
+  AND TABLE_TYPE = 'BASE TABLE'
+ORDER BY TABLE_NAME
+SQL;
+
+        return $this->_conn->executeQuery($sql, [$databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result

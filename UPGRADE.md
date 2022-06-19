@@ -745,6 +745,11 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+## Deprecated `ConsolerRunner`.
+
+The `ConsoleRunner` class has been deprecated. Use Symfony Console documentation
+to bootstrap a command-line application.
+
 ## Deprecated `Visitor` interfaces and `visit()` methods on schema objects.
 
 The following interfaces and classes have been deprecated:

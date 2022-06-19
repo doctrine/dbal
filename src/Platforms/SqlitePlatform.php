@@ -378,6 +378,9 @@ class SqlitePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTablesSQL(): string
     {
         return 'SELECT name FROM sqlite_master'

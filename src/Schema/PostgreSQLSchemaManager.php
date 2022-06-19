@@ -11,8 +11,8 @@ use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
-use function array_keys;
 use function array_map;
+use function array_merge;
 use function assert;
 use function explode;
 use function implode;
@@ -35,6 +35,14 @@ use const CASE_LOWER;
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
     private ?string $currentSchema = null;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function listTableNames(): array
+    {
+        return $this->doListTableNames();
+    }
 
     /**
      * {@inheritDoc}
@@ -196,32 +204,6 @@ SQL
     protected function _getPortableDatabaseDefinition(array $database): string
     {
         return $database['datname'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableSequencesList(array $sequences): array
-    {
-        $sequenceDefinitions = [];
-
-        foreach ($sequences as $sequence) {
-            if ($sequence['schemaname'] !== 'public') {
-                $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
-            } else {
-                $sequenceName = $sequence['relname'];
-            }
-
-            $sequenceDefinitions[$sequenceName] = $sequence;
-        }
-
-        $list = [];
-
-        foreach ($this->filterAssetNames(array_keys($sequenceDefinitions)) as $sequenceName) {
-            $list[] = $this->_getPortableSequenceDefinition($sequenceDefinitions[$sequenceName]);
-        }
-
-        return $list;
     }
 
     /**
@@ -414,6 +396,23 @@ SQL
         return str_replace("''", "'", $default);
     }
 
+    protected function selectTableNames(string $databaseName): Result
+    {
+        $sql = <<<'SQL'
+SELECT quote_ident(table_name) AS table_name,
+       table_schema AS schema_name
+FROM information_schema.tables
+WHERE table_catalog = ?
+  AND table_schema NOT LIKE 'pg\_%'
+  AND table_schema != 'information_schema'
+  AND table_name != 'geometry_columns'
+  AND table_name != 'spatial_ref_sys'
+  AND table_type = 'BASE TABLE'
+SQL;
+
+        return $this->_conn->executeQuery($sql, [$databaseName]);
+    }
+
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
         $sql = 'SELECT';
@@ -450,25 +449,17 @@ SQL
             FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
 SQL;
 
-        $conditions = [
+        $conditions = array_merge([
             'a.attnum > 0',
             'a.attrelid = c.oid',
             'a.atttypid = t.oid',
             'n.oid = c.relnamespace',
             "c.relkind = 'r'",
-        ];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = $this->getTableWhereClause($tableName, 'c', 'n');
-        } else {
-            $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
-            $conditions[] = 'n.nspname = ANY(current_schemas(false))';
-        }
+        ], $this->buildQueryConditions($tableName));
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY a.attnum';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->_conn->executeQuery($sql);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
@@ -489,22 +480,17 @@ SQL;
               FROM pg_class, pg_index
              WHERE oid IN (
                 SELECT indexrelid
-                FROM pg_index si, pg_class sc, pg_namespace sn
+                FROM pg_index i, pg_class c, pg_namespace n
 SQL;
 
-        $conditions = ['sc.oid=si.indrelid', 'sc.relnamespace = sn.oid'];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = $this->getTableWhereClause($tableName, 'sc', 'sn');
-        } else {
-            $conditions[] = "sn.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
-            $conditions[] = 'sn.nspname = ANY(current_schemas(false))';
-        }
+        $conditions = array_merge([
+            'c.oid = i.indrelid',
+            'c.relnamespace = n.oid',
+        ], $this->buildQueryConditions($tableName));
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ') AND pg_index.indexrelid = oid';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->_conn->executeQuery($sql);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
@@ -524,19 +510,11 @@ SQL;
                       FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
 SQL;
 
-        $conditions = ['n.oid = c.relnamespace'];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = $this->getTableWhereClause($tableName);
-        } else {
-            $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
-            $conditions[] = 'n.nspname = ANY(current_schemas(false))';
-        }
+        $conditions = array_merge(['n.oid = c.relnamespace'], $this->buildQueryConditions($tableName));
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ") AND r.contype = 'f'";
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->_conn->executeQuery($sql);
     }
 
     /**
@@ -544,46 +522,45 @@ SQL;
      */
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
-        if ($tableName === null) {
-            $tables = $this->listTableNames();
-        } else {
-            $tables = [$tableName];
-        }
+        $sql = <<<'SQL'
+SELECT c.relname,
+       obj_description(c.oid, 'pg_class') AS comment
+FROM pg_class c
+     INNER JOIN pg_namespace n
+         ON n.oid = c.relnamespace
+SQL;
 
-        $tableOptions = [];
-        foreach ($tables as $table) {
-            $sql     = 'SELECT obj_description(?::regclass) AS table_comment;';
-            $comment = $this->_conn->executeQuery($sql, [$table])->fetchOne();
+        $conditions = array_merge(["c.relkind = 'r'"], $this->buildQueryConditions($tableName));
 
-            if ($comment === null) {
-                continue;
-            }
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
-            $tableOptions[$table]['comment'] = $comment;
-        }
-
-        return $tableOptions;
+        return $this->_conn->fetchAllAssociativeIndexed($sql);
     }
 
-    private function getTableWhereClause(string $table, string $classAlias = 'c', string $namespaceAlias = 'n'): string
+    /**
+     * @return list<string>
+     */
+    private function buildQueryConditions(?string $tableName): array
     {
-        $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
-        if (strpos($table, '.') !== false) {
-            [$schema, $table] = explode('.', $table);
-            $schema           = $this->_platform->quoteStringLiteral($schema);
-        } else {
-            $schema = 'ANY(current_schemas(false))';
+        $conditions = [];
+        $schemaName = null;
+
+        if ($tableName !== null) {
+            if (strpos($tableName, '.') !== false) {
+                [$schemaName, $tableName] = explode('.', $tableName);
+            }
+
+            $identifier   = new Identifier($tableName);
+            $conditions[] = 'c.relname = ' . $this->_platform->quoteStringLiteral($identifier->getName());
         }
 
-        $table = new Identifier($table);
-        $table = $this->_platform->quoteStringLiteral($table->getName());
+        if ($schemaName !== null) {
+            $conditions[] = 'n.nspname = ' . $this->_platform->quoteStringLiteral($schemaName);
+        } else {
+            $conditions[] = 'n.nspname = ANY(current_schemas(false))';
+            $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
+        }
 
-        return $whereClause . sprintf(
-            '%s.relname = %s AND %s.nspname = %s',
-            $classAlias,
-            $table,
-            $namespaceAlias,
-            $schema
-        );
+        return $conditions;
     }
 }

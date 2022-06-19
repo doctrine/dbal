@@ -43,6 +43,14 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
+    public function listTableNames(): array
+    {
+        return $this->doListTableNames();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function fetchForeignKeyColumnsByTable(string $databaseName): array
     {
         $columnsByTable = parent::fetchForeignKeyColumnsByTable($databaseName);
@@ -514,6 +522,25 @@ SQL
     public function createComparator(): Comparator
     {
         return new SQLite\Comparator($this->_platform);
+    }
+
+    protected function selectTableNames(string $databaseName): Result
+    {
+        $sql = <<<'SQL'
+SELECT name
+FROM sqlite_master
+WHERE type = 'table'
+  AND name != 'sqlite_sequence'
+  AND name != 'geometry_columns'
+  AND name != 'spatial_ref_sys'
+UNION ALL
+SELECT name
+FROM sqlite_temp_master
+WHERE type = 'table'
+ORDER BY name
+SQL;
+
+        return $this->_conn->executeQuery($sql);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result

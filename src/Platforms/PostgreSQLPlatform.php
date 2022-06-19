@@ -174,6 +174,9 @@ class PostgreSQLPlatform extends AbstractPlatform
                 AND    sequence_schema != 'information_schema'";
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTablesSQL(): string
     {
         return "SELECT quote_ident(table_name) AS table_name,

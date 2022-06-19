@@ -32,6 +32,14 @@ use const CASE_LOWER;
 class OracleSchemaManager extends AbstractSchemaManager
 {
     /**
+     * {@inheritDoc}
+     */
+    public function listTableNames(): array
+    {
+        return $this->doListTableNames();
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function _getPortableViewDefinition(array $view): View
@@ -299,6 +307,18 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         return $identifier;
+    }
+
+    protected function selectTableNames(string $databaseName): Result
+    {
+        $sql = <<<'SQL'
+SELECT TABLE_NAME
+FROM ALL_TABLES
+WHERE OWNER = :OWNER
+ORDER BY TABLE_NAME
+SQL;
+
+        return $this->_conn->executeQuery($sql, ['OWNER' => $databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result

@@ -29,18 +29,11 @@ use const CASE_LOWER;
 class DB2SchemaManager extends AbstractSchemaManager
 {
     /**
-     * {@inheritdoc}
-     *
-     * Apparently creator is the schema not the user who created it:
-     * {@link http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/index.jsp?topic=/com.ibm.db29.doc.sqlref/db2z_sysibmsystablestable.htm}
+     * {@inheritDoc}
      */
     public function listTableNames(): array
     {
-        $sql = $this->_platform->getListTablesSQL() . ' AND CREATOR = CURRENT_USER';
-
-        $tables = $this->_conn->fetchAllAssociative($sql);
-
-        return $this->filterAssetNames($this->_getPortableTablesList($tables));
+        return $this->doListTableNames();
     }
 
     /**
@@ -121,15 +114,11 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTablesList(array $tables): array
+    protected function _getPortableTableDefinition(array $table): string
     {
-        $tableNames = [];
-        foreach ($tables as $tableRow) {
-            $tableRow     = array_change_key_case($tableRow, CASE_LOWER);
-            $tableNames[] = $tableRow['name'];
-        }
+        $table = array_change_key_case($table, CASE_LOWER);
 
-        return $tableNames;
+        return $table['name'];
     }
 
     /**
@@ -211,6 +200,18 @@ class DB2SchemaManager extends AbstractSchemaManager
         $identifier = new Identifier($name);
 
         return $identifier->isQuoted() ? $identifier->getName() : strtoupper($name);
+    }
+
+    protected function selectTableNames(string $databaseName): Result
+    {
+        $sql = <<<'SQL'
+SELECT NAME
+FROM SYSIBM.SYSTABLES
+WHERE TYPE = 'T'
+  AND CREATOR = ?
+SQL;
+
+        return $this->_conn->executeQuery($sql, [$databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result

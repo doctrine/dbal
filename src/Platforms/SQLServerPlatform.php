@@ -754,6 +754,9 @@ class SQLServerPlatform extends AbstractPlatform
         return 'INSERT INTO ' . $quotedTableName . ' DEFAULT VALUES';
     }
 
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTablesSQL(): string
     {
         // "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
