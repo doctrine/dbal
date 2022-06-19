@@ -44,6 +44,14 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
+    public function listTableNames()
+    {
+        return $this->doListTableNames();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function listTables()
     {
         return $this->doListTables();
@@ -600,6 +608,23 @@ SQL
         }
 
         return str_replace("''", "'", $default);
+    }
+
+    protected function selectTableNames(string $databaseName): Result
+    {
+        $sql = <<<'SQL'
+SELECT quote_ident(table_name) AS table_name,
+       table_schema AS schema_name
+FROM information_schema.tables
+WHERE table_catalog = ?
+  AND table_schema NOT LIKE 'pg\_%'
+  AND table_schema != 'information_schema'
+  AND table_name != 'geometry_columns'
+  AND table_name != 'spatial_ref_sys'
+  AND table_type = 'BASE TABLE'
+SQL;
+
+        return $this->_conn->executeQuery($sql, [$databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result

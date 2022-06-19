@@ -36,6 +36,14 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
+    public function listTableNames()
+    {
+        return $this->doListTableNames();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function listTables()
     {
         return $this->doListTables();
@@ -255,7 +263,7 @@ SQL
      */
     protected function _getPortableTableDefinition($table)
     {
-        if (isset($table['schema_name']) && $table['schema_name'] !== 'dbo') {
+        if ($table['schema_name'] !== 'dbo') {
             return $table['schema_name'] . '.' . $table['name'];
         }
 
@@ -373,6 +381,21 @@ SQL
         }
 
         return $this->databaseCollation;
+    }
+
+    protected function selectTableNames(string $databaseName): Result
+    {
+        // The "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
+        $sql = <<<'SQL'
+SELECT name,
+       SCHEMA_NAME(schema_id) AS schema_name
+FROM sys.objects
+WHERE type = 'U'
+  AND name != 'sysdiagrams'
+ORDER BY name
+SQL;
+
+        return $this->_conn->executeQuery($sql, [$databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
