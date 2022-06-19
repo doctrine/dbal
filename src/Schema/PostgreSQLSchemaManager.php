@@ -12,7 +12,6 @@ use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
 use function array_filter;
-use function array_keys;
 use function array_map;
 use function array_merge;
 use function array_shift;
@@ -322,32 +321,6 @@ SQL
     protected function _getPortableDatabaseDefinition($database)
     {
         return $database['datname'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableSequencesList($sequences)
-    {
-        $sequenceDefinitions = [];
-
-        foreach ($sequences as $sequence) {
-            if ($sequence['schemaname'] !== 'public') {
-                $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
-            } else {
-                $sequenceName = $sequence['relname'];
-            }
-
-            $sequenceDefinitions[$sequenceName] = $sequence;
-        }
-
-        $list = [];
-
-        foreach ($this->filterAssetNames(array_keys($sequenceDefinitions)) as $sequenceName) {
-            $list[] = $this->_getPortableSequenceDefinition($sequenceDefinitions[$sequenceName]);
-        }
-
-        return $list;
     }
 
     /**
