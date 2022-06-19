@@ -111,6 +111,7 @@ Passing `$database` to the following methods is no longer supported:
 
 The following schema introspection methods have been removed:
 
+- `AbstractPlatform::getListTablesSQL()`,
 - `AbstractPlatform::getListTableColumnsSQL()`,
 - `AbstractPlatform::getListTableIndexesSQL()`,
 - `AbstractPlatform::getListTableForeignKeysSQL()`,

@@ -378,20 +378,6 @@ class SqlitePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTablesSQL(): string
-    {
-        return 'SELECT name FROM sqlite_master'
-            . " WHERE type = 'table'"
-            . " AND name != 'sqlite_sequence'"
-            . " AND name != 'geometry_columns'"
-            . " AND name != 'spatial_ref_sys'"
-            . ' UNION ALL SELECT name FROM sqlite_temp_master'
-            . " WHERE type = 'table' ORDER BY name";
-    }
-
     public function getListViewsSQL(string $database): string
     {
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";

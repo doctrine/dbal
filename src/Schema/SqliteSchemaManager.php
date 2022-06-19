@@ -43,14 +43,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    public function listTableNames(): array
-    {
-        return $this->doListTableNames();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     protected function fetchForeignKeyColumnsByTable(string $databaseName): array
     {
         $columnsByTable = parent::fetchForeignKeyColumnsByTable($databaseName);

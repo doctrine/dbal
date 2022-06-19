@@ -202,14 +202,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTablesSQL(): string
-    {
-        return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
-    }
-
-    /**
      * {@inheritDoc}
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array

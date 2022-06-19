@@ -39,14 +39,6 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    public function listTableNames(): array
-    {
-        return $this->doListTableNames();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function listSchemaNames(): array
     {
         return $this->_conn->fetchFirstColumn(

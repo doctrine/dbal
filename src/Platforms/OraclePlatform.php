@@ -341,14 +341,6 @@ class OraclePlatform extends AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTablesSQL(): string
-    {
-        return 'SELECT * FROM sys.user_tables';
-    }
-
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT view_name, text FROM sys.user_views';

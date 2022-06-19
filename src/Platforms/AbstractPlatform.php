@@ -2046,11 +2046,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    abstract public function getListTablesSQL(): string;
-
-    /**
      * Returns the SQL to list all views of a database or user.
      */
     abstract public function getListViewsSQL(string $database): string;
