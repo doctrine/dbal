@@ -387,7 +387,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = 'T'";
+        return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = 'T' AND CREATOR = CURRENT_USER";
     }
 
     /**
