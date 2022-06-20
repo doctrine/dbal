@@ -538,7 +538,7 @@
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->
                 <referencedClass name="Doctrine\DBAL\Portability\T"/>
                 <!--
-                    The OCI-Lob class was renamed to OCILob in PHP 8 while Psalm infers PHP 7.3 from composer.json
+                    The OCI-Lob class was renamed to OCILob in PHP 8 while Psalm infers PHP 7 from composer.json
                     and may not properly interpret the LanguageLevelTypeAware annotation from the stubs.
                 -->
                 <referencedClass name="OCILob"/>
