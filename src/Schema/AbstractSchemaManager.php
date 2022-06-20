@@ -194,7 +194,7 @@ abstract class AbstractSchemaManager
      *
      * @return array<int, mixed>
      */
-    protected function filterAssetNames(array $assetNames): array
+    private function filterAssetNames(array $assetNames): array
     {
         $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
         if ($filter === null) {
