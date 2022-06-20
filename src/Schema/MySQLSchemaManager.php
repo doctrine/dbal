@@ -53,6 +53,14 @@ class MySQLSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
+    protected function _getPortableTableDefinition(array $table): string
+    {
+        return $table['TABLE_NAME'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableViewDefinition(array $view): View
     {
         return new View($view['TABLE_NAME'], $view['VIEW_DEFINITION']);

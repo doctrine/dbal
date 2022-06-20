@@ -768,12 +768,7 @@ abstract class AbstractSchemaManager
     /**
      * @param array<string, string> $table
      */
-    protected function _getPortableTableDefinition(array $table): string
-    {
-        assert(! empty($table));
-
-        return array_shift($table);
-    }
+    abstract protected function _getPortableTableDefinition(array $table): string;
 
     /**
      * @param array<string, mixed> $view
