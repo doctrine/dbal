@@ -350,21 +350,24 @@ class MySQLSchemaManager extends AbstractSchemaManager
             $list[$value['constraint_name']]['foreign'][] = $value['referenced_column_name'];
         }
 
-        $result = [];
-        foreach ($list as $constraint) {
-            $result[] = new ForeignKeyConstraint(
-                $constraint['local'],
-                $constraint['foreignTable'],
-                $constraint['foreign'],
-                $constraint['name'],
-                [
-                    'onDelete' => $constraint['onDelete'],
-                    'onUpdate' => $constraint['onUpdate'],
-                ]
-            );
-        }
+        return parent::_getPortableTableForeignKeysList($list);
+    }
 
-        return $result;
+    /**
+     * {@inheritDoc}
+     */
+    protected function _getPortableTableForeignKeyDefinition($tableForeignKey): ForeignKeyConstraint
+    {
+        return new ForeignKeyConstraint(
+            $tableForeignKey['local'],
+            $tableForeignKey['foreignTable'],
+            $tableForeignKey['foreign'],
+            $tableForeignKey['name'],
+            [
+                'onDelete' => $tableForeignKey['onDelete'],
+                'onUpdate' => $tableForeignKey['onUpdate'],
+            ]
+        );
     }
 
     public function createComparator(): Comparator
