@@ -780,10 +780,7 @@ abstract class AbstractSchemaManager
      *
      * @abstract
      */
-    protected function _getPortableViewDefinition(array $view): View
-    {
-        throw NotSupported::new('Views');
-    }
+    abstract protected function _getPortableViewDefinition(array $view): View;
 
     /**
      * @param array<int|string, array<string, mixed>> $tableForeignKeys
