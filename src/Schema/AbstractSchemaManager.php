@@ -616,12 +616,12 @@ abstract class AbstractSchemaManager
 
     /**
      * @param array<string, string> $database
+     *
+     * @throws Exception
      */
     protected function _getPortableDatabaseDefinition(array $database): string
     {
-        assert(! empty($database));
-
-        return array_shift($database);
+        throw NotSupported::new(__METHOD__);
     }
 
     /**
