@@ -51,14 +51,6 @@ class MySQLSchemaManager extends AbstractSchemaManager
     ];
 
     /**
-     * {@inheritDoc}
-     */
-    public function listTableNames(): array
-    {
-        return $this->doListTableNames();
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function _getPortableViewDefinition(array $view): View

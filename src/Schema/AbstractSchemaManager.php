@@ -175,21 +175,6 @@ abstract class AbstractSchemaManager
      */
     public function listTableNames(): array
     {
-        $sql = $this->_platform->getListTablesSQL();
-
-        $tables     = $this->_conn->fetchAllAssociative($sql);
-        $tableNames = $this->_getPortableTablesList($tables);
-
-        return $this->filterAssetNames($tableNames);
-    }
-
-    /**
-     * @return list<string>
-     *
-     * @throws Exception
-     */
-    protected function doListTableNames(): array
-    {
         $database = $this->getDatabase(__METHOD__);
 
         return $this->filterAssetNames(
@@ -285,13 +270,8 @@ abstract class AbstractSchemaManager
      * Selects names of tables in the specified database.
      *
      * @throws Exception
-     *
-     * @abstract
      */
-    protected function selectTableNames(string $databaseName): Result
-    {
-        throw NotSupported::new(__METHOD__);
-    }
+    abstract protected function selectTableNames(string $databaseName): Result;
 
     /**
      * Selects definitions of table columns in the specified database. If the table name is specified, narrows down

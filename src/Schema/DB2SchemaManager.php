@@ -29,14 +29,6 @@ use const CASE_LOWER;
 class DB2SchemaManager extends AbstractSchemaManager
 {
     /**
-     * {@inheritDoc}
-     */
-    public function listTableNames(): array
-    {
-        return $this->doListTableNames();
-    }
-
-    /**
      * {@inheritdoc}
      *
      * @throws Exception

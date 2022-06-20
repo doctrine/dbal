@@ -198,14 +198,6 @@ class DB2Platform extends AbstractPlatform
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
-    public function getListTablesSQL(): string
-    {
-        return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = 'T' AND CREATOR = CURRENT_USER";
-    }
-
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS';
