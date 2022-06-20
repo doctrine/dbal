@@ -2,11 +2,13 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
@@ -1276,5 +1278,10 @@ SQL
             ,
             $this->quoteStringLiteral($table)
         );
+    }
+
+    public function createSchemaManager(Connection $connection): PostgreSQLSchemaManager
+    {
+        return new PostgreSQLSchemaManager($connection, $this);
     }
 }

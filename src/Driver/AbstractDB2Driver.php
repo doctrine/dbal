@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\API\IBMDB2\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
+use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 
@@ -27,9 +28,18 @@ abstract class AbstractDB2Driver implements Driver
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use {@link DB2Platform::createSchemaManager()} instead.
      */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5458',
+            'AbstractDB2Driver::getSchemaManager() is deprecated.'
+                . ' Use DB2Platform::createSchemaManager() instead.'
+        );
+
         assert($platform instanceof DB2Platform);
 
         return new DB2SchemaManager($conn, $platform);

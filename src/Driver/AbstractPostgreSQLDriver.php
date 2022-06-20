@@ -64,9 +64,18 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use {@link PostgreSQLPlatform::createSchemaManager()} instead.
      */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5458',
+            'AbstractPostgreSQLDriver::getSchemaManager() is deprecated.'
+                . ' Use PostgreSQLPlatform::createSchemaManager() instead.'
+        );
+
         assert($platform instanceof PostgreSQLPlatform);
 
         return new PostgreSQLSchemaManager($conn, $platform);

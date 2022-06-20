@@ -37,6 +37,8 @@ interface Driver
      * Gets the SchemaManager that can be used to inspect and change the underlying
      * database schema of the platform this driver connects to.
      *
+     * @deprecated Use {@link AbstractPlatform::createSchemaManager()} instead.
+     *
      * @return AbstractSchemaManager
      */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform);

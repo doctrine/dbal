@@ -132,10 +132,19 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
     /**
      * {@inheritdoc}
      *
+     * @deprecated Use {@link AbstractMySQLPlatform::createSchemaManager()} instead.
+     *
      * @return MySQLSchemaManager
      */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5458',
+            'AbstractMySQLDriver::getSchemaManager() is deprecated.'
+                . ' Use MySQLPlatform::createSchemaManager() instead.'
+        );
+
         assert($platform instanceof AbstractMySQLPlatform);
 
         return new MySQLSchemaManager($conn, $platform);

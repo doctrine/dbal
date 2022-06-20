@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableEventArgs;
@@ -16,6 +17,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Constraint;
@@ -4334,5 +4336,18 @@ abstract class AbstractPlatform
         }
 
         return $column1->getType() === $column2->getType();
+    }
+
+    /**
+     * Creates the schema manager that can be used to inspect and change the underlying
+     * database schema according to the dialect of the platform.
+     *
+     * @throws Exception
+     *
+     * @abstract
+     */
+    public function createSchemaManager(Connection $connection): AbstractSchemaManager
+    {
+        throw Exception::notSupported(__METHOD__);
     }
 }
