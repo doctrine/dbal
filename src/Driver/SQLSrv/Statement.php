@@ -125,9 +125,7 @@ final class Statement implements StatementInterface
             }
         }
 
-        if ($this->stmt === null) {
-            $this->stmt = $this->prepare();
-        }
+        $this->stmt ??= $this->prepare();
 
         if (! sqlsrv_execute($this->stmt)) {
             throw Error::new();

@@ -183,13 +183,8 @@ class Connection
         $this->params  = $params;
 
         // Create default config and event manager if none given
-        if ($config === null) {
-            $config = new Configuration();
-        }
-
-        if ($eventManager === null) {
-            $eventManager = new EventManager();
-        }
+        $config       ??= new Configuration();
+        $eventManager ??= new EventManager();
 
         $this->_config       = $config;
         $this->_eventManager = $eventManager;
@@ -681,11 +676,7 @@ class Connection
      */
     public function getTransactionIsolation()
     {
-        if ($this->transactionIsolationLevel === null) {
-            $this->transactionIsolationLevel = $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
-        }
-
-        return $this->transactionIsolationLevel;
+        return $this->transactionIsolationLevel ??= $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
     }
 
     /**
@@ -1609,11 +1600,7 @@ class Connection
             'Connection::getSchemaManager() is deprecated, use Connection::createSchemaManager() instead.'
         );
 
-        if ($this->_schemaManager === null) {
-            $this->_schemaManager = $this->createSchemaManager();
-        }
-
-        return $this->_schemaManager;
+        return $this->_schemaManager ??= $this->createSchemaManager();
     }
 
     /**
@@ -1789,11 +1776,8 @@ class Connection
      */
     private function expandArrayParameters(string $sql, array $params, array $types): array
     {
-        if ($this->parser === null) {
-            $this->parser = $this->getDatabasePlatform()->createSQLParser();
-        }
-
-        $visitor = new ExpandArrayParameters($params, $types);
+        $this->parser ??= $this->getDatabasePlatform()->createSQLParser();
+        $visitor        = new ExpandArrayParameters($params, $types);
 
         $this->parser->parse($sql, $visitor);
 
@@ -1831,11 +1815,8 @@ class Connection
         Driver\Exception $driverException,
         ?Query $query
     ): DriverException {
-        if ($this->exceptionConverter === null) {
-            $this->exceptionConverter = $this->_driver->getExceptionConverter();
-        }
-
-        $exception = $this->exceptionConverter->convert($driverException, $query);
+        $this->exceptionConverter ??= $this->_driver->getExceptionConverter();
+        $exception                  = $this->exceptionConverter->convert($driverException, $query);
 
         if ($exception instanceof ConnectionLost) {
             $this->close();

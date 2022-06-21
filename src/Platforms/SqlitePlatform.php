@@ -1172,8 +1172,8 @@ class SqlitePlatform extends AbstractPlatform
             }
 
             $definition['name'] = $column->getQuotedName($this);
-            if ($type instanceof Types\StringType && $definition['length'] === null) {
-                $definition['length'] = 255;
+            if ($type instanceof Types\StringType) {
+                $definition['length'] ??= 255;
             }
 
             $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' ADD COLUMN '

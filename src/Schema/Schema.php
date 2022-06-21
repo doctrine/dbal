@@ -69,9 +69,7 @@ class Schema extends AbstractAsset
         ?SchemaConfig $schemaConfig = null,
         array $namespaces = []
     ) {
-        if ($schemaConfig === null) {
-            $schemaConfig = new SchemaConfig();
-        }
+        $schemaConfig ??= new SchemaConfig();
 
         $this->_schemaConfig = $schemaConfig;
         $this->_setName($schemaConfig->getName() ?? 'public');
