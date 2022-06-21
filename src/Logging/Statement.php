@@ -15,17 +15,14 @@ use function func_get_args;
 
 final class Statement extends AbstractStatementMiddleware
 {
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var string */
-    private $sql;
+    private LoggerInterface $logger;
+    private string $sql;
 
     /** @var array<int,mixed>|array<string,mixed> */
-    private $params = [];
+    private array $params = [];
 
     /** @var array<int,int>|array<string,int> */
-    private $types = [];
+    private array $types = [];
 
     /**
      * @internal This statement can be only instantiated by its connection.

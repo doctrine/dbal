@@ -34,10 +34,9 @@ use function str_repeat;
 abstract class AbstractPlatformTestCase extends TestCase
 {
     /** @var T */
-    protected $platform;
+    protected AbstractPlatform $platform;
 
-    /** @var Type|null */
-    private $backedUpType;
+    private ?Type $backedUpType = null;
 
     /**
      * @return T

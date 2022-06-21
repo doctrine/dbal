@@ -12,7 +12,7 @@ use Doctrine\Deprecations\Deprecation;
 class LoggerChain implements SQLLogger
 {
     /** @var iterable<SQLLogger> */
-    private $loggers;
+    private iterable $loggers;
 
     /**
      * @param iterable<SQLLogger> $loggers

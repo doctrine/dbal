@@ -12,8 +12,7 @@ use function func_num_args;
 
 final class Statement extends AbstractStatementMiddleware
 {
-    /** @var PDOStatement */
-    private $statement;
+    private PDOStatement $statement;
 
     /**
      * @internal The statement can be only instantiated by its driver connection.

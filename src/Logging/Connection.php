@@ -12,8 +12,7 @@ use Psr\Log\LoggerInterface;
 
 final class Connection extends AbstractConnectionMiddleware
 {
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @internal This connection can be only instantiated by its driver.

@@ -15,17 +15,12 @@ use function is_array;
  */
 class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 {
-    /** @var Column */
-    private $column;
-
-    /** @var Table */
-    private $table;
-
-    /** @var AbstractPlatform */
-    private $platform;
+    private Column $column;
+    private Table $table;
+    private AbstractPlatform $platform;
 
     /** @var string[] */
-    private $sql = [];
+    private array $sql = [];
 
     public function __construct(Column $column, Table $table, AbstractPlatform $platform)
     {

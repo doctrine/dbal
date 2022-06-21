@@ -10,10 +10,9 @@ use PHPUnit\Framework\TestCase;
 class IntegerTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var IntegerType */
-    private $type;
+    private IntegerType $type;
 
     protected function setUp(): void
     {

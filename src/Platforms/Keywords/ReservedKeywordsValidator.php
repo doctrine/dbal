@@ -21,10 +21,10 @@ use function str_replace;
 class ReservedKeywordsValidator implements Visitor
 {
     /** @var KeywordList[] */
-    private $keywordLists;
+    private array $keywordLists;
 
     /** @var string[] */
-    private $violations = [];
+    private array $violations = [];
 
     /**
      * @param KeywordList[] $keywordLists

@@ -10,10 +10,9 @@ use PHPUnit\Framework\TestCase;
 class DecimalTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var DecimalType */
-    private $type;
+    private DecimalType $type;
 
     protected function setUp(): void
     {

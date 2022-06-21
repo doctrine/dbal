@@ -37,7 +37,7 @@ class CompositeExpression implements Countable
      *
      * @var self[]|string[]
      */
-    private $parts = [];
+    private array $parts = [];
 
     /**
      * @internal Use the and() / or() factory methods.

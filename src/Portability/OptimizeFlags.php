@@ -19,7 +19,7 @@ final class OptimizeFlags
      *
      * @var array<string,int>
      */
-    private static $platforms = [
+    private static array $platforms = [
         DB2Platform::class        => 0,
         OraclePlatform::class     => Connection::PORTABILITY_EMPTY_TO_NULL,
         PostgreSQLPlatform::class => 0,

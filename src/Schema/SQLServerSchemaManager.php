@@ -30,8 +30,7 @@ use const CASE_LOWER;
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
-    /** @var string|null */
-    private $databaseCollation;
+    private ?string $databaseCollation = null;
 
     /**
      * {@inheritDoc}

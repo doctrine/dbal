@@ -507,6 +507,12 @@
                 <file name="tests/Functional/Driver/AbstractDriverTest.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
+        <RedundantPropertyInitializationCheck>
+            <errorLevel type="suppress">
+                <!-- Running isset() checks on properties that should be initialized by setUp() is fine. -->
+                <directory name="tests"/>
+            </errorLevel>
+        </RedundantPropertyInitializationCheck>
         <ReferenceConstraintViolation>
             <errorLevel type="suppress">
                 <!--

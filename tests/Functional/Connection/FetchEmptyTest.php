@@ -10,8 +10,7 @@ use function sprintf;
 
 final class FetchEmptyTest extends FunctionalTestCase
 {
-    /** @var string */
-    private $query;
+    private string $query;
 
     public function setUp(): void
     {

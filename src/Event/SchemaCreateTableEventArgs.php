@@ -14,20 +14,18 @@ use function is_array;
  */
 class SchemaCreateTableEventArgs extends SchemaEventArgs
 {
-    /** @var Table */
-    private $table;
+    private Table $table;
 
     /** @var mixed[][] */
-    private $columns;
+    private array $columns;
 
     /** @var mixed[] */
-    private $options;
+    private array $options;
 
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
     /** @var string[] */
-    private $sql = [];
+    private array $sql = [];
 
     /**
      * @param mixed[][] $columns

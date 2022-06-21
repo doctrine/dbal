@@ -14,8 +14,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     /** @var string|Table */
     private $table;
 
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
     /** @var string|null */
     private $sql;

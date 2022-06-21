@@ -47,7 +47,7 @@ class Table extends AbstractAsset
     protected $_schemaConfig;
 
     /** @var Index[] */
-    private $implicitIndexes = [];
+    private array $implicitIndexes = [];
 
     /**
      * @param Column[]               $columns

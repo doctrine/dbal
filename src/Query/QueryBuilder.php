@@ -53,10 +53,8 @@ class QueryBuilder
 
     /**
      * The DBAL Connection.
-     *
-     * @var Connection
      */
-    private $connection;
+    private Connection $connection;
 
     /*
      * The default values of SQL parts collection
@@ -79,14 +77,12 @@ class QueryBuilder
      *
      * @var mixed[]
      */
-    private $sqlParts = self::SQL_PARTS_DEFAULTS;
+    private array $sqlParts = self::SQL_PARTS_DEFAULTS;
 
     /**
      * The complete SQL string for this query.
-     *
-     * @var string|null
      */
-    private $sql;
+    private ?string $sql = null;
 
     /**
      * The query parameters.
@@ -100,42 +96,32 @@ class QueryBuilder
      *
      * @var array<int, int|string|Type|null>|array<string, int|string|Type|null>
      */
-    private $paramTypes = [];
+    private array $paramTypes = [];
 
     /**
      * The type of query this is. Can be select, update or delete.
-     *
-     * @var int
      */
-    private $type = self::SELECT;
+    private int $type = self::SELECT;
 
     /**
      * The state of the query object. Can be dirty or clean.
-     *
-     * @var int
      */
-    private $state = self::STATE_CLEAN;
+    private int $state = self::STATE_CLEAN;
 
     /**
      * The index of the first result to retrieve.
-     *
-     * @var int
      */
-    private $firstResult = 0;
+    private int $firstResult = 0;
 
     /**
      * The maximum number of results to retrieve or NULL to retrieve all results.
-     *
-     * @var int|null
      */
-    private $maxResults;
+    private ?int $maxResults = null;
 
     /**
      * The counter of bound parameters used with {@see bindValue).
-     *
-     * @var int
      */
-    private $boundCounter = 0;
+    private int $boundCounter = 0;
 
     /**
      * Initializes a new <tt>QueryBuilder</tt>.

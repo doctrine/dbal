@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 class QueryBuilderTest extends TestCase
 {
     /** @var Connection&MockObject */
-    protected $conn;
+    protected Connection $conn;
 
     protected function setUp(): void
     {

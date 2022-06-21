@@ -19,17 +19,13 @@ class ExceptionTest extends TestCase
 
     /**
      * The PDO exception wrapper under test.
-     *
-     * @var Exception
      */
-    private $exception;
+    private Exception $exception;
 
     /**
      * The wrapped PDO exception mock.
-     *
-     * @var PDOException
      */
-    private $wrappedException;
+    private PDOException $wrappedException;
 
     protected function setUp(): void
     {

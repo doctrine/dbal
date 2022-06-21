@@ -11,8 +11,7 @@ use function iterator_to_array;
 
 class FetchTest extends FunctionalTestCase
 {
-    /** @var string */
-    private $query;
+    private string $query;
 
     public function setUp(): void
     {

@@ -12,10 +12,9 @@ use PHPUnit\Framework\TestCase;
 class VarDateTimeTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var VarDateTimeType */
-    private $type;
+    private VarDateTimeType $type;
 
     protected function setUp(): void
     {

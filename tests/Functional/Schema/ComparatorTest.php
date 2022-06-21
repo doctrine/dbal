@@ -18,8 +18,7 @@ use function var_export;
 
 class ComparatorTest extends FunctionalTestCase
 {
-    /** @var AbstractSchemaManager */
-    private $schemaManager;
+    private AbstractSchemaManager $schemaManager;
 
     protected function setUp(): void
     {

@@ -27,8 +27,7 @@ use function strtolower;
  */
 class Comparator
 {
-    /** @var AbstractPlatform|null */
-    private $platform;
+    private ?AbstractPlatform $platform = null;
 
     /**
      * @internal The comparator can be only instantiated by a schema manager.

@@ -11,8 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class MySQLSchemaTest extends TestCase
 {
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
     protected function setUp(): void
     {

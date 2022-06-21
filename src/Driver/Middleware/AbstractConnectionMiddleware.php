@@ -16,8 +16,7 @@ use function sprintf;
 
 abstract class AbstractConnectionMiddleware implements ServerInfoAwareConnection
 {
-    /** @var Connection */
-    private $wrappedConnection;
+    private Connection $wrappedConnection;
 
     public function __construct(Connection $wrappedConnection)
     {

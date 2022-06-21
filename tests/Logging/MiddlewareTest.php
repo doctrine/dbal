@@ -14,8 +14,7 @@ use Psr\Log\LoggerInterface;
 
 class MiddlewareTest extends TestCase
 {
-    /** @var Driver */
-    private $driver;
+    private Driver $driver;
 
     /** @var LoggerInterface&MockObject */
     private $logger;

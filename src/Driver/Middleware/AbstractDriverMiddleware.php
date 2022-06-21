@@ -11,8 +11,7 @@ use Doctrine\Deprecations\Deprecation;
 
 abstract class AbstractDriverMiddleware implements VersionAwarePlatformDriver
 {
-    /** @var Driver */
-    private $wrappedDriver;
+    private Driver $wrappedDriver;
 
     public function __construct(Driver $wrappedDriver)
     {

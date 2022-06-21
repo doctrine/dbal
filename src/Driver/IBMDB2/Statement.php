@@ -36,7 +36,7 @@ final class Statement implements StatementInterface
     private $stmt;
 
     /** @var mixed[] */
-    private $bindParam = [];
+    private array $bindParam = [];
 
     /**
      * Map of LOB parameter positions to the tuples containing reference to the variable bound to the driver statement
@@ -44,7 +44,7 @@ final class Statement implements StatementInterface
      *
      * @var mixed[][]
      */
-    private $lobs = [];
+    private array $lobs = [];
 
     /**
      * @internal The statement can be only instantiated by its driver connection.

@@ -15,11 +15,8 @@ use function func_num_args;
 
 class Result
 {
-    /** @var DriverResult */
-    private $result;
-
-    /** @var Connection */
-    private $connection;
+    private DriverResult $result;
+    private Connection $connection;
 
     /**
      * @internal The result can be only instantiated by {@see Connection} or {@see Statement}.

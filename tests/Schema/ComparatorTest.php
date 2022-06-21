@@ -25,8 +25,7 @@ class ComparatorTest extends TestCase
 {
     use VerifyDeprecations;
 
-    /** @var Comparator */
-    protected $comparator;
+    protected Comparator $comparator;
 
     protected function setUp(): void
     {

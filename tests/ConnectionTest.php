@@ -36,8 +36,7 @@ class ConnectionTest extends TestCase
 {
     use VerifyDeprecations;
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     /** @var array{wrapperClass?: class-string<Connection>} */
     protected $params = [

@@ -15,13 +15,11 @@ use function str_replace;
 
 class RunSqlCommandTest extends TestCase
 {
-    /** @var CommandTester */
-    private $commandTester;
-    /** @var RunSqlCommand */
-    private $command;
+    private CommandTester $commandTester;
+    private RunSqlCommand $command;
 
     /** @var Connection&MockObject */
-    private $connectionMock;
+    private Connection $connectionMock;
 
     protected function setUp(): void
     {

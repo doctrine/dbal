@@ -15,10 +15,9 @@ use function stream_get_contents;
 class BlobTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    protected $platform;
+    protected AbstractPlatform $platform;
 
-    /** @var BlobType */
-    protected $type;
+    protected BlobType $type;
 
     protected function setUp(): void
     {

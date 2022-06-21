@@ -25,10 +25,8 @@ class ExpressionBuilder
 
     /**
      * The DBAL Connection.
-     *
-     * @var Connection
      */
-    private $connection;
+    private Connection $connection;
 
     /**
      * Initializes a new <tt>ExpressionBuilder</tt>.

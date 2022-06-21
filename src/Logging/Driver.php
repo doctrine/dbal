@@ -10,8 +10,7 @@ use Psr\Log\LoggerInterface;
 
 final class Driver extends AbstractDriverMiddleware
 {
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @internal This driver can be only instantiated by its middleware.

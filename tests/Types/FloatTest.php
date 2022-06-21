@@ -10,10 +10,9 @@ use PHPUnit\Framework\TestCase;
 class FloatTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var FloatType */
-    private $type;
+    private FloatType $type;
 
     protected function setUp(): void
     {

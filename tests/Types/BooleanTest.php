@@ -10,10 +10,9 @@ use PHPUnit\Framework\TestCase;
 class BooleanTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var BooleanType */
-    private $type;
+    private BooleanType $type;
 
     protected function setUp(): void
     {

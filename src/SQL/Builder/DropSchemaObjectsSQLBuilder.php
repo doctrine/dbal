@@ -12,8 +12,7 @@ use function array_merge;
 
 final class DropSchemaObjectsSQLBuilder
 {
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
     public function __construct(AbstractPlatform $platform)
     {

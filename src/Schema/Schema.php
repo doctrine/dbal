@@ -45,7 +45,7 @@ class Schema extends AbstractAsset
      *
      * @var string[]
      */
-    private $namespaces = [];
+    private array $namespaces = [];
 
     /** @var Table[] */
     protected $_tables = [];

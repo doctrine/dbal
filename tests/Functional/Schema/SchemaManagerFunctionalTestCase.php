@@ -55,8 +55,7 @@ use function substr;
 
 abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 {
-    /** @var AbstractSchemaManager */
-    protected $schemaManager;
+    protected AbstractSchemaManager $schemaManager;
 
     abstract protected function supportsPlatform(AbstractPlatform $platform): bool;
 
@@ -73,7 +72,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     protected function tearDown(): void
     {
-        if ($this->schemaManager === null) {
+        if (! isset($this->schemaManager)) {
             return;
         }
 

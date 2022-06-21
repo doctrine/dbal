@@ -16,10 +16,9 @@ use function get_class;
 class TimeImmutableTypeTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var TimeImmutableType */
-    private $type;
+    private TimeImmutableType $type;
 
     protected function setUp(): void
     {

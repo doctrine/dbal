@@ -10,10 +10,9 @@ use PHPUnit\Framework\TestCase;
 class GuidTypeTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var GuidType */
-    private $type;
+    private GuidType $type;
 
     protected function setUp(): void
     {

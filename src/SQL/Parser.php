@@ -44,8 +44,7 @@ final class Parser
     private const SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
     private const OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
 
-    /** @var string */
-    private $sqlPattern;
+    private string $sqlPattern;
 
     public function __construct(bool $mySQLStringEscaping)
     {
