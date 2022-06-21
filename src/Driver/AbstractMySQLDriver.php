@@ -86,8 +86,8 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
         $minorVersion = $versionParts['minor'] ?? 0;
         $patchVersion = $versionParts['patch'] ?? null;
 
-        if ($majorVersion === '5' && $minorVersion === '7' && $patchVersion === null) {
-            $patchVersion = '9';
+        if ($majorVersion === '5' && $minorVersion === '7') {
+            $patchVersion ??= '9';
         }
 
         return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;

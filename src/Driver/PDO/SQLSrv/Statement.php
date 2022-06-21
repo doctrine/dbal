@@ -52,9 +52,7 @@ final class Statement extends AbstractStatementMiddleware
         switch ($type) {
             case ParameterType::LARGE_OBJECT:
             case ParameterType::BINARY:
-                if ($driverOptions === null) {
-                    $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
-                }
+                $driverOptions ??= PDO::SQLSRV_ENCODING_BINARY;
 
                 break;
 

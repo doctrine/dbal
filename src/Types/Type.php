@@ -110,11 +110,7 @@ abstract class Type
 
     final public static function getTypeRegistry(): TypeRegistry
     {
-        if (self::$typeRegistry === null) {
-            self::$typeRegistry = self::createTypeRegistry();
-        }
-
-        return self::$typeRegistry;
+        return self::$typeRegistry ??= self::createTypeRegistry();
     }
 
     private static function createTypeRegistry(): TypeRegistry

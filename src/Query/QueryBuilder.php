@@ -1287,9 +1287,7 @@ class QueryBuilder
      */
     public function resetQueryParts($queryPartNames = null)
     {
-        if ($queryPartNames === null) {
-            $queryPartNames = array_keys($this->sqlParts);
-        }
+        $queryPartNames ??= array_keys($this->sqlParts);
 
         foreach ($queryPartNames as $queryPartName) {
             $this->resetQueryPart($queryPartName);
