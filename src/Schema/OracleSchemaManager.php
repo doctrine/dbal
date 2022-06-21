@@ -209,18 +209,21 @@ class OracleSchemaManager extends AbstractSchemaManager
             $list[$value['constraint_name']]['foreign'][$value['position']] = $foreignColumn;
         }
 
-        $result = [];
-        foreach ($list as $constraint) {
-            $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']),
-                $this->getQuotedIdentifierName($constraint['foreignTable']),
-                array_values($constraint['foreign']),
-                $this->getQuotedIdentifierName($constraint['name']),
-                ['onDelete' => $constraint['onDelete']]
-            );
-        }
+        return parent::_getPortableTableForeignKeysList($list);
+    }
 
-        return $result;
+    /**
+     * {@inheritDoc}
+     */
+    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
+    {
+        return new ForeignKeyConstraint(
+            array_values($tableForeignKey['local']),
+            $this->getQuotedIdentifierName($tableForeignKey['foreignTable']),
+            array_values($tableForeignKey['foreign']),
+            $this->getQuotedIdentifierName($tableForeignKey['name']),
+            ['onDelete' => $tableForeignKey['onDelete']]
+        );
     }
 
     /**

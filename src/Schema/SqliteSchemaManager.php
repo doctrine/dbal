@@ -336,23 +336,26 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $list[$name]['foreign'][] = $value['to'];
         }
 
-        $result = [];
-        foreach ($list as $constraint) {
-            $result[] = new ForeignKeyConstraint(
-                $constraint['local'],
-                $constraint['foreignTable'],
-                $constraint['foreign'],
-                $constraint['name'],
-                [
-                    'onDelete' => $constraint['onDelete'],
-                    'onUpdate' => $constraint['onUpdate'],
-                    'deferrable' => $constraint['deferrable'],
-                    'deferred' => $constraint['deferred'],
-                ]
-            );
-        }
+        return parent::_getPortableTableForeignKeysList($list);
+    }
 
-        return $result;
+    /**
+     * {@inheritDoc}
+     */
+    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
+    {
+        return new ForeignKeyConstraint(
+            $tableForeignKey['local'],
+            $tableForeignKey['foreignTable'],
+            $tableForeignKey['foreign'],
+            $tableForeignKey['name'],
+            [
+                'onDelete' => $tableForeignKey['onDelete'],
+                'onUpdate' => $tableForeignKey['onUpdate'],
+                'deferrable' => $tableForeignKey['deferrable'],
+                'deferred' => $tableForeignKey['deferred'],
+            ]
+        );
     }
 
     private function getTableDiffForAlterForeignKey(Table $table): TableDiff

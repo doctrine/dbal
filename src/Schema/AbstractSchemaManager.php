@@ -795,6 +795,8 @@ abstract class AbstractSchemaManager
 
     /**
      * @param array<string, mixed> $tableForeignKey
+     *
+     * @abstract
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
