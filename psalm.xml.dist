@@ -317,6 +317,10 @@
                 <referencedMethod name="Doctrine\DBAL\Schema\Schema::visit"/>
                 <referencedMethod name="Doctrine\DBAL\Schema\Sequence::visit"/>
                 <referencedMethod name="Doctrine\DBAL\Schema\Table::visit"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Driver::getSchemaManager"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

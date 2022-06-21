@@ -2,8 +2,10 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\DB2SchemaManager;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -967,5 +969,10 @@ SQL
             ,
             $this->quoteStringLiteral($table)
         );
+    }
+
+    public function createSchemaManager(Connection $connection): DB2SchemaManager
+    {
+        return new DB2SchemaManager($connection, $this);
     }
 }

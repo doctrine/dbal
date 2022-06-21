@@ -2,10 +2,12 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -1250,5 +1252,10 @@ SQL
             $this->quoteStringLiteral($this->normalizeIdentifier($table)->getName()),
             $ownerCondition
         );
+    }
+
+    public function createSchemaManager(Connection $connection): OracleSchemaManager
+    {
+        return new OracleSchemaManager($connection, $this);
     }
 }

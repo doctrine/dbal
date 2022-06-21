@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Column;
@@ -10,6 +11,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\SchemaException;
+use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -1380,5 +1382,10 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         return $primaryIndex;
+    }
+
+    public function createSchemaManager(Connection $connection): SqliteSchemaManager
+    {
+        return new SqliteSchemaManager($connection, $this);
     }
 }
