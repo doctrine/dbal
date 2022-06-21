@@ -62,11 +62,11 @@ abstract class AbstractSchemaManager
      */
     public function listDatabases(): array
     {
-        $sql = $this->_platform->getListDatabasesSQL();
-
-        $databases = $this->_conn->fetchAllAssociative($sql);
-
-        return $this->_getPortableDatabasesList($databases);
+        return array_map(function (array $row): string {
+            return $this->_getPortableDatabaseDefinition($row);
+        }, $this->_conn->fetchAllAssociative(
+            $this->_platform->getListDatabasesSQL()
+        ));
     }
 
     /**
@@ -90,13 +90,15 @@ abstract class AbstractSchemaManager
      */
     public function listSequences(): array
     {
-        $database = $this->getDatabase(__METHOD__);
-
-        $sql = $this->_platform->getListSequencesSQL($database);
-
-        $sequences = $this->_conn->fetchAllAssociative($sql);
-
-        return $this->filterAssetNames($this->_getPortableSequencesList($sequences));
+        return $this->filterAssetNames(
+            array_map(function (array $row): Sequence {
+                return $this->_getPortableSequenceDefinition($row);
+            }, $this->_conn->fetchAllAssociative(
+                $this->_platform->getListSequencesSQL(
+                    $this->getDatabase(__METHOD__)
+                )
+            ))
+        );
     }
 
     /**
@@ -175,13 +177,12 @@ abstract class AbstractSchemaManager
      */
     public function listTableNames(): array
     {
-        $database = $this->getDatabase(__METHOD__);
-
         return $this->filterAssetNames(
-            $this->_getPortableTablesList(
-                $this->selectTableNames($database)
-                    ->fetchAllAssociative()
-            )
+            array_map(function (array $row): string {
+                return $this->_getPortableTableDefinition($row);
+            }, $this->selectTableNames(
+                $this->getDatabase(__METHOD__)
+            )->fetchAllAssociative())
         );
     }
 
@@ -193,7 +194,7 @@ abstract class AbstractSchemaManager
      *
      * @return array<int, mixed>
      */
-    protected function filterAssetNames(array $assetNames): array
+    private function filterAssetNames(array $assetNames): array
     {
         $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
         if ($filter === null) {
@@ -348,18 +349,19 @@ abstract class AbstractSchemaManager
     /**
      * Lists the views this connection has.
      *
-     * @return array<string, View>
+     * @return list<View>
      *
      * @throws Exception
      */
     public function listViews(): array
     {
-        $database = $this->getDatabase(__METHOD__);
-
-        $sql   = $this->_platform->getListViewsSQL($database);
-        $views = $this->_conn->fetchAllAssociative($sql);
-
-        return $this->_getPortableViewsList($views);
+        return array_map(function (array $row): View {
+            return $this->_getPortableViewDefinition($row);
+        }, $this->_conn->fetchAllAssociative(
+            $this->_platform->getListViewsSQL(
+                $this->getDatabase(__METHOD__)
+            )
+        ));
     }
 
     /**
@@ -613,46 +615,13 @@ abstract class AbstractSchemaManager
      */
 
     /**
-     * @param array<int, mixed> $databases
-     *
-     * @return array<int, string>
-     */
-    protected function _getPortableDatabasesList(array $databases): array
-    {
-        $list = [];
-        foreach ($databases as $value) {
-            $list[] = $this->_getPortableDatabaseDefinition($value);
-        }
-
-        return $list;
-    }
-
-    /**
      * @param array<string, string> $database
-     */
-    protected function _getPortableDatabaseDefinition(array $database): string
-    {
-        assert(! empty($database));
-
-        return array_shift($database);
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $sequences
-     *
-     * @return array<int, Sequence>
      *
      * @throws Exception
      */
-    protected function _getPortableSequencesList(array $sequences): array
+    protected function _getPortableDatabaseDefinition(array $database): string
     {
-        $list = [];
-
-        foreach ($sequences as $value) {
-            $list[] = $this->_getPortableSequenceDefinition($value);
-        }
-
-        return $list;
+        throw NotSupported::new(__METHOD__);
     }
 
     /**
@@ -797,54 +766,16 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array<int, array<string, mixed>> $tables
-     *
-     * @return array<int, string>
-     */
-    protected function _getPortableTablesList(array $tables): array
-    {
-        $list = [];
-        foreach ($tables as $value) {
-            $list[] = $this->_getPortableTableDefinition($value);
-        }
-
-        return $list;
-    }
-
-    /**
      * @param array<string, string> $table
      */
-    protected function _getPortableTableDefinition(array $table): string
-    {
-        assert(! empty($table));
-
-        return array_shift($table);
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $views
-     *
-     * @return array<string, View>
-     */
-    protected function _getPortableViewsList(array $views): array
-    {
-        $list = [];
-        foreach ($views as $value) {
-            $view        = $this->_getPortableViewDefinition($value);
-            $name        = strtolower($view->getQuotedName($this->_platform));
-            $list[$name] = $view;
-        }
-
-        return $list;
-    }
+    abstract protected function _getPortableTableDefinition(array $table): string;
 
     /**
      * @param array<string, mixed> $view
+     *
+     * @abstract
      */
-    protected function _getPortableViewDefinition(array $view): View
-    {
-        throw NotSupported::new('Views');
-    }
+    abstract protected function _getPortableViewDefinition(array $view): View;
 
     /**
      * @param array<int|string, array<string, mixed>> $tableForeignKeys
