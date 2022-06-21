@@ -13,7 +13,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 
 /**
  * @template P of AbstractPlatform
@@ -48,22 +47,6 @@ abstract class AbstractDriverTest extends TestCase
         $this->driver->getDatabasePlatform(
             new StaticServerVersionProvider('foo')
         );
-    }
-
-    public function testReturnsSchemaManager(): void
-    {
-        $connection    = $this->getConnectionMock();
-        $schemaManager = $this->driver->getSchemaManager(
-            $connection,
-            $this->createPlatform()
-        );
-
-        self::assertEquals($this->createSchemaManager($connection), $schemaManager);
-
-        $re = new ReflectionProperty($schemaManager, '_conn');
-        $re->setAccessible(true);
-
-        self::assertSame($connection, $re->getValue($schemaManager));
     }
 
     public function testReturnsExceptionConverter(): void

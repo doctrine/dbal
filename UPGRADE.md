@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `Driver::getSchemaManager()`
+
+The `Driver::getSchemaManager()` method has been removed.
+
 ## BC BREAK: removed `AbstractSchemaManager::getDatabasePlatform()`
 
 The `AbstractSchemaManager::getDatabasePlatform()` method has been removed.

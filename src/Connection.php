@@ -1264,10 +1264,8 @@ class Connection implements ServerVersionProvider
      */
     public function createSchemaManager(): AbstractSchemaManager
     {
-        return $this->_driver->getSchemaManager(
-            $this,
-            $this->getDatabasePlatform()
-        );
+        return $this->getDatabasePlatform()
+            ->createSchemaManager($this);
     }
 
     /**

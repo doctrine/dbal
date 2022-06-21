@@ -4,21 +4,16 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
-use Doctrine\Deprecations\Deprecation;
 
-use function assert;
 use function preg_match;
 use function stripos;
 use function version_compare;
@@ -79,23 +74,6 @@ abstract class AbstractMySQLDriver implements Driver
         }
 
         return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
-    }
-
-    /**
-     * @deprecated Use {@link AbstractMySQLPlatform::createSchemaManager()} instead.
-     */
-    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): MySQLSchemaManager
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5458',
-            'AbstractMySQLDriver::getSchemaManager() is deprecated.'
-                . ' Use MySQLPlatform::createSchemaManager() instead.'
-        );
-
-        assert($platform instanceof AbstractMySQLPlatform);
-
-        return new MySQLSchemaManager($conn, $platform);
     }
 
     public function getExceptionConverter(): ExceptionConverter
