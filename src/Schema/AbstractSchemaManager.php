@@ -772,8 +772,6 @@ abstract class AbstractSchemaManager
 
     /**
      * @param array<string, mixed> $view
-     *
-     * @abstract
      */
     abstract protected function _getPortableViewDefinition(array $view): View;
 
@@ -795,13 +793,8 @@ abstract class AbstractSchemaManager
 
     /**
      * @param array<string, mixed> $tableForeignKey
-     *
-     * @abstract
      */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
-    {
-        throw NotSupported::new('ForeignKey');
-    }
+    abstract protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint;
 
     /**
      * @param array<int, string>|string $sql
