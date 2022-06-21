@@ -10,11 +10,9 @@ use function sprintf;
 
 class SingleConnectionProvider implements ConnectionProvider
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var string */
-    private $defaultConnectionName;
+    private string $defaultConnectionName;
 
     public function __construct(Connection $connection, string $defaultConnectionName = 'default')
     {

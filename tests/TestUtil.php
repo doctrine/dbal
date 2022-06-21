@@ -33,8 +33,8 @@ use function unlink;
  */
 class TestUtil
 {
-    /** @var bool Whether the database schema is initialized. */
-    private static $initialized = false;
+    /** Whether the database schema is initialized. */
+    private static bool $initialized = false;
 
     /**
      * Creates a new <b>test</b> database connection using the following parameters

@@ -18,16 +18,13 @@ use function count;
 
 final class Result implements ResultInterface
 {
-    /** @var mysqli_stmt */
-    private $statement;
+    private mysqli_stmt $statement;
 
     /**
      * Whether the statement result has columns. The property should be used only after the result metadata
      * has been fetched ({@see $metadataFetched}). Otherwise, the property value is undetermined.
-     *
-     * @var bool
      */
-    private $hasColumns = false;
+    private bool $hasColumns = false;
 
     /**
      * Mapping of statement result column indexes to their names. The property should be used only
@@ -35,10 +32,10 @@ final class Result implements ResultInterface
      *
      * @var array<int,string>
      */
-    private $columnNames = [];
+    private array $columnNames = [];
 
     /** @var mixed[] */
-    private $boundValues = [];
+    private array $boundValues = [];
 
     /**
      * @internal The result can be only instantiated by its driver connection or statement.

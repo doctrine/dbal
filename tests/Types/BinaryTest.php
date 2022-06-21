@@ -17,10 +17,9 @@ use function stream_get_contents;
 class BinaryTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    protected $platform;
+    protected AbstractPlatform $platform;
 
-    /** @var BinaryType */
-    protected $type;
+    protected BinaryType $type;
 
     protected function setUp(): void
     {

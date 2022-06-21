@@ -94,7 +94,7 @@ final class DriverManager
      *
      * @var string[]
      */
-    private static $driverSchemeAliases = [
+    private static array $driverSchemeAliases = [
         'db2'        => 'ibm_db2',
         'mssql'      => 'pdo_sqlsrv',
         'mysql'      => 'pdo_mysql',

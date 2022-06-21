@@ -8,8 +8,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 class AutoIncrementColumnTest extends FunctionalTestCase
 {
-    /** @var bool */
-    private $shouldDisableIdentityInsert = false;
+    private bool $shouldDisableIdentityInsert = false;
 
     protected function setUp(): void
     {

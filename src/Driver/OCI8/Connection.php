@@ -29,11 +29,8 @@ final class Connection implements ServerInfoAwareConnection
     /** @var resource */
     private $connection;
 
-    /** @var Parser */
-    private $parser;
-
-    /** @var ExecutionMode */
-    private $executionMode;
+    private Parser $parser;
+    private ExecutionMode $executionMode;
 
     /**
      * @internal The connection can be only instantiated by its driver.

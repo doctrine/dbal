@@ -23,8 +23,7 @@ use Doctrine\Deprecations\Deprecation;
  */
 class RemoveNamespacedAssets extends AbstractVisitor
 {
-    /** @var Schema|null */
-    private $schema;
+    private ?Schema $schema = null;
 
     public function __construct()
     {

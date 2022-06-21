@@ -16,8 +16,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 
 class NoneTest extends FunctionalTestCase
 {
-    /** @var Connection */
-    private $connection2;
+    private Connection $connection2;
 
     public function setUp(): void
     {

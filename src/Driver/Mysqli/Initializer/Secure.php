@@ -9,20 +9,11 @@ use mysqli;
 
 final class Secure implements Initializer
 {
-    /** @var string */
-    private $key;
-
-    /** @var string */
-    private $cert;
-
-    /** @var string */
-    private $ca;
-
-    /** @var string */
-    private $capath;
-
-    /** @var string */
-    private $cipher;
+    private string $key;
+    private string $cert;
+    private string $ca;
+    private string $capath;
+    private string $cipher;
 
     public function __construct(string $key, string $cert, string $ca, string $capath, string $cipher)
     {

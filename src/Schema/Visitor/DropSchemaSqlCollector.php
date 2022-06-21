@@ -20,17 +20,10 @@ use function strlen;
  */
 class DropSchemaSqlCollector extends AbstractVisitor
 {
-    /** @var SplObjectStorage */
-    private $constraints;
-
-    /** @var SplObjectStorage */
-    private $sequences;
-
-    /** @var SplObjectStorage */
-    private $tables;
-
-    /** @var AbstractPlatform */
-    private $platform;
+    private SplObjectStorage $constraints;
+    private SplObjectStorage $sequences;
+    private SplObjectStorage $tables;
+    private AbstractPlatform $platform;
 
     public function __construct(AbstractPlatform $platform)
     {

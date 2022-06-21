@@ -15,14 +15,11 @@ use Doctrine\DBAL\Types\Types;
 
 final class ComparatorTest extends FunctionalTestCase
 {
-    /** @var AbstractPlatform */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var AbstractSchemaManager */
-    private $schemaManager;
+    private AbstractSchemaManager $schemaManager;
 
-    /** @var Comparator */
-    private $comparator;
+    private Comparator $comparator;
 
     protected function setUp(): void
     {

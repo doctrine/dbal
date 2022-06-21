@@ -30,10 +30,9 @@ final class Statement implements StatementInterface
     private $statement;
 
     /** @var array<int,string> */
-    private $parameterMap;
+    private array $parameterMap;
 
-    /** @var ExecutionMode */
-    private $executionMode;
+    private ExecutionMode $executionMode;
 
     /**
      * @internal The statement can be only instantiated by its driver connection.

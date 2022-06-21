@@ -12,10 +12,8 @@ abstract class AbstractDriverTest extends FunctionalTestCase
 {
     /**
      * The driver instance under test.
-     *
-     * @var Driver
      */
-    protected $driver;
+    protected Driver $driver;
 
     protected function setUp(): void
     {

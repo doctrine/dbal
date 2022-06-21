@@ -12,8 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 class OptimizeFlagsTest extends TestCase
 {
-    /** @var OptimizeFlags */
-    private $optimizeFlags;
+    private OptimizeFlags $optimizeFlags;
 
     protected function setUp(): void
     {

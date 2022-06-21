@@ -16,7 +16,7 @@ use Psr\Cache\CacheItemPoolInterface;
 class Configuration
 {
     /** @var Middleware[] */
-    private $middlewares = [];
+    private array $middlewares = [];
 
     /**
      * The SQL logger in use. If null, SQL logging is disabled.
@@ -27,10 +27,8 @@ class Configuration
 
     /**
      * The cache driver implementation that is used for query result caching.
-     *
-     * @var CacheItemPoolInterface|null
      */
-    private $resultCache;
+    private ?CacheItemPoolInterface $resultCache = null;
 
     /**
      * The cache driver implementation that is used for query result caching.

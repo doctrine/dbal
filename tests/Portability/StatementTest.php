@@ -12,11 +12,10 @@ use PHPUnit\Framework\TestCase;
 
 class StatementTest extends TestCase
 {
-    /** @var Statement */
-    protected $stmt;
+    protected Statement $stmt;
 
     /** @var DriverStatement&MockObject */
-    protected $wrappedStmt;
+    protected DriverStatement $wrappedStmt;
 
     protected function setUp(): void
     {

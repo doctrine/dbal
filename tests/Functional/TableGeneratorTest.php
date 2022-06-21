@@ -10,8 +10,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 class TableGeneratorTest extends FunctionalTestCase
 {
-    /** @var TableGenerator */
-    private $generator;
+    private TableGenerator $generator;
 
     protected function setUp(): void
     {

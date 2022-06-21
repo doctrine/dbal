@@ -13,10 +13,9 @@ use PHPUnit\Framework\TestCase;
 class CreateSchemaSqlCollectorTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platformMock;
+    private AbstractPlatform $platformMock;
 
-    /** @var CreateSchemaSqlCollector */
-    private $visitor;
+    private CreateSchemaSqlCollector $visitor;
 
     protected function setUp(): void
     {

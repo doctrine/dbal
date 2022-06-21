@@ -10,8 +10,7 @@ use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 abstract class AbstractDriverMiddleware implements VersionAwarePlatformDriver
 {
-    /** @var Driver */
-    private $wrappedDriver;
+    private Driver $wrappedDriver;
 
     public function __construct(Driver $wrappedDriver)
     {

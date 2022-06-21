@@ -8,8 +8,7 @@ use Doctrine\DBAL\ParameterType;
 
 abstract class AbstractStatementMiddleware implements Statement
 {
-    /** @var Statement */
-    private $wrappedStatement;
+    private Statement $wrappedStatement;
 
     public function __construct(Statement $wrappedStatement)
     {

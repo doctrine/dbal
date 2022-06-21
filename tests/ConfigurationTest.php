@@ -12,10 +12,8 @@ class ConfigurationTest extends TestCase
 {
     /**
      * The configuration container instance under test.
-     *
-     * @var Configuration
      */
-    protected $config;
+    protected Configuration $config;
 
     protected function setUp(): void
     {

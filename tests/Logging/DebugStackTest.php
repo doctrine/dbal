@@ -7,8 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class DebugStackTest extends TestCase
 {
-    /** @var DebugStack */
-    private $logger;
+    private DebugStack $logger;
 
     protected function setUp(): void
     {

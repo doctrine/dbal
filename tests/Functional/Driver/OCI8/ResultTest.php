@@ -25,7 +25,7 @@ class ResultTest extends FunctionalTestCase
      *
      * @var array<string,mixed>
      */
-    private $connectionParams;
+    private array $connectionParams;
 
     protected function setUp(): void
     {

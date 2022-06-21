@@ -20,10 +20,9 @@ use const JSON_THROW_ON_ERROR;
 class JsonTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    protected $platform;
+    protected AbstractPlatform $platform;
 
-    /** @var JsonType */
-    protected $type;
+    protected JsonType $type;
 
     protected function setUp(): void
     {

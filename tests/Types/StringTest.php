@@ -10,10 +10,9 @@ use PHPUnit\Framework\TestCase;
 class StringTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var StringType */
-    private $type;
+    private StringType $type;
 
     protected function setUp(): void
     {

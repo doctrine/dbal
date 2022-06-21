@@ -18,8 +18,7 @@ final class Connection implements ServerInfoAwareConnection
      */
     public const OPTION_FLAGS = 'flags';
 
-    /** @var mysqli */
-    private $connection;
+    private mysqli $connection;
 
     /**
      * @internal The connection can be only instantiated by its driver.

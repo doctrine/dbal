@@ -32,10 +32,8 @@ final class Statement implements StatementInterface
 
     /**
      * The SQL statement to execute.
-     *
-     * @var string
      */
-    private $sql;
+    private string $sql;
 
     /**
      * The SQLSRV statement resource.
@@ -49,14 +47,14 @@ final class Statement implements StatementInterface
      *
      * @var array<int, mixed>
      */
-    private $variables = [];
+    private array $variables = [];
 
     /**
      * Bound parameter types.
      *
      * @var array<int, int>
      */
-    private $types = [];
+    private array $types = [];
 
     /**
      * Append to any INSERT query to retrieve the last insert id.

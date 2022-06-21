@@ -16,10 +16,9 @@ use function get_class;
 class DateImmutableTypeTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var DateImmutableType */
-    private $type;
+    private DateImmutableType $type;
 
     protected function setUp(): void
     {

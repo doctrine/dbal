@@ -13,7 +13,7 @@ use function sprintf;
 class ParserTest extends TestCase implements Visitor
 {
     /** @var list<string> */
-    private $result = [];
+    private array $result = [];
 
     /**
      * @dataProvider statementsWithParametersProvider

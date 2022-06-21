@@ -13,10 +13,9 @@ use function serialize;
 class ArrayTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /** @var ArrayType */
-    private $type;
+    private ArrayType $type;
 
     protected function setUp(): void
     {

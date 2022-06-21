@@ -89,17 +89,13 @@ class Connection
 
     /**
      * The current auto-commit mode of this connection.
-     *
-     * @var bool
      */
-    private $autoCommit = true;
+    private bool $autoCommit = true;
 
     /**
      * The transaction nesting level.
-     *
-     * @var int
      */
-    private $transactionNestingLevel = 0;
+    private int $transactionNestingLevel = 0;
 
     /**
      * The currently active transaction isolation level or NULL before it has been determined.
@@ -110,10 +106,8 @@ class Connection
 
     /**
      * If nested transactions should use savepoints.
-     *
-     * @var bool
      */
-    private $nestTransactionsWithSavepoints = false;
+    private bool $nestTransactionsWithSavepoints = false;
 
     /**
      * The parameters used during creation of the Connection instance.
@@ -121,20 +115,15 @@ class Connection
      * @var array<string,mixed>
      * @psalm-var Params
      */
-    private $params;
+    private array $params;
 
     /**
      * The database platform object used by the connection or NULL before it's initialized.
-     *
-     * @var AbstractPlatform|null
      */
-    private $platform;
+    private ?AbstractPlatform $platform = null;
 
-    /** @var ExceptionConverter|null */
-    private $exceptionConverter;
-
-    /** @var Parser|null */
-    private $parser;
+    private ?ExceptionConverter $exceptionConverter = null;
+    private ?Parser $parser                         = null;
 
     /**
      * The schema manager.
@@ -154,10 +143,8 @@ class Connection
 
     /**
      * Flag that indicates whether the current transaction is marked for rollback only.
-     *
-     * @var bool
      */
-    private $isRollbackOnly = false;
+    private bool $isRollbackOnly = false;
 
     /**
      * Initializes a new instance of the Connection class.
