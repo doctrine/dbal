@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 /**
  * Driver interface.
@@ -34,14 +33,6 @@ interface Driver
      * @return AbstractPlatform The database platform.
      */
     public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform;
-
-    /**
-     * Gets the SchemaManager that can be used to inspect and change the underlying
-     * database schema of the platform this driver connects to.
-     *
-     * @deprecated Use {@link AbstractPlatform::createSchemaManager()} instead.
-     */
-    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager;
 
     /**
      * Gets the ExceptionConverter that can be used to convert driver-level exceptions into DBAL exceptions.
