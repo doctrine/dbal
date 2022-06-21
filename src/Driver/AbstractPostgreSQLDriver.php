@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
+use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 
@@ -24,8 +25,18 @@ abstract class AbstractPostgreSQLDriver implements Driver
         return new PostgreSQLPlatform();
     }
 
+    /**
+     * @deprecated Use {@link PostgreSQLPlatform::createSchemaManager()} instead.
+     */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): PostgreSQLSchemaManager
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5458',
+            'AbstractPostgreSQLDriver::getSchemaManager() is deprecated.'
+                . ' Use PostgreSQLPlatform::createSchemaManager() instead.'
+        );
+
         assert($platform instanceof PostgreSQLPlatform);
 
         return new PostgreSQLSchemaManager($conn, $platform);

@@ -16,7 +16,7 @@ class StatementTest extends TestCase
     protected Statement $stmt;
 
     /** @var DriverStatement&MockObject */
-    protected $wrappedStmt;
+    protected DriverStatement $wrappedStmt;
 
     protected function setUp(): void
     {

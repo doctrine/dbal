@@ -16,7 +16,6 @@ use function array_values;
 class SchemaAlterTableEventArgs extends SchemaEventArgs
 {
     private TableDiff $tableDiff;
-
     private AbstractPlatform $platform;
 
     /** @var array<int, string> */

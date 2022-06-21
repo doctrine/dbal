@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\DB2SchemaManager;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -603,5 +605,10 @@ class DB2Platform extends AbstractPlatform
     protected function createReservedKeywordsList(): KeywordList
     {
         return new DB2Keywords();
+    }
+
+    public function createSchemaManager(Connection $connection): DB2SchemaManager
+    {
+        return new DB2SchemaManager($connection, $this);
     }
 }

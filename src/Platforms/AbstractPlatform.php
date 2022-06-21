@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableEventArgs;
@@ -21,6 +22,7 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -2450,13 +2452,8 @@ abstract class AbstractPlatform
      */
     final public function getReservedKeywordsList(): KeywordList
     {
-        // Check for an existing instantiation of the keywords class.
-        if ($this->_keywords === null) {
-            // Store the instance so it doesn't need to be generated on every request.
-            $this->_keywords = $this->createReservedKeywordsList();
-        }
-
-        return $this->_keywords;
+        // Store the instance so it doesn't need to be generated on every request.
+        return $this->_keywords ??= $this->createReservedKeywordsList();
     }
 
     /**
@@ -2554,4 +2551,10 @@ abstract class AbstractPlatform
 
         return $column1->getComment() === $column2->getComment();
     }
+
+    /**
+     * Creates the schema manager that can be used to inspect and change the underlying
+     * database schema according to the dialect of the platform.
+     */
+    abstract public function createSchemaManager(Connection $connection): AbstractSchemaManager;
 }

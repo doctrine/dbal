@@ -16,7 +16,7 @@ use function serialize;
 class ObjectTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
     private ObjectType $type;
 

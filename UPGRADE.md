@@ -743,6 +743,10 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+## Deprecated `Driver::getSchemaManager()`.
+
+The `Driver::getSchemaManager()` method has been deprecated. Use `AbstractPlatform::createSchemaManager()` instead.
+
 ## Deprecated `ConsolerRunner`.
 
 The `ConsoleRunner` class has been deprecated. Use Symfony Console documentation

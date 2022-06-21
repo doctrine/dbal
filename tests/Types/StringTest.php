@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class StringTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
     private StringType $type;
 

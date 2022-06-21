@@ -17,9 +17,7 @@ use function array_values;
 class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 {
     private Column $column;
-
     private Table $table;
-
     private AbstractPlatform $platform;
 
     /** @var array<int, string> */

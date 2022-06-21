@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 class VarDateTimeImmutableTypeTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
     private VarDateTimeImmutableType $type;
 

@@ -19,9 +19,7 @@ class TypeRegistryTest extends TestCase
     private const OTHER_TEST_TYPE_NAME = 'other';
 
     private TypeRegistry $registry;
-
     private BlobType $testType;
-
     private BinaryType $otherTestType;
 
     protected function setUp(): void

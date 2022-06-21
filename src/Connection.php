@@ -112,8 +112,7 @@ class Connection implements ServerVersionProvider
     private ?AbstractPlatform $platform = null;
 
     private ?ExceptionConverter $exceptionConverter = null;
-
-    private ?Parser $parser = null;
+    private ?Parser $parser                         = null;
 
     /**
      * The used DBAL driver.
@@ -149,13 +148,8 @@ class Connection implements ServerVersionProvider
         $this->params  = $params;
 
         // Create default config and event manager if none given
-        if ($config === null) {
-            $config = new Configuration();
-        }
-
-        if ($eventManager === null) {
-            $eventManager = new EventManager();
-        }
+        $config       ??= new Configuration();
+        $eventManager ??= new EventManager();
 
         $this->_config       = $config;
         $this->_eventManager = $eventManager;
@@ -535,11 +529,7 @@ class Connection implements ServerVersionProvider
      */
     public function getTransactionIsolation(): int
     {
-        if ($this->transactionIsolationLevel === null) {
-            $this->transactionIsolationLevel = $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
-        }
-
-        return $this->transactionIsolationLevel;
+        return $this->transactionIsolationLevel ??= $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
     }
 
     /**
@@ -1447,11 +1437,8 @@ class Connection implements ServerVersionProvider
      */
     private function expandArrayParameters(string $sql, array $params, array $types): array
     {
-        if ($this->parser === null) {
-            $this->parser = $this->getDatabasePlatform()->createSQLParser();
-        }
-
-        $visitor = new ExpandArrayParameters($params, $types);
+        $this->parser ??= $this->getDatabasePlatform()->createSQLParser();
+        $visitor        = new ExpandArrayParameters($params, $types);
 
         $this->parser->parse($sql, $visitor);
 
@@ -1489,11 +1476,8 @@ class Connection implements ServerVersionProvider
         Driver\Exception $driverException,
         ?Query $query
     ): DriverException {
-        if ($this->exceptionConverter === null) {
-            $this->exceptionConverter = $this->_driver->getExceptionConverter();
-        }
-
-        $exception = $this->exceptionConverter->convert($driverException, $query);
+        $this->exceptionConverter ??= $this->_driver->getExceptionConverter();
+        $exception                  = $this->exceptionConverter->convert($driverException, $query);
 
         if ($exception instanceof ConnectionLost) {
             $this->close();

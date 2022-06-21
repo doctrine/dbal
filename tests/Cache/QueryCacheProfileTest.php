@@ -16,7 +16,6 @@ class QueryCacheProfileTest extends TestCase
     private const CACHE_KEY = 'user_specified_cache_key';
 
     private QueryCacheProfile $queryCacheProfile;
-
     private string $query = 'SELECT * FROM foo WHERE bar = ?';
 
     /** @var int[] */

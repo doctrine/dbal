@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
@@ -14,6 +15,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
 use InvalidArgumentException;
 
@@ -1286,5 +1288,10 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return true;
+    }
+
+    public function createSchemaManager(Connection $connection): SQLServerSchemaManager
+    {
+        return new SQLServerSchemaManager($connection, $this);
     }
 }

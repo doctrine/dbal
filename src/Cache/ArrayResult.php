@@ -20,8 +20,7 @@ final class ArrayResult implements Result
     private array $data;
 
     private int $columnCount = 0;
-
-    private int $num = 0;
+    private int $num         = 0;
 
     /**
      * @param list<array<string, mixed>> $data

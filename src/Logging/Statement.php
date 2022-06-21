@@ -13,7 +13,6 @@ use Psr\Log\LoggerInterface;
 final class Statement extends AbstractStatementMiddleware
 {
     private LoggerInterface $logger;
-
     private string $sql;
 
     /** @var array<int,mixed>|array<string,mixed> */

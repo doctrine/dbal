@@ -20,7 +20,7 @@ use function range;
 class BinaryTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    protected $platform;
+    protected AbstractPlatform $platform;
 
     protected BinaryType $type;
 

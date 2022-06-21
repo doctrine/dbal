@@ -16,7 +16,6 @@ use function func_num_args;
 class Result
 {
     private DriverResult $result;
-
     private Connection $connection;
 
     /**

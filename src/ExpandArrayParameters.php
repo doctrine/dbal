@@ -26,10 +26,10 @@ final class ExpandArrayParameters implements Visitor
     private int $originalParameterIndex = 0;
 
     /** @var list<string> */
-    private $convertedSQL = [];
+    private array $convertedSQL = [];
 
     /** @var list<mixed> */
-    private $convertedParameteres = [];
+    private array $convertedParameteres = [];
 
     /** @var array<int,Type|int|string|null> */
     private array $convertedTypes = [];

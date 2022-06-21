@@ -26,7 +26,6 @@ final class Connection implements ConnectionInterface
     private $connection;
 
     private Parser $parser;
-
     private ExecutionMode $executionMode;
 
     /**

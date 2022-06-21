@@ -17,11 +17,8 @@ use function array_values;
 class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
 {
     private string $oldColumnName;
-
     private Column $column;
-
     private TableDiff $tableDiff;
-
     private AbstractPlatform $platform;
 
     /** @var array<int, string> */

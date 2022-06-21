@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class GuidTypeTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
     private GuidType $type;
 

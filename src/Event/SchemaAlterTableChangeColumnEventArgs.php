@@ -17,9 +17,7 @@ use function array_values;
 class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
 {
     private ColumnDiff $columnDiff;
-
     private TableDiff $tableDiff;
-
     private AbstractPlatform $platform;
 
     /** @var array<int, string> */

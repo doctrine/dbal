@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
+use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 
@@ -24,8 +25,18 @@ abstract class AbstractSQLServerDriver implements Driver
         return new SQLServerPlatform();
     }
 
+    /**
+     * @deprecated Use {@link SQLServerPlatform::createSchemaManager()} instead.
+     */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): SQLServerSchemaManager
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5458',
+            'AbstractSQLServerDriver::getSchemaManager() is deprecated.'
+                . ' Use SQLServerPlatform::createSchemaManager() instead.'
+        );
+
         assert($platform instanceof SQLServerPlatform);
 
         return new SQLServerSchemaManager($conn, $platform);

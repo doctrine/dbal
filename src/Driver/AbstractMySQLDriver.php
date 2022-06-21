@@ -16,6 +16,7 @@ use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
+use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 use function preg_match;
@@ -73,15 +74,25 @@ abstract class AbstractMySQLDriver implements Driver
         $minorVersion = $versionParts['minor'] ?? 0;
         $patchVersion = $versionParts['patch'] ?? null;
 
-        if ($majorVersion === '5' && $minorVersion === '7' && $patchVersion === null) {
-            $patchVersion = '9';
+        if ($majorVersion === '5' && $minorVersion === '7') {
+            $patchVersion ??= '9';
         }
 
         return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
     }
 
+    /**
+     * @deprecated Use {@link AbstractMySQLPlatform::createSchemaManager()} instead.
+     */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): MySQLSchemaManager
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5458',
+            'AbstractMySQLDriver::getSchemaManager() is deprecated.'
+                . ' Use MySQLPlatform::createSchemaManager() instead.'
+        );
+
         assert($platform instanceof AbstractMySQLPlatform);
 
         return new MySQLSchemaManager($conn, $platform);

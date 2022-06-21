@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class BooleanTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
-    private $platform;
+    private AbstractPlatform $platform;
 
     private BooleanType $type;
 
