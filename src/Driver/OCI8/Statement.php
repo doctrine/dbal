@@ -72,10 +72,14 @@ final class Statement implements StatementInterface
         }
 
         if ($type === ParameterType::LARGE_OBJECT) {
-            $lob = oci_new_descriptor($this->connection, OCI_D_LOB);
-            $lob->writeTemporary($variable, OCI_TEMP_BLOB);
+            if ($variable !== null) {
+                $lob = oci_new_descriptor($this->connection, OCI_D_LOB);
+                $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
-            $variable =& $lob;
+                $variable =& $lob;
+            } else {
+                $type = ParameterType::STRING;
+            }
         }
 
         return oci_bind_by_name(
