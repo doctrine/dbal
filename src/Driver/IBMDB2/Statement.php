@@ -19,7 +19,6 @@ use function fclose;
 use function fwrite;
 use function is_int;
 use function is_resource;
-use function ksort;
 use function stream_copy_to_stream;
 use function stream_get_meta_data;
 use function tmpfile;
@@ -36,7 +35,7 @@ final class Statement implements StatementInterface
     private $stmt;
 
     /** @var mixed[] */
-    private $bindParam = [];
+    private $parameters = [];
 
     /**
      * Map of LOB parameter positions to the tuples containing reference to the variable bound to the driver statement
@@ -108,9 +107,9 @@ final class Statement implements StatementInterface
      */
     private function bind($position, &$variable, int $parameterType, int $dataType): void
     {
-        $this->bindParam[$position] =& $variable;
+        $this->parameters[$position] =& $variable;
 
-        if (! db2_bind_param($this->stmt, $position, 'variable', $parameterType, $dataType)) {
+        if (! db2_bind_param($this->stmt, $position, '', $parameterType, $dataType)) {
             throw StatementError::new($this->stmt);
         }
     }
@@ -120,16 +119,6 @@ final class Statement implements StatementInterface
      */
     public function execute($params = null): ResultInterface
     {
-        if ($params === null) {
-            ksort($this->bindParam);
-
-            $params = [];
-
-            foreach ($this->bindParam as $value) {
-                $params[] = $value;
-            }
-        }
-
         foreach ($this->lobs as [$source, $target]) {
             if (is_resource($source)) {
                 $this->copyStreamToStream($source, $target);
@@ -140,7 +129,7 @@ final class Statement implements StatementInterface
             $this->writeStringToStream($source, $target);
         }
 
-        $result = @db2_execute($this->stmt, $params);
+        $result = @db2_execute($this->stmt, $params ?? $this->parameters);
 
         foreach ($this->lobs as [, $handle]) {
             fclose($handle);
