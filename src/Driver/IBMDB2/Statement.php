@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCopyStreamToStream;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCreateTemporaryFile;
-use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotWriteToTemporaryFile;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
@@ -16,7 +15,6 @@ use function db2_bind_param;
 use function db2_execute;
 use function error_get_last;
 use function fclose;
-use function fwrite;
 use function is_int;
 use function is_resource;
 use function stream_copy_to_stream;
@@ -41,7 +39,7 @@ final class Statement implements StatementInterface
      * Map of LOB parameter positions to the tuples containing reference to the variable bound to the driver statement
      * and the temporary file handle bound to the underlying statement
      *
-     * @var mixed[][]
+     * @var array<int,string|resource|null>
      */
     private $lobs = [];
 
@@ -78,17 +76,7 @@ final class Statement implements StatementInterface
                 break;
 
             case ParameterType::LARGE_OBJECT:
-                if (isset($this->lobs[$param])) {
-                    [, $handle] = $this->lobs[$param];
-                    fclose($handle);
-                }
-
-                $handle = $this->createTemporaryFile();
-                $path   = stream_get_meta_data($handle)['uri'];
-
-                $this->bind($param, $path, DB2_PARAM_FILE, DB2_BINARY);
-
-                $this->lobs[$param] = [&$variable, $handle];
+                $this->lobs[$param] = &$variable;
                 break;
 
             default:
@@ -119,19 +107,11 @@ final class Statement implements StatementInterface
      */
     public function execute($params = null): ResultInterface
     {
-        foreach ($this->lobs as [$source, $target]) {
-            if (is_resource($source)) {
-                $this->copyStreamToStream($source, $target);
-
-                continue;
-            }
-
-            $this->writeStringToStream($source, $target);
-        }
+        $handles = $this->bindLobs();
 
         $result = @db2_execute($this->stmt, $params ?? $this->parameters);
 
-        foreach ($this->lobs as [, $handle]) {
+        foreach ($handles as $handle) {
             fclose($handle);
         }
 
@@ -142,6 +122,31 @@ final class Statement implements StatementInterface
         }
 
         return new Result($this->stmt);
+    }
+
+    /**
+     * @return list<resource>
+     *
+     * @throws Exception
+     */
+    private function bindLobs(): array
+    {
+        $handles = [];
+
+        foreach ($this->lobs as $param => $value) {
+            if (is_resource($value)) {
+                $handle = $handles[] = $this->createTemporaryFile();
+                $path   = stream_get_meta_data($handle)['uri'];
+
+                $this->copyStreamToStream($value, $handle);
+
+                $this->bind($param, $path, DB2_PARAM_FILE, DB2_BINARY);
+            } else {
+                $this->bind($param, $value, DB2_PARAM_IN, DB2_CHAR);
+            }
+        }
+
+        return $handles;
     }
 
     /**
@@ -170,18 +175,6 @@ final class Statement implements StatementInterface
     {
         if (@stream_copy_to_stream($source, $target) === false) {
             throw CannotCopyStreamToStream::new(error_get_last());
-        }
-    }
-
-    /**
-     * @param resource $target
-     *
-     * @throws Exception
-     */
-    private function writeStringToStream(string $string, $target): void
-    {
-        if (@fwrite($target, $string) === false) {
-            throw CannotWriteToTemporaryFile::new(error_get_last());
         }
     }
 }
