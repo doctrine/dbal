@@ -13,6 +13,8 @@ use function unserialize;
 
 /**
  * Type that maps a PHP array to a clob SQL type.
+ *
+ * @deprecated Use {@link JsonType} instead.
  */
 class ArrayType extends Type
 {

@@ -95,8 +95,24 @@
                 -->
                 <referencedClass name="Doctrine\DBAL\Schema\Visitor\AbstractVisitor"/>
                 <referencedClass name="Doctrine\DBAL\Schema\Visitor\Visitor"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Types\ArrayType"/>
+                <referencedClass name="Doctrine\DBAL\Types\ObjectType"/>
             </errorLevel>
         </DeprecatedClass>
+        <DeprecatedConstant>
+            <errorLevel type="suppress">
+            <!--
+                TODO: remove in 4.0.0
+            -->
+                <file name="src/Types/ArrayType.php"/>
+                <file name="src/Types/ObjectType.php"/>
+                <file name="src/Types/Type.php"/>
+                <file name="tests/Schema/ComparatorTest.php"/>
+            </errorLevel>
+        </DeprecatedConstant>
         <DeprecatedInterface>
             <errorLevel type="suppress">
                 <!--

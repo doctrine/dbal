@@ -8,6 +8,20 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `array` and `object` column types.
+
+The `array` and `object` column types have been deprecated since they use PHP built-in serialization. Without additional
+configuration, which the API of these types doesn't allow, the usage of built-in serialization may lead to
+security issues.
+
+The following classes and constants have been deprecated:
+- `ArrayType`,
+- `ObjectType`,
+- `Types::ARRAY`,
+- `Types::OBJECT`.
+
+Use JSON for storing unstructured data.
+
 ## Deprecated `Driver::getSchemaManager()`.
 
 The `Driver::getSchemaManager()` method has been deprecated. Use `AbstractPlatform::createSchemaManager()` instead.
