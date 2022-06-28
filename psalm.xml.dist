@@ -272,10 +272,6 @@
                     This issue is fixed in 4.0
                 -->
                 <file name="src/Schema/Index.php"/>
-                <!--
-                    See https://github.com/vimeo/psalm/issues/5325
-                -->
-                <file name="tests/Driver/OCI8/ExecutionModeTest.php"/>
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->
                 <file name="src/Portability/Converter.php"/>
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
@@ -420,13 +416,6 @@
                 <file name="src/Query/QueryBuilder.php"/>
             </errorLevel>
         </ReferenceConstraintViolation>
-        <!-- Workaround for https://github.com/vimeo/psalm/issues/7026 -->
-        <ReservedWord>
-            <errorLevel type="suppress">
-                <directory name="src"/>
-                <directory name="tests"/>
-            </errorLevel>
-        </ReservedWord>
         <TooManyArguments>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3562 -->
