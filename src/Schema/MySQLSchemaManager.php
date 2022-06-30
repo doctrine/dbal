@@ -5,6 +5,8 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL;
+use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMetadataProvider;
+use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
@@ -363,7 +365,12 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
     public function createComparator(): Comparator
     {
-        return new MySQL\Comparator($this->getDatabasePlatform());
+        return new MySQL\Comparator(
+            $this->getDatabasePlatform(),
+            new CachingCollationMetadataProvider(
+                new ConnectionCollationMetadataProvider($this->_conn)
+            )
+        );
     }
 
     /**
