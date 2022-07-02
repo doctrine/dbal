@@ -41,6 +41,7 @@ jobs:
           - "7.4"
           - "8.0"
           - "8.1"
+          - "8.2"
         dependencies:
           - "highest"
         include:
@@ -67,6 +68,7 @@ jobs:
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
         with:
+          composer-options: "--ignore-platform-req=php+"
           dependency-versions: "${{ matrix.dependencies }}"
 
       - name: "Print SQLite version"
@@ -92,6 +94,7 @@ jobs:
         php-version:
           - "7.4"
           - "8.1"
+          - "8.2"
         oracle-version:
           - "21"
         include:
@@ -127,6 +130,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
+        with:
+          composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/oci8.xml --coverage-clover=coverage.xml"
@@ -147,6 +152,7 @@ jobs:
         php-version:
           - "7.4"
           - "8.1"
+          - "8.2"
         oracle-version:
           - "21"
         include:
@@ -182,6 +188,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
+        with:
+          composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci.xml --coverage-clover=coverage.xml"
@@ -207,6 +215,8 @@ jobs:
           - "14"
         include:
           - php-version: "8.1"
+            postgres-version: "14"
+          - php-version: "8.2"
             postgres-version: "14"
 
     services:
@@ -236,6 +246,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
+        with:
+          composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_pgsql.xml --coverage-clover=coverage.xml"
@@ -276,6 +288,12 @@ jobs:
           - php-version: "8.1"
             mariadb-version: "10.7"
             extension: "pdo_mysql"
+          - php-version: "8.2"
+            mariadb-version: "10.7"
+            extension: "mysqli"
+          - php-version: "8.2"
+            mariadb-version: "10.7"
+            extension: "pdo_mysql"
 
     services:
       mariadb:
@@ -306,6 +324,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
+        with:
+          composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
@@ -354,6 +374,12 @@ jobs:
             extension: "pdo_mysql"
             custom-entrypoint: >-
               --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
+          - php-version: "8.2"
+            mysql-version: "8.0"
+            extension: "mysqli"
+          - php-version: "8.2"
+            mysql-version: "8.0"
+            extension: "pdo_mysql"
 
     services:
       mysql:
@@ -384,6 +410,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
+        with:
+          composer-options: "--ignore-platform-req=php+"
 
       - name: "Copy TLS-related files"
         run: 'docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/ca.pem" . && docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/client-cert.pem" . && docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/client-key.pem" .'
@@ -408,6 +436,7 @@ jobs:
         php-version:
           - "7.4"
           - "8.1"
+          - "8.2"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -452,6 +481,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v1"
+        with:
+          composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"

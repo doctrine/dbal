@@ -5,6 +5,8 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL;
+use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMetadataProvider;
+use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 
@@ -372,7 +374,12 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
     public function createComparator(): Comparator
     {
-        return new MySQL\Comparator($this->_platform);
+        return new MySQL\Comparator(
+            $this->_platform,
+            new CachingCollationMetadataProvider(
+                new ConnectionCollationMetadataProvider($this->_conn)
+            )
+        );
     }
 
     protected function selectTableNames(string $databaseName): Result

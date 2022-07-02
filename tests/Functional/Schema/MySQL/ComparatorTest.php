@@ -135,6 +135,28 @@ final class ComparatorTest extends FunctionalTestCase
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
+    public function testImplicitColumnCharset(): void
+    {
+        $table = new Table('comparator_test');
+        $table->addColumn('name', Types::STRING, [
+            'length' => 32,
+            'platformOptions' => ['collation' => 'utf8mb4_unicode_ci'],
+        ]);
+        $this->dropAndCreateTable($table);
+
+        self::assertFalse(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table
+        ));
+
+        self::assertFalse(ComparatorTestUtils::diffFromDesiredToActualTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table
+        ));
+    }
+
     /**
      * @return array{Table,Column}
      *
