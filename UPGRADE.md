@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `array` and `object` column types.
+
+The following classes and constants have been removed:
+- `ArrayType`,
+- `ObjectType`,
+- `Types::ARRAY`,
+- `Types::OBJECT`.
+
 ## BC BREAK: removed `Driver::getSchemaManager()`
 
 The `Driver::getSchemaManager()` method has been removed.

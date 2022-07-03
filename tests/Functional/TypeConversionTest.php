@@ -9,7 +9,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
-use stdClass;
 
 use function str_repeat;
 
@@ -33,9 +32,7 @@ class TypeConversionTest extends FunctionalTestCase
         $table->addColumn('test_date', 'date', ['notnull' => false]);
         $table->addColumn('test_time', 'time', ['notnull' => false]);
         $table->addColumn('test_text', 'text', ['notnull' => false]);
-        $table->addColumn('test_array', 'array', ['notnull' => false]);
         $table->addColumn('test_json', 'json', ['notnull' => false]);
-        $table->addColumn('test_object', 'object', ['notnull' => false]);
         $table->addColumn('test_float', 'float', ['notnull' => false]);
         $table->addColumn('test_decimal', 'decimal', ['notnull' => false, 'scale' => 2, 'precision' => 10]);
         $table->setPrimaryKey(['id']);
@@ -135,51 +132,9 @@ class TypeConversionTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider toArrayProvider
-     */
-    public function testIdempotentConversionToArray(string $type, mixed $originalValue): void
+    public function testIdempotentConversionToArray(): void
     {
-        $dbValue = $this->processValue($type, $originalValue);
-
-        self::assertIsArray($dbValue);
-        self::assertEquals($originalValue, $dbValue);
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function toArrayProvider(): iterable
-    {
-        return [
-            'array' => ['array', ['foo' => 'bar']],
-            'json' => ['json', ['foo' => 'bar']],
-        ];
-    }
-
-    /**
-     * @dataProvider toObjectProvider
-     */
-    public function testIdempotentConversionToObject(string $type, mixed $originalValue): void
-    {
-        $dbValue = $this->processValue($type, $originalValue);
-
-        self::assertIsObject($dbValue);
-        self::assertEquals($originalValue, $dbValue);
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function toObjectProvider(): iterable
-    {
-        $obj      = new stdClass();
-        $obj->foo = 'bar';
-        $obj->bar = 'baz';
-
-        return [
-            'object' => ['object', $obj],
-        ];
+        self::assertEquals(['foo' => 'bar'], $this->processValue('json', ['foo' => 'bar']));
     }
 
     /**

@@ -67,7 +67,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             "sp_rename 'mytable', 'userlist'",
             "DECLARE @sql NVARCHAR(MAX) = N''; " .
             "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
-            "+ REPLACE(dc.name, '6B2BD609', 'E2B58069') + ''', ''OBJECT'';' " .
+            "+ REPLACE(dc.name, '6B2BD609', 'E2B58069') + ''', ''json'';' " .
             'FROM sys.default_constraints dc ' .
             'JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
             "WHERE tbl.name = 'userlist';" .
@@ -756,8 +756,8 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!']
         );
         $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
-        $table->addColumn('commented_type', 'object');
-        $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
+        $table->addColumn('commented_type', 'json');
+        $table->addColumn('commented_type_with_comment', 'json', ['comment' => 'Doctrine JSON type.']);
         $table->addColumn('comment_with_string_literal_char', 'string', [
             'length' => 255,
             'comment' => "O'Reilly",
@@ -806,9 +806,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!']
         );
         $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
-        $table->addColumn('commented_type', 'object');
-        $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
-        $table->addColumn('comment_with_string_literal_quote_char', 'array', [
+        $table->addColumn('commented_type', 'json');
+        $table->addColumn('commented_type_with_comment', 'json', ['comment' => 'Doctrine JSON type.']);
+        $table->addColumn('comment_with_string_literal_quote_char', 'json', [
             'length' => 255,
             'comment' => "O'Reilly",
         ]);
@@ -836,10 +836,10 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             = new Column('select', Type::getType('integer'), ['comment' => '666']);
 
         $tableDiff->addedColumns['added_commented_type']
-            = new Column('added_commented_type', Type::getType('object'));
+            = new Column('added_commented_type', Type::getType('json'));
 
         $tableDiff->addedColumns['added_commented_type_with_comment']
-            = new Column('added_commented_type_with_comment', Type::getType('array'), ['comment' => '666']);
+            = new Column('added_commented_type_with_comment', Type::getType('json'), ['comment' => '666']);
 
         $tableDiff->addedColumns['added_comment_with_string_literal_char']
             = new Column('added_comment_with_string_literal_char', Type::getType('string'), [
@@ -858,7 +858,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         // Change type to custom type from empty string commented column.
         $tableDiff->changedColumns['comment_empty_string'] = new ColumnDiff(
             'comment_empty_string',
-            new Column('comment_empty_string', Type::getType('object')),
+            new Column('comment_empty_string', Type::getType('json')),
             ['type'],
             new Column('comment_empty_string', Type::getType('integer'), ['comment' => ''])
         );
@@ -882,7 +882,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         // Change comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['`comment_quoted`'] = new ColumnDiff(
             '`comment_quoted`',
-            new Column('`comment_quoted`', Type::getType('array'), ['comment' => 'Doctrine array.']),
+            new Column('`comment_quoted`', Type::getType('json'), ['comment' => 'Doctrine JSON.']),
             ['comment', 'type'],
             new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!'])
         );
@@ -890,7 +890,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         // Remove comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['create'] = new ColumnDiff(
             'create',
-            new Column('create', Type::getType('object')),
+            new Column('create', Type::getType('json')),
             ['comment', 'type'],
             new Column(
                 'create',
@@ -904,15 +904,15 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             'commented_type',
             new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
             ['comment', 'type'],
-            new Column('commented_type', Type::getType('object'))
+            new Column('commented_type', Type::getType('json'))
         );
 
         // Remove comment from commented custom type column.
         $tableDiff->changedColumns['commented_type_with_comment'] = new ColumnDiff(
             'commented_type_with_comment',
-            new Column('commented_type_with_comment', Type::getType('array')),
+            new Column('commented_type_with_comment', Type::getType('json')),
             ['comment'],
-            new Column('commented_type_with_comment', Type::getType('array'), ['comment' => 'Doctrine array type.'])
+            new Column('commented_type_with_comment', Type::getType('json'), ['comment' => 'Doctrine JSON type.'])
         );
 
         // Change comment from comment with string literal char column.
@@ -920,7 +920,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             'comment_with_string_literal_char',
             new Column('comment_with_string_literal_char', Type::getType('string'), ['comment' => "'"]),
             ['comment'],
-            new Column('comment_with_string_literal_char', Type::getType('array'), ['comment' => "O'Reilly"])
+            new Column('comment_with_string_literal_char', Type::getType('json'), ['comment' => "O'Reilly"])
         );
 
         self::assertEquals(
@@ -1462,7 +1462,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             "sp_rename '[foo]', 'table'",
             "DECLARE @sql NVARCHAR(MAX) = N''; " .
             "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', " .
-            "N''' + REPLACE(dc.name, '8C736521', 'F6298F46') + ''', ''OBJECT'';' " .
+            "N''' + REPLACE(dc.name, '8C736521', 'F6298F46') + ''', ''json'';' " .
             'FROM sys.default_constraints dc JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
             "WHERE tbl.name = 'table';EXEC sp_executesql @sql",
             'ALTER TABLE [table] ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
