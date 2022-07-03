@@ -260,6 +260,25 @@ EOF
         $statement->executeQuery(['bar' => 'baz']);
     }
 
+    public function testParameterBindingOrder(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        // some supported drivers don't support selecting an untyped literal
+        // from a dummy table, so we wrap it into a function that assumes its type
+        $query = $platform->getDummySelectSQL(
+            $platform->getLengthExpression('?')
+                . ', '
+                . $platform->getLengthExpression('?')
+        );
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->bindValue(2, 'banana');
+        $stmt->bindValue(1, 'apple');
+
+        self::assertEquals([5, 6], $stmt->executeQuery()->fetchNumeric());
+    }
+
     /**
      * @dataProvider emptyFetchProvider
      */

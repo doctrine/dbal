@@ -21,13 +21,13 @@ class BlobTest extends FunctionalTestCase
         if (TestUtil::isDriverOneOf('pdo_oci')) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
-            self::markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
+            self::markTestSkipped("DBAL doesn't support storing LOBs represented as streams using PDO_OCI");
         }
 
         $table = new Table('blob_table');
         $table->addColumn('id', 'integer');
-        $table->addColumn('clobcolumn', 'text');
-        $table->addColumn('blobcolumn', 'blob');
+        $table->addColumn('clobcolumn', 'text', ['notnull' => false]);
+        $table->addColumn('blobcolumn', 'blob', ['notnull' => false]);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
@@ -46,6 +46,25 @@ class BlobTest extends FunctionalTestCase
         ]);
 
         self::assertEquals(1, $ret);
+    }
+
+    public function testInsertNull(): void
+    {
+        $ret = $this->connection->insert('blob_table', [
+            'id'         => 1,
+            'clobcolumn' => null,
+            'blobcolumn' => null,
+        ], [
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            ParameterType::LARGE_OBJECT,
+        ]);
+
+        self::assertEquals(1, $ret);
+
+        [$clobValue, $blobValue] = $this->fetchRow();
+        self::assertNull($clobValue);
+        self::assertNull($blobValue);
     }
 
     public function testInsertProcessesStream(): void
@@ -154,13 +173,23 @@ class BlobTest extends FunctionalTestCase
 
     private function assertBlobContains(string $text): void
     {
-        $rows = $this->connection->fetchFirstColumn('SELECT blobcolumn FROM blob_table');
+        [, $blobValue] = $this->fetchRow();
 
-        self::assertCount(1, $rows);
-
-        $blobValue = Type::getType('blob')->convertToPHPValue($rows[0], $this->connection->getDatabasePlatform());
+        $blobValue = Type::getType('blob')->convertToPHPValue($blobValue, $this->connection->getDatabasePlatform());
 
         self::assertIsResource($blobValue);
         self::assertEquals($text, stream_get_contents($blobValue));
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private function fetchRow(): array
+    {
+        $rows = $this->connection->fetchAllNumeric('SELECT clobcolumn, blobcolumn FROM blob_table');
+
+        self::assertCount(1, $rows);
+
+        return $rows[0];
     }
 }

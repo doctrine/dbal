@@ -16,6 +16,8 @@ use function unserialize;
 
 /**
  * Type that maps a PHP object to a clob SQL type.
+ *
+ * @deprecated Use {@link JsonType} instead.
  */
 class ObjectType extends Type
 {

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
+use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -611,7 +612,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->changeColumn('def_blob', ['default' => null]);
         $diffTable->changeColumn('def_blob_null', ['default' => null]);
 
-        self::assertNull((new MySQL\Comparator($this->platform))->diffTable($table, $diffTable));
+        self::assertNull($this->createComparator()->diffTable($table, $diffTable));
     }
 
     /**
@@ -805,6 +806,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     protected function createComparator(): Comparator
     {
-        return new MySQL\Comparator($this->platform);
+        return new MySQL\Comparator(
+            $this->platform,
+            $this->createStub(CollationMetadataProvider::class)
+        );
     }
 }
