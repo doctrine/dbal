@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed support for custom schema options.
+
+The following `Column` class properties and methods have been removed:
+
+- `$_customSchemaOptions`,
+- `setCustomSchemaOption()`,
+- `hasCustomSchemaOption()`,
+- `getCustomSchemaOption()`,
+- `setCustomSchemaOptions()`,
+- `getCustomSchemaOptions()`.
+
 ## BC BREAK: removed `array` and `object` column types.
 
 The following classes and constants have been removed:
