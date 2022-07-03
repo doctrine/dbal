@@ -337,6 +337,13 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Driver::getSchemaManager"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\Column::getCustomSchemaOption"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\Column::getCustomSchemaOptions"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\Column::hasCustomSchemaOption"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\Column::setCustomSchemaOption"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
@@ -362,6 +369,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedProperty name="Doctrine\DBAL\Platforms\AbstractPlatform::$doctrineTypeComments"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedProperty name="Doctrine\DBAL\Schema\Column::$_customSchemaOptions"/>
             </errorLevel>
         </DeprecatedProperty>
         <DocblockTypeContradiction>
