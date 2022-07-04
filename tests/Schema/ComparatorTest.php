@@ -226,21 +226,6 @@ abstract class ComparatorTest extends TestCase
         self::assertEquals([], $this->comparator->diffColumn($column1, $column2));
     }
 
-    public function testCompareChangedColumnsChangeCustomSchemaOption(): void
-    {
-        $column1 = new Column('charcolumn1', Type::getType('string'));
-        $column2 = new Column('charcolumn1', Type::getType('string'));
-
-        $column1->setCustomSchemaOption('foo', 'bar');
-        $column2->setCustomSchemaOption('foo', 'bar');
-
-        $column1->setCustomSchemaOption('foo1', 'bar1');
-        $column2->setCustomSchemaOption('foo2', 'bar2');
-
-        self::assertEquals(['foo1', 'foo2'], $this->comparator->diffColumn($column1, $column2));
-        self::assertEquals([], $this->comparator->diffColumn($column1, $column1));
-    }
-
     public function testCompareChangeColumnsMultipleNewColumnsRename(): void
     {
         $tableA = new Table('foo');
@@ -1114,21 +1099,6 @@ abstract class ComparatorTest extends TestCase
         self::assertEquals(['bar'], $this->comparator->diffColumn($column3, $column1));
         self::assertEquals([], $this->comparator->diffColumn($column1, $column4));
         self::assertEquals([], $this->comparator->diffColumn($column4, $column1));
-    }
-
-    public function testComplexDiffColumn(): void
-    {
-        $column1 = new Column('foo', Type::getType('string'), [
-            'platformOptions' => ['foo' => 'foo'],
-            'customSchemaOptions' => ['foo' => 'bar'],
-        ]);
-
-        $column2 = new Column('foo', Type::getType('string'), [
-            'platformOptions' => ['foo' => 'bar'],
-        ]);
-
-        self::assertEquals([], $this->comparator->diffColumn($column1, $column2));
-        self::assertEquals([], $this->comparator->diffColumn($column2, $column1));
     }
 
     public function testComparesNamespaces(): void

@@ -34,11 +34,6 @@ class ColumnTest extends TestCase
         self::assertTrue($column->hasPlatformOption('foo'));
         self::assertEquals('bar', $column->getPlatformOption('foo'));
         self::assertFalse($column->hasPlatformOption('bar'));
-
-        self::assertEquals(['bar' => 'baz'], $column->getCustomSchemaOptions());
-        self::assertTrue($column->hasCustomSchemaOption('bar'));
-        self::assertEquals('baz', $column->getCustomSchemaOption('bar'));
-        self::assertFalse($column->hasCustomSchemaOption('foo'));
     }
 
     public function testToArray(): void
@@ -57,7 +52,6 @@ class ColumnTest extends TestCase
             'columnDefinition' => null,
             'comment' => '',
             'foo' => 'bar',
-            'bar' => 'baz',
         ];
 
         self::assertSame($expected, $this->createColumn()->toArray());
@@ -94,7 +88,6 @@ class ColumnTest extends TestCase
             'fixed' => true,
             'default' => 'baz',
             'platformOptions' => ['foo' => 'bar'],
-            'customSchemaOptions' => ['bar' => 'baz'],
         ];
 
         $string = Type::getType('string');

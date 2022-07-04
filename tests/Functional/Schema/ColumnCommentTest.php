@@ -56,7 +56,7 @@ class ColumnCommentTest extends FunctionalTestCase
                     ['length' => 16],
                 ],
                 'not_commented' => [
-                    'array',
+                    'json',
                     [],
                 ],
             ] as $typeName => [$type, $typeOptions]

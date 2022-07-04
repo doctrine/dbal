@@ -9,10 +9,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types;
 
 use function array_intersect_key;
-use function array_key_exists;
 use function array_keys;
 use function array_map;
-use function array_merge;
 use function array_unique;
 use function assert;
 use function count;
@@ -495,17 +493,6 @@ class Comparator
             ! ($properties2['comment'] === null && $properties1['comment'] === '')
         ) {
             $changedProperties[] = 'comment';
-        }
-
-        $customOptions1 = $column1->getCustomSchemaOptions();
-        $customOptions2 = $column2->getCustomSchemaOptions();
-
-        foreach (array_merge(array_keys($customOptions1), array_keys($customOptions2)) as $key) {
-            if (! array_key_exists($key, $properties1) || ! array_key_exists($key, $properties2)) {
-                $changedProperties[] = $key;
-            } elseif ($properties1[$key] !== $properties2[$key]) {
-                $changedProperties[] = $key;
-            }
         }
 
         $platformOptions1 = $column1->getPlatformOptions();
