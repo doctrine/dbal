@@ -1441,14 +1441,14 @@ class QueryBuilder
      * when using prepared statements.
      *
      * The parameter $value specifies the value that you want to bind. If
-     * $placeholder is not provided bindValue() will automatically create a
-     * placeholder for you. An automatic placeholder will be of the name
-     * ':dcValue1', ':dcValue2' etc.
+     * $placeholder is not provided createNamedParameter() will automatically
+     * create a placeholder for you. An automatic placeholder will be of the
+     * name ':dcValue1', ':dcValue2' etc.
      *
      * Example:
      * <code>
      * $value = 2;
-     * $q->eq( 'id', $q->bindValue( $value ) );
+     * $q->eq( 'id', $q->createNamedParameter( $value ) );
      * $stmt = $q->executeQuery(); // executed with 'id = 2'
      * </code>
      *
