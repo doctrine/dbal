@@ -1159,7 +1159,7 @@ SQL
      */
     public function quoteStringLiteral($str)
     {
-        $str = str_replace('\\', '\\\\', $str); // MySQL requires backslashes to be escaped aswell.
+        $str = str_replace('\\', '\\\\', $str); // MySQL requires backslashes to be escaped
 
         return parent::quoteStringLiteral($str);
     }
