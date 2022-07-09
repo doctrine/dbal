@@ -136,13 +136,20 @@ final class ComparatorTest extends FunctionalTestCase
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
-    public function testImplicitColumnCharset(): void
+    /**
+     * @param array<string,string> $tableOptions
+     * @param array<string,string> $columnOptions
+     *
+     * @dataProvider tableAndColumnOptionsProvider
+     */
+    public function testTableAndColumnOptions(array $tableOptions, array $columnOptions): void
     {
-        $table = new Table('comparator_test');
+        $table = new Table('comparator_test', [], [], [], [], $tableOptions);
         $table->addColumn('name', Types::STRING, [
             'length' => 32,
-            'platformOptions' => ['collation' => 'ascii_general_ci'],
+            'platformOptions' => $columnOptions,
         ]);
+
         $this->dropAndCreateTable($table);
 
         self::assertNull(ComparatorTestUtils::diffFromActualToDesiredTable(
@@ -156,6 +163,27 @@ final class ComparatorTest extends FunctionalTestCase
             $this->comparator,
             $table
         ));
+    }
+
+    /**
+     * @return iterable<string,array{array<string,string>,array<string,string>}>
+     */
+    public static function tableAndColumnOptionsProvider(): iterable
+    {
+        yield "Column collation explicitly set to its table's default" => [
+            [],
+            ['collation' => 'utf8mb4_unicode_ci'],
+        ];
+
+        yield "Column charset implicitly set to a value matching its table's charset" => [
+            ['charset' => 'utf8mb4'],
+            ['collation' => 'utf8mb4_unicode_ci'],
+        ];
+
+        yield "Column collation reset to the collation's default matching its table's charset" => [
+            ['collation' => 'utf8mb4_unicode_ci'],
+            ['charset' => 'utf8mb4'],
+        ];
     }
 
     /**

@@ -6,7 +6,9 @@ namespace Doctrine\DBAL\Tests\Schema\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
+use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
+use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
@@ -91,7 +93,9 @@ class MySQLSchemaTest extends TestCase
     {
         return new MySQL\Comparator(
             new MySQLPlatform(),
-            $this->createStub(CollationMetadataProvider::class)
+            $this->createStub(CharsetMetadataProvider::class),
+            $this->createStub(CollationMetadataProvider::class),
+            new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci')
         );
     }
 }

@@ -10,7 +10,6 @@ use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -231,23 +230,21 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->setLength(100)
             ->setNotnull(true)
             ->setPlatformOption('charset', 'utf8');
+        $this->dropAndCreateTable($table);
 
         $diffTable = clone $table;
         $diffTable->getColumn('col_string')->setPlatformOption('charset', 'ascii');
 
-        $fromSchema = new Schema([$table]);
-        $toSchema   = new Schema([$diffTable]);
-
         $diff = $this->schemaManager->createComparator()
-            ->compareSchemas($fromSchema, $toSchema)
-            ->toSql(
-                $this->connection->getDatabasePlatform()
-            );
+            ->diffTable($table, $diffTable);
+        self::assertNotNull($diff);
+        $this->schemaManager->alterTable($diff);
 
-        self::assertContains(
-            'ALTER TABLE test_column_charset_change CHANGE col_string'
-                . ' col_string VARCHAR(100) CHARACTER SET ascii NOT NULL',
-            $diff
+        self::assertEquals(
+            'ascii',
+            $this->schemaManager->listTableDetails('test_column_charset_change')
+                ->getColumn('col_string')
+                ->getPlatformOption('charset')
         );
     }
 
