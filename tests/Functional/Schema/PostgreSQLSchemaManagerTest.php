@@ -24,7 +24,6 @@ use function array_pop;
 use function array_unshift;
 use function assert;
 use function count;
-use function preg_match;
 use function strtolower;
 
 class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -213,31 +212,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ],
             $this->connection->getDatabasePlatform()->getCreateTableSQL($table)
         );
-    }
-
-    public function testFilterSchemaExpression(): void
-    {
-        $testTable = new Table('dbal204_test_prefix');
-        $testTable->addColumn('id', 'integer');
-        $this->dropAndCreateTable($testTable);
-
-        $testTable = new Table('dbal204_without_prefix');
-        $testTable->addColumn('id', 'integer');
-        $this->dropAndCreateTable($testTable);
-
-        $this->markConnectionNotReusable();
-
-        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
-            return preg_match('#^dbal204_#', $name) === 1;
-        });
-        $names = $this->schemaManager->listTableNames();
-        self::assertCount(2, $names);
-
-        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
-            return preg_match('#^dbal204_test#', $name) === 1;
-        });
-        $names = $this->schemaManager->listTableNames();
-        self::assertCount(1, $names);
     }
 
     public function testListForeignKeys(): void
