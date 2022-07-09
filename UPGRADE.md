@@ -301,6 +301,8 @@ an exception. The characters are the following: `{}()/\@`.
 The `SQLLogger` and its implementations `DebugStack` and `LoggerChain` have been deprecated.
 For logging purposes, use `Doctrine\DBAL\Logging\Middleware` instead. No replacement for `DebugStack` is provided.
 
+The `Configuration` methods `getSQLLogger()` and `setSQLLogger()` have been deprecated as well.
+
 ## Deprecated `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods.
 
 The `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods have been deprecated. The SQLite engine
