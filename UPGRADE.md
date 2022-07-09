@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `NULL` schema asset filter.
+
+Not passing an argument to `Configuration::setSchemaAssetsFilter()` and passing `NULL` as the value of `$callable`
+has been deprecated. In order to disable filtering, pass a callable that always returns true.
+
 ## Deprecated custom schema options.
 
 Custom schema options have been deprecated since they effectively duplicate the functionality of platform options.
