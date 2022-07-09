@@ -10,6 +10,8 @@ use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\Deprecations\Deprecation;
 use Psr\Cache\CacheItemPoolInterface;
 
+use function func_num_args;
+
 /**
  * Configuration container for the Doctrine DBAL.
  */
@@ -52,6 +54,13 @@ class Configuration
      * @var bool
      */
     protected $autoCommit = true;
+
+    public function __construct()
+    {
+        $this->schemaAssetsFilter = static function (): bool {
+            return true;
+        };
+    }
 
     /**
      * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
@@ -144,6 +153,22 @@ class Configuration
      */
     public function setSchemaAssetsFilter(?callable $callable = null): void
     {
+        if (func_num_args() < 1) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5483',
+                'Not passing an argument to %s is deprecated.',
+                __METHOD__
+            );
+        } elseif ($callable === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5483',
+                'Using NULL as a schema asset filter is deprecated.'
+                    . ' Use a callable that always returns true instead.',
+            );
+        }
+
         $this->schemaAssetsFilter = $callable;
     }
 
