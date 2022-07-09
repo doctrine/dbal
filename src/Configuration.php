@@ -55,17 +55,35 @@ class Configuration
 
     /**
      * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
+     *
+     * @deprecated Use {@see setMiddlewares()} and {@see \Doctrine\DBAL\Logging\Middleware} instead.
      */
     public function setSQLLogger(?SQLLogger $logger = null): void
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4967',
+            '%s is deprecated, use setMiddlewares() and Logging\\Middleware instead.',
+            __METHOD__
+        );
+
         $this->sqlLogger = $logger;
     }
 
     /**
      * Gets the SQL logger that is used.
+     *
+     * @deprecated
      */
     public function getSQLLogger(): ?SQLLogger
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4967',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return $this->sqlLogger;
     }
 
