@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed support for the `NULL` value of schema asset filter.
+
+The argument of `Configuration::setSchemaAssetsFilter()` is now required and non-nullable.
+
 ## BC BREAK: removed support for custom schema options.
 
 The following `Column` class properties and methods have been removed:

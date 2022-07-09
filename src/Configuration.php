@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\Middleware;
-use Doctrine\Deprecations\Deprecation;
 use Psr\Cache\CacheItemPoolInterface;
-
-use function func_num_args;
 
 /**
  * Configuration container for the Doctrine DBAL.
@@ -26,7 +23,7 @@ class Configuration
     /**
      * The callable to use to filter schema assets.
      *
-     * @var callable|null
+     * @var callable
      */
     protected $schemaAssetsFilter;
 
@@ -61,31 +58,15 @@ class Configuration
     /**
      * Sets the callable to use to filter schema assets.
      */
-    public function setSchemaAssetsFilter(?callable $callable = null): void
+    public function setSchemaAssetsFilter(callable $schemaAssetsFilter): void
     {
-        if (func_num_args() < 1) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5483',
-                'Not passing an argument to %s is deprecated.',
-                __METHOD__
-            );
-        } elseif ($callable === null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5483',
-                'Using NULL as a schema asset filter is deprecated.'
-                    . ' Use a callable that always returns true instead.',
-            );
-        }
-
-        $this->schemaAssetsFilter = $callable;
+        $this->schemaAssetsFilter = $schemaAssetsFilter;
     }
 
     /**
      * Returns the callable to use to filter schema assets.
      */
-    public function getSchemaAssetsFilter(): ?callable
+    public function getSchemaAssetsFilter(): callable
     {
         return $this->schemaAssetsFilter;
     }
