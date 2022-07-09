@@ -18,7 +18,7 @@ class BinaryTest extends FunctionalTestCase
     protected function setUp(): void
     {
         if (TestUtil::isDriverOneOf('pdo_oci')) {
-            self::markTestSkipped('PDO_OCI doesn\'t support binding binary values');
+            self::markTestSkipped("PDO_OCI doesn't support binding binary values");
         }
 
         $table = new Table('binary_table');

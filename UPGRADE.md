@@ -766,6 +766,11 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+## Deprecated `NULL` schema asset filter.
+
+Not passing an argument to `Configuration::setSchemaAssetsFilter()` and passing `NULL` as the value of `$callable`
+has been deprecated. In order to disable filtering, pass a callable that always returns true.
+
 ## Deprecated custom schema options.
 
 Custom schema options have been deprecated since they effectively duplicate the functionality of platform options.
@@ -1058,6 +1063,8 @@ an exception. The characters are the following: `{}()/\@`.
 
 The `SQLLogger` and its implementations `DebugStack` and `LoggerChain` have been deprecated.
 For logging purposes, use `Doctrine\DBAL\Logging\Middleware` instead. No replacement for `DebugStack` is provided.
+
+The `Configuration` methods `getSQLLogger()` and `setSQLLogger()` have been deprecated as well.
 
 ## Deprecated `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods.
 
