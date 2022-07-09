@@ -54,7 +54,7 @@ class StatementTest extends FunctionalTestCase
     public function testReuseStatementWithLongerResults(): void
     {
         if (TestUtil::isDriverOneOf('pdo_oci')) {
-            self::markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
+            self::markTestIncomplete("PDO_OCI doesn't support fetching blobs via PDOStatement::fetchAll()");
         }
 
         $table = new Table('stmt_longer_results');
@@ -92,7 +92,7 @@ class StatementTest extends FunctionalTestCase
         if (TestUtil::isDriverOneOf('pdo_oci')) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
-            self::markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
+            self::markTestSkipped("DBAL doesn't support storing LOBs represented as streams using PDO_OCI");
         }
 
         // make sure memory limit is large enough to not cause false positives,
