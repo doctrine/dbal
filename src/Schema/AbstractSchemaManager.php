@@ -412,9 +412,14 @@ abstract class AbstractSchemaManager
         $foreignKeyColumnsByTable = $this->fetchForeignKeyColumnsByTable($database);
         $tableOptionsByTable      = $this->fetchTableOptionsByTable($database);
 
+        $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
         $tables = [];
 
         foreach ($tableColumnsByTable as $tableName => $tableColumns) {
+            if ($filter !== null && ! $filter($tableName)) {
+                continue;
+            }
+
             $tables[] = new Table(
                 $tableName,
                 $this->_getPortableTableColumnList($tableName, $database, $tableColumns),

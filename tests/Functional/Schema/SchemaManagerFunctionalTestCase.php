@@ -235,6 +235,35 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($foundTable, "The 'list_tables_test' table has to be found.");
     }
 
+    /**
+     * @dataProvider tableFilterProvider
+     */
+    public function testListTablesWithFilter(string $prefix, int $expectedCount): void
+    {
+        $this->createTestTable('filter_test_1');
+        $this->createTestTable('filter_test_2');
+
+        $this->markConnectionNotReusable();
+
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(
+            static function (string $name) use ($prefix): bool {
+                return substr(strtolower($name), 0, strlen($prefix)) === $prefix;
+            }
+        );
+
+        self::assertCount($expectedCount, $this->schemaManager->listTableNames());
+        self::assertCount($expectedCount, $this->schemaManager->listTables());
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function tableFilterProvider(): iterable
+    {
+        yield 'One table' => ['filter_test_1', 1];
+        yield 'Two tables' => ['filter_test_', 2];
+    }
+
     public function createListTableColumns(): Table
     {
         $table = new Table('list_table_columns');
