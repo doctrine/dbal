@@ -197,9 +197,6 @@ abstract class AbstractSchemaManager
     private function filterAssetNames(array $assetNames): array
     {
         $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
-        if ($filter === null) {
-            return $assetNames;
-        }
 
         return array_values(array_filter($assetNames, $filter));
     }
@@ -224,7 +221,7 @@ abstract class AbstractSchemaManager
         $tables = [];
 
         foreach ($tableColumnsByTable as $tableName => $tableColumns) {
-            if ($filter !== null && ! $filter($tableName)) {
+            if (! $filter($tableName)) {
                 continue;
             }
 
