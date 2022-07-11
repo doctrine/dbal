@@ -19,6 +19,8 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
 
+use function strpos;
+
 /**
  * @internal
  *
@@ -57,6 +59,10 @@ final class ExceptionConverter implements ExceptionConverterInterface
 
             case 3701:
             case 15151:
+                if (strpos($exception->getMessage(), 'annot drop the table') !== false) {
+                    return new TableNotFoundException($exception, $query);
+                }
+
                 return new DatabaseObjectNotFoundException($exception, $query);
 
             case 11001:
