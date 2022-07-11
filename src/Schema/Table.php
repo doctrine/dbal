@@ -523,7 +523,7 @@ class Table extends AbstractAsset
         $mergedNames = array_merge([$this->getName()], $constraint->getColumns());
         $name        = strlen($constraint->getName()) > 0
             ? $constraint->getName()
-            : $this->_generateIdentifierName($mergedNames, 'fk', $this->_getMaxIdentifierLength());
+            : $this->_generateIdentifierName($mergedNames, 'uniq', $this->_getMaxIdentifierLength());
 
         $name = $this->normalizeIdentifier($name);
 
