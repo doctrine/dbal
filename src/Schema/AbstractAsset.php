@@ -11,7 +11,7 @@ use function dechex;
 use function explode;
 use function implode;
 use function str_replace;
-use function strpos;
+use function strrpos;
 use function strtolower;
 use function strtoupper;
 use function substr;
@@ -51,10 +51,10 @@ abstract class AbstractAsset
             $name          = $this->trimQuotes($name);
         }
 
-        if (strpos($name, '.') !== false) {
-            $parts            = explode('.', $name);
-            $this->_namespace = $parts[0];
-            $name             = $parts[1];
+        $lastDotPos = strrpos($name, '.');
+        if ($lastDotPos !== false) {
+            $this->_namespace = substr($name, 0, $lastDotPos);
+            $name             = substr($name, $lastDotPos + 1);
         }
 
         $this->_name = $name;

@@ -610,6 +610,21 @@ class TableTest extends TestCase
         self::assertEquals('other.test', $table->getFullQualifiedName('other'));
     }
 
+    public function testTableNameWithDatabaseAndSchema(): void
+    {
+        $table = new Table('foo.bar.test');
+        self::assertEquals('foo.bar.test', $table->getName());
+        self::assertEquals('foo.bar', $table->getNamespaceName());
+        self::assertEquals('test', $table->getShortestName('foo.bar'));
+        self::assertEquals('foo.bar.test', $table->getFullQualifiedName('test'));
+
+        $table = new Table('`foo`.`bar`.`test`');
+        self::assertEquals('foo.bar.test', $table->getName());
+        self::assertEquals('foo.bar', $table->getNamespaceName());
+        self::assertEquals('test', $table->getShortestName('foo.bar'));
+        self::assertEquals('foo.bar.test', $table->getFullQualifiedName('test'));
+    }
+
     public function testDropIndex(): void
     {
         $table = new Table('test');
