@@ -770,7 +770,7 @@ END;';
 
     public function getMaxIdentifierLength(): int
     {
-        return 30;
+        return 128;
     }
 
     public function supportsSequences(): bool
