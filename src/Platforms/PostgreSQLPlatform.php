@@ -1088,6 +1088,7 @@ SQL
             'bpchar'           => 'string',
             'bytea'            => 'blob',
             'char'             => 'string',
+            'citext'           => 'text',
             'date'             => 'date',
             'datetime'         => 'datetime',
             'decimal'          => 'decimal',
