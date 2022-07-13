@@ -903,14 +903,12 @@ class SqlitePlatform extends AbstractPlatform
             );
         }
 
-        $table = clone $fromTable;
-
         $columns        = [];
         $oldColumnNames = [];
         $newColumnNames = [];
         $columnSql      = [];
 
-        foreach ($table->getColumns() as $columnName => $column) {
+        foreach ($fromTable->getColumns() as $columnName => $column) {
             $columnName                  = strtolower($columnName);
             $columns[$columnName]        = $column;
             $oldColumnNames[$columnName] = $newColumnNames[$columnName] = $column->getQuotedName($this);
@@ -974,15 +972,15 @@ class SqlitePlatform extends AbstractPlatform
         $sql      = [];
         $tableSql = [];
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
-            $dataTable = new Table('__temp__' . $table->getName());
+            $dataTable = new Table('__temp__' . $fromTable->getName());
 
             $newTable = new Table(
-                $table->getQuotedName($this),
+                $fromTable->getQuotedName($this),
                 $columns,
                 $this->getPrimaryIndexInAlteredTable($diff, $fromTable),
                 [],
                 $this->getForeignKeysInAlteredTable($diff, $fromTable),
-                $table->getOptions()
+                $fromTable->getOptions()
             );
             $newTable->addOption('alter', true);
 
@@ -992,7 +990,7 @@ class SqlitePlatform extends AbstractPlatform
                 'CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s',
                 $dataTable->getQuotedName($this),
                 implode(', ', $oldColumnNames),
-                $table->getQuotedName($this)
+                $fromTable->getQuotedName($this)
             );
             $sql[] = $this->getDropTableSQL($fromTable);
 
