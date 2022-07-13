@@ -1264,7 +1264,7 @@ class SqlitePlatform extends AbstractPlatform
         foreach ($foreignKeys as $key => $constraint) {
             $changed      = false;
             $localColumns = [];
-            foreach ($constraint->getLocalColumns() as $columnName) {
+            foreach ($constraint->getUnquotedLocalColumns() as $columnName) {
                 $normalizedColumnName = strtolower($columnName);
                 if (! isset($columnNames[$normalizedColumnName])) {
                     unset($foreignKeys[$key]);
