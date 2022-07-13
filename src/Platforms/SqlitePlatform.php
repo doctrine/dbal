@@ -1033,7 +1033,7 @@ class SqlitePlatform extends AbstractPlatform
      *
      * @throws Exception
      */
-    private function replaceColumn($tableName, array $columns, $columnName, Column $column): array
+    protected function replaceColumn($tableName, array $columns, $columnName, Column $column): array
     {
         $keys  = array_keys($columns);
         $index = array_search($columnName, $keys, true);
@@ -1055,7 +1055,7 @@ class SqlitePlatform extends AbstractPlatform
      *
      * @throws Exception
      */
-    private function getSimpleAlterTableSQL(TableDiff $diff)
+    protected function getSimpleAlterTableSQL(TableDiff $diff)
     {
         // Suppress changes on integer type autoincrement columns.
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
@@ -1148,7 +1148,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return string[]
      */
-    private function getColumnNamesInAlteredTable(TableDiff $diff, Table $fromTable): array
+    protected function getColumnNamesInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $columns = [];
 
@@ -1188,7 +1188,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return Index[]
      */
-    private function getIndexesInAlteredTable(TableDiff $diff, Table $fromTable): array
+    protected function getIndexesInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $indexes     = $fromTable->getIndexes();
         $columnNames = $this->getColumnNamesInAlteredTable($diff, $fromTable);
@@ -1256,7 +1256,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return ForeignKeyConstraint[]
      */
-    private function getForeignKeysInAlteredTable(TableDiff $diff, Table $fromTable): array
+    protected function getForeignKeysInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $foreignKeys = $fromTable->getForeignKeys();
         $columnNames = $this->getColumnNamesInAlteredTable($diff, $fromTable);
