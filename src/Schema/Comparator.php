@@ -38,7 +38,7 @@ class Comparator
         if ($platform === null) {
             Deprecation::triggerIfCalledFromOutside(
                 'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/4659',
+                'https://github.com/doctrine/dbal/pull/4746',
                 'Not passing a $platform to %s is deprecated.'
                     . ' Use AbstractSchemaManager::createComparator() to instantiate the comparator.',
                 __METHOD__
