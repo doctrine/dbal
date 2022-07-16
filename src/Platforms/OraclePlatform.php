@@ -1006,9 +1006,18 @@ SQL
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function usesSequenceEmulatedIdentityColumns()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5513',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return true;
     }
 

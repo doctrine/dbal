@@ -377,7 +377,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIdentitySequenceName"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::usesSequenceEmulatedIdentityColumns"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::usesSequenceEmulatedIdentityColumns"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getIdentitySequenceName"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::usesSequenceEmulatedIdentityColumns"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

@@ -10,8 +10,8 @@ awareness about deprecated code.
 
 ## Deprecated `AbstractPlatform` methods.
 
-1. `getIdentitySequenceName()` has been deprecated since the underlying sequence name is an internal platform-specific
-   implementation detail.
+1. `usesSequenceEmulatedIdentityColumns()` and `getIdentitySequenceName()` have been deprecated since the fact of
+   emulation of identity columns and the underlying sequence name are internal platform-specific implementation details.
 
 ## Deprecated `SqlitePlatform::getTinyIntTypeDeclarationSQL()` and `::getMediumIntTypeDeclarationSQL()` methods.
 
