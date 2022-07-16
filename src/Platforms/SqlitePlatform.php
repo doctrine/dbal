@@ -251,12 +251,21 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated Use {@see getSmallIntTypeDeclarationSQL()} instead.
+     *
      * @param array<string, mixed> $column
      *
      * @return string
      */
     public function getTinyIntTypeDeclarationSQL(array $column)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5511',
+            '%s is deprecated. Use getSmallIntTypeDeclarationSQL() instead.',
+            __METHOD__
+        );
+
         // SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT columns
         if (! empty($column['autoincrement'])) {
             return $this->getIntegerTypeDeclarationSQL($column);
@@ -279,12 +288,21 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated Use {@see getIntegerTypeDeclarationSQL()} instead.
+     *
      * @param array<string, mixed> $column
      *
      * @return string
      */
     public function getMediumIntTypeDeclarationSQL(array $column)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5511',
+            '%s is deprecated. Use getIntegerTypeDeclarationSQL() instead.',
+            __METHOD__
+        );
+
         // SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT columns
         if (! empty($column['autoincrement'])) {
             return $this->getIntegerTypeDeclarationSQL($column);

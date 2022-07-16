@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `SqlitePlatform::getTinyIntTypeDeclarationSQL()` and `::getMediumIntTypeDeclarationSQL()` methods.
+
+The methods have been deprecated since they are implemented only by the SQLite platform, and the column types
+they implement are not portable across the rest of the supported platforms.
+
+Use `SqlitePlatform::getSmallIntTypeDeclarationSQL()` and `::getIntegerTypeDeclarationSQL()` respectively instead.
+
 ## Deprecated `NULL` schema asset filter.
 
 Not passing an argument to `Configuration::setSchemaAssetsFilter()` and passing `NULL` as the value of `$callable`
