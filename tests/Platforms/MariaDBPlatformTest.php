@@ -15,11 +15,6 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
         return new MariaDBPlatform();
     }
 
-    public function testHasNativeJsonType(): void
-    {
-        self::assertFalse($this->platform->hasNativeJsonType());
-    }
-
     /**
      * From MariaDB 10.2.7, JSON type is an alias to LONGTEXT
      *

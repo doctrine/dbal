@@ -1116,26 +1116,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertArrayHasKey('idx_3d6c147fdc58d6c', $indexes);
     }
 
-    public function testComparatorShouldNotAddCommentToJsonTypeSinceItIsTheDefaultNow(): void
-    {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if (! $platform->hasNativeJsonType()) {
-            self::markTestSkipped('This test is only supported on platforms that have native JSON type.');
-        }
-
-        $this->dropTableIfExists('json_test');
-        $this->connection->executeQuery('CREATE TABLE json_test (parameters JSON NOT NULL)');
-
-        $table = new Table('json_test');
-        $table->addColumn('parameters', 'json');
-
-        $tableDiff = $this->schemaManager->createComparator()
-            ->diffTable($this->schemaManager->listTableDetails('json_test'), $table);
-
-        self::assertNull($tableDiff);
-    }
-
     public function testCreateAndListSequences(): void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSequences()) {

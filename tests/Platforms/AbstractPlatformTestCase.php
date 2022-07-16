@@ -817,11 +817,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         return 'VARBINARY(16)';
     }
 
-    public function hasNativeJsonType(): void
-    {
-        self::assertFalse($this->platform->hasNativeJsonType());
-    }
-
     public function testReturnsJsonTypeDeclarationSQL(): void
     {
         $column = [

@@ -211,6 +211,8 @@ Postgres 9 is not actively supported anymore. The following classes have been me
 
 The following methods are removed:
 
+- `AbstractPlatform::hasNativeJsonType()`
+- `AbstractPlatform::hasNativeGuidType()`
 - `AbstractPlatform::isCommentedDoctrineType()`
 - `AbstractPlatform::initializeCommentedDoctrineTypes()`
 - `AbstractPlatform::markDoctrineTypeCommented()`

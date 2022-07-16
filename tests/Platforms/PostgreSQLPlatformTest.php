@@ -897,11 +897,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testHasNativeJsonType(): void
-    {
-        self::assertTrue($this->platform->hasNativeJsonType());
-    }
-
     public function testReturnsJsonTypeDeclarationSQL(): void
     {
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
