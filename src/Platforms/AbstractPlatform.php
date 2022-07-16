@@ -3866,6 +3866,8 @@ abstract class AbstractPlatform
     /**
      * Returns the default schema name.
      *
+     * @deprecated
+     *
      * @return string
      *
      * @throws Exception If not supported on this platform.

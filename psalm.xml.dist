@@ -376,6 +376,7 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getDefaultSchemaName"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIdentitySequenceName"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::usesSequenceEmulatedIdentityColumns"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::usesSequenceEmulatedIdentityColumns"/>

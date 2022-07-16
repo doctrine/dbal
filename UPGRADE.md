@@ -12,6 +12,7 @@ awareness about deprecated code.
 
 1. `usesSequenceEmulatedIdentityColumns()` and `getIdentitySequenceName()` have been deprecated since the fact of
    emulation of identity columns and the underlying sequence name are internal platform-specific implementation details.
+2. `getDefaultSchemaName()` has been deprecated since it's not used to implement any of the portable APIs.
 
 ## Deprecated `SqlitePlatform::getTinyIntTypeDeclarationSQL()` and `::getMediumIntTypeDeclarationSQL()` methods.
 

@@ -170,9 +170,18 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getDefaultSchemaName()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5513',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return 'public';
     }
 
