@@ -3917,20 +3917,38 @@ abstract class AbstractPlatform
     /**
      * Does this platform have native guid type.
      *
+     * @deprecated
+     *
      * @return bool
      */
     public function hasNativeGuidType()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return false;
     }
 
     /**
      * Does this platform have native JSON type.
      *
+     * @deprecated
+     *
      * @return bool
      */
     public function hasNativeJsonType()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return false;
     }
 

@@ -218,9 +218,18 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function hasNativeGuidType()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return true;
     }
 
@@ -1185,9 +1194,18 @@ SQL
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function hasNativeJsonType()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return true;
     }
 
