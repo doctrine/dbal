@@ -150,21 +150,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * @deprecated
-     */
-    public function usesSequenceEmulatedIdentityColumns(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return true;
-    }
-
     public function supportsCommentOnStatement(): bool
     {
         return true;

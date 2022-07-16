@@ -692,11 +692,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         );
     }
 
-    public function testUsesSequenceEmulatedIdentityColumns(): void
-    {
-        self::assertFalse($this->platform->usesSequenceEmulatedIdentityColumns());
-    }
-
     public function testGetFixedLengthStringTypeDeclarationSQLNoLength(): void
     {
         self::assertSame(

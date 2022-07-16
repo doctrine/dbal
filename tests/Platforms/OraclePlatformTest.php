@@ -492,11 +492,6 @@ SQL
         );
     }
 
-    public function testUsesSequenceEmulatedIdentityColumns(): void
-    {
-        self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
-    }
-
     /**
      * @dataProvider dataCreateSequenceWithCache
      */

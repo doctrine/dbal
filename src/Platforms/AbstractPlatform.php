@@ -37,7 +37,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -2180,27 +2179,6 @@ abstract class AbstractPlatform
      */
     public function supportsIdentityColumns(): bool
     {
-        return false;
-    }
-
-    /**
-     * Whether the platform emulates identity columns through sequences.
-     *
-     * Some platforms that do not support identity columns natively
-     * but support sequences can emulate identity columns by using
-     * sequences.
-     *
-     * @deprecated
-     */
-    public function usesSequenceEmulatedIdentityColumns(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
         return false;
     }
 
