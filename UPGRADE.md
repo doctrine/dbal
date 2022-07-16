@@ -12,7 +12,8 @@ awareness about deprecated code.
 
 1. `getDefaultSchemaName()`,
 2. `getIdentitySequenceName()`,
-3. `usesSequenceEmulatedIdentityColumns()`.
+3. `supportsCreateDropDatabase()`,
+4. `usesSequenceEmulatedIdentityColumns()`.
 
 ## BC BREAK: removed support for the `NULL` value of schema asset filter.
 

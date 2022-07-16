@@ -44,11 +44,6 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getTinyIntTypeDeclarationSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getMediumIntTypeDeclarationSQL"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsCreateDropDatabase"/>
-                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::supportsCreateDropDatabase"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>

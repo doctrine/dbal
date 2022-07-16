@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
 use Doctrine\DBAL\Schema\Column;
@@ -41,6 +42,22 @@ use function trim;
  */
 class SqlitePlatform extends AbstractPlatform
 {
+    /**
+     * @throws NotSupported
+     */
+    public function getCreateDatabaseSQL(string $name): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
+     * @throws NotSupported
+     */
+    public function getDropDatabaseSQL(string $name): string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
     public function getRegexpExpression(): string
     {
         return 'REGEXP';
@@ -422,21 +439,6 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         return $query;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function supportsCreateDropDatabase(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return false;
     }
 
     public function supportsIdentityColumns(): bool

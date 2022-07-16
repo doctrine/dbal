@@ -2074,15 +2074,9 @@ abstract class AbstractPlatform
      * Returns the SQL to create a new database.
      *
      * @param string $name The name of the database that should be created.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getCreateDatabaseSQL(string $name): string
     {
-        if (! $this->supportsCreateDropDatabase()) {
-            throw NotSupported::new(__METHOD__);
-        }
-
         return 'CREATE DATABASE ' . $name;
     }
 
@@ -2090,15 +2084,9 @@ abstract class AbstractPlatform
      * Returns the SQL snippet to drop an existing database.
      *
      * @param string $name The name of the database that should be dropped.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDropDatabaseSQL(string $name): string
     {
-        if (! $this->supportsCreateDropDatabase()) {
-            throw NotSupported::new(__METHOD__);
-        }
-
         return 'DROP DATABASE ' . $name;
     }
 
@@ -2220,18 +2208,6 @@ abstract class AbstractPlatform
     public function supportsSchemas(): bool
     {
         return false;
-    }
-
-    /**
-     * Whether this platform supports create database.
-     *
-     * Some databases don't allow to create and drop databases at all or only with certain tools.
-     *
-     * @deprecated
-     */
-    public function supportsCreateDropDatabase(): bool
-    {
-        return true;
     }
 
     /**
