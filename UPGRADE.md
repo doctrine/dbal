@@ -197,9 +197,10 @@ As a consequence, depending on the name of a type being `json` for `jsonb` to
 be used for the Postgres platform is deprecated in favor of extending
 `Doctrine\DBAL\Types\JsonType`.
 
-## Deprecated `AbstractPlatform::getColumnComment()` and `AbstractPlatform::getDoctrineTypeComment()`
+## Deprecated `AbstractPlatform::getColumnComment()`, `AbstractPlatform::getDoctrineTypeComment()` and
+`Type::requiresSQLCommentHint()`
 
-DBAL no longer needs column comments to ensure proper diffing. Note that both
+DBAL no longer needs column comments to ensure proper diffing. Note that all the
 methods should probably have been marked as internal as these comments were an
 implementation detail of the DBAL.
 
