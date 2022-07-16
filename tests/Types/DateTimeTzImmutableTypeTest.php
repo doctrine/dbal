@@ -102,9 +102,4 @@ class DateTimeTzImmutableTypeTest extends TestCase
 
         $this->type->convertToPHPValue('invalid datetime with timezone string', $this->platform);
     }
-
-    public function testRequiresSQLCommentHint(): void
-    {
-        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
-    }
 }

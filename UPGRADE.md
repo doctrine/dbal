@@ -209,13 +209,12 @@ Postgres 9 is not actively supported anymore. The following classes have been me
 
 ## BC BREAK: Removed Platform "commented type" API
 
-Since `Type::requiresSQLCommentTypeHint()` already allows determining whether a
-type should result in SQL columns with a type hint in their comments, the
-following methods are removed:
+The following methods are removed:
 
 - `AbstractPlatform::isCommentedDoctrineType()`
 - `AbstractPlatform::initializeCommentedDoctrineTypes()`
 - `AbstractPlatform::markDoctrineTypeCommented()`
+- `Type::requiresSQLCommentHint()`
 
 The protected property `AbstractPlatform::$doctrineTypeComments` is removed as
 well.

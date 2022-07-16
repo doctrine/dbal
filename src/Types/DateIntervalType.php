@@ -8,7 +8,6 @@ use DateInterval;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
-use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
 use function substr;
@@ -67,20 +66,5 @@ class DateIntervalType extends Type
         } catch (Throwable $exception) {
             throw InvalidFormat::new($value, static::class, self::FORMAT, $exception);
         }
-    }
-
-    /**
-     * @deprecated
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5509',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return true;
     }
 }

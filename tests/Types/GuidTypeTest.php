@@ -32,15 +32,4 @@ class GuidTypeTest extends TestCase
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
-
-    public function testNativeGuidSupport(): void
-    {
-        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
-
-        $this->platform->expects(self::any())
-             ->method('hasNativeGuidType')
-             ->willReturn(true);
-
-        self::assertFalse($this->type->requiresSQLCommentHint($this->platform));
-    }
 }

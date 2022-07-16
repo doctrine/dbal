@@ -110,9 +110,4 @@ class TimeImmutableTypeTest extends TestCase
 
         $this->type->convertToPHPValue('invalid time string', $this->platform);
     }
-
-    public function testRequiresSQLCommentHint(): void
-    {
-        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
-    }
 }
