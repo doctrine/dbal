@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `SqlitePlatform` methods.
+
+1. `getTinyIntTypeDeclarationSQL()`,
+2. `getMediumIntTypeDeclarationSQL()`.
+
 ## BC BREAK: removed `AbstractPlatform` methods.
 
 1. `getDefaultSchemaName()`,

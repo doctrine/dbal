@@ -81,32 +81,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesTypeDeclarationForTinyIntegers(): void
-    {
-        self::assertEquals(
-            'TINYINT',
-            $this->platform->getTinyIntTypeDeclarationSQL([])
-        );
-        self::assertEquals(
-            'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getTinyIntTypeDeclarationSQL(['autoincrement' => true])
-        );
-        self::assertEquals(
-            'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getTinyIntTypeDeclarationSQL(
-                ['autoincrement' => true, 'primary' => true]
-            )
-        );
-        self::assertEquals(
-            'TINYINT',
-            $this->platform->getTinyIntTypeDeclarationSQL(['unsigned' => false])
-        );
-        self::assertEquals(
-            'TINYINT UNSIGNED',
-            $this->platform->getTinyIntTypeDeclarationSQL(['unsigned' => true])
-        );
-    }
-
     public function testGeneratesTypeDeclarationForSmallIntegers(): void
     {
         self::assertEquals(
@@ -116,10 +90,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->platform->getSmallIntTypeDeclarationSQL(['autoincrement' => true])
-        );
-        self::assertEquals(
-            'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getTinyIntTypeDeclarationSQL(['autoincrement' => true, 'unsigned' => true])
         );
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
@@ -134,36 +104,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'SMALLINT UNSIGNED',
             $this->platform->getSmallIntTypeDeclarationSQL(['unsigned' => true])
-        );
-    }
-
-    public function testGeneratesTypeDeclarationForMediumIntegers(): void
-    {
-        self::assertEquals(
-            'MEDIUMINT',
-            $this->platform->getMediumIntTypeDeclarationSQL([])
-        );
-        self::assertEquals(
-            'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getMediumIntTypeDeclarationSQL(['autoincrement' => true])
-        );
-        self::assertEquals(
-            'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getMediumIntTypeDeclarationSQL(['autoincrement' => true, 'unsigned' => true])
-        );
-        self::assertEquals(
-            'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getMediumIntTypeDeclarationSQL(
-                ['autoincrement' => true, 'primary' => true]
-            )
-        );
-        self::assertEquals(
-            'MEDIUMINT',
-            $this->platform->getMediumIntTypeDeclarationSQL(['unsigned' => false])
-        );
-        self::assertEquals(
-            'MEDIUMINT UNSIGNED',
-            $this->platform->getMediumIntTypeDeclarationSQL(['unsigned' => true])
         );
     }
 

@@ -19,7 +19,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_combine;
@@ -209,28 +208,6 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * @deprecated Use {@see getSmallIntTypeDeclarationSQL()} instead.
-     *
-     * @param array<string, mixed> $column
-     */
-    public function getTinyIntTypeDeclarationSQL(array $column): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5511',
-            '%s is deprecated. Use getSmallIntTypeDeclarationSQL() instead.',
-            __METHOD__
-        );
-
-        // SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT columns
-        if (! empty($column['autoincrement'])) {
-            return $this->getIntegerTypeDeclarationSQL($column);
-        }
-
-        return 'TINYINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function getSmallIntTypeDeclarationSQL(array $column): string
@@ -241,28 +218,6 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
-    }
-
-    /**
-     * @deprecated Use {@see getIntegerTypeDeclarationSQL()} instead.
-     *
-     * @param array<string, mixed> $column
-     */
-    public function getMediumIntTypeDeclarationSQL(array $column): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5511',
-            '%s is deprecated. Use getIntegerTypeDeclarationSQL() instead.',
-            __METHOD__
-        );
-
-        // SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT columns
-        if (! empty($column['autoincrement'])) {
-            return $this->getIntegerTypeDeclarationSQL($column);
-        }
-
-        return 'MEDIUMINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
