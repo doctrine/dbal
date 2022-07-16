@@ -3679,6 +3679,8 @@ abstract class AbstractPlatform
     /**
      * Returns the name of the sequence for a particular identity column in a particular table.
      *
+     * @deprecated
+     *
      * @see usesSequenceEmulatedIdentityColumns
      *
      * @param string $tableName  The name of the table to return the sequence name for.

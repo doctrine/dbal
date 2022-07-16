@@ -373,6 +373,11 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getTinyIntTypeDeclarationSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getMediumIntTypeDeclarationSQL"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIdentitySequenceName"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getIdentitySequenceName"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

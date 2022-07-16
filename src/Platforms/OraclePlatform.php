@@ -1014,6 +1014,8 @@ SQL
 
     /**
      * {@inheritdoc}
+     *
+     * @internal The method should be only used from within the OraclePlatform class hierarchy.
      */
     public function getIdentitySequenceName($tableName, $columnName)
     {

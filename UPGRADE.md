@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `AbstractPlatform` methods.
+
+1. `getIdentitySequenceName()` has been deprecated since the underlying sequence name is an internal platform-specific
+   implementation detail.
+
 ## Deprecated `SqlitePlatform::getTinyIntTypeDeclarationSQL()` and `::getMediumIntTypeDeclarationSQL()` methods.
 
 The methods have been deprecated since they are implemented only by the SQLite platform, and the column types
