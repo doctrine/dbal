@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_combine;
@@ -191,10 +192,19 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated Use {@see getSmallIntTypeDeclarationSQL()} instead.
+     *
      * @param array<string, mixed> $column
      */
     public function getTinyIntTypeDeclarationSQL(array $column): string
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5511',
+            '%s is deprecated. Use getSmallIntTypeDeclarationSQL() instead.',
+            __METHOD__
+        );
+
         // SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT columns
         if (! empty($column['autoincrement'])) {
             return $this->getIntegerTypeDeclarationSQL($column);
@@ -217,10 +227,19 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated Use {@see getIntegerTypeDeclarationSQL()} instead.
+     *
      * @param array<string, mixed> $column
      */
     public function getMediumIntTypeDeclarationSQL(array $column): string
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5511',
+            '%s is deprecated. Use getIntegerTypeDeclarationSQL() instead.',
+            __METHOD__
+        );
+
         // SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT columns
         if (! empty($column['autoincrement'])) {
             return $this->getIntegerTypeDeclarationSQL($column);
@@ -405,8 +424,18 @@ class SqlitePlatform extends AbstractPlatform
         return $query;
     }
 
+    /**
+     * @deprecated
+     */
     public function supportsCreateDropDatabase(): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5513',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return false;
     }
 

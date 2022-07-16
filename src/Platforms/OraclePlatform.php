@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -709,11 +710,24 @@ END;';
         return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
     }
 
+    /**
+     * @deprecated
+     */
     public function usesSequenceEmulatedIdentityColumns(): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5513',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return true;
     }
 
+    /**
+     * @internal The method should be only used from within the OraclePlatform class hierarchy.
+     */
     public function getIdentitySequenceName(string $tableName, string $columnName): string
     {
         $table = new Identifier($tableName);

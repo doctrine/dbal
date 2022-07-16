@@ -37,6 +37,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -2188,14 +2189,25 @@ abstract class AbstractPlatform
      * Some platforms that do not support identity columns natively
      * but support sequences can emulate identity columns by using
      * sequences.
+     *
+     * @deprecated
      */
     public function usesSequenceEmulatedIdentityColumns(): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5513',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return false;
     }
 
     /**
      * Returns the name of the sequence for a particular identity column in a particular table.
+     *
+     * @deprecated
      *
      * @see usesSequenceEmulatedIdentityColumns
      *
@@ -2252,6 +2264,8 @@ abstract class AbstractPlatform
     /**
      * Returns the default schema name.
      *
+     * @deprecated
+     *
      * @throws Exception If not supported on this platform.
      */
     public function getDefaultSchemaName(): string
@@ -2263,6 +2277,8 @@ abstract class AbstractPlatform
      * Whether this platform supports create database.
      *
      * Some databases don't allow to create and drop databases at all or only with certain tools.
+     *
+     * @deprecated
      */
     public function supportsCreateDropDatabase(): bool
     {
