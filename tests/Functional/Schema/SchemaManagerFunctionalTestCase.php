@@ -10,7 +10,9 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -1055,13 +1057,18 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testListTableDetailsWithFullQualifiedTableName(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsSchemas()) {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof PostgreSQLPlatform) {
+            $defaultSchemaName = 'public';
+        } elseif ($platform instanceof SQLServerPlatform) {
+            $defaultSchemaName = 'dbo';
+        } else {
             self::markTestSkipped('Test only works on platforms that support schemas.');
         }
 
-        $defaultSchemaName = $this->connection->getDatabasePlatform()->getDefaultSchemaName();
-        $primaryTableName  = 'primary_table';
-        $foreignTableName  = 'foreign_table';
+        $primaryTableName = 'primary_table';
+        $foreignTableName = 'foreign_table';
 
         $table = new Table($foreignTableName);
         $table->addColumn('id', 'integer', ['autoincrement' => true]);

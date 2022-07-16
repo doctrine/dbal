@@ -10,8 +10,9 @@ awareness about deprecated code.
 
 ## BC BREAK: removed `AbstractPlatform` methods.
 
-1. `getIdentitySequenceName()`,
-2. `usesSequenceEmulatedIdentityColumns()`.
+1. `getDefaultSchemaName()`,
+2. `getIdentitySequenceName()`,
+3. `usesSequenceEmulatedIdentityColumns()`.
 
 ## BC BREAK: removed support for the `NULL` value of schema asset filter.
 

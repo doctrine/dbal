@@ -2223,18 +2223,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the default schema name.
-     *
-     * @deprecated
-     *
-     * @throws Exception If not supported on this platform.
-     */
-    public function getDefaultSchemaName(): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
-
-    /**
      * Whether this platform supports create database.
      *
      * Some databases don't allow to create and drop databases at all or only with certain tools.
