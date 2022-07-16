@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 
@@ -220,9 +221,18 @@ abstract class Type
      * reverse schema engineering can't tell them apart. You need to mark
      * one of those types as commented, which will have Doctrine use an SQL
      * comment to typehint the actual Doctrine Type.
+     *
+     * @deprecated
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return false;
     }
 }

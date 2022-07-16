@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
+use Doctrine\Deprecations\Deprecation;
 
 use function date_create_immutable;
 
@@ -56,8 +57,18 @@ class DateTimeImmutableType extends DateTimeType
         return $dateTime;
     }
 
+    /**
+     * @deprecated
+     */
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return true;
     }
 }

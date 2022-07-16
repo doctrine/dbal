@@ -37,6 +37,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -2287,17 +2288,35 @@ abstract class AbstractPlatform
 
     /**
      * Does this platform have native guid type.
+     *
+     * @deprecated
      */
     public function hasNativeGuidType(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return false;
     }
 
     /**
      * Does this platform have native JSON type.
+     *
+     * @deprecated
      */
     public function hasNativeJsonType(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return false;
     }
 

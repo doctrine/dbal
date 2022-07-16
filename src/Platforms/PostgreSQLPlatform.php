@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_diff;
@@ -154,8 +155,18 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * @deprecated
+     */
     public function hasNativeGuidType(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return true;
     }
 
@@ -812,8 +823,18 @@ class PostgreSQLPlatform extends AbstractPlatform
         ];
     }
 
+    /**
+     * @deprecated
+     */
     public function hasNativeJsonType(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5509',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return true;
     }
 
