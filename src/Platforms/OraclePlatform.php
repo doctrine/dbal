@@ -381,8 +381,7 @@ BEGIN
 END;";
 
         $sequenceName = $this->getIdentitySequenceName(
-            $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName,
-            $nameIdentifier->isQuoted() ? $quotedName : $unquotedName
+            $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName
         );
         $sequence     = new Sequence($sequenceName, $start);
         $sql[]        = $this->getCreateSequenceSQL($sequence);
@@ -426,8 +425,7 @@ END;';
         $table                       = $this->normalizeIdentifier($table);
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);
         $identitySequenceName        = $this->getIdentitySequenceName(
-            $table->isQuoted() ? $table->getQuotedName($this) : $table->getName(),
-            ''
+            $table->isQuoted() ? $table->getQuotedName($this) : $table->getName()
         );
 
         return [
@@ -725,10 +723,7 @@ END;';
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the OraclePlatform class hierarchy.
-     */
-    public function getIdentitySequenceName(string $tableName, string $columnName): string
+    protected function getIdentitySequenceName(string $tableName): string
     {
         $table = new Identifier($tableName);
 

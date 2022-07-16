@@ -2205,23 +2205,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the name of the sequence for a particular identity column in a particular table.
-     *
-     * @deprecated
-     *
-     * @see usesSequenceEmulatedIdentityColumns
-     *
-     * @param string $tableName  The name of the table to return the sequence name for.
-     * @param string $columnName The name of the identity column in the table to return the sequence name for.
-     *
-     * @throws Exception If not supported on this platform.
-     */
-    public function getIdentitySequenceName(string $tableName, string $columnName): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
-
-    /**
      * Whether the platform supports partial indexes.
      */
     public function supportsPartialIndexes(): bool

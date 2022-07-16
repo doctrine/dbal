@@ -497,14 +497,6 @@ SQL
         self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
     }
 
-    public function testReturnsIdentitySequenceName(): void
-    {
-        self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
-        self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
-        self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', '"mycolumn"'));
-        self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
-    }
-
     /**
      * @dataProvider dataCreateSequenceWithCache
      */

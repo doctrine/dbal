@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `AbstractPlatform` methods.
+
+1. `getIdentitySequenceName()`.
+
 ## BC BREAK: removed support for the `NULL` value of schema asset filter.
 
 The argument of `Configuration::setSchemaAssetsFilter()` is now required and non-nullable.

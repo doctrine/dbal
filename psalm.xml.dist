@@ -48,12 +48,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getDefaultSchemaName"/>
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIdentitySequenceName"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::supportsCreateDropDatabase"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::usesSequenceEmulatedIdentityColumns"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::supportsCreateDropDatabase"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\OraclePlatform::usesSequenceEmulatedIdentityColumns"/>
-                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::getIdentitySequenceName"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::usesSequenceEmulatedIdentityColumns"/>
             </errorLevel>
         </DeprecatedMethod>

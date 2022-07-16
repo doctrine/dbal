@@ -165,21 +165,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * @deprecated
-     */
-    public function getIdentitySequenceName(string $tableName, string $columnName): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return $tableName . '_' . $columnName . '_seq';
-    }
-
     public function supportsCommentOnStatement(): bool
     {
         return true;
