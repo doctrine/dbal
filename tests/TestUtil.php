@@ -8,7 +8,9 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Event\Listeners\SQLiteSessionInit;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 
@@ -100,7 +102,20 @@ class TestUtil
 
         $platform = $privConn->getDatabasePlatform();
 
-        if ($platform->supportsCreateDropDatabase()) {
+        if ($platform instanceof SqlitePlatform) {
+            if (isset($testConnParams['path']) && file_exists($testConnParams['path'])) {
+                unlink($testConnParams['path']);
+            }
+        } elseif ($platform instanceof DB2Platform) {
+            $testConn = DriverManager::getConnection($testConnParams);
+
+            $sm = $testConn->createSchemaManager();
+
+            $schema = $sm->createSchema();
+            $sm->dropSchemaObjects($schema);
+
+            $testConn->close();
+        } else {
             if (! $platform instanceof OraclePlatform) {
                 $dbname = $testConnParams['dbname'];
             } else {
@@ -115,19 +130,6 @@ class TestUtil
             }
 
             $sm->createDatabase($dbname);
-        } elseif (isset($testConnParams['path'])) {
-            if (file_exists($testConnParams['path'])) {
-                unlink($testConnParams['path']);
-            }
-        } else {
-            $testConn = DriverManager::getConnection($testConnParams);
-
-            $sm = $testConn->getSchemaManager();
-
-            $schema = $sm->createSchema();
-            $sm->dropSchemaObjects($schema);
-
-            $testConn->close();
         }
 
         $privConn->close();

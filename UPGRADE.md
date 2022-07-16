@@ -8,6 +8,15 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated `AbstractPlatform` methods.
+
+1. `usesSequenceEmulatedIdentityColumns()` and `getIdentitySequenceName()` have been deprecated since the fact of
+   emulation of identity columns and the underlying sequence name are internal platform-specific implementation details.
+2. `getDefaultSchemaName()` has been deprecated since it's not used to implement any of the portable APIs.
+3. `supportsCreateDropDatabase()` has been deprecated. Try calling `AbstractSchemaManager::createDatabase`
+    and/or `::dropDatabase()` to see if the corresponding operations are supported by the current database platform
+    or implement conditional logic based on the platform class name.
+
 ## Deprecated `SqlitePlatform::getTinyIntTypeDeclarationSQL()` and `::getMediumIntTypeDeclarationSQL()` methods.
 
 The methods have been deprecated since they are implemented only by the SQLite platform, and the column types
