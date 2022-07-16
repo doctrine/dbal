@@ -466,9 +466,18 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function supportsCreateDropDatabase()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5513',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return false;
     }
 

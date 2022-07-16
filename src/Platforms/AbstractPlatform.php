@@ -3882,10 +3882,19 @@ abstract class AbstractPlatform
      *
      * Some databases don't allow to create and drop databases at all or only with certain tools.
      *
+     * @deprecated
+     *
      * @return bool
      */
     public function supportsCreateDropDatabase()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5513',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return true;
     }
 
