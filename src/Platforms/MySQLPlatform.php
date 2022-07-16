@@ -32,11 +32,6 @@ class MySQLPlatform extends AbstractMySQLPlatform
         return parent::getDefaultValueDeclarationSQL($column);
     }
 
-    public function hasNativeJsonType(): bool
-    {
-        return true;
-    }
-
     /**
      * {@inheritdoc}
      */

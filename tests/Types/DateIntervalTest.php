@@ -89,11 +89,6 @@ final class DateIntervalTest extends TestCase
         $this->type->convertToPHPValue('', $this->platform);
     }
 
-    public function testRequiresSQLCommentHint(): void
-    {
-        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
-    }
-
     /**
      * @dataProvider invalidPHPValuesProvider
      */

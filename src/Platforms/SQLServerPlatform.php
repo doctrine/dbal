@@ -17,7 +17,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -153,21 +152,6 @@ class SQLServerPlatform extends AbstractPlatform
     public function getSequenceNextValSQL(string $sequence): string
     {
         return 'SELECT NEXT VALUE FOR ' . $sequence;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function hasNativeGuidType(): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5509',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return true;
     }
 
     public function getDropForeignKeySQL(string $foreignKey, string $table): string

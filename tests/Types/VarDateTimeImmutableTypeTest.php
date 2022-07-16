@@ -88,9 +88,4 @@ class VarDateTimeImmutableTypeTest extends TestCase
 
         $this->type->convertToPHPValue('invalid date-ish string', $this->platform);
     }
-
-    public function testRequiresSQLCommentHint(): void
-    {
-        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
-    }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\Deprecations\Deprecation;
 
 use function count;
 use function explode;
@@ -50,20 +49,5 @@ class SimpleArrayType extends Type
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
         return explode(',', $value);
-    }
-
-    /**
-     * @deprecated
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5509',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return true;
     }
 }

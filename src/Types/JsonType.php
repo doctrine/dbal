@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\SerializationFailed;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
-use Doctrine\Deprecations\Deprecation;
 use JsonException;
 
 use function is_resource;
@@ -59,20 +58,5 @@ class JsonType extends Type
         } catch (JsonException $e) {
             throw ValueNotConvertible::new($value, 'json', $e->getMessage(), $e);
         }
-    }
-
-    /**
-     * @deprecated
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5509',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return ! $platform->hasNativeJsonType();
     }
 }

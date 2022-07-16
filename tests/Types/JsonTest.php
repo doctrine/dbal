@@ -89,11 +89,6 @@ class JsonTest extends TestCase
         self::assertSame($value, $phpValue);
     }
 
-    public function testRequiresSQLCommentHint(): void
-    {
-        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
-    }
-
     public function testPHPNullValueConvertsToJsonNull(): void
     {
         self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));

@@ -39,24 +39,6 @@
                     See https://github.com/doctrine/dbal/pull/4317
                 -->
                 <file name="tests/Functional/LegacyAPITest.php"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedMethod name="Doctrine\DBAL\Types\Type::requiresSQLCommentHint"/>
-                <referencedMethod name="Doctrine\DBAL\Types\DateImmutableType::requiresSQLCommentHint"/>
-                <referencedMethod name="Doctrine\DBAL\Types\DateIntervalType::requiresSQLCommentHint"/>
-                <referencedMethod name="Doctrine\DBAL\Types\DateTimeTzImmutableType::requiresSQLCommentHint"/>
-                <referencedMethod name="Doctrine\DBAL\Types\DateTimeImmutableType::requiresSQLCommentHint"/>
-                <referencedMethod name="Doctrine\DBAL\Types\GuidType::requiresSQLCommentHint"/>
-                <referencedMethod name="Doctrine\DBAL\Types\JsonType::requiresSQLCommentHint"/>
-                <referencedMethod name="Doctrine\DBAL\Types\TimeImmutableType::requiresSQLCommentHint"/>
-                <referencedMethod name="Doctrine\DBAL\Types\VarDateTimeImmutableType::requiresSQLCommentHint"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::hasNativeGuidType"/>
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::hasNativeJsonType"/>
-                <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::hasNativeJsonType"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
