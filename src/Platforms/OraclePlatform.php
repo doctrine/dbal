@@ -16,7 +16,6 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -381,8 +380,7 @@ BEGIN
 END;";
 
         $sequenceName = $this->getIdentitySequenceName(
-            $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName,
-            $nameIdentifier->isQuoted() ? $quotedName : $unquotedName
+            $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName
         );
         $sequence     = new Sequence($sequenceName, $start);
         $sql[]        = $this->getCreateSequenceSQL($sequence);
@@ -426,8 +424,7 @@ END;';
         $table                       = $this->normalizeIdentifier($table);
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);
         $identitySequenceName        = $this->getIdentitySequenceName(
-            $table->isQuoted() ? $table->getQuotedName($this) : $table->getName(),
-            ''
+            $table->isQuoted() ? $table->getQuotedName($this) : $table->getName()
         );
 
         return [
@@ -710,25 +707,7 @@ END;';
         return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
     }
 
-    /**
-     * @deprecated
-     */
-    public function usesSequenceEmulatedIdentityColumns(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return true;
-    }
-
-    /**
-     * @internal The method should be only used from within the OraclePlatform class hierarchy.
-     */
-    public function getIdentitySequenceName(string $tableName, string $columnName): string
+    protected function getIdentitySequenceName(string $tableName): string
     {
         $table = new Identifier($tableName);
 

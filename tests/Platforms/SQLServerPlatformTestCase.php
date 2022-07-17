@@ -155,11 +155,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertTrue($this->platform->supportsIdentityColumns());
     }
 
-    public function testSupportsCreateDropDatabase(): void
-    {
-        self::assertTrue($this->platform->supportsCreateDropDatabase());
-    }
-
     public function testSupportsSchemas(): void
     {
         self::assertTrue($this->platform->supportsSchemas());

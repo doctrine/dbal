@@ -17,7 +17,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -107,21 +106,6 @@ class SQLServerPlatform extends AbstractPlatform
     public function supportsSchemas(): bool
     {
         return true;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getDefaultSchemaName(): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return 'dbo';
     }
 
     public function supportsColumnCollation(): bool

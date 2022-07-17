@@ -14,7 +14,6 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function count;
@@ -204,21 +203,6 @@ class DB2Platform extends AbstractPlatform
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS';
-    }
-
-    /**
-     * @deprecated
-     */
-    public function supportsCreateDropDatabase(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return false;
     }
 
     public function supportsCommentOnStatement(): bool

@@ -692,21 +692,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         );
     }
 
-    public function testUsesSequenceEmulatedIdentityColumns(): void
-    {
-        self::assertFalse($this->platform->usesSequenceEmulatedIdentityColumns());
-    }
-
-    /**
-     * @group DBAL-563
-     */
-    public function testReturnsIdentitySequenceName(): void
-    {
-        $this->expectException(Exception::class);
-
-        $this->platform->getIdentitySequenceName('mytable', 'mycolumn');
-    }
-
     public function testGetFixedLengthStringTypeDeclarationSQLNoLength(): void
     {
         self::assertSame(

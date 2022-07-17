@@ -37,7 +37,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -2075,15 +2074,9 @@ abstract class AbstractPlatform
      * Returns the SQL to create a new database.
      *
      * @param string $name The name of the database that should be created.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getCreateDatabaseSQL(string $name): string
     {
-        if (! $this->supportsCreateDropDatabase()) {
-            throw NotSupported::new(__METHOD__);
-        }
-
         return 'CREATE DATABASE ' . $name;
     }
 
@@ -2091,15 +2084,9 @@ abstract class AbstractPlatform
      * Returns the SQL snippet to drop an existing database.
      *
      * @param string $name The name of the database that should be dropped.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDropDatabaseSQL(string $name): string
     {
-        if (! $this->supportsCreateDropDatabase()) {
-            throw NotSupported::new(__METHOD__);
-        }
-
         return 'DROP DATABASE ' . $name;
     }
 
@@ -2184,44 +2171,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Whether the platform emulates identity columns through sequences.
-     *
-     * Some platforms that do not support identity columns natively
-     * but support sequences can emulate identity columns by using
-     * sequences.
-     *
-     * @deprecated
-     */
-    public function usesSequenceEmulatedIdentityColumns(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return false;
-    }
-
-    /**
-     * Returns the name of the sequence for a particular identity column in a particular table.
-     *
-     * @deprecated
-     *
-     * @see usesSequenceEmulatedIdentityColumns
-     *
-     * @param string $tableName  The name of the table to return the sequence name for.
-     * @param string $columnName The name of the identity column in the table to return the sequence name for.
-     *
-     * @throws Exception If not supported on this platform.
-     */
-    public function getIdentitySequenceName(string $tableName, string $columnName): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
-
-    /**
      * Whether the platform supports partial indexes.
      */
     public function supportsPartialIndexes(): bool
@@ -2259,30 +2208,6 @@ abstract class AbstractPlatform
     public function supportsSchemas(): bool
     {
         return false;
-    }
-
-    /**
-     * Returns the default schema name.
-     *
-     * @deprecated
-     *
-     * @throws Exception If not supported on this platform.
-     */
-    public function getDefaultSchemaName(): string
-    {
-        throw NotSupported::new(__METHOD__);
-    }
-
-    /**
-     * Whether this platform supports create database.
-     *
-     * Some databases don't allow to create and drop databases at all or only with certain tools.
-     *
-     * @deprecated
-     */
-    public function supportsCreateDropDatabase(): bool
-    {
-        return true;
     }
 
     /**

@@ -399,11 +399,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertFalse($this->platform->supportsReleaseSavepoints());
     }
 
-    public function testDoesNotSupportCreateDropDatabase(): void
-    {
-        self::assertFalse($this->platform->supportsCreateDropDatabase());
-    }
-
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(ColumnLengthRequired::class);

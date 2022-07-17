@@ -569,16 +569,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $sql);
     }
 
-    public function testUsesSequenceEmulatedIdentityColumns(): void
-    {
-        self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
-    }
-
-    public function testReturnsIdentitySequenceName(): void
-    {
-        self::assertSame('mytable_mycolumn_seq', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
-    }
-
     /**
      * @dataProvider dataCreateSequenceWithCache
      */

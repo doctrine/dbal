@@ -16,7 +16,6 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
-use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_diff;
@@ -125,21 +124,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * @deprecated
-     */
-    public function getDefaultSchemaName(): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return 'public';
-    }
-
     public function supportsIdentityColumns(): bool
     {
         return true;
@@ -148,36 +132,6 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function supportsPartialIndexes(): bool
     {
         return true;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function usesSequenceEmulatedIdentityColumns(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return true;
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getIdentitySequenceName(string $tableName, string $columnName): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return $tableName . '_' . $columnName . '_seq';
     }
 
     public function supportsCommentOnStatement(): bool

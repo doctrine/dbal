@@ -8,6 +8,18 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `SqlitePlatform` methods.
+
+1. `getTinyIntTypeDeclarationSQL()`,
+2. `getMediumIntTypeDeclarationSQL()`.
+
+## BC BREAK: removed `AbstractPlatform` methods.
+
+1. `getDefaultSchemaName()`,
+2. `getIdentitySequenceName()`,
+3. `supportsCreateDropDatabase()`,
+4. `usesSequenceEmulatedIdentityColumns()`.
+
 ## BC BREAK: removed support for the `NULL` value of schema asset filter.
 
 The argument of `Configuration::setSchemaAssetsFilter()` is now required and non-nullable.
