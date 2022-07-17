@@ -365,7 +365,6 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
-                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::hasNativeGuidType"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::hasNativeJsonType"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\PostgreSQLPlatform::hasNativeJsonType"/>
                 <!--
