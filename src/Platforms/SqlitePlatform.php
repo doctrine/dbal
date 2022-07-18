@@ -36,8 +36,6 @@ use function trim;
 /**
  * The SqlitePlatform class describes the specifics and dialects of the SQLite
  * database platform.
- *
- * @todo   Rename: SQLitePlatform
  */
 class SqlitePlatform extends AbstractPlatform
 {
