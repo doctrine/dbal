@@ -1,0 +1,18 @@
+name: Lock Closed Issues
+
+on:
+  schedule:
+    - cron: 0 0 * * *
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dessant/lock-threads@v3
+        with:
+          github-token: '${{ github.token }}'
+          issue-inactive-days: 30
+          issue-comment: >
+            This thread has been automatically locked since there has not been
+            any recent activity after it was closed. Please open a new issue for
+            related bugs.
