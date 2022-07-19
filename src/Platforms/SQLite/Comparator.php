@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms\SQLite;
 
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -21,7 +21,7 @@ class Comparator extends BaseComparator
     /**
      * @internal The comparator can be only instantiated by a schema manager.
      */
-    public function __construct(SqlitePlatform $platform)
+    public function __construct(SQLitePlatform $platform)
     {
         parent::__construct($platform);
     }

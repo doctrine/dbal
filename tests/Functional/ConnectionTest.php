@@ -11,7 +11,7 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -82,7 +82,7 @@ class ConnectionTest extends FunctionalTestCase
             self::markTestSkipped('This test requires the platform to support savepoints.');
         }
 
-        if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+        if ($this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
             $params           = $this->connection->getParams();
             $params['memory'] = false;
             $params['path']   = '/tmp/test_nesting.sqlite';
@@ -320,7 +320,7 @@ class ConnectionTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (
-            $platform instanceof SqlitePlatform
+            $platform instanceof SQLitePlatform
             || $platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped('The platform does not support persistent connections');

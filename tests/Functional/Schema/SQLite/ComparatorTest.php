@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema\SQLite;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
@@ -25,7 +25,7 @@ final class ComparatorTest extends FunctionalTestCase
     {
         $this->platform = $this->connection->getDatabasePlatform();
 
-        if (! $this->platform instanceof SqlitePlatform) {
+        if (! $this->platform instanceof SQLitePlatform) {
             self::markTestSkipped();
         }
 

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Schema\SqliteSchemaManager;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
-class SqliteSchemaManagerTest extends TestCase
+class SQLiteSchemaManagerTest extends TestCase
 {
     /**
      * @dataProvider getDataColumnCollation
@@ -19,7 +19,7 @@ class SqliteSchemaManagerTest extends TestCase
     {
         $conn = $this->createMock(Connection::class);
 
-        $manager = new SqliteSchemaManager($conn, new SqlitePlatform());
+        $manager = new SQLiteSchemaManager($conn, new SQLitePlatform());
         $ref     = new ReflectionMethod($manager, 'parseColumnCollationFromSQL');
         $ref->setAccessible(true);
 
@@ -135,7 +135,7 @@ class SqliteSchemaManagerTest extends TestCase
     {
         $conn = $this->createMock(Connection::class);
 
-        $manager = new SqliteSchemaManager($conn, new SqlitePlatform());
+        $manager = new SQLiteSchemaManager($conn, new SQLitePlatform());
         $ref     = new ReflectionMethod($manager, 'parseColumnCommentFromSQL');
         $ref->setAccessible(true);
 

@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -128,7 +128,7 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testConnectionExceptionSqLite(): void
     {
-        if (! ($this->connection->getDatabasePlatform() instanceof SqlitePlatform)) {
+        if (! ($this->connection->getDatabasePlatform() instanceof SQLitePlatform)) {
             self::markTestSkipped('Only fails this way on sqlite');
         }
 
@@ -205,7 +205,7 @@ class ExceptionTest extends FunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if ($platform instanceof SqlitePlatform) {
+        if ($platform instanceof SQLitePlatform) {
             self::markTestSkipped('The SQLite driver does not use a network connection');
         }
 

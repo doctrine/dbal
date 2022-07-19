@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
 
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
 
 final class SQLite extends ColumnTest
@@ -13,6 +13,6 @@ final class SQLite extends ColumnTest
     {
         parent::setUp();
 
-        $this->requirePlatform(SqlitePlatform::class);
+        $this->requirePlatform(SQLitePlatform::class);
     }
 }
