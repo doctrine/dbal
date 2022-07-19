@@ -8,7 +8,7 @@ use DateTime;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
@@ -712,7 +712,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if (! $platform instanceof SqlitePlatform) {
+        if (! $platform instanceof SQLitePlatform) {
             self::markTestSkipped('test is for sqlite only');
         }
 

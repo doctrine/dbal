@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: renamed SQLite platform classes
+
+1. `SqlitePlatform` => `SQLitePlatform`
+2. `SqliteSchemaManager` => `SQLiteSchemaManager`
+
 ## BC BREAK: removed `SqlitePlatform` methods.
 
 1. `getTinyIntTypeDeclarationSQL()`,

@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -550,7 +550,7 @@ class TableTest extends TestCase
         $table = new Table('`bar`');
 
         $mysqlPlatform  = new MySQLPlatform();
-        $sqlitePlatform = new SqlitePlatform();
+        $sqlitePlatform = new SQLitePlatform();
 
         self::assertEquals('bar', $table->getName());
         self::assertEquals('`bar`', $table->getQuotedName($mysqlPlatform));

@@ -14,7 +14,7 @@ use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\SqliteSchemaManager;
+use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -34,12 +34,10 @@ use function strtolower;
 use function trim;
 
 /**
- * The SqlitePlatform class describes the specifics and dialects of the SQLite
+ * The SQLitePlatform class describes the specifics and dialects of the SQLite
  * database platform.
- *
- * @todo   Rename: SQLitePlatform
  */
-class SqlitePlatform extends AbstractPlatform
+class SQLitePlatform extends AbstractPlatform
 {
     /**
      * @throws NotSupported
@@ -1044,8 +1042,8 @@ class SqlitePlatform extends AbstractPlatform
         return $primaryIndex;
     }
 
-    public function createSchemaManager(Connection $connection): SqliteSchemaManager
+    public function createSchemaManager(Connection $connection): SQLiteSchemaManager
     {
-        return new SqliteSchemaManager($connection, $this);
+        return new SQLiteSchemaManager($connection, $this);
     }
 }

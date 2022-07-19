@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\LockMode;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -48,7 +48,7 @@ class NoneTest extends FunctionalTestCase
             return;
         }
 
-        if ($this->connection2->getDatabasePlatform() instanceof SqlitePlatform) {
+        if ($this->connection2->getDatabasePlatform() instanceof SQLitePlatform) {
             self::markTestSkipped('This test cannot run on SQLite using an in-memory database');
         }
 

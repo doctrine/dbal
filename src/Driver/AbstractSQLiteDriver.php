@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\SQLite\ExceptionConverter;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\ServerVersionProvider;
 
 /**
@@ -14,9 +14,9 @@ use Doctrine\DBAL\ServerVersionProvider;
  */
 abstract class AbstractSQLiteDriver implements Driver
 {
-    public function getDatabasePlatform(ServerVersionProvider $versionProvider): SqlitePlatform
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): SQLitePlatform
     {
-        return new SqlitePlatform();
+        return new SQLitePlatform();
     }
 
     public function getExceptionConverter(): ExceptionConverter

@@ -62,7 +62,7 @@
                 <file name="src/Platforms/AbstractMySQLPlatform.php"/>
                 <file name="src/Platforms/AbstractPlatform.php"/>
                 <file name="src/Platforms/SQLServerPlatform.php"/>
-                <file name="src/Platforms/SqlitePlatform.php"/>
+                <file name="src/Platforms/SQLitePlatform.php"/>
                 <file name="src/Schema/Column.php"/>
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->
                 <file name="src/Portability/Converter.php"/>
@@ -123,7 +123,7 @@
                 <!--
                     This is a valid issue and requires some refactoring.
                 -->
-                <file name="src/Schema/SqliteSchemaManager.php"/>
+                <file name="src/Schema/SQLiteSchemaManager.php"/>
             </errorLevel>
         </PossiblyNullArgument>
         <PossiblyUndefinedArrayOffset>

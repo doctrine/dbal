@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
@@ -34,11 +34,11 @@ use function usort;
 use const CASE_LOWER;
 
 /**
- * Sqlite SchemaManager.
+ * SQLite SchemaManager.
  *
- * @extends AbstractSchemaManager<SqlitePlatform>
+ * @extends AbstractSchemaManager<SQLitePlatform>
  */
-class SqliteSchemaManager extends AbstractSchemaManager
+class SQLiteSchemaManager extends AbstractSchemaManager
 {
     /**
      * {@inheritDoc}

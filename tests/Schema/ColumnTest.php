@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
@@ -101,7 +101,7 @@ class ColumnTest extends TestCase
         $column = new Column('`bar`', $string, []);
 
         $mysqlPlatform  = new MySQLPlatform();
-        $sqlitePlatform = new SqlitePlatform();
+        $sqlitePlatform = new SQLitePlatform();
 
         self::assertEquals('bar', $column->getName());
         self::assertEquals('`bar`', $column->getQuotedName($mysqlPlatform));

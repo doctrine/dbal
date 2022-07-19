@@ -10,12 +10,12 @@ use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\API\SQLite;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\SqliteSchemaManager;
+use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 
 /**
- * @extends AbstractDriverTest<SqlitePlatform>
+ * @extends AbstractDriverTest<SQLitePlatform>
  */
 class AbstractSQLiteDriverTest extends AbstractDriverTest
 {
@@ -26,12 +26,12 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
 
     protected function createPlatform(): AbstractPlatform
     {
-        return new SqlitePlatform();
+        return new SQLitePlatform();
     }
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        return new SqliteSchemaManager(
+        return new SQLiteSchemaManager(
             $connection,
             $this->createPlatform()
         );

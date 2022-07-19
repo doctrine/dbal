@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLite;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
@@ -16,13 +16,13 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
 /**
- * @extends AbstractPlatformTestCase<SqlitePlatform>
+ * @extends AbstractPlatformTestCase<SQLitePlatform>
  */
-class SqlitePlatformTest extends AbstractPlatformTestCase
+class SQLitePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
     {
-        return new SqlitePlatform();
+        return new SQLitePlatform();
     }
 
     protected function createComparator(): Comparator

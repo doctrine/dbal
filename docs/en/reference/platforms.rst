@@ -65,7 +65,7 @@ IBM DB2
 SQLite
 ^^^^^^
 
--  ``SqlitePlatform`` for all versions.
+-  ``SQLitePlatform`` for all versions.
 
 It is highly encouraged to use the platform class that matches your
 database vendor and version best. Otherwise it is not guaranteed
