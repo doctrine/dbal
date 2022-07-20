@@ -15,6 +15,8 @@ class MariaDBPlatform extends MySQLPlatform
      *
      * Hop over the {@see AbstractMySQLPlatform} implementation until 4.0.x
      * where {@see MariaDBPlatform} no longer extends {@see MySQLPlatform}.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function getDefaultValueDeclarationSQL($column)
     {

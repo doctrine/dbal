@@ -483,6 +483,8 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function supportsCommentOnStatement()
     {
@@ -515,6 +517,8 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function getIndexDeclarationSQL($name, Index $index)
     {
@@ -789,6 +793,8 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function getDefaultValueDeclarationSQL($column)
     {
