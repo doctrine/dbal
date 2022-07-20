@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated internal `AbstractPlatform` methods.
+
+The following methods have been deprecated as they do not represent any platform-level abstraction:
+
+1. `getCustomTypeDeclarationSQL()`,
+2. `getIndexFieldDeclarationListSQL()`,
+3. `getColumnsFieldDeclarationListSQL()`.
+
 ## Deprecated `AbstractPlatform` methods.
 
 1. `usesSequenceEmulatedIdentityColumns()` and `getIdentitySequenceName()` have been deprecated since the fact of
