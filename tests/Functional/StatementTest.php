@@ -294,7 +294,7 @@ EOF
             // some drivers will trigger a PHP error here which, if not suppressed,
             // would be converted to a PHPUnit exception prior to DBAL throwing its own one
             $value = @$fetch($result);
-        } catch (Driver\Exception $e) {
+        } catch (Driver\Exception) {
             // The drivers that enforce the command sequencing internally will throw an exception
             $this->expectNotToPerformAssertions();
 

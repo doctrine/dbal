@@ -17,14 +17,11 @@ final class Connection implements ConnectionInterface
      */
     public const OPTION_FLAGS = 'flags';
 
-    private mysqli $connection;
-
     /**
      * @internal The connection can be only instantiated by its driver.
      */
-    public function __construct(mysqli $connection)
+    public function __construct(private mysqli $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getServerVersion(): string

@@ -16,20 +16,15 @@ use function array_values;
  */
 class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
 {
-    private string $oldColumnName;
-    private Column $column;
-    private TableDiff $tableDiff;
-    private AbstractPlatform $platform;
-
     /** @var array<int, string> */
     private array $sql = [];
 
-    public function __construct(string $oldColumnName, Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
-    {
-        $this->oldColumnName = $oldColumnName;
-        $this->column        = $column;
-        $this->tableDiff     = $tableDiff;
-        $this->platform      = $platform;
+    public function __construct(
+        private string $oldColumnName,
+        private Column $column,
+        private TableDiff $tableDiff,
+        private AbstractPlatform $platform
+    ) {
     }
 
     public function getOldColumnName(): string

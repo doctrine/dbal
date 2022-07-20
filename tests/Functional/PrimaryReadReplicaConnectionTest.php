@@ -33,7 +33,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
             $sm = $this->connection->createSchemaManager();
             $sm->createTable($table);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
         }
 
         $this->connection->executeStatement('DELETE FROM primary_replica_table');

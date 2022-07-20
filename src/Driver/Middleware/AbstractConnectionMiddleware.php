@@ -10,11 +10,8 @@ use Doctrine\DBAL\Driver\Statement;
 
 abstract class AbstractConnectionMiddleware implements Connection
 {
-    private Connection $wrappedConnection;
-
-    public function __construct(Connection $wrappedConnection)
+    public function __construct(private Connection $wrappedConnection)
     {
-        $this->wrappedConnection = $wrappedConnection;
     }
 
     public function prepare(string $sql): Statement

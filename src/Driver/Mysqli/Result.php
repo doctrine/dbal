@@ -18,8 +18,6 @@ use function count;
 
 final class Result implements ResultInterface
 {
-    private mysqli_stmt $statement;
-
     /**
      * Whether the statement result has columns. The property should be used only after the result metadata
      * has been fetched ({@see $metadataFetched}). Otherwise, the property value is undetermined.
@@ -42,10 +40,8 @@ final class Result implements ResultInterface
      *
      * @throws Exception
      */
-    public function __construct(mysqli_stmt $statement)
+    public function __construct(private mysqli_stmt $statement)
     {
-        $this->statement = $statement;
-
         $meta = $statement->result_metadata();
 
         if ($meta === false) {

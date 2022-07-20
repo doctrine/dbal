@@ -800,16 +800,11 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         if ($char === null) {
-            switch ($mode) {
-                case TrimMode::LEADING:
-                    return 'LTRIM(' . $str . ')';
-
-                case TrimMode::TRAILING:
-                    return 'RTRIM(' . $str . ')';
-
-                default:
-                    return 'LTRIM(RTRIM(' . $str . '))';
-            }
+            return match ($mode) {
+                TrimMode::LEADING => 'LTRIM(' . $str . ')',
+                TrimMode::TRAILING => 'RTRIM(' . $str . ')',
+                default => 'LTRIM(RTRIM(' . $str . '))',
+            };
         }
 
         $pattern = "'%[^' + " . $char . " + ']%'";
@@ -1132,20 +1127,13 @@ class SQLServerPlatform extends AbstractPlatform
 
     public function appendLockHint(string $fromClause, int $lockMode): string
     {
-        switch ($lockMode) {
-            case LockMode::NONE:
-            case LockMode::OPTIMISTIC:
-                return $fromClause;
-
-            case LockMode::PESSIMISTIC_READ:
-                return $fromClause . ' WITH (HOLDLOCK, ROWLOCK)';
-
-            case LockMode::PESSIMISTIC_WRITE:
-                return $fromClause . ' WITH (UPDLOCK, ROWLOCK)';
-
-            default:
-                throw InvalidLockMode::fromLockMode($lockMode);
-        }
+        return match ($lockMode) {
+            LockMode::NONE,
+            LockMode::OPTIMISTIC => $fromClause,
+            LockMode::PESSIMISTIC_READ => $fromClause . ' WITH (HOLDLOCK, ROWLOCK)',
+            LockMode::PESSIMISTIC_WRITE => $fromClause . ' WITH (UPDLOCK, ROWLOCK)',
+            default => throw InvalidLockMode::fromLockMode($lockMode),
+        };
     }
 
     public function getForUpdateSQL(): string

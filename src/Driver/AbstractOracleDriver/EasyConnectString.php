@@ -15,11 +15,8 @@ use function sprintf;
  */
 final class EasyConnectString
 {
-    private string $string;
-
-    private function __construct(string $string)
+    private function __construct(private string $string)
     {
-        $this->string = $string;
     }
 
     public function __toString(): string

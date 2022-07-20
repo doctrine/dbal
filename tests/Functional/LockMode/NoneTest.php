@@ -79,7 +79,7 @@ class NoneTest extends FunctionalTestCase
         try {
             $this->connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
             $this->connection2->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
-        } catch (Exception $e) {
+        } catch (Exception) {
             self::markTestSkipped('This test must be able to set a transaction isolation level');
         }
 

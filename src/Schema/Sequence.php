@@ -16,14 +16,15 @@ class Sequence extends AbstractAsset
 
     protected int $initialValue = 1;
 
-    protected ?int $cache = null;
-
-    public function __construct(string $name, int $allocationSize = 1, int $initialValue = 1, ?int $cache = null)
-    {
+    public function __construct(
+        string $name,
+        int $allocationSize = 1,
+        int $initialValue = 1,
+        protected ?int $cache = null
+    ) {
         $this->_setName($name);
         $this->setAllocationSize($allocationSize);
         $this->setInitialValue($initialValue);
-        $this->cache = $cache;
     }
 
     public function getAllocationSize(): int

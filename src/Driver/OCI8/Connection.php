@@ -22,9 +22,6 @@ use function str_replace;
 
 final class Connection implements ConnectionInterface
 {
-    /** @var resource */
-    private $connection;
-
     private Parser $parser;
     private ExecutionMode $executionMode;
 
@@ -33,9 +30,8 @@ final class Connection implements ConnectionInterface
      *
      * @param resource $connection
      */
-    public function __construct($connection)
+    public function __construct(private $connection)
     {
-        $this->connection    = $connection;
         $this->parser        = new Parser(false);
         $this->executionMode = new ExecutionMode();
     }

@@ -18,13 +18,9 @@ final class Connection extends AbstractConnectionMiddleware
     public const PORTABILITY_EMPTY_TO_NULL = 4;
     public const PORTABILITY_FIX_CASE      = 8;
 
-    private Converter $converter;
-
-    public function __construct(ConnectionInterface $connection, Converter $converter)
+    public function __construct(ConnectionInterface $connection, private Converter $converter)
     {
         parent::__construct($connection);
-
-        $this->converter = $converter;
     }
 
     public function prepare(string $sql): Statement

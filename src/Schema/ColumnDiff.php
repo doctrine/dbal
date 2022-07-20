@@ -11,28 +11,15 @@ use function in_array;
  */
 class ColumnDiff
 {
-    public string $oldColumnName;
-
-    public Column $column;
-
-    /** @var array<int, string> */
-    public array $changedProperties;
-
-    public Column $fromColumn;
-
     /**
      * @param array<string> $changedProperties
      */
     public function __construct(
-        string $oldColumnName,
-        Column $column,
-        array $changedProperties,
-        Column $fromColumn
+        public string $oldColumnName,
+        public Column $column,
+        public array $changedProperties,
+        public Column $fromColumn
     ) {
-        $this->oldColumnName     = $oldColumnName;
-        $this->column            = $column;
-        $this->changedProperties = $changedProperties;
-        $this->fromColumn        = $fromColumn;
     }
 
     public function hasChanged(string $propertyName): bool

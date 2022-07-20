@@ -22,18 +22,12 @@ class ExpressionBuilder
     public const GTE = '>=';
 
     /**
-     * The DBAL Connection.
-     */
-    private Connection $connection;
-
-    /**
      * Initializes a new <tt>ExpressionBuilder</tt>.
      *
      * @param Connection $connection The DBAL Connection.
      */
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**

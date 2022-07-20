@@ -10,16 +10,12 @@ use Psr\Log\LoggerInterface;
 
 final class Driver extends AbstractDriverMiddleware
 {
-    private LoggerInterface $logger;
-
     /**
      * @internal This driver can be only instantiated by its middleware.
      */
-    public function __construct(DriverInterface $driver, LoggerInterface $logger)
+    public function __construct(DriverInterface $driver, private LoggerInterface $logger)
     {
         parent::__construct($driver);
-
-        $this->logger = $logger;
     }
 
     /**

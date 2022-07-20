@@ -758,16 +758,13 @@ abstract class AbstractPlatform
      */
     public function appendLockHint(string $fromClause, int $lockMode): string
     {
-        switch ($lockMode) {
-            case LockMode::NONE:
-            case LockMode::OPTIMISTIC:
-            case LockMode::PESSIMISTIC_READ:
-            case LockMode::PESSIMISTIC_WRITE:
-                return $fromClause;
-
-            default:
-                throw InvalidLockMode::fromLockMode($lockMode);
-        }
+        return match ($lockMode) {
+            LockMode::NONE,
+            LockMode::OPTIMISTIC,
+            LockMode::PESSIMISTIC_READ,
+            LockMode::PESSIMISTIC_WRITE => $fromClause,
+            default => throw InvalidLockMode::fromLockMode($lockMode),
+        };
     }
 
     /**
@@ -1833,17 +1830,15 @@ abstract class AbstractPlatform
     public function getForeignKeyReferentialActionSQL(string $action): string
     {
         $upper = strtoupper($action);
-        switch ($upper) {
-            case 'CASCADE':
-            case 'SET NULL':
-            case 'NO ACTION':
-            case 'RESTRICT':
-            case 'SET DEFAULT':
-                return $upper;
 
-            default:
-                throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $upper));
-        }
+        return match ($upper) {
+            'CASCADE',
+            'SET NULL',
+            'NO ACTION',
+            'RESTRICT',
+            'SET DEFAULT' => $upper,
+            default => throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $upper)),
+        };
     }
 
     /**
@@ -2002,22 +1997,13 @@ abstract class AbstractPlatform
      */
     protected function _getTransactionIsolationLevelSQL(int $level): string
     {
-        switch ($level) {
-            case TransactionIsolationLevel::READ_UNCOMMITTED:
-                return 'READ UNCOMMITTED';
-
-            case TransactionIsolationLevel::READ_COMMITTED:
-                return 'READ COMMITTED';
-
-            case TransactionIsolationLevel::REPEATABLE_READ:
-                return 'REPEATABLE READ';
-
-            case TransactionIsolationLevel::SERIALIZABLE:
-                return 'SERIALIZABLE';
-
-            default:
-                throw new InvalidArgumentException(sprintf('Invalid isolation level "%s".', $level));
-        }
+        return match ($level) {
+            TransactionIsolationLevel::READ_UNCOMMITTED => 'READ UNCOMMITTED',
+            TransactionIsolationLevel::READ_COMMITTED => 'READ COMMITTED',
+            TransactionIsolationLevel::REPEATABLE_READ => 'REPEATABLE READ',
+            TransactionIsolationLevel::SERIALIZABLE => 'SERIALIZABLE',
+            default => throw new InvalidArgumentException(sprintf('Invalid isolation level "%s".', $level)),
+        };
     }
 
     /**

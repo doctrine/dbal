@@ -18,8 +18,8 @@ use function implode;
 use function is_string;
 use function preg_match;
 use function sprintf;
+use function str_contains;
 use function str_replace;
-use function strpos;
 use function strtok;
 
 use const CASE_LOWER;
@@ -38,7 +38,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     public function listSchemaNames(): array
     {
-        return $this->_conn->fetchFirstColumn(
+        return $this->connection->fetchFirstColumn(
             <<<'SQL'
 SELECT name
 FROM   sys.schemas
@@ -114,7 +114,7 @@ SQL
             $fixed = true;
         }
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->platform->getDoctrineTypeMapping($dbType);
 
         $options = [
             'fixed'         => $fixed,
@@ -157,7 +157,7 @@ SQL
         }
 
         if ($value === 'getdate()') {
-            return $this->_platform->getCurrentTimestampSQL();
+            return $this->platform->getCurrentTimestampSQL();
         }
 
         return $value;
@@ -255,7 +255,7 @@ SQL
         if (count($tableDiff->removedColumns) > 0) {
             foreach ($tableDiff->removedColumns as $col) {
                 foreach ($this->getColumnConstraints($tableDiff->name, $col->getName()) as $constraint) {
-                    $this->_conn->executeStatement(
+                    $this->connection->executeStatement(
                         sprintf(
                             'ALTER TABLE %s DROP CONSTRAINT %s',
                             $tableDiff->name,
@@ -278,7 +278,7 @@ SQL
      */
     private function getColumnConstraints(string $table, string $column): iterable
     {
-        return $this->_conn->iterateColumn(
+        return $this->connection->iterateColumn(
             <<<'SQL'
 SELECT o.name
 FROM sys.objects o
@@ -303,7 +303,7 @@ SQL
      */
     public function createComparator(): Comparator
     {
-        return new SQLServer\Comparator($this->_platform, $this->getDatabaseCollation());
+        return new SQLServer\Comparator($this->platform, $this->getDatabaseCollation());
     }
 
     /**
@@ -312,9 +312,9 @@ SQL
     private function getDatabaseCollation(): string
     {
         if ($this->databaseCollation === null) {
-            $databaseCollation = $this->_conn->fetchOne(
+            $databaseCollation = $this->connection->fetchOne(
                 'SELECT collation_name FROM sys.databases WHERE name = '
-                . $this->_platform->getCurrentDatabaseExpression(),
+                . $this->platform->getCurrentDatabaseExpression(),
             );
 
             // a database is always selected, even if omitted in the connection parameters
@@ -338,7 +338,7 @@ WHERE type = 'U'
 ORDER BY name
 SQL;
 
-        return $this->_conn->executeQuery($sql, [$databaseName]);
+        return $this->connection->executeQuery($sql, [$databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
@@ -386,7 +386,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
@@ -430,7 +430,7 @@ SQL;
 
         $sql .= ' ORDER BY idx.index_id, idxcol.key_ordinal';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
@@ -472,7 +472,7 @@ SQL;
 
         $sql .= ' ORDER BY fc.constraint_column_id';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     /**
@@ -499,7 +499,7 @@ SQL;
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
         /** @var array<string,array<string,mixed>> $metadata */
-        $metadata = $this->_conn->executeQuery($sql, $params)
+        $metadata = $this->connection->executeQuery($sql, $params)
             ->fetchAllAssociativeIndexed();
 
         $tableOptions = [];
@@ -523,13 +523,13 @@ SQL;
      */
     private function getTableWhereClause(string $table, string $schemaColumn, string $tableColumn): string
     {
-        if (strpos($table, '.') !== false) {
+        if (str_contains($table, '.')) {
             [$schema, $table] = explode('.', $table);
-            $schema           = $this->_platform->quoteStringLiteral($schema);
-            $table            = $this->_platform->quoteStringLiteral($table);
+            $schema           = $this->platform->quoteStringLiteral($schema);
+            $table            = $this->platform->quoteStringLiteral($table);
         } else {
             $schema = 'SCHEMA_NAME()';
-            $table  = $this->_platform->quoteStringLiteral($table);
+            $table  = $this->platform->quoteStringLiteral($table);
         }
 
         return sprintf('(%s = %s AND %s = %s)', $tableColumn, $table, $schemaColumn, $schema);

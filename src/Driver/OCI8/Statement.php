@@ -24,17 +24,6 @@ use const SQLT_CHR;
 
 final class Statement implements StatementInterface
 {
-    /** @var resource */
-    private $connection;
-
-    /** @var resource */
-    private $statement;
-
-    /** @var array<int,string> */
-    private array $parameterMap;
-
-    private ExecutionMode $executionMode;
-
     /**
      * @internal The statement can be only instantiated by its driver connection.
      *
@@ -42,12 +31,12 @@ final class Statement implements StatementInterface
      * @param resource          $statement
      * @param array<int,string> $parameterMap
      */
-    public function __construct($connection, $statement, array $parameterMap, ExecutionMode $executionMode)
-    {
-        $this->connection    = $connection;
-        $this->statement     = $statement;
-        $this->parameterMap  = $parameterMap;
-        $this->executionMode = $executionMode;
+    public function __construct(
+        private $connection,
+        private $statement,
+        private array $parameterMap,
+        private ExecutionMode $executionMode
+    ) {
     }
 
     public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
@@ -98,16 +87,11 @@ final class Statement implements StatementInterface
      */
     private function convertParameterType(int $type): int
     {
-        switch ($type) {
-            case ParameterType::BINARY:
-                return OCI_B_BIN;
-
-            case ParameterType::LARGE_OBJECT:
-                return OCI_B_BLOB;
-
-            default:
-                return SQLT_CHR;
-        }
+        return match ($type) {
+            ParameterType::BINARY => OCI_B_BIN,
+            ParameterType::LARGE_OBJECT => OCI_B_BLOB,
+            default => SQLT_CHR,
+        };
     }
 
     public function execute(?array $params = null): Result

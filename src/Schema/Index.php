@@ -35,14 +35,6 @@ class Index extends AbstractAsset
     protected array $_flags = [];
 
     /**
-     * Platform specific options
-     *
-     * @todo $_flags should eventually be refactored into options
-     * @var array<string, mixed>
-     */
-    private array $options;
-
-    /**
      * @param array<int, string>   $columns
      * @param array<int, string>   $flags
      * @param array<string, mixed> $options
@@ -53,7 +45,7 @@ class Index extends AbstractAsset
         bool $isUnique = false,
         bool $isPrimary = false,
         array $flags = [],
-        array $options = []
+        private array $options = []
     ) {
         $isUnique = $isUnique || $isPrimary;
 
@@ -63,7 +55,6 @@ class Index extends AbstractAsset
 
         $this->_isUnique  = $isUnique;
         $this->_isPrimary = $isPrimary;
-        $this->options    = $options;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);

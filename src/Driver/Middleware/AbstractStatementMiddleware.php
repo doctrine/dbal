@@ -10,11 +10,8 @@ use Doctrine\DBAL\ParameterType;
 
 abstract class AbstractStatementMiddleware implements Statement
 {
-    private Statement $wrappedStatement;
-
-    public function __construct(Statement $wrappedStatement)
+    public function __construct(private Statement $wrappedStatement)
     {
-        $this->wrappedStatement = $wrappedStatement;
     }
 
     public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void

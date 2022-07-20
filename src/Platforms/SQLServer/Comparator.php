@@ -16,16 +16,12 @@ use Doctrine\DBAL\Schema\TableDiff;
  */
 class Comparator extends BaseComparator
 {
-    private string $databaseCollation;
-
     /**
      * @internal The comparator can be only instantiated by a schema manager.
      */
-    public function __construct(SQLServerPlatform $platform, string $databaseCollation)
+    public function __construct(SQLServerPlatform $platform, private string $databaseCollation)
     {
         parent::__construct($platform);
-
-        $this->databaseCollation = $databaseCollation;
     }
 
     public function diffTable(Table $fromTable, Table $toTable): ?TableDiff

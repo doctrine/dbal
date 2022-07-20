@@ -13,8 +13,6 @@ use Doctrine\DBAL\Types\DateTimeTzImmutableType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-use function get_class;
-
 class DateTimeTzImmutableTypeTest extends TestCase
 {
     /** @var AbstractPlatform&MockObject */
@@ -30,7 +28,7 @@ class DateTimeTzImmutableTypeTest extends TestCase
 
     public function testFactoryCreatesCorrectType(): void
     {
-        self::assertSame(DateTimeTzImmutableType::class, get_class($this->type));
+        self::assertSame(DateTimeTzImmutableType::class, $this->type::class);
     }
 
     public function testReturnsBindingType(): void

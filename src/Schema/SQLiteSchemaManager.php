@@ -118,7 +118,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         $indexBuffer = [];
 
         // fetch primary
-        $indexArray = $this->_conn->fetchAllAssociative('SELECT * FROM PRAGMA_TABLE_INFO (?)', [$tableName]);
+        $indexArray = $this->connection->fetchAllAssociative('SELECT * FROM PRAGMA_TABLE_INFO (?)', [$tableName]);
 
         usort(
             $indexArray,
@@ -161,7 +161,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             $idx['primary']    = false;
             $idx['non_unique'] = ! $tableIndex['unique'];
 
-            $indexArray = $this->_conn->fetchAllAssociative('SELECT * FROM PRAGMA_INDEX_INFO (?)', [$keyName]);
+            $indexArray = $this->connection->fetchAllAssociative('SELECT * FROM PRAGMA_INDEX_INFO (?)', [$keyName]);
 
             foreach ($indexArray as $indexColumnRow) {
                 $idx['column_name'] = $indexColumnRow['name'];
@@ -252,7 +252,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             $unsigned = true;
         }
 
-        $type    = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type    = $this->platform->getDoctrineTypeMapping($dbType);
         $default = $tableColumn['dflt_value'];
         if ($default === 'NULL') {
             $default = null;
@@ -378,7 +378,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     private function parseColumnCollationFromSQL(string $column, string $sql): ?string
     {
         $pattern = '{(?:\W' . preg_quote($column) . '\W|\W'
-            . preg_quote($this->_platform->quoteSingleIdentifier($column))
+            . preg_quote($this->platform->quoteSingleIdentifier($column))
             . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}is';
 
         if (preg_match($pattern, $sql, $match) !== 1) {
@@ -392,7 +392,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     {
         $pattern = '/\s* # Allow whitespace characters at start of line
 CREATE\sTABLE # Match "CREATE TABLE"
-(?:\W"' . preg_quote($this->_platform->quoteSingleIdentifier($table), '/') . '"\W|\W' . preg_quote($table, '/')
+(?:\W"' . preg_quote($this->platform->quoteSingleIdentifier($table), '/') . '"\W|\W' . preg_quote($table, '/')
             . '\W) # Match table name (quoted and unquoted)
 ( # Start capture
    (?:\s*--[^\n]*\n?)+ # Capture anything that starts with whitespaces followed by -- until the end of the line(s)
@@ -409,7 +409,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
 
     private function parseColumnCommentFromSQL(string $column, string $sql): string
     {
-        $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
+        $pattern = '{[\s(,](?:\W' . preg_quote($this->platform->quoteSingleIdentifier($column))
             . '\W|\W' . preg_quote($column) . '\W)(?:\([^)]*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
 
         if (preg_match($pattern, $sql, $match) !== 1) {
@@ -427,7 +427,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
      */
     private function getCreateTableSQL(string $table): string
     {
-        $sql = $this->_conn->fetchOne(
+        $sql = $this->connection->fetchOne(
             <<<'SQL'
 SELECT sql
   FROM (
@@ -516,7 +516,7 @@ SQL
 
     public function createComparator(): Comparator
     {
-        return new SQLite\Comparator($this->_platform);
+        return new SQLite\Comparator($this->platform);
     }
 
     protected function selectTableNames(string $databaseName): Result
@@ -535,7 +535,7 @@ WHERE type = 'table'
 ORDER BY name
 SQL;
 
-        return $this->_conn->executeQuery($sql);
+        return $this->connection->executeQuery($sql);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
@@ -560,7 +560,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, c.cid';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
@@ -585,7 +585,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, i.seq';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
@@ -611,7 +611,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, p.id DESC, p.seq';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     /**

@@ -130,7 +130,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $scale = (int) $tableColumn['data_scale'];
         }
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->platform->getDoctrineTypeMapping($dbType);
 
         switch ($dbType) {
             case 'number':
@@ -252,18 +252,18 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     public function createDatabase(string $database): void
     {
-        $statement = $this->_platform->getCreateDatabaseSQL($database);
+        $statement = $this->platform->getCreateDatabaseSQL($database);
 
-        $params = $this->_conn->getParams();
+        $params = $this->connection->getParams();
 
         if (isset($params['password'])) {
             $statement .= ' IDENTIFIED BY ' . $params['password'];
         }
 
-        $this->_conn->executeStatement($statement);
+        $this->connection->executeStatement($statement);
 
         $statement = 'GRANT DBA TO ' . $database;
-        $this->_conn->executeStatement($statement);
+        $this->connection->executeStatement($statement);
     }
 
     /**
@@ -271,9 +271,9 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function dropAutoincrement(string $table): bool
     {
-        $sql = $this->_platform->getDropAutoincrementSql($table);
+        $sql = $this->platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
-            $this->_conn->executeStatement($query);
+            $this->connection->executeStatement($query);
         }
 
         return true;
@@ -283,7 +283,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         try {
             $this->dropAutoincrement($name);
-        } catch (DatabaseObjectNotFoundException $e) {
+        } catch (DatabaseObjectNotFoundException) {
         }
 
         parent::dropTable($name);
@@ -298,7 +298,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     private function getQuotedIdentifierName(string $identifier): string
     {
         if (preg_match('/[a-z]/', $identifier) === 1) {
-            return $this->_platform->quoteIdentifier($identifier);
+            return $this->platform->quoteIdentifier($identifier);
         }
 
         return $identifier;
@@ -313,7 +313,7 @@ WHERE OWNER = :OWNER
 ORDER BY TABLE_NAME
 SQL;
 
-        return $this->_conn->executeQuery($sql, ['OWNER' => $databaseName]);
+        return $this->connection->executeQuery($sql, ['OWNER' => $databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
@@ -351,7 +351,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY C.COLUMN_ID';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
@@ -389,7 +389,7 @@ SQL;
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY IND_COL.TABLE_NAME, IND_COL.INDEX_NAME'
             . ', IND_COL.COLUMN_POSITION';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
@@ -425,7 +425,7 @@ SQL;
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME'
             . ', COLS.POSITION';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     /**
@@ -446,7 +446,7 @@ SQL;
         $sql .= ' FROM ALL_TAB_COMMENTS WHERE ' . implode(' AND ', $conditions);
 
         /** @var array<string,array<string,mixed>> $metadata */
-        $metadata = $this->_conn->executeQuery($sql, $params)
+        $metadata = $this->connection->executeQuery($sql, $params)
             ->fetchAllAssociativeIndexed();
 
         $tableOptions = [];

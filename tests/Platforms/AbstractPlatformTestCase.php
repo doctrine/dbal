@@ -21,7 +21,6 @@ use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
-use function get_class;
 use function implode;
 use function sprintf;
 
@@ -1082,7 +1081,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGeneratesInlineColumnCommentSQL(string $comment, string $expectedSql): void
     {
         if (! $this->platform->supportsInlineColumnComments()) {
-            self::markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->platform)));
+            self::markTestSkipped(sprintf('%s does not support inline column comments.', $this->platform::class));
         }
 
         self::assertSame($expectedSql, $this->platform->getInlineColumnCommentSQL($comment));
@@ -1129,7 +1128,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testThrowsExceptionOnGeneratingInlineColumnCommentSQLIfUnsupported(): void
     {
         if ($this->platform->supportsInlineColumnComments()) {
-            self::markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->platform)));
+            self::markTestSkipped(sprintf('%s supports inline column comments.', $this->platform::class));
         }
 
         $this->expectException(Exception::class);

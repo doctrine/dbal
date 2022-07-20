@@ -30,22 +30,17 @@ class UniqueConstraint extends AbstractAsset
     protected array $flags = [];
 
     /**
-     * Platform specific options
-     *
-     * @var array<string, mixed>
-     */
-    private array $options;
-
-    /**
      * @param array<string>        $columns
      * @param array<string>        $flags
      * @param array<string, mixed> $options
      */
-    public function __construct(string $name, array $columns, array $flags = [], array $options = [])
-    {
+    public function __construct(
+        string $name,
+        array $columns,
+        array $flags = [],
+        private array $options = []
+    ) {
         $this->_setName($name);
-
-        $this->options = $options;
 
         foreach ($columns as $column) {
             $this->addColumn($column);

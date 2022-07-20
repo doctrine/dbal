@@ -181,20 +181,12 @@ class OraclePlatform extends AbstractPlatform
 
     protected function _getTransactionIsolationLevelSQL(int $level): string
     {
-        switch ($level) {
-            case TransactionIsolationLevel::READ_UNCOMMITTED:
-                return 'READ UNCOMMITTED';
-
-            case TransactionIsolationLevel::READ_COMMITTED:
-                return 'READ COMMITTED';
-
-            case TransactionIsolationLevel::REPEATABLE_READ:
-            case TransactionIsolationLevel::SERIALIZABLE:
-                return 'SERIALIZABLE';
-
-            default:
-                return parent::_getTransactionIsolationLevelSQL($level);
-        }
+        return match ($level) {
+            TransactionIsolationLevel::READ_UNCOMMITTED => 'READ UNCOMMITTED',
+            TransactionIsolationLevel::READ_COMMITTED => 'READ COMMITTED',
+            TransactionIsolationLevel::REPEATABLE_READ, TransactionIsolationLevel::SERIALIZABLE => 'SERIALIZABLE',
+            default => parent::_getTransactionIsolationLevelSQL($level),
+        };
     }
 
     /**
@@ -510,21 +502,13 @@ END;';
     {
         $action = strtoupper($action);
 
-        switch ($action) {
-            case 'RESTRICT': // RESTRICT is not supported, therefore falling back to NO ACTION.
-            case 'NO ACTION':
-                // NO ACTION cannot be declared explicitly,
-                // therefore returning empty string to indicate to OMIT the referential clause.
-                return '';
-
-            case 'CASCADE':
-            case 'SET NULL':
-                return $action;
-
-            default:
-                // SET DEFAULT is not supported, throw exception instead.
-                throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $action));
-        }
+        return match ($action) {
+            'RESTRICT',
+            'NO ACTION' => '',
+            'CASCADE',
+            'SET NULL' => $action,
+            default => throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $action)),
+        };
     }
 
     public function getCreateDatabaseSQL(string $name): string

@@ -33,24 +33,10 @@ use function strtolower;
 abstract class AbstractSchemaManager
 {
     /**
-     * Holds instance of the Doctrine connection for this schema manager.
-     */
-    protected Connection $_conn;
-
-    /**
-     * Holds instance of the database platform used for this schema manager.
-     *
-     * @var T
-     */
-    protected AbstractPlatform $_platform;
-
-    /**
      * @param T $platform
      */
-    public function __construct(Connection $connection, AbstractPlatform $platform)
+    public function __construct(protected Connection $connection, protected AbstractPlatform $platform)
     {
-        $this->_conn     = $connection;
-        $this->_platform = $platform;
     }
 
     /**
@@ -64,8 +50,8 @@ abstract class AbstractSchemaManager
     {
         return array_map(function (array $row): string {
             return $this->_getPortableDatabaseDefinition($row);
-        }, $this->_conn->fetchAllAssociative(
-            $this->_platform->getListDatabasesSQL()
+        }, $this->connection->fetchAllAssociative(
+            $this->platform->getListDatabasesSQL()
         ));
     }
 
@@ -93,8 +79,8 @@ abstract class AbstractSchemaManager
         return $this->filterAssetNames(
             array_map(function (array $row): Sequence {
                 return $this->_getPortableSequenceDefinition($row);
-            }, $this->_conn->fetchAllAssociative(
-                $this->_platform->getListSequencesSQL(
+            }, $this->connection->fetchAllAssociative(
+                $this->platform->getListSequencesSQL(
                     $this->getDatabase(__METHOD__)
                 )
             ))
@@ -196,7 +182,7 @@ abstract class AbstractSchemaManager
      */
     private function filterAssetNames(array $assetNames): array
     {
-        $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
+        $filter = $this->connection->getConfiguration()->getSchemaAssetsFilter();
 
         return array_values(array_filter($assetNames, $filter));
     }
@@ -217,7 +203,7 @@ abstract class AbstractSchemaManager
         $foreignKeyColumnsByTable = $this->fetchForeignKeyColumnsByTable($database);
         $tableOptionsByTable      = $this->fetchTableOptionsByTable($database);
 
-        $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
+        $filter = $this->connection->getConfiguration()->getSchemaAssetsFilter();
         $tables = [];
 
         foreach ($tableColumnsByTable as $tableName => $tableColumns) {
@@ -359,8 +345,8 @@ abstract class AbstractSchemaManager
     {
         return array_map(function (array $row): View {
             return $this->_getPortableViewDefinition($row);
-        }, $this->_conn->fetchAllAssociative(
-            $this->_platform->getListViewsSQL(
+        }, $this->connection->fetchAllAssociative(
+            $this->platform->getListViewsSQL(
                 $this->getDatabase(__METHOD__)
             )
         ));
@@ -396,7 +382,7 @@ abstract class AbstractSchemaManager
      */
     public function dropDatabase(string $database): void
     {
-        $this->_execSql($this->_platform->getDropDatabaseSQL($database));
+        $this->_execSql($this->platform->getDropDatabaseSQL($database));
     }
 
     /**
@@ -406,7 +392,7 @@ abstract class AbstractSchemaManager
      */
     public function dropSchema(string $schemaName): void
     {
-        $this->_execSql($this->_platform->getDropSchemaSQL($schemaName));
+        $this->_execSql($this->platform->getDropSchemaSQL($schemaName));
     }
 
     /**
@@ -416,7 +402,7 @@ abstract class AbstractSchemaManager
      */
     public function dropTable(string $name): void
     {
-        $this->_execSql($this->_platform->getDropTableSQL($name));
+        $this->_execSql($this->platform->getDropTableSQL($name));
     }
 
     /**
@@ -426,7 +412,7 @@ abstract class AbstractSchemaManager
      */
     public function dropIndex(string $index, string $table): void
     {
-        $this->_execSql($this->_platform->getDropIndexSQL($index, $table));
+        $this->_execSql($this->platform->getDropIndexSQL($index, $table));
     }
 
     /**
@@ -436,7 +422,7 @@ abstract class AbstractSchemaManager
      */
     public function dropForeignKey(string $name, string $table): void
     {
-        $this->_execSql($this->_platform->getDropForeignKeySQL($name, $table));
+        $this->_execSql($this->platform->getDropForeignKeySQL($name, $table));
     }
 
     /**
@@ -446,7 +432,7 @@ abstract class AbstractSchemaManager
      */
     public function dropSequence(string $name): void
     {
-        $this->_execSql($this->_platform->getDropSequenceSQL($name));
+        $this->_execSql($this->platform->getDropSequenceSQL($name));
     }
 
     /**
@@ -456,7 +442,7 @@ abstract class AbstractSchemaManager
      */
     public function dropUniqueConstraint(string $name, string $tableName): void
     {
-        $this->_execSql($this->_platform->getDropUniqueConstraintSQL($name, $tableName));
+        $this->_execSql($this->platform->getDropUniqueConstraintSQL($name, $tableName));
     }
 
     /**
@@ -466,7 +452,7 @@ abstract class AbstractSchemaManager
      */
     public function dropView(string $name): void
     {
-        $this->_execSql($this->_platform->getDropViewSQL($name));
+        $this->_execSql($this->platform->getDropViewSQL($name));
     }
 
     /* create*() Methods */
@@ -476,7 +462,7 @@ abstract class AbstractSchemaManager
      */
     public function createSchemaObjects(Schema $schema): void
     {
-        $this->_execSql($schema->toSql($this->_platform));
+        $this->_execSql($schema->toSql($this->platform));
     }
 
     /**
@@ -486,7 +472,7 @@ abstract class AbstractSchemaManager
      */
     public function createDatabase(string $database): void
     {
-        $this->_execSql($this->_platform->getCreateDatabaseSQL($database));
+        $this->_execSql($this->platform->getCreateDatabaseSQL($database));
     }
 
     /**
@@ -496,7 +482,7 @@ abstract class AbstractSchemaManager
      */
     public function createTable(Table $table): void
     {
-        $this->_execSql($this->_platform->getCreateTableSQL($table));
+        $this->_execSql($this->platform->getCreateTableSQL($table));
     }
 
     /**
@@ -506,7 +492,7 @@ abstract class AbstractSchemaManager
      */
     public function createSequence(Sequence $sequence): void
     {
-        $this->_execSql($this->_platform->getCreateSequenceSQL($sequence));
+        $this->_execSql($this->platform->getCreateSequenceSQL($sequence));
     }
 
     /**
@@ -518,7 +504,7 @@ abstract class AbstractSchemaManager
      */
     public function createIndex(Index $index, string $table): void
     {
-        $this->_execSql($this->_platform->getCreateIndexSQL($index, $table));
+        $this->_execSql($this->platform->getCreateIndexSQL($index, $table));
     }
 
     /**
@@ -531,7 +517,7 @@ abstract class AbstractSchemaManager
      */
     public function createForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
     {
-        $this->_execSql($this->_platform->getCreateForeignKeySQL($foreignKey, $table));
+        $this->_execSql($this->platform->getCreateForeignKeySQL($foreignKey, $table));
     }
 
     /**
@@ -541,7 +527,7 @@ abstract class AbstractSchemaManager
      */
     public function createUniqueConstraint(UniqueConstraint $uniqueConstraint, string $tableName): void
     {
-        $this->_execSql($this->_platform->getCreateUniqueConstraintSQL($uniqueConstraint, $tableName));
+        $this->_execSql($this->platform->getCreateUniqueConstraintSQL($uniqueConstraint, $tableName));
     }
 
     /**
@@ -551,7 +537,7 @@ abstract class AbstractSchemaManager
      */
     public function createView(View $view): void
     {
-        $this->_execSql($this->_platform->getCreateViewSQL($view->getQuotedName($this->_platform), $view->getSql()));
+        $this->_execSql($this->platform->getCreateViewSQL($view->getQuotedName($this->platform), $view->getSql()));
     }
 
     /**
@@ -559,7 +545,7 @@ abstract class AbstractSchemaManager
      */
     public function dropSchemaObjects(Schema $schema): void
     {
-        $this->_execSql($schema->toDropSql($this->_platform));
+        $this->_execSql($schema->toDropSql($this->platform));
     }
 
     /**
@@ -569,7 +555,7 @@ abstract class AbstractSchemaManager
      */
     public function alterSchema(SchemaDiff $schemaDiff): void
     {
-        $this->_execSql($schemaDiff->toSql($this->_platform));
+        $this->_execSql($schemaDiff->toSql($this->platform));
     }
 
     /**
@@ -594,7 +580,7 @@ abstract class AbstractSchemaManager
      */
     public function alterTable(TableDiff $tableDiff): void
     {
-        foreach ($this->_platform->getAlterTableSQL($tableDiff) as $ddlQuery) {
+        foreach ($this->platform->getAlterTableSQL($tableDiff) as $ddlQuery) {
             $this->_execSql($ddlQuery);
         }
     }
@@ -649,7 +635,7 @@ abstract class AbstractSchemaManager
      */
     protected function _getPortableTableColumnList(string $table, string $database, array $tableColumns): array
     {
-        $eventManager = $this->_platform->getEventManager();
+        $eventManager = $this->platform->getEventManager();
 
         $list = [];
         foreach ($tableColumns as $tableColumn) {
@@ -657,7 +643,7 @@ abstract class AbstractSchemaManager
             $defaultPrevented = false;
 
             if ($eventManager !== null && $eventManager->hasListeners(Events::onSchemaColumnDefinition)) {
-                $eventArgs = new SchemaColumnDefinitionEventArgs($tableColumn, $table, $database, $this->_conn);
+                $eventArgs = new SchemaColumnDefinitionEventArgs($tableColumn, $table, $database, $this->connection);
                 $eventManager->dispatchEvent(Events::onSchemaColumnDefinition, $eventArgs);
 
                 $defaultPrevented = $eventArgs->isDefaultPrevented();
@@ -672,7 +658,7 @@ abstract class AbstractSchemaManager
                 continue;
             }
 
-            $name        = strtolower($column->getQuotedName($this->_platform));
+            $name        = strtolower($column->getQuotedName($this->platform));
             $list[$name] = $column;
         }
 
@@ -731,7 +717,7 @@ abstract class AbstractSchemaManager
             $result[$keyName]['options']['lengths'][] = $tableIndex['length'] ?? null;
         }
 
-        $eventManager = $this->_platform->getEventManager();
+        $eventManager = $this->platform->getEventManager();
 
         $indexes = [];
         foreach ($result as $indexKey => $data) {
@@ -739,7 +725,7 @@ abstract class AbstractSchemaManager
             $defaultPrevented = false;
 
             if ($eventManager !== null && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
-                $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->_conn);
+                $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->connection);
                 $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
 
                 $defaultPrevented = $eventArgs->isDefaultPrevented();
@@ -806,7 +792,7 @@ abstract class AbstractSchemaManager
     protected function _execSql(array|string $sql): void
     {
         foreach ((array) $sql as $query) {
-            $this->_conn->executeStatement($query);
+            $this->connection->executeStatement($query);
         }
     }
 
@@ -819,13 +805,13 @@ abstract class AbstractSchemaManager
     {
         $schemaNames = [];
 
-        if ($this->_platform->supportsSchemas()) {
+        if ($this->platform->supportsSchemas()) {
             $schemaNames = $this->listSchemaNames();
         }
 
         $sequences = [];
 
-        if ($this->_platform->supportsSequences()) {
+        if ($this->platform->supportsSequences()) {
             $sequences = $this->listSequences();
         }
 
@@ -842,9 +828,9 @@ abstract class AbstractSchemaManager
     public function createSchemaConfig(): SchemaConfig
     {
         $schemaConfig = new SchemaConfig();
-        $schemaConfig->setMaxIdentifierLength($this->_platform->getMaxIdentifierLength());
+        $schemaConfig->setMaxIdentifierLength($this->platform->getMaxIdentifierLength());
 
-        $params = $this->_conn->getParams();
+        $params = $this->connection->getParams();
         if (! isset($params['defaultTableOptions'])) {
             $params['defaultTableOptions'] = [];
         }
@@ -863,7 +849,7 @@ abstract class AbstractSchemaManager
      */
     private function getDatabase(string $methodName): string
     {
-        $database = $this->_conn->getDatabase();
+        $database = $this->connection->getDatabase();
 
         if ($database === null) {
             throw DatabaseRequired::new($methodName);
@@ -874,7 +860,7 @@ abstract class AbstractSchemaManager
 
     public function createComparator(): Comparator
     {
-        return new Comparator($this->_platform);
+        return new Comparator($this->platform);
     }
 
     /**

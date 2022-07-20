@@ -12,11 +12,8 @@ use Doctrine\DBAL\Connection;
  */
 class ConnectionEventArgs extends EventArgs
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getConnection(): Connection

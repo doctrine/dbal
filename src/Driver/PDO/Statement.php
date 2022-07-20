@@ -24,14 +24,11 @@ final class Statement implements StatementInterface
         ParameterType::BOOLEAN      => PDO::PARAM_BOOL,
     ];
 
-    private PDOStatement $stmt;
-
     /**
      * @internal The statement can be only instantiated by its driver connection.
      */
-    public function __construct(PDOStatement $stmt)
+    public function __construct(private PDOStatement $stmt)
     {
-        $this->stmt = $stmt;
     }
 
     public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void

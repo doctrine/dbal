@@ -38,13 +38,6 @@ class ForeignKeyConstraint extends AbstractAsset
     protected array $_foreignColumnNames;
 
     /**
-     * Options associated with the foreign key constraint.
-     *
-     * @var array<string, mixed>
-     */
-    protected array $_options;
-
-    /**
      * Initializes the foreign key constraint.
      *
      * @param array<int, string>   $localColumnNames   Names of the referencing table columns.
@@ -58,7 +51,7 @@ class ForeignKeyConstraint extends AbstractAsset
         string $foreignTableName,
         array $foreignColumnNames,
         string $name = '',
-        array $options = []
+        protected array $options = []
     ) {
         $this->_setName($name);
 
@@ -66,7 +59,6 @@ class ForeignKeyConstraint extends AbstractAsset
         $this->_foreignTableName = new Identifier($foreignTableName);
 
         $this->_foreignColumnNames = $this->createIdentifierMap($foreignColumnNames);
-        $this->_options            = $options;
     }
 
     /**
@@ -218,7 +210,7 @@ class ForeignKeyConstraint extends AbstractAsset
      */
     public function hasOption(string $name): bool
     {
-        return isset($this->_options[$name]);
+        return isset($this->options[$name]);
     }
 
     /**
@@ -226,7 +218,7 @@ class ForeignKeyConstraint extends AbstractAsset
      */
     public function getOption(string $name): mixed
     {
-        return $this->_options[$name];
+        return $this->options[$name];
     }
 
     /**
@@ -236,7 +228,7 @@ class ForeignKeyConstraint extends AbstractAsset
      */
     public function getOptions(): array
     {
-        return $this->_options;
+        return $this->options;
     }
 
     /**
@@ -265,8 +257,8 @@ class ForeignKeyConstraint extends AbstractAsset
      */
     private function onEvent(string $event): ?string
     {
-        if (isset($this->_options[$event])) {
-            $onEvent = strtoupper($this->_options[$event]);
+        if (isset($this->options[$event])) {
+            $onEvent = strtoupper($this->options[$event]);
 
             if ($onEvent !== 'NO ACTION' && $onEvent !== 'RESTRICT') {
                 return $onEvent;

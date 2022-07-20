@@ -11,16 +11,10 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class SchemaDropTableEventArgs extends SchemaEventArgs
 {
-    private string $table;
-
-    private AbstractPlatform $platform;
-
     private ?string $sql = null;
 
-    public function __construct(string $table, AbstractPlatform $platform)
+    public function __construct(private string $table, private AbstractPlatform $platform)
     {
-        $this->table    = $table;
-        $this->platform = $platform;
     }
 
     public function getTable(): string

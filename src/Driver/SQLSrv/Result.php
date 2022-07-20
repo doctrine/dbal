@@ -17,17 +17,13 @@ use const SQLSRV_FETCH_NUMERIC;
 
 final class Result implements ResultInterface
 {
-    /** @var resource */
-    private $statement;
-
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
      *
-     * @param resource $stmt
+     * @param resource $statement
      */
-    public function __construct($stmt)
+    public function __construct(private $statement)
     {
-        $this->statement = $stmt;
     }
 
     public function fetchNumeric(): array|false

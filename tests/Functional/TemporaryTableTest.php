@@ -92,7 +92,7 @@ class TemporaryTableTest extends FunctionalTestCase
             $this->connection->executeStatement(
                 $platform->getDropTemporaryTableSQL($tempTable)
             );
-        } catch (Throwable $e) {
+        } catch (Throwable) {
         }
 
         // In an event of an error this result has one row, because of an implicit commit
@@ -108,7 +108,7 @@ class TemporaryTableTest extends FunctionalTestCase
 
         try {
             $this->connection->executeStatement($sql);
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
     }
 }

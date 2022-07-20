@@ -15,24 +15,13 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     private ?Index $index = null;
 
     /**
-     * Raw index data as fetched from the database.
-     *
-     * @var array<string, mixed>
-     */
-    private array $tableIndex;
-
-    private string $table;
-
-    private Connection $connection;
-
-    /**
      * @param array<string, mixed> $tableIndex
      */
-    public function __construct(array $tableIndex, string $table, Connection $connection)
-    {
-        $this->tableIndex = $tableIndex;
-        $this->table      = $table;
-        $this->connection = $connection;
+    public function __construct(
+        private array $tableIndex,
+        private string $table,
+        private Connection $connection
+    ) {
     }
 
     /**

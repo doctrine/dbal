@@ -13,16 +13,12 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
  */
 final class Statement extends AbstractStatementMiddleware
 {
-    private Converter $converter;
-
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
      */
-    public function __construct(DriverStatement $stmt, Converter $converter)
+    public function __construct(DriverStatement $stmt, private Converter $converter)
     {
         parent::__construct($stmt);
-
-        $this->converter = $converter;
     }
 
     public function execute(?array $params = null): ResultInterface

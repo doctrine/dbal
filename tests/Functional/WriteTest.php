@@ -262,7 +262,7 @@ class WriteTest extends FunctionalTestCase
 
         try {
             $this->connection->createSchemaManager()->dropTable($table->getQuotedName($platform));
-        } catch (Throwable $e) {
+        } catch (Throwable) {
         }
 
         foreach ($platform->getCreateTableSQL($table) as $sql) {

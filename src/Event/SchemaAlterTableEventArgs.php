@@ -15,16 +15,11 @@ use function array_values;
  */
 class SchemaAlterTableEventArgs extends SchemaEventArgs
 {
-    private TableDiff $tableDiff;
-    private AbstractPlatform $platform;
-
     /** @var array<int, string> */
     private array $sql = [];
 
-    public function __construct(TableDiff $tableDiff, AbstractPlatform $platform)
+    public function __construct(private TableDiff $tableDiff, private AbstractPlatform $platform)
     {
-        $this->tableDiff = $tableDiff;
-        $this->platform  = $platform;
     }
 
     public function getTableDiff(): TableDiff

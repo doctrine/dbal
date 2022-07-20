@@ -208,7 +208,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         try {
             $schemaManager->dropTable($otherTable->getName());
-        } catch (DatabaseObjectNotFoundException $e) {
+        } catch (DatabaseObjectNotFoundException) {
         }
 
         $schemaManager->createTable($otherTable);

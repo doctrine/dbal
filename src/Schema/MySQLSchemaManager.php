@@ -134,7 +134,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
         $scale     = 0;
         $precision = null;
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->platform->getDoctrineTypeMapping($dbType);
 
         switch ($dbType) {
             case 'char':
@@ -196,8 +196,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        if ($this->_platform instanceof MariaDBPlatform) {
-            $columnDefault = $this->getMariaDBColumnDefault($this->_platform, $tableColumn['default']);
+        if ($this->platform instanceof MariaDBPlatform) {
+            $columnDefault = $this->getMariaDBColumnDefault($this->platform, $tableColumn['default']);
         } else {
             $columnDefault = $tableColumn['default'];
         }
@@ -256,18 +256,12 @@ class MySQLSchemaManager extends AbstractSchemaManager
             return strtr($matches[1], self::MARIADB_ESCAPE_SEQUENCES);
         }
 
-        switch ($columnDefault) {
-            case 'current_timestamp()':
-                return $platform->getCurrentTimestampSQL();
-
-            case 'curdate()':
-                return $platform->getCurrentDateSQL();
-
-            case 'curtime()':
-                return $platform->getCurrentTimeSQL();
-        }
-
-        return $columnDefault;
+        return match ($columnDefault) {
+            'current_timestamp()' => $platform->getCurrentTimestampSQL(),
+            'curdate()' => $platform->getCurrentDateSQL(),
+            'curtime()' => $platform->getCurrentTimeSQL(),
+            default => $columnDefault,
+        };
     }
 
     /**
@@ -327,12 +321,12 @@ class MySQLSchemaManager extends AbstractSchemaManager
     public function createComparator(): Comparator
     {
         return new MySQL\Comparator(
-            $this->_platform,
+            $this->platform,
             new CachingCharsetMetadataProvider(
-                new ConnectionCharsetMetadataProvider($this->_conn)
+                new ConnectionCharsetMetadataProvider($this->connection)
             ),
             new CachingCollationMetadataProvider(
-                new ConnectionCollationMetadataProvider($this->_conn)
+                new ConnectionCollationMetadataProvider($this->connection)
             ),
             $this->getDefaultTableOptions()
         );
@@ -348,7 +342,7 @@ WHERE TABLE_SCHEMA = ?
 ORDER BY TABLE_NAME
 SQL;
 
-        return $this->_conn->executeQuery($sql, [$databaseName]);
+        return $this->connection->executeQuery($sql, [$databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
@@ -382,7 +376,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY ORDINAL_POSITION';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
@@ -412,7 +406,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY SEQ_IN_INDEX';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
@@ -450,7 +444,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY k.ORDINAL_POSITION';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     /**
@@ -484,7 +478,7 @@ SQL;
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
         /** @var array<string,array<string,mixed>> $metadata */
-        $metadata = $this->_conn->executeQuery($sql, $params)
+        $metadata = $this->connection->executeQuery($sql, $params)
             ->fetchAllAssociativeIndexed();
 
         $tableOptions = [];
@@ -530,7 +524,7 @@ SQL;
     private function getDefaultTableOptions(): DefaultTableOptions
     {
         if ($this->defaultTableOptions === null) {
-            $row = $this->_conn->fetchNumeric(
+            $row = $this->connection->fetchNumeric(
                 'SELECT @@character_set_database, @@collation_database',
             );
 

@@ -235,7 +235,7 @@ class PrimaryReadReplicaConnection extends Connection
         $connectionParams = $this->chooseConnectionConfiguration($connectionName, $params);
 
         try {
-            return $this->_driver->connect($connectionParams);
+            return $this->driver->connect($connectionParams);
         } catch (DriverException $e) {
             throw $this->convertException($e);
         }

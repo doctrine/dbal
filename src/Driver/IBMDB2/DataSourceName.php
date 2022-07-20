@@ -13,11 +13,8 @@ use function str_contains;
  */
 final class DataSourceName
 {
-    private string $string;
-
-    private function __construct(string $string)
+    private function __construct(private string $string)
     {
-        $this->string = $string;
     }
 
     public function toString(): string

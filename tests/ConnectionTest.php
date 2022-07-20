@@ -204,7 +204,7 @@ class ConnectionTest extends TestCase
         $conn->rollBack();
         try {
             $conn->commit();
-        } catch (ConnectionException $exception) {
+        } catch (ConnectionException) {
         }
     }
 
