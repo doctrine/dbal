@@ -165,17 +165,9 @@ class SqlitePlatform extends AbstractPlatform
         return sprintf("JULIANDAY(%s, 'start of day') - JULIANDAY(%s, 'start of day')", $date1, $date2);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * The SQLite platform doesn't support the concept of a database, therefore, it always returns an empty string
-     * as an indicator of an implicitly selected database.
-     *
-     * @see \Doctrine\DBAL\Connection::getDatabase()
-     */
     public function getCurrentDatabaseExpression(): string
     {
-        return "''";
+        return "'main'";
     }
 
     /**
