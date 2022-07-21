@@ -1795,6 +1795,13 @@ abstract class AbstractPlatform
         $tableArg = $table;
 
         if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $table = $table->getQuotedName($this);
         }
 
@@ -1831,6 +1838,17 @@ abstract class AbstractPlatform
      */
     public function getDropTemporaryTableSQL($table)
     {
+        if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
+            $table = $table->getQuotedName($this);
+        }
+
         return $this->getDropTableSQL($table);
     }
 
@@ -1847,6 +1865,13 @@ abstract class AbstractPlatform
     public function getDropIndexSQL($index, $table = null)
     {
         if ($index instanceof Index) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $index as an Index object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $index = $index->getQuotedName($this);
         } elseif (! is_string($index)) {
             throw new InvalidArgumentException(
@@ -1869,11 +1894,25 @@ abstract class AbstractPlatform
      */
     public function getDropConstraintSQL($constraint, $table)
     {
-        if (! $constraint instanceof Constraint) {
+        if ($constraint instanceof Constraint) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $constraint as a Constraint object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+        } else {
             $constraint = new Identifier($constraint);
         }
 
-        if (! $table instanceof Table) {
+        if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+        } else {
             $table = new Identifier($table);
         }
 
@@ -1893,11 +1932,26 @@ abstract class AbstractPlatform
      */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
-        if (! $foreignKey instanceof ForeignKeyConstraint) {
+        if ($foreignKey instanceof ForeignKeyConstraint) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $foreignKey as a ForeignKeyConstraint object to %s is deprecated.'
+                    . ' Pass it as a quoted name instead.',
+                __METHOD__
+            );
+        } else {
             $foreignKey = new Identifier($foreignKey);
         }
 
-        if (! $table instanceof Table) {
+        if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+        } else {
             $table = new Identifier($table);
         }
 
@@ -2119,7 +2173,7 @@ abstract class AbstractPlatform
         }
 
         foreach ($tables as $table) {
-            $sql[] = $this->getDropTableSQL($table);
+            $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
         }
 
         return $sql;
@@ -2271,6 +2325,13 @@ abstract class AbstractPlatform
         }
 
         if ($sequence instanceof Sequence) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $sequence as a Sequence object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $sequence = $sequence->getQuotedName($this);
         }
 
@@ -2292,6 +2353,13 @@ abstract class AbstractPlatform
     public function getCreateConstraintSQL(Constraint $constraint, $table)
     {
         if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $table = $table->getQuotedName($this);
         }
 
@@ -2336,6 +2404,13 @@ abstract class AbstractPlatform
     public function getCreateIndexSQL(Index $index, $table)
     {
         if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $table = $table->getQuotedName($this);
         }
 
@@ -2390,6 +2465,13 @@ abstract class AbstractPlatform
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
         if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $table = $table->getQuotedName($this);
         }
 
@@ -2485,6 +2567,13 @@ abstract class AbstractPlatform
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table)
     {
         if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $table = $table->getQuotedName($this);
         }
 
@@ -2631,20 +2720,24 @@ abstract class AbstractPlatform
         $sql = [];
         if ($this->supportsForeignKeyConstraints()) {
             foreach ($diff->removedForeignKeys as $foreignKey) {
+                if ($foreignKey instanceof ForeignKeyConstraint) {
+                    $foreignKey = $foreignKey->getQuotedName($this);
+                }
+
                 $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
             }
 
             foreach ($diff->changedForeignKeys as $foreignKey) {
-                $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
+                $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableName);
             }
         }
 
         foreach ($diff->removedIndexes as $index) {
-            $sql[] = $this->getDropIndexSQL($index, $tableName);
+            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableName);
         }
 
         foreach ($diff->changedIndexes as $index) {
-            $sql[] = $this->getDropIndexSQL($index, $tableName);
+            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableName);
         }
 
         return $sql;

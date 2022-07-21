@@ -253,6 +253,13 @@ class SQLServerPlatform extends AbstractPlatform
     public function getDropIndexSQL($index, $table = null)
     {
         if ($index instanceof Index) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $index as an Index object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $index = $index->getQuotedName($this);
         } elseif (! is_string($index)) {
             throw new InvalidArgumentException(
@@ -261,6 +268,13 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as an Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $table = $table->getQuotedName($this);
         } elseif (! is_string($table)) {
             throw new InvalidArgumentException(
@@ -354,6 +368,13 @@ class SQLServerPlatform extends AbstractPlatform
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
         if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $identifier = $table->getQuotedName($this);
         } else {
             $identifier = $table;

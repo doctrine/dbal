@@ -39,7 +39,7 @@ class MySQLSchemaTest extends TestCase
 
         self::assertEquals(
             [
-                'ALTER TABLE test DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON test',
                 'ALTER TABLE test ADD PRIMARY KEY (bar_id, foo_id)',
             ],
             $sql

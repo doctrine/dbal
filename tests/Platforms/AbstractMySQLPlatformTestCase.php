@@ -428,7 +428,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(
             [
                 'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
-                'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON alter_primary_key',
                 'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)',
             ],
             $this->platform->getAlterTableSQL($diff)
@@ -456,7 +456,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(
             [
                 'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
-                'ALTER TABLE drop_primary_key DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON drop_primary_key',
             ],
             $this->platform->getAlterTableSQL($diff)
         );
@@ -485,7 +485,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame(
             [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
-                'ALTER TABLE tbl DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON tbl',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id)',
             ],
             $this->platform->getAlterTableSQL($diff)
@@ -514,7 +514,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame(
             [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
-                'ALTER TABLE tbl DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON tbl',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id, foo)',
             ],
             $this->platform->getAlterTableSQL($diff)
@@ -550,7 +550,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $sql = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals([
-            'ALTER TABLE mytable DROP PRIMARY KEY',
+            'DROP INDEX foo_index ON mytable',
             'ALTER TABLE mytable ADD PRIMARY KEY (foo)',
         ], $sql);
     }
@@ -576,7 +576,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertSame(
             [
-                'ALTER TABLE yolo DROP PRIMARY KEY',
+                'DROP INDEX `primary` ON yolo',
                 'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ],

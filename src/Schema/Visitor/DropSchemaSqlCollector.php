@@ -83,17 +83,20 @@ class DropSchemaSqlCollector extends AbstractVisitor
         foreach ($this->constraints as $fkConstraint) {
             assert($fkConstraint instanceof ForeignKeyConstraint);
             $localTable = $this->constraints[$fkConstraint];
-            $sql[]      = $this->platform->getDropForeignKeySQL($fkConstraint, $localTable);
+            $sql[]      = $this->platform->getDropForeignKeySQL(
+                $fkConstraint->getQuotedName($this->platform),
+                $localTable->getQuotedName($this->platform)
+            );
         }
 
         foreach ($this->sequences as $sequence) {
             assert($sequence instanceof Sequence);
-            $sql[] = $this->platform->getDropSequenceSQL($sequence);
+            $sql[] = $this->platform->getDropSequenceSQL($sequence->getQuotedName($this->platform));
         }
 
         foreach ($this->tables as $table) {
             assert($table instanceof Table);
-            $sql[] = $this->platform->getDropTableSQL($table);
+            $sql[] = $this->platform->getDropTableSQL($table->getQuotedName($this->platform));
         }
 
         return $sql;

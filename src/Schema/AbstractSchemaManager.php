@@ -722,7 +722,25 @@ abstract class AbstractSchemaManager
     public function dropIndex($index, $table)
     {
         if ($index instanceof Index) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $index as an Index object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $index = $index->getQuotedName($this->_platform);
+        }
+
+        if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as an Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
+            $table = $table->getQuotedName($this->_platform);
         }
 
         $this->_execSql($this->_platform->getDropIndexSQL($index, $table));
@@ -741,7 +759,21 @@ abstract class AbstractSchemaManager
      */
     public function dropConstraint(Constraint $constraint, $table)
     {
-        $this->_execSql($this->_platform->getDropConstraintSQL($constraint, $table));
+        if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
+            $table = $table->getQuotedName($this->_platform);
+        }
+
+        $this->_execSql($this->_platform->getDropConstraintSQL(
+            $constraint->getQuotedName($this->_platform),
+            $table
+        ));
     }
 
     /**
@@ -756,6 +788,29 @@ abstract class AbstractSchemaManager
      */
     public function dropForeignKey($foreignKey, $table)
     {
+        if ($foreignKey instanceof ForeignKeyConstraint) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $foreignKey as a ForeignKeyConstraint object to %s is deprecated.'
+                . ' Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
+            $foreignKey = $foreignKey->getQuotedName($this->_platform);
+        }
+
+        if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
+            $table = $table->getQuotedName($this->_platform);
+        }
+
         $this->_execSql($this->_platform->getDropForeignKeySQL($foreignKey, $table));
     }
 
