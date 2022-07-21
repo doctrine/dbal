@@ -8,6 +8,33 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Marked `AbstractPlatform` methods as internal.
+
+The following methods have been marked internal as they are not designed to be used from outside the platform classes:
+
+1. `getAdvancedForeignKeyOptionsSQL()`,
+2. `getColumnCharsetDeclarationSQL()`,
+3. `getColumnCollationDeclarationSQL()`,
+4. `getColumnDeclarationSQL()`,
+5. `getCommentOnColumnSQL()`,
+6. `getDefaultValueDeclarationSQL()`,
+7. `getForeignKeyDeclarationSQL()`,
+8. `getForeignKeyReferentialActionSQL()`,
+9. `getIndexDeclarationSQL()`,
+10. `getInlineColumnCommentSQL()`,
+11. `supportsColumnCollation()`,
+12. `supportsCommentOnStatement()`,
+13. `supportsInlineColumnComments()`,
+14. `supportsPartialIndexes()`.
+
+## Deprecated internal `AbstractPlatform` methods.
+
+The following methods have been deprecated as they do not represent any platform-level abstraction:
+
+1. `getCustomTypeDeclarationSQL()`,
+2. `getIndexFieldDeclarationListSQL()`,
+3. `getColumnsFieldDeclarationListSQL()`.
+
 ## Deprecated `AbstractPlatform` methods.
 
 1. `usesSequenceEmulatedIdentityColumns()` and `getIdentitySequenceName()` have been deprecated since the fact of

@@ -2962,21 +2962,39 @@ abstract class AbstractPlatform
      * e.g. when a column has the "columnDefinition" keyword.
      * Only "AUTOINCREMENT" and "PRIMARY KEY" are added if appropriate.
      *
+     * @deprecated
+     *
      * @param mixed[] $column
      *
      * @return string
      */
     public function getCustomTypeDeclarationSQL(array $column)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5527',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return $column['columnDefinition'];
     }
 
     /**
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
+     *
+     * @deprecated
      */
     public function getIndexFieldDeclarationListSQL(Index $index): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5527',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return implode(', ', $index->getQuotedColumns($this));
     }
 
@@ -2984,10 +3002,19 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
+     * @deprecated
+     *
      * @param mixed[] $columns
      */
     public function getColumnsFieldDeclarationListSQL(array $columns): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5527',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         $ret = [];
 
         foreach ($columns as $column => $definition) {

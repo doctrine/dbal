@@ -161,6 +161,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function supportsColumnCollation()
     {
@@ -1505,6 +1507,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function getForeignKeyReferentialActionSQL($action)
     {
@@ -1588,7 +1592,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      *
-     * Modifies column declaration order as it differs in Microsoft SQL Server.
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function getColumnDeclarationSQL($name, array $column)
     {
