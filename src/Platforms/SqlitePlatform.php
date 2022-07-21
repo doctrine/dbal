@@ -41,6 +41,8 @@ use function trim;
  */
 class SqlitePlatform extends AbstractPlatform
 {
+    private bool $schemaEmulationEnabled = true;
+
     /**
      * {@inheritDoc}
      */
@@ -349,13 +351,33 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * Disables schema emulation.
+     *
+     * Schema emulation is enabled by default to maintain backwards compatibility.
+     * Disable it to opt-in to the behavior of DBAL 4.
+     *
+     * @deprecated Will be removed in DBAL 4.0.
+     */
+    public function disableSchemaEmulation(): void
+    {
+        $this->schemaEmulationEnabled = false;
+    }
+
+    private function emulateSchemaNamespacing(string $tableName): string
+    {
+        return $this->schemaEmulationEnabled
+            ? str_replace('.', '__', $tableName)
+            : $tableName;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey)
     {
         return parent::getForeignKeyDeclarationSQL(new ForeignKeyConstraint(
             $foreignKey->getQuotedLocalColumns($this),
-            str_replace('.', '__', $foreignKey->getQuotedForeignTableName($this)),
+            $this->emulateSchemaNamespacing($foreignKey->getQuotedForeignTableName($this)),
             $foreignKey->getQuotedForeignColumns($this),
             $foreignKey->getName(),
             $foreignKey->getOptions()
@@ -367,7 +389,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
-        $name        = str_replace('.', '__', $name);
+        $name        = $this->emulateSchemaNamespacing($name);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
@@ -499,7 +521,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getListTableConstraintsSQL($table)
     {
-        $table = str_replace('.', '__', $table);
+        $table = $this->emulateSchemaNamespacing($table);
 
         return sprintf(
             "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = %s AND sql NOT NULL ORDER BY name",
@@ -514,7 +536,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        $table = str_replace('.', '__', $table);
+        $table = $this->emulateSchemaNamespacing($table);
 
         return sprintf('PRAGMA table_info(%s)', $this->quoteStringLiteral($table));
     }
@@ -526,7 +548,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $database = null)
     {
-        $table = str_replace('.', '__', $table);
+        $table = $this->emulateSchemaNamespacing($table);
 
         return sprintf('PRAGMA index_list(%s)', $this->quoteStringLiteral($table));
     }
@@ -639,7 +661,7 @@ class SqlitePlatform extends AbstractPlatform
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         $tableIdentifier = new Identifier($tableName);
-        $tableName       = str_replace('.', '__', $tableIdentifier->getQuotedName($this));
+        $tableName       = $this->emulateSchemaNamespacing($tableIdentifier->getQuotedName($this));
 
         return 'DELETE FROM ' . $tableName;
     }
@@ -845,7 +867,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getTemporaryTableName($tableName)
     {
-        $tableName = str_replace('.', '__', $tableName);
+        $tableName = $this->emulateSchemaNamespacing($tableName);
 
         return $tableName;
     }
@@ -869,7 +891,7 @@ class SqlitePlatform extends AbstractPlatform
             'SqlitePlatform::canEmulateSchemas() is deprecated.'
         );
 
-        return true;
+        return $this->schemaEmulationEnabled;
     }
 
     /**
@@ -957,7 +979,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
-        $table = str_replace('.', '__', $table);
+        $table = $this->emulateSchemaNamespacing($table);
 
         return sprintf('PRAGMA foreign_key_list(%s)', $this->quoteStringLiteral($table));
     }
