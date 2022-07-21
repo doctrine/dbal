@@ -49,13 +49,6 @@ abstract class Type
     private static ?TypeRegistry $typeRegistry = null;
 
     /**
-     * @internal Do not instantiate directly - use {@see Type::addType()} method instead.
-     */
-    final public function __construct()
-    {
-    }
-
-    /**
      * Converts a value from its PHP representation to its database representation
      * of this type.
      *

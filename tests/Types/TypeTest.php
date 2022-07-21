@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+
+use function strtr;
 
 class TypeTest extends TestCase
 {
@@ -33,5 +37,27 @@ class TypeTest extends TestCase
 
             yield [$constantValue];
         }
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testOverridingTheConstructorIsAllowed(): void
+    {
+        new class (['a' => 'b']) extends StringType
+        {
+            /**
+             * @param array<string, string> $replacements
+             */
+            public function __construct(
+                private array $replacements,
+            ) {
+            }
+
+            public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): string
+            {
+                return strtr($value, $this->replacements);
+            }
+        };
     }
 }
