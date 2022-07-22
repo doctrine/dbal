@@ -8,6 +8,28 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated passing asset names as assets in `AbstractPlatform` and `AbstractSchemaManager` methods.
+
+Passing assets to the following `AbstractPlatform` methods and parameters has been deprecated:
+
+1. The `$table` parameter of `getDropTableSQL()`,
+2. The `$table` parameter of `getDropTemporaryTableSQL()`,
+3. The `$index` and `$table` parameters of `getDropIndexSQL()`,
+4. The `$constraint` and `$table` parameters of `getDropConstraintSQL()`,
+5. The `$foreignKey` and `$table` parameters of `getDropForeignKeySQL()`,
+6. The `$sequence` parameter of `getDropSequenceSQL()`,
+7. The `$table` parameter of `getCreateConstraintSQL()`,
+8. The `$table` parameter of `getCreatePrimaryKeySQL()`,
+9. The `$table` parameter of `getCreateForeignKeySQL()`.
+
+Passing assets to the following `AbstractSchemaManager` methods and parameters has been deprecated:
+
+1. The `$index` and `$table` parameters of `dropIndex()`,
+2. The `$table` parameter of `dropConstraint()`,
+3. The `$foreignKey` and `$table` parameters of `dropForeignKey()`.
+
+Pass a string representing the quoted asset name instead.
+
 ## Marked `AbstractPlatform` methods as internal.
 
 The following methods have been marked internal as they are not designed to be used from outside the platform classes:

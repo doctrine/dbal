@@ -185,6 +185,13 @@ class OraclePlatform extends AbstractPlatform
     public function getCreatePrimaryKeySQL(Index $index, $table): string
     {
         if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+
             $table = $table->getQuotedName($this);
         }
 
@@ -755,11 +762,26 @@ SQL
      */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
-        if (! $foreignKey instanceof ForeignKeyConstraint) {
+        if ($foreignKey instanceof ForeignKeyConstraint) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $foreignKey as a ForeignKeyConstraint object to %s is deprecated.'
+                . ' Pass it as a quoted name instead.',
+                __METHOD__
+            );
+        } else {
             $foreignKey = new Identifier($foreignKey);
         }
 
-        if (! $table instanceof Table) {
+        if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__
+            );
+        } else {
             $table = new Identifier($table);
         }
 

@@ -815,7 +815,7 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = $this->getDropIndexSQL($index, $diff->name);
+            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $diff->name);
         }
 
         return $sql;
@@ -926,7 +926,7 @@ class SqlitePlatform extends AbstractPlatform
         $sql = [];
 
         foreach ($tables as $table) {
-            $sql[] = $this->getDropTableSQL($table);
+            $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
         }
 
         return $sql;
@@ -1110,7 +1110,7 @@ class SqlitePlatform extends AbstractPlatform
                 implode(', ', $oldColumnNames),
                 $dataTable->getQuotedName($this)
             );
-            $sql[] = $this->getDropTableSQL($dataTable);
+            $sql[] = $this->getDropTableSQL($dataTable->getQuotedName($this));
 
             $newName = $diff->getNewName();
 
