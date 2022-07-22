@@ -37,6 +37,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -1045,6 +1046,9 @@ abstract class AbstractPlatform
         );
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     */
     public function getCommentOnColumnSQL(string $tableName, string $columnName, string $comment): string
     {
         $tableName  = new Identifier($tableName);
@@ -1060,6 +1064,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create inline comment on a column.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      *
      * @throws Exception If not supported on this platform.
      */
@@ -1541,6 +1547,8 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to declare a generic type
      * column to be used in statements like CREATE TABLE.
      *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     *
      * @param string  $name   The name the column to be declared.
      * @param mixed[] $column An associative array with the name of the properties
      *                        of the column being declared as array indexes. Currently, the types
@@ -1620,6 +1628,8 @@ abstract class AbstractPlatform
     /**
      * Obtains DBMS specific SQL code portion needed to set a default value
      * declaration to be used in statements like CREATE TABLE.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      *
      * @param mixed[] $column The column definition array.
      *
@@ -1735,6 +1745,8 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     *
      * @param Index $index The index definition.
      *
      * @return string DBMS specific SQL code portion needed to set an index.
@@ -1758,19 +1770,37 @@ abstract class AbstractPlatform
      * e.g. when a column has the "columnDefinition" keyword.
      * Only "AUTOINCREMENT" and "PRIMARY KEY" are added if appropriate.
      *
+     * @deprecated
+     *
      * @param mixed[] $column
      */
     public function getCustomTypeDeclarationSQL(array $column): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5527',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return $column['columnDefinition'];
     }
 
     /**
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
+     *
+     * @deprecated
      */
     public function getIndexFieldDeclarationListSQL(Index $index): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5527',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return implode(', ', $index->getQuotedColumns($this));
     }
 
@@ -1778,10 +1808,19 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
+     * @deprecated
+     *
      * @param mixed[] $columns
      */
     public function getColumnsFieldDeclarationListSQL(array $columns): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5527',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         $ret = [];
 
         foreach ($columns as $column => $definition) {
@@ -1807,6 +1846,8 @@ abstract class AbstractPlatform
      * Obtain DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      * of a column declaration to be used in statements like CREATE TABLE.
      *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     *
      * @return string DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      *                of a column declaration.
      */
@@ -1821,6 +1862,8 @@ abstract class AbstractPlatform
     /**
      * Returns the FOREIGN KEY query section dealing with non-standard options
      * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      *
      * @param ForeignKeyConstraint $foreignKey The foreign key definition.
      */
@@ -1840,6 +1883,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the given referential action in uppercase if valid, otherwise throws an exception.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      *
      * @param string $action The foreign key referential action.
      *
@@ -1898,6 +1943,8 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set the CHARACTER SET
      * of a column declaration to be used in statements like CREATE TABLE.
      *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     *
      * @param string $charset The name of the charset.
      *
      * @return string DBMS specific SQL code portion needed to set the CHARACTER SET
@@ -1911,6 +1958,8 @@ abstract class AbstractPlatform
     /**
      * Obtains DBMS specific SQL code portion needed to set the COLLATION
      * of a column declaration to be used in statements like CREATE TABLE.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      *
      * @param string $collation The name of the collation.
      *
@@ -2172,6 +2221,8 @@ abstract class AbstractPlatform
 
     /**
      * Whether the platform supports partial indexes.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function supportsPartialIndexes(): bool
     {
@@ -2212,6 +2263,8 @@ abstract class AbstractPlatform
 
     /**
      * Whether this platform support to add inline column comments as postfix.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function supportsInlineColumnComments(): bool
     {
@@ -2220,6 +2273,8 @@ abstract class AbstractPlatform
 
     /**
      * Whether this platform support the proprietary syntax "COMMENT ON asset".
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function supportsCommentOnStatement(): bool
     {
@@ -2228,6 +2283,8 @@ abstract class AbstractPlatform
 
     /**
      * Does this platform support column collation?
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function supportsColumnCollation(): bool
     {

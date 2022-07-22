@@ -108,6 +108,9 @@ class SQLServerPlatform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     */
     public function supportsColumnCollation(): bool
     {
         return true;
@@ -1114,6 +1117,9 @@ class SQLServerPlatform extends AbstractPlatform
         return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     */
     public function getForeignKeyReferentialActionSQL(string $action): string
     {
         // RESTRICT is not supported, therefore falling back to NO ACTION.
@@ -1175,7 +1181,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      *
-     * Modifies column declaration order as it differs in Microsoft SQL Server.
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function getColumnDeclarationSQL(string $name, array $column): string
     {

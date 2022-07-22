@@ -205,6 +205,9 @@ class DB2Platform extends AbstractPlatform
         return 'SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS';
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     */
     public function supportsCommentOnStatement(): bool
     {
         return true;
@@ -225,6 +228,9 @@ class DB2Platform extends AbstractPlatform
         return 'CURRENT TIMESTAMP';
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     */
     public function getIndexDeclarationSQL(Index $index): string
     {
         // Index declaration in statements like CREATE TABLE is not supported.
@@ -498,6 +504,8 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function getDefaultValueDeclarationSQL(array $column): string
     {
