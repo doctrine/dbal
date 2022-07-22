@@ -9,7 +9,7 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 
 use function base64_decode;
 use function stream_get_contents;
@@ -125,7 +125,7 @@ EOF
         $result = $this->connection->prepare('SELECT contents FROM stmt_long_blob')
             ->execute();
 
-        $stream = Type::getType('blob')
+        $stream = TypeRegistry::getInstance()->get('blob')
             ->convertToPHPValue(
                 $result->fetchOne(),
                 $this->connection->getDatabasePlatform()

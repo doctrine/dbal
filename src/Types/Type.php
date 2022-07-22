@@ -17,41 +17,10 @@ use function get_class;
  */
 abstract class Type
 {
-    /**
-     * The map of supported doctrine mapping types.
-     */
-    private const BUILTIN_TYPES_MAP = [
-        Types::ARRAY                => ArrayType::class,
-        Types::ASCII_STRING         => AsciiStringType::class,
-        Types::BIGINT               => BigIntType::class,
-        Types::BINARY               => BinaryType::class,
-        Types::BLOB                 => BlobType::class,
-        Types::BOOLEAN              => BooleanType::class,
-        Types::DATE_MUTABLE         => DateType::class,
-        Types::DATE_IMMUTABLE       => DateImmutableType::class,
-        Types::DATEINTERVAL         => DateIntervalType::class,
-        Types::DATETIME_MUTABLE     => DateTimeType::class,
-        Types::DATETIME_IMMUTABLE   => DateTimeImmutableType::class,
-        Types::DATETIMETZ_MUTABLE   => DateTimeTzType::class,
-        Types::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
-        Types::DECIMAL              => DecimalType::class,
-        Types::FLOAT                => FloatType::class,
-        Types::GUID                 => GuidType::class,
-        Types::INTEGER              => IntegerType::class,
-        Types::JSON                 => JsonType::class,
-        Types::OBJECT               => ObjectType::class,
-        Types::SIMPLE_ARRAY         => SimpleArrayType::class,
-        Types::SMALLINT             => SmallIntType::class,
-        Types::STRING               => StringType::class,
-        Types::TEXT                 => TextType::class,
-        Types::TIME_MUTABLE         => TimeType::class,
-        Types::TIME_IMMUTABLE       => TimeImmutableType::class,
-    ];
-
     private static ?TypeRegistry $typeRegistry = null;
 
     /**
-     * @internal Do not instantiate directly - use {@see Type::addType()} method instead.
+     * @internal Do not instantiate directly - use {@see TypeRegistry::getInstance()->register()} method instead.
      */
     final public function __construct()
     {
@@ -108,25 +77,31 @@ abstract class Type
      */
     abstract public function getName();
 
+    /**
+     * @deprecated Use TypeRegistry::getInstance() instead.
+     */
     final public static function getTypeRegistry(): TypeRegistry
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5530',
+            '%s is deprecated in favor of TypeRegistry::getInstance()',
+            __METHOD__
+        );
+
         return self::$typeRegistry ??= self::createTypeRegistry();
     }
 
     private static function createTypeRegistry(): TypeRegistry
     {
-        $instances = [];
-
-        foreach (self::BUILTIN_TYPES_MAP as $name => $class) {
-            $instances[$name] = new $class();
-        }
-
-        return new TypeRegistry($instances);
+        return TypeRegistry::getInstance();
     }
 
     /**
      * Factory method to create type instances.
      * Type instances are implemented as flyweights.
+     *
+     * @deprecated Use TypeRegistry::getType() instead.
      *
      * @param string $name The name of the type (as returned by getName()).
      *
@@ -136,11 +111,20 @@ abstract class Type
      */
     public static function getType($name)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5530',
+            '%s is deprecated In favor of TypeRegistry::get()',
+            __METHOD__
+        );
+
         return self::getTypeRegistry()->get($name);
     }
 
     /**
      * Adds a custom type to the type map.
+     *
+     * @deprecated Use TypeRegistry::register() instead.
      *
      * @param string             $name      The name of the type. This should correspond to what getName() returns.
      * @param class-string<Type> $className The class name of the custom type.
@@ -151,11 +135,19 @@ abstract class Type
      */
     public static function addType($name, $className)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5530',
+            '%s is deprecated in favor of TypeRegistry::register()',
+            __METHOD__
+        );
         self::getTypeRegistry()->register($name, new $className());
     }
 
     /**
      * Checks if exists support for a type.
+     *
+     * @deprecated Use TypeRegistry::hasType() instead.
      *
      * @param string $name The name of the type.
      *
@@ -163,11 +155,20 @@ abstract class Type
      */
     public static function hasType($name)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5530',
+            '%s is deprecated in favor of TypeRegistry::has()',
+            __METHOD__
+        );
+
         return self::getTypeRegistry()->has($name);
     }
 
     /**
      * Overrides an already defined type to use a different implementation.
+     *
+     * @deprecated Use TypeRegistry::override() instead.
      *
      * @param string             $name
      * @param class-string<Type> $className
@@ -178,6 +179,12 @@ abstract class Type
      */
     public static function overrideType($name, $className)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5530',
+            '%s is deprecated in favor of TypeRegistry::override()',
+            __METHOD__
+        );
         self::getTypeRegistry()->override($name, new $className());
     }
 
@@ -198,10 +205,19 @@ abstract class Type
      * Gets the types array map which holds all registered types and the corresponding
      * type class
      *
+     * @deprecated Use TypeRegistry::getMap() instead.
+     *
      * @return array<string, string>
      */
     public static function getTypesMap()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5530',
+            '%s is deprecated.',
+            __METHOD__
+        );
+
         return array_map(
             static function (Type $type): string {
                 return get_class($type);

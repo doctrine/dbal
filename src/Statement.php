@@ -4,6 +4,7 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\Deprecations\Deprecation;
 
 use function func_num_args;
@@ -100,7 +101,7 @@ class Statement
 
         if ($type !== null) {
             if (is_string($type)) {
-                $type = Type::getType($type);
+                $type = TypeRegistry::getInstance()->get($type);
             }
 
             $bindingType = $type;

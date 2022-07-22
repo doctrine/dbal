@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 
 class AddColumnWithDefaultTest extends FunctionalTestCase
@@ -26,7 +26,11 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
 
         $tableDiff                      = new TableDiff('add_default_test');
         $tableDiff->fromTable           = $table;
-        $tableDiff->addedColumns['foo'] = new Column('new_field', Type::getType('string'), ['default' => 'DEFAULT']);
+        $tableDiff->addedColumns['foo'] = new Column(
+            'new_field',
+            TypeRegistry::getInstance()->get('string'),
+            ['default' => 'DEFAULT']
+        );
 
         $schemaManager->alterTable($tableDiff);
 

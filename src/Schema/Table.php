@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
@@ -343,7 +343,7 @@ class Table extends AbstractAsset
      */
     public function addColumn($name, $typeName, array $options = [])
     {
-        $column = new Column($name, Type::getType($typeName), $options);
+        $column = new Column($name, TypeRegistry::getInstance()->get($typeName), $options);
 
         $this->_addColumn($column);
 

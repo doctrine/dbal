@@ -23,6 +23,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
 use Throwable;
@@ -1636,7 +1637,7 @@ class Connection
      */
     public function convertToDatabaseValue($value, $type)
     {
-        return Type::getType($type)->convertToDatabaseValue($value, $this->getDatabasePlatform());
+        return TypeRegistry::getInstance()->get($type)->convertToDatabaseValue($value, $this->getDatabasePlatform());
     }
 
     /**
@@ -1652,7 +1653,7 @@ class Connection
      */
     public function convertToPHPValue($value, $type)
     {
-        return Type::getType($type)->convertToPHPValue($value, $this->getDatabasePlatform());
+        return TypeRegistry::getInstance()->get($type)->convertToPHPValue($value, $this->getDatabasePlatform());
     }
 
     /**
@@ -1709,7 +1710,7 @@ class Connection
     private function getBindingInfo($value, $type): array
     {
         if (is_string($type)) {
-            $type = Type::getType($type);
+            $type = TypeRegistry::getInstance()->get($type);
         }
 
         if ($type instanceof Type) {

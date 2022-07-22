@@ -110,6 +110,7 @@
                 <file name="src/Types/ArrayType.php"/>
                 <file name="src/Types/ObjectType.php"/>
                 <file name="src/Types/Type.php"/>
+                <file name="src/Types/TypeRegistry.php"/>
                 <file name="tests/Schema/ComparatorTest.php"/>
             </errorLevel>
         </DeprecatedConstant>
@@ -353,6 +354,7 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
+                <referencedMethod name="Doctrine\DBAL\Types\Type::getTypeRegistry"/>
                 <referencedMethod name="Doctrine\DBAL\Types\Type::requiresSQLCommentHint"/>
                 <referencedMethod name="Doctrine\DBAL\Types\DateImmutableType::requiresSQLCommentHint"/>
                 <referencedMethod name="Doctrine\DBAL\Types\DateIntervalType::requiresSQLCommentHint"/>

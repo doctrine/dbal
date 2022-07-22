@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 use UnexpectedValueException;
 
@@ -256,7 +256,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $sql = $this->platform->getDefaultValueDeclarationSQL(
             [
                 'autoincrement' => true,
-                'type'          => Type::getType($type),
+                'type'          => TypeRegistry::getInstance()->get($type),
                 'default'       => 1,
             ]
         );
@@ -541,7 +541,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'dloo1',
             new Column(
                 'dloo1',
-                Type::getType('decimal'),
+                TypeRegistry::getInstance()->get('decimal'),
                 ['precision' => 16, 'scale' => 6]
             ),
             ['precision']
@@ -550,7 +550,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'dloo2',
             new Column(
                 'dloo2',
-                Type::getType('decimal'),
+                TypeRegistry::getInstance()->get('decimal'),
                 ['precision' => 10, 'scale' => 4]
             ),
             ['scale']
@@ -559,7 +559,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'dloo3',
             new Column(
                 'dloo3',
-                Type::getType('decimal'),
+                TypeRegistry::getInstance()->get('decimal'),
                 ['precision' => 10, 'scale' => 6]
             ),
             []
@@ -568,7 +568,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'dloo4',
             new Column(
                 'dloo4',
-                Type::getType('decimal'),
+                TypeRegistry::getInstance()->get('decimal'),
                 ['precision' => 16, 'scale' => 8]
             ),
             ['precision', 'scale']
@@ -865,8 +865,14 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
-        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
-        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
+        $table1 = new Table(
+            '"foo"',
+            [new Column('"bar"', TypeRegistry::getInstance()->get('integer'))]
+        );
+        $table2 = new Table(
+            '"foo"',
+            [new Column('"bar"', TypeRegistry::getInstance()->get('integer'), ['comment' => 'baz'])]
+        );
 
         $comparator = new Comparator();
 
@@ -881,8 +887,14 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function testAltersTableColumnCommentIfRequiredByType(): void
     {
-        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime'))]);
-        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime_immutable'))]);
+        $table1 = new Table(
+            '"foo"',
+            [new Column('"bar"', TypeRegistry::getInstance()->get('datetime'))]
+        );
+        $table2 = new Table(
+            '"foo"',
+            [new Column('"bar"', TypeRegistry::getInstance()->get('datetime_immutable'))]
+        );
 
         $comparator = new Comparator();
 

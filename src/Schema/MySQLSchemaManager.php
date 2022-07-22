@@ -8,7 +8,7 @@ use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 
 use function array_change_key_case;
 use function array_shift;
@@ -268,7 +268,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
             $options['precision'] = (int) $precision;
         }
 
-        $column = new Column($tableColumn['field'], Type::getType($type), $options);
+        $column = new Column($tableColumn['field'], TypeRegistry::getInstance()->get($type), $options);
 
         if (isset($tableColumn['characterset'])) {
             $column->setPlatformOption('charset', $tableColumn['characterset']);

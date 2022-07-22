@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 
 use function current;
 
@@ -27,7 +27,12 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $diff = new TableDiff('sqlsrv_drop_column', [], [], [new Column('todrop', Type::getType('decimal'))]);
+        $diff = new TableDiff(
+            'sqlsrv_drop_column',
+            [],
+            [],
+            [new Column('todrop', TypeRegistry::getInstance()->get('decimal'))]
+        );
         $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns('sqlsrv_drop_column');
@@ -74,43 +79,44 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('another default value', $columns['df_string_3']->getDefault());
         self::assertEquals(1, $columns['df_boolean']->getDefault());
 
+        $typeRegistry                        = TypeRegistry::getInstance();
         $diff                                = new TableDiff(
             'sqlsrv_default_constraints',
             [],
             [
                 'df_integer' => new ColumnDiff(
                     'df_integer',
-                    new Column('df_integer', Type::getType('integer'), ['default' => 0]),
+                    new Column('df_integer', $typeRegistry->get('integer'), ['default' => 0]),
                     ['default'],
-                    new Column('df_integer', Type::getType('integer'), ['default' => 666])
+                    new Column('df_integer', $typeRegistry->get('integer'), ['default' => 666])
                 ),
                 'df_string_2' => new ColumnDiff(
                     'df_string_2',
-                    new Column('df_string_2', Type::getType('string')),
+                    new Column('df_string_2', $typeRegistry->get('string')),
                     ['default'],
-                    new Column('df_string_2', Type::getType('string'), ['default' => 'Doctrine rocks!!!'])
+                    new Column('df_string_2', $typeRegistry->get('string'), ['default' => 'Doctrine rocks!!!'])
                 ),
                 'df_string_3' => new ColumnDiff(
                     'df_string_3',
-                    new Column('df_string_3', Type::getType('string'), [
+                    new Column('df_string_3', $typeRegistry->get('string'), [
                         'length' => 50,
                         'default' => 'another default value',
                     ]),
                     ['length'],
-                    new Column('df_string_3', Type::getType('string'), [
+                    new Column('df_string_3', $typeRegistry->get('string'), [
                         'length' => 50,
                         'default' => 'another default value',
                     ])
                 ),
                 'df_boolean' => new ColumnDiff(
                     'df_boolean',
-                    new Column('df_boolean', Type::getType('boolean'), ['default' => false]),
+                    new Column('df_boolean', $typeRegistry->get('boolean'), ['default' => false]),
                     ['default'],
-                    new Column('df_boolean', Type::getType('boolean'), ['default' => true])
+                    new Column('df_boolean', $typeRegistry->get('boolean'), ['default' => true])
                 ),
             ],
             [
-                'df_string_1' => new Column('df_string_1', Type::getType('string')),
+                'df_string_1' => new Column('df_string_1', $typeRegistry->get('string')),
             ],
             [],
             [],
@@ -120,7 +126,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diff->newName                       = 'sqlsrv_default_constraints';
         $diff->renamedColumns['df_string_4'] = new Column(
             'df_string_renamed',
-            Type::getType('string'),
+            $typeRegistry->get('string'),
             ['default' => 'column to rename']
         );
 
@@ -143,9 +149,9 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             [
                 'df_integer' => new ColumnDiff(
                     'df_integer',
-                    new Column('df_integer', Type::getType('integer'), ['default' => 666]),
+                    new Column('df_integer', $typeRegistry->get('integer'), ['default' => 666]),
                     ['default'],
-                    new Column('df_integer', Type::getType('integer'), ['default' => 0])
+                    new Column('df_integer', $typeRegistry->get('integer'), ['default' => 0])
                 ),
             ],
             [],
@@ -207,109 +213,111 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableDiff            = new TableDiff('sqlsrv_column_comment');
         $tableDiff->fromTable = $table;
 
+        $typeRegistry = TypeRegistry::getInstance();
+
         $tableDiff->addedColumns['added_comment_none']
-            = new Column('added_comment_none', Type::getType('integer'));
+            = new Column('added_comment_none', $typeRegistry->get('integer'));
 
         $tableDiff->addedColumns['added_comment_null']
-            = new Column('added_comment_null', Type::getType('integer'), ['comment' => null]);
+            = new Column('added_comment_null', $typeRegistry->get('integer'), ['comment' => null]);
 
         $tableDiff->addedColumns['added_comment_false']
-            = new Column('added_comment_false', Type::getType('integer'), ['comment' => false]);
+            = new Column('added_comment_false', $typeRegistry->get('integer'), ['comment' => false]);
 
         $tableDiff->addedColumns['added_comment_empty_string']
-            = new Column('added_comment_empty_string', Type::getType('integer'), ['comment' => '']);
+            = new Column('added_comment_empty_string', $typeRegistry->get('integer'), ['comment' => '']);
 
         $tableDiff->addedColumns['added_comment_integer_0']
-            = new Column('added_comment_integer_0', Type::getType('integer'), ['comment' => 0]);
+            = new Column('added_comment_integer_0', $typeRegistry->get('integer'), ['comment' => 0]);
 
         $tableDiff->addedColumns['added_comment_float_0']
-            = new Column('added_comment_float_0', Type::getType('integer'), ['comment' => 0.0]);
+            = new Column('added_comment_float_0', $typeRegistry->get('integer'), ['comment' => 0.0]);
 
         $tableDiff->addedColumns['added_comment_string_0']
-            = new Column('added_comment_string_0', Type::getType('integer'), ['comment' => '0']);
+            = new Column('added_comment_string_0', $typeRegistry->get('integer'), ['comment' => '0']);
 
         $tableDiff->addedColumns['added_comment']
-            = new Column('added_comment', Type::getType('integer'), ['comment' => 'Doctrine']);
+            = new Column('added_comment', $typeRegistry->get('integer'), ['comment' => 'Doctrine']);
 
         $tableDiff->addedColumns['`added_comment_quoted`']
-            = new Column('`added_comment_quoted`', Type::getType('integer'), ['comment' => 'rulez']);
+            = new Column('`added_comment_quoted`', $typeRegistry->get('integer'), ['comment' => 'rulez']);
 
         $tableDiff->addedColumns['select']
-            = new Column('select', Type::getType('integer'), ['comment' => '666']);
+            = new Column('select', $typeRegistry->get('integer'), ['comment' => '666']);
 
         $tableDiff->addedColumns['added_commented_type']
-            = new Column('added_commented_type', Type::getType('object'));
+            = new Column('added_commented_type', $typeRegistry->get('object'));
 
         $tableDiff->addedColumns['added_commented_type_with_comment']
-            = new Column('added_commented_type_with_comment', Type::getType('array'), ['comment' => '666']);
+            = new Column('added_commented_type_with_comment', $typeRegistry->get('array'), ['comment' => '666']);
 
         $tableDiff->renamedColumns['comment_float_0']
-            = new Column('comment_double_0', Type::getType('decimal'), ['comment' => 'Double for real!']);
+            = new Column('comment_double_0', $typeRegistry->get('decimal'), ['comment' => 'Double for real!']);
 
         // Add comment to non-commented column.
         $tableDiff->changedColumns['id'] = new ColumnDiff(
             'id',
-            new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
+            new Column('id', $typeRegistry->get('integer'), ['autoincrement' => true, 'comment' => 'primary']),
             ['comment'],
-            new Column('id', Type::getType('integer'), ['autoincrement' => true])
+            new Column('id', $typeRegistry->get('integer'), ['autoincrement' => true])
         );
 
         // Remove comment from null-commented column.
         $tableDiff->changedColumns['comment_null'] = new ColumnDiff(
             'comment_null',
-            new Column('comment_null', Type::getType('string')),
+            new Column('comment_null', $typeRegistry->get('string')),
             ['type'],
-            new Column('comment_null', Type::getType('integer'), ['comment' => null])
+            new Column('comment_null', $typeRegistry->get('integer'), ['comment' => null])
         );
 
         // Add comment to false-commented column.
         $tableDiff->changedColumns['comment_false'] = new ColumnDiff(
             'comment_false',
-            new Column('comment_false', Type::getType('integer'), ['comment' => 'false']),
+            new Column('comment_false', $typeRegistry->get('integer'), ['comment' => 'false']),
             ['comment'],
-            new Column('comment_false', Type::getType('integer'), ['comment' => false])
+            new Column('comment_false', $typeRegistry->get('integer'), ['comment' => false])
         );
 
         // Change type to custom type from empty string commented column.
         $tableDiff->changedColumns['comment_empty_string'] = new ColumnDiff(
             'comment_empty_string',
-            new Column('comment_empty_string', Type::getType('object')),
+            new Column('comment_empty_string', $typeRegistry->get('object')),
             ['type'],
-            new Column('comment_empty_string', Type::getType('integer'), ['comment' => ''])
+            new Column('comment_empty_string', $typeRegistry->get('integer'), ['comment' => ''])
         );
 
         // Change comment to false-comment from zero-string commented column.
         $tableDiff->changedColumns['comment_string_0'] = new ColumnDiff(
             'comment_string_0',
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => false]),
+            new Column('comment_string_0', $typeRegistry->get('integer'), ['comment' => false]),
             ['comment'],
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => '0'])
+            new Column('comment_string_0', $typeRegistry->get('integer'), ['comment' => '0'])
         );
 
         // Remove comment from regular commented column.
         $tableDiff->changedColumns['comment'] = new ColumnDiff(
             'comment',
-            new Column('comment', Type::getType('integer')),
+            new Column('comment', $typeRegistry->get('integer')),
             ['comment'],
-            new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!'])
+            new Column('comment', $typeRegistry->get('integer'), ['comment' => 'Doctrine 0wnz you!'])
         );
 
         // Change comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['`comment_quoted`'] = new ColumnDiff(
             '`comment_quoted`',
-            new Column('`comment_quoted`', Type::getType('array'), ['comment' => 'Doctrine array.']),
+            new Column('`comment_quoted`', $typeRegistry->get('array'), ['comment' => 'Doctrine array.']),
             ['comment', 'type'],
-            new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!'])
+            new Column('`comment_quoted`', $typeRegistry->get('integer'), ['comment' => 'Doctrine 0wnz you!'])
         );
 
         // Remove comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['create'] = new ColumnDiff(
             'create',
-            new Column('create', Type::getType('object')),
+            new Column('create', $typeRegistry->get('object')),
             ['comment', 'type'],
             new Column(
                 'create',
-                Type::getType('integer'),
+                $typeRegistry->get('integer'),
                 ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']
             )
         );
@@ -317,17 +325,21 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // Add comment and change custom type to regular type from non-commented column.
         $tableDiff->changedColumns['commented_type'] = new ColumnDiff(
             'commented_type',
-            new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
+            new Column('commented_type', $typeRegistry->get('integer'), ['comment' => 'foo']),
             ['comment', 'type'],
-            new Column('commented_type', Type::getType('object'))
+            new Column('commented_type', $typeRegistry->get('object'))
         );
 
         // Remove comment from commented custom type column.
         $tableDiff->changedColumns['commented_type_with_comment'] = new ColumnDiff(
             'commented_type_with_comment',
-            new Column('commented_type_with_comment', Type::getType('array')),
+            new Column('commented_type_with_comment', $typeRegistry->get('array')),
             ['comment'],
-            new Column('commented_type_with_comment', Type::getType('array'), ['comment' => 'Doctrine array type.'])
+            new Column(
+                'commented_type_with_comment',
+                $typeRegistry->get('array'),
+                ['comment' => 'Doctrine array type.']
+            )
         );
 
         // Change column requirements without changing comment.
@@ -335,19 +347,19 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'commented_req_change_column',
             new Column(
                 'commented_req_change_column',
-                Type::getType('integer'),
+                $typeRegistry->get('integer'),
                 ['comment' => 'Some comment', 'notnull' => true]
             ),
             ['notnull'],
             new Column(
                 'commented_req_change_column',
-                Type::getType('integer'),
+                $typeRegistry->get('integer'),
                 ['comment' => 'Some comment', 'notnull' => false]
             ),
         );
 
         $tableDiff->removedColumns['comment_integer_0']
-            = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
+            = new Column('comment_integer_0', $typeRegistry->get('integer'), ['comment' => 0]);
 
         $this->schemaManager->alterTable($tableDiff);
 

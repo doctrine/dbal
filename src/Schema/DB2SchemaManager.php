@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
@@ -156,7 +156,11 @@ class DB2SchemaManager extends AbstractSchemaManager
             $options['precision'] = $precision;
         }
 
-        return new Column($tableColumn['colname'], Type::getType($type), $options);
+        return new Column(
+            $tableColumn['colname'],
+            TypeRegistry::getInstance()->get($type),
+            $options
+        );
     }
 
     /**

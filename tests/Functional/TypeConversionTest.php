@@ -6,7 +6,7 @@ use DateTime;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use stdClass;
 
 use function str_repeat;
@@ -230,7 +230,7 @@ class TypeConversionTest extends FunctionalTestCase
     private function processValue(string $type, $originalValue)
     {
         $columnName     = 'test_' . $type;
-        $typeInstance   = Type::getType($type);
+        $typeInstance   = TypeRegistry::getInstance()->get($type);
         $insertionValue = $typeInstance->convertToDatabaseValue(
             $originalValue,
             $this->connection->getDatabasePlatform()

@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -121,7 +122,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testRegistersCommentedDoctrineMappingTypeImplicitly(): void
     {
-        $type = Type::getType('array');
+        $type = TypeRegistry::getInstance()->get('array');
         $this->platform->registerDoctrineTypeMapping('foo', 'array');
 
         self::assertTrue($this->platform->isCommentedDoctrineType($type));
@@ -144,8 +145,9 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $data = [];
 
-        foreach (Type::getTypesMap() as $typeName => $className) {
-            $type = Type::getType($typeName);
+        $typeRegistry = TypeRegistry::getInstance();
+        foreach ($typeRegistry->getMap() as $typeName => $className) {
+            $type = $typeRegistry->get($typeName);
 
             $data[$typeName] = [
                 $type,
@@ -333,13 +335,17 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff                         = new TableDiff('mytable');
         $tableDiff->fromTable              = $table;
         $tableDiff->newName                = 'userlist';
-        $tableDiff->addedColumns['quota']  = new Column('quota', Type::getType('integer'), ['notnull' => false]);
-        $tableDiff->removedColumns['foo']  = new Column('foo', Type::getType('integer'));
+        $tableDiff->addedColumns['quota']  = new Column(
+            'quota',
+            TypeRegistry::getInstance()->get('integer'),
+            ['notnull' => false]
+        );
+        $tableDiff->removedColumns['foo']  = new Column('foo', TypeRegistry::getInstance()->get('integer'));
         $tableDiff->changedColumns['bar']  = new ColumnDiff(
             'bar',
             new Column(
                 'baz',
-                Type::getType('string'),
+                TypeRegistry::getInstance()->get('string'),
                 ['default' => 'def']
             ),
             ['type', 'notnull', 'default']
@@ -348,7 +354,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             'bloo',
             new Column(
                 'bloo',
-                Type::getType('boolean'),
+                TypeRegistry::getInstance()->get('boolean'),
                 ['default' => false]
             ),
             ['type', 'notnull', 'default']
@@ -445,18 +451,18 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $tableDiff                            = new TableDiff('mytable');
         $tableDiff->fromTable                 = $table;
-        $tableDiff->addedColumns['added']     = new Column('added', Type::getType('integer'), []);
-        $tableDiff->removedColumns['removed'] = new Column('removed', Type::getType('integer'), []);
+        $tableDiff->addedColumns['added']     = new Column('added', TypeRegistry::getInstance()->get('integer'), []);
+        $tableDiff->removedColumns['removed'] = new Column('removed', TypeRegistry::getInstance()->get('integer'), []);
         $tableDiff->changedColumns['changed'] = new ColumnDiff(
             'changed',
             new Column(
                 'changed2',
-                Type::getType('string'),
+                TypeRegistry::getInstance()->get('string'),
                 []
             ),
             []
         );
-        $tableDiff->renamedColumns['renamed'] = new Column('renamed2', Type::getType('integer'), []);
+        $tableDiff->renamedColumns['renamed'] = new Column('renamed2', TypeRegistry::getInstance()->get('integer'), []);
 
         $this->platform->getAlterTableSQL($tableDiff);
     }
@@ -473,12 +479,16 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testAlterTableColumnComments(): void
     {
         $tableDiff                        = new TableDiff('mytable');
-        $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['comment' => 'A comment']);
+        $tableDiff->addedColumns['quota'] = new Column(
+            'quota',
+            TypeRegistry::getInstance()->get('integer'),
+            ['comment' => 'A comment']
+        );
         $tableDiff->changedColumns['foo'] = new ColumnDiff(
             'foo',
             new Column(
                 'foo',
-                Type::getType('string')
+                TypeRegistry::getInstance()->get('string')
             ),
             ['comment']
         );
@@ -486,7 +496,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             'bar',
             new Column(
                 'baz',
-                Type::getType('string'),
+                TypeRegistry::getInstance()->get('string'),
                 ['comment' => 'B comment']
             ),
             ['comment']
@@ -533,7 +543,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         // non-timestamp value will get single quotes
         self::assertEquals(" DEFAULT 'non_timestamp'", $this->platform->getDefaultValueDeclarationSQL([
-            'type' => Type::getType('string'),
+            'type' => TypeRegistry::getInstance()->get('string'),
             'default' => 'non_timestamp',
         ]));
     }
@@ -545,7 +555,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::assertSame(
                 ' DEFAULT ' . $this->platform->getCurrentTimestampSQL(),
                 $this->platform->getDefaultValueDeclarationSQL([
-                    'type'    => Type::getType($type),
+                    'type'    => TypeRegistry::getInstance()->get($type),
                     'default' => $this->platform->getCurrentTimestampSQL(),
                 ])
             );
@@ -558,7 +568,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::assertEquals(
                 ' DEFAULT 1',
                 $this->platform->getDefaultValueDeclarationSQL([
-                    'type'    => Type::getType($type),
+                    'type'    => TypeRegistry::getInstance()->get($type),
                     'default' => 1,
                 ])
             );
@@ -572,7 +582,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::assertSame(
                 ' DEFAULT ' . $currentDateSql,
                 $this->platform->getDefaultValueDeclarationSQL([
-                    'type'    => Type::getType($type),
+                    'type'    => TypeRegistry::getInstance()->get($type),
                     'default' => $currentDateSql,
                 ])
             );
@@ -782,7 +792,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             'select',
             new Column(
                 'select',
-                Type::getType('string')
+                TypeRegistry::getInstance()->get('string')
             ),
             ['type']
         );
@@ -850,7 +860,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $column = [
             'length'  => 666,
             'notnull' => true,
-            'type'    => Type::getType('json'),
+            'type'    => TypeRegistry::getInstance()->get('json'),
         ];
 
         self::assertSame(
@@ -1281,7 +1291,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->fromTable             = $table;
         $tableDiff->renamedColumns['bar'] = new Column(
             'baz',
-            Type::getType('integer'),
+            TypeRegistry::getInstance()->get('integer'),
             ['notnull' => true, 'default' => 666, 'comment' => 'rename test']
         );
 
@@ -1308,15 +1318,15 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff                        = new TableDiff('"foo"');
         $tableDiff->fromTable             = $table;
         $tableDiff->newName               = 'table';
-        $tableDiff->addedColumns['bloo']  = new Column('bloo', Type::getType('integer'));
+        $tableDiff->addedColumns['bloo']  = new Column('bloo', TypeRegistry::getInstance()->get('integer'));
         $tableDiff->changedColumns['bar'] = new ColumnDiff(
             'bar',
-            new Column('bar', Type::getType('integer'), ['notnull' => false]),
+            new Column('bar', TypeRegistry::getInstance()->get('integer'), ['notnull' => false]),
             ['notnull'],
             $table->getColumn('bar')
         );
-        $tableDiff->renamedColumns['id']  = new Column('war', Type::getType('integer'));
-        $tableDiff->removedColumns['baz'] = new Column('baz', Type::getType('integer'));
+        $tableDiff->renamedColumns['id']  = new Column('war', TypeRegistry::getInstance()->get('integer'));
+        $tableDiff->removedColumns['baz'] = new Column('baz', TypeRegistry::getInstance()->get('integer'));
         $tableDiff->addedForeignKeys[]    = new ForeignKeyConstraint(['fk3'], 'fk_table', ['id'], 'fk_add');
         $tableDiff->changedForeignKeys[]  = new ForeignKeyConstraint(['fk2'], 'fk_table2', ['id'], 'fk2');
         $tableDiff->removedForeignKeys[]  = new ForeignKeyConstraint(['fk'], 'fk_table', ['id'], 'fk1');
@@ -1344,7 +1354,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             'name',
             new Column(
                 'name',
-                Type::getType('string'),
+                TypeRegistry::getInstance()->get('string'),
                 ['fixed' => true, 'length' => 2]
             ),
             ['fixed']
@@ -1503,7 +1513,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testItAddsCommentsForOverridingTypes(): void
     {
-        $this->backedUpType = Type::getType(Types::STRING);
+        $this->backedUpType = TypeRegistry::getInstance()->get(Types::STRING);
         self::assertFalse($this->platform->isCommentedDoctrineType($this->backedUpType));
         $type = new class () extends StringType {
             public function getName(): string
@@ -1516,7 +1526,7 @@ abstract class AbstractPlatformTestCase extends TestCase
                 return true;
             }
         };
-        Type::getTypeRegistry()->override(Types::STRING, $type);
+        TypeRegistry::getInstance()->override(Types::STRING, $type);
         self::assertTrue($this->platform->isCommentedDoctrineType($type));
     }
 
@@ -1526,7 +1536,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             return;
         }
 
-        Type::getTypeRegistry()->override(Types::STRING, $this->backedUpType);
+        TypeRegistry::getInstance()->override(Types::STRING, $this->backedUpType);
         $this->backedUpType = null;
     }
 }

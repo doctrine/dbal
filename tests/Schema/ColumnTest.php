@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +19,7 @@ class ColumnTest extends TestCase
         $column = $this->createColumn();
 
         self::assertEquals('foo', $column->getName());
-        self::assertSame(Type::getType('string'), $column->getType());
+        self::assertSame(TypeRegistry::getInstance()->get('string'), $column->getType());
 
         self::assertEquals(200, $column->getLength());
         self::assertEquals(5, $column->getPrecision());
@@ -43,7 +44,7 @@ class ColumnTest extends TestCase
     {
         $expected = [
             'name' => 'foo',
-            'type' => Type::getType('string'),
+            'type' => TypeRegistry::getInstance()->get('string'),
             'default' => 'baz',
             'notnull' => false,
             'length' => 200,
@@ -74,10 +75,18 @@ class ColumnTest extends TestCase
         self::expectException(UnknownColumnOption::class);
         self::expectExceptionMessage('The "unknown_option" column option is not supported.');
 
-        $col1 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => true]);
+        $col1 = new Column(
+            'bar',
+            TypeRegistry::getInstance()->get(Types::INTEGER),
+            ['unknown_option' => 'bar', 'notnull' => true]
+        );
         self::assertTrue($col1->getNotnull());
 
-        $col2 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => false]);
+        $col2 = new Column(
+            'bar',
+            TypeRegistry::getInstance()->get(Types::INTEGER),
+            ['unknown_option' => 'bar', 'notnull' => false]
+        );
         self::assertFalse($col2->getNotnull());
     }
 
@@ -95,14 +104,14 @@ class ColumnTest extends TestCase
             'customSchemaOptions' => ['bar' => 'baz'],
         ];
 
-        $string = Type::getType('string');
+        $string = TypeRegistry::getInstance()->get('string');
 
         return new Column('foo', $string, $options);
     }
 
     public function testQuotedColumnName(): void
     {
-        $string = Type::getType('string');
+        $string = TypeRegistry::getInstance()->get('string');
         $column = new Column('`bar`', $string, []);
 
         $mysqlPlatform  = new MySQLPlatform();
@@ -125,7 +134,7 @@ class ColumnTest extends TestCase
      */
     public function testIsQuoted(string $columnName, bool $isQuoted): void
     {
-        $type   = Type::getType('string');
+        $type   = TypeRegistry::getInstance()->get('string');
         $column = new Column($columnName, $type);
 
         self::assertSame($isQuoted, $column->isQuoted());
@@ -146,7 +155,7 @@ class ColumnTest extends TestCase
 
     public function testColumnComment(): void
     {
-        $column = new Column('bar', Type::getType('string'));
+        $column = new Column('bar', TypeRegistry::getInstance()->get('string'));
         self::assertNull($column->getComment());
 
         $column->setComment('foo');

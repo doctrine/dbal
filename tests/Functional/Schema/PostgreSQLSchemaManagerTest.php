@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
@@ -68,7 +69,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = $this->connection->getSchemaManager()->listTableDetails('domain_type_test');
         self::assertInstanceOf(DecimalType::class, $table->getColumn('value')->getType());
 
-        Type::addType('MyMoney', MoneyType::class);
+        TypeRegistry::getInstance()->register('MyMoney', new MoneyType());
         $this->connection->getDatabasePlatform()->registerDoctrineTypeMapping('MyMoney', 'MyMoney');
 
         $table = $this->connection->getSchemaManager()->listTableDetails('domain_type_test');
@@ -391,9 +392,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testItTriggersADeprecationWhenAttemptingToUseJsonbWithATypeNotExtendingJsonType(): void
     {
-        $backedUpType = Type::getType('json');
+        $backedUpType = TypeRegistry::getInstance()->get('json');
         try {
-            Type::getTypeRegistry()->override(Types::JSON, new class extends Type {
+            TypeRegistry::getInstance()->override(Types::JSON, new class extends Type {
                 /**
                  * {@inheritdoc}
                  */
@@ -417,7 +418,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             self::assertSame(Types::JSON, $columns['foo']->getType()->getName());
             self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
         } finally {
-            Type::getTypeRegistry()->override(Types::JSON, $backedUpType);
+            TypeRegistry::getInstance()->override(Types::JSON, $backedUpType);
         }
     }
 

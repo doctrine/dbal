@@ -13,13 +13,12 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
-use function get_class;
 
 class ComparatorTest extends TestCase
 {
@@ -38,7 +37,7 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -46,7 +45,7 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -62,8 +61,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -71,8 +70,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -86,7 +85,12 @@ class ComparatorTest extends TestCase
     {
         $schemaConfig = new SchemaConfig();
 
-        $table = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
+        $table = new Table('bugdb', [
+            'integercolumn1' => new Column(
+                'integercolumn1',
+                TypeRegistry::getInstance()->get('integer')
+            ),
+        ]);
         $table->setSchemaConfig($schemaConfig);
 
         $schema1 = new Schema([$table], [], $schemaConfig);
@@ -101,7 +105,12 @@ class ComparatorTest extends TestCase
     {
         $schemaConfig = new SchemaConfig();
 
-        $table = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
+        $table = new Table('bugdb', [
+            'integercolumn1' => new Column(
+                'integercolumn1',
+                TypeRegistry::getInstance()->get('integer')
+            ),
+        ]);
         $table->setSchemaConfig($schemaConfig);
 
         $schema1 = new Schema([], [], $schemaConfig);
@@ -114,8 +123,8 @@ class ComparatorTest extends TestCase
 
     public function testCompareOnlyAutoincrementChanged(): void
     {
-        $column1 = new Column('foo', Type::getType('integer'), ['autoincrement' => true]);
-        $column2 = new Column('foo', Type::getType('integer'), ['autoincrement' => false]);
+        $column1 = new Column('foo', TypeRegistry::getInstance()->get('integer'), ['autoincrement' => true]);
+        $column2 = new Column('foo', TypeRegistry::getInstance()->get('integer'), ['autoincrement' => false]);
 
         $changedProperties = $this->comparator->diffColumn($column1, $column2);
 
@@ -124,13 +133,13 @@ class ComparatorTest extends TestCase
 
     public function testCompareMissingField(): void
     {
-        $missingColumn = new Column('integercolumn1', Type::getType('integer'));
+        $missingColumn = new Column('integercolumn1', TypeRegistry::getInstance()->get('integer'));
         $schema1       = new Schema([
             'bugdb' => new Table(
                 'bugdb',
                 [
                     'integercolumn1' => $missingColumn,
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -138,7 +147,7 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -166,7 +175,7 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -174,8 +183,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -186,7 +195,7 @@ class ComparatorTest extends TestCase
                 'bugdb' => new TableDiff(
                     'bugdb',
                     [
-                        'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                        'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                     ]
                 ),
             ]
@@ -199,8 +208,8 @@ class ComparatorTest extends TestCase
 
     public function testCompareChangedColumnsChangeType(): void
     {
-        $column1 = new Column('charcolumn1', Type::getType('string'));
-        $column2 = new Column('charcolumn1', Type::getType('integer'));
+        $column1 = new Column('charcolumn1', TypeRegistry::getInstance()->get('string'));
+        $column2 = new Column('charcolumn1', TypeRegistry::getInstance()->get('integer'));
 
         self::assertEquals(['type'], $this->comparator->diffColumn($column1, $column2));
         self::assertEquals([], $this->comparator->diffColumn($column1, $column1));
@@ -208,9 +217,9 @@ class ComparatorTest extends TestCase
 
     public function testCompareColumnsMultipleTypeInstances(): void
     {
-        $integerType1 = Type::getType('integer');
-        Type::overrideType('integer', get_class($integerType1));
-        $integerType2 = Type::getType('integer');
+        $integerType1 = TypeRegistry::getInstance()->get('integer');
+        TypeRegistry::getInstance()->override('integer', clone $integerType1);
+        $integerType2 = TypeRegistry::getInstance()->get('integer');
 
         $column1 = new Column('integercolumn1', $integerType1);
         $column2 = new Column('integercolumn1', $integerType2);
@@ -220,13 +229,13 @@ class ComparatorTest extends TestCase
 
     public function testCompareColumnsOverriddenType(): void
     {
-        $oldStringInstance = Type::getType('string');
-        $integerType       = Type::getType('integer');
+        $oldStringInstance = TypeRegistry::getInstance()->get('string');
+        $integerType       = TypeRegistry::getInstance()->get('integer');
 
-        Type::overrideType('string', get_class($integerType));
-        $overriddenStringType = Type::getType('string');
+        TypeRegistry::getInstance()->override('string', clone $integerType);
+        $overriddenStringType = TypeRegistry::getInstance()->get('string');
 
-        Type::overrideType('string', get_class($oldStringInstance));
+        TypeRegistry::getInstance()->override('string', clone $oldStringInstance);
 
         $column1 = new Column('integercolumn1', $integerType);
         $column2 = new Column('integercolumn1', $overriddenStringType);
@@ -236,8 +245,8 @@ class ComparatorTest extends TestCase
 
     public function testCompareChangedColumnsChangeCustomSchemaOption(): void
     {
-        $column1 = new Column('charcolumn1', Type::getType('string'));
-        $column2 = new Column('charcolumn1', Type::getType('string'));
+        $column1 = new Column('charcolumn1', TypeRegistry::getInstance()->get('string'));
+        $column2 = new Column('charcolumn1', TypeRegistry::getInstance()->get('string'));
 
         $column1->setCustomSchemaOption('foo', 'bar');
         $column2->setCustomSchemaOption('foo', 'bar');
@@ -275,8 +284,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ],
                 [
                     'primary' => new Index(
@@ -291,8 +300,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -329,8 +338,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -338,8 +347,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ],
                 [
                     'primary' => new Index(
@@ -381,8 +390,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ],
                 [
                     'primary' => new Index(
@@ -397,8 +406,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ],
                 [
                     'primary' => new Index(
@@ -444,8 +453,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ],
                 [
                     'primary' => new Index('primary', ['integercolumn1', 'integercolumn2'], true),
@@ -456,8 +465,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', TypeRegistry::getInstance()->get('integer')),
+                    'integercolumn2' => new Column('integercolumn2', TypeRegistry::getInstance()->get('integer')),
                 ],
                 [
                     'primary' => new Index('primary', ['integercolumn2', 'integercolumn1'], true),
@@ -848,10 +857,10 @@ class ComparatorTest extends TestCase
      */
     public function testDiffDecimalWithNullPrecision(): void
     {
-        $column = new Column('foo', Type::getType('decimal'));
+        $column = new Column('foo', TypeRegistry::getInstance()->get('decimal'));
         $column->setPrecision(null);
 
-        $column2 = new Column('foo', Type::getType('decimal'));
+        $column2 = new Column('foo', TypeRegistry::getInstance()->get('decimal'));
 
         self::assertEquals([], $this->comparator->diffColumn($column, $column2));
     }
@@ -1091,28 +1100,28 @@ class ComparatorTest extends TestCase
 
     public function testDiffColumnPlatformOptions(): void
     {
-        $column1 = new Column('foo', Type::getType('string'), [
+        $column1 = new Column('foo', TypeRegistry::getInstance()->get('string'), [
             'platformOptions' => [
                 'foo' => 'foo',
                 'bar' => 'bar',
             ],
         ]);
 
-        $column2 = new Column('foo', Type::getType('string'), [
+        $column2 = new Column('foo', TypeRegistry::getInstance()->get('string'), [
             'platformOptions' => [
                 'foo' => 'foo',
                 'foobar' => 'foobar',
             ],
         ]);
 
-        $column3 = new Column('foo', Type::getType('string'), [
+        $column3 = new Column('foo', TypeRegistry::getInstance()->get('string'), [
             'platformOptions' => [
                 'foo' => 'foo',
                 'bar' => 'rab',
             ],
         ]);
 
-        $column4 = new Column('foo', Type::getType('string'));
+        $column4 = new Column('foo', TypeRegistry::getInstance()->get('string'));
 
         self::assertEquals([], $this->comparator->diffColumn($column1, $column2));
         self::assertEquals([], $this->comparator->diffColumn($column2, $column1));
@@ -1124,12 +1133,12 @@ class ComparatorTest extends TestCase
 
     public function testComplexDiffColumn(): void
     {
-        $column1 = new Column('foo', Type::getType('string'), [
+        $column1 = new Column('foo', TypeRegistry::getInstance()->get('string'), [
             'platformOptions' => ['foo' => 'foo'],
             'customSchemaOptions' => ['foo' => 'bar'],
         ]);
 
-        $column2 = new Column('foo', Type::getType('string'), [
+        $column2 = new Column('foo', TypeRegistry::getInstance()->get('string'), [
             'platformOptions' => ['foo' => 'bar'],
         ]);
 
@@ -1172,10 +1181,10 @@ class ComparatorTest extends TestCase
 
     public function testCompareGuidColumns(): void
     {
-        $column1 = new Column('foo', Type::getType('guid'), ['comment' => 'GUID 1']);
+        $column1 = new Column('foo', TypeRegistry::getInstance()->get('guid'), ['comment' => 'GUID 1']);
         $column2 = new Column(
             'foo',
-            Type::getType('guid'),
+            TypeRegistry::getInstance()->get('guid'),
             ['notnull' => false, 'length' => '36', 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.']
         );
 
@@ -1188,8 +1197,8 @@ class ComparatorTest extends TestCase
      */
     public function testCompareColumnComments(?string $comment1, ?string $comment2, bool $equals): void
     {
-        $column1 = new Column('foo', Type::getType('integer'), ['comment' => $comment1]);
-        $column2 = new Column('foo', Type::getType('integer'), ['comment' => $comment2]);
+        $column1 = new Column('foo', TypeRegistry::getInstance()->get('integer'), ['comment' => $comment1]);
+        $column2 = new Column('foo', TypeRegistry::getInstance()->get('integer'), ['comment' => $comment2]);
 
         $expectedDiff = $equals ? [] : ['comment'];
 
@@ -1232,8 +1241,8 @@ class ComparatorTest extends TestCase
 
     public function testCompareCommentedTypes(): void
     {
-        $column1 = new Column('foo', Type::getType(Types::ARRAY));
-        $column2 = new Column('foo', Type::getType(Types::OBJECT));
+        $column1 = new Column('foo', TypeRegistry::getInstance()->get(Types::ARRAY));
+        $column2 = new Column('foo', TypeRegistry::getInstance()->get(Types::OBJECT));
 
         self::assertFalse($this->comparator->columnsEqual($column1, $column2));
     }
@@ -1244,14 +1253,14 @@ class ComparatorTest extends TestCase
             'table1' => new Table(
                 'table1',
                 [
-                    'id' => new Column('id', Type::getType('integer')),
+                    'id' => new Column('id', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
             'table2' => new Table(
                 'table2',
                 [
-                    'id' => new Column('id', Type::getType('integer')),
-                    'id_table1' => new Column('id_table1', Type::getType('integer')),
+                    'id' => new Column('id', TypeRegistry::getInstance()->get('integer')),
+                    'id_table1' => new Column('id_table1', TypeRegistry::getInstance()->get('integer')),
                 ],
                 [],
                 [],
@@ -1264,8 +1273,8 @@ class ComparatorTest extends TestCase
             'table2' => new Table(
                 'table2',
                 [
-                    'id' => new Column('id', Type::getType('integer')),
-                    'id_table3' => new Column('id_table3', Type::getType('integer')),
+                    'id' => new Column('id', TypeRegistry::getInstance()->get('integer')),
+                    'id_table3' => new Column('id_table3', TypeRegistry::getInstance()->get('integer')),
                 ],
                 [],
                 [],
@@ -1276,7 +1285,7 @@ class ComparatorTest extends TestCase
             'table3' => new Table(
                 'table3',
                 [
-                    'id' => new Column('id', Type::getType('integer')),
+                    'id' => new Column('id', TypeRegistry::getInstance()->get('integer')),
                 ]
             ),
         ]);
@@ -1302,7 +1311,7 @@ class ComparatorTest extends TestCase
                 new Table(
                     'a_table',
                     [
-                        new Column('is_default', Type::getType('string')),
+                        new Column('is_default', TypeRegistry::getInstance()->get('string')),
                     ]
                 ),
             ]
@@ -1312,7 +1321,11 @@ class ComparatorTest extends TestCase
                 new Table(
                     'a_table',
                     [
-                        new Column('is_default', Type::getType('string'), ['columnDefinition' => 'ENUM(\'default\')']),
+                        new Column(
+                            'is_default',
+                            TypeRegistry::getInstance()->get('string'),
+                            ['columnDefinition' => 'ENUM(\'default\')']
+                        ),
                     ]
                 ),
             ]

@@ -9,7 +9,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
@@ -337,7 +337,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $type = $this->extractDoctrineTypeFromComment($comment, '');
 
             if ($type !== '') {
-                $column->setType(Type::getType($type));
+                $column->setType(TypeRegistry::getInstance()->get($type));
 
                 $comment = $this->removeDoctrineTypeFromComment($comment, $type);
             }
@@ -424,7 +424,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             'autoincrement' => false,
         ];
 
-        return new Column($tableColumn['name'], Type::getType($type), $options);
+        return new Column($tableColumn['name'], TypeRegistry::getInstance()->get($type), $options);
     }
 
     /**

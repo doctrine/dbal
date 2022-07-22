@@ -14,7 +14,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use InvalidArgumentException;
 
 /**
@@ -695,7 +695,11 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     public function testAlterTableWithSchemaColumnComments(): void
     {
         $tableDiff                        = new TableDiff('testschema.mytable');
-        $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['comment' => 'A comment']);
+        $tableDiff->addedColumns['quota'] = new Column(
+            'quota',
+            TypeRegistry::getInstance()->get('integer'),
+            ['comment' => 'A comment']
+        );
 
         $expectedSql = [
             'ALTER TABLE testschema.mytable ADD quota INT NOT NULL',
@@ -711,9 +715,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
             'quota',
-            new Column('quota', Type::getType('integer'), []),
+            new Column('quota', TypeRegistry::getInstance()->get('integer'), []),
             ['comment'],
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment'])
+            new Column('quota', TypeRegistry::getInstance()->get('integer'), ['comment' => 'A comment'])
         );
 
         $expectedSql = [
@@ -729,9 +733,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
             'quota',
-            new Column('quota', Type::getType('integer'), ['comment' => 'B comment']),
+            new Column('quota', TypeRegistry::getInstance()->get('integer'), ['comment' => 'B comment']),
             ['comment'],
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment'])
+            new Column('quota', TypeRegistry::getInstance()->get('integer'), ['comment' => 'A comment'])
         );
 
         $expectedSql = ["EXEC sp_updateextendedproperty N'MS_Description', N'B comment', "
@@ -866,111 +870,128 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         $tableDiff->fromTable = $table;
 
         $tableDiff->addedColumns['added_comment_none']
-            = new Column('added_comment_none', Type::getType('integer'));
+            = new Column('added_comment_none', TypeRegistry::getInstance()->get('integer'));
 
         $tableDiff->addedColumns['added_comment_null']
-            = new Column('added_comment_null', Type::getType('integer'), ['comment' => null]);
+            = new Column('added_comment_null', TypeRegistry::getInstance()->get('integer'), ['comment' => null]);
 
         $tableDiff->addedColumns['added_comment_false']
-            = new Column('added_comment_false', Type::getType('integer'), ['comment' => false]);
+            = new Column('added_comment_false', TypeRegistry::getInstance()->get('integer'), ['comment' => false]);
 
         $tableDiff->addedColumns['added_comment_empty_string']
-            = new Column('added_comment_empty_string', Type::getType('integer'), ['comment' => '']);
+            = new Column('added_comment_empty_string', TypeRegistry::getInstance()->get('integer'), ['comment' => '']);
 
         $tableDiff->addedColumns['added_comment_integer_0']
-            = new Column('added_comment_integer_0', Type::getType('integer'), ['comment' => 0]);
+            = new Column('added_comment_integer_0', TypeRegistry::getInstance()->get('integer'), ['comment' => 0]);
 
         $tableDiff->addedColumns['added_comment_float_0']
-            = new Column('added_comment_float_0', Type::getType('integer'), ['comment' => 0.0]);
+            = new Column('added_comment_float_0', TypeRegistry::getInstance()->get('integer'), ['comment' => 0.0]);
 
         $tableDiff->addedColumns['added_comment_string_0']
-            = new Column('added_comment_string_0', Type::getType('integer'), ['comment' => '0']);
+            = new Column('added_comment_string_0', TypeRegistry::getInstance()->get('integer'), ['comment' => '0']);
 
         $tableDiff->addedColumns['added_comment']
-            = new Column('added_comment', Type::getType('integer'), ['comment' => 'Doctrine']);
+            = new Column('added_comment', TypeRegistry::getInstance()->get('integer'), ['comment' => 'Doctrine']);
 
         $tableDiff->addedColumns['`added_comment_quoted`']
-            = new Column('`added_comment_quoted`', Type::getType('integer'), ['comment' => 'rulez']);
+            = new Column('`added_comment_quoted`', TypeRegistry::getInstance()->get('integer'), ['comment' => 'rulez']);
 
         $tableDiff->addedColumns['select']
-            = new Column('select', Type::getType('integer'), ['comment' => '666']);
+            = new Column('select', TypeRegistry::getInstance()->get('integer'), ['comment' => '666']);
 
         $tableDiff->addedColumns['added_commented_type']
-            = new Column('added_commented_type', Type::getType('object'));
+            = new Column('added_commented_type', TypeRegistry::getInstance()->get('object'));
 
-        $tableDiff->addedColumns['added_commented_type_with_comment']
-            = new Column('added_commented_type_with_comment', Type::getType('array'), ['comment' => '666']);
+        $tableDiff->addedColumns['added_commented_type_with_comment'] = new Column(
+            'added_commented_type_with_comment',
+            TypeRegistry::getInstance()->get('array'),
+            ['comment' => '666']
+        );
 
-        $tableDiff->addedColumns['added_comment_with_string_literal_char']
-            = new Column('added_comment_with_string_literal_char', Type::getType('string'), ['comment' => "''"]);
+        $tableDiff->addedColumns['added_comment_with_string_literal_char'] = new Column(
+            'added_comment_with_string_literal_char',
+            TypeRegistry::getInstance()->get('string'),
+            ['comment' => "''"]
+        );
 
-        $tableDiff->renamedColumns['comment_float_0']
-            = new Column('comment_double_0', Type::getType('decimal'), ['comment' => 'Double for real!']);
+        $tableDiff->renamedColumns['comment_float_0'] = new Column(
+            'comment_double_0',
+            TypeRegistry::getInstance()->get('decimal'),
+            ['comment' => 'Double for real!']
+        );
 
         // Add comment to non-commented column.
         $tableDiff->changedColumns['id'] = new ColumnDiff(
             'id',
-            new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
+            new Column(
+                'id',
+                TypeRegistry::getInstance()->get('integer'),
+                ['autoincrement' => true, 'comment' => 'primary']
+            ),
             ['comment'],
-            new Column('id', Type::getType('integer'), ['autoincrement' => true])
+            new Column('id', TypeRegistry::getInstance()->get('integer'), ['autoincrement' => true])
         );
 
         // Remove comment from null-commented column.
         $tableDiff->changedColumns['comment_null'] = new ColumnDiff(
             'comment_null',
-            new Column('comment_null', Type::getType('string')),
+            new Column('comment_null', TypeRegistry::getInstance()->get('string')),
             ['type'],
-            new Column('comment_null', Type::getType('integer'), ['comment' => null])
+            new Column('comment_null', TypeRegistry::getInstance()->get('integer'), ['comment' => null])
         );
 
         // Add comment to false-commented column.
         $tableDiff->changedColumns['comment_false'] = new ColumnDiff(
             'comment_false',
-            new Column('comment_false', Type::getType('integer'), ['comment' => 'false']),
+            new Column('comment_false', TypeRegistry::getInstance()->get('integer'), ['comment' => 'false']),
             ['comment'],
-            new Column('comment_false', Type::getType('integer'), ['comment' => false])
+            new Column('comment_false', TypeRegistry::getInstance()->get('integer'), ['comment' => false])
         );
 
         // Change type to custom type from empty string commented column.
         $tableDiff->changedColumns['comment_empty_string'] = new ColumnDiff(
             'comment_empty_string',
-            new Column('comment_empty_string', Type::getType('object')),
+            new Column('comment_empty_string', TypeRegistry::getInstance()->get('object')),
             ['type'],
-            new Column('comment_empty_string', Type::getType('integer'), ['comment' => ''])
+            new Column('comment_empty_string', TypeRegistry::getInstance()->get('integer'), ['comment' => ''])
         );
 
         // Change comment to false-comment from zero-string commented column.
         $tableDiff->changedColumns['comment_string_0'] = new ColumnDiff(
             'comment_string_0',
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => false]),
+            new Column('comment_string_0', TypeRegistry::getInstance()->get('integer'), ['comment' => false]),
             ['comment'],
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => '0'])
+            new Column('comment_string_0', TypeRegistry::getInstance()->get('integer'), ['comment' => '0'])
         );
 
         // Remove comment from regular commented column.
         $tableDiff->changedColumns['comment'] = new ColumnDiff(
             'comment',
-            new Column('comment', Type::getType('integer')),
+            new Column('comment', TypeRegistry::getInstance()->get('integer')),
             ['comment'],
-            new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!'])
+            new Column('comment', TypeRegistry::getInstance()->get('integer'), ['comment' => 'Doctrine 0wnz you!'])
         );
 
         // Change comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['`comment_quoted`'] = new ColumnDiff(
             '`comment_quoted`',
-            new Column('`comment_quoted`', Type::getType('array'), ['comment' => 'Doctrine array.']),
+            new Column('`comment_quoted`', TypeRegistry::getInstance()->get('array'), ['comment' => 'Doctrine array.']),
             ['comment', 'type'],
-            new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!'])
+            new Column(
+                '`comment_quoted`',
+                TypeRegistry::getInstance()->get('integer'),
+                ['comment' => 'Doctrine 0wnz you!']
+            )
         );
 
         // Remove comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['create'] = new ColumnDiff(
             'create',
-            new Column('create', Type::getType('object')),
+            new Column('create', TypeRegistry::getInstance()->get('object')),
             ['comment', 'type'],
             new Column(
                 'create',
-                Type::getType('integer'),
+                TypeRegistry::getInstance()->get('integer'),
                 ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']
             )
         );
@@ -978,29 +999,41 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         // Add comment and change custom type to regular type from non-commented column.
         $tableDiff->changedColumns['commented_type'] = new ColumnDiff(
             'commented_type',
-            new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
+            new Column('commented_type', TypeRegistry::getInstance()->get('integer'), ['comment' => 'foo']),
             ['comment', 'type'],
-            new Column('commented_type', Type::getType('object'))
+            new Column('commented_type', TypeRegistry::getInstance()->get('object'))
         );
 
         // Remove comment from commented custom type column.
         $tableDiff->changedColumns['commented_type_with_comment'] = new ColumnDiff(
             'commented_type_with_comment',
-            new Column('commented_type_with_comment', Type::getType('array')),
+            new Column('commented_type_with_comment', TypeRegistry::getInstance()->get('array')),
             ['comment'],
-            new Column('commented_type_with_comment', Type::getType('array'), ['comment' => 'Doctrine array type.'])
+            new Column(
+                'commented_type_with_comment',
+                TypeRegistry::getInstance()->get('array'),
+                ['comment' => 'Doctrine array type.']
+            )
         );
 
         // Change comment from comment with string literal char column.
         $tableDiff->changedColumns['comment_with_string_literal_char'] = new ColumnDiff(
             'comment_with_string_literal_char',
-            new Column('comment_with_string_literal_char', Type::getType('string'), ['comment' => "'"]),
+            new Column(
+                'comment_with_string_literal_char',
+                TypeRegistry::getInstance()->get('string'),
+                ['comment' => "'"]
+            ),
             ['comment'],
-            new Column('comment_with_string_literal_char', Type::getType('array'), ['comment' => "O'Reilly"])
+            new Column(
+                'comment_with_string_literal_char',
+                TypeRegistry::getInstance()->get('array'),
+                ['comment' => "O'Reilly"]
+            )
         );
 
         $tableDiff->removedColumns['comment_integer_0']
-            = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
+            = new Column('comment_integer_0', TypeRegistry::getInstance()->get('integer'), ['comment' => 0]);
 
         self::assertEquals(
             [
@@ -1211,16 +1244,16 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         $tableDiff->fromTable                 = $table;
         $tableDiff->changedColumns['col_int'] = new ColumnDiff(
             'col_int',
-            new Column('col_int', Type::getType('integer'), ['default' => 666]),
+            new Column('col_int', TypeRegistry::getInstance()->get('integer'), ['default' => 666]),
             ['type'],
-            new Column('col_int', Type::getType('smallint'), ['default' => 666])
+            new Column('col_int', TypeRegistry::getInstance()->get('smallint'), ['default' => 666])
         );
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
             'col_string',
-            new Column('col_string', Type::getType('string'), ['default' => 666, 'fixed' => true]),
+            new Column('col_string', TypeRegistry::getInstance()->get('string'), ['default' => 666, 'fixed' => true]),
             ['fixed'],
-            new Column('col_string', Type::getType('string'), ['default' => 666])
+            new Column('col_string', TypeRegistry::getInstance()->get('string'), ['default' => 666])
         );
 
         $expected = $this->platform->getAlterTableSQL($tableDiff);
@@ -1369,7 +1402,10 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         return [
             // Unquoted identifiers non-reserved keywords.
             [
-                new Table('mytable', [new Column('mycolumn', Type::getType('string'), ['default' => 'foo'])]),
+                new Table(
+                    'mytable',
+                    [new Column('mycolumn', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])]
+                ),
                 [
                     'CREATE TABLE mytable (mycolumn NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn",
@@ -1377,7 +1413,10 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             ],
             // Quoted identifiers reserved keywords.
             [
-                new Table('`mytable`', [new Column('`mycolumn`', Type::getType('string'), ['default' => 'foo'])]),
+                new Table(
+                    '`mytable`',
+                    [new Column('`mycolumn`', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])]
+                ),
                 [
                     'CREATE TABLE [mytable] ([mycolumn] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]",
@@ -1385,7 +1424,10 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             ],
             // Unquoted identifiers reserved keywords.
             [
-                new Table('table', [new Column('select', Type::getType('string'), ['default' => 'foo'])]),
+                new Table(
+                    'table',
+                    [new Column('select', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])]
+                ),
                 [
                     'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]",
@@ -1393,7 +1435,10 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             ],
             // Quoted identifiers reserved keywords.
             [
-                new Table('`table`', [new Column('`select`', Type::getType('string'), ['default' => 'foo'])]),
+                new Table(
+                    '`table`',
+                    [new Column('`select`', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])]
+                ),
                 [
                     'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]",
@@ -1422,16 +1467,16 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             [
                 new TableDiff(
                     'mytable',
-                    [new Column('addcolumn', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('addcolumn', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])],
                     [
                         'mycolumn' => new ColumnDiff(
                             'mycolumn',
-                            new Column('mycolumn', Type::getType('string'), ['default' => 'bar']),
+                            new Column('mycolumn', TypeRegistry::getInstance()->get('string'), ['default' => 'bar']),
                             ['default'],
-                            new Column('mycolumn', Type::getType('string'), ['default' => 'foo'])
+                            new Column('mycolumn', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])
                         ),
                     ],
-                    [new Column('removecolumn', Type::getType('string'), ['default' => 'foo'])]
+                    [new Column('removecolumn', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])]
                 ),
                 [
                     'ALTER TABLE mytable ADD addcolumn NVARCHAR(255) NOT NULL ' .
@@ -1446,16 +1491,16 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             [
                 new TableDiff(
                     '`mytable`',
-                    [new Column('`addcolumn`', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('`addcolumn`', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])],
                     [
                         'mycolumn' => new ColumnDiff(
                             '`mycolumn`',
-                            new Column('`mycolumn`', Type::getType('string'), ['default' => 'bar']),
+                            new Column('`mycolumn`', TypeRegistry::getInstance()->get('string'), ['default' => 'bar']),
                             ['default'],
-                            new Column('`mycolumn`', Type::getType('string'), ['default' => 'foo'])
+                            new Column('`mycolumn`', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])
                         ),
                     ],
-                    [new Column('`removecolumn`', Type::getType('string'), ['default' => 'foo'])]
+                    [new Column('`removecolumn`', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])]
                 ),
                 [
                     'ALTER TABLE [mytable] ADD [addcolumn] NVARCHAR(255) NOT NULL ' .
@@ -1470,16 +1515,16 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             [
                 new TableDiff(
                     'table',
-                    [new Column('add', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('add', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])],
                     [
                         'select' => new ColumnDiff(
                             'select',
-                            new Column('select', Type::getType('string'), ['default' => 'bar']),
+                            new Column('select', TypeRegistry::getInstance()->get('string'), ['default' => 'bar']),
                             ['default'],
-                            new Column('select', Type::getType('string'), ['default' => 'foo'])
+                            new Column('select', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])
                         ),
                     ],
-                    [new Column('drop', Type::getType('string'), ['default' => 'foo'])]
+                    [new Column('drop', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])]
                 ),
                 [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL ' .
@@ -1494,16 +1539,16 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             [
                 new TableDiff(
                     '`table`',
-                    [new Column('`add`', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('`add`', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])],
                     [
                         'select' => new ColumnDiff(
                             '`select`',
-                            new Column('`select`', Type::getType('string'), ['default' => 'bar']),
+                            new Column('`select`', TypeRegistry::getInstance()->get('string'), ['default' => 'bar']),
                             ['default'],
-                            new Column('`select`', Type::getType('string'), ['default' => 'foo'])
+                            new Column('`select`', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])
                         ),
                     ],
-                    [new Column('`drop`', Type::getType('string'), ['default' => 'foo'])]
+                    [new Column('`drop`', TypeRegistry::getInstance()->get('string'), ['default' => 'foo'])]
                 ),
                 [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL ' .
@@ -1746,7 +1791,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             self::assertSame(
                 ' DEFAULT CONVERT(date, GETDATE())',
                 $this->platform->getDefaultValueDeclarationSQL([
-                    'type' => Type::getType($type),
+                    'type' => TypeRegistry::getInstance()->get($type),
                     'default' => $currentDateSql,
                 ])
             );
@@ -1811,9 +1856,17 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
             'quota',
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => true]),
+            new Column(
+                'quota',
+                TypeRegistry::getInstance()->get('integer'),
+                ['comment' => 'A comment', 'notnull' => true]
+            ),
             ['notnull'],
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => false])
+            new Column(
+                'quota',
+                TypeRegistry::getInstance()->get('integer'),
+                ['comment' => 'A comment', 'notnull' => false]
+            )
         );
 
         $expectedSql = ['ALTER TABLE testschema.mytable ALTER COLUMN quota INT NOT NULL'];

@@ -15,8 +15,41 @@ use function in_array;
  */
 final class TypeRegistry
 {
+    /**
+     * The map of supported doctrine mapping types.
+     */
+    private const BUILTIN_TYPES_MAP = [
+        Types::ARRAY                => ArrayType::class,
+        Types::ASCII_STRING         => AsciiStringType::class,
+        Types::BIGINT               => BigIntType::class,
+        Types::BINARY               => BinaryType::class,
+        Types::BLOB                 => BlobType::class,
+        Types::BOOLEAN              => BooleanType::class,
+        Types::DATE_MUTABLE         => DateType::class,
+        Types::DATE_IMMUTABLE       => DateImmutableType::class,
+        Types::DATEINTERVAL         => DateIntervalType::class,
+        Types::DATETIME_MUTABLE     => DateTimeType::class,
+        Types::DATETIME_IMMUTABLE   => DateTimeImmutableType::class,
+        Types::DATETIMETZ_MUTABLE   => DateTimeTzType::class,
+        Types::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
+        Types::DECIMAL              => DecimalType::class,
+        Types::FLOAT                => FloatType::class,
+        Types::GUID                 => GuidType::class,
+        Types::INTEGER              => IntegerType::class,
+        Types::JSON                 => JsonType::class,
+        Types::OBJECT               => ObjectType::class,
+        Types::SIMPLE_ARRAY         => SimpleArrayType::class,
+        Types::SMALLINT             => SmallIntType::class,
+        Types::STRING               => StringType::class,
+        Types::TEXT                 => TextType::class,
+        Types::TIME_MUTABLE         => TimeType::class,
+        Types::TIME_IMMUTABLE       => TimeImmutableType::class,
+    ];
+
     /** @var array<string, Type> Map of type names and their corresponding flyweight objects. */
     private array $instances;
+
+    private static ?self $singleton = null;
 
     /**
      * @param array<string, Type> $instances
@@ -24,6 +57,22 @@ final class TypeRegistry
     public function __construct(array $instances = [])
     {
         $this->instances = $instances;
+    }
+
+    public static function getInstance(): self
+    {
+        return self::$singleton ??= self::createSingleton();
+    }
+
+    private static function createSingleton(): self
+    {
+        $instances = [];
+
+        foreach (self::BUILTIN_TYPES_MAP as $name => $class) {
+            $instances[$name] = new $class();
+        }
+
+        return new self($instances);
     }
 
     /**

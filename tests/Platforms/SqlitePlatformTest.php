@@ -9,7 +9,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 
 /**
  * @extends AbstractPlatformTestCase<SqlitePlatform>
@@ -323,8 +323,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         $diff = new TableDiff('user');
 
-        $diff->addedColumns['foo']   = new Column('foo', Type::getType('string'));
-        $diff->addedColumns['count'] = new Column('count', Type::getType('integer'), [
+        $diff->addedColumns['foo']   = new Column('foo', TypeRegistry::getInstance()->get('string'));
+        $diff->addedColumns['count'] = new Column('count', TypeRegistry::getInstance()->get('integer'), [
             'notnull' => false,
             'default' => 1,
         ]);
@@ -354,7 +354,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
         $tableDiff                          = new TableDiff('test');
         $tableDiff->fromTable               = $table;
-        $tableDiff->renamedColumns['value'] = new Column('data', Type::getType('string'));
+        $tableDiff->renamedColumns['value'] = new Column('data', TypeRegistry::getInstance()->get('string'));
 
         $this->expectException(Exception::class);
         $this->platform->getAlterTableSQL($tableDiff);
@@ -366,10 +366,18 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public static function complexDiffProvider(): iterable
     {
         $date                       = new TableDiff('user');
-        $date->addedColumns['time'] = new Column('time', Type::getType('date'), ['default' => 'CURRENT_DATE']);
+        $date->addedColumns['time'] = new Column(
+            'time',
+            TypeRegistry::getInstance()->get('date'),
+            ['default' => 'CURRENT_DATE']
+        );
 
         $id                     = new TableDiff('user');
-        $id->addedColumns['id'] = new Column('id', Type::getType('integer'), ['autoincrement' => true]);
+        $id->addedColumns['id'] = new Column(
+            'id',
+            TypeRegistry::getInstance()->get('integer'),
+            ['autoincrement' => true]
+        );
 
         return [
             'date column with default value' => [$date],
@@ -424,9 +432,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $diff                           = new TableDiff('user');
         $diff->fromTable                = $table;
         $diff->newName                  = 'client';
-        $diff->renamedColumns['id']     = new Column('key', Type::getType('integer'), []);
-        $diff->renamedColumns['post']   = new Column('comment', Type::getType('integer'), []);
-        $diff->removedColumns['parent'] = new Column('comment', Type::getType('integer'), []);
+        $diff->renamedColumns['id']     = new Column('key', TypeRegistry::getInstance()->get('integer'), []);
+        $diff->renamedColumns['post']   = new Column('comment', TypeRegistry::getInstance()->get('integer'), []);
+        $diff->removedColumns['parent'] = new Column('comment', TypeRegistry::getInstance()->get('integer'), []);
         $diff->removedIndexes['index1'] = $table->getIndex('index1');
 
         $sql = [

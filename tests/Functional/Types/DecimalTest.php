@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 
 use function rtrim;
@@ -40,7 +40,7 @@ final class DecimalTest extends FunctionalTestCase
             ['val' => Types::DECIMAL]
         );
 
-        $value = Type::getType(Types::DECIMAL)->convertToPHPValue(
+        $value = TypeRegistry::getInstance()->get(Types::DECIMAL)->convertToPHPValue(
             $this->connection->fetchOne('SELECT val FROM decimal_table'),
             $this->connection->getDatabasePlatform()
         );

@@ -8,7 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Throwable;
 
 use function array_filter;
@@ -85,8 +85,8 @@ class WriteTest extends FunctionalTestCase
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindValue(1, 1, Type::getType('integer'));
-        $stmt->bindValue(2, 'foo', Type::getType('string'));
+        $stmt->bindValue(1, 1, TypeRegistry::getInstance()->get('integer'));
+        $stmt->bindValue(2, 'foo', TypeRegistry::getInstance()->get('string'));
 
         self::assertEquals(1, $stmt->execute()->rowCount());
     }

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
@@ -169,7 +169,7 @@ SQL
             $options['length'] = $length;
         }
 
-        $column = new Column($tableColumn['name'], Type::getType($type), $options);
+        $column = new Column($tableColumn['name'], TypeRegistry::getInstance()->get($type), $options);
 
         if (isset($tableColumn['collation']) && $tableColumn['collation'] !== 'NULL') {
             $column->setPlatformOption('collation', $tableColumn['collation']);

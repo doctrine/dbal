@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 
 use function array_change_key_case;
 use function array_values;
@@ -222,7 +222,11 @@ class OracleSchemaManager extends AbstractSchemaManager
                 : null,
         ];
 
-        return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
+        return new Column(
+            $this->getQuotedIdentifierName($tableColumn['column_name']),
+            TypeRegistry::getInstance()->get($type),
+            $options
+        );
     }
 
     /**

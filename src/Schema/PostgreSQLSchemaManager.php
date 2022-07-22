@@ -6,7 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\JsonType;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
@@ -528,7 +528,7 @@ SQL
                 : null,
         ];
 
-        $column = new Column($tableColumn['field'], Type::getType($type), $options);
+        $column = new Column($tableColumn['field'], TypeRegistry::getInstance()->get($type), $options);
 
         if (isset($tableColumn['collation']) && ! empty($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);

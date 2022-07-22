@@ -32,6 +32,7 @@ use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
@@ -178,8 +179,9 @@ abstract class AbstractPlatform
     {
         $this->initializeDoctrineTypeMappings();
 
-        foreach (Type::getTypesMap() as $typeName => $className) {
-            foreach (Type::getType($typeName)->getMappedDatabaseTypes($this) as $dbType) {
+        $typeRegistry = TypeRegistry::getInstance();
+        foreach ($typeRegistry->getMap() as $typeName => $className) {
+            foreach ($typeRegistry->get($typeName)->getMappedDatabaseTypes($this) as $dbType) {
                 $this->doctrineTypeMapping[$dbType] = $typeName;
             }
         }
@@ -381,14 +383,14 @@ abstract class AbstractPlatform
             $this->initializeAllDoctrineTypeMappings();
         }
 
-        if (! Types\Type::hasType($doctrineType)) {
+        if (! Types\TypeRegistry::getInstance()->has($doctrineType)) {
             throw Exception::typeNotFound($doctrineType);
         }
 
         $dbType                             = strtolower($dbType);
         $this->doctrineTypeMapping[$dbType] = $doctrineType;
 
-        $doctrineType = Type::getType($doctrineType);
+        $doctrineType = TypeRegistry::getInstance()->get($doctrineType);
 
         if (! $doctrineType->requiresSQLCommentHint($this)) {
             return;
@@ -459,8 +461,9 @@ abstract class AbstractPlatform
 
         $this->doctrineTypeComments = [];
 
-        foreach (Type::getTypesMap() as $typeName => $className) {
-            $type = Type::getType($typeName);
+        $typeRegistry = TypeRegistry::getInstance();
+        foreach ($typeRegistry->getMap() as $typeName => $className) {
+            $type = $typeRegistry->get($typeName);
 
             if (! $type->requiresSQLCommentHint($this)) {
                 continue;

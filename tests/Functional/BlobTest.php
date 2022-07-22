@@ -6,7 +6,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 
 use function fopen;
 use function str_repeat;
@@ -173,7 +173,10 @@ class BlobTest extends FunctionalTestCase
     {
         [, $blobValue] = $this->fetchRow();
 
-        $blobValue = Type::getType('blob')->convertToPHPValue($blobValue, $this->connection->getDatabasePlatform());
+        $blobValue = TypeRegistry::getInstance()->get('blob')->convertToPHPValue(
+            $blobValue,
+            $this->connection->getDatabasePlatform()
+        );
 
         self::assertIsResource($blobValue);
         self::assertEquals($text, stream_get_contents($blobValue));

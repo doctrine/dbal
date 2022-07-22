@@ -8,6 +8,20 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated static `Doctrine\DBAL\Types\Type` methods
+
+The following methods have been deprecated in favor of their
+`Doctrine\DBAL\Types\TypeRegistry` counterpart:
+
+- `getType()` has been deprecated in favor of `TypeRegistry::get()`;
+- `addType()` has been deprecated in favor of `TypeRegistry::register()`;
+- `hasType()` has been deprecated in favor of `TypeRegistry::has()`;
+- `overrideType()` has been deprecated in favor of `TypeRegistry::override()`;
+- `getTypesMap()` has been deprecated in favor of `TypeRegistry::getMap()`.
+
+The type registry is a singleton and can be obtained through
+`TypeRegistry::getInstance()`.
+
 ## Marked `AbstractPlatform` methods as internal.
 
 The following methods have been marked internal as they are not designed to be used from outside the platform classes:
@@ -558,7 +572,7 @@ deprecated in order to provide a more consistent API.
 
 ## Deprecated `Comparator::compare($fromSchema, $toSchema)`
 
-The usage of `Comparator::compare($fromSchema, $toSchema)` is deprecated and 
+The usage of `Comparator::compare($fromSchema, $toSchema)` is deprecated and
 replaced by `Comparator::compareSchemas($fromSchema, $toSchema)` in order to
 clarify the purpose of the method.
 

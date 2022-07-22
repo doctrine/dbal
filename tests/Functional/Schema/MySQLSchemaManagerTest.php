@@ -10,14 +10,14 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Types\BlobType;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 
 class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     public static function setUpBeforeClass(): void
     {
-        Type::addType('point', PointType::class);
+        TypeRegistry::getInstance()->register('point', new PointType());
     }
 
     protected function supportsPlatform(AbstractPlatform $platform): bool

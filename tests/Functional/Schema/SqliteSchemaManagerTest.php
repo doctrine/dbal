@@ -8,7 +8,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 
 use function dirname;
@@ -149,8 +149,8 @@ SQL;
         self::assertArrayHasKey('foo', $columns);
         self::assertArrayHasKey('bar', $columns);
 
-        self::assertSame(Type::getType(Types::STRING), $columns['foo']->getType());
-        self::assertSame(Type::getType(Types::TEXT), $columns['bar']->getType());
+        self::assertSame(TypeRegistry::getInstance()->get(Types::STRING), $columns['foo']->getType());
+        self::assertSame(TypeRegistry::getInstance()->get(Types::TEXT), $columns['bar']->getType());
 
         self::assertSame(64, $columns['foo']->getLength());
         self::assertSame(100, $columns['bar']->getLength());

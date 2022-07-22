@@ -35,7 +35,7 @@ use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\ObjectType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 
 use function array_filter;
@@ -638,7 +638,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $tableDiff                         = new TableDiff('alter_table');
         $tableDiff->fromTable              = $alterTable;
-        $tableDiff->addedColumns['foo']    = new Column('foo', Type::getType('integer'));
+        $tableDiff->addedColumns['foo']    = new Column('foo', TypeRegistry::getInstance()->get('integer'));
         $tableDiff->removedColumns['test'] = $table->getColumn('test');
 
         $this->schemaManager->alterTable($tableDiff);
@@ -913,12 +913,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             'id',
             new Column(
                 'id',
-                Type::getType('integer')
+                TypeRegistry::getInstance()->get('integer')
             ),
             ['comment'],
             new Column(
                 'id',
-                Type::getType('integer'),
+                TypeRegistry::getInstance()->get('integer'),
                 ['comment' => 'This is a comment']
             )
         );
@@ -995,20 +995,21 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
+        $typeRegistry                         = TypeRegistry::getInstance();
         $tableDiff                            = new TableDiff($tableName);
         $tableDiff->fromTable                 = $table;
         $tableDiff->changedColumns['col_int'] = new ColumnDiff(
             'col_int',
-            new Column('col_int', Type::getType('integer'), ['default' => 666]),
+            new Column('col_int', $typeRegistry->get('integer'), ['default' => 666]),
             ['type'],
-            new Column('col_int', Type::getType('smallint'), ['default' => 666])
+            new Column('col_int', $typeRegistry->get('smallint'), ['default' => 666])
         );
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
             'col_string',
-            new Column('col_string', Type::getType('string'), ['default' => 'foo', 'fixed' => true]),
+            new Column('col_string', $typeRegistry->get('string'), ['default' => 'foo', 'fixed' => true]),
             ['fixed'],
-            new Column('col_string', Type::getType('string'), ['default' => 'foo'])
+            new Column('col_string', $typeRegistry->get('string'), ['default' => 'foo'])
         );
 
         $this->schemaManager->alterTable($tableDiff);
@@ -1278,7 +1279,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->dropTableIfExists('my_table');
 
         $options = [
-            'type' => Type::getType('integer'),
+            'type' => TypeRegistry::getInstance()->get('integer'),
             'default' => 0,
             'notnull' => true,
             'comment' => 'expected+column+comment',

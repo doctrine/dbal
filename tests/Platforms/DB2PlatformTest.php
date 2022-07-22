@@ -9,7 +9,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 
 /**
@@ -302,7 +302,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         $data = parent::getIsCommentedDoctrineType();
 
-        $data[Types::BOOLEAN] = [Type::getType(Types::BOOLEAN), true];
+        $data[Types::BOOLEAN] = [TypeRegistry::getInstance()->get(Types::BOOLEAN), true];
 
         return $data;
     }
@@ -610,57 +610,69 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return [
             [
                 'columnDefinition',
-                new Column('bar', Type::getType('decimal'), ['columnDefinition' => 'MONEY NOT NULL']),
+                new Column(
+                    'bar',
+                    TypeRegistry::getInstance()->get('decimal'),
+                    ['columnDefinition' => 'MONEY NOT NULL']
+                ),
                 'MONEY NOT NULL',
             ],
             [
                 'type',
-                new Column('bar', Type::getType('integer')),
+                new Column('bar', TypeRegistry::getInstance()->get('integer')),
                 'SET DATA TYPE INTEGER',
             ],
             [
                 'length',
-                new Column('bar', Type::getType('string'), ['length' => 100]),
+                new Column('bar', TypeRegistry::getInstance()->get('string'), ['length' => 100]),
                 'SET DATA TYPE VARCHAR(100)',
             ],
             [
                 'precision',
-                new Column('bar', Type::getType('decimal'), ['precision' => 10, 'scale' => 2]),
+                new Column('bar', TypeRegistry::getInstance()->get('decimal'), ['precision' => 10, 'scale' => 2]),
                 'SET DATA TYPE NUMERIC(10, 2)',
             ],
             [
                 'scale',
-                new Column('bar', Type::getType('decimal'), ['precision' => 5, 'scale' => 4]),
+                new Column('bar', TypeRegistry::getInstance()->get('decimal'), ['precision' => 5, 'scale' => 4]),
                 'SET DATA TYPE NUMERIC(5, 4)',
             ],
             [
                 'fixed',
-                new Column('bar', Type::getType('string'), ['length' => 20, 'fixed' => true]),
+                new Column('bar', TypeRegistry::getInstance()->get('string'), ['length' => 20, 'fixed' => true]),
                 'SET DATA TYPE CHAR(20)',
             ],
             [
                 'notnull',
-                new Column('bar', Type::getType('string'), ['notnull' => true]),
+                new Column('bar', TypeRegistry::getInstance()->get('string'), ['notnull' => true]),
                 'SET NOT NULL',
             ],
             [
                 'notnull',
-                new Column('bar', Type::getType('string'), ['notnull' => false]),
+                new Column('bar', TypeRegistry::getInstance()->get('string'), ['notnull' => false]),
                 'DROP NOT NULL',
             ],
             [
                 'default',
-                new Column('bar', Type::getType('string'), ['default' => 'foo']),
+                new Column(
+                    'bar',
+                    TypeRegistry::getInstance()->get('string'),
+                    ['default' => 'foo']
+                ),
                 "SET DEFAULT 'foo'",
             ],
             [
                 'default',
-                new Column('bar', Type::getType('integer'), ['autoincrement' => true, 'default' => 666]),
+                new Column(
+                    'bar',
+                    TypeRegistry::getInstance()->get('integer'),
+                    ['autoincrement' => true, 'default' => 666]
+                ),
                 null,
             ],
             [
                 'default',
-                new Column('bar', Type::getType('string')),
+                new Column('bar', TypeRegistry::getInstance()->get('string')),
                 'DROP DEFAULT',
             ],
         ];

@@ -10,7 +10,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use PHPUnit\Framework\TestCase;
 
 use function array_shift;
@@ -33,7 +33,7 @@ class TableTest extends TestCase
 
     public function testColumns(): void
     {
-        $type      = Type::getType('integer');
+        $type      = TypeRegistry::getInstance()->get('integer');
         $columns   = [];
         $columns[] = new Column('foo', $type);
         $columns[] = new Column('bar', $type);
@@ -65,7 +65,7 @@ class TableTest extends TestCase
 
     public function testCreateColumn(): void
     {
-        $type = Type::getType('integer');
+        $type = TypeRegistry::getInstance()->get('integer');
 
         $table = new Table('foo');
 
@@ -77,7 +77,7 @@ class TableTest extends TestCase
 
     public function testDropColumn(): void
     {
-        $type      = Type::getType('integer');
+        $type      = TypeRegistry::getInstance()->get('integer');
         $columns   = [];
         $columns[] = new Column('foo', $type);
         $columns[] = new Column('bar', $type);
@@ -104,7 +104,7 @@ class TableTest extends TestCase
     {
         $this->expectException(SchemaException::class);
 
-        $type      = Type::getType('integer');
+        $type      = TypeRegistry::getInstance()->get('integer');
         $columns   = [];
         $columns[] = new Column('foo', $type);
         $columns[] = new Column('foo', $type);
@@ -113,7 +113,7 @@ class TableTest extends TestCase
 
     public function testCreateIndex(): void
     {
-        $type    = Type::getType('integer');
+        $type    = TypeRegistry::getInstance()->get('integer');
         $columns = [new Column('foo', $type), new Column('bar', $type), new Column('baz', $type)];
         $table   = new Table('foo', $columns);
 
@@ -126,7 +126,7 @@ class TableTest extends TestCase
 
     public function testIndexCaseInsensitive(): void
     {
-        $type    = Type::getType('integer');
+        $type    = TypeRegistry::getInstance()->get('integer');
         $columns = [
             new Column('foo', $type),
             new Column('bar', $type),
@@ -143,7 +143,7 @@ class TableTest extends TestCase
 
     public function testAddIndexes(): void
     {
-        $type    = Type::getType('integer');
+        $type    = TypeRegistry::getInstance()->get('integer');
         $columns = [
             new Column('foo', $type),
             new Column('bar', $type),
@@ -175,7 +175,7 @@ class TableTest extends TestCase
     {
         $this->expectException(SchemaException::class);
 
-        $type    = Type::getType('integer');
+        $type    = TypeRegistry::getInstance()->get('integer');
         $columns = [new Column('foo', $type), new Column('bar', $type)];
         $indexes = [
             new Index('the_primary', ['foo'], true, true),
@@ -188,7 +188,7 @@ class TableTest extends TestCase
     {
         $this->expectException(SchemaException::class);
 
-        $type    = Type::getType('integer');
+        $type    = TypeRegistry::getInstance()->get('integer');
         $columns = [new Column('foo', $type), new Column('bar', $type)];
         $indexes = [
             new Index('an_idx', ['foo'], false, false),

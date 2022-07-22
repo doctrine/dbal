@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Doctrine\DBAL\Types\Types;
 
 use function array_keys;
@@ -21,7 +21,7 @@ class AlterColumnTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         $table->getColumn('c1')
-            ->setType(Type::getType(Types::STRING));
+            ->setType(TypeRegistry::getInstance()->get(Types::STRING));
 
         $sm         = $this->connection->createSchemaManager();
         $comparator = new Comparator();

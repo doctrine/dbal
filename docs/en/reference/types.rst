@@ -12,11 +12,6 @@ Using the ORM you generally don't need to know about the Type
 system. This is unless you want to make use of database vendor
 specific database types not included in Doctrine DBAL.
 
-Types are flyweights. This means there is only ever one instance of
-a type and it is not allowed to contain any state. Creation of type
-instances is abstracted through a static get method
-``Doctrine\DBAL\Types\Type::getType()``.
-
 Types are abstracted across all the supported database
 vendors.
 
@@ -26,7 +21,7 @@ Reference
 The following chapter gives an overview of all available Doctrine DBAL
 types with short explanations on their context and usage.
 The type names listed here equal those that can be passed to the
-``Doctrine\DBAL\Types\Type::getType()``  factory method in order to retrieve
+``Doctrine\DBAL\Types\TypeRegistry::get()`` method in order to retrieve
 the desired type instance.
 
 .. code-block:: php
@@ -34,7 +29,7 @@ the desired type instance.
     <?php
 
     // Returns instance of \Doctrine\DBAL\Types\IntegerType
-    $type = \Doctrine\DBAL\Types\Type::getType('integer');
+    $type = \Doctrine\DBAL\Types\TypeRegistry::getInstance()->get('integer');
 
 Numeric types
 ~~~~~~~~~~~~~
@@ -867,7 +862,9 @@ hook it into the database platform:
 ::
 
     <?php
-    Type::addType('money', 'My\Project\Types\MoneyType');
+    use My\Project\Types\MoneyType;
+
+    TypeRegistry::getInstance()->register('money', new MoneyType());
     $conn->getDatabasePlatform()->registerDoctrineTypeMapping('MyMoney', 'money');
 
 This would allow using a money type in the ORM for example and

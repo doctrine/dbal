@@ -13,7 +13,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 
 use function sprintf;
 use function strtoupper;
@@ -496,7 +496,7 @@ SQL
             'foo',
             new Column(
                 'foo',
-                Type::getType('string'),
+                TypeRegistry::getInstance()->get('string'),
                 ['default' => 'bla', 'notnull' => true]
             ),
             ['type']
@@ -505,7 +505,7 @@ SQL
             'bar',
             new Column(
                 'baz',
-                Type::getType('string'),
+                TypeRegistry::getInstance()->get('string'),
                 ['default' => 'bla', 'notnull' => true]
             ),
             ['type', 'notnull']
@@ -514,7 +514,7 @@ SQL
             'metar',
             new Column(
                 'metar',
-                Type::getType('string'),
+                TypeRegistry::getInstance()->get('string'),
                 ['length' => 2000, 'notnull' => false]
             ),
             ['notnull']
@@ -770,8 +770,14 @@ SQL
 
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
-        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
-        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
+        $table1 = new Table(
+            '"foo"',
+            [new Column('"bar"', TypeRegistry::getInstance()->get('integer'))]
+        );
+        $table2 = new Table(
+            '"foo"',
+            [new Column('"bar"', TypeRegistry::getInstance()->get('integer'), ['comment' => 'baz'])]
+        );
 
         $comparator = new Comparator();
 

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 use Throwable;
 
 class TemporaryTableTest extends FunctionalTestCase
@@ -19,7 +19,7 @@ class TemporaryTableTest extends FunctionalTestCase
             self::markTestSkipped('Test does not work on Oracle.');
         }
 
-        $columnDefinitions = ['id' => ['type' => Type::getType('integer'), 'notnull' => true]];
+        $columnDefinitions = ['id' => ['type' => TypeRegistry::getInstance()->get('integer'), 'notnull' => true]];
         $tempTable         = $platform->getTemporaryTableName('my_temporary');
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
@@ -51,7 +51,7 @@ class TemporaryTableTest extends FunctionalTestCase
             self::markTestSkipped('Test does not work on Oracle.');
         }
 
-        $columnDefinitions = ['id' => ['type' => Type::getType('integer'), 'notnull' => true]];
+        $columnDefinitions = ['id' => ['type' => TypeRegistry::getInstance()->get('integer'), 'notnull' => true]];
         $tempTable         = $platform->getTemporaryTableName('my_temporary');
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('

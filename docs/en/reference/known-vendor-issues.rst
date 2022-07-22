@@ -48,13 +48,13 @@ liberal DateTime parser that detects the format automatically:
 
     use Doctrine\DBAL\Types\Type;
 
-    Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTimeType');
-    Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTimeType');
-    Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTimeType');
+    TypeRegistry::getInstance()->override('datetime', new Doctrine\DBAL\Types\VarDateTimeType());
+    TypeRegistry::getInstance()->override('datetimetz', new Doctrine\DBAL\Types\VarDateTimeType());
+    TypeRegistry::getInstance()->override('time', new Doctrine\DBAL\Types\VarDateTimeType());
 
-    Type::overrideType('datetime_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
-    Type::overrideType('datetimetz_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
-    Type::overrideType('time_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    TypeRegistry::getInstance()->override('datetime_immutable', new Doctrine\DBAL\Types\VarDateTimeImmutableType());
+    TypeRegistry::getInstance()->override('datetimetz_immutable', new Doctrine\DBAL\Types\VarDateTimeImmutableType());
+    TypeRegistry::getInstance()->override('time_immutable', new Doctrine\DBAL\Types\VarDateTimeImmutableType());
 
 Timezones and DateTimeTz
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,7 +99,7 @@ when trying to convert database values to ``\DateTime`` objects using
 
 .. code-block:: php
 
-    \Doctrine\DBAL\Types\Type::getType('datetime')->convertToPhpValue(...)
+    \Doctrine\DBAL\Types\TypeRegistry::getInstance()->get('datetime')->convertToPhpValue(...)
 
 DateTimeTz
 ~~~~~~~~~~
@@ -172,10 +172,10 @@ liberal DateTime parser that detects the format automatically:
 
     use Doctrine\DBAL\Types\Type;
 
-    Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTime');
-    Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTime');
-    Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTime');
+    TypeRegistry::getInstance()->override('datetime', new Doctrine\DBAL\Types\VarDateTime());
+    TypeRegistry::getInstance()->override('datetimetz', new Doctrine\DBAL\Types\VarDateTime());
+    TypeRegistry::getInstance()->override('time', new Doctrine\DBAL\Types\VarDateTime());
 
-    Type::overrideType('datetime_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
-    Type::overrideType('datetimetz_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
-    Type::overrideType('time_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    TypeRegistry::getInstance()->override('datetime_immutable', new Doctrine\DBAL\Types\VarDateTimeImmutableType());
+    TypeRegistry::getInstance()->override('datetimetz_immutable', new Doctrine\DBAL\Types\VarDateTimeImmutableType());
+    TypeRegistry::getInstance()->override('time_immutable', new Doctrine\DBAL\Types\VarDateTimeImmutableType());
