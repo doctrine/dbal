@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
+use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider\CachingCharsetMetadataProvider;
+use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider\ConnectionCharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
+use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 
@@ -51,6 +55,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
         // Internally, MariaDB escapes single quotes using the standard syntax
         "''" => "'",
     ];
+
+    private ?DefaultTableOptions $defaultTableOptions = null;
 
     /**
      * {@inheritdoc}
@@ -315,13 +321,20 @@ class MySQLSchemaManager extends AbstractSchemaManager
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function createComparator(): Comparator
     {
         return new MySQL\Comparator(
             $this->_platform,
+            new CachingCharsetMetadataProvider(
+                new ConnectionCharsetMetadataProvider($this->_conn)
+            ),
             new CachingCollationMetadataProvider(
                 new ConnectionCollationMetadataProvider($this->_conn)
-            )
+            ),
+            $this->getDefaultTableOptions()
         );
     }
 
@@ -509,5 +522,23 @@ SQL;
         }
 
         return $options;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getDefaultTableOptions(): DefaultTableOptions
+    {
+        if ($this->defaultTableOptions === null) {
+            $row = $this->_conn->fetchNumeric(
+                'SELECT @@character_set_database, @@collation_database',
+            );
+
+            assert($row !== false);
+
+            $this->defaultTableOptions = new DefaultTableOptions(...$row);
+        }
+
+        return $this->defaultTableOptions;
     }
 }

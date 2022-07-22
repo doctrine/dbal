@@ -7,7 +7,9 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
+use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
+use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -808,7 +810,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         return new MySQL\Comparator(
             $this->platform,
-            $this->createStub(CollationMetadataProvider::class)
+            $this->createStub(CharsetMetadataProvider::class),
+            $this->createStub(CollationMetadataProvider::class),
+            new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci')
         );
     }
 }
