@@ -14,11 +14,6 @@ parameters:
         # some drivers actually do accept 2nd parameter...
         - '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::getListTableForeignKeysSQL\(\) invoked with \d+ parameters, 1 required\.\z~'
 
-        # https://github.com/phpstan/phpstan/issues/3134
-        -
-            message: '~^Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with Doctrine\\DBAL\\Types\\Type and Doctrine\\DBAL\\Types\\Type will always evaluate to true\.$~'
-            path: tests/Types/TypeRegistryTest.php
-
         # https://github.com/phpstan/phpstan-strict-rules/issues/103
         -
             message: '~^Construct empty\(\) is not allowed. Use more strict comparison\.~'
