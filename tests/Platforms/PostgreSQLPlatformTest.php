@@ -601,7 +601,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $sql = $this->platform->getAlterTableSQL($diff);
 
         $expectedSql = [
-            'ALTER TABLE mytable DROP CONSTRAINT FK_6B2BD609727ACA70',
+            'ALTER TABLE mytable DROP CONSTRAINT FK_6B2BD609727ACA706B2BD609BF396750',
             'DROP INDEX IDX_6B2BD609727ACA70',
             'ALTER TABLE mytable DROP parent_id',
         ];

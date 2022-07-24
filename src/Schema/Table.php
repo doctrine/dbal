@@ -407,7 +407,12 @@ class Table extends AbstractAsset
         $name = null
     ) {
         $name ??= $this->_generateIdentifierName(
-            array_merge([$this->getName()], $localColumnNames),
+            array_merge(
+                [$this->getName()],
+                $localColumnNames,
+                [$foreignTable instanceof Table ? $foreignTable->getName() : $foreignTable],
+                $foreignColumnNames
+            ),
             'fk',
             $this->_getMaxIdentifierLength()
         );
@@ -551,7 +556,12 @@ class Table extends AbstractAsset
             $name = $constraint->getName();
         } else {
             $name = $this->_generateIdentifierName(
-                array_merge([$this->getName()], $constraint->getLocalColumns()),
+                array_merge(
+                    [$this->getName()],
+                    $constraint->getLocalColumns(),
+                    [$constraint->getForeignTableName()],
+                    $constraint->getForeignColumns()
+                ),
                 'fk',
                 $this->_getMaxIdentifierLength()
             );

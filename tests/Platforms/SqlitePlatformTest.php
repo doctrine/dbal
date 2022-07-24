@@ -393,11 +393,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE user ('
                 . 'id INTEGER NOT NULL, article INTEGER NOT NULL, post INTEGER NOT NULL, parent INTEGER NOT NULL'
                 . ', PRIMARY KEY(id)'
-                . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article)'
+                . ', CONSTRAINT FK_8D93D64923A0E6623A0E66BF396750 FOREIGN KEY (article)'
                 . ' REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
-                . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (post)'
+                . ', CONSTRAINT FK_8D93D6495A8A6C8D5A8A6C8DBF396750 FOREIGN KEY (post)'
                 . ' REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
-                . ', CONSTRAINT FK_8D93D6493D8E604F FOREIGN KEY (parent)'
+                . ', CONSTRAINT FK_8D93D6493D8E604F8D93D649BF396750 FOREIGN KEY (parent)'
                 . ' REFERENCES user (id) DEFERRABLE INITIALLY DEFERRED'
                 . ')',
             'CREATE INDEX IDX_8D93D64923A0E66 ON user (article)',
@@ -435,9 +435,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE user ('
                 . '"key" INTEGER NOT NULL, article INTEGER NOT NULL, comment INTEGER NOT NULL'
                 . ', PRIMARY KEY("key")'
-                . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article)'
+                . ', CONSTRAINT FK_8D93D64923A0E6623A0E66BF396750 FOREIGN KEY (article)'
                 . ' REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
-                . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (comment)'
+                . ', CONSTRAINT FK_8D93D6495A8A6C8D5A8A6C8DBF396750 FOREIGN KEY (comment)'
                 . ' REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
                 . ')',
             'INSERT INTO user ("key", article, comment) SELECT id, article, post FROM __temp__user',

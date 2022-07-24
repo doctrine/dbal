@@ -664,7 +664,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, '
                     . 'INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) '
                     . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
-                'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D0 FOREIGN KEY (fk_id)'
+                'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D05690FFE2BF396750 FOREIGN KEY (fk_id)'
                     . ' REFERENCES foreign_table (id)',
             ],
             $this->platform->getCreateTableSQL(

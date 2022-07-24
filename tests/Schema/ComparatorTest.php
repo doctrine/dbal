@@ -598,7 +598,9 @@ class ComparatorTest extends TestCase
         $tableDiff = $this->comparator->diffTable($table1, $table2);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
-        self::assertCount(1, $tableDiff->changedForeignKeys);
+        self::assertCount(1, $tableDiff->removedForeignKeys);
+        self::assertCount(1, $tableDiff->addedForeignKeys);
+        self::assertCount(0, $tableDiff->changedForeignKeys);
     }
 
     public function testTablesCaseInsensitive(): void
