@@ -247,7 +247,7 @@ class SQLServerPlatform extends AbstractPlatform
             $sql .= ' NONCLUSTERED';
         }
 
-        return $sql . ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
+        return $sql . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }
 
     /**
@@ -1186,7 +1186,7 @@ class SQLServerPlatform extends AbstractPlatform
     public function getColumnDeclarationSQL(string $name, array $column): string
     {
         if (isset($column['columnDefinition'])) {
-            $columnDef = $this->getCustomTypeDeclarationSQL($column);
+            $columnDef = $column['columnDefinition'];
         } else {
             $collation = ! empty($column['collation']) ?
                 ' ' . $this->getColumnCollationDeclarationSQL($column['collation']) : '';

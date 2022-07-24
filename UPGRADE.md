@@ -20,10 +20,13 @@ awareness about deprecated code.
 
 ## BC BREAK: removed `AbstractPlatform` methods.
 
-1. `getDefaultSchemaName()`,
-2. `getIdentitySequenceName()`,
-3. `supportsCreateDropDatabase()`,
-4. `usesSequenceEmulatedIdentityColumns()`.
+1. `getColumnsFieldDeclarationListSQL()`,
+2. `getCustomTypeDeclarationSQL()`,
+3. `getDefaultSchemaName()`,
+4. `getIdentitySequenceName()`,
+5. `getIndexFieldDeclarationListSQL()`,
+6. `supportsCreateDropDatabase()`,
+7. `usesSequenceEmulatedIdentityColumns()`.
 
 ## BC BREAK: removed support for the `NULL` value of schema asset filter.
 

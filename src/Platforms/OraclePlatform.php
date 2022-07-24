@@ -123,7 +123,7 @@ class OraclePlatform extends AbstractPlatform
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
         return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $index->getQuotedName($this)
-            . ' PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
+            . ' PRIMARY KEY (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }
 
     /**
@@ -680,7 +680,7 @@ END;';
     public function getColumnDeclarationSQL(string $name, array $column): string
     {
         if (isset($column['columnDefinition'])) {
-            $columnDef = $this->getCustomTypeDeclarationSQL($column);
+            $columnDef = $column['columnDefinition'];
         } else {
             $default = $this->getDefaultValueDeclarationSQL($column);
 

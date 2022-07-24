@@ -37,7 +37,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -1184,7 +1183,7 @@ abstract class AbstractPlatform
         }
 
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')' . $this->getPartialIndexSQL($index);
+        $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
     }
@@ -1214,7 +1213,7 @@ abstract class AbstractPlatform
      */
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
+        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }
 
     /**
@@ -1583,7 +1582,7 @@ abstract class AbstractPlatform
     public function getColumnDeclarationSQL(string $name, array $column): string
     {
         if (isset($column['columnDefinition'])) {
-            $declaration = $this->getCustomTypeDeclarationSQL($column);
+            $declaration = $column['columnDefinition'];
         } else {
             $default = $this->getDefaultValueDeclarationSQL($column);
 
@@ -1736,7 +1735,17 @@ abstract class AbstractPlatform
             $chunks[] = 'CLUSTERED';
         }
 
-        $chunks[] = sprintf('(%s)', $this->getColumnsFieldDeclarationListSQL($columns));
+        $columnSQL = [];
+
+        foreach ($columns as $column => $definition) {
+            if (is_array($definition)) {
+                $columnSQL[] = $column;
+            } else {
+                $columnSQL[] = $definition;
+            }
+        }
+
+        $chunks[] = sprintf('(%s)', implode(', ', $columnSQL));
 
         return implode(' ', $chunks);
     }
@@ -1762,76 +1771,7 @@ abstract class AbstractPlatform
         }
 
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getQuotedName($this)
-            . ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')' . $this->getPartialIndexSQL($index);
-    }
-
-    /**
-     * Obtains SQL code portion needed to create a custom column,
-     * e.g. when a column has the "columnDefinition" keyword.
-     * Only "AUTOINCREMENT" and "PRIMARY KEY" are added if appropriate.
-     *
-     * @deprecated
-     *
-     * @param mixed[] $column
-     */
-    public function getCustomTypeDeclarationSQL(array $column): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5527',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return $column['columnDefinition'];
-    }
-
-    /**
-     * Obtains DBMS specific SQL code portion needed to set an index
-     * declaration to be used in statements like CREATE TABLE.
-     *
-     * @deprecated
-     */
-    public function getIndexFieldDeclarationListSQL(Index $index): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5527',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        return implode(', ', $index->getQuotedColumns($this));
-    }
-
-    /**
-     * Obtains DBMS specific SQL code portion needed to set an index
-     * declaration to be used in statements like CREATE TABLE.
-     *
-     * @deprecated
-     *
-     * @param mixed[] $columns
-     */
-    public function getColumnsFieldDeclarationListSQL(array $columns): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5527',
-            '%s is deprecated.',
-            __METHOD__
-        );
-
-        $ret = [];
-
-        foreach ($columns as $column => $definition) {
-            if (is_array($definition)) {
-                $ret[] = $column;
-            } else {
-                $ret[] = $definition;
-            }
-        }
-
-        return implode(', ', $ret);
+            . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**
