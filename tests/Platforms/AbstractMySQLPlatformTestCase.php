@@ -307,7 +307,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, '
-                . '`bar` VARCHAR(255) NOT NULL, INDEX IDX_22660D028FD6E0FB8C736521D79164E3 (`create`, foo, `bar`)) '
+                . '`bar` VARCHAR(255) NOT NULL, INDEX IDX_22660D028FD6E0FB8C736521D7 (`create`, foo, `bar`)) '
                 . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
             'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`)'
                 . ' REFERENCES `foreign` (`create`, bar, `foo-bar`)',
@@ -664,7 +664,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, '
                     . 'INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) '
                     . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
-                'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D05690FFE2BF396750 FOREIGN KEY (fk_id)'
+                'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D05690FFE2BF3 FOREIGN KEY (fk_id)'
                     . ' REFERENCES foreign_table (id)',
             ],
             $this->platform->getCreateTableSQL(

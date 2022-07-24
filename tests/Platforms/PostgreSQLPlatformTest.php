@@ -432,7 +432,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, '
             . 'foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL)',
-            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D79164E3 ON "quoted" ("create", foo, "bar")',
+            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D7 ON "quoted" ("create", foo, "bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar")'
                 . ' REFERENCES "foreign" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar")'
@@ -601,7 +601,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $sql = $this->platform->getAlterTableSQL($diff);
 
         $expectedSql = [
-            'ALTER TABLE mytable DROP CONSTRAINT FK_6B2BD609727ACA706B2BD609BF396750',
+            'ALTER TABLE mytable DROP CONSTRAINT FK_6B2BD609727ACA706B2BD609BF3',
             'DROP INDEX IDX_6B2BD609727ACA70',
             'ALTER TABLE mytable DROP parent_id',
         ];

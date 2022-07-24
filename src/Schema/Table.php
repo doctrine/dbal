@@ -109,7 +109,7 @@ class Table extends AbstractAsset
             return $this->_schemaConfig->getMaxIdentifierLength();
         }
 
-        return 63;
+        return 30;
     }
 
     /**

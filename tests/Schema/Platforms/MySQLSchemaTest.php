@@ -59,7 +59,7 @@ class MySQLSchemaTest extends TestCase
 
         self::assertEquals(
             [
-                'ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F18B33AE88E48560F FOREIGN KEY (foo_id)'
+                'ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F18B33AE88E4 FOREIGN KEY (foo_id)'
                     . ' REFERENCES test_foreign (foo_id)',
             ],
             $sqls

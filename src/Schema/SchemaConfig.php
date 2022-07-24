@@ -17,7 +17,7 @@ class SchemaConfig
     protected $hasExplicitForeignKeyIndexes = false;
 
     /** @var int */
-    protected $maxIdentifierLength = 63;
+    protected $maxIdentifierLength = 30;
 
     /** @var string|null */
     protected $name;
