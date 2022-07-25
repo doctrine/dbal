@@ -579,6 +579,32 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals('CASCADE', $fkeys[0]->getOption('onDelete'));
     }
 
+    public function testCreateForeignKeyWithTableObject(): void
+    {
+        $this->createTestTable('test_create_fk1');
+        $this->createTestTable('test_create_fk2');
+
+        $table = $this->schemaManager->listTableDetails('test_create_fk1');
+        $table->addForeignKeyConstraint(
+            'test_create_fk2',
+            ['foreign_key_test'],
+            ['id'],
+            [],
+            'i'
+        );
+        $foreignKey = $table->getForeignKeys()['i'];
+        $this->schemaManager->createForeignKey($foreignKey, $table);
+
+        $fkeys = $this->schemaManager->listTableForeignKeys('test_create_fk1');
+
+        self::assertCount(1, $fkeys, "Table 'test_create_fk1' has to have one foreign key.");
+
+        self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[0]);
+        self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
+        self::assertEquals(['id'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
+        self::assertEquals('test_create_fk2', strtolower($fkeys[0]->getForeignTableName()));
+    }
+
     protected function getCreateExampleViewSql(): void
     {
         self::markTestSkipped('No Create Example View SQL was defined for this SchemaManager');

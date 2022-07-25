@@ -430,10 +430,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $diff->removedIndexes['index1'] = $table->getIndex('index1');
 
         $sql = [
-            'DROP INDEX IDX_8D93D64923A0E66',
-            'DROP INDEX IDX_8D93D6495A8A6C8D',
-            'DROP INDEX IDX_8D93D6493D8E604F',
-            'DROP INDEX index1',
             'CREATE TEMPORARY TABLE __temp__user AS SELECT id, article, post FROM user',
             'DROP TABLE user',
             'CREATE TABLE user ('
@@ -644,8 +640,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     protected function getQuotesTableIdentifiersInAlterTableSQL(): array
     {
         return [
-            'DROP INDEX IDX_8C736521A81E660E',
-            'DROP INDEX IDX_8C736521FDC58D6C',
             'CREATE TEMPORARY TABLE __temp__foo AS SELECT fk, fk2, id, fk3, bar FROM "foo"',
             'DROP TABLE "foo"',
             'CREATE TABLE "foo" (fk2 INTEGER NOT NULL, fk3 INTEGER NOT NULL, fk INTEGER NOT NULL, ' .
@@ -727,8 +721,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return [
-            'DROP INDEX idx_foo',
-            'DROP INDEX idx_bar',
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT foo, bar, baz FROM mytable',
             'DROP TABLE mytable',
             'CREATE TABLE mytable (foo INTEGER NOT NULL, bar INTEGER NOT NULL, baz INTEGER NOT NULL, '
