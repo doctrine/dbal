@@ -803,22 +803,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        if (! $diff->fromTable instanceof Table) {
-            throw new Exception(
-                'Sqlite platform requires for alter table the table diff with reference to original table schema'
-            );
-        }
-
-        $sql = [];
-        foreach ($diff->fromTable->getIndexes() as $index) {
-            if ($index->isPrimary()) {
-                continue;
-            }
-
-            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $diff->name);
-        }
-
-        return $sql;
+        return [];
     }
 
     /**
