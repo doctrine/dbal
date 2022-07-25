@@ -443,8 +443,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            $name  = $value['constraint_name'];
-            if (! isset($list[$name])) {
+            $i     = $value['constraint_name'] !== ''
+                ? $value['constraint_name']
+                : '##unnamed_gh028hvwlfuhzhgn##' . count($list);
+            if (! isset($list[$i])) {
                 if (! isset($value['on_delete']) || $value['on_delete'] === 'RESTRICT') {
                     $value['on_delete'] = null;
                 }
@@ -453,8 +455,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     $value['on_update'] = null;
                 }
 
-                $list[$name] = [
-                    'name' => $name,
+                $list[$i] = [
+                    'name' => $value['constraint_name'],
                     'local' => [],
                     'foreign' => [],
                     'foreignTable' => $value['table'],
@@ -465,13 +467,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 ];
             }
 
-            $list[$name]['local'][] = $value['from'];
+            $list[$i]['local'][] = $value['from'];
 
             if ($value['to'] === null) {
                 continue;
             }
 
-            $list[$name]['foreign'][] = $value['to'];
+            $list[$i]['foreign'][] = $value['to'];
         }
 
         return parent::_getPortableTableForeignKeysList($list);
@@ -644,7 +646,7 @@ SQL
 
         for ($i = 0, $count = count($match[0]); $i < $count; $i++) {
             $details[] = [
-                'constraint_name' => isset($names[$i]) && $names[$i] !== '' ? $names[$i] : $i,
+                'constraint_name' => $names[$i] ?? '',
                 'deferrable'      => isset($deferrable[$i]) && strcasecmp($deferrable[$i], 'deferrable') === 0,
                 'deferred'        => isset($deferred[$i]) && strcasecmp($deferred[$i], 'deferred') === 0,
             ];

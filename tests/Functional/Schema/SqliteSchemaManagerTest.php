@@ -83,7 +83,7 @@ EOS
                 ['parent'],
                 'user',
                 ['id'],
-                '1',
+                '',
                 ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false]
             ),
             new ForeignKeyConstraint(

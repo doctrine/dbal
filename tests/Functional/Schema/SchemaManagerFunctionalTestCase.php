@@ -52,6 +52,7 @@ use function strcasecmp;
 use function strlen;
 use function strtolower;
 use function substr;
+use function usort;
 
 abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 {
@@ -603,6 +604,51 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
         self::assertEquals(['id'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
         self::assertEquals('test_create_fk2', strtolower($fkeys[0]->getForeignTableName()));
+    }
+
+    public function testListTwoSameTableUnnamedForeignKeys(): void
+    {
+        $this->createTestTable('test_create_fk1');
+        $this->createTestTable('test_create_fk2');
+
+        $foreignKey1 = new ForeignKeyConstraint(
+            ['foreign_key_test'],
+            'test_create_fk2',
+            ['id'],
+            ''
+        );
+        $this->schemaManager->createForeignKey($foreignKey1, 'test_create_fk1');
+        $foreignKey2 = new ForeignKeyConstraint(
+            ['foreign_key_test'],
+            'test_create_fk1',
+            ['id'],
+            ''
+        );
+        $this->schemaManager->createForeignKey($foreignKey2, 'test_create_fk1');
+
+        $fkeys = $this->schemaManager->listTableForeignKeys('test_create_fk1');
+
+        self::assertCount(2, $fkeys, "Table 'test_create_fk1' has to have two foreign keys.");
+        usort($fkeys, static function (ForeignKeyConstraint $fkeyA, ForeignKeyConstraint $fkeyB): int {
+            return $fkeyA->getForeignTableName() <=> $fkeyB->getForeignTableName();
+        });
+
+        self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[0]);
+        self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
+        self::assertEquals(['id'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
+        self::assertEquals('test_create_fk1', strtolower($fkeys[0]->getForeignTableName()));
+
+        self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[1]);
+        self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkeys[1]->getLocalColumns()));
+        self::assertEquals(['id'], array_map('strtolower', $fkeys[1]->getForeignColumns()));
+        self::assertEquals('test_create_fk2', strtolower($fkeys[1]->getForeignTableName()));
+
+        if (! $this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            return;
+        }
+
+        self::assertEquals('', $fkeys[0]->getName());
+        self::assertEquals('', $fkeys[1]->getName());
     }
 
     protected function getCreateExampleViewSql(): void
