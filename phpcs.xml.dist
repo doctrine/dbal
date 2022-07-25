@@ -20,7 +20,6 @@
 
     <rule ref="Doctrine">
         <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes"/>
-        <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant"/>
@@ -46,6 +45,10 @@
     </rule>
 
     <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
+        <exclude-pattern>*/src/*</exclude-pattern>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint">
         <exclude-pattern>*/src/*</exclude-pattern>
     </rule>
 

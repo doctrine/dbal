@@ -39,7 +39,7 @@ class ConnectionTest extends TestCase
     private Connection $connection;
 
     /** @var array{wrapperClass?: class-string<Connection>} */
-    protected $params = [
+    protected array $params = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
         'user' => 'root',
