@@ -95,7 +95,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE test (foo VARCHAR2(255) DEFAULT NULL NULL, bar VARCHAR2(255) DEFAULT NULL NULL)',
-            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
+            'CREATE UNIQUE INDEX UNIQ_619043F8DC53577B71BC678FF ON test (foo, bar)',
         ];
     }
 
@@ -456,7 +456,7 @@ SQL
     {
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR2(255) NOT NULL)',
-            'CREATE INDEX IDX_22660D028FD6E0FB ON "quoted" ("create")',
+            'CREATE INDEX IDX_CF36C4B1E8E549425821CC4EA0 ON "quoted" ("create")',
         ];
     }
 
@@ -485,7 +485,7 @@ SQL
                 . ' REFERENCES foo ("create", bar, "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar")'
                 . ' REFERENCES "foo-bar" ("create", bar, "foo-bar")',
-            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D7 ON "quoted" ("create", foo, "bar")',
+            'CREATE INDEX IDX_3A6D53DB88755747E8576E8FF4 ON "quoted" ("create", foo, "bar")',
         ];
     }
 

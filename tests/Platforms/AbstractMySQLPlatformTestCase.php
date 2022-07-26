@@ -51,7 +51,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL, '
-                . 'UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA (foo, bar))'
+                . 'UNIQUE INDEX UNIQ_619043F8DC53577B71BC678FF (foo, bar))'
                 . ' DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
         ];
     }
@@ -196,7 +196,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertEquals([
             'ALTER TABLE foo ADD PRIMARY KEY (bar)',
-            'CREATE UNIQUE INDEX UNIQ_8C73652178240498 ON foo (baz)',
+            'CREATE UNIQUE INDEX UNIQ_8A7B98B5B720055A8916A6F76 ON foo (baz)',
         ], $sql);
     }
 
@@ -284,7 +284,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, '
-                . 'INDEX IDX_22660D028FD6E0FB (`create`)) '
+                . 'INDEX IDX_CF36C4B1E8E549425821CC4EA0 (`create`)) '
                 . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
         ];
     }
@@ -307,7 +307,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, '
-                . '`bar` VARCHAR(255) NOT NULL, INDEX IDX_22660D028FD6E0FB8C736521D7 (`create`, foo, `bar`)) '
+                . '`bar` VARCHAR(255) NOT NULL, INDEX IDX_3A6D53DB88755747E8576E8FF4 (`create`, foo, `bar`)) '
                 . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
             'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`)'
                 . ' REFERENCES `foreign` (`create`, bar, `foo-bar`)',
@@ -647,7 +647,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame(
             [
                 'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, '
-                    . 'INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) '
+                    . 'INDEX IDX_1BAF4D7E2B8B0A482E6DBD4A2C (fk_id), PRIMARY KEY(id)) '
                     . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = MyISAM',
             ],
             $this->platform->getCreateTableSQL(
@@ -662,9 +662,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame(
             [
                 'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, '
-                    . 'INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) '
+                    . 'INDEX IDX_1BAF4D7E2B8B0A482E6DBD4A2C (fk_id), PRIMARY KEY(id)) '
                     . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
-                'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D05690FFE2BF3 FOREIGN KEY (fk_id)'
+                'ALTER TABLE foreign_table ADD CONSTRAINT FK_0177BF8D40F2AFCBCE887844A16 FOREIGN KEY (fk_id)'
                     . ' REFERENCES foreign_table (id)',
             ],
             $this->platform->getCreateTableSQL(

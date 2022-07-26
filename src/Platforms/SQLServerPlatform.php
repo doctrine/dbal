@@ -21,8 +21,6 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
-use function crc32;
-use function dechex;
 use function explode;
 use function func_get_arg;
 use function func_get_args;
@@ -32,6 +30,7 @@ use function is_array;
 use function is_bool;
 use function is_numeric;
 use function is_string;
+use function md5;
 use function preg_match;
 use function preg_match_all;
 use function sprintf;
@@ -1674,7 +1673,7 @@ class SQLServerPlatform extends AbstractPlatform
         // Always generate name for unquoted identifiers to ensure consistency.
         $identifier = new Identifier($identifier);
 
-        return strtoupper(dechex(crc32($identifier->getName())));
+        return strtoupper(md5($identifier->getName()));
     }
 
     protected function getCommentOnTableSQL(string $tableName, ?string $comment): string

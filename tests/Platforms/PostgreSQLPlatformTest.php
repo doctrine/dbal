@@ -40,7 +40,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
-            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
+            'CREATE UNIQUE INDEX UNIQ_619043F8DC53577B71BC678FF ON test (foo, bar)',
         ];
     }
 
@@ -409,7 +409,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL)',
-            'CREATE INDEX IDX_22660D028FD6E0FB ON "quoted" ("create")',
+            'CREATE INDEX IDX_CF36C4B1E8E549425821CC4EA0 ON "quoted" ("create")',
         ];
     }
 
@@ -432,7 +432,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, '
             . 'foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL)',
-            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D7 ON "quoted" ("create", foo, "bar")',
+            'CREATE INDEX IDX_3A6D53DB88755747E8576E8FF4 ON "quoted" ("create", foo, "bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar")'
                 . ' REFERENCES "foreign" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar")'
@@ -601,8 +601,8 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $sql = $this->platform->getAlterTableSQL($diff);
 
         $expectedSql = [
-            'ALTER TABLE mytable DROP CONSTRAINT FK_6B2BD609727ACA706B2BD609BF3',
-            'DROP INDEX IDX_6B2BD609727ACA70',
+            'ALTER TABLE mytable DROP CONSTRAINT FK_ACE3D33C6EE2079DB0BC79A2AE3',
+            'DROP INDEX IDX_C8FA05661F035BDB9B986322C6',
             'ALTER TABLE mytable DROP parent_id',
         ];
 

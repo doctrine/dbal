@@ -65,7 +65,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
-            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
+            'CREATE UNIQUE INDEX UNIQ_619043F8DC53577B71BC678FF ON test (foo, bar)',
         ];
     }
 
@@ -88,7 +88,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
                 . ' REFERENCES foo ("create", bar, "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar")'
                 . ' REFERENCES "foo-bar" ("create", bar, "foo-bar")',
-            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D7 ON "quoted" ("create", foo, "bar")',
+            'CREATE INDEX IDX_3A6D53DB88755747E8576E8FF4 ON "quoted" ("create", foo, "bar")',
         ];
     }
 
@@ -99,7 +99,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL)',
-            'CREATE INDEX IDX_22660D028FD6E0FB ON "quoted" ("create")',
+            'CREATE INDEX IDX_CF36C4B1E8E549425821CC4EA0 ON "quoted" ("create")',
         ];
     }
 
@@ -186,7 +186,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             [
                 'CREATE TABLE test (id INTEGER NOT NULL, name VARCHAR(50) NOT NULL, PRIMARY KEY(id))',
-                'CREATE INDEX IDX_D87F7E0C5E237E06 ON test (name)',
+                'CREATE INDEX IDX_9D7F57B4367F70D42050F321F8 ON test (name)',
                 'CREATE INDEX composite_idx ON test (id, name)',
             ],
             $this->platform->getCreateTableSQL($table)
@@ -213,11 +213,11 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             [
                 'CREATE TABLE test (id INTEGER NOT NULL, fk_1 INTEGER NOT NULL, fk_2 INTEGER NOT NULL'
                     . ', PRIMARY KEY(id))',
-                'ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C177612A38E7F4319569 FOREIGN KEY (fk_1, fk_2)'
+                'ALTER TABLE test ADD CONSTRAINT FK_4737136AACC59BFA6AD90831D48 FOREIGN KEY (fk_1, fk_2)'
                     . ' REFERENCES foreign_table (pk_1, pk_2)',
                 'ALTER TABLE test ADD CONSTRAINT named_fk FOREIGN KEY (fk_1, fk_2)'
                     . ' REFERENCES foreign_table2 (pk_1, pk_2)',
-                'CREATE INDEX IDX_D87F7E0C177612A38E7F4319 ON test (fk_1, fk_2)',
+                'CREATE INDEX IDX_5A3D07B0C9CDD6D0F776956820 ON test (fk_1, fk_2)',
             ],
             $this->platform->getCreateTableSQL(
                 $table,

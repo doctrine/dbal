@@ -409,10 +409,10 @@ class TableTest extends TestCase
         self::assertCount(3, $table->getIndexes());
         self::assertTrue($table->hasIndex('composite_idx'));
         self::assertTrue($table->hasIndex('full_idx'));
-        self::assertTrue($table->hasIndex('idx_8c73652176ff8caa78240498'));
+        self::assertTrue($table->hasIndex('idx_caee8a578bbbbf9d63306488dd'));
         self::assertSame(['baz', 'bar'], $table->getIndex('composite_idx')->getColumns());
         self::assertSame(['bar', 'baz', 'bloo'], $table->getIndex('full_idx')->getColumns());
-        self::assertSame(['bar', 'baz'], $table->getIndex('idx_8c73652176ff8caa78240498')->getColumns());
+        self::assertSame(['bar', 'baz'], $table->getIndex('idx_caee8a578bbbbf9d63306488dd')->getColumns());
     }
 
     public function testOverrulingIndexDoesNotDropOverruledIndex(): void
@@ -537,15 +537,15 @@ class TableTest extends TestCase
         $localTable->addForeignKeyConstraint($foreignTable, ['id'], ['id']);
 
         self::assertCount(1, $localTable->getIndexes());
-        self::assertTrue($localTable->hasIndex('IDX_8BD688E8BF396750'));
+        self::assertTrue($localTable->hasIndex('IDX_5E32205233580BE27163E0737C'));
 
-        $implicitIndex = $localTable->getIndex('IDX_8BD688E8BF396750');
+        $implicitIndex = $localTable->getIndex('IDX_5E32205233580BE27163E0737C');
 
-        $localTable->addIndex(['id'], 'IDX_8BD688E8BF396750');
+        $localTable->addIndex(['id'], 'IDX_5E32205233580BE27163E0737C');
 
         self::assertCount(1, $localTable->getIndexes());
-        self::assertTrue($localTable->hasIndex('IDX_8BD688E8BF396750'));
-        self::assertNotSame($implicitIndex, $localTable->getIndex('IDX_8BD688E8BF396750'));
+        self::assertTrue($localTable->hasIndex('IDX_5E32205233580BE27163E0737C'));
+        self::assertNotSame($implicitIndex, $localTable->getIndex('IDX_5E32205233580BE27163E0737C'));
     }
 
     public function testQuotedTableName(): void
@@ -674,8 +674,8 @@ class TableTest extends TestCase
 
         self::assertTrue($table->hasPrimaryKey());
         self::assertTrue($table->hasIndex('primary'));
-        self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
-        self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
+        self::assertTrue($table->hasIndex('IDX_AF422564835B2722E53D867AEA'));
+        self::assertTrue($table->hasIndex('UNIQ_AF5C0B1CE23DCAC98C0F986C5'));
 
         self::assertFalse($table->hasIndex('pk_new'));
         self::assertFalse($table->hasIndex('idx_new'));
@@ -684,23 +684,29 @@ class TableTest extends TestCase
         self::assertEquals(new Index('primary', ['id'], true, true), $table->getPrimaryKey());
         self::assertEquals(new Index('primary', ['id'], true, true), $table->getIndex('primary'));
         self::assertEquals(
-            new Index('IDX_D87F7E0C8C736521', ['foo'], false, false, ['flag']),
-            $table->getIndex('IDX_D87F7E0C8C736521')
+            new Index('IDX_AF422564835B2722E53D867AEA', ['foo'], false, false, ['flag']),
+            $table->getIndex('IDX_AF422564835B2722E53D867AEA')
         );
         self::assertEquals(
-            new Index('UNIQ_D87F7E0C76FF8CAA78240498', ['bar', 'baz'], true),
-            $table->getIndex('UNIQ_D87F7E0C76FF8CAA78240498')
+            new Index('UNIQ_AF5C0B1CE23DCAC98C0F986C5', ['bar', 'baz'], true),
+            $table->getIndex('UNIQ_AF5C0B1CE23DCAC98C0F986C5')
         );
 
         // Rename to same name (changed case).
         self::assertSame($table, $table->renameIndex('primary', 'PRIMARY'));
-        self::assertSame($table, $table->renameIndex('IDX_D87F7E0C8C736521', 'idx_D87F7E0C8C736521'));
-        self::assertSame($table, $table->renameIndex('UNIQ_D87F7E0C76FF8CAA78240498', 'uniq_D87F7E0C76FF8CAA78240498'));
+        self::assertSame(
+            $table,
+            $table->renameIndex('IDX_AF422564835B2722E53D867AEA', 'idx_Af422564835b2722e53d867aea')
+        );
+        self::assertSame(
+            $table,
+            $table->renameIndex('UNIQ_AF5C0B1CE23DCAC98C0F986C5', 'uniq_Af5c0b1ce23dcac98c0f986c5')
+        );
 
         self::assertTrue($table->hasPrimaryKey());
         self::assertTrue($table->hasIndex('primary'));
-        self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
-        self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
+        self::assertTrue($table->hasIndex('IDX_AF422564835B2722E53D867AEA'));
+        self::assertTrue($table->hasIndex('UNIQ_AF5C0B1CE23DCAC98C0F986C5'));
     }
 
     public function testKeepsIndexOptionsOnRenamingRegularIndex(): void

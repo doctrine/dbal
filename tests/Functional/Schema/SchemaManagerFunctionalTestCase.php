@@ -1429,7 +1429,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         self::assertCount(2, $indexes);
         self::assertArrayHasKey('explicit_fk1_idx', $indexes);
-        self::assertArrayHasKey('idx_3d6c147fdc58d6c', $indexes);
+        self::assertArrayHasKey('idx_73b039498fad39d43d97f0fedf', $indexes);
     }
 
     /**

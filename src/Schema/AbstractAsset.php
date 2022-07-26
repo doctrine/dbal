@@ -6,10 +6,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
-use function crc32;
-use function dechex;
 use function explode;
 use function implode;
+use function md5;
 use function str_replace;
 use function strpos;
 use function strtolower;
@@ -214,9 +213,12 @@ abstract class AbstractAsset
      */
     protected function _generateIdentifierName($columnNames, $prefix = '', $maxSize = 30)
     {
-        $hash = implode('', array_map(static function ($column): string {
-            return dechex(crc32($column));
-        }, $columnNames));
+        $hash = md5(implode("\0", array_map(static function ($column): string {
+            // Always generate name for unquoted identifiers to ensure consistency.
+            $column = new Identifier($column);
+
+            return $column->getName();
+        }, $columnNames)));
 
         return strtoupper(substr($prefix . '_' . $hash, 0, $maxSize));
     }
