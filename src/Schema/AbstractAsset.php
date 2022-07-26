@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Deprecations\Deprecation;
 
-use function array_map;
 use function explode;
 use function implode;
 use function md5;
@@ -205,20 +204,15 @@ abstract class AbstractAsset
      * however building idents automatically for foreign keys, composite keys or such can easily create
      * very long names.
      *
-     * @param string[] $columnNames
+     * @param string[] $unquotedNames
      * @param string   $prefix
      * @param int      $maxSize
      *
      * @return string
      */
-    protected function _generateIdentifierName($columnNames, $prefix = '', $maxSize = 30)
+    protected function _generateIdentifierName($unquotedNames, $prefix = '', $maxSize = 30)
     {
-        $hash = md5(implode("\0", array_map(static function ($column): string {
-            // Always generate name for unquoted identifiers to ensure consistency.
-            $column = new Identifier($column);
-
-            return $column->getName();
-        }, $columnNames)));
+        $hash = md5(implode("\0", $unquotedNames));
 
         return strtoupper(substr($prefix . '_' . $hash, 0, $maxSize));
     }

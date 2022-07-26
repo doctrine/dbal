@@ -10,6 +10,7 @@ use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_keys;
+use function array_map;
 use function array_merge;
 use function in_array;
 use function preg_match;
@@ -139,6 +140,17 @@ class Table extends AbstractAsset
     }
 
     /**
+     * @param string[] $names
+     * @return string[]
+     */
+    private function unquoteIdentifiers(array $names): array
+    {
+        return array_map(function ($name) {
+            return $this->trimQuotes($name);
+        }, $names);
+    }
+
+    /**
      * @param string[] $columnNames
      * @param string[] $flags
      * @param mixed[]  $options
@@ -150,7 +162,7 @@ class Table extends AbstractAsset
     public function addIndex(array $columnNames, ?string $indexName = null, array $flags = [], array $options = [])
     {
         $indexName ??= $this->_generateIdentifierName(
-            array_merge([$this->getName()], $columnNames),
+            array_merge([$this->getName()], $this->unquoteIdentifiers($columnNames)),
             'idx',
             $this->_getMaxIdentifierLength()
         );
@@ -172,7 +184,7 @@ class Table extends AbstractAsset
         array $options = []
     ): Table {
         $indexName ??= $this->_generateIdentifierName(
-            array_merge([$this->getName()], $columnNames),
+            array_merge([$this->getName()], $this->unquoteIdentifiers($columnNames)),
             'uniq',
             $this->_getMaxIdentifierLength()
         );
@@ -229,7 +241,7 @@ class Table extends AbstractAsset
     public function addUniqueIndex(array $columnNames, $indexName = null, array $options = [])
     {
         $indexName ??= $this->_generateIdentifierName(
-            array_merge([$this->getName()], $columnNames),
+            array_merge([$this->getName()], $this->unquoteIdentifiers($columnNames)),
             'uniq',
             $this->_getMaxIdentifierLength()
         );
@@ -409,9 +421,11 @@ class Table extends AbstractAsset
         $name ??= $this->_generateIdentifierName(
             array_merge(
                 [$this->getName()],
-                $localColumnNames,
-                [$foreignTable instanceof Table ? $foreignTable->getName() : $foreignTable],
-                $foreignColumnNames
+                $this->unquoteIdentifiers($localColumnNames),
+                $foreignTable instanceof Table
+                    ? [$foreignTable->getName()]
+                    : $this->unquoteIdentifiers([$foreignTable]),
+                $this->unquoteIdentifiers($foreignColumnNames)
             ),
             'fk',
             $this->_getMaxIdentifierLength()
@@ -518,7 +532,7 @@ class Table extends AbstractAsset
      */
     protected function _addUniqueConstraint(UniqueConstraint $constraint): Table
     {
-        $mergedNames = array_merge([$this->getName()], $constraint->getColumns());
+        $mergedNames = array_merge([$this->getName()], $constraint->getUnquotedColumns());
         $name        = strlen($constraint->getName()) > 0
             ? $constraint->getName()
             : $this->_generateIdentifierName($mergedNames, 'fk', $this->_getMaxIdentifierLength());
@@ -558,9 +572,9 @@ class Table extends AbstractAsset
             $name = $this->_generateIdentifierName(
                 array_merge(
                     [$this->getName()],
-                    $constraint->getLocalColumns(),
+                    $constraint->getUnquotedLocalColumns(),
                     [$constraint->getForeignTableName()],
-                    $constraint->getForeignColumns()
+                    $constraint->getUnquotedForeignColumns()
                 ),
                 'fk',
                 $this->_getMaxIdentifierLength()
@@ -579,12 +593,12 @@ class Table extends AbstractAsset
            this case, however no duplicate indexes are ever added (based on
            columns). */
         $indexName = $this->_generateIdentifierName(
-            array_merge([$this->getName()], $constraint->getColumns()),
+            array_merge([$this->getName()], $constraint->getUnquotedLocalColumns()),
             'idx',
             $this->_getMaxIdentifierLength()
         );
 
-        $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, false, false);
+        $indexCandidate = $this->_createIndex($constraint->getLocalColumns(), $indexName, false, false);
 
         foreach ($this->_indexes as $existingIndex) {
             if ($indexCandidate->isFullfilledBy($existingIndex)) {
