@@ -141,6 +141,7 @@ class Table extends AbstractAsset
 
     /**
      * @param string[] $names
+     *
      * @return string[]
      */
     private function unquoteIdentifiers(array $names): array

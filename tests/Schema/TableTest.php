@@ -13,7 +13,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
 use function array_shift;
+use function array_unique;
 use function current;
 
 class TableTest extends TestCase
@@ -857,5 +859,48 @@ class TableTest extends TestCase
         $table->addColumn('bar', 'integer');
 
         $table->removeUniqueConstraint('unique_constraint');
+    }
+
+    public function testGenerateIndexNameHashOnce(): void
+    {
+        $longListOfColumns = [];
+        for ($i = 0; $i < 50; $i++) {
+            $longListOfColumns[] = 'c_' . $i;
+        }
+
+        $table = new Table('foo');
+        $table->addColumn('a', 'integer');
+        $table->addColumn('b', 'integer');
+        foreach ($longListOfColumns as $name) {
+            $table->addColumn($name, 'integer');
+        }
+
+        $table->addIndex([...$longListOfColumns, 'a']);
+        $table->addIndex([...$longListOfColumns, 'b']);
+
+        $table->addIndex(['a', ...$longListOfColumns]);
+        $table->addIndex(['b', ...$longListOfColumns]);
+
+        self::assertCount(4, $table->getIndexes());
+        self::assertCount(4, array_unique(array_map(static function ($index) {
+            return $index->getName();
+        }, $table->getIndexes())));
+    }
+
+    public function testGenerateForeignKeyNameHonorForeignTable(): void
+    {
+        $table = new Table('t');
+        $table->addColumn('i', 'integer');
+        $table->addColumn('j', 'integer');
+
+        $table->addForeignKeyConstraint('a', ['i'], ['x']);
+        $table->addForeignKeyConstraint('b', ['i'], ['x']);
+        $table->addForeignKeyConstraint('a', ['i'], ['y']);
+        $table->addForeignKeyConstraint('a', ['j'], ['x']);
+
+        self::assertCount(4, $table->getForeignKeys());
+        self::assertCount(4, array_unique(array_map(static function ($foreignKey) {
+            return $foreignKey->getName();
+        }, $table->getForeignKeys())));
     }
 }
