@@ -10,8 +10,9 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-use function base64_encode;
 use function fopen;
+use function fwrite;
+use function rewind;
 use function stream_get_contents;
 
 class BinaryTest extends TestCase
@@ -62,8 +63,10 @@ class BinaryTest extends TestCase
 
     public function testBinaryResourceConvertsToPHPValue(): void
     {
-        $databaseValue = fopen('data://text/plain;base64,' . base64_encode('binary string'), 'r');
-        $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
+        $databaseValue = fopen('php://memory', 'r+');
+        fwrite($databaseValue, 'binary string');
+        rewind($databaseValue);
+        $phpValue = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertSame($databaseValue, $phpValue);
     }

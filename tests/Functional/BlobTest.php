@@ -9,6 +9,8 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 
 use function fopen;
+use function fwrite;
+use function rewind;
 use function str_repeat;
 use function stream_get_contents;
 
@@ -72,11 +74,14 @@ class BlobTest extends FunctionalTestCase
             self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
-        $longBlob = str_repeat('x', 4 * 8192); // send 4 chunks
+        $longBlob       = str_repeat('x', 4 * 8192); // send 4 chunks
+        $longBlobStream = fopen('php://memory', 'r+');
+        fwrite($longBlobStream, $longBlob);
+        rewind($longBlobStream);
         $this->connection->insert('blob_table', [
             'id'        => 1,
             'clobcolumn' => 'ignored',
-            'blobcolumn' => fopen('data://text/plain,' . $longBlob, 'r'),
+            'blobcolumn' => $longBlobStream,
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
@@ -138,9 +143,12 @@ class BlobTest extends FunctionalTestCase
             ParameterType::LARGE_OBJECT,
         ]);
 
+        $blobStream = fopen('php://memory', 'r+');
+        fwrite($blobStream, 'test2');
+        rewind($blobStream);
         $this->connection->update('blob_table', [
             'id'          => 1,
-            'blobcolumn'   => fopen('data://text/plain,test2', 'r'),
+            'blobcolumn'   => $blobStream,
         ], ['id' => 1], [
             ParameterType::INTEGER,
             ParameterType::LARGE_OBJECT,
@@ -162,7 +170,9 @@ class BlobTest extends FunctionalTestCase
         $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);
 
         // Bind param does late binding (bind by reference), so create the stream only now:
-        $stream = fopen('data://text/plain,test', 'r');
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, 'test');
+        rewind($stream);
 
         $stmt->execute();
 

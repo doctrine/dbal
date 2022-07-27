@@ -25,6 +25,7 @@ use PDO;
 use Throwable;
 
 use function file_exists;
+use function sys_get_temp_dir;
 use function unlink;
 
 class ConnectionTest extends FunctionalTestCase
@@ -35,10 +36,6 @@ class ConnectionTest extends FunctionalTestCase
 
     protected function tearDown(): void
     {
-        if (file_exists('/tmp/test_nesting.sqlite')) {
-            unlink('/tmp/test_nesting.sqlite');
-        }
-
         $this->markConnectionNotReusable();
     }
 
@@ -105,32 +102,49 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testTransactionNestingLevelIsResetOnReconnect(): void
     {
-        if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
-            $params           = $this->connection->getParams();
-            $params['memory'] = false;
-            $params['path']   = '/tmp/test_nesting.sqlite';
+        $sqlitePath = $this->connection->getDatabasePlatform() instanceof SqlitePlatform
+            ? sys_get_temp_dir() . '/test_nesting.sqlite'
+            : null;
 
-            $connection = DriverManager::getConnection(
-                $params,
-                $this->connection->getConfiguration(),
-                $this->connection->getEventManager()
-            );
-        } else {
-            $connection = $this->connection;
+        $connection = null;
+        try {
+            if ($sqlitePath !== null) {
+                $params           = $this->connection->getParams();
+                $params['memory'] = false;
+                $params['path']   = $sqlitePath;
+
+                $connection = DriverManager::getConnection(
+                    $params,
+                    $this->connection->getConfiguration(),
+                    $this->connection->getEventManager()
+                );
+            } else {
+                $connection = $this->connection;
+            }
+
+            $this->dropTableIfExists('test_nesting');
+            $connection->executeQuery('CREATE TABLE test_nesting(test int not null)');
+
+            $this->connection->beginTransaction();
+            $this->connection->beginTransaction();
+            $connection->close(); // connection closed in runtime (for example if lost or another application logic)
+
+            $connection->beginTransaction();
+            $connection->executeQuery('insert into test_nesting values (33)');
+            $connection->rollBack();
+
+            self::assertEquals(0, $connection->fetchOne('select count(*) from test_nesting'));
+        } finally {
+            if ($sqlitePath !== null) {
+                if ($connection !== null) {
+                    $connection->close();
+                }
+
+                if (file_exists($sqlitePath)) {
+                    unlink($sqlitePath);
+                }
+            }
         }
-
-        $this->dropTableIfExists('test_nesting');
-        $connection->executeQuery('CREATE TABLE test_nesting(test int not null)');
-
-        $this->connection->beginTransaction();
-        $this->connection->beginTransaction();
-        $connection->close(); // connection closed in runtime (for example if lost or another application logic)
-
-        $connection->beginTransaction();
-        $connection->executeQuery('insert into test_nesting values (33)');
-        $connection->rollBack();
-
-        self::assertEquals(0, $connection->fetchOne('select count(*) from test_nesting'));
     }
 
     public function testTransactionNestingBehaviorWithSavepoints(): void

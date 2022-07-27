@@ -7,9 +7,10 @@ use Doctrine\DBAL\Types\BlobType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-use function base64_encode;
 use function chr;
 use function fopen;
+use function fwrite;
+use function rewind;
 use function stream_get_contents;
 
 class BlobTest extends TestCase
@@ -41,8 +42,10 @@ class BlobTest extends TestCase
 
     public function testBinaryResourceConvertsToPHPValue(): void
     {
-        $databaseValue = fopen('data://text/plain;base64,' . base64_encode($this->getBinaryString()), 'r');
-        $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
+        $databaseValue = fopen('php://memory', 'r+');
+        fwrite($databaseValue, $this->getBinaryString());
+        rewind($databaseValue);
+        $phpValue = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertSame($databaseValue, $phpValue);
     }

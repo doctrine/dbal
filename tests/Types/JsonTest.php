@@ -10,9 +10,10 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-use function base64_encode;
 use function fopen;
+use function fwrite;
 use function json_encode;
+use function rewind;
 
 use const JSON_PRESERVE_ZERO_FRACTION;
 use const JSON_THROW_ON_ERROR;
@@ -86,14 +87,13 @@ class JsonTest extends TestCase
     public function testJsonResourceConvertsToPHPValue(): void
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = fopen(
-            'data://text/plain;base64,' . base64_encode(json_encode(
-                $value,
-                JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION
-            )),
-            'r'
-        );
-        $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
+        $databaseValue = fopen('php://memory', 'r+');
+        fwrite($databaseValue, json_encode(
+            $value,
+            JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION
+        ));
+        rewind($databaseValue);
+        $phpValue = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertSame($value, $phpValue);
     }
