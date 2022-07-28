@@ -24,7 +24,7 @@ class Comparator
     /**
      * @internal The comparator can be only instantiated by a schema manager.
      */
-    public function __construct(private AbstractPlatform $platform)
+    public function __construct(private readonly AbstractPlatform $platform)
     {
     }
 

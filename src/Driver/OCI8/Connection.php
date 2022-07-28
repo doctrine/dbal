@@ -22,8 +22,8 @@ use function str_replace;
 
 final class Connection implements ConnectionInterface
 {
-    private Parser $parser;
-    private ExecutionMode $executionMode;
+    private readonly Parser $parser;
+    private readonly ExecutionMode $executionMode;
 
     /**
      * @internal The connection can be only instantiated by its driver.

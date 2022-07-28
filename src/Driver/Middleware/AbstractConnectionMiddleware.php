@@ -10,7 +10,7 @@ use Doctrine\DBAL\Driver\Statement;
 
 abstract class AbstractConnectionMiddleware implements Connection
 {
-    public function __construct(private Connection $wrappedConnection)
+    public function __construct(private readonly Connection $wrappedConnection)
     {
     }
 

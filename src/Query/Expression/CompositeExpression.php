@@ -21,12 +21,12 @@ class CompositeExpression implements Countable
     /**
      * Constant that represents an AND composite expression.
      */
-    public const TYPE_AND = 'AND';
+    final public const TYPE_AND = 'AND';
 
     /**
      * Constant that represents an OR composite expression.
      */
-    public const TYPE_OR = 'OR';
+    final public const TYPE_OR = 'OR';
 
     /**
      * Each expression part of the composite expression.
@@ -39,7 +39,7 @@ class CompositeExpression implements Countable
      * @internal Use the and() / or() factory methods.
      */
     public function __construct(
-        private string $type,
+        private readonly string $type,
         self|string $part,
         self|string ...$parts
     ) {

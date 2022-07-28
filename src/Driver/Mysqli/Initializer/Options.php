@@ -15,7 +15,7 @@ final class Options implements Initializer
     /**
      * @param array<int,mixed> $options
      */
-    public function __construct(private array $options)
+    public function __construct(private readonly array $options)
     {
     }
 

@@ -18,7 +18,7 @@ class Result
     /**
      * @internal The result can be only instantiated by {@see Connection} or {@see Statement}.
      */
-    public function __construct(private DriverResult $result, private Connection $connection)
+    public function __construct(private readonly DriverResult $result, private readonly Connection $connection)
     {
     }
 

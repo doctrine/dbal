@@ -10,9 +10,9 @@ namespace Doctrine\DBAL;
 class FetchMode
 {
     /** @link PDO::FETCH_ASSOC */
-    public const ASSOCIATIVE = 2;
+    final public const ASSOCIATIVE = 2;
     /** @link PDO::FETCH_NUM */
-    public const NUMERIC = 3;
+    final public const NUMERIC = 3;
     /** @link PDO::FETCH_COLUMN */
-    public const COLUMN = 7;
+    final public const COLUMN = 7;
 }

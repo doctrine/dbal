@@ -18,9 +18,9 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      * @param array<string, mixed> $tableIndex
      */
     public function __construct(
-        private array $tableIndex,
-        private string $table,
-        private Connection $connection
+        private readonly array $tableIndex,
+        private readonly string $table,
+        private readonly Connection $connection
     ) {
     }
 

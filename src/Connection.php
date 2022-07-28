@@ -55,22 +55,22 @@ class Connection implements ServerVersionProvider
     /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.
      */
-    public const PARAM_INT_ARRAY = ParameterType::INTEGER + self::ARRAY_PARAM_OFFSET;
+    final public const PARAM_INT_ARRAY = ParameterType::INTEGER + self::ARRAY_PARAM_OFFSET;
 
     /**
      * Represents an array of strings to be expanded by Doctrine SQL parsing.
      */
-    public const PARAM_STR_ARRAY = ParameterType::STRING + self::ARRAY_PARAM_OFFSET;
+    final public const PARAM_STR_ARRAY = ParameterType::STRING + self::ARRAY_PARAM_OFFSET;
 
     /**
      * Represents an array of ascii strings to be expanded by Doctrine SQL parsing.
      */
-    public const PARAM_ASCII_STR_ARRAY = ParameterType::ASCII + self::ARRAY_PARAM_OFFSET;
+    final public const PARAM_ASCII_STR_ARRAY = ParameterType::ASCII + self::ARRAY_PARAM_OFFSET;
 
     /**
      * Offset by which PARAM_* constants are detected as arrays of the param type.
      */
-    public const ARRAY_PARAM_OFFSET = 100;
+    final public const ARRAY_PARAM_OFFSET = 100;
 
     /**
      * The wrapped driver connection.

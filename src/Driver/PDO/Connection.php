@@ -15,7 +15,7 @@ use function assert;
 
 final class Connection implements ConnectionInterface
 {
-    private PDO $connection;
+    private readonly PDO $connection;
 
     /**
      * @internal The connection can be only instantiated by its driver.

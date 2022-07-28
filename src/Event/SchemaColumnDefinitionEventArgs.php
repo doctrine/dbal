@@ -18,10 +18,10 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      * @param array<string, mixed> $tableColumn
      */
     public function __construct(
-        private array $tableColumn,
-        private string $table,
-        private string $database,
-        private Connection $connection
+        private readonly array $tableColumn,
+        private readonly string $table,
+        private readonly string $database,
+        private readonly Connection $connection
     ) {
     }
 

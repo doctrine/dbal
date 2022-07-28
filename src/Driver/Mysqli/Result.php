@@ -40,7 +40,7 @@ final class Result implements ResultInterface
      *
      * @throws Exception
      */
-    public function __construct(private mysqli_stmt $statement)
+    public function __construct(private readonly mysqli_stmt $statement)
     {
         $meta = $statement->result_metadata();
 

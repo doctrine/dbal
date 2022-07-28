@@ -14,7 +14,7 @@ final class Result implements ResultInterface
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
      */
-    public function __construct(private PDOStatement $statement)
+    public function __construct(private readonly PDOStatement $statement)
     {
     }
 

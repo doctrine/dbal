@@ -20,9 +20,9 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     private array $sql = [];
 
     public function __construct(
-        private ColumnDiff $columnDiff,
-        private TableDiff $tableDiff,
-        private AbstractPlatform $platform
+        private readonly ColumnDiff $columnDiff,
+        private readonly TableDiff $tableDiff,
+        private readonly AbstractPlatform $platform
     ) {
     }
 

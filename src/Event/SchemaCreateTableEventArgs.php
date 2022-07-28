@@ -23,10 +23,10 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
      * @param array<string, mixed>             $options
      */
     public function __construct(
-        private Table $table,
-        private array $columns,
-        private array $options,
-        private AbstractPlatform $platform
+        private readonly Table $table,
+        private readonly array $columns,
+        private readonly array $options,
+        private readonly AbstractPlatform $platform
     ) {
     }
 

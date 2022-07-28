@@ -118,7 +118,7 @@ class ForeignKeyConstraint extends AbstractAsset
      */
     public function getUnquotedLocalColumns(): array
     {
-        return array_map([$this, 'trimQuotes'], $this->getLocalColumns());
+        return array_map($this->trimQuotes(...), $this->getLocalColumns());
     }
 
     /**
@@ -128,7 +128,7 @@ class ForeignKeyConstraint extends AbstractAsset
      */
     public function getUnquotedForeignColumns(): array
     {
-        return array_map([$this, 'trimQuotes'], $this->getForeignColumns());
+        return array_map($this->trimQuotes(...), $this->getForeignColumns());
     }
 
     /**

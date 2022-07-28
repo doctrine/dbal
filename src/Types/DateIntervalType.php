@@ -17,7 +17,7 @@ use function substr;
  */
 class DateIntervalType extends Type
 {
-    public const FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
+    final public const FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
 
     /**
      * {@inheritDoc}

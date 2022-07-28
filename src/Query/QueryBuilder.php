@@ -39,16 +39,16 @@ class QueryBuilder
     /*
      * The query types.
      */
-    public const SELECT = 0;
-    public const DELETE = 1;
-    public const UPDATE = 2;
-    public const INSERT = 3;
+    final public const SELECT = 0;
+    final public const DELETE = 1;
+    final public const UPDATE = 2;
+    final public const INSERT = 3;
 
     /*
      * The builder states.
      */
-    public const STATE_DIRTY = 0;
-    public const STATE_CLEAN = 1;
+    final public const STATE_DIRTY = 0;
+    final public const STATE_CLEAN = 1;
 
     /**
      * The complete SQL string for this query.
@@ -168,7 +168,7 @@ class QueryBuilder
      *
      * @param Connection $connection The DBAL Connection.
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 

@@ -12,8 +12,10 @@ use function sprintf;
 
 class SingleConnectionProvider implements ConnectionProvider
 {
-    public function __construct(private Connection $connection, private string $defaultConnectionName = 'default')
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly string $defaultConnectionName = 'default'
+    ) {
     }
 
     public function getDefaultConnection(): Connection

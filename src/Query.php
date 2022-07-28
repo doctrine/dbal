@@ -20,9 +20,9 @@ final class Query
      * @psalm-suppress ImpurePropertyAssignment
      */
     public function __construct(
-        private string $sql,
-        private array $params,
-        private array $types
+        private readonly string $sql,
+        private readonly array $params,
+        private readonly array $types
     ) {
     }
 

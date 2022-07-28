@@ -13,11 +13,11 @@ use PHPUnit\Framework\TestCase;
  */
 class ExceptionTest extends TestCase
 {
-    public const ERROR_CODE = 666;
+    private const ERROR_CODE = 666;
 
-    public const MESSAGE = 'PDO Exception';
+    private const MESSAGE = 'PDO Exception';
 
-    public const SQLSTATE = 'HY000';
+    private const SQLSTATE = 'HY000';
 
     /**
      * The PDO exception wrapper under test.

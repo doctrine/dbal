@@ -16,7 +16,7 @@ final class CachingCharsetMetadataProvider implements CharsetMetadataProvider
     /** @var array<string,?string> */
     private array $cache = [];
 
-    public function __construct(private CharsetMetadataProvider $charsetMetadataProvider)
+    public function __construct(private readonly CharsetMetadataProvider $charsetMetadataProvider)
     {
     }
 

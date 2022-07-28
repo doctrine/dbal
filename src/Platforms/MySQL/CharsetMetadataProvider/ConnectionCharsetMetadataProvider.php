@@ -13,7 +13,7 @@ use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
  */
 final class ConnectionCharsetMetadataProvider implements CharsetMetadataProvider
 {
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 

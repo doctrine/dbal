@@ -20,9 +20,9 @@ use function sha1;
 class QueryCacheProfile
 {
     public function __construct(
-        private int $lifetime = 0,
-        private ?string $cacheKey = null,
-        private ?CacheItemPoolInterface $resultCache = null
+        private readonly int $lifetime = 0,
+        private readonly ?string $cacheKey = null,
+        private readonly ?CacheItemPoolInterface $resultCache = null
     ) {
     }
 

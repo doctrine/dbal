@@ -15,7 +15,7 @@ use function sprintf;
  */
 final class EasyConnectString
 {
-    private function __construct(private string $string)
+    private function __construct(private readonly string $string)
     {
     }
 

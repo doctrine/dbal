@@ -10,7 +10,7 @@ use PDO;
 
 final class Connection extends AbstractConnectionMiddleware
 {
-    private PDOConnection $connection;
+    private readonly PDOConnection $connection;
 
     public function __construct(PDOConnection $connection)
     {

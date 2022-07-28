@@ -21,8 +21,11 @@ final class Statement extends AbstractStatementMiddleware
     /**
      * @internal This statement can be only instantiated by its connection.
      */
-    public function __construct(StatementInterface $statement, private LoggerInterface $logger, private string $sql)
-    {
+    public function __construct(
+        StatementInterface $statement,
+        private readonly LoggerInterface $logger,
+        private readonly string $sql
+    ) {
         parent::__construct($statement);
     }
 

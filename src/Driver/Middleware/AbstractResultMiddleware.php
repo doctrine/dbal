@@ -8,7 +8,7 @@ use Doctrine\DBAL\Driver\Result;
 
 abstract class AbstractResultMiddleware implements Result
 {
-    public function __construct(private Result $wrappedResult)
+    public function __construct(private readonly Result $wrappedResult)
     {
     }
 
