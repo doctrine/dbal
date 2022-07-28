@@ -8,8 +8,6 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-use function count;
-
 final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -59,7 +57,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         self::assertTrue($validationTable->hasColumn('new_id'));
         self::assertTrue($validationTable->getColumn('new_id')->getAutoincrement());
         self::assertTrue($validationTable->hasPrimaryKey());
-        self::assertEquals(1, count($validationTable->getPrimaryKeyColumns()));
+        self::assertCount(1, $validationTable->getPrimaryKeyColumns());
         self::assertArrayHasKey('new_id', $validationTable->getPrimaryKeyColumns());
     }
 
