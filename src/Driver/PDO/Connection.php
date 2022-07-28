@@ -15,16 +15,12 @@ use function assert;
 
 final class Connection implements ConnectionInterface
 {
-    private readonly PDO $connection;
-
     /**
      * @internal The connection can be only instantiated by its driver.
      */
-    public function __construct(PDO $connection)
+    public function __construct(private readonly PDO $connection)
     {
         $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        $this->connection = $connection;
     }
 
     public function exec(string $sql): int|string

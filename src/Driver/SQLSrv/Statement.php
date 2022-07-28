@@ -56,7 +56,7 @@ final class Statement implements StatementInterface
      * @param resource $conn
      */
     public function __construct(
-        private $conn,
+        private readonly mixed $conn,
         private string $sql
     ) {
         if (stripos($sql, 'INSERT INTO ') !== 0) {

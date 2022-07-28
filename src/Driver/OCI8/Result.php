@@ -30,7 +30,7 @@ final class Result implements ResultInterface
      *
      * @param resource $statement
      */
-    public function __construct(private $statement)
+    public function __construct(private readonly mixed $statement)
     {
     }
 
