@@ -20,7 +20,7 @@ final class Connection implements ConnectionInterface
     /**
      * @internal The connection can be only instantiated by its driver.
      */
-    public function __construct(private mysqli $connection)
+    public function __construct(private readonly mysqli $connection)
     {
     }
 

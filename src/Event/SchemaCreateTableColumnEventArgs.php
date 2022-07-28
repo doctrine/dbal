@@ -19,8 +19,11 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     /** @var array<int, string> */
     private array $sql = [];
 
-    public function __construct(private Column $column, private Table $table, private AbstractPlatform $platform)
-    {
+    public function __construct(
+        private readonly Column $column,
+        private readonly Table $table,
+        private readonly AbstractPlatform $platform
+    ) {
     }
 
     public function getColumn(): Column

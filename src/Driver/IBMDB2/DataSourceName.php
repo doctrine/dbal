@@ -13,7 +13,7 @@ use function str_contains;
  */
 final class DataSourceName
 {
-    private function __construct(private string $string)
+    private function __construct(private readonly string $string)
     {
     }
 

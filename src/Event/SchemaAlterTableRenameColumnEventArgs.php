@@ -20,10 +20,10 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     private array $sql = [];
 
     public function __construct(
-        private string $oldColumnName,
-        private Column $column,
-        private TableDiff $tableDiff,
-        private AbstractPlatform $platform
+        private readonly string $oldColumnName,
+        private readonly Column $column,
+        private readonly TableDiff $tableDiff,
+        private readonly AbstractPlatform $platform
     ) {
     }
 

@@ -27,7 +27,7 @@ final class Statement implements StatementInterface
     /**
      * @internal The statement can be only instantiated by its driver connection.
      */
-    public function __construct(private PDOStatement $stmt)
+    public function __construct(private readonly PDOStatement $stmt)
     {
     }
 

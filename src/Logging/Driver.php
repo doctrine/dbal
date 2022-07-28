@@ -13,7 +13,7 @@ final class Driver extends AbstractDriverMiddleware
     /**
      * @internal This driver can be only instantiated by its middleware.
      */
-    public function __construct(DriverInterface $driver, private LoggerInterface $logger)
+    public function __construct(DriverInterface $driver, private readonly LoggerInterface $logger)
     {
         parent::__construct($driver);
     }

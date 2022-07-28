@@ -20,7 +20,7 @@ class DriverException extends Exception implements Driver\Exception
     /**
      * The query that triggered the exception, if any.
      */
-    private ?Query $query;
+    private readonly ?Query $query;
 
     /**
      * @internal

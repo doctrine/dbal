@@ -14,7 +14,7 @@ use function array_merge;
 
 final class CreateSchemaObjectsSQLBuilder
 {
-    public function __construct(private AbstractPlatform $platform)
+    public function __construct(private readonly AbstractPlatform $platform)
     {
     }
 

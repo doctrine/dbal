@@ -33,13 +33,13 @@ use function trim;
  */
 abstract class AbstractMySQLPlatform extends AbstractPlatform
 {
-    public const LENGTH_LIMIT_TINYTEXT   = 255;
-    public const LENGTH_LIMIT_TEXT       = 65535;
-    public const LENGTH_LIMIT_MEDIUMTEXT = 16777215;
+    final public const LENGTH_LIMIT_TINYTEXT   = 255;
+    final public const LENGTH_LIMIT_TEXT       = 65535;
+    final public const LENGTH_LIMIT_MEDIUMTEXT = 16777215;
 
-    public const LENGTH_LIMIT_TINYBLOB   = 255;
-    public const LENGTH_LIMIT_BLOB       = 65535;
-    public const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
+    final public const LENGTH_LIMIT_TINYBLOB   = 255;
+    final public const LENGTH_LIMIT_BLOB       = 65535;
+    final public const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
 
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {

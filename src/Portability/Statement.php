@@ -16,7 +16,7 @@ final class Statement extends AbstractStatementMiddleware
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
      */
-    public function __construct(DriverStatement $stmt, private Converter $converter)
+    public function __construct(DriverStatement $stmt, private readonly Converter $converter)
     {
         parent::__construct($stmt);
     }

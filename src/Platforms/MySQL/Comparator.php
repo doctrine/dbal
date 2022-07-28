@@ -25,9 +25,9 @@ class Comparator extends BaseComparator
      */
     public function __construct(
         AbstractMySQLPlatform $platform,
-        private CharsetMetadataProvider $charsetMetadataProvider,
-        private CollationMetadataProvider $collationMetadataProvider,
-        private DefaultTableOptions $defaultTableOptions
+        private readonly CharsetMetadataProvider $charsetMetadataProvider,
+        private readonly CollationMetadataProvider $collationMetadataProvider,
+        private readonly DefaultTableOptions $defaultTableOptions
     ) {
         parent::__construct($platform);
     }

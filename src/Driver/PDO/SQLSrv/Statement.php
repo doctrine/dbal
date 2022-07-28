@@ -11,7 +11,7 @@ use PDO;
 
 final class Statement extends AbstractStatementMiddleware
 {
-    private PDOStatement $statement;
+    private readonly PDOStatement $statement;
 
     /**
      * @internal The statement can be only instantiated by its driver connection.

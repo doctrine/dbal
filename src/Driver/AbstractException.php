@@ -22,7 +22,7 @@ abstract class AbstractException extends BaseException implements Exception
      */
     public function __construct(
         string $message,
-        private ?string $sqlState = null,
+        private readonly ?string $sqlState = null,
         int $code = 0,
         ?Throwable $previous = null
     ) {

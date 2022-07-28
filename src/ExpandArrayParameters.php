@@ -32,7 +32,7 @@ final class ExpandArrayParameters implements Visitor
      * @param array<int, mixed>|array<string, mixed>                             $originalParameters
      * @param array<int,Type|int|string|null>|array<string,Type|int|string|null> $originalTypes
      */
-    public function __construct(private array $originalParameters, private array $originalTypes)
+    public function __construct(private readonly array $originalParameters, private readonly array $originalTypes)
     {
     }
 

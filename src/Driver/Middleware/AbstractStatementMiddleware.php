@@ -10,7 +10,7 @@ use Doctrine\DBAL\ParameterType;
 
 abstract class AbstractStatementMiddleware implements Statement
 {
-    public function __construct(private Statement $wrappedStatement)
+    public function __construct(private readonly Statement $wrappedStatement)
     {
     }
 

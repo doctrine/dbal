@@ -14,19 +14,19 @@ use function sprintf;
  */
 class ExpressionBuilder
 {
-    public const EQ  = '=';
-    public const NEQ = '<>';
-    public const LT  = '<';
-    public const LTE = '<=';
-    public const GT  = '>';
-    public const GTE = '>=';
+    final public const EQ  = '=';
+    final public const NEQ = '<>';
+    final public const LT  = '<';
+    final public const LTE = '<=';
+    final public const GT  = '>';
+    final public const GTE = '>=';
 
     /**
      * Initializes a new <tt>ExpressionBuilder</tt>.
      *
      * @param Connection $connection The DBAL Connection.
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 

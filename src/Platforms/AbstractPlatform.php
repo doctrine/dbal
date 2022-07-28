@@ -1266,7 +1266,7 @@ abstract class AbstractPlatform
     public function quoteIdentifier(string $identifier): string
     {
         if (str_contains($identifier, '.')) {
-            $parts = array_map([$this, 'quoteSingleIdentifier'], explode('.', $identifier));
+            $parts = array_map($this->quoteSingleIdentifier(...), explode('.', $identifier));
 
             return implode('.', $parts);
         }

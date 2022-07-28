@@ -18,7 +18,7 @@ class SchemaAlterTableEventArgs extends SchemaEventArgs
     /** @var array<int, string> */
     private array $sql = [];
 
-    public function __construct(private TableDiff $tableDiff, private AbstractPlatform $platform)
+    public function __construct(private readonly TableDiff $tableDiff, private readonly AbstractPlatform $platform)
     {
     }
 

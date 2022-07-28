@@ -13,7 +13,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
 {
     private ?string $sql = null;
 
-    public function __construct(private string $table, private AbstractPlatform $platform)
+    public function __construct(private readonly string $table, private readonly AbstractPlatform $platform)
     {
     }
 

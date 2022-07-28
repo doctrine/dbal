@@ -13,7 +13,7 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
  */
 final class ConnectionCollationMetadataProvider implements CollationMetadataProvider
 {
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 

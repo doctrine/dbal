@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\Middleware as MiddlewareInterface;
 
 final class Middleware implements MiddlewareInterface
 {
-    public function __construct(private int $mode, private int $case)
+    public function __construct(private readonly int $mode, private readonly int $case)
     {
     }
 

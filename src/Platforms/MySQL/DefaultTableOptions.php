@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms\MySQL;
  */
 final class DefaultTableOptions
 {
-    public function __construct(private string $charset, private string $collation)
+    public function __construct(private readonly string $charset, private readonly string $collation)
     {
     }
 

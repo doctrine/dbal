@@ -16,7 +16,7 @@ final class CachingCollationMetadataProvider implements CollationMetadataProvide
     /** @var array<string,?string> */
     private array $cache = [];
 
-    public function __construct(private CollationMetadataProvider $collationMetadataProvider)
+    public function __construct(private readonly CollationMetadataProvider $collationMetadataProvider)
     {
     }
 
