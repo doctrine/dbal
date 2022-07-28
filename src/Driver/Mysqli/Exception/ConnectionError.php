@@ -24,7 +24,6 @@ final class ConnectionError extends AbstractException
     public static function upcast(mysqli_sql_exception $exception): self
     {
         $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
-        $p->setAccessible(true);
 
         return new self($exception->getMessage(), $p->getValue($exception), (int) $exception->getCode(), $exception);
     }

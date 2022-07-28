@@ -21,7 +21,6 @@ class SQLiteSchemaManagerTest extends TestCase
 
         $manager = new SQLiteSchemaManager($conn, new SQLitePlatform());
         $ref     = new ReflectionMethod($manager, 'parseColumnCollationFromSQL');
-        $ref->setAccessible(true);
 
         self::assertSame($collation, $ref->invoke($manager, $column, $sql));
     }
@@ -137,7 +136,6 @@ class SQLiteSchemaManagerTest extends TestCase
 
         $manager = new SQLiteSchemaManager($conn, new SQLitePlatform());
         $ref     = new ReflectionMethod($manager, 'parseColumnCommentFromSQL');
-        $ref->setAccessible(true);
 
         self::assertSame($comment, $ref->invoke($manager, $column, $sql));
     }
