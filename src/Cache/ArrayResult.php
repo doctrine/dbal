@@ -16,19 +16,15 @@ use function reset;
  */
 final class ArrayResult implements Result
 {
-    private int $columnCount = 0;
-    private int $num         = 0;
+    private readonly int $columnCount;
+    private int $num = 0;
 
     /**
      * @param list<array<string, mixed>> $data
      */
     public function __construct(private array $data)
     {
-        if (count($data) === 0) {
-            return;
-        }
-
-        $this->columnCount = count($data[0]);
+        $this->columnCount = $data === [] ? 0 : count($data[0]);
     }
 
     public function fetchNumeric(): array|false

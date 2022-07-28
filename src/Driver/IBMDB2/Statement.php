@@ -46,7 +46,7 @@ final class Statement implements StatementInterface
      *
      * @param resource $stmt
      */
-    public function __construct(private $stmt)
+    public function __construct(private readonly mixed $stmt)
     {
     }
 

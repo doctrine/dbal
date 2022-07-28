@@ -32,8 +32,8 @@ final class Statement implements StatementInterface
      * @param array<int,string> $parameterMap
      */
     public function __construct(
-        private $connection,
-        private $statement,
+        private readonly mixed $connection,
+        private readonly mixed $statement,
         private readonly array $parameterMap,
         private readonly ExecutionMode $executionMode
     ) {

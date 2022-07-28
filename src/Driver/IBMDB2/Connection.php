@@ -33,7 +33,7 @@ final class Connection implements ConnectionInterface
      *
      * @param resource $connection
      */
-    public function __construct(private $connection)
+    public function __construct(private readonly mixed $connection)
     {
     }
 

@@ -10,10 +10,10 @@ namespace Doctrine\DBAL\Query;
 final class Join
 {
     private function __construct(
-        public string $type,
-        public string $table,
-        public string $alias,
-        public ?string $condition
+        public readonly string $type,
+        public readonly string $table,
+        public readonly string $alias,
+        public readonly ?string $condition,
     ) {
     }
 
