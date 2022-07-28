@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
 use Doctrine\DBAL\Driver\Mysqli\Exception\NonStreamResourceUsedAsLargeObject;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
@@ -26,16 +25,9 @@ use function str_repeat;
 
 final class Statement implements StatementInterface
 {
-    /** @var string[] */
-    private static array $paramTypeMap = [
-        ParameterType::ASCII        => 's',
-        ParameterType::STRING       => 's',
-        ParameterType::BINARY       => 's',
-        ParameterType::BOOLEAN      => 'i',
-        ParameterType::NULL         => 's',
-        ParameterType::INTEGER      => 'i',
-        ParameterType::LARGE_OBJECT => 'b',
-    ];
+    private const PARAMETER_TYPE_STRING  = 's';
+    private const PARAMETER_TYPE_INTEGER = 'i';
+    private const PARAMETER_TYPE_BINARY  = 'b';
 
     /** @var mixed[] */
     private array $boundValues;
@@ -55,37 +47,29 @@ final class Statement implements StatementInterface
     public function __construct(private readonly mysqli_stmt $stmt)
     {
         $paramCount        = $this->stmt->param_count;
-        $this->types       = str_repeat('s', $paramCount);
+        $this->types       = str_repeat(self::PARAMETER_TYPE_STRING, $paramCount);
         $this->boundValues = array_fill(1, $paramCount, null);
     }
 
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        int $type = ParameterType::STRING,
+        ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
         assert(is_int($param));
 
-        if (! isset(self::$paramTypeMap[$type])) {
-            throw UnknownParameterType::new($type);
-        }
-
+        $this->types[$param - 1]   = $this->convertParameterType($type);
         $this->boundValues[$param] =& $variable;
-        $this->types[$param - 1]   = self::$paramTypeMap[$type];
     }
 
-    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
         assert(is_int($param));
 
-        if (! isset(self::$paramTypeMap[$type])) {
-            throw UnknownParameterType::new($type);
-        }
-
+        $this->types[$param - 1]   = $this->convertParameterType($type);
         $this->values[$param]      = $value;
         $this->boundValues[$param] =& $this->values[$param];
-        $this->types[$param - 1]   = self::$paramTypeMap[$type];
     }
 
     public function execute(?array $params = null): Result
@@ -120,10 +104,10 @@ final class Statement implements StatementInterface
         foreach ($this->boundValues as $parameter => $value) {
             assert(is_int($parameter));
             if (! isset($types[$parameter - 1])) {
-                $types[$parameter - 1] = self::$paramTypeMap[ParameterType::STRING];
+                $types[$parameter - 1] = self::PARAMETER_TYPE_STRING;
             }
 
-            if ($types[$parameter - 1] === self::$paramTypeMap[ParameterType::LARGE_OBJECT]) {
+            if ($types[$parameter - 1] === self::PARAMETER_TYPE_BINARY) {
                 if (is_resource($value)) {
                     if (get_resource_type($value) !== 'stream') {
                         throw NonStreamResourceUsedAsLargeObject::new($parameter);
@@ -134,7 +118,7 @@ final class Statement implements StatementInterface
                     continue;
                 }
 
-                $types[$parameter - 1] = self::$paramTypeMap[ParameterType::STRING];
+                $types[$parameter - 1] = self::PARAMETER_TYPE_STRING;
             }
 
             $values[$parameter] = $value;
@@ -180,8 +164,21 @@ final class Statement implements StatementInterface
      */
     private function bindUntypedValues(array $values): void
     {
-        if (! $this->stmt->bind_param(str_repeat('s', count($values)), ...$values)) {
+        if (! $this->stmt->bind_param(str_repeat(self::PARAMETER_TYPE_STRING, count($values)), ...$values)) {
             throw StatementError::new($this->stmt);
         }
+    }
+
+    private function convertParameterType(ParameterType $type): string
+    {
+        return match ($type) {
+            ParameterType::NULL,
+            ParameterType::STRING,
+            ParameterType::ASCII,
+            ParameterType::BINARY => self::PARAMETER_TYPE_STRING,
+            ParameterType::INTEGER,
+            ParameterType::BOOLEAN => self::PARAMETER_TYPE_INTEGER,
+            ParameterType::LARGE_OBJECT => self::PARAMETER_TYPE_BINARY,
+        };
     }
 }

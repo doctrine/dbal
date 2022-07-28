@@ -187,13 +187,13 @@ on the Connection, which are all described in the API section below.
 Binding Types
 -------------
 
-Besides ``Doctrine\DBAL\ParameterType`` constants, you
+Besides the values of ``Doctrine\DBAL\ParameterType``, you
 can make use of two very powerful additional features.
 
 Doctrine\DBAL\Types Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you don't specify an integer (through one of ``Doctrine\DBAL\ParameterType`` constants) to
+If you don't specify a value of the type ``Doctrine\DBAL\ParameterType`` to
 any of the parameter binding methods but a string, Doctrine DBAL will
 ask the type abstraction layer to convert the passed value from
 its PHP to a database representation. This way you can pass ``\DateTime``

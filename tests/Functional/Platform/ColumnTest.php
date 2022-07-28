@@ -103,7 +103,7 @@ abstract class ColumnTest extends FunctionalTestCase
     /**
      * @param array<string, mixed> $column
      */
-    protected function assertColumn(string $type, array $column, string $value, int $bindType): void
+    protected function assertColumn(string $type, array $column, string $value, ParameterType $bindType): void
     {
         $table = new Table('column_test');
         $table->addColumn('val', $type, $column);

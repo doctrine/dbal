@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDO;
 
 use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
-use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use PDO;
@@ -14,16 +13,6 @@ use PDOStatement;
 
 final class Statement implements StatementInterface
 {
-    private const PARAM_TYPE_MAP = [
-        ParameterType::NULL         => PDO::PARAM_NULL,
-        ParameterType::INTEGER      => PDO::PARAM_INT,
-        ParameterType::STRING       => PDO::PARAM_STR,
-        ParameterType::ASCII        => PDO::PARAM_STR,
-        ParameterType::BINARY       => PDO::PARAM_LOB,
-        ParameterType::LARGE_OBJECT => PDO::PARAM_LOB,
-        ParameterType::BOOLEAN      => PDO::PARAM_BOOL,
-    ];
-
     /**
      * @internal The statement can be only instantiated by its driver connection.
      */
@@ -31,7 +20,7 @@ final class Statement implements StatementInterface
     {
     }
 
-    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
         $type = $this->convertParamType($type);
 
@@ -45,7 +34,7 @@ final class Statement implements StatementInterface
     public function bindParam(
         string|int $param,
         mixed &$variable,
-        int $type = ParameterType::STRING,
+        ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
         try {
@@ -67,7 +56,7 @@ final class Statement implements StatementInterface
     public function bindParamWithDriverOptions(
         string|int $param,
         mixed &$variable,
-        int $type,
+        ParameterType $type,
         int $length,
         mixed $driverOptions
     ): void {
@@ -91,17 +80,17 @@ final class Statement implements StatementInterface
 
     /**
      * Converts DBAL parameter type to PDO parameter type
-     *
-     * @param int $type Parameter type
-     *
-     * @throws ExceptionInterface
      */
-    private function convertParamType(int $type): int
+    private function convertParamType(ParameterType $type): int
     {
-        if (! isset(self::PARAM_TYPE_MAP[$type])) {
-            throw UnknownParameterType::new($type);
-        }
-
-        return self::PARAM_TYPE_MAP[$type];
+        return match ($type) {
+            ParameterType::NULL => PDO::PARAM_NULL,
+            ParameterType::INTEGER => PDO::PARAM_INT,
+            ParameterType::STRING,
+            ParameterType::ASCII => PDO::PARAM_STR,
+            ParameterType::BINARY,
+            ParameterType::LARGE_OBJECT => PDO::PARAM_LOB,
+            ParameterType::BOOLEAN => PDO::PARAM_BOOL,
+        };
     }
 }

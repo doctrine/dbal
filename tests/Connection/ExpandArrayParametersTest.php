@@ -415,7 +415,7 @@ class ExpandArrayParametersTest extends TestCase
      * @param array<int, mixed>|array<string, mixed>                               $params
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
      *
-     * @return array{0: string, 1: list<mixed>, 2: array<int,Type|int|string|null>}
+     * @return array{string, list<mixed>, array<int,string|ParameterType|Type|null>}
      */
     private function expandArrayParameters(string $sql, array $params, array $types): array
     {

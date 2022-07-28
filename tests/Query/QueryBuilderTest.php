@@ -1175,8 +1175,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @dataProvider fetchProvider
      */
@@ -1184,8 +1184,8 @@ class QueryBuilderTest extends TestCase
         string $select,
         string $from,
         string $where,
-        array $parameters,
-        array $parameterTypes,
+        array $params,
+        array $types,
         string $expectedSql
     ): void {
         $qb           = new QueryBuilder($this->conn);
@@ -1193,13 +1193,13 @@ class QueryBuilderTest extends TestCase
 
         $this->conn->expects(self::once())
             ->method('executeQuery')
-            ->with($expectedSql, $parameters, $parameterTypes)
+            ->with($expectedSql, $params, $types)
             ->willReturn($mockedResult);
 
         $results = $qb->select($select)
             ->from($from)
             ->where($where)
-            ->setParameters($parameters, $parameterTypes)
+            ->setParameters($params, $types)
             ->executeQuery();
 
         self::assertSame(

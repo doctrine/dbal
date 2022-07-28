@@ -42,7 +42,7 @@ class BinaryType extends Type
         return $value;
     }
 
-    public function getBindingType(): int
+    public function getBindingType(): ParameterType
     {
         return ParameterType::BINARY;
     }

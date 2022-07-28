@@ -50,7 +50,7 @@ final class Statement implements StatementInterface
     {
     }
 
-    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
         assert(is_int($param));
 
@@ -60,7 +60,7 @@ final class Statement implements StatementInterface
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        int $type = ParameterType::STRING,
+        ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
         assert(is_int($param));

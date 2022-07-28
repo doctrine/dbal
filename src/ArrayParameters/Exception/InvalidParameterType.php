@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\DBAL\Driver\Exception;
+namespace Doctrine\DBAL\ArrayParameters\Exception;
 
 use Doctrine\DBAL\Driver\AbstractException;
 
@@ -13,10 +13,10 @@ use function sprintf;
  *
  * @psalm-immutable
  */
-final class UnknownParameterType extends AbstractException
+final class InvalidParameterType extends AbstractException
 {
     public static function new(int $type): self
     {
-        return new self(sprintf('Unknown parameter type, %d given.', $type));
+        return new self(sprintf('Invalid parameter type, %d given.', $type));
     }
 }

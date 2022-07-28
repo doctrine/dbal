@@ -18,13 +18,13 @@ class QueryCacheProfileTest extends TestCase
     private QueryCacheProfile $queryCacheProfile;
     private string $query = 'SELECT * FROM foo WHERE bar = ?';
 
-    /** @var int[] */
+    /** @var list<mixed> */
     private array $params = [666];
 
-    /** @var int[] */
+    /** @var list<ParameterType::INTEGER> */
     private array $types = [ParameterType::INTEGER];
 
-    /** @var string[] */
+    /** @var array<string, mixed> */
     private array $connectionParams = [
         'dbname'   => 'database_name',
         'user'     => 'database_user',

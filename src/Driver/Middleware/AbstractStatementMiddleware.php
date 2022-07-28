@@ -14,7 +14,7 @@ abstract class AbstractStatementMiddleware implements Statement
     {
     }
 
-    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
         $this->wrappedStatement->bindValue($param, $value, $type);
     }
@@ -22,7 +22,7 @@ abstract class AbstractStatementMiddleware implements Statement
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        int $type = ParameterType::STRING,
+        ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
         $this->wrappedStatement->bindParam($param, $variable, $type, $length);

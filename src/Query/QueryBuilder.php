@@ -52,9 +52,9 @@ class QueryBuilder
     /**
      * The parameter type map of this query.
      *
-     * @var array<int, int|string|Type|null>|array<string, int|string|Type|null>
+     * @var array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null>
      */
-    private array $paramTypes = [];
+    private array $types = [];
 
     /**
      * The type of query this is. Can be select, update or delete.
@@ -191,7 +191,7 @@ class QueryBuilder
      */
     public function fetchAssociative(): array|false
     {
-        return $this->connection->fetchAssociative($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->fetchAssociative($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -204,7 +204,7 @@ class QueryBuilder
      */
     public function fetchNumeric(): array|false
     {
-        return $this->connection->fetchNumeric($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->fetchNumeric($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -217,7 +217,7 @@ class QueryBuilder
      */
     public function fetchOne(): mixed
     {
-        return $this->connection->fetchOne($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->fetchOne($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -229,7 +229,7 @@ class QueryBuilder
      */
     public function fetchAllNumeric(): array
     {
-        return $this->connection->fetchAllNumeric($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->fetchAllNumeric($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -241,7 +241,7 @@ class QueryBuilder
      */
     public function fetchAllAssociative(): array
     {
-        return $this->connection->fetchAllAssociative($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->fetchAllAssociative($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -254,7 +254,7 @@ class QueryBuilder
      */
     public function fetchAllKeyValue(): array
     {
-        return $this->connection->fetchAllKeyValue($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->fetchAllKeyValue($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -268,7 +268,7 @@ class QueryBuilder
      */
     public function fetchAllAssociativeIndexed(): array
     {
-        return $this->connection->fetchAllAssociativeIndexed($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->fetchAllAssociativeIndexed($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -280,7 +280,7 @@ class QueryBuilder
      */
     public function fetchFirstColumn(): array
     {
-        return $this->connection->fetchFirstColumn($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->fetchFirstColumn($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -290,7 +290,7 @@ class QueryBuilder
      */
     public function executeQuery(): Result
     {
-        return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->executeQuery($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -304,7 +304,7 @@ class QueryBuilder
      */
     public function executeStatement(): int|string
     {
-        return $this->connection->executeStatement($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->executeStatement($this->getSQL(), $this->params, $this->types);
     }
 
     /**
@@ -342,19 +342,19 @@ class QueryBuilder
      *         ->setParameter('user_id', 1);
      * </code>
      *
-     * @param int|string           $key   Parameter position or name
-     * @param mixed                $value Parameter value
-     * @param int|string|Type|null $type  Parameter type
+     * @param int|string                     $key   Parameter position or name
+     * @param mixed                          $value Parameter value
+     * @param string|ParameterType|Type|null $type  Parameter type
      *
      * @return $this This QueryBuilder instance.
      */
     public function setParameter(
         int|string $key,
         mixed $value,
-        int|string|Type|null $type = ParameterType::STRING
+        string|ParameterType|Type|null $type = ParameterType::STRING
     ): self {
         if ($type !== null) {
-            $this->paramTypes[$key] = $type;
+            $this->types[$key] = $type;
         } else {
             Deprecation::trigger(
                 'doctrine/dbal',
@@ -383,15 +383,15 @@ class QueryBuilder
      *         ));
      * </code>
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Parameters to set
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return $this This QueryBuilder instance.
      */
     public function setParameters(array $params, array $types = []): self
     {
-        $this->paramTypes = $types;
-        $this->params     = $params;
+        $this->params = $params;
+        $this->types  = $types;
 
         return $this;
     }
@@ -421,12 +421,11 @@ class QueryBuilder
     /**
      * Gets all defined query parameter types for the query being constructed indexed by parameter index or name.
      *
-     * @return array<int, int|string|Type|null>|array<string, int|string|Type|null> The currently defined
-     *                                                                              query parameter types
+     * @return array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null>
      */
     public function getParameterTypes(): array
     {
-        return $this->paramTypes;
+        return $this->types;
     }
 
     /**
@@ -434,11 +433,11 @@ class QueryBuilder
      *
      * @param int|string $key The key of the bound parameter type
      *
-     * @return int|string|Type The value of the bound parameter type
+     * @return int|string|ParameterType|Type The value of the bound parameter type
      */
-    public function getParameterType(int|string $key): int|string|Type|null
+    public function getParameterType(int|string $key): int|string|ParameterType|Type|null
     {
-        return $this->paramTypes[$key] ?? ParameterType::STRING;
+        return $this->types[$key] ?? ParameterType::STRING;
     }
 
     /**
@@ -1321,7 +1320,7 @@ class QueryBuilder
      */
     public function createNamedParameter(
         mixed $value,
-        int|string|Type|null $type = ParameterType::STRING,
+        string|ParameterType|Type|null $type = ParameterType::STRING,
         ?string $placeHolder = null
     ): string {
         if ($placeHolder === null) {
@@ -1351,8 +1350,10 @@ class QueryBuilder
      *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', ParameterType::STRING))
      * </code>
      */
-    public function createPositionalParameter(mixed $value, int|string|Type|null $type = ParameterType::STRING): string
-    {
+    public function createPositionalParameter(
+        mixed $value,
+        string|ParameterType|Type|null $type = ParameterType::STRING
+    ): string {
         $this->setParameter($this->boundCounter, $value, $type);
         $this->boundCounter++;
 

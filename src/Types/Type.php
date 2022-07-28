@@ -165,10 +165,8 @@ abstract class Type
     /**
      * Gets the (preferred) binding type for values of this type that
      * can be used when binding parameters to prepared statements.
-     *
-     * This method should return one of the {@see ParameterType} constants.
      */
-    public function getBindingType(): int
+    public function getBindingType(): ParameterType
     {
         return ParameterType::STRING;
     }
