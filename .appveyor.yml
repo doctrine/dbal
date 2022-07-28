@@ -27,11 +27,11 @@ environment:
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
-    php: 8.0
+    php: 8.1
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 8.0
+    php: 8.1
 
 init:
   - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;%PATH%
@@ -64,8 +64,7 @@ install:
           Add-Content php.ini "`n extension=php_sqlite3.dll"
           Add-Content php.ini "`n extension=php_curl.dll"
 
-          # Get and install the latest stable sqlsrv DLL's
-          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/sqlsrv/stable.txt").Content
+          $DLLVersion = "5.10.0"
           cd c:\tools\php\ext
           $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip"
           $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip"
