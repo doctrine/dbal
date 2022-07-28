@@ -461,7 +461,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $tableIndexes = $this->schemaManager->listTableIndexes('list_table_indexes_test');
 
-        self::assertEquals(3, count($tableIndexes));
+        self::assertCount(3, $tableIndexes);
 
         self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
         self::assertEquals(['id', 'other_id'], array_map('strtolower', $tableIndexes['primary']->getColumns()));
@@ -537,7 +537,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $fkTable       = $this->schemaManager->listTableDetails('test_create_fk');
         $fkConstraints = $fkTable->getForeignKeys();
-        self::assertEquals(1, count($fkConstraints), "Table 'test_create_fk1' has to have one foreign key.");
+        self::assertCount(1, $fkConstraints, "Table 'test_create_fk' has to have one foreign key.");
 
         $fkConstraint = current($fkConstraints);
         self::assertInstanceOf(ForeignKeyConstraint::class, $fkConstraint);
@@ -565,7 +565,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $fkeys = $this->schemaManager->listTableForeignKeys('test_create_fk1');
 
-        self::assertEquals(1, count($fkeys), "Table 'test_create_fk1' has to have one foreign key.");
+        self::assertCount(1, $fkeys, "Table 'test_create_fk1' has to have one foreign key.");
 
         self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[0]);
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
@@ -659,8 +659,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($table->hasColumn('id'));
         self::assertTrue($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foreign_key_test'));
-        self::assertEquals(0, count($table->getForeignKeys()));
-        self::assertEquals(1, count($table->getIndexes()));
+        self::assertCount(0, $table->getForeignKeys());
+        self::assertCount(1, $table->getIndexes());
 
         $tableDiff                         = new TableDiff('alter_table');
         $tableDiff->fromTable              = $alterTable;
@@ -680,7 +680,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($tableDiff);
 
         $table = $this->schemaManager->listTableDetails('alter_table');
-        self::assertEquals(2, count($table->getIndexes()));
+        self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
         self::assertEquals(['foo'], array_map('strtolower', $table->getIndex('foo_idx')->getColumns()));
         self::assertFalse($table->getIndex('foo_idx')->isPrimary());
@@ -693,7 +693,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($tableDiff);
 
         $table = $this->schemaManager->listTableDetails('alter_table');
-        self::assertEquals(2, count($table->getIndexes()));
+        self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
         self::assertEquals(
             ['foo', 'foreign_key_test'],
@@ -707,7 +707,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($tableDiff);
 
         $table = $this->schemaManager->listTableDetails('alter_table');
-        self::assertEquals(2, count($table->getIndexes()));
+        self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('foo_idx'));
         self::assertEquals(
@@ -930,7 +930,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->createTable($table);
 
         $columns = $this->schemaManager->listTableColumns('column_comment_test');
-        self::assertEquals(1, count($columns));
+        self::assertCount(1, $columns);
         self::assertEquals('This is a comment', $columns['id']->getComment());
 
         $tableDiff                       = new TableDiff('column_comment_test');
@@ -952,7 +952,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($tableDiff);
 
         $columns = $this->schemaManager->listTableColumns('column_comment_test');
-        self::assertEquals(1, count($columns));
+        self::assertCount(1, $columns);
         self::assertEmpty($columns['id']->getComment());
     }
 
@@ -977,7 +977,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->createTable($table);
 
         $columns = $this->schemaManager->listTableColumns('column_comment_test2');
-        self::assertEquals(3, count($columns));
+        self::assertCount(3, $columns);
         self::assertEquals('This is a comment', $columns['id']->getComment());
         self::assertEquals('This is a comment', $columns['obj']->getComment());
         self::assertInstanceOf(ObjectType::class, $columns['obj']->getType());
@@ -1005,7 +1005,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->createTable($table);
 
         $columns = $this->schemaManager->listTableColumns('column_dateinterval_comment');
-        self::assertEquals(2, count($columns));
+        self::assertCount(2, $columns);
         self::assertEquals('This is a comment', $columns['id']->getComment());
         self::assertEquals('This is a comment', $columns['date_interval']->getComment());
         self::assertInstanceOf(DateIntervalType::class, $columns['date_interval']->getType());
@@ -1136,7 +1136,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $fkeys = $this->schemaManager->listTableForeignKeys('test_create_fk3');
 
-        self::assertEquals(1, count($fkeys), "Table 'test_create_fk3' has to have one foreign key.");
+        self::assertCount(1, $fkeys, "Table 'test_create_fk3' has to have one foreign key.");
 
         self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[0]);
         self::assertEquals(['id', 'foreign_key_test'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
