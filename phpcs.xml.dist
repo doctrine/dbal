@@ -12,7 +12,7 @@
     <!-- Show progress of the run and show sniff names -->
     <arg value="ps"/>
 
-    <config name="php_version" value="80000"/>
+    <config name="php_version" value="80100"/>
 
     <file>src</file>
     <file>tests</file>
