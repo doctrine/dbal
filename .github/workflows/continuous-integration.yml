@@ -47,7 +47,7 @@ jobs:
           - os: "ubuntu-20.04"
             php-version: "8.0"
             dependencies: "lowest"
-          - os: "ubuntu-18.04"
+          - os: "ubuntu-20.04"
             php-version: "8.1"
             dependencies: "highest"
 
@@ -485,7 +485,7 @@ jobs:
 
   phpunit-ibm-db2:
     name: "PHPUnit with IBM DB2"
-    runs-on: "ubuntu-18.04"
+    runs-on: "ubuntu-20.04"
     needs: "phpunit-smoke-check"
 
     strategy:
