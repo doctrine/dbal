@@ -17,8 +17,12 @@ class ConverterTest extends TestCase
      *
      * @dataProvider convertNumericProvider
      */
-    public function testConvertNumeric($row, bool $convertEmptyStringToNull, bool $rightTrimString, $expected): void
-    {
+    public function testConvertNumeric(
+        array|false $row,
+        bool $convertEmptyStringToNull,
+        bool $rightTrimString,
+        array|false $expected
+    ): void {
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, null)

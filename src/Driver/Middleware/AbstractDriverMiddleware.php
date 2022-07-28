@@ -12,11 +12,8 @@ use Doctrine\DBAL\ServerVersionProvider;
 
 abstract class AbstractDriverMiddleware implements Driver
 {
-    private Driver $wrappedDriver;
-
-    public function __construct(Driver $wrappedDriver)
+    public function __construct(private Driver $wrappedDriver)
     {
-        $this->wrappedDriver = $wrappedDriver;
     }
 
     /**

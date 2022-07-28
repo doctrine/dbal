@@ -12,9 +12,6 @@ use Psr\Log\LoggerInterface;
 
 final class Statement extends AbstractStatementMiddleware
 {
-    private LoggerInterface $logger;
-    private string $sql;
-
     /** @var array<int,mixed>|array<string,mixed> */
     private array $params = [];
 
@@ -24,12 +21,9 @@ final class Statement extends AbstractStatementMiddleware
     /**
      * @internal This statement can be only instantiated by its connection.
      */
-    public function __construct(StatementInterface $statement, LoggerInterface $logger, string $sql)
+    public function __construct(StatementInterface $statement, private LoggerInterface $logger, private string $sql)
     {
         parent::__construct($statement);
-
-        $this->logger = $logger;
-        $this->sql    = $sql;
     }
 
     public function bindParam(

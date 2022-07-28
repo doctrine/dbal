@@ -49,7 +49,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             }
         }
 
-        $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
+        $type = $this->platform->getDoctrineTypeMapping($tableColumn['typename']);
 
         switch (strtolower($tableColumn['typename'])) {
             case 'varchar':
@@ -203,7 +203,7 @@ WHERE TYPE = 'T'
   AND CREATOR = ?
 SQL;
 
-        return $this->_conn->executeQuery($sql, [$databaseName]);
+        return $this->connection->executeQuery($sql, [$databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
@@ -243,7 +243,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY C.TABNAME, C.COLNO';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
@@ -282,7 +282,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY IDX.INDNAME, IDXCOL.COLSEQ';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
@@ -331,7 +331,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY R.CONSTNAME, FKCOL.COLSEQ';
 
-        return $this->_conn->executeQuery($sql, $params);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     /**
@@ -356,7 +356,7 @@ SQL;
         }
 
         /** @var array<string,array<string,mixed>> $metadata */
-        $metadata = $this->_conn->executeQuery($sql, $params)
+        $metadata = $this->connection->executeQuery($sql, $params)
             ->fetchAllAssociativeIndexed();
 
         $tableOptions = [];

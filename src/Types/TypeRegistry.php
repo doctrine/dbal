@@ -18,18 +18,10 @@ use function array_search;
 final class TypeRegistry
 {
     /**
-     * Map of type names and their corresponding objects.
-     *
-     * @var array<string, Type>
-     */
-    private array $instances;
-
-    /**
      * @param array<string, Type> $instances
      */
-    public function __construct(array $instances = [])
+    public function __construct(private array $instances = [])
     {
-        $this->instances = $instances;
     }
 
     /**

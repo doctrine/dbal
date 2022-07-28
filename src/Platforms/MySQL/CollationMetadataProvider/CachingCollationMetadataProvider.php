@@ -13,14 +13,11 @@ use function array_key_exists;
  */
 final class CachingCollationMetadataProvider implements CollationMetadataProvider
 {
-    private CollationMetadataProvider $collationMetadataProvider;
-
     /** @var array<string,?string> */
     private array $cache = [];
 
-    public function __construct(CollationMetadataProvider $collationMetadataProvider)
+    public function __construct(private CollationMetadataProvider $collationMetadataProvider)
     {
-        $this->collationMetadataProvider = $collationMetadataProvider;
     }
 
     public function getCollationCharset(string $collation): ?string

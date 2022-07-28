@@ -37,8 +37,6 @@ final class Statement implements StatementInterface
         ParameterType::LARGE_OBJECT => 'b',
     ];
 
-    private mysqli_stmt $stmt;
-
     /** @var mixed[] */
     private array $boundValues;
 
@@ -54,10 +52,8 @@ final class Statement implements StatementInterface
     /**
      * @internal The statement can be only instantiated by its driver connection.
      */
-    public function __construct(mysqli_stmt $stmt)
+    public function __construct(private mysqli_stmt $stmt)
     {
-        $this->stmt = $stmt;
-
         $paramCount        = $this->stmt->param_count;
         $this->types       = str_repeat('s', $paramCount);
         $this->boundValues = array_fill(1, $paramCount, null);

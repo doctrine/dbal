@@ -62,28 +62,18 @@ class SQLitePlatform extends AbstractPlatform
 
     public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
     {
-        switch ($mode) {
-            case TrimMode::UNSPECIFIED:
-            case TrimMode::BOTH:
-                $trimFn = 'TRIM';
-                break;
-
-            case TrimMode::LEADING:
-                $trimFn = 'LTRIM';
-                break;
-
-            case TrimMode::TRAILING:
-                $trimFn = 'RTRIM';
-                break;
-
-            default:
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'The value of $mode is expected to be one of the TrimMode constants, %d given.',
-                        $mode
-                    )
-                );
-        }
+        $trimFn = match ($mode) {
+            TrimMode::UNSPECIFIED,
+            TrimMode::BOTH => 'TRIM',
+            TrimMode::LEADING => 'LTRIM',
+            TrimMode::TRAILING => 'RTRIM',
+            default => throw new InvalidArgumentException(
+                sprintf(
+                    'The value of $mode is expected to be one of the TrimMode constants, %d given.',
+                    $mode
+                )
+            ),
+        };
 
         $arguments = [$str];
 
@@ -157,18 +147,13 @@ class SQLitePlatform extends AbstractPlatform
 
     protected function _getTransactionIsolationLevelSQL(int $level): string
     {
-        switch ($level) {
-            case TransactionIsolationLevel::READ_UNCOMMITTED:
-                return '0';
-
-            case TransactionIsolationLevel::READ_COMMITTED:
-            case TransactionIsolationLevel::REPEATABLE_READ:
-            case TransactionIsolationLevel::SERIALIZABLE:
-                return '1';
-
-            default:
-                return parent::_getTransactionIsolationLevelSQL($level);
-        }
+        return match ($level) {
+            TransactionIsolationLevel::READ_UNCOMMITTED => '0',
+            TransactionIsolationLevel::READ_COMMITTED,
+            TransactionIsolationLevel::REPEATABLE_READ,
+            TransactionIsolationLevel::SERIALIZABLE => '1',
+            default => parent::_getTransactionIsolationLevelSQL($level),
+        };
     }
 
     public function getSetTransactionIsolationSQL(int $level): string

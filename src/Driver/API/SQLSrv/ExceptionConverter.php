@@ -28,42 +28,22 @@ final class ExceptionConverter implements ExceptionConverterInterface
 {
     public function convert(Exception $exception, ?Query $query): DriverException
     {
-        switch ($exception->getCode()) {
-            case 102:
-                return new SyntaxErrorException($exception, $query);
-
-            case 207:
-                return new InvalidFieldNameException($exception, $query);
-
-            case 208:
-                return new TableNotFoundException($exception, $query);
-
-            case 209:
-                return new NonUniqueFieldNameException($exception, $query);
-
-            case 515:
-                return new NotNullConstraintViolationException($exception, $query);
-
-            case 547:
-            case 4712:
-                return new ForeignKeyConstraintViolationException($exception, $query);
-
-            case 2601:
-            case 2627:
-                return new UniqueConstraintViolationException($exception, $query);
-
-            case 2714:
-                return new TableExistsException($exception, $query);
-
-            case 3701:
-            case 15151:
-                return new DatabaseObjectNotFoundException($exception, $query);
-
-            case 11001:
-            case 18456:
-                return new ConnectionException($exception, $query);
-        }
-
-        return new DriverException($exception, $query);
+        return match ($exception->getCode()) {
+            102 => new SyntaxErrorException($exception, $query),
+            207 => new InvalidFieldNameException($exception, $query),
+            208 => new TableNotFoundException($exception, $query),
+            209 => new NonUniqueFieldNameException($exception, $query),
+            515 => new NotNullConstraintViolationException($exception, $query),
+            547,
+            4712 => new ForeignKeyConstraintViolationException($exception, $query),
+            2601,
+            2627 => new UniqueConstraintViolationException($exception, $query),
+            2714 => new TableExistsException($exception, $query),
+            3701,
+            15151 => new DatabaseObjectNotFoundException($exception, $query),
+            11001,
+            18456 => new ConnectionException($exception, $query),
+            default => new DriverException($exception, $query),
+        };
     }
 }

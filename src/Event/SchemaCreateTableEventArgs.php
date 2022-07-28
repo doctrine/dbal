@@ -15,16 +15,6 @@ use function array_values;
  */
 class SchemaCreateTableEventArgs extends SchemaEventArgs
 {
-    private Table $table;
-
-    /** @var array<int, array<string, mixed>> */
-    private array $columns;
-
-    /** @var array<string, mixed> */
-    private array $options;
-
-    private AbstractPlatform $platform;
-
     /** @var array<int, string> */
     private array $sql = [];
 
@@ -32,12 +22,12 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
      * @param array<int, array<string, mixed>> $columns
      * @param array<string, mixed>             $options
      */
-    public function __construct(Table $table, array $columns, array $options, AbstractPlatform $platform)
-    {
-        $this->table    = $table;
-        $this->columns  = $columns;
-        $this->options  = $options;
-        $this->platform = $platform;
+    public function __construct(
+        private Table $table,
+        private array $columns,
+        private array $options,
+        private AbstractPlatform $platform
+    ) {
     }
 
     public function getTable(): Table

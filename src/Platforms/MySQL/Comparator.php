@@ -20,26 +20,16 @@ use function array_diff_assoc;
  */
 class Comparator extends BaseComparator
 {
-    private CharsetMetadataProvider $charsetMetadataProvider;
-
-    private CollationMetadataProvider $collationMetadataProvider;
-
-    private DefaultTableOptions $defaultTableOptions;
-
     /**
      * @internal The comparator can be only instantiated by a schema manager.
      */
     public function __construct(
         AbstractMySQLPlatform $platform,
-        CharsetMetadataProvider $charsetMetadataProvider,
-        CollationMetadataProvider $collationMetadataProvider,
-        DefaultTableOptions $defaultTableOptions
+        private CharsetMetadataProvider $charsetMetadataProvider,
+        private CollationMetadataProvider $collationMetadataProvider,
+        private DefaultTableOptions $defaultTableOptions
     ) {
         parent::__construct($platform);
-
-        $this->charsetMetadataProvider   = $charsetMetadataProvider;
-        $this->collationMetadataProvider = $collationMetadataProvider;
-        $this->defaultTableOptions       = $defaultTableOptions;
     }
 
     public function diffTable(Table $fromTable, Table $toTable): ?TableDiff

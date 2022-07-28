@@ -16,18 +16,14 @@ use function reset;
  */
 final class ArrayResult implements Result
 {
-    /** @var list<array<string, mixed>> */
-    private array $data;
-
     private int $columnCount = 0;
     private int $num         = 0;
 
     /**
      * @param list<array<string, mixed>> $data
      */
-    public function __construct(array $data)
+    public function __construct(private array $data)
     {
-        $this->data = $data;
         if (count($data) === 0) {
             return;
         }

@@ -16,11 +16,6 @@ use function is_string;
 class Statement
 {
     /**
-     * The SQL statement.
-     */
-    protected string $sql;
-
-    /**
      * The bound parameters.
      *
      * @var mixed[]
@@ -35,36 +30,26 @@ class Statement
     protected array $types = [];
 
     /**
-     * The underlying driver statement.
-     */
-    protected Driver\Statement $stmt;
-
-    /**
      * The underlying database platform.
      */
     protected AbstractPlatform $platform;
-
-    /**
-     * The connection this statement is bound to and executed on.
-     */
-    protected Connection $conn;
 
     /**
      * Creates a new <tt>Statement</tt> for the given SQL and <tt>Connection</tt>.
      *
      * @internal The statement can be only instantiated by {@see Connection}.
      *
-     * @param Connection       $conn      The connection for handling statement errors.
-     * @param Driver\Statement $statement The underlying driver-level statement.
-     * @param string           $sql       The SQL of the statement.
+     * @param Connection       $conn The connection for handling statement errors.
+     * @param Driver\Statement $stmt The underlying driver-level statement.
+     * @param string           $sql  The SQL of the statement.
      *
      * @throws Exception
      */
-    public function __construct(Connection $conn, Driver\Statement $statement, string $sql)
-    {
-        $this->conn     = $conn;
-        $this->stmt     = $statement;
-        $this->sql      = $sql;
+    public function __construct(
+        protected Connection $conn,
+        protected Driver\Statement $stmt,
+        protected string $sql
+    ) {
         $this->platform = $conn->getDatabasePlatform();
     }
 

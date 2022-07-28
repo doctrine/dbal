@@ -16,18 +16,11 @@ use function array_values;
  */
 class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 {
-    private Column $column;
-    private Table $table;
-    private AbstractPlatform $platform;
-
     /** @var array<int, string> */
     private array $sql = [];
 
-    public function __construct(Column $column, Table $table, AbstractPlatform $platform)
+    public function __construct(private Column $column, private Table $table, private AbstractPlatform $platform)
     {
-        $this->column   = $column;
-        $this->table    = $table;
-        $this->platform = $platform;
     }
 
     public function getColumn(): Column

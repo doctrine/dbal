@@ -17,8 +17,6 @@ use function array_values;
  */
 class SchemaDiff
 {
-    public ?Schema $fromSchema = null;
-
     /**
      * All added namespaces.
      *
@@ -32,27 +30,6 @@ class SchemaDiff
      * @var array<string, string>
      */
     public array $removedNamespaces = [];
-
-    /**
-     * All added tables.
-     *
-     * @var array<string, Table>
-     */
-    public array $newTables = [];
-
-    /**
-     * All changed tables.
-     *
-     * @var array<string, TableDiff>
-     */
-    public array $changedTables = [];
-
-    /**
-     * All removed tables.
-     *
-     * @var array<string, Table>
-     */
-    public array $removedTables = [];
 
     /** @var array<int, Sequence> */
     public array $newSequences = [];
@@ -78,15 +55,11 @@ class SchemaDiff
      * @param array<string, Table>     $removedTables
      */
     public function __construct(
-        array $newTables = [],
-        array $changedTables = [],
-        array $removedTables = [],
-        ?Schema $fromSchema = null
+        public array $newTables = [],
+        public array $changedTables = [],
+        public array $removedTables = [],
+        public ?Schema $fromSchema = null
     ) {
-        $this->newTables     = $newTables;
-        $this->changedTables = $changedTables;
-        $this->removedTables = $removedTables;
-        $this->fromSchema    = $fromSchema;
     }
 
     /**

@@ -15,27 +15,14 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     private ?Column $column = null;
 
     /**
-     * Raw column data as fetched from the database.
-     *
-     * @var array<string, mixed>
-     */
-    private array $tableColumn;
-
-    private string $table;
-
-    private string $database;
-
-    private Connection $connection;
-
-    /**
      * @param array<string, mixed> $tableColumn
      */
-    public function __construct(array $tableColumn, string $table, string $database, Connection $connection)
-    {
-        $this->tableColumn = $tableColumn;
-        $this->table       = $table;
-        $this->database    = $database;
-        $this->connection  = $connection;
+    public function __construct(
+        private array $tableColumn,
+        private string $table,
+        private string $database,
+        private Connection $connection
+    ) {
     }
 
     /**

@@ -34,7 +34,7 @@ class ConnectionLostTest extends FunctionalTestCase
             // in addition to the error, MYSQLI_REPORT_OFF will generate a warning that needs to be
             // suppressed in order to not let PHPUnit handle it before the actual error
             @$this->connection->executeQuery($query);
-        } catch (ConnectionLost $e) {
+        } catch (ConnectionLost) {
             self::assertEquals(1, $this->connection->fetchOne($query));
 
             return;

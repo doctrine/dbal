@@ -14,11 +14,8 @@ use Doctrine\DBAL\Exception;
  */
 class SQLSessionInit implements EventSubscriber
 {
-    protected string $sql;
-
-    public function __construct(string $sql)
+    public function __construct(protected string $sql)
     {
-        $this->sql = $sql;
     }
 
     /**

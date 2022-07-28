@@ -86,7 +86,7 @@ abstract class FunctionalTestCase extends TestCase
 
         try {
             $schemaManager->dropTable($name);
-        } catch (DatabaseObjectNotFoundException $e) {
+        } catch (DatabaseObjectNotFoundException) {
         }
     }
 

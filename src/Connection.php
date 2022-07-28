@@ -115,11 +115,6 @@ class Connection implements ServerVersionProvider
     private ?Parser $parser                         = null;
 
     /**
-     * The used DBAL driver.
-     */
-    protected Driver $_driver;
-
-    /**
      * Flag that indicates whether the current transaction is marked for rollback only.
      */
     private bool $isRollbackOnly = false;
@@ -140,19 +135,12 @@ class Connection implements ServerVersionProvider
      */
     public function __construct(
         array $params,
-        Driver $driver,
+        protected Driver $driver,
         ?Configuration $config = null,
         ?EventManager $eventManager = null
     ) {
-        $this->_driver = $driver;
-        $this->params  = $params;
-
-        // Create default config and event manager if none given
-        $config       ??= new Configuration();
-        $eventManager ??= new EventManager();
-
-        $this->_config       = $config;
-        $this->_eventManager = $eventManager;
+        $this->_config       = $config ?? new Configuration();
+        $this->_eventManager = $eventManager ?? new EventManager();
 
         if (isset($params['platform'])) {
             if (! $params['platform'] instanceof Platforms\AbstractPlatform) {
@@ -163,7 +151,8 @@ class Connection implements ServerVersionProvider
             $this->platform->setEventManager($this->_eventManager);
         }
 
-        $this->autoCommit = $config->getAutoCommit();
+        $this->params     = $params;
+        $this->autoCommit = $this->_config->getAutoCommit();
     }
 
     /**
@@ -204,7 +193,7 @@ class Connection implements ServerVersionProvider
      */
     public function getDriver(): Driver
     {
-        return $this->_driver;
+        return $this->driver;
     }
 
     /**
@@ -237,7 +226,7 @@ class Connection implements ServerVersionProvider
                 $versionProvider = new StaticServerVersionProvider($this->params['serverVersion']);
             }
 
-            $this->platform = $this->_driver->getDatabasePlatform($versionProvider);
+            $this->platform = $this->driver->getDatabasePlatform($versionProvider);
             $this->platform->setEventManager($this->_eventManager);
         }
 
@@ -264,7 +253,7 @@ class Connection implements ServerVersionProvider
         }
 
         try {
-            $connection = $this->_conn = $this->_driver->connect($this->params);
+            $connection = $this->_conn = $this->driver->connect($this->params);
         } catch (Driver\Exception $e) {
             throw $this->convertException($e);
         }
@@ -319,7 +308,7 @@ class Connection implements ServerVersionProvider
 
             try {
                 return $this->connect();
-            } catch (Exception $_) {
+            } catch (Exception) {
                 // Either the platform does not support database-less connections
                 // or something else went wrong.
                 throw $e;
@@ -401,7 +390,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function fetchNumeric(string $query, array $params = [], array $types = [])
+    public function fetchNumeric(string $query, array $params = [], array $types = []): array|false
     {
         return $this->executeQuery($query, $params, $types)->fetchNumeric();
     }
@@ -1056,8 +1045,6 @@ class Connection implements ServerVersionProvider
      * Gets if nested transactions should use savepoints.
      *
      * @deprecated No replacement planned
-     *
-     * @return true
      */
     public function getNestTransactionsWithSavepoints(): bool
     {
@@ -1474,7 +1461,7 @@ class Connection implements ServerVersionProvider
         Driver\Exception $driverException,
         ?Query $query
     ): DriverException {
-        $this->exceptionConverter ??= $this->_driver->getExceptionConverter();
+        $this->exceptionConverter ??= $this->driver->getExceptionConverter();
         $exception                  = $this->exceptionConverter->convert($driverException, $query);
 
         if ($exception instanceof ConnectionLost) {

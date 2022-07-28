@@ -9,14 +9,8 @@ use Doctrine\DBAL\Driver\Middleware as MiddlewareInterface;
 
 final class Middleware implements MiddlewareInterface
 {
-    private int $mode;
-
-    private int $case;
-
-    public function __construct(int $mode, int $case)
+    public function __construct(private int $mode, private int $case)
     {
-        $this->mode = $mode;
-        $this->case = $case;
     }
 
     public function wrap(DriverInterface $driver): DriverInterface

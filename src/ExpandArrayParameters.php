@@ -17,12 +17,6 @@ use function substr;
 
 final class ExpandArrayParameters implements Visitor
 {
-    /** @var array<int,mixed>|array<string,mixed> */
-    private array $originalParameters;
-
-    /** @var array<int,Type|int|string|null>|array<string,Type|int|string|null> */
-    private array $originalTypes;
-
     private int $originalParameterIndex = 0;
 
     /** @var list<string> */
@@ -35,13 +29,11 @@ final class ExpandArrayParameters implements Visitor
     private array $convertedTypes = [];
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                             $parameters
-     * @param array<int,Type|int|string|null>|array<string,Type|int|string|null> $types
+     * @param array<int, mixed>|array<string, mixed>                             $originalParameters
+     * @param array<int,Type|int|string|null>|array<string,Type|int|string|null> $originalTypes
      */
-    public function __construct(array $parameters, array $types)
+    public function __construct(private array $originalParameters, private array $originalTypes)
     {
-        $this->originalParameters = $parameters;
-        $this->originalTypes      = $types;
     }
 
     public function acceptPositionalParameter(string $sql): void

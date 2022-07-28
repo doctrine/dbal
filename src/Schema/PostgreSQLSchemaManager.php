@@ -20,8 +20,8 @@ use function in_array;
 use function is_string;
 use function preg_match;
 use function sprintf;
+use function str_contains;
 use function str_replace;
-use function strpos;
 use function strtolower;
 use function trim;
 
@@ -41,7 +41,7 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
      */
     public function listSchemaNames(): array
     {
-        return $this->_conn->fetchFirstColumn(
+        return $this->connection->fetchFirstColumn(
             <<<'SQL'
 SELECT schema_name
 FROM   information_schema.schemata
@@ -77,7 +77,7 @@ SQL
      */
     protected function determineCurrentSchema(): string
     {
-        $currentSchema = $this->_conn->fetchOne('SELECT current_schema()');
+        $currentSchema = $this->connection->fetchOne('SELECT current_schema()');
         assert(is_string($currentSchema));
 
         return $currentSchema;
@@ -167,7 +167,7 @@ SQL
                 implode(' ,', $colNumbers)
             );
 
-            $indexColumns = $this->_conn->fetchAllAssociative($columnNameSql);
+            $indexColumns = $this->connection->fetchAllAssociative($columnNameSql);
 
             // required for getting the order of the columns right.
             foreach ($colNumbers as $colNum) {
@@ -262,13 +262,13 @@ SQL
         if (
             $tableColumn['domain_type'] !== null
             && $tableColumn['domain_type'] !== ''
-            && ! $this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])
+            && ! $this->platform->hasDoctrineTypeMappingFor($tableColumn['type'])
         ) {
             $dbType                       = strtolower($tableColumn['domain_type']);
             $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
         }
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->platform->getDoctrineTypeMapping($dbType);
 
         switch ($dbType) {
             case 'smallint':
@@ -402,7 +402,7 @@ WHERE table_catalog = ?
   AND table_type = 'BASE TABLE'
 SQL;
 
-        return $this->_conn->executeQuery($sql, [$databaseName]);
+        return $this->connection->executeQuery($sql, [$databaseName]);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
@@ -451,7 +451,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY a.attnum';
 
-        return $this->_conn->executeQuery($sql);
+        return $this->connection->executeQuery($sql);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
@@ -482,7 +482,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ') AND pg_index.indexrelid = oid';
 
-        return $this->_conn->executeQuery($sql);
+        return $this->connection->executeQuery($sql);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
@@ -506,7 +506,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ") AND r.contype = 'f'";
 
-        return $this->_conn->executeQuery($sql);
+        return $this->connection->executeQuery($sql);
     }
 
     /**
@@ -526,7 +526,7 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
-        return $this->_conn->fetchAllAssociativeIndexed($sql);
+        return $this->connection->fetchAllAssociativeIndexed($sql);
     }
 
     /**
@@ -538,16 +538,16 @@ SQL;
         $schemaName = null;
 
         if ($tableName !== null) {
-            if (strpos($tableName, '.') !== false) {
+            if (str_contains($tableName, '.')) {
                 [$schemaName, $tableName] = explode('.', $tableName);
             }
 
             $identifier   = new Identifier($tableName);
-            $conditions[] = 'c.relname = ' . $this->_platform->quoteStringLiteral($identifier->getName());
+            $conditions[] = 'c.relname = ' . $this->platform->quoteStringLiteral($identifier->getName());
         }
 
         if ($schemaName !== null) {
-            $conditions[] = 'n.nspname = ' . $this->_platform->quoteStringLiteral($schemaName);
+            $conditions[] = 'n.nspname = ' . $this->platform->quoteStringLiteral($schemaName);
         } else {
             $conditions[] = 'n.nspname = ANY(current_schemas(false))';
             $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";

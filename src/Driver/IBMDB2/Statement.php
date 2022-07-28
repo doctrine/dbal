@@ -30,9 +30,6 @@ use const DB2_PARAM_IN;
 
 final class Statement implements StatementInterface
 {
-    /** @var resource */
-    private $stmt;
-
     /** @var mixed[] */
     private array $parameters = [];
 
@@ -49,9 +46,8 @@ final class Statement implements StatementInterface
      *
      * @param resource $stmt
      */
-    public function __construct($stmt)
+    public function __construct(private $stmt)
     {
-        $this->stmt = $stmt;
     }
 
     public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void

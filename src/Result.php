@@ -15,16 +15,11 @@ use function func_num_args;
 
 class Result
 {
-    private DriverResult $result;
-    private Connection $connection;
-
     /**
      * @internal The result can be only instantiated by {@see Connection} or {@see Statement}.
      */
-    public function __construct(DriverResult $result, Connection $connection)
+    public function __construct(private DriverResult $result, private Connection $connection)
     {
-        $this->result     = $result;
-        $this->connection = $connection;
     }
 
     /**
@@ -34,7 +29,7 @@ class Result
      *
      * @throws Exception
      */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         try {
             return $this->result->fetchNumeric();

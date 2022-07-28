@@ -16,18 +16,14 @@ use function array_values;
  */
 class SchemaAlterTableRemoveColumnEventArgs extends SchemaEventArgs
 {
-    private Column $column;
-    private TableDiff $tableDiff;
-    private AbstractPlatform $platform;
-
     /** @var array<int, string> */
     private array $sql = [];
 
-    public function __construct(Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
-    {
-        $this->column    = $column;
-        $this->tableDiff = $tableDiff;
-        $this->platform  = $platform;
+    public function __construct(
+        private Column $column,
+        private TableDiff $tableDiff,
+        private AbstractPlatform $platform
+    ) {
     }
 
     public function getColumn(): Column

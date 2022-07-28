@@ -135,7 +135,7 @@ class TestUtil
 
             try {
                 $sm->dropDatabase($dbname);
-            } catch (DatabaseObjectNotFoundException $e) {
+            } catch (DatabaseObjectNotFoundException) {
             }
 
             $sm->createDatabase($dbname);

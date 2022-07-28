@@ -25,18 +25,6 @@ use const SQLSRV_PARAM_IN;
 final class Statement implements StatementInterface
 {
     /**
-     * The SQLSRV Resource.
-     *
-     * @var resource
-     */
-    private $conn;
-
-    /**
-     * The SQL statement to execute.
-     */
-    private string $sql;
-
-    /**
      * The SQLSRV statement resource.
      *
      * @var resource|null
@@ -67,11 +55,10 @@ final class Statement implements StatementInterface
      *
      * @param resource $conn
      */
-    public function __construct($conn, string $sql)
-    {
-        $this->conn = $conn;
-        $this->sql  = $sql;
-
+    public function __construct(
+        private $conn,
+        private string $sql
+    ) {
         if (stripos($sql, 'INSERT INTO ') !== 0) {
             return;
         }

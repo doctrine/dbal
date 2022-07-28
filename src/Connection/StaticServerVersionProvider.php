@@ -8,11 +8,8 @@ use Doctrine\DBAL\ServerVersionProvider;
 
 class StaticServerVersionProvider implements ServerVersionProvider
 {
-    private string $version;
-
-    public function __construct(string $version)
+    public function __construct(private string $version)
     {
-        $this->version = $version;
     }
 
     public function getServerVersion(): string

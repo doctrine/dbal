@@ -11,14 +11,11 @@ use PDOStatement;
 
 final class Result implements ResultInterface
 {
-    private PDOStatement $statement;
-
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
      */
-    public function __construct(PDOStatement $statement)
+    public function __construct(private PDOStatement $statement)
     {
-        $this->statement = $statement;
     }
 
     public function fetchNumeric(): array|false

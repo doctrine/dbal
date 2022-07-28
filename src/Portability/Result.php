@@ -9,16 +9,12 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 
 final class Result extends AbstractResultMiddleware
 {
-    private Converter $converter;
-
     /**
      * @internal The result can be only instantiated by the portability connection or statement.
      */
-    public function __construct(ResultInterface $result, Converter $converter)
+    public function __construct(ResultInterface $result, private Converter $converter)
     {
         parent::__construct($result);
-
-        $this->converter = $converter;
     }
 
     public function fetchNumeric(): array|false

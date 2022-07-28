@@ -12,14 +12,8 @@ use function sprintf;
 
 class SingleConnectionProvider implements ConnectionProvider
 {
-    private Connection $connection;
-
-    private string $defaultConnectionName;
-
-    public function __construct(Connection $connection, string $defaultConnectionName = 'default')
+    public function __construct(private Connection $connection, private string $defaultConnectionName = 'default')
     {
-        $this->connection            = $connection;
-        $this->defaultConnectionName = $defaultConnectionName;
     }
 
     public function getDefaultConnection(): Connection

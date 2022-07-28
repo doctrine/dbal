@@ -8,11 +8,8 @@ use Doctrine\DBAL\Driver\Result;
 
 abstract class AbstractResultMiddleware implements Result
 {
-    private Result $wrappedResult;
-
-    public function __construct(Result $result)
+    public function __construct(private Result $wrappedResult)
     {
-        $this->wrappedResult = $result;
     }
 
     public function fetchNumeric(): array|false

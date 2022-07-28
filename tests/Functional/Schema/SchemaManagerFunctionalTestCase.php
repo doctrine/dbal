@@ -46,13 +46,11 @@ use function array_shift;
 use function array_values;
 use function count;
 use function current;
-use function get_class;
 use function get_debug_type;
 use function sprintf;
+use function str_starts_with;
 use function strcasecmp;
-use function strlen;
 use function strtolower;
-use function substr;
 
 abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 {
@@ -81,7 +79,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         try {
             //sql server versions below 2016 do not support 'IF EXISTS' so we have to catch the exception here
             $this->connection->executeStatement('DROP SCHEMA testschema');
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
     }
 
@@ -155,7 +153,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         try {
             $this->schemaManager->dropDatabase('test_create_database');
-        } catch (DatabaseObjectNotFoundException $e) {
+        } catch (DatabaseObjectNotFoundException) {
         }
 
         $this->schemaManager->createDatabase('test_create_database');
@@ -177,7 +175,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         try {
             $this->schemaManager->dropSchema('test_create_schema');
-        } catch (DatabaseObjectNotFoundException $e) {
+        } catch (DatabaseObjectNotFoundException) {
         }
 
         self::assertNotContains('test_create_schema', $this->schemaManager->listSchemaNames());
@@ -222,7 +220,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->connection->getConfiguration()->setSchemaAssetsFilter(
             static function (string $name) use ($prefix): bool {
-                return substr(strtolower($name), 0, strlen($prefix)) === $prefix;
+                return str_starts_with(strtolower($name), $prefix);
             }
         );
 
@@ -308,7 +306,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals('baz2', strtolower($columns['baz2']->getName()));
         self::assertEquals(5, array_search('baz2', $columnsKeys, true));
         self::assertContains(
-            get_class($columns['baz2']->getType()),
+            $columns['baz2']->getType()::class,
             [TimeType::class, DateType::class, DateTimeType::class]
         );
         self::assertEquals(true, $columns['baz2']->getNotnull());
@@ -317,7 +315,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals('baz3', strtolower($columns['baz3']->getName()));
         self::assertEquals(6, array_search('baz3', $columnsKeys, true));
         self::assertContains(
-            get_class($columns['baz3']->getType()),
+            $columns['baz3']->getType()::class,
             [TimeType::class, DateType::class, DateTimeType::class]
         );
         self::assertEquals(true, $columns['baz3']->getNotnull());
@@ -1170,7 +1168,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         try {
             $this->schemaManager->dropSequence($sequence->getName());
-        } catch (DatabaseObjectNotFoundException $e) {
+        } catch (DatabaseObjectNotFoundException) {
         }
 
         $this->schemaManager->createSequence($sequence);

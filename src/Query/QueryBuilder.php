@@ -14,7 +14,6 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_key_exists;
 use function array_keys;
@@ -50,11 +49,6 @@ class QueryBuilder
      */
     public const STATE_DIRTY = 0;
     public const STATE_CLEAN = 1;
-
-    /**
-     * The DBAL Connection.
-     */
-    private Connection $connection;
 
     /**
      * The complete SQL string for this query.
@@ -174,9 +168,8 @@ class QueryBuilder
      *
      * @param Connection $connection The DBAL Connection.
      */
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -370,24 +363,12 @@ class QueryBuilder
             return $this->sql;
         }
 
-        switch ($this->type) {
-            case self::INSERT:
-                $sql = $this->getSQLForInsert();
-                break;
-
-            case self::DELETE:
-                $sql = $this->getSQLForDelete();
-                break;
-
-            case self::UPDATE:
-                $sql = $this->getSQLForUpdate();
-                break;
-
-            case self::SELECT:
-            default:
-                $sql = $this->getSQLForSelect();
-                break;
-        }
+        $sql = match ($this->type) {
+            self::INSERT => $this->getSQLForInsert(),
+            self::DELETE => $this->getSQLForDelete(),
+            self::UPDATE => $this->getSQLForUpdate(),
+            default => $this->getSQLForSelect(),
+        };
 
         $this->state = self::STATE_CLEAN;
         $this->sql   = $sql;

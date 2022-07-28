@@ -14,35 +14,16 @@ use Doctrine\DBAL\Types\Type;
 final class Query
 {
     /**
-     * The SQL query.
-     */
-    private string $sql;
-
-    /**
-     * The parameters bound to the query.
-     *
-     * @var array<mixed>
-     */
-    private array $params;
-
-    /**
-     * The types of the parameters bound to the query.
-     *
-     * @var array<Type|int|string|null>
-     */
-    private array $types;
-
-    /**
      * @param array<mixed>                $params
      * @param array<Type|int|string|null> $types
      *
      * @psalm-suppress ImpurePropertyAssignment
      */
-    public function __construct(string $sql, array $params, array $types)
-    {
-        $this->sql    = $sql;
-        $this->params = $params;
-        $this->types  = $types;
+    public function __construct(
+        private string $sql,
+        private array $params,
+        private array $types
+    ) {
     }
 
     public function getSQL(): string

@@ -12,16 +12,12 @@ use Psr\Log\LoggerInterface;
 
 final class Connection extends AbstractConnectionMiddleware
 {
-    private LoggerInterface $logger;
-
     /**
      * @internal This connection can be only instantiated by its driver.
      */
-    public function __construct(ConnectionInterface $connection, LoggerInterface $logger)
+    public function __construct(ConnectionInterface $connection, private LoggerInterface $logger)
     {
         parent::__construct($connection);
-
-        $this->logger = $logger;
     }
 
     public function __destruct()

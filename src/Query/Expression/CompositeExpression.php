@@ -29,11 +29,6 @@ class CompositeExpression implements Countable
     public const TYPE_OR = 'OR';
 
     /**
-     * The instance type of composite expression.
-     */
-    private string $type;
-
-    /**
      * Each expression part of the composite expression.
      *
      * @var array<int, self|string>
@@ -43,9 +38,11 @@ class CompositeExpression implements Countable
     /**
      * @internal Use the and() / or() factory methods.
      */
-    public function __construct(string $type, self|string $part, self|string ...$parts)
-    {
-        $this->type  = $type;
+    public function __construct(
+        private string $type,
+        self|string $part,
+        self|string ...$parts
+    ) {
         $this->parts = array_merge([$part], array_values($parts));
     }
 

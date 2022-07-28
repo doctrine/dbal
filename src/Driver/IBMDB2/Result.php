@@ -17,17 +17,13 @@ use function db2_stmt_error;
 
 final class Result implements ResultInterface
 {
-    /** @var resource */
-    private $statement;
-
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
      *
      * @param resource $statement
      */
-    public function __construct($statement)
+    public function __construct(private $statement)
     {
-        $this->statement = $statement;
     }
 
     public function fetchNumeric(): array|false

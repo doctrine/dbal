@@ -14,7 +14,6 @@ use function array_map;
 use function array_unique;
 use function assert;
 use function count;
-use function get_class;
 use function strtolower;
 
 /**
@@ -22,14 +21,11 @@ use function strtolower;
  */
 class Comparator
 {
-    private AbstractPlatform $platform;
-
     /**
      * @internal The comparator can be only instantiated by a schema manager.
      */
-    public function __construct(AbstractPlatform $platform)
+    public function __construct(private AbstractPlatform $platform)
     {
-        $this->platform = $platform;
     }
 
     /**
@@ -440,7 +436,7 @@ class Comparator
 
         $changedProperties = [];
 
-        if (get_class($properties1['type']) !== get_class($properties2['type'])) {
+        if ($properties1['type']::class !== $properties2['type']::class) {
             $changedProperties[] = 'type';
         }
 
