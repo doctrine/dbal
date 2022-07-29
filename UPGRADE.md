@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed support for using NULL as prepared statement parameter type.
+
+The value of parameter type used in the wrapper layer (e.g. in `Connection::executeQuery()`
+or `Statement::bindValue()`) can no longer be `NULL`.
+
 ## BC BREAK: converted enum-like classes to enums
 
 The following classes have been converted to enums:

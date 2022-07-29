@@ -14,8 +14,8 @@ use Doctrine\DBAL\Types\Type;
 final class Query
 {
     /**
-     * @param array<mixed>                              $params
-     * @param array<int|string|ParameterType|Type|null> $types
+     * @param array<mixed>                         $params
+     * @param array<int|string|ParameterType|Type> $types
      *
      * @psalm-suppress ImpurePropertyAssignment
      */
@@ -40,7 +40,7 @@ final class Query
     }
 
     /**
-     * @return array<int|string|ParameterType|Type|null>
+     * @return array<int|string|ParameterType|Type>
      */
     public function getTypes(): array
     {

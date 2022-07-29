@@ -53,7 +53,7 @@ class QueryBuilder
     /**
      * The parameter type map of this query.
      *
-     * @var array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null>
+     * @var array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type>
      */
     private array $types = [];
 
@@ -353,29 +353,19 @@ class QueryBuilder
      *         ->setParameter('user_id', 1);
      * </code>
      *
-     * @param int|string                     $key   Parameter position or name
-     * @param mixed                          $value Parameter value
-     * @param string|ParameterType|Type|null $type  Parameter type
+     * @param int|string                $key   Parameter position or name
+     * @param mixed                     $value Parameter value
+     * @param string|ParameterType|Type $type  Parameter type
      *
      * @return $this This QueryBuilder instance.
      */
     public function setParameter(
         int|string $key,
         mixed $value,
-        string|ParameterType|Type|null $type = ParameterType::STRING
+        string|ParameterType|Type $type = ParameterType::STRING
     ): self {
-        if ($type !== null) {
-            $this->types[$key] = $type;
-        } else {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5550',
-                'Using NULL as prepared statement parameter type is deprecated.'
-                    . 'Omit or use Parameter::STRING instead'
-            );
-        }
-
         $this->params[$key] = $value;
+        $this->types[$key]  = $type;
 
         return $this;
     }
@@ -394,8 +384,8 @@ class QueryBuilder
      *         ));
      * </code>
      *
-     * @param list<mixed>|array<string, mixed>                                                                 $params
-     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
+     * @param list<mixed>|array<string, mixed>                                                       $params
+     * @param array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type> $types
      *
      * @return $this This QueryBuilder instance.
      */
@@ -432,7 +422,7 @@ class QueryBuilder
     /**
      * Gets all defined query parameter types for the query being constructed indexed by parameter index or name.
      *
-     * @return array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null>
+     * @return array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type>
      */
     public function getParameterTypes(): array
     {
@@ -446,7 +436,7 @@ class QueryBuilder
      *
      * @return int|string|ParameterType|Type The value of the bound parameter type
      */
-    public function getParameterType(int|string $key): int|string|ParameterType|Type|null
+    public function getParameterType(int|string $key): int|string|ParameterType|Type
     {
         return $this->types[$key] ?? ParameterType::STRING;
     }
@@ -1331,7 +1321,7 @@ class QueryBuilder
      */
     public function createNamedParameter(
         mixed $value,
-        string|ParameterType|Type|null $type = ParameterType::STRING,
+        string|ParameterType|Type $type = ParameterType::STRING,
         ?string $placeHolder = null
     ): string {
         if ($placeHolder === null) {
@@ -1363,7 +1353,7 @@ class QueryBuilder
      */
     public function createPositionalParameter(
         mixed $value,
-        string|ParameterType|Type|null $type = ParameterType::STRING
+        string|ParameterType|Type $type = ParameterType::STRING
     ): string {
         $this->setParameter($this->boundCounter, $value, $type);
         $this->boundCounter++;
