@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Marked `Connection::ARRAY_PARAM_OFFSET` as internal.
+
+The `Connection::ARRAY_PARAM_OFFSET` constant has been marked as internal. It will be removed in 4.0.
+
 ## Deprecated using NULL as prepared statement parameter type.
 
 Omit the type or use `Parameter::STRING` instead.

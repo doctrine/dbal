@@ -65,6 +65,8 @@ class Connection
 
     /**
      * Offset by which PARAM_* constants are detected as arrays of the param type.
+     *
+     * @internal Should be used only within the wrapper layer.
      */
     public const ARRAY_PARAM_OFFSET = 100;
 
