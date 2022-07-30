@@ -35,6 +35,7 @@ use InvalidArgumentException;
 use Throwable;
 use Traversable;
 
+use function array_key_exists;
 use function assert;
 use function count;
 use function implode;
@@ -69,6 +70,8 @@ class Connection implements ServerVersionProvider
 
     /**
      * Offset by which PARAM_* constants are detected as arrays of the param type.
+     *
+     * @internal Should be used only within the wrapper layer.
      */
     final public const ARRAY_PARAM_OFFSET = 100;
 
@@ -1338,6 +1341,15 @@ class Connection implements ServerVersionProvider
                     [$value, $bindingType] = $this->getBindingInfo($value, $type);
                     $stmt->bindValue($bindIndex, $value, $bindingType);
                 } else {
+                    if (array_key_exists($key, $types)) {
+                        Deprecation::trigger(
+                            'doctrine/dbal',
+                            'https://github.com/doctrine/dbal/pull/5550',
+                            'Using NULL as prepared statement parameter type is deprecated.'
+                                . 'Omit or use Parameter::STRING instead'
+                        );
+                    }
+
                     $stmt->bindValue($bindIndex, $value);
                 }
 
@@ -1351,6 +1363,15 @@ class Connection implements ServerVersionProvider
                     [$value, $bindingType] = $this->getBindingInfo($value, $type);
                     $stmt->bindValue($name, $value, $bindingType);
                 } else {
+                    if (array_key_exists($name, $types)) {
+                        Deprecation::trigger(
+                            'doctrine/dbal',
+                            'https://github.com/doctrine/dbal/pull/5550',
+                            'Using NULL as prepared statement parameter type is deprecated.'
+                                . 'Omit or use Parameter::STRING instead'
+                        );
+                    }
+
                     $stmt->bindValue($name, $value);
                 }
             }

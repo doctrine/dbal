@@ -14,6 +14,7 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_key_exists;
 use function array_keys;
@@ -36,18 +37,34 @@ use function substr;
  */
 class QueryBuilder
 {
-    /*
-     * The query types.
+    /**
+     * @deprecated
      */
     final public const SELECT = 0;
+
+    /**
+     * @deprecated
+     */
     final public const DELETE = 1;
+
+    /**
+     * @deprecated
+     */
     final public const UPDATE = 2;
+
+    /**
+     * @deprecated
+     */
     final public const INSERT = 3;
 
-    /*
-     * The builder states.
+    /**
+     * @deprecated
      */
     final public const STATE_DIRTY = 0;
+
+    /**
+     * @deprecated
+     */
     final public const STATE_CLEAN = 1;
 
     /**
@@ -193,9 +210,18 @@ class QueryBuilder
 
     /**
      * Gets the type of the currently built query.
+     *
+     * @deprecated If necessary, track the type of the query being built outside of the builder.
      */
     public function getType(): int
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5551',
+            'Relying on the type of the query being built is deprecated.'
+                . ' If necessary, track the type of the query being built outside of the builder.'
+        );
+
         return $this->type;
     }
 
@@ -210,10 +236,18 @@ class QueryBuilder
     /**
      * Gets the state of this query builder instance.
      *
+     * @deprecated The builder state is an internal concern.
+     *
      * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
      */
     public function getState(): int
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5551',
+            'Relying on the query builder state is deprecated as it is an internal concern.'
+        );
+
         return $this->state;
     }
 
@@ -393,10 +427,20 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function setParameter(int|string $key, mixed $value, int|string|Type|null $type = null): self
-    {
+    public function setParameter(
+        int|string $key,
+        mixed $value,
+        int|string|Type|null $type = ParameterType::STRING
+    ): self {
         if ($type !== null) {
             $this->paramTypes[$key] = $type;
+        } else {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5550',
+                'Using NULL as prepared statement parameter type is deprecated.'
+                    . 'Omit or use Parameter::STRING instead'
+            );
         }
 
         $this->params[$key] = $value;
@@ -469,11 +513,11 @@ class QueryBuilder
      *
      * @param int|string $key The key of the bound parameter type
      *
-     * @return int|string|Type|null The value of the bound parameter type
+     * @return int|string|Type The value of the bound parameter type
      */
     public function getParameterType(int|string $key): int|string|Type|null
     {
-        return $this->paramTypes[$key] ?? null;
+        return $this->paramTypes[$key] ?? ParameterType::STRING;
     }
 
     /**

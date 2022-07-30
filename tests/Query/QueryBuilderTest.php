@@ -797,16 +797,16 @@ class QueryBuilderTest extends TestCase
 
         $qb->select('*')->from('users');
 
-        self::assertNull($qb->getParameterType('name'));
+        self::assertSame(ParameterType::STRING, $qb->getParameterType('name'));
 
         $qb->where('name = :name');
         $qb->setParameter('name', 'foo');
 
-        self::assertNull($qb->getParameterType('name'));
-
-        $qb->setParameter('name', 'foo', ParameterType::STRING);
-
         self::assertSame(ParameterType::STRING, $qb->getParameterType('name'));
+
+        $qb->setParameter('name', 'foo', ParameterType::INTEGER);
+
+        self::assertSame(ParameterType::INTEGER, $qb->getParameterType('name'));
     }
 
     public function testGetParameterTypes(): void
@@ -820,9 +820,9 @@ class QueryBuilderTest extends TestCase
         $qb->where('name = :name');
         $qb->setParameter('name', 'foo');
 
-        self::assertSame([], $qb->getParameterTypes());
-
-        $qb->setParameter('name', 'foo', ParameterType::STRING);
+        self::assertSame([
+            'name' => ParameterType::STRING,
+        ], $qb->getParameterTypes());
 
         $qb->where('is_active = :isActive');
         $qb->setParameter('isActive', true, ParameterType::BOOLEAN);

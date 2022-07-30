@@ -791,6 +791,29 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+## Deprecated `QueryBuilder` methods and constants.
+
+1. The `QueryBuilder::getState()` method has been deprecated as the builder state is an internal concern.
+2. Relying on the type of the query being built is deprecated by using `QueryBuilder::getType()` has been deprecated.
+   If necessary, track the type of the query being built outside of the builder.
+
+The following `QueryBuilder` constants related to the above methods have been deprecated:
+
+1. `SELECT`,
+2. `DELETE`,
+3. `UPDATE`,
+4. `INSERT`,
+5. `STATE_DIRTY`,
+6. `STATE_CLEAN`.
+
+## Marked `Connection::ARRAY_PARAM_OFFSET` as internal.
+
+The `Connection::ARRAY_PARAM_OFFSET` constant has been marked as internal. It will be removed in 4.0.
+
+## Deprecated using NULL as prepared statement parameter type.
+
+Omit the type or use `Parameter::STRING` instead.
+
 ## Deprecated passing asset names as assets in `AbstractPlatform` and `AbstractSchemaManager` methods.
 
 Passing assets to the following `AbstractPlatform` methods and parameters has been deprecated:
