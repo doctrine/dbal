@@ -38,26 +38,6 @@ use function substr;
 class QueryBuilder
 {
     /**
-     * @deprecated
-     */
-    final public const SELECT = 0;
-
-    /**
-     * @deprecated
-     */
-    final public const DELETE = 1;
-
-    /**
-     * @deprecated
-     */
-    final public const UPDATE = 2;
-
-    /**
-     * @deprecated
-     */
-    final public const INSERT = 3;
-
-    /**
      * The complete SQL string for this query.
      */
     private ?string $sql = null;
@@ -79,7 +59,7 @@ class QueryBuilder
     /**
      * The type of query this is. Can be select, update or delete.
      */
-    private int $type = self::SELECT;
+    private QueryType $type = QueryType::SELECT;
 
     /**
      * The index of the first result to retrieve.
@@ -343,20 +323,12 @@ class QueryBuilder
      */
     public function getSQL(): string
     {
-        if ($this->sql !== null) {
-            return $this->sql;
-        }
-
-        $sql = match ($this->type) {
-            self::INSERT => $this->getSQLForInsert(),
-            self::DELETE => $this->getSQLForDelete(),
-            self::UPDATE => $this->getSQLForUpdate(),
-            default => $this->getSQLForSelect(),
+        return $this->sql ??= match ($this->type) {
+            QueryType::INSERT => $this->getSQLForInsert(),
+            QueryType::DELETE => $this->getSQLForDelete(),
+            QueryType::UPDATE => $this->getSQLForUpdate(),
+            QueryType::SELECT => $this->getSQLForSelect(),
         };
-
-        $this->sql = $sql;
-
-        return $sql;
     }
 
     /**
@@ -539,7 +511,7 @@ class QueryBuilder
      */
     public function select(string ...$expressions): self
     {
-        $this->type = self::SELECT;
+        $this->type = QueryType::SELECT;
 
         if (count($expressions) < 1) {
             return $this;
@@ -591,7 +563,7 @@ class QueryBuilder
      */
     public function addSelect(string $expression, string ...$expressions): self
     {
-        $this->type = self::SELECT;
+        $this->type = QueryType::SELECT;
 
         $this->select = array_merge($this->select, [$expression], $expressions);
 
@@ -617,7 +589,7 @@ class QueryBuilder
      */
     public function delete(string $table): self
     {
-        $this->type = self::DELETE;
+        $this->type = QueryType::DELETE;
 
         $this->table = $table;
 
@@ -643,7 +615,7 @@ class QueryBuilder
      */
     public function update(string $table): self
     {
-        $this->type = self::UPDATE;
+        $this->type = QueryType::UPDATE;
 
         $this->table = $table;
 
@@ -673,7 +645,7 @@ class QueryBuilder
      */
     public function insert(string $table): self
     {
-        $this->type = self::INSERT;
+        $this->type = QueryType::INSERT;
 
         $this->table = $table;
 

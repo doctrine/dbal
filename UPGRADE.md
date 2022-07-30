@@ -299,8 +299,12 @@ The following `QueryBuilder` methods have been removed:
 
 The following `QueryBuilder` constants have been removed:
 
-1. `STATE_DIRTY`,
-2. `STATE_CLEAN`.
+1. `SELECT`,
+2. `DELETE`,
+3. `UPDATE`,
+4. `INSERT`,
+5. `STATE_DIRTY`,
+6. `STATE_CLEAN`.
 
 ## BC BREAK: Removed the `Constraint` interface.
 
