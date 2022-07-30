@@ -400,10 +400,17 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function setParameter($key, $value, $type = null)
+    public function setParameter($key, $value, $type = ParameterType::STRING)
     {
         if ($type !== null) {
             $this->paramTypes[$key] = $type;
+        } else {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5550',
+                'Using NULL as prepared statement parameter type is deprecated.'
+                    . 'Omit or use Parameter::STRING instead'
+            );
         }
 
         $this->params[$key] = $value;
@@ -476,11 +483,11 @@ class QueryBuilder
      *
      * @param int|string $key The key of the bound parameter type
      *
-     * @return int|string|Type|null The value of the bound parameter type
+     * @return int|string|Type The value of the bound parameter type
      */
     public function getParameterType($key)
     {
-        return $this->paramTypes[$key] ?? null;
+        return $this->paramTypes[$key] ?? ParameterType::STRING;
     }
 
     /**

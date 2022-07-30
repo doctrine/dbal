@@ -28,6 +28,7 @@ use LogicException;
 use Throwable;
 use Traversable;
 
+use function array_key_exists;
 use function assert;
 use function count;
 use function get_class;
@@ -1677,6 +1678,15 @@ class Connection
                     [$value, $bindingType] = $this->getBindingInfo($value, $type);
                     $stmt->bindValue($bindIndex, $value, $bindingType);
                 } else {
+                    if (array_key_exists($key, $types)) {
+                        Deprecation::trigger(
+                            'doctrine/dbal',
+                            'https://github.com/doctrine/dbal/pull/5550',
+                            'Using NULL as prepared statement parameter type is deprecated.'
+                                . 'Omit or use Parameter::STRING instead'
+                        );
+                    }
+
                     $stmt->bindValue($bindIndex, $value);
                 }
 
@@ -1690,6 +1700,15 @@ class Connection
                     [$value, $bindingType] = $this->getBindingInfo($value, $type);
                     $stmt->bindValue($name, $value, $bindingType);
                 } else {
+                    if (array_key_exists($name, $types)) {
+                        Deprecation::trigger(
+                            'doctrine/dbal',
+                            'https://github.com/doctrine/dbal/pull/5550',
+                            'Using NULL as prepared statement parameter type is deprecated.'
+                                . 'Omit or use Parameter::STRING instead'
+                        );
+                    }
+
                     $stmt->bindValue($name, $value);
                 }
             }
