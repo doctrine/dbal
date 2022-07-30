@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated using NULL as prepared statement parameter type.
+
+Omit the type or use `Parameter::STRING` instead.
+
 ## Deprecated passing asset names as assets in `AbstractPlatform` and `AbstractSchemaManager` methods.
 
 Passing assets to the following `AbstractPlatform` methods and parameters has been deprecated:
