@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 
 use function array_merge;
 use function count;
@@ -195,7 +196,7 @@ class DB2Platform extends AbstractPlatform
      *
      * @throws Exception
      */
-    public function getSetTransactionIsolationSQL(int $level): string
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         throw NotSupported::new(__METHOD__);
     }

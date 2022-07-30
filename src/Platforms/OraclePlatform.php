@@ -174,18 +174,18 @@ class OraclePlatform extends AbstractPlatform
         return 'SELECT ' . $sequence . '.nextval FROM DUAL';
     }
 
-    public function getSetTransactionIsolationSQL(int $level): string
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    protected function _getTransactionIsolationLevelSQL(int $level): string
+    protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level): string
     {
         return match ($level) {
             TransactionIsolationLevel::READ_UNCOMMITTED => 'READ UNCOMMITTED',
             TransactionIsolationLevel::READ_COMMITTED => 'READ COMMITTED',
-            TransactionIsolationLevel::REPEATABLE_READ, TransactionIsolationLevel::SERIALIZABLE => 'SERIALIZABLE',
-            default => parent::_getTransactionIsolationLevelSQL($level),
+            TransactionIsolationLevel::REPEATABLE_READ,
+            TransactionIsolationLevel::SERIALIZABLE => 'SERIALIZABLE',
         };
     }
 

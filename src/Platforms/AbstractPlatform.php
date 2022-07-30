@@ -1973,17 +1973,14 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL for a given transaction isolation level Connection constant.
-     *
-     * @throws InvalidArgumentException
      */
-    protected function _getTransactionIsolationLevelSQL(int $level): string
+    protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level): string
     {
         return match ($level) {
             TransactionIsolationLevel::READ_UNCOMMITTED => 'READ UNCOMMITTED',
             TransactionIsolationLevel::READ_COMMITTED => 'READ COMMITTED',
             TransactionIsolationLevel::REPEATABLE_READ => 'REPEATABLE READ',
             TransactionIsolationLevel::SERIALIZABLE => 'SERIALIZABLE',
-            default => throw new InvalidArgumentException(sprintf('Invalid isolation level "%s".', $level)),
         };
     }
 
@@ -2049,7 +2046,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to set the transaction isolation level.
      */
-    abstract public function getSetTransactionIsolationSQL(int $level): string;
+    abstract public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string;
 
     /**
      * Obtains DBMS specific SQL to be used to create datetime columns in
@@ -2096,11 +2093,9 @@ abstract class AbstractPlatform
     /**
      * Gets the default transaction isolation level of the platform.
      *
-     * @see TransactionIsolationLevel
-     *
-     * @return TransactionIsolationLevel::* The default isolation level.
+     * @return TransactionIsolationLevel The default isolation level.
      */
-    public function getDefaultTransactionIsolationLevel(): int
+    public function getDefaultTransactionIsolationLevel(): TransactionIsolationLevel
     {
         return TransactionIsolationLevel::READ_COMMITTED;
     }

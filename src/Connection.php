@@ -96,10 +96,8 @@ class Connection implements ServerVersionProvider
 
     /**
      * The currently active transaction isolation level or NULL before it has been determined.
-     *
-     * @var TransactionIsolationLevel::*|null
      */
-    private ?int $transactionIsolationLevel = null;
+    private ?TransactionIsolationLevel $transactionIsolationLevel = null;
 
     /**
      * The parameters used during creation of the Connection instance.
@@ -501,11 +499,11 @@ class Connection implements ServerVersionProvider
     /**
      * Sets the transaction isolation level.
      *
-     * @param TransactionIsolationLevel::* $level The level to set.
+     * @param TransactionIsolationLevel $level The level to set.
      *
      * @throws Exception
      */
-    public function setTransactionIsolation(int $level): void
+    public function setTransactionIsolation(TransactionIsolationLevel $level): void
     {
         $this->transactionIsolationLevel = $level;
 
@@ -515,11 +513,11 @@ class Connection implements ServerVersionProvider
     /**
      * Gets the currently active transaction isolation level.
      *
-     * @return TransactionIsolationLevel::* The current transaction isolation level.
+     * @return TransactionIsolationLevel The current transaction isolation level.
      *
      * @throws Exception
      */
-    public function getTransactionIsolation(): int
+    public function getTransactionIsolation(): TransactionIsolationLevel
     {
         return $this->transactionIsolationLevel ??= $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
     }

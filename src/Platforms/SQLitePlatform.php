@@ -138,18 +138,17 @@ class SQLitePlatform extends AbstractPlatform
         return "''";
     }
 
-    protected function _getTransactionIsolationLevelSQL(int $level): string
+    protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level): string
     {
         return match ($level) {
             TransactionIsolationLevel::READ_UNCOMMITTED => '0',
             TransactionIsolationLevel::READ_COMMITTED,
             TransactionIsolationLevel::REPEATABLE_READ,
             TransactionIsolationLevel::SERIALIZABLE => '1',
-            default => parent::_getTransactionIsolationLevelSQL($level),
         };
     }
 
-    public function getSetTransactionIsolationSQL(int $level): string
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
     }
