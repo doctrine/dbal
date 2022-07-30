@@ -209,46 +209,11 @@ class QueryBuilder
     }
 
     /**
-     * Gets the type of the currently built query.
-     *
-     * @deprecated If necessary, track the type of the query being built outside of the builder.
-     */
-    public function getType(): int
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5551',
-            'Relying on the type of the query being built is deprecated.'
-                . ' If necessary, track the type of the query being built outside of the builder.'
-        );
-
-        return $this->type;
-    }
-
-    /**
      * Gets the associated DBAL Connection for this query builder.
      */
     public function getConnection(): Connection
     {
         return $this->connection;
-    }
-
-    /**
-     * Gets the state of this query builder instance.
-     *
-     * @deprecated The builder state is an internal concern.
-     *
-     * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
-     */
-    public function getState(): int
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5551',
-            'Relying on the query builder state is deprecated as it is an internal concern.'
-        );
-
-        return $this->state;
     }
 
     /**
