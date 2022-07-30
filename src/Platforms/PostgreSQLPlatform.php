@@ -94,14 +94,14 @@ class PostgreSQLPlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string {
         if ($unit === DateIntervalUnit::QUARTER) {
             $interval = $this->multiplyInterval($interval, 3);
             $unit     = DateIntervalUnit::MONTH;
         }
 
-        return '(' . $date . ' ' . $operator . ' (' . $interval . " || ' " . $unit . "')::interval)";
+        return '(' . $date . ' ' . $operator . ' (' . $interval . " || ' " . $unit->value . "')::interval)";
     }
 
     public function getDateDiffExpression(string $date1, string $date2): string

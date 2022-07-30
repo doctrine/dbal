@@ -99,7 +99,7 @@ class SQLitePlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string {
         switch ($unit) {
             case DateIntervalUnit::WEEK:
@@ -116,7 +116,7 @@ class SQLitePlatform extends AbstractPlatform
         return 'DATETIME(' . $date . ',' . $this->getConcatExpression(
             $this->quoteStringLiteral($operator),
             $interval,
-            $this->quoteStringLiteral(' ' . $unit)
+            $this->quoteStringLiteral(' ' . $unit->value)
         ) . ')';
     }
 

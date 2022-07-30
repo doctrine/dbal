@@ -85,11 +85,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string {
         $function = $operator === '+' ? 'DATE_ADD' : 'DATE_SUB';
 
-        return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit . ')';
+        return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit->value . ')';
     }
 
     public function getDateDiffExpression(string $date1, string $date2): string

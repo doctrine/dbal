@@ -133,7 +133,7 @@ class DB2Platform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string {
         switch ($unit) {
             case DateIntervalUnit::WEEK:
@@ -147,7 +147,7 @@ class DB2Platform extends AbstractPlatform
                 break;
         }
 
-        return $date . ' ' . $operator . ' ' . $interval . ' ' . $unit;
+        return $date . ' ' . $operator . ' ' . $interval . ' ' . $unit->value;
     }
 
     public function getDateDiffExpression(string $date1, string $date2): string

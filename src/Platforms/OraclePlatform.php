@@ -55,7 +55,7 @@ class OraclePlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string {
         switch ($unit) {
             case DateIntervalUnit::MONTH:

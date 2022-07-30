@@ -677,18 +677,18 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL for a date arithmetic expression.
      *
-     * @param string $date     SQL expression representing a date to perform the arithmetic operation on.
-     * @param string $operator The arithmetic operator (+ or -).
-     * @param string $interval SQL expression representing the value of the interval that shall be calculated
-     *                         into the date.
-     * @param string $unit     The unit of the interval that shall be calculated into the date.
+     * @param string           $date     SQL expression representing a date to perform the arithmetic operation on.
+     * @param string           $operator The arithmetic operator (+ or -).
+     * @param string           $interval SQL expression representing the value of the interval that shall be calculated
+     *                                   into the date.
+     * @param DateIntervalUnit $unit     The unit of the interval that shall be calculated into the date.
      *                         One of the DATE_INTERVAL_UNIT_* constants.
      */
     abstract protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string;
 
     /**

@@ -70,7 +70,7 @@ class SQLServerPlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string {
         $factorClause = '';
 
@@ -78,7 +78,7 @@ class SQLServerPlatform extends AbstractPlatform
             $factorClause = '-1 * ';
         }
 
-        return 'DATEADD(' . $unit . ', ' . $factorClause . $interval . ', ' . $date . ')';
+        return 'DATEADD(' . $unit->value . ', ' . $factorClause . $interval . ', ' . $date . ')';
     }
 
     public function getDateDiffExpression(string $date1, string $date2): string
