@@ -58,16 +58,6 @@ class QueryBuilder
     final public const INSERT = 3;
 
     /**
-     * @deprecated
-     */
-    final public const STATE_DIRTY = 0;
-
-    /**
-     * @deprecated
-     */
-    final public const STATE_CLEAN = 1;
-
-    /**
      * The complete SQL string for this query.
      */
     private ?string $sql = null;
@@ -90,11 +80,6 @@ class QueryBuilder
      * The type of query this is. Can be select, update or delete.
      */
     private int $type = self::SELECT;
-
-    /**
-     * The state of the query object. Can be dirty or clean.
-     */
-    private int $state = self::STATE_CLEAN;
 
     /**
      * The index of the first result to retrieve.
@@ -358,7 +343,7 @@ class QueryBuilder
      */
     public function getSQL(): string
     {
-        if ($this->sql !== null && $this->state === self::STATE_CLEAN) {
+        if ($this->sql !== null) {
             return $this->sql;
         }
 
@@ -369,8 +354,7 @@ class QueryBuilder
             default => $this->getSQLForSelect(),
         };
 
-        $this->state = self::STATE_CLEAN;
-        $this->sql   = $sql;
+        $this->sql = $sql;
 
         return $sql;
     }
@@ -494,8 +478,9 @@ class QueryBuilder
      */
     public function setFirstResult(int $firstResult): self
     {
-        $this->state       = self::STATE_DIRTY;
         $this->firstResult = $firstResult;
+
+        $this->sql = null;
 
         return $this;
     }
@@ -519,8 +504,9 @@ class QueryBuilder
      */
     public function setMaxResults(?int $maxResults): self
     {
-        $this->state      = self::STATE_DIRTY;
         $this->maxResults = $maxResults;
+
+        $this->sql = null;
 
         return $this;
     }
@@ -561,7 +547,7 @@ class QueryBuilder
 
         $this->select = $expressions;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -582,7 +568,7 @@ class QueryBuilder
     {
         $this->distinct = true;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -609,7 +595,7 @@ class QueryBuilder
 
         $this->select = array_merge($this->select, [$expression], $expressions);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -635,7 +621,7 @@ class QueryBuilder
 
         $this->table = $table;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -661,7 +647,7 @@ class QueryBuilder
 
         $this->table = $table;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -691,7 +677,7 @@ class QueryBuilder
 
         $this->table = $table;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -715,7 +701,7 @@ class QueryBuilder
     {
         $this->from[] = new From($table, $alias);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -763,7 +749,7 @@ class QueryBuilder
     {
         $this->join[$fromAlias][] = Join::inner($join, $alias, $condition);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -789,7 +775,7 @@ class QueryBuilder
     {
         $this->join[$fromAlias][] = Join::left($join, $alias, $condition);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -815,7 +801,7 @@ class QueryBuilder
     {
         $this->join[$fromAlias][] = Join::right($join, $alias, $condition);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -839,7 +825,7 @@ class QueryBuilder
     {
         $this->set[] = $key . ' = ' . $value;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -875,7 +861,7 @@ class QueryBuilder
     {
         $this->where = $this->createPredicate($predicate, ...$predicates);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -908,7 +894,7 @@ class QueryBuilder
             ...$predicates
         );
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -936,7 +922,7 @@ class QueryBuilder
     {
         $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -961,7 +947,7 @@ class QueryBuilder
     {
         $this->groupBy = array_merge([$expression], $expressions);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -986,7 +972,7 @@ class QueryBuilder
     {
         $this->groupBy = array_merge($this->groupBy, [$expression], $expressions);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1040,7 +1026,7 @@ class QueryBuilder
     {
         $this->values = $values;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1058,7 +1044,7 @@ class QueryBuilder
     {
         $this->having = $this->createPredicate($predicate, ...$predicates);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1081,7 +1067,7 @@ class QueryBuilder
             ...$predicates
         );
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1104,7 +1090,7 @@ class QueryBuilder
             ...$predicates
         );
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1163,7 +1149,7 @@ class QueryBuilder
 
         $this->orderBy = [$orderBy];
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1186,7 +1172,7 @@ class QueryBuilder
 
         $this->orderBy[] = $orderBy;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
