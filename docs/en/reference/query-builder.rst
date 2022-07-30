@@ -369,3 +369,25 @@ in your query as a return value:
         ->where('email = ' .  $queryBuilder->createPositionalParameter($userInputEmail))
     ;
     // SELECT id, name FROM users WHERE email = ?
+
+Caching
+-------
+
+To use the result cache, it is necessary to call the method
+``enableResultCache($cacheProfile)`` and pass a instance of
+``Doctrine\DBAL\Cache\QueryCacheProfile`` with a cache lifetime
+value in seconds. A cache key can optionally be added if needed.
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->select('id', 'name')
+        ->from('users')
+        ->enableResultCache(new QueryCacheProfile(300, 'some-key'))
+    ;
+
+.. note::
+
+    See the :ref:`Caching <caching>` section for more information.
