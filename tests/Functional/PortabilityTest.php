@@ -52,7 +52,7 @@ class PortabilityTest extends FunctionalTestCase
      *
      * @dataProvider caseProvider
      */
-    public function testCaseConversion(int $case, array $expected): void
+    public function testCaseConversion(ColumnCase $case, array $expected): void
     {
         $this->connectWithPortability(Connection::PORTABILITY_FIX_CASE, $case);
         $this->createTable();
@@ -64,7 +64,7 @@ class PortabilityTest extends FunctionalTestCase
     }
 
     /**
-     * @return iterable<string, array{int, list<string>}>
+     * @return iterable<string, array{ColumnCase, list<string>}>
      */
     public static function caseProvider(): iterable
     {
@@ -106,7 +106,7 @@ class PortabilityTest extends FunctionalTestCase
      */
     public function testFetchColumn(string $column, array $expected): void
     {
-        $this->connectWithPortability(Connection::PORTABILITY_RTRIM, 0);
+        $this->connectWithPortability(Connection::PORTABILITY_RTRIM, null);
         $this->createTable();
 
         $result = $this->connection->executeQuery('SELECT ' . $column . ' FROM portability_table');
@@ -133,7 +133,7 @@ class PortabilityTest extends FunctionalTestCase
 
     public function testFetchAllNullColumn(): void
     {
-        $this->connectWithPortability(Connection::PORTABILITY_EMPTY_TO_NULL, 0);
+        $this->connectWithPortability(Connection::PORTABILITY_EMPTY_TO_NULL, null);
         $this->createTable();
 
         $column = $this->connection->fetchFirstColumn('SELECT Test_Null FROM portability_table');
@@ -141,7 +141,7 @@ class PortabilityTest extends FunctionalTestCase
         self::assertSame([null, null], $column);
     }
 
-    private function connectWithPortability(int $mode, int $case): void
+    private function connectWithPortability(int $mode, ?ColumnCase $case): void
     {
         // closing the default connection prior to 4.0.0 to prevent connection leak
         $this->connection->close();

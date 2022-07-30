@@ -12,7 +12,8 @@ awareness about deprecated code.
 
 The following classes have been converted to enums:
 
-1. `Doctrine\DBAL\Platforms\TrimMode`.
+1. `Doctrine\DBAL\ColumnCase`,
+2. `Doctrine\DBAL\Platforms\TrimMode`.
 
 The corresponding class constants are now instances of their enum type.
 
