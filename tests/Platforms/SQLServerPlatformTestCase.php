@@ -1683,11 +1683,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /**
-     * @psalm-param LockMode::* $lockMode
-     *
      * @dataProvider getLockHints
      */
-    public function testAppendsLockHint(int $lockMode, string $lockHint): void
+    public function testAppendsLockHint(LockMode $lockMode, string $lockHint): void
     {
         $fromClause     = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
@@ -1696,7 +1694,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[][]
+     * @return iterable<int, array{LockMode, string}>
      */
     public static function getLockHints(): iterable
     {

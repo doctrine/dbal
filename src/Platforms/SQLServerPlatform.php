@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
-use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
@@ -1118,14 +1117,13 @@ class SQLServerPlatform extends AbstractPlatform
         return parent::getForeignKeyReferentialActionSQL($action);
     }
 
-    public function appendLockHint(string $fromClause, int $lockMode): string
+    public function appendLockHint(string $fromClause, LockMode $lockMode): string
     {
         return match ($lockMode) {
             LockMode::NONE,
             LockMode::OPTIMISTIC => $fromClause,
             LockMode::PESSIMISTIC_READ => $fromClause . ' WITH (HOLDLOCK, ROWLOCK)',
             LockMode::PESSIMISTIC_WRITE => $fromClause . ' WITH (UPDLOCK, ROWLOCK)',
-            default => throw InvalidLockMode::fromLockMode($lockMode),
         };
     }
 

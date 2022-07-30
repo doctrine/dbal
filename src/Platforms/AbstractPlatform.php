@@ -17,7 +17,6 @@ use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
-use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
@@ -743,18 +742,10 @@ abstract class AbstractPlatform
      * ANSI SQL FOR UPDATE specification.
      *
      * @param string $fromClause The FROM clause to append the hint for the given lock mode to
-     * @param int    $lockMode   One of the Doctrine\DBAL\LockMode::* constants
-     * @psalm-param LockMode::* $lockMode
      */
-    public function appendLockHint(string $fromClause, int $lockMode): string
+    public function appendLockHint(string $fromClause, LockMode $lockMode): string
     {
-        return match ($lockMode) {
-            LockMode::NONE,
-            LockMode::OPTIMISTIC,
-            LockMode::PESSIMISTIC_READ,
-            LockMode::PESSIMISTIC_WRITE => $fromClause,
-            default => throw InvalidLockMode::fromLockMode($lockMode),
-        };
+        return $fromClause;
     }
 
     /**
