@@ -111,6 +111,11 @@
                 <file name="src/Types/ObjectType.php"/>
                 <file name="src/Types/Type.php"/>
                 <file name="tests/Schema/ComparatorTest.php"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <file name="src/Query/QueryBuilder.php"/>
+                <file name="tests/Query/QueryBuilderTest.php"/>
             </errorLevel>
         </DeprecatedConstant>
         <DeprecatedInterface>
@@ -389,6 +394,11 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getIndexFieldDeclarationListSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::getCustomTypeDeclarationSQL"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::getState"/>
+                <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::getType"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
