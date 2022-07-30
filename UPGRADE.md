@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: converted enum-like classes to enums
+
+The following classes have been converted to enums:
+
+1. `Doctrine\DBAL\Platforms\TrimMode`.
+
+The corresponding class constants are now instances of their enum type.
+
 ## BC BREAK: renamed SQLite platform classes
 
 1. `SqlitePlatform` => `SQLitePlatform`

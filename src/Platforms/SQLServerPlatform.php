@@ -27,7 +27,6 @@ use function crc32;
 use function dechex;
 use function explode;
 use function implode;
-use function in_array;
 use function is_array;
 use function is_bool;
 use function is_numeric;
@@ -791,14 +790,8 @@ class SQLServerPlatform extends AbstractPlatform
         return $dividend . ' % ' . $divisor;
     }
 
-    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
+    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
     {
-        if (! in_array($mode, [TrimMode::UNSPECIFIED, TrimMode::LEADING, TrimMode::TRAILING, TrimMode::BOTH], true)) {
-            throw new InvalidArgumentException(
-                sprintf('The value of $mode is expected to be one of the TrimMode constants, %d given', $mode)
-            );
-        }
-
         if ($char === null) {
             return match ($mode) {
                 TrimMode::LEADING => 'LTRIM(' . $str . ')',

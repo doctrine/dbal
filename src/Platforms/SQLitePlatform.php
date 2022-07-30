@@ -19,7 +19,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
-use InvalidArgumentException;
 
 use function array_combine;
 use function array_keys;
@@ -60,19 +59,13 @@ class SQLitePlatform extends AbstractPlatform
         return 'REGEXP';
     }
 
-    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
+    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
     {
         $trimFn = match ($mode) {
             TrimMode::UNSPECIFIED,
             TrimMode::BOTH => 'TRIM',
             TrimMode::LEADING => 'LTRIM',
             TrimMode::TRAILING => 'RTRIM',
-            default => throw new InvalidArgumentException(
-                sprintf(
-                    'The value of $mode is expected to be one of the TrimMode constants, %d given.',
-                    $mode
-                )
-            ),
         };
 
         $arguments = [$str];

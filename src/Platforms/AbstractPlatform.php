@@ -418,12 +418,10 @@ abstract class AbstractPlatform
      * Returns the SQL snippet to trim a string.
      *
      * @param string      $str  The expression to apply the trim to.
-     * @param int         $mode The position of the trim (leading/trailing/both).
+     * @param TrimMode    $mode The position of the trim.
      * @param string|null $char The char to trim, has to be quoted already. Defaults to space.
-     *
-     * @throws InvalidArgumentException
      */
-    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
+    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
     {
         $tokens = [];
 
@@ -442,14 +440,6 @@ abstract class AbstractPlatform
             case TrimMode::BOTH:
                 $tokens[] = 'BOTH';
                 break;
-
-            default:
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'The value of $mode is expected to be one of the TrimMode constants, %d given.',
-                        $mode
-                    )
-                );
         }
 
         if ($char !== null) {
