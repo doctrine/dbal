@@ -14,7 +14,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
-use InvalidArgumentException;
 
 use function array_change_key_case;
 use function date;
@@ -330,10 +329,10 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider getTrimExpressionData
      */
-    public function testTrimExpression(string $value, int $position, ?string $char, string $expectedResult): void
+    public function testTrimExpression(string $value, TrimMode $mode, ?string $char, string $expectedResult): void
     {
         $sql = 'SELECT ' .
-            $this->connection->getDatabasePlatform()->getTrimExpression($value, $position, $char) . ' AS trimmed ' .
+            $this->connection->getDatabasePlatform()->getTrimExpression($value, $mode, $char) . ' AS trimmed ' .
             'FROM fetch_table';
 
         $row = $this->connection->fetchAssociative($sql);
@@ -386,12 +385,6 @@ class DataAccessTest extends FunctionalTestCase
             ["' foo '", TrimMode::BOTH, "'.'", ' foo '],
             ["' foo '", TrimMode::BOTH, "' '", 'foo'],
         ];
-    }
-
-    public function testTrimExpressionInvalidMode(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->connection->getDatabasePlatform()->getTrimExpression('Trim me!', 0xBEEF);
     }
 
     /**

@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
-use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
@@ -17,6 +16,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -27,7 +27,6 @@ use function crc32;
 use function dechex;
 use function explode;
 use function implode;
-use function in_array;
 use function is_array;
 use function is_bool;
 use function is_numeric;
@@ -72,7 +71,7 @@ class SQLServerPlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string {
         $factorClause = '';
 
@@ -80,7 +79,7 @@ class SQLServerPlatform extends AbstractPlatform
             $factorClause = '-1 * ';
         }
 
-        return 'DATEADD(' . $unit . ', ' . $factorClause . $interval . ', ' . $date . ')';
+        return 'DATEADD(' . $unit->value . ', ' . $factorClause . $interval . ', ' . $date . ')';
     }
 
     public function getDateDiffExpression(string $date1, string $date2): string
@@ -791,14 +790,8 @@ class SQLServerPlatform extends AbstractPlatform
         return $dividend . ' % ' . $divisor;
     }
 
-    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
+    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
     {
-        if (! in_array($mode, [TrimMode::UNSPECIFIED, TrimMode::LEADING, TrimMode::TRAILING, TrimMode::BOTH], true)) {
-            throw new InvalidArgumentException(
-                sprintf('The value of $mode is expected to be one of the TrimMode constants, %d given', $mode)
-            );
-        }
-
         if ($char === null) {
             return match ($mode) {
                 TrimMode::LEADING => 'LTRIM(' . $str . ')',
@@ -852,7 +845,7 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DB_NAME()';
     }
 
-    public function getSetTransactionIsolationSQL(int $level): string
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
@@ -1125,14 +1118,13 @@ class SQLServerPlatform extends AbstractPlatform
         return parent::getForeignKeyReferentialActionSQL($action);
     }
 
-    public function appendLockHint(string $fromClause, int $lockMode): string
+    public function appendLockHint(string $fromClause, LockMode $lockMode): string
     {
         return match ($lockMode) {
             LockMode::NONE,
             LockMode::OPTIMISTIC => $fromClause,
             LockMode::PESSIMISTIC_READ => $fromClause . ' WITH (HOLDLOCK, ROWLOCK)',
             LockMode::PESSIMISTIC_WRITE => $fromClause . ' WITH (UPDLOCK, ROWLOCK)',
-            default => throw InvalidLockMode::fromLockMode($lockMode),
         };
     }
 

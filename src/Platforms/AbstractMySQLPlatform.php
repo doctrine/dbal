@@ -85,11 +85,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string {
         $function = $operator === '+' ? 'DATE_ADD' : 'DATE_SUB';
 
-        return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit . ')';
+        return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit->value . ')';
     }
 
     public function getDateDiffExpression(string $date1, string $date2): string
@@ -677,7 +677,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $this->getDropIndexSQL($name, $tableName);
     }
 
-    public function getSetTransactionIsolationSQL(int $level): string
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
@@ -778,7 +778,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return parent::quoteStringLiteral($str);
     }
 
-    public function getDefaultTransactionIsolationLevel(): int
+    public function getDefaultTransactionIsolationLevel(): TransactionIsolationLevel
     {
         return TransactionIsolationLevel::REPEATABLE_READ;
     }

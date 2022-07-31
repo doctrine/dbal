@@ -19,7 +19,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
-use InvalidArgumentException;
 
 use function array_combine;
 use function array_keys;
@@ -60,19 +59,13 @@ class SQLitePlatform extends AbstractPlatform
         return 'REGEXP';
     }
 
-    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
+    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
     {
         $trimFn = match ($mode) {
             TrimMode::UNSPECIFIED,
             TrimMode::BOTH => 'TRIM',
             TrimMode::LEADING => 'LTRIM',
             TrimMode::TRAILING => 'RTRIM',
-            default => throw new InvalidArgumentException(
-                sprintf(
-                    'The value of $mode is expected to be one of the TrimMode constants, %d given.',
-                    $mode
-                )
-            ),
         };
 
         $arguments = [$str];
@@ -106,7 +99,7 @@ class SQLitePlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string {
         switch ($unit) {
             case DateIntervalUnit::WEEK:
@@ -123,7 +116,7 @@ class SQLitePlatform extends AbstractPlatform
         return 'DATETIME(' . $date . ',' . $this->getConcatExpression(
             $this->quoteStringLiteral($operator),
             $interval,
-            $this->quoteStringLiteral(' ' . $unit)
+            $this->quoteStringLiteral(' ' . $unit->value)
         ) . ')';
     }
 
@@ -145,18 +138,17 @@ class SQLitePlatform extends AbstractPlatform
         return "''";
     }
 
-    protected function _getTransactionIsolationLevelSQL(int $level): string
+    protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level): string
     {
         return match ($level) {
             TransactionIsolationLevel::READ_UNCOMMITTED => '0',
             TransactionIsolationLevel::READ_COMMITTED,
             TransactionIsolationLevel::REPEATABLE_READ,
             TransactionIsolationLevel::SERIALIZABLE => '1',
-            default => parent::_getTransactionIsolationLevelSQL($level),
         };
     }
 
-    public function getSetTransactionIsolationSQL(int $level): string
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
     }

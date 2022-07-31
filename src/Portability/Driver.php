@@ -15,7 +15,7 @@ use const CASE_UPPER;
 
 final class Driver extends AbstractDriverMiddleware
 {
-    public function __construct(DriverInterface $driver, private readonly int $mode, private readonly int $case)
+    public function __construct(DriverInterface $driver, private readonly int $mode, private readonly ?ColumnCase $case)
     {
         parent::__construct($driver);
     }
@@ -34,14 +34,17 @@ final class Driver extends AbstractDriverMiddleware
 
         $case = null;
 
-        if ($this->case !== 0 && ($portability & Connection::PORTABILITY_FIX_CASE) !== 0) {
+        if ($this->case !== null && ($portability & Connection::PORTABILITY_FIX_CASE) !== 0) {
             $nativeConnection = $connection->getNativeConnection();
+
+            $case = match ($this->case) {
+                ColumnCase::LOWER => CASE_LOWER,
+                ColumnCase::UPPER => CASE_UPPER,
+            };
 
             if ($nativeConnection instanceof PDO) {
                 $portability &= ~Connection::PORTABILITY_FIX_CASE;
-                $nativeConnection->setAttribute(PDO::ATTR_CASE, $this->case);
-            } else {
-                $case = $this->case === ColumnCase::LOWER ? CASE_LOWER : CASE_UPPER;
+                $nativeConnection->setAttribute(PDO::ATTR_CASE, $case);
             }
         }
 

@@ -17,7 +17,6 @@ use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
-use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
@@ -418,12 +417,10 @@ abstract class AbstractPlatform
      * Returns the SQL snippet to trim a string.
      *
      * @param string      $str  The expression to apply the trim to.
-     * @param int         $mode The position of the trim (leading/trailing/both).
+     * @param TrimMode    $mode The position of the trim.
      * @param string|null $char The char to trim, has to be quoted already. Defaults to space.
-     *
-     * @throws InvalidArgumentException
      */
-    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
+    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
     {
         $tokens = [];
 
@@ -442,14 +439,6 @@ abstract class AbstractPlatform
             case TrimMode::BOTH:
                 $tokens[] = 'BOTH';
                 break;
-
-            default:
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'The value of $mode is expected to be one of the TrimMode constants, %d given.',
-                        $mode
-                    )
-                );
         }
 
         if ($char !== null) {
@@ -688,18 +677,18 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL for a date arithmetic expression.
      *
-     * @param string $date     SQL expression representing a date to perform the arithmetic operation on.
-     * @param string $operator The arithmetic operator (+ or -).
-     * @param string $interval SQL expression representing the value of the interval that shall be calculated
-     *                         into the date.
-     * @param string $unit     The unit of the interval that shall be calculated into the date.
+     * @param string           $date     SQL expression representing a date to perform the arithmetic operation on.
+     * @param string           $operator The arithmetic operator (+ or -).
+     * @param string           $interval SQL expression representing the value of the interval that shall be calculated
+     *                                   into the date.
+     * @param DateIntervalUnit $unit     The unit of the interval that shall be calculated into the date.
      *                         One of the DATE_INTERVAL_UNIT_* constants.
      */
     abstract protected function getDateArithmeticIntervalExpression(
         string $date,
         string $operator,
         string $interval,
-        string $unit
+        DateIntervalUnit $unit
     ): string;
 
     /**
@@ -753,18 +742,10 @@ abstract class AbstractPlatform
      * ANSI SQL FOR UPDATE specification.
      *
      * @param string $fromClause The FROM clause to append the hint for the given lock mode to
-     * @param int    $lockMode   One of the Doctrine\DBAL\LockMode::* constants
-     * @psalm-param LockMode::* $lockMode
      */
-    public function appendLockHint(string $fromClause, int $lockMode): string
+    public function appendLockHint(string $fromClause, LockMode $lockMode): string
     {
-        return match ($lockMode) {
-            LockMode::NONE,
-            LockMode::OPTIMISTIC,
-            LockMode::PESSIMISTIC_READ,
-            LockMode::PESSIMISTIC_WRITE => $fromClause,
-            default => throw InvalidLockMode::fromLockMode($lockMode),
-        };
+        return $fromClause;
     }
 
     /**
@@ -1992,17 +1973,14 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL for a given transaction isolation level Connection constant.
-     *
-     * @throws InvalidArgumentException
      */
-    protected function _getTransactionIsolationLevelSQL(int $level): string
+    protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level): string
     {
         return match ($level) {
             TransactionIsolationLevel::READ_UNCOMMITTED => 'READ UNCOMMITTED',
             TransactionIsolationLevel::READ_COMMITTED => 'READ COMMITTED',
             TransactionIsolationLevel::REPEATABLE_READ => 'REPEATABLE READ',
             TransactionIsolationLevel::SERIALIZABLE => 'SERIALIZABLE',
-            default => throw new InvalidArgumentException(sprintf('Invalid isolation level "%s".', $level)),
         };
     }
 
@@ -2068,7 +2046,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to set the transaction isolation level.
      */
-    abstract public function getSetTransactionIsolationSQL(int $level): string;
+    abstract public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string;
 
     /**
      * Obtains DBMS specific SQL to be used to create datetime columns in
@@ -2115,11 +2093,9 @@ abstract class AbstractPlatform
     /**
      * Gets the default transaction isolation level of the platform.
      *
-     * @see TransactionIsolationLevel
-     *
-     * @return TransactionIsolationLevel::* The default isolation level.
+     * @return TransactionIsolationLevel The default isolation level.
      */
-    public function getDefaultTransactionIsolationLevel(): int
+    public function getDefaultTransactionIsolationLevel(): TransactionIsolationLevel
     {
         return TransactionIsolationLevel::READ_COMMITTED;
     }
