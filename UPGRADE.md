@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated passing `$params` to `Statement::execute*()` methods.
+
+Passing `$params` to the driver-level `Statement::execute()` and the wrapper-level `Statement::executeQuery()`
+and `Statement::executeStatement()` methods has been deprecated.
+
+Bind parameters using `Statement::bindParam()` or `Statement::bindValue()` instead.
+
 ## Deprecated `QueryBuilder` methods and constants.
 
 1. The `QueryBuilder::getState()` method has been deprecated as the builder state is an internal concern.

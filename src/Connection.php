@@ -1021,12 +1021,10 @@ class Connection
                 }
 
                 $stmt = $connection->prepare($sql);
-                if (count($types) > 0) {
-                    $this->_bindTypedValues($stmt, $params, $types);
-                    $result = $stmt->execute();
-                } else {
-                    $result = $stmt->execute($params);
-                }
+
+                $this->bindParameters($stmt, $params, $types);
+
+                $result = $stmt->execute();
             } else {
                 $result = $connection->query($sql);
             }
@@ -1128,15 +1126,10 @@ class Connection
 
                 $stmt = $connection->prepare($sql);
 
-                if (count($types) > 0) {
-                    $this->_bindTypedValues($stmt, $params, $types);
+                $this->bindParameters($stmt, $params, $types);
 
-                    $result = $stmt->execute();
-                } else {
-                    $result = $stmt->execute($params);
-                }
-
-                return $result->rowCount();
+                return $stmt->execute()
+                    ->rowCount();
             }
 
             return $connection->exec($sql);
@@ -1668,7 +1661,7 @@ class Connection
      *
      * @throws Exception
      */
-    private function _bindTypedValues(DriverStatement $stmt, array $params, array $types): void
+    private function bindParameters(DriverStatement $stmt, array $params, array $types): void
     {
         // Check whether parameters are positional or named. Mixing is not allowed.
         if (is_int(key($params))) {

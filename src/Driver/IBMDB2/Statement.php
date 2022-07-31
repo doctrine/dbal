@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 use function db2_bind_param;
@@ -107,6 +108,15 @@ final class Statement implements StatementInterface
      */
     public function execute($params = null): ResultInterface
     {
+        if ($params !== null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5556',
+                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
+                    . ' Statement::bindParam() or Statement::bindValue() instead.'
+            );
+        }
+
         $handles = $this->bindLobs();
 
         $result = @db2_execute($this->stmt, $params ?? $this->parameters);
