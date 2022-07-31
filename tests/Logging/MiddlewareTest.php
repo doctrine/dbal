@@ -140,7 +140,7 @@ class MiddlewareTest extends TestCase
 
         $connection = $this->driver->connect([]);
         $statement  = $connection->prepare('SELECT :value');
-        $statement->bindValue('value', 'Test');
+        $statement->bindValue('value', 'Test', ParameterType::STRING);
 
         $statement->execute();
     }

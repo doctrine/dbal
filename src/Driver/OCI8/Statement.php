@@ -10,7 +10,6 @@ use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
 
-use function func_num_args;
 use function is_int;
 use function oci_bind_by_name;
 use function oci_execute;
@@ -41,35 +40,17 @@ final class Statement implements StatementInterface
     ) {
     }
 
-    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindValue() is deprecated.'
-                . ' Pass the type corresponding to the parameter being bound.'
-            );
-        }
-
         $this->bindParam($param, $value, $type);
     }
 
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        ParameterType $type = ParameterType::STRING,
+        ParameterType $type,
         ?int $length = null
     ): void {
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindParam() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
-            );
-        }
-
         if (is_int($param)) {
             if (! isset($this->parameterMap[$param])) {
                 throw UnknownParameterIndex::new($param);

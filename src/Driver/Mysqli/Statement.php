@@ -19,7 +19,6 @@ use function assert;
 use function count;
 use function feof;
 use function fread;
-use function func_num_args;
 use function get_resource_type;
 use function is_int;
 use function is_resource;
@@ -56,36 +55,18 @@ final class Statement implements StatementInterface
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        ParameterType $type = ParameterType::STRING,
+        ParameterType $type,
         ?int $length = null
     ): void {
         assert(is_int($param));
-
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindParam() is deprecated.'
-                . ' Pass the type corresponding to the parameter being bound.'
-            );
-        }
 
         $this->types[$param - 1]   = $this->convertParameterType($type);
         $this->boundValues[$param] =& $variable;
     }
 
-    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         assert(is_int($param));
-
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindValue() is deprecated.'
-                . ' Pass the type corresponding to the parameter being bound.'
-            );
-        }
 
         $this->types[$param - 1]   = $this->convertParameterType($type);
         $this->values[$param]      = $value;
