@@ -22,6 +22,8 @@ use function sys_get_temp_dir;
 use function touch;
 use function unlink;
 
+use const E_ALL;
+use const E_WARNING;
 use const PHP_OS_FAMILY;
 
 /**
@@ -201,6 +203,9 @@ class ExceptionTest extends FunctionalTestCase
         $table = new Table('bad_columnname_table');
         $table->addColumn('id', 'integer', []);
         $this->dropAndCreateTable($table);
+
+        // prevent the PHPUnit error handler from handling the warning that db2_bind_param() may trigger
+        $this->iniSet('error_reporting', (string) (E_ALL & ~E_WARNING));
 
         $this->expectException(Exception\InvalidFieldNameException::class);
         $this->connection->insert('bad_columnname_table', ['name' => 5]);

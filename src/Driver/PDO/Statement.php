@@ -96,6 +96,15 @@ final class Statement implements StatementInterface
      */
     public function execute($params = null): ResultInterface
     {
+        if ($params !== null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5556',
+                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
+                    . ' Statement::bindParam() or Statement::bindValue() instead.'
+            );
+        }
+
         try {
             $this->stmt->execute($params);
         } catch (PDOException $exception) {

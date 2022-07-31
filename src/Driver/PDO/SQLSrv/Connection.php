@@ -41,8 +41,12 @@ final class Connection extends AbstractConnectionMiddleware
             'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
         );
 
-        return $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?')
-            ->execute([$name])
+        $statement = $this->prepare(
+            'SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?'
+        );
+        $statement->bindValue(1, $name);
+
+        return $statement->execute()
             ->fetchOne();
     }
 
