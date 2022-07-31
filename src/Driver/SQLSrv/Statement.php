@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 use function is_int;
@@ -90,25 +89,8 @@ final class Statement implements StatementInterface
         $this->stmt = null;
     }
 
-    public function execute(?array $params = null): Result
+    public function execute(): Result
     {
-        if ($params !== null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5556',
-                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
-                    . ' Statement::bindParam() or Statement::bindValue() instead.'
-            );
-
-            foreach ($params as $key => $val) {
-                if (is_int($key)) {
-                    $this->bindValue($key + 1, $val, ParameterType::STRING);
-                } else {
-                    $this->bindValue($key, $val, ParameterType::STRING);
-                }
-            }
-        }
-
         $this->stmt ??= $this->prepare();
 
         if (! sqlsrv_execute($this->stmt)) {

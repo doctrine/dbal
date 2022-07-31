@@ -54,15 +54,9 @@ class StatementTest extends TestCase
 
     public function testExecute(): void
     {
-        $params = [
-            'foo',
-            'bar',
-        ];
-
         $this->wrappedStmt->expects(self::once())
-            ->method('execute')
-            ->with($params);
+            ->method('execute');
 
-        $this->stmt->execute($params);
+        $this->stmt->execute();
     }
 }

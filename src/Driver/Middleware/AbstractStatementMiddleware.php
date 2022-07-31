@@ -28,8 +28,8 @@ abstract class AbstractStatementMiddleware implements Statement
         $this->wrappedStatement->bindParam($param, $variable, $type, $length);
     }
 
-    public function execute(?array $params = null): Result
+    public function execute(): Result
     {
-        return $this->wrappedStatement->execute($params);
+        return $this->wrappedStatement->execute();
     }
 }

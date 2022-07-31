@@ -105,21 +105,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $column);
     }
 
-    public function testPrepareWithExecuteParams(): void
-    {
-        $paramInt = 1;
-        $paramStr = 'foo';
-
-        $sql    = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
-        $stmt   = $this->connection->prepare($sql);
-        $result = $stmt->executeQuery([$paramInt, $paramStr]);
-
-        $row = $result->fetchAssociative();
-        self::assertNotFalse($row);
-        $row = array_change_key_case($row, CASE_LOWER);
-        self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
-    }
-
     public function testFetchAllAssociative(): void
     {
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';

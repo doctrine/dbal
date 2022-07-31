@@ -21,10 +21,10 @@ final class Statement extends AbstractStatementMiddleware
         parent::__construct($stmt);
     }
 
-    public function execute(?array $params = null): ResultInterface
+    public function execute(): ResultInterface
     {
         return new Result(
-            parent::execute($params),
+            parent::execute(),
             $this->converter
         );
     }

@@ -10,7 +10,6 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\NonStreamResourceUsedAsLargeObject;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 use mysqli_sql_exception;
 use mysqli_stmt;
 
@@ -73,21 +72,10 @@ final class Statement implements StatementInterface
         $this->boundValues[$param] =& $this->values[$param];
     }
 
-    public function execute(?array $params = null): Result
+    public function execute(): Result
     {
-        if ($params !== null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5556',
-                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
-                    . ' Statement::bindParam() or Statement::bindValue() instead.'
-            );
-        }
-
-        if ($params !== null && count($params) > 0) {
-            $this->bindUntypedValues($params);
-        } elseif (count($this->boundValues) > 0) {
-            $this->bindTypedParameters();
+        if (count($this->boundValues) > 0) {
+            $this->bindParameters();
         }
 
         try {
@@ -106,7 +94,7 @@ final class Statement implements StatementInterface
      *
      * @throws Exception
      */
-    private function bindTypedParameters(): void
+    private function bindParameters(): void
     {
         $streams = $values = [];
         $types   = $this->types;
@@ -162,20 +150,6 @@ final class Statement implements StatementInterface
                     throw StatementError::new($this->stmt);
                 }
             }
-        }
-    }
-
-    /**
-     * Binds a array of values to bound parameters.
-     *
-     * @param mixed[] $values
-     *
-     * @throws Exception
-     */
-    private function bindUntypedValues(array $values): void
-    {
-        if (! $this->stmt->bind_param(str_repeat(self::PARAMETER_TYPE_STRING, count($values)), ...$values)) {
-            throw StatementError::new($this->stmt);
         }
     }
 

@@ -65,16 +65,7 @@ interface Statement
     /**
      * Executes a prepared statement
      *
-     * If the prepared statement included parameter markers, you must either:
-     * call {@see bindParam()} to bind PHP variables to the parameter markers:
-     * bound variables pass their value as input and receive the output value,
-     * if any, of their associated parameter markers or pass an array of input-only
-     * parameter values.
-     *
-     * @param mixed[]|null $params A numeric array of values with as many elements as there are
-     *                             bound parameters in the SQL statement being executed.
-     *
      * @throws Exception
      */
-    public function execute(?array $params = null): Result;
+    public function execute(): Result;
 }

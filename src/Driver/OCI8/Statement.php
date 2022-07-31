@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 
 use function is_int;
 use function oci_bind_by_name;
@@ -95,27 +94,8 @@ final class Statement implements StatementInterface
         };
     }
 
-    public function execute(?array $params = null): Result
+    public function execute(): Result
     {
-        if ($params !== null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5556',
-                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
-                    . ' Statement::bindParam() or Statement::bindValue() instead.'
-            );
-
-            foreach ($params as $key => $val) {
-                if (is_int($key)) {
-                    $param = $key + 1;
-                } else {
-                    $param = $key;
-                }
-
-                $this->bindValue($param, $val, ParameterType::STRING);
-            }
-        }
-
         if ($this->executionMode->isAutoCommitEnabled()) {
             $mode = OCI_COMMIT_ON_SUCCESS;
         } else {

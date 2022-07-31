@@ -6,7 +6,6 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function func_num_args;
 use function is_string;
@@ -135,19 +134,13 @@ class Statement
     }
 
     /**
-     * @param mixed[] $params
-     *
      * @throws Exception
      */
-    private function execute(array $params): Result
+    private function execute(): Result
     {
-        if ($params !== []) {
-            $this->params = $params;
-        }
-
         try {
             return new Result(
-                $this->stmt->execute($params === [] ? null : $params),
+                $this->stmt->execute(),
                 $this->conn
             );
         } catch (Driver\Exception $ex) {
@@ -158,43 +151,21 @@ class Statement
     /**
      * Executes the statement with the currently bound parameters and return result.
      *
-     * @param mixed[] $params
-     *
      * @throws Exception
      */
-    public function executeQuery(array $params = []): Result
+    public function executeQuery(): Result
     {
-        if (func_num_args() > 0) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5556',
-                'Passing $params to Statement::executeQuery() is deprecated. Bind parameters using'
-                . ' Statement::bindParam() or Statement::bindValue() instead.'
-            );
-        }
-
-        return $this->execute($params);
+        return $this->execute();
     }
 
     /**
      * Executes the statement with the currently bound parameters and return affected rows.
      *
-     * @param mixed[] $params
-     *
      * @throws Exception
      */
-    public function executeStatement(array $params = []): int
+    public function executeStatement(): int
     {
-        if (func_num_args() > 0) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5556',
-                'Passing $params to Statement::executeStatement() is deprecated. Bind parameters using'
-                . ' Statement::bindParam() or Statement::bindValue() instead.'
-            );
-        }
-
-        return $this->execute($params)->rowCount();
+        return $this->execute()->rowCount();
     }
 
     /**

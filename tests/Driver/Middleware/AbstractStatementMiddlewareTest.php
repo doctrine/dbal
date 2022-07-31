@@ -17,10 +17,9 @@ final class AbstractStatementMiddlewareTest extends TestCase
         $statement = $this->createMock(Statement::class);
         $statement->expects(self::once())
             ->method('execute')
-            ->with(['foo' => 'bar'])
             ->willReturn($result);
 
-        self::assertSame($result, $this->createMiddleware($statement)->execute(['foo' => 'bar']));
+        self::assertSame($result, $this->createMiddleware($statement)->execute());
     }
 
     private function createMiddleware(Statement $statement): AbstractStatementMiddleware

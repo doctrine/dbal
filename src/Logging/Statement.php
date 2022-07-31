@@ -49,14 +49,14 @@ final class Statement extends AbstractStatementMiddleware
         parent::bindValue($param, $value, $type);
     }
 
-    public function execute(?array $params = null): ResultInterface
+    public function execute(): ResultInterface
     {
         $this->logger->debug('Executing statement: {sql} (parameters: {params}, types: {types})', [
             'sql'    => $this->sql,
-            'params' => $params ?? $this->params,
+            'params' => $this->params,
             'types'  => $this->types,
         ]);
 
-        return parent::execute($params);
+        return parent::execute();
     }
 }
