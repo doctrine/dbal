@@ -1671,7 +1671,6 @@ class Connection
                 if (isset($types[$key])) {
                     $type                  = $types[$key];
                     [$value, $bindingType] = $this->getBindingInfo($value, $type);
-                    $stmt->bindValue($bindIndex, $value, $bindingType);
                 } else {
                     if (array_key_exists($key, $types)) {
                         Deprecation::trigger(
@@ -1682,8 +1681,10 @@ class Connection
                         );
                     }
 
-                    $stmt->bindValue($bindIndex, $value);
+                    $bindingType = ParameterType::STRING;
                 }
+
+                $stmt->bindValue($bindIndex, $value, $bindingType);
 
                 ++$bindIndex;
             }
@@ -1693,7 +1694,6 @@ class Connection
                 if (isset($types[$name])) {
                     $type                  = $types[$name];
                     [$value, $bindingType] = $this->getBindingInfo($value, $type);
-                    $stmt->bindValue($name, $value, $bindingType);
                 } else {
                     if (array_key_exists($name, $types)) {
                         Deprecation::trigger(
@@ -1704,8 +1704,10 @@ class Connection
                         );
                     }
 
-                    $stmt->bindValue($name, $value);
+                    $bindingType = ParameterType::STRING;
                 }
+
+                $stmt->bindValue($name, $value, $bindingType);
             }
         }
     }

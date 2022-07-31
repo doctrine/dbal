@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.4
 
+## Deprecated not passing parameter type to the driver-level `Statement::bind*()` methods.
+
+Not passing `$type` to the driver-level `Statement::bindParam()` and `::bindValue()` is deprecated.
+Pass the type corresponding to the parameter being bound.
+
 ## Deprecated passing `$params` to `Statement::execute*()` methods.
 
 Passing `$params` to the driver-level `Statement::execute()` and the wrapper-level `Statement::executeQuery()`
