@@ -289,9 +289,22 @@ DBAL is now tested only with SQL Server 2017 and newer.
 
 The `Statement::execute()` method has been marked private.
 
-## BC BREAK: Removed `QueryBuilder::execute()`.
+## BC BREAK: Removed `QueryBuilder` methods and contstants.
 
-The `QueryBuilder::execute()` method has been removed.
+The following `QueryBuilder` methods have been removed:
+
+1. `execute()`,
+2. `getState()`,
+3. `getType()`.
+
+The following `QueryBuilder` constants have been removed:
+
+1. `SELECT`,
+2. `DELETE`,
+3. `UPDATE`,
+4. `INSERT`,
+5. `STATE_DIRTY`,
+6. `STATE_CLEAN`.
 
 ## BC BREAK: Removed the `Constraint` interface.
 

@@ -38,36 +38,6 @@ use function substr;
 class QueryBuilder
 {
     /**
-     * @deprecated
-     */
-    final public const SELECT = 0;
-
-    /**
-     * @deprecated
-     */
-    final public const DELETE = 1;
-
-    /**
-     * @deprecated
-     */
-    final public const UPDATE = 2;
-
-    /**
-     * @deprecated
-     */
-    final public const INSERT = 3;
-
-    /**
-     * @deprecated
-     */
-    final public const STATE_DIRTY = 0;
-
-    /**
-     * @deprecated
-     */
-    final public const STATE_CLEAN = 1;
-
-    /**
      * The complete SQL string for this query.
      */
     private ?string $sql = null;
@@ -89,12 +59,7 @@ class QueryBuilder
     /**
      * The type of query this is. Can be select, update or delete.
      */
-    private int $type = self::SELECT;
-
-    /**
-     * The state of the query object. Can be dirty or clean.
-     */
-    private int $state = self::STATE_CLEAN;
+    private QueryType $type = QueryType::SELECT;
 
     /**
      * The index of the first result to retrieve.
@@ -209,46 +174,11 @@ class QueryBuilder
     }
 
     /**
-     * Gets the type of the currently built query.
-     *
-     * @deprecated If necessary, track the type of the query being built outside of the builder.
-     */
-    public function getType(): int
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5551',
-            'Relying on the type of the query being built is deprecated.'
-                . ' If necessary, track the type of the query being built outside of the builder.'
-        );
-
-        return $this->type;
-    }
-
-    /**
      * Gets the associated DBAL Connection for this query builder.
      */
     public function getConnection(): Connection
     {
         return $this->connection;
-    }
-
-    /**
-     * Gets the state of this query builder instance.
-     *
-     * @deprecated The builder state is an internal concern.
-     *
-     * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
-     */
-    public function getState(): int
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5551',
-            'Relying on the query builder state is deprecated as it is an internal concern.'
-        );
-
-        return $this->state;
     }
 
     /**
@@ -393,21 +323,12 @@ class QueryBuilder
      */
     public function getSQL(): string
     {
-        if ($this->sql !== null && $this->state === self::STATE_CLEAN) {
-            return $this->sql;
-        }
-
-        $sql = match ($this->type) {
-            self::INSERT => $this->getSQLForInsert(),
-            self::DELETE => $this->getSQLForDelete(),
-            self::UPDATE => $this->getSQLForUpdate(),
-            default => $this->getSQLForSelect(),
+        return $this->sql ??= match ($this->type) {
+            QueryType::INSERT => $this->getSQLForInsert(),
+            QueryType::DELETE => $this->getSQLForDelete(),
+            QueryType::UPDATE => $this->getSQLForUpdate(),
+            QueryType::SELECT => $this->getSQLForSelect(),
         };
-
-        $this->state = self::STATE_CLEAN;
-        $this->sql   = $sql;
-
-        return $sql;
     }
 
     /**
@@ -529,8 +450,9 @@ class QueryBuilder
      */
     public function setFirstResult(int $firstResult): self
     {
-        $this->state       = self::STATE_DIRTY;
         $this->firstResult = $firstResult;
+
+        $this->sql = null;
 
         return $this;
     }
@@ -554,8 +476,9 @@ class QueryBuilder
      */
     public function setMaxResults(?int $maxResults): self
     {
-        $this->state      = self::STATE_DIRTY;
         $this->maxResults = $maxResults;
+
+        $this->sql = null;
 
         return $this;
     }
@@ -588,7 +511,7 @@ class QueryBuilder
      */
     public function select(string ...$expressions): self
     {
-        $this->type = self::SELECT;
+        $this->type = QueryType::SELECT;
 
         if (count($expressions) < 1) {
             return $this;
@@ -596,7 +519,7 @@ class QueryBuilder
 
         $this->select = $expressions;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -617,7 +540,7 @@ class QueryBuilder
     {
         $this->distinct = true;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -640,11 +563,11 @@ class QueryBuilder
      */
     public function addSelect(string $expression, string ...$expressions): self
     {
-        $this->type = self::SELECT;
+        $this->type = QueryType::SELECT;
 
         $this->select = array_merge($this->select, [$expression], $expressions);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -666,11 +589,11 @@ class QueryBuilder
      */
     public function delete(string $table): self
     {
-        $this->type = self::DELETE;
+        $this->type = QueryType::DELETE;
 
         $this->table = $table;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -692,11 +615,11 @@ class QueryBuilder
      */
     public function update(string $table): self
     {
-        $this->type = self::UPDATE;
+        $this->type = QueryType::UPDATE;
 
         $this->table = $table;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -722,11 +645,11 @@ class QueryBuilder
      */
     public function insert(string $table): self
     {
-        $this->type = self::INSERT;
+        $this->type = QueryType::INSERT;
 
         $this->table = $table;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -750,7 +673,7 @@ class QueryBuilder
     {
         $this->from[] = new From($table, $alias);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -798,7 +721,7 @@ class QueryBuilder
     {
         $this->join[$fromAlias][] = Join::inner($join, $alias, $condition);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -824,7 +747,7 @@ class QueryBuilder
     {
         $this->join[$fromAlias][] = Join::left($join, $alias, $condition);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -850,7 +773,7 @@ class QueryBuilder
     {
         $this->join[$fromAlias][] = Join::right($join, $alias, $condition);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -874,7 +797,7 @@ class QueryBuilder
     {
         $this->set[] = $key . ' = ' . $value;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -910,7 +833,7 @@ class QueryBuilder
     {
         $this->where = $this->createPredicate($predicate, ...$predicates);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -943,7 +866,7 @@ class QueryBuilder
             ...$predicates
         );
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -971,7 +894,7 @@ class QueryBuilder
     {
         $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -996,7 +919,7 @@ class QueryBuilder
     {
         $this->groupBy = array_merge([$expression], $expressions);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1021,7 +944,7 @@ class QueryBuilder
     {
         $this->groupBy = array_merge($this->groupBy, [$expression], $expressions);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1075,7 +998,7 @@ class QueryBuilder
     {
         $this->values = $values;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1093,7 +1016,7 @@ class QueryBuilder
     {
         $this->having = $this->createPredicate($predicate, ...$predicates);
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1116,7 +1039,7 @@ class QueryBuilder
             ...$predicates
         );
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1139,7 +1062,7 @@ class QueryBuilder
             ...$predicates
         );
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1198,7 +1121,7 @@ class QueryBuilder
 
         $this->orderBy = [$orderBy];
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }
@@ -1221,7 +1144,7 @@ class QueryBuilder
 
         $this->orderBy[] = $orderBy;
 
-        $this->state = self::STATE_DIRTY;
+        $this->sql = null;
 
         return $this;
     }

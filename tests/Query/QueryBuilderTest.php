@@ -351,7 +351,6 @@ class QueryBuilderTest extends TestCase
         $qb2 = $qb->select();
 
         self::assertSame($qb, $qb2);
-        self::assertEquals(QueryBuilder::SELECT, $qb->getType());
 
         $this->expectException(QueryException::class);
         $qb->getSQL();
@@ -387,7 +386,6 @@ class QueryBuilderTest extends TestCase
            ->set('foo', '?')
            ->set('bar', '?');
 
-        self::assertEquals(QueryBuilder::UPDATE, $qb->getType());
         self::assertEquals('UPDATE users SET foo = ?, bar = ?', (string) $qb);
     }
 
@@ -406,7 +404,6 @@ class QueryBuilderTest extends TestCase
         $qb = new QueryBuilder($this->conn);
         $qb->delete('users');
 
-        self::assertEquals(QueryBuilder::DELETE, $qb->getType());
         self::assertEquals('DELETE FROM users', (string) $qb);
     }
 
@@ -430,7 +427,6 @@ class QueryBuilderTest extends TestCase
                 ]
             );
 
-        self::assertEquals(QueryBuilder::INSERT, $qb->getType());
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }
 
@@ -451,7 +447,6 @@ class QueryBuilderTest extends TestCase
                 ]
             );
 
-        self::assertEquals(QueryBuilder::INSERT, $qb->getType());
         self::assertEquals('INSERT INTO users (bar, foo) VALUES(?, ?)', (string) $qb);
     }
 
@@ -463,7 +458,6 @@ class QueryBuilderTest extends TestCase
             ->setValue('bar', '?')
             ->setValue('foo', '?');
 
-        self::assertEquals(QueryBuilder::INSERT, $qb->getType());
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }
 
@@ -476,7 +470,6 @@ class QueryBuilderTest extends TestCase
             )
             ->setValue('bar', '?');
 
-        self::assertEquals(QueryBuilder::INSERT, $qb->getType());
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }
 
@@ -484,22 +477,6 @@ class QueryBuilderTest extends TestCase
     {
         $qb = new QueryBuilder($this->conn);
         self::assertSame($this->conn, $qb->getConnection());
-    }
-
-    public function testGetState(): void
-    {
-        $qb = new QueryBuilder($this->conn);
-
-        self::assertEquals(QueryBuilder::STATE_CLEAN, $qb->getState());
-
-        $qb->select('u.*')->from('users', 'u');
-
-        self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
-
-        $sql1 = $qb->getSQL();
-
-        self::assertEquals(QueryBuilder::STATE_CLEAN, $qb->getState());
-        self::assertEquals($sql1, $qb->getSQL());
     }
 
     /**
@@ -510,7 +487,6 @@ class QueryBuilderTest extends TestCase
         $qb = new QueryBuilder($this->conn);
         $qb->setMaxResults($maxResults);
 
-        self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
         self::assertEquals($maxResults, $qb->getMaxResults());
     }
 
@@ -530,7 +506,6 @@ class QueryBuilderTest extends TestCase
         $qb = new QueryBuilder($this->conn);
         $qb->setFirstResult(10);
 
-        self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
         self::assertEquals(10, $qb->getFirstResult());
     }
 
