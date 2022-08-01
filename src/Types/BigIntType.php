@@ -20,7 +20,7 @@ class BigIntType extends Type implements PhpIntegerMappingType
         return $platform->getBigIntTypeDeclarationSQL($column);
     }
 
-    public function getBindingType(): int
+    public function getBindingType(): ParameterType
     {
         return ParameterType::STRING;
     }

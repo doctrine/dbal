@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Cache;
 
 use Doctrine\DBAL\Cache\Exception\NoCacheKey;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
 use Psr\Cache\CacheItemPoolInterface;
 
@@ -51,9 +52,9 @@ class QueryCacheProfile
     /**
      * Generates the real cache key from query, params, types and connection parameters.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params
-     * @param array<int, Type|int|string|null>|array<string, Type|int|string|null> $types
-     * @param array<string, mixed>                                                 $connectionParams
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
+     * @param array<string, mixed>                                                                             $connectionParams
      *
      * @return string[]
      */

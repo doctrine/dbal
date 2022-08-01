@@ -119,4 +119,14 @@
         <exclude-pattern>src/Platforms/SQLitePlatform.php</exclude-pattern>
         <exclude-pattern>src/Platforms/*/Comparator.php</exclude-pattern>
     </rule>
+
+    <!-- This issue is likely fixed in Slevomat Coding Standard 8.0.0 -->
+    <rule ref="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly.ReferenceViaFallbackGlobalName">
+        <exclude-pattern>src/ParameterType.php</exclude-pattern>
+    </rule>
+
+    <!-- The union types representing prepared statement parameter types are too complex -->
+    <rule ref="Generic.Files.LineLength.TooLong">
+        <exclude-pattern>src/Cache/QueryCacheProfile.php</exclude-pattern>
+    </rule>
 </ruleset>

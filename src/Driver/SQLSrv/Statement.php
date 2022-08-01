@@ -41,7 +41,7 @@ final class Statement implements StatementInterface
     /**
      * Bound parameter types.
      *
-     * @var array<int, int>
+     * @var array<int, ParameterType>
      */
     private array $types = [];
 
@@ -66,7 +66,7 @@ final class Statement implements StatementInterface
         $this->sql .= self::LAST_INSERT_ID_SQL;
     }
 
-    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
         assert(is_int($param));
 
@@ -77,7 +77,7 @@ final class Statement implements StatementInterface
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        int $type = ParameterType::STRING,
+        ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
         assert(is_int($param));

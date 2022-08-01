@@ -25,7 +25,7 @@ class Statement
     /**
      * The parameter types.
      *
-     * @var int[]|string[]|Type[]
+     * @var ParameterType[]|string[]|Type[]
      */
     protected array $types = [];
 
@@ -61,18 +61,21 @@ class Statement
      * type and the value undergoes the conversion routines of the mapping type before
      * being bound.
      *
-     * @param string|int      $param Parameter identifier. For a prepared statement using named placeholders,
-     *                               this will be a parameter name of the form :name. For a prepared statement
-     *                               using question mark placeholders, this will be the 1-indexed position
-     *                               of the parameter.
-     * @param mixed           $value The value to bind to the parameter.
-     * @param string|int|Type $type  Either one of the constants defined in {@see \Doctrine\DBAL\ParameterType}
-     *                               or a DBAL mapping type name or instance.
+     * @param string|int                $param Parameter identifier. For a prepared statement using named placeholders,
+     *                                         this will be a parameter name of the form :name. For a prepared statement
+     *                                         using question mark placeholders, this will be the 1-indexed position
+     *                                         of the parameter.
+     * @param mixed                     $value The value to bind to the parameter.
+     * @param ParameterType|string|Type $type  Either a {@see \Doctrine\DBAL\ParameterType} or a DBAL mapping type name
+     *                                or instance.
      *
      * @throws Exception
      */
-    public function bindValue(string|int $param, mixed $value, string|int|Type $type = ParameterType::STRING): void
-    {
+    public function bindValue(
+        string|int $param,
+        mixed $value,
+        string|ParameterType|Type $type = ParameterType::STRING
+    ): void {
         $this->params[$param] = $value;
         $this->types[$param]  = $type;
 
@@ -99,21 +102,21 @@ class Statement
      *
      * Binding a parameter by reference does not support DBAL mapping types.
      *
-     * @param string|int $param    Parameter identifier. For a prepared statement using named placeholders,
-     *                             this will be a parameter name of the form :name. For a prepared statement
-     *                             using question mark placeholders, this will be the 1-indexed position
-     *                             of the parameter.
-     * @param mixed      $variable The variable to bind to the parameter.
-     * @param int        $type     The binding type.
-     * @param int|null   $length   Must be specified when using an OUT bind
-     *                             so that PHP allocates enough memory to hold the returned value.
+     * @param string|int    $param    Parameter identifier. For a prepared statement using named placeholders,
+     *                                this will be a parameter name of the form :name. For a prepared statement
+     *                                using question mark placeholders, this will be the 1-indexed position
+     *                                of the parameter.
+     * @param mixed         $variable The variable to bind to the parameter.
+     * @param ParameterType $type     The binding type.
+     * @param int|null      $length   Must be specified when using an OUT bind
+     *                                so that PHP allocates enough memory to hold the returned value.
      *
      * @throws Exception
      */
     public function bindParam(
         string|int $param,
         mixed &$variable,
-        int $type = ParameterType::STRING,
+        ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
         $this->params[$param] = $variable;

@@ -15,7 +15,7 @@ final class Statement extends AbstractStatementMiddleware
     /** @var array<int,mixed>|array<string,mixed> */
     private array $params = [];
 
-    /** @var array<int,int>|array<string,int> */
+    /** @var array<int,ParameterType>|array<string,ParameterType> */
     private array $types = [];
 
     /**
@@ -32,7 +32,7 @@ final class Statement extends AbstractStatementMiddleware
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        int $type = ParameterType::STRING,
+        ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
         $this->params[$param] = &$variable;
@@ -41,7 +41,7 @@ final class Statement extends AbstractStatementMiddleware
         parent::bindParam($param, $variable, $type, $length);
     }
 
-    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
         $this->params[$param] = $value;
         $this->types[$param]  = $type;

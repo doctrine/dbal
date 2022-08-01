@@ -17,7 +17,7 @@ final class AsciiStringType extends StringType
         return $platform->getAsciiStringTypeDeclarationSQL($column);
     }
 
-    public function getBindingType(): int
+    public function getBindingType(): ParameterType
     {
         return ParameterType::ASCII;
     }

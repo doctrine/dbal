@@ -14,9 +14,10 @@ The following classes have been converted to enums:
 
 1. `Doctrine\DBAL\ColumnCase`,
 2. `Doctrine\DBAL\LockMode`,
-3. `Doctrine\DBAL\TransactionIsolationLevel`,
-4. `Doctrine\DBAL\Platforms\DateIntervalUnit`,
-5. `Doctrine\DBAL\Platforms\TrimMode`.
+3. `Doctrine\DBAL\ParameterType`,
+4. `Doctrine\DBAL\TransactionIsolationLevel`,
+5. `Doctrine\DBAL\Platforms\DateIntervalUnit`,
+6. `Doctrine\DBAL\Platforms\TrimMode`.
 
 The corresponding class constants are now instances of their enum type.
 

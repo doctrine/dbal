@@ -49,7 +49,7 @@ class BlobType extends Type
         return $value;
     }
 
-    public function getBindingType(): int
+    public function getBindingType(): ParameterType
     {
         return ParameterType::LARGE_OBJECT;
     }

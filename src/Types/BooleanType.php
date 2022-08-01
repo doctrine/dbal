@@ -30,7 +30,7 @@ class BooleanType extends Type
         return $platform->convertFromBoolean($value);
     }
 
-    public function getBindingType(): int
+    public function getBindingType(): ParameterType
     {
         return ParameterType::BOOLEAN;
     }

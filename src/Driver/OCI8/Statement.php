@@ -39,7 +39,7 @@ final class Statement implements StatementInterface
     ) {
     }
 
-    public function bindValue(int|string $param, mixed $value, int $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
         $this->bindParam($param, $value, $type);
     }
@@ -47,7 +47,7 @@ final class Statement implements StatementInterface
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        int $type = ParameterType::STRING,
+        ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
         if (is_int($param)) {
@@ -85,7 +85,7 @@ final class Statement implements StatementInterface
     /**
      * Converts DBAL parameter type to oci8 parameter type
      */
-    private function convertParameterType(int $type): int
+    private function convertParameterType(ParameterType $type): int
     {
         return match ($type) {
             ParameterType::BINARY => OCI_B_BIN,

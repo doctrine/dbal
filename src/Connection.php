@@ -54,26 +54,19 @@ use function sprintf;
 class Connection implements ServerVersionProvider
 {
     /**
-     * Represents an array of ints to be expanded by Doctrine SQL parsing.
+     * Represents an array of integers to be expanded by Doctrine SQL parsing.
      */
-    final public const PARAM_INT_ARRAY = ParameterType::INTEGER + self::ARRAY_PARAM_OFFSET;
+    final public const PARAM_INT_ARRAY = 101;
 
     /**
      * Represents an array of strings to be expanded by Doctrine SQL parsing.
      */
-    final public const PARAM_STR_ARRAY = ParameterType::STRING + self::ARRAY_PARAM_OFFSET;
+    final public const PARAM_STR_ARRAY = 102;
 
     /**
      * Represents an array of ascii strings to be expanded by Doctrine SQL parsing.
      */
-    final public const PARAM_ASCII_STR_ARRAY = ParameterType::ASCII + self::ARRAY_PARAM_OFFSET;
-
-    /**
-     * Offset by which PARAM_* constants are detected as arrays of the param type.
-     *
-     * @internal Should be used only within the wrapper layer.
-     */
-    final public const ARRAY_PARAM_OFFSET = 100;
+    final public const PARAM_ASCII_STR_ARRAY = 117;
 
     /**
      * The wrapped driver connection.
@@ -368,8 +361,8 @@ class Connection implements ServerVersionProvider
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
@@ -384,8 +377,8 @@ class Connection implements ServerVersionProvider
      * Prepares and executes an SQL query and returns the first row of the result
      * as a numerically indexed array.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return list<mixed>|false False is returned if no rows are found.
      *
@@ -400,8 +393,8 @@ class Connection implements ServerVersionProvider
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return mixed|false False is returned if no rows are found.
      *
@@ -463,8 +456,8 @@ class Connection implements ServerVersionProvider
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param array<string, mixed>                                                 $criteria Deletion criteria
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
+     * @param array<string, mixed>                                                                             $criteria
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return int|string The number of affected rows.
      *
@@ -527,9 +520,9 @@ class Connection implements ServerVersionProvider
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param array<string, mixed>                                                 $data     Column-value pairs
-     * @param array<string, mixed>                                                 $criteria Update criteria
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
+     * @param array<string, mixed>                                                                             $data
+     * @param array<string, mixed>                                                                             $criteria
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return int|string The number of affected rows.
      *
@@ -562,8 +555,8 @@ class Connection implements ServerVersionProvider
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param array<string, mixed>                                                 $data  Column-value pairs
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types Parameter types
+     * @param array<string, mixed>                                                                             $data
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return int|string The number of affected rows.
      *
@@ -596,16 +589,16 @@ class Connection implements ServerVersionProvider
     /**
      * Extract ordered type list from an ordered column list and type map.
      *
-     * @param array<int, string>                                                   $columnList
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param array<int, string>                                                                               $columns
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
-     * @return array<int, int|string|Type|null>|array<string, int|string|Type|null>
+     * @return array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null>
      */
-    private function extractTypeValues(array $columnList, array $types): array
+    private function extractTypeValues(array $columns, array $types): array
     {
         $typeValues = [];
 
-        foreach ($columnList as $columnName) {
+        foreach ($columns as $columnName) {
             $typeValues[] = $types[$columnName] ?? ParameterType::STRING;
         }
 
@@ -643,8 +636,8 @@ class Connection implements ServerVersionProvider
     /**
      * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return list<list<mixed>>
      *
@@ -658,8 +651,8 @@ class Connection implements ServerVersionProvider
     /**
      * Prepares and executes an SQL query and returns the result as an array of associative arrays.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return list<array<string,mixed>>
      *
@@ -674,8 +667,8 @@ class Connection implements ServerVersionProvider
      * Prepares and executes an SQL query and returns the result as an associative array with the keys
      * mapped to the first column and the values mapped to the second column.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return array<mixed,mixed>
      *
@@ -691,9 +684,8 @@ class Connection implements ServerVersionProvider
      * to the first column and the values being an associative array representing the rest of the columns
      * and their values.
      *
-     * @param string                                                               $query  SQL query
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return array<mixed,array<string,mixed>>
      *
@@ -707,8 +699,8 @@ class Connection implements ServerVersionProvider
     /**
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return list<mixed>
      *
@@ -722,8 +714,8 @@ class Connection implements ServerVersionProvider
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return Traversable<int,list<mixed>>
      *
@@ -738,8 +730,8 @@ class Connection implements ServerVersionProvider
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented
      * as associative arrays.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return Traversable<int,array<string,mixed>>
      *
@@ -754,8 +746,8 @@ class Connection implements ServerVersionProvider
      * Prepares and executes an SQL query and returns the result as an iterator with the keys
      * mapped to the first column and the values mapped to the second column.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return Traversable<mixed,mixed>
      *
@@ -771,9 +763,9 @@ class Connection implements ServerVersionProvider
      * to the first column and the values being an associative array representing the rest of the columns
      * and their values.
      *
-     * @param string                                           $query  SQL query
-     * @param list<mixed>|array<string, mixed>                 $params Query parameters
-     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     * @param string                                                               $query  SQL query
+     * @param list<mixed>|array<string, mixed>                                     $params
+     * @param array<int, ParameterType|string>|array<string, ParameterType|string> $types
      *
      * @return Traversable<mixed,array<string,mixed>>
      *
@@ -787,8 +779,8 @@ class Connection implements ServerVersionProvider
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over the first column values.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @return Traversable<int,mixed>
      *
@@ -824,8 +816,8 @@ class Connection implements ServerVersionProvider
      *
      * If the query is parametrized, a prepared statement is used.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @throws Exception
      */
@@ -843,9 +835,7 @@ class Connection implements ServerVersionProvider
 
         try {
             if (count($params) > 0) {
-                if ($this->needsArrayParameterConversion($params, $types)) {
-                    [$sql, $params, $types] = $this->expandArrayParameters($sql, $params, $types);
-                }
+                [$sql, $params, $types] = $this->expandArrayParameters($sql, $params, $types);
 
                 $stmt = $connection->prepare($sql);
                 if (count($types) > 0) {
@@ -867,8 +857,8 @@ class Connection implements ServerVersionProvider
     /**
      * Executes a caching query.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @throws CacheException
      * @throws Exception
@@ -925,8 +915,8 @@ class Connection implements ServerVersionProvider
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Statement parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                                 $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @throws Exception
      */
@@ -936,9 +926,7 @@ class Connection implements ServerVersionProvider
 
         try {
             if (count($params) > 0) {
-                if ($this->needsArrayParameterConversion($params, $types)) {
-                    [$sql, $params, $types] = $this->expandArrayParameters($sql, $params, $types);
-                }
+                [$sql, $params, $types] = $this->expandArrayParameters($sql, $params, $types);
 
                 $stmt = $connection->prepare($sql);
 
@@ -1321,9 +1309,8 @@ class Connection implements ServerVersionProvider
      * Binds a set of parameters, some or all of which are typed with a PDO binding type
      * or DBAL mapping type, to a given statement.
      *
-     * @param DriverStatement                                                      $stmt   Prepared statement
-     * @param list<mixed>|array<string, mixed>                                     $params Statement parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>                                                         $params
+     * @param array<int, string|ParameterType|Type|null>|array<string, string|ParameterType|Type|null> $types
      *
      * @throws Exception
      */
@@ -1379,14 +1366,14 @@ class Connection implements ServerVersionProvider
     /**
      * Gets the binding type of a given type.
      *
-     * @param mixed                $value The value to bind.
-     * @param int|string|Type|null $type  The type to bind (PDO or DBAL).
+     * @param mixed                          $value The value to bind.
+     * @param string|ParameterType|Type|null $type  The type to bind.
      *
-     * @return array{mixed, int} [0] => the (escaped) value, [1] => the binding type.
+     * @return array{mixed, ParameterType} [0] => the (escaped) value, [1] => the binding type.
      *
      * @throws Exception
      */
-    private function getBindingInfo(mixed $value, int|string|Type|null $type): array
+    private function getBindingInfo(mixed $value, string|ParameterType|Type|null $type): array
     {
         if (is_string($type)) {
             $type = Type::getType($type);
@@ -1413,8 +1400,8 @@ class Connection implements ServerVersionProvider
     /**
      * @internal
      *
-     * @param list<mixed>|array<string,mixed>                                      $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param list<mixed>|array<string,mixed>                                                                  $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      */
     final public function convertExceptionDuringQuery(
         Driver\Exception $e,
@@ -1434,13 +1421,37 @@ class Connection implements ServerVersionProvider
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param array<int, mixed>|array<string, mixed>                                                           $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
-     * @return array{string, list<mixed>, array<int,Type|int|string|null>}
+     * @return array{
+     *     string,
+     *     array<int, mixed>|array<string, mixed>,
+     *     array<int, string|ParameterType|Type|null>|array<string, string|ParameterType|Type|null>
+     * }
      */
     private function expandArrayParameters(string $sql, array $params, array $types): array
     {
+        $needsConversion = false;
+        $nonArrayTypes   = [];
+
+        if (is_string(key($params))) {
+            $needsConversion = true;
+        } else {
+            foreach ($types as $key => $type) {
+                if (is_int($type)) {
+                    $needsConversion = true;
+                    break;
+                }
+
+                $nonArrayTypes[$key] = $type;
+            }
+        }
+
+        if (! $needsConversion) {
+            return [$sql, $params, $nonArrayTypes];
+        }
+
         $this->parser ??= $this->getDatabasePlatform()->createSQLParser();
         $visitor        = new ExpandArrayParameters($params, $types);
 
@@ -1451,29 +1462,6 @@ class Connection implements ServerVersionProvider
             $visitor->getParameters(),
             $visitor->getTypes(),
         ];
-    }
-
-    /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
-     */
-    private function needsArrayParameterConversion(array $params, array $types): bool
-    {
-        if (is_string(key($params))) {
-            return true;
-        }
-
-        foreach ($types as $type) {
-            if (
-                $type === self::PARAM_INT_ARRAY
-                || $type === self::PARAM_STR_ARRAY
-                || $type === self::PARAM_ASCII_STR_ARRAY
-            ) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function handleDriverException(
@@ -1495,8 +1483,8 @@ class Connection implements ServerVersionProvider
      *
      * @deprecated This API is deprecated and will be removed after 2022
      *
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
-     * @param array<int, Type|int|string|null>|array<string, Type|int|string|null> $types  Parameter types
+     * @param array<int, mixed>|array<string, mixed>                                                           $params
+     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
      *
      * @throws Exception
      */
