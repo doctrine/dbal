@@ -8,10 +8,12 @@ use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use Psr\Log\LoggerInterface;
 
 use function array_slice;
 use function func_get_args;
+use function func_num_args;
 
 final class Statement extends AbstractStatementMiddleware
 {
@@ -40,6 +42,15 @@ final class Statement extends AbstractStatementMiddleware
      */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindParam() is deprecated.'
+                    . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
+
         $this->params[$param] = &$variable;
         $this->types[$param]  = $type;
 
@@ -51,6 +62,15 @@ final class Statement extends AbstractStatementMiddleware
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindValue() is deprecated.'
+                    . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
+
         $this->params[$param] = $value;
         $this->types[$param]  = $type;
 

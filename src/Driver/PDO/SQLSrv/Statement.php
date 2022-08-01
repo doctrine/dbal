@@ -40,6 +40,15 @@ final class Statement extends AbstractStatementMiddleware
         $length = null,
         $driverOptions = null
     ): bool {
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindParam() is deprecated.'
+                    . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
+
         if (func_num_args() > 4) {
             Deprecation::triggerIfCalledFromOutside(
                 'doctrine/dbal',
@@ -70,6 +79,15 @@ final class Statement extends AbstractStatementMiddleware
      */
     public function bindValue($param, $value, $type = ParameterType::STRING): bool
     {
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindValue() is deprecated.'
+                    . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
+
         return $this->bindParam($param, $value, $type);
     }
 }
