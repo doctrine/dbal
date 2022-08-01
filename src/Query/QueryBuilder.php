@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Query;
 
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
@@ -146,6 +147,11 @@ class QueryBuilder
     private array $values = [];
 
     /**
+     * The query cache profile used for caching results.
+     */
+    private ?QueryCacheProfile $resultCacheProfile = null;
+
+    /**
      * Initializes a new <tt>QueryBuilder</tt>.
      *
      * @param Connection $connection The DBAL Connection.
@@ -191,7 +197,7 @@ class QueryBuilder
      */
     public function fetchAssociative(): array|false
     {
-        return $this->connection->fetchAssociative($this->getSQL(), $this->params, $this->types);
+        return $this->executeQuery()->fetchAssociative();
     }
 
     /**
@@ -204,7 +210,7 @@ class QueryBuilder
      */
     public function fetchNumeric(): array|false
     {
-        return $this->connection->fetchNumeric($this->getSQL(), $this->params, $this->types);
+        return $this->executeQuery()->fetchNumeric();
     }
 
     /**
@@ -217,7 +223,7 @@ class QueryBuilder
      */
     public function fetchOne(): mixed
     {
-        return $this->connection->fetchOne($this->getSQL(), $this->params, $this->types);
+        return $this->executeQuery()->fetchOne();
     }
 
     /**
@@ -229,7 +235,7 @@ class QueryBuilder
      */
     public function fetchAllNumeric(): array
     {
-        return $this->connection->fetchAllNumeric($this->getSQL(), $this->params, $this->types);
+        return $this->executeQuery()->fetchAllNumeric();
     }
 
     /**
@@ -241,7 +247,7 @@ class QueryBuilder
      */
     public function fetchAllAssociative(): array
     {
-        return $this->connection->fetchAllAssociative($this->getSQL(), $this->params, $this->types);
+        return $this->executeQuery()->fetchAllAssociative();
     }
 
     /**
@@ -254,7 +260,7 @@ class QueryBuilder
      */
     public function fetchAllKeyValue(): array
     {
-        return $this->connection->fetchAllKeyValue($this->getSQL(), $this->params, $this->types);
+        return $this->executeQuery()->fetchAllKeyValue();
     }
 
     /**
@@ -268,7 +274,7 @@ class QueryBuilder
      */
     public function fetchAllAssociativeIndexed(): array
     {
-        return $this->connection->fetchAllAssociativeIndexed($this->getSQL(), $this->params, $this->types);
+        return $this->executeQuery()->fetchAllAssociativeIndexed();
     }
 
     /**
@@ -280,7 +286,7 @@ class QueryBuilder
      */
     public function fetchFirstColumn(): array
     {
-        return $this->connection->fetchFirstColumn($this->getSQL(), $this->params, $this->types);
+        return $this->executeQuery()->fetchFirstColumn();
     }
 
     /**
@@ -290,7 +296,12 @@ class QueryBuilder
      */
     public function executeQuery(): Result
     {
-        return $this->connection->executeQuery($this->getSQL(), $this->params, $this->types);
+        return $this->connection->executeQuery(
+            $this->getSQL(),
+            $this->params,
+            $this->types,
+            $this->resultCacheProfile
+        );
     }
 
     /**
@@ -1424,5 +1435,30 @@ class QueryBuilder
 
             $this->params[$name] = clone $param;
         }
+    }
+
+    /**
+     * Enables caching of the results of this query, for given amount of seconds
+     * and optionally specified witch key to use for the cache entry.
+     *
+     * @return $this
+     */
+    public function enableResultCache(QueryCacheProfile $cacheProfile): self
+    {
+        $this->resultCacheProfile = $cacheProfile;
+
+        return $this;
+    }
+
+    /**
+     * Disables caching of the results of this query.
+     *
+     * @return $this
+     */
+    public function disableResultCache(): self
+    {
+        $this->resultCacheProfile = null;
+
+        return $this;
     }
 }

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function func_num_args;
 use function is_string;
@@ -163,6 +164,15 @@ class Statement
      */
     public function executeQuery(array $params = []): Result
     {
+        if (func_num_args() > 0) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5556',
+                'Passing $params to Statement::executeQuery() is deprecated. Bind parameters using'
+                . ' Statement::bindParam() or Statement::bindValue() instead.'
+            );
+        }
+
         return $this->execute($params);
     }
 
@@ -175,6 +185,15 @@ class Statement
      */
     public function executeStatement(array $params = []): int
     {
+        if (func_num_args() > 0) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5556',
+                'Passing $params to Statement::executeStatement() is deprecated. Bind parameters using'
+                . ' Statement::bindParam() or Statement::bindValue() instead.'
+            );
+        }
+
         return $this->execute($params)->rowCount();
     }
 

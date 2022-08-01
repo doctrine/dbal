@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Query;
 
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
@@ -838,11 +839,16 @@ class QueryBuilderTest extends TestCase
         array $parameterTypes,
         string $expectedSql
     ): void {
-        $qb = new QueryBuilder($this->conn);
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = $this->createMock(Result::class);
 
         $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes, null)
+            ->willReturn($mockedResult);
+
+        $mockedResult->expects(self::once())
             ->method('fetchAssociative')
-            ->with($expectedSql, $parameters, $parameterTypes)
             ->willReturn(['username' => 'jwage', 'password' => 'changeme']);
 
         $row = $qb->select($select)
@@ -868,11 +874,16 @@ class QueryBuilderTest extends TestCase
         array $parameterTypes,
         string $expectedSql
     ): void {
-        $qb = new QueryBuilder($this->conn);
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = $this->createMock(Result::class);
 
         $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes, null)
+            ->willReturn($mockedResult);
+
+        $mockedResult->expects(self::once())
             ->method('fetchNumeric')
-            ->with($expectedSql, $parameters, $parameterTypes)
             ->willReturn(['jwage', 'changeme']);
 
         $row = $qb->select($select)
@@ -898,11 +909,16 @@ class QueryBuilderTest extends TestCase
         array $parameterTypes,
         string $expectedSql
     ): void {
-        $qb = new QueryBuilder($this->conn);
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = $this->createMock(Result::class);
 
         $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes, null)
+            ->willReturn($mockedResult);
+
+        $mockedResult->expects(self::once())
             ->method('fetchOne')
-            ->with($expectedSql, $parameters, $parameterTypes)
             ->willReturn('jwage');
 
         $username = $qb->select($select)
@@ -928,11 +944,16 @@ class QueryBuilderTest extends TestCase
         array $parameterTypes,
         string $expectedSql
     ): void {
-        $qb = new QueryBuilder($this->conn);
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = $this->createMock(Result::class);
 
         $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes, null)
+            ->willReturn($mockedResult);
+
+        $mockedResult->expects(self::once())
             ->method('fetchAllAssociative')
-            ->with($expectedSql, $parameters, $parameterTypes)
             ->willReturn(
                 [
                     ['username' => 'jwage', 'password' => 'changeme'],
@@ -969,11 +990,16 @@ class QueryBuilderTest extends TestCase
         array $parameterTypes,
         string $expectedSql
     ): void {
-        $qb = new QueryBuilder($this->conn);
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = $this->createMock(Result::class);
 
         $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes, null)
+            ->willReturn($mockedResult);
+
+        $mockedResult->expects(self::once())
             ->method('fetchAllNumeric')
-            ->with($expectedSql, $parameters, $parameterTypes)
             ->willReturn(
                 [
                     ['jwage', 'changeme'],
@@ -1010,11 +1036,16 @@ class QueryBuilderTest extends TestCase
         array $parameterTypes,
         string $expectedSql
     ): void {
-        $qb = new QueryBuilder($this->conn);
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = $this->createMock(Result::class);
 
         $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes, null)
+            ->willReturn($mockedResult);
+
+        $mockedResult->expects(self::once())
             ->method('fetchAllKeyValue')
-            ->with($expectedSql, $parameters, $parameterTypes)
             ->willReturn(
                 [
                     'jwage' => 'changeme',
@@ -1051,11 +1082,16 @@ class QueryBuilderTest extends TestCase
         array $parameterTypes,
         string $expectedSql
     ): void {
-        $qb = new QueryBuilder($this->conn);
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = $this->createMock(Result::class);
 
         $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes, null)
+            ->willReturn($mockedResult);
+
+        $mockedResult->expects(self::once())
             ->method('fetchAllAssociativeIndexed')
-            ->with($expectedSql, $parameters, $parameterTypes)
             ->willReturn(
                 [
                     1 => [
@@ -1096,11 +1132,16 @@ class QueryBuilderTest extends TestCase
         array $parameterTypes,
         string $expectedSql
     ): void {
-        $qb = new QueryBuilder($this->conn);
+        $qb           = new QueryBuilder($this->conn);
+        $mockedResult = $this->createMock(Result::class);
 
         $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes, null)
+            ->willReturn($mockedResult);
+
+        $mockedResult->expects(self::once())
             ->method('fetchFirstColumn')
-            ->with($expectedSql, $parameters, $parameterTypes)
             ->willReturn(
                 [
                     'jwage',
@@ -1200,6 +1241,42 @@ class QueryBuilderTest extends TestCase
             ->from($from)
             ->where($where)
             ->setParameters($params, $types)
+            ->executeQuery();
+
+        self::assertSame(
+            $mockedResult,
+            $results
+        );
+    }
+
+    /**
+     * @param list<mixed>|array<string, mixed>                                     $parameters
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testExecuteQueryWithResultCaching(
+        string $select,
+        string $from,
+        string $where,
+        array $parameters,
+        array $parameterTypes,
+        string $expectedSql
+    ): void {
+        $qb           = new QueryBuilder($this->conn);
+        $qcp          = new QueryCacheProfile(300);
+        $mockedResult = $this->createMock(Result::class);
+
+        $this->conn->expects(self::once())
+            ->method('executeQuery')
+            ->with($expectedSql, $parameters, $parameterTypes, $qcp)
+            ->willReturn($mockedResult);
+
+        $results = $qb->select($select)
+            ->from($from)
+            ->where($where)
+            ->setParameters($parameters, $parameterTypes)
+            ->enableResultCache($qcp)
             ->executeQuery();
 
         self::assertSame(

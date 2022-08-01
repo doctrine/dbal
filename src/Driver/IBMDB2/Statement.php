@@ -10,12 +10,14 @@ use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCreateTemporaryFile;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 use function db2_bind_param;
 use function db2_execute;
 use function error_get_last;
 use function fclose;
+use function func_num_args;
 use function is_int;
 use function is_resource;
 use function stream_copy_to_stream;
@@ -54,6 +56,15 @@ final class Statement implements StatementInterface
     {
         assert(is_int($param));
 
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindValue() is deprecated.'
+                    . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
+
         $this->bindParam($param, $value, $type);
     }
 
@@ -64,6 +75,15 @@ final class Statement implements StatementInterface
         ?int $length = null
     ): void {
         assert(is_int($param));
+
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindParam() is deprecated.'
+                    . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
 
         switch ($type) {
             case ParameterType::INTEGER:
@@ -94,6 +114,15 @@ final class Statement implements StatementInterface
 
     public function execute(?array $params = null): Result
     {
+        if ($params !== null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5556',
+                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
+                    . ' Statement::bindParam() or Statement::bindValue() instead.'
+            );
+        }
+
         $handles = $this->bindLobs();
 
         $result = @db2_execute($this->stmt, $params ?? $this->parameters);

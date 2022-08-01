@@ -7,9 +7,12 @@ namespace Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
 use PDOStatement;
+
+use function func_num_args;
 
 final class Statement implements StatementInterface
 {
@@ -22,6 +25,15 @@ final class Statement implements StatementInterface
 
     public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindValue() is deprecated.'
+                    . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
+
         $type = $this->convertParamType($type);
 
         try {
@@ -37,6 +49,15 @@ final class Statement implements StatementInterface
         ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindParam() is deprecated.'
+                . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
+
         try {
             if ($length === null) {
                 $this->stmt->bindParam($param, $variable, $this->convertParamType($type));
@@ -69,6 +90,15 @@ final class Statement implements StatementInterface
 
     public function execute(?array $params = null): Result
     {
+        if ($params !== null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5556',
+                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
+                    . ' Statement::bindParam() or Statement::bindValue() instead.'
+            );
+        }
+
         try {
             $this->stmt->execute($params);
         } catch (PDOException $exception) {

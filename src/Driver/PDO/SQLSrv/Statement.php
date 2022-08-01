@@ -7,7 +7,10 @@ namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\PDO\Statement as PDOStatement;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use PDO;
+
+use function func_num_args;
 
 final class Statement extends AbstractStatementMiddleware
 {
@@ -29,6 +32,15 @@ final class Statement extends AbstractStatementMiddleware
         ParameterType $type = ParameterType::STRING,
         ?int $length = null
     ): void {
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindParam() is deprecated.'
+                . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
+
         switch ($type) {
             case ParameterType::LARGE_OBJECT:
             case ParameterType::BINARY:
@@ -58,6 +70,15 @@ final class Statement extends AbstractStatementMiddleware
 
     public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
+        if (func_num_args() < 3) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5558',
+                'Not passing $type to Statement::bindValue() is deprecated.'
+                . ' Pass the type corresponding to the parameter being bound.'
+            );
+        }
+
         $this->bindParam($param, $value, $type);
     }
 }
