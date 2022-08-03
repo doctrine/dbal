@@ -318,10 +318,10 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
-     * @param list<mixed>                                                          $expectedParams
-     * @param array<int,Type|int|string|null>                                      $expectedTypes
+     * @param array<int, mixed>|array<string, mixed>                     $params
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $types
+     * @param list<mixed>                                                $expectedParams
+     * @param array<int,Type|int|string>                                 $expectedTypes
      *
      * @dataProvider dataExpandListParameters
      */
@@ -370,8 +370,8 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param array<int, mixed>|array<string, mixed>                     $params
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $types
      *
      * @dataProvider missingNamedParameterProvider
      */
@@ -412,10 +412,10 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param array<int, mixed>|array<string, mixed>                     $params
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $types
      *
-     * @return array{string, list<mixed>, array<int,string|ParameterType|Type|null>}
+     * @return array{string, list<mixed>, array<int,string|ParameterType|Type>}
      */
     private function expandArrayParameters(string $sql, array $params, array $types): array
     {

@@ -52,9 +52,9 @@ class QueryCacheProfile
     /**
      * Generates the real cache key from query, params, types and connection parameters.
      *
-     * @param list<mixed>|array<string, mixed>                                                                 $params
-     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
-     * @param array<string, mixed>                                                                             $connectionParams
+     * @param list<mixed>|array<string, mixed>                                                       $params
+     * @param array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type> $types
+     * @param array<string, mixed>                                                                   $connectionParams
      *
      * @return string[]
      */

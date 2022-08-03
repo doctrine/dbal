@@ -153,9 +153,7 @@ EOF
         // fetching only one record out of two
         $result->fetchAssociative();
 
-        $stmt2  = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
-        $result = $stmt2->executeQuery([1]);
-        self::assertEquals(1, $result->fetchOne());
+        self::assertEquals(1, $this->connection->fetchOne('SELECT id FROM stmt_test WHERE id = ?', [1]));
     }
 
     public function testReuseStatementAfterFreeingResult(): void
@@ -168,15 +166,17 @@ EOF
         $this->connection->insert('stmt_test', ['id' => 2]);
 
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
+        $stmt->bindValue(1, 1);
 
-        $result = $stmt->executeQuery([1]);
+        $result = $stmt->executeQuery();
 
         $id = $result->fetchOne();
         self::assertEquals(1, $id);
 
         $result->free();
 
-        $result = $stmt->executeQuery([2]);
+        $stmt->bindValue(1, 2);
+        $result = $stmt->executeQuery();
 
         $id = $result->fetchOne();
         self::assertEquals(2, $id);
@@ -255,9 +255,11 @@ EOF
 
         $platform  = $this->connection->getDatabasePlatform();
         $statement = $this->connection->prepare($platform->getDummySelectSQL(':foo'));
+
         $this->expectException(DriverException::class);
 
-        $statement->executeQuery(['bar' => 'baz']);
+        $statement->bindValue('bar', 'baz');
+        $statement->executeQuery();
     }
 
     public function testParameterBindingOrder(): void
@@ -391,7 +393,8 @@ EOF
             $this->expectException(Exception::class);
         }
 
-        $stmt->executeQuery([null]);
+        $stmt->bindValue(1, null);
+        $stmt->executeQuery();
     }
 
     public function testExecuteQuery(): void
@@ -399,16 +402,6 @@ EOF
         $platform = $this->connection->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL();
         $result   = $this->connection->prepare($query)->executeQuery()->fetchOne();
-
-        self::assertEquals(1, $result);
-    }
-
-    public function testExecuteQueryWithParams(): void
-    {
-        $this->connection->insert('stmt_test', ['id' => 1]);
-
-        $query  = 'SELECT id FROM stmt_test WHERE id = ?';
-        $result = $this->connection->prepare($query)->executeQuery([1])->fetchOne();
 
         self::assertEquals(1, $result);
     }
@@ -426,8 +419,11 @@ EOF
 
         self::assertEquals(1, $result);
 
-        $query  = 'UPDATE stmt_test SET name = ? WHERE id = ?';
-        $result = $this->connection->prepare($query)->executeStatement(['foo', 1]);
+        $query = 'UPDATE stmt_test SET name = ? WHERE id = ?';
+        $stmt  = $this->connection->prepare($query);
+        $stmt->bindValue(1, 'foo');
+        $stmt->bindValue(2, 1);
+        $result = $stmt->executeStatement();
 
         self::assertEquals(1, $result);
     }

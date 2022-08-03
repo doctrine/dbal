@@ -28,7 +28,7 @@ interface Statement
      *
      * @throws Exception
      */
-    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void;
+    public function bindValue(int|string $param, mixed $value, ParameterType $type): void;
 
     /**
      * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
@@ -49,7 +49,7 @@ interface Statement
      *                                question mark placeholders, this will be the 1-indexed position of the parameter.
      * @param mixed         $variable The variable to bind to the parameter.
      * @param ParameterType $type     Explicit data type for the parameter using the {@see ParameterType}
-     *                             constants.
+     *                                constants.
      * @param int|null      $length   You must specify maxlength when using an OUT bind
      *                                so that PHP allocates enough memory to hold the returned value.
      *
@@ -58,23 +58,14 @@ interface Statement
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        ParameterType $type = ParameterType::STRING,
+        ParameterType $type,
         ?int $length = null
     ): void;
 
     /**
      * Executes a prepared statement
      *
-     * If the prepared statement included parameter markers, you must either:
-     * call {@see bindParam()} to bind PHP variables to the parameter markers:
-     * bound variables pass their value as input and receive the output value,
-     * if any, of their associated parameter markers or pass an array of input-only
-     * parameter values.
-     *
-     * @param mixed[]|null $params A numeric array of values with as many elements as there are
-     *                             bound parameters in the SQL statement being executed.
-     *
      * @throws Exception
      */
-    public function execute(?array $params = null): Result;
+    public function execute(): Result;
 }

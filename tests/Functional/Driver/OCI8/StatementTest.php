@@ -36,24 +36,6 @@ class StatementTest extends FunctionalTestCase
     }
 
     /**
-     * Low-level approach to working with parameter binding
-     *
-     * @param mixed[] $params
-     * @param mixed[] $expected
-     *
-     * @dataProvider queryConversionProvider
-     */
-    public function testStatementBindParameters(string $query, array $params, array $expected): void
-    {
-        self::assertEquals(
-            $expected,
-            $this->connection->prepare($query)
-                ->executeQuery($params)
-                ->fetchAssociative()
-        );
-    }
-
-    /**
      * @return array<string, array<int, mixed>>
      */
     public static function queryConversionProvider(): iterable
@@ -105,5 +87,17 @@ World?!',
                 ['COL1' => ''],
             ],
         ];
+    }
+
+    public function testBindPositionalParameter(): void
+    {
+        $statement = $this->connection->prepare('SELECT ? COL1 FROM DUAL');
+        $statement->bindValue(1, 1);
+
+        self::assertEquals(
+            ['COL1' => 1],
+            $statement->executeQuery()
+                ->fetchAssociative()
+        );
     }
 }

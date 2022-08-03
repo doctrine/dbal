@@ -826,8 +826,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                           $parameters
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -861,8 +861,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                           $parameters
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -896,8 +896,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                           $parameters
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -931,8 +931,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                           $parameters
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -977,8 +977,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                           $parameters
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1023,8 +1023,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                           $parameters
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1069,8 +1069,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                           $parameters
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1119,8 +1119,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                           $parameters
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1172,7 +1172,7 @@ class QueryBuilderTest extends TestCase
      *          string,
      *          string,
      *          list<mixed>|array<string, mixed>,
-     *          array<int, int|string|Type|null>|array<string, int|string|Type|null>,
+     *          array<int, int|string|Type>|array<string, int|string|Type>,
      *          string
      *  }>
      */
@@ -1216,8 +1216,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                                                 $params
-     * @param array<int, int|string|ParameterType|Type|null>|array<string, int|string|ParameterType|Type|null> $types
+     * @param list<mixed>|array<string, mixed>                                                       $params
+     * @param array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type> $types
      *
      * @dataProvider fetchProvider
      */
@@ -1250,8 +1250,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param list<mixed>|array<string, mixed>                           $parameters
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
      *
      * @dataProvider fetchProvider
      */

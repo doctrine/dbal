@@ -27,12 +27,12 @@ final class ExpandArrayParameters implements Visitor
     /** @var list<mixed> */
     private array $convertedParameters = [];
 
-    /** @var array<int,string|ParameterType|Type|null> */
+    /** @var array<int,string|ParameterType|Type> */
     private array $convertedTypes = [];
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                                                         $parameters
-     * @param array<int,int|string|ParameterType|Type|null>|array<string,int|string|ParameterType|Type|null> $types
+     * @param array<int, mixed>|array<string, mixed>                                               $parameters
+     * @param array<int,int|string|ParameterType|Type>|array<string,int|string|ParameterType|Type> $types
      */
     public function __construct(private readonly array $parameters, private readonly array $types)
     {
@@ -115,7 +115,7 @@ final class ExpandArrayParameters implements Visitor
     }
 
     /**
-     * @return array<int,string|ParameterType|Type|null>
+     * @return array<int,string|ParameterType|Type>
      */
     public function getTypes(): array
     {
@@ -125,7 +125,7 @@ final class ExpandArrayParameters implements Visitor
     /**
      * @param list<mixed> $values
      */
-    private function appendTypedParameter(array $values, string|ParameterType|Type|null $type): void
+    private function appendTypedParameter(array $values, string|ParameterType|Type $type): void
     {
         $this->convertedSQL[] = implode(', ', array_fill(0, count($values), '?'));
 

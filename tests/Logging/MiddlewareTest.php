@@ -94,22 +94,7 @@ class MiddlewareTest extends TestCase
         $connection->rollBack();
     }
 
-    public function testExecuteStatementWithUntypedParameters(): void
-    {
-        $this->logger->expects(self::once())
-            ->method('debug')
-            ->with('Executing statement: {sql} (parameters: {params}, types: {types})', [
-                'sql' => 'SELECT ?',
-                'params' => [42],
-                'types' => [],
-            ]);
-
-        $connection = $this->driver->connect([]);
-        $statement  = $connection->prepare('SELECT ?');
-        $statement->execute([42]);
-    }
-
-    public function testExecuteStatementWithTypedParameters(): void
+    public function testExecuteStatementWithParameters(): void
     {
         $this->logger->expects(self::once())
             ->method('debug')
@@ -140,7 +125,7 @@ class MiddlewareTest extends TestCase
 
         $connection = $this->driver->connect([]);
         $statement  = $connection->prepare('SELECT :value');
-        $statement->bindValue('value', 'Test');
+        $statement->bindValue('value', 'Test', ParameterType::STRING);
 
         $statement->execute();
     }

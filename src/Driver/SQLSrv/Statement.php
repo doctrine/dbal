@@ -8,10 +8,8 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 
 use function assert;
-use function func_num_args;
 use function is_int;
 use function sqlsrv_execute;
 use function SQLSRV_PHPTYPE_STREAM;
@@ -68,18 +66,9 @@ final class Statement implements StatementInterface
         $this->sql .= self::LAST_INSERT_ID_SQL;
     }
 
-    public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
+    public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         assert(is_int($param));
-
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindValue() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
-            );
-        }
 
         $this->variables[$param] = $value;
         $this->types[$param]     = $type;
@@ -88,19 +77,10 @@ final class Statement implements StatementInterface
     public function bindParam(
         int|string $param,
         mixed &$variable,
-        ParameterType $type = ParameterType::STRING,
+        ParameterType $type,
         ?int $length = null
     ): void {
         assert(is_int($param));
-
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindParam() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
-            );
-        }
 
         $this->variables[$param] =& $variable;
         $this->types[$param]     = $type;
@@ -109,25 +89,8 @@ final class Statement implements StatementInterface
         $this->stmt = null;
     }
 
-    public function execute(?array $params = null): Result
+    public function execute(): Result
     {
-        if ($params !== null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5556',
-                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
-                    . ' Statement::bindParam() or Statement::bindValue() instead.'
-            );
-
-            foreach ($params as $key => $val) {
-                if (is_int($key)) {
-                    $this->bindValue($key + 1, $val, ParameterType::STRING);
-                } else {
-                    $this->bindValue($key, $val, ParameterType::STRING);
-                }
-            }
-        }
-
         $this->stmt ??= $this->prepare();
 
         if (! sqlsrv_execute($this->stmt)) {
