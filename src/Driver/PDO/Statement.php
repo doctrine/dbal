@@ -64,6 +64,8 @@ final class Statement implements StatementInterface
     /**
      * {@inheritDoc}
      *
+     * @deprecated Use {@see bindValue()} instead.
+     *
      * @param mixed    $param
      * @param mixed    $variable
      * @param int      $type
@@ -77,6 +79,13 @@ final class Statement implements StatementInterface
         $length = null,
         $driverOptions = null
     ): bool {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5563',
+            '%s is deprecated. Use bindValue() instead.',
+            __METHOD__
+        );
+
         if (func_num_args() < 3) {
             Deprecation::trigger(
                 'doctrine/dbal',

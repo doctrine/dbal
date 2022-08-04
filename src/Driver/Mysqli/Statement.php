@@ -66,9 +66,18 @@ final class Statement implements StatementInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use {@see bindValue()} instead.
      */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5563',
+            '%s is deprecated. Use bindValue() instead.',
+            __METHOD__
+        );
+
         assert(is_int($param));
 
         if (func_num_args() < 3) {
