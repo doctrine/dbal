@@ -100,16 +100,14 @@ class MiddlewareTest extends TestCase
             ->method('debug')
             ->with('Executing statement: {sql} (parameters: {params}, types: {types})', [
                 'sql' => 'SELECT ?, ?',
-                'params' => [1 => 42, 2 => 'Test'],
-                'types' => [1 => ParameterType::INTEGER, 2 => ParameterType::STRING],
+                'params' => [1 => 42],
+                'types' => [1 => ParameterType::INTEGER],
             ]);
 
         $connection = $this->driver->connect([]);
         $statement  = $connection->prepare('SELECT ?, ?');
         $statement->bindValue(1, 42, ParameterType::INTEGER);
-        $statement->bindParam(2, $byRef, ParameterType::STRING);
 
-        $byRef = 'Test';
         $statement->execute();
     }
 

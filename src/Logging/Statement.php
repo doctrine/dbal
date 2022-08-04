@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 use Psr\Log\LoggerInterface;
 
 final class Statement extends AbstractStatementMiddleware
@@ -28,28 +27,6 @@ final class Statement extends AbstractStatementMiddleware
         private readonly string $sql
     ) {
         parent::__construct($statement);
-    }
-
-    /**
-     * @deprecated Use {@see bindValue()} instead.
-     */
-    public function bindParam(
-        int|string $param,
-        mixed &$variable,
-        ParameterType $type,
-        ?int $length = null
-    ): void {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5563',
-            '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
-        );
-
-        $this->params[$param] = &$variable;
-        $this->types[$param]  = $type;
-
-        parent::bindParam($param, $variable, $type, $length);
     }
 
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void

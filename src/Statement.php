@@ -6,9 +6,7 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
-use function func_num_args;
 use function is_string;
 
 /**
@@ -93,51 +91,6 @@ class Statement
 
         try {
             $this->stmt->bindValue($param, $value, $bindingType);
-        } catch (Driver\Exception $e) {
-            throw $this->conn->convertException($e);
-        }
-    }
-
-    /**
-     * Binds a parameter to a value by reference.
-     *
-     * Binding a parameter by reference does not support DBAL mapping types.
-     *
-     * @deprecated Use {@see bindValue()} instead.
-     *
-     * @param string|int    $param    Parameter identifier. For a prepared statement using named placeholders,
-     *                                this will be a parameter name of the form :name. For a prepared statement
-     *                                using question mark placeholders, this will be the 1-indexed position
-     *                                of the parameter.
-     * @param mixed         $variable The variable to bind to the parameter.
-     * @param ParameterType $type     The binding type.
-     * @param int|null      $length   Must be specified when using an OUT bind
-     *                                so that PHP allocates enough memory to hold the returned value.
-     *
-     * @throws Exception
-     */
-    public function bindParam(
-        string|int $param,
-        mixed &$variable,
-        ParameterType $type = ParameterType::STRING,
-        ?int $length = null
-    ): void {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5563',
-            '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
-        );
-
-        $this->params[$param] = $variable;
-        $this->types[$param]  = $type;
-
-        try {
-            if (func_num_args() > 3) {
-                $this->stmt->bindParam($param, $variable, $type, $length);
-            } else {
-                $this->stmt->bindParam($param, $variable, $type);
-            }
         } catch (Driver\Exception $e) {
             throw $this->conn->convertException($e);
         }

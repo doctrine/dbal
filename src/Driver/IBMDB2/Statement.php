@@ -10,7 +10,6 @@ use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCreateTemporaryFile;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 use function db2_bind_param;
@@ -55,34 +54,17 @@ final class Statement implements StatementInterface
     {
         assert(is_int($param));
 
-        $this->bindParam($param, $value, $type);
-    }
-
-    /**
-     * @deprecated Use {@see bindValue()} instead.
-     */
-    public function bindParam(int|string $param, mixed &$variable, ParameterType $type, ?int $length = null): void
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5563',
-            '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
-        );
-
-        assert(is_int($param));
-
         switch ($type) {
             case ParameterType::INTEGER:
-                $this->bind($param, $variable, DB2_PARAM_IN, DB2_LONG);
+                $this->bind($param, $value, DB2_PARAM_IN, DB2_LONG);
                 break;
 
             case ParameterType::LARGE_OBJECT:
-                $this->lobs[$param] = &$variable;
+                $this->lobs[$param] = &$value;
                 break;
 
             default:
-                $this->bind($param, $variable, DB2_PARAM_IN, DB2_CHAR);
+                $this->bind($param, $value, DB2_PARAM_IN, DB2_CHAR);
                 break;
         }
     }

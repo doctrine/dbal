@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed wrapper- and driver-level `Statement::bindParam()` methods.
+
+The following methods have been removed:
+
+1. `Doctrine\DBAL\Statement::bindParam()`,
+2. `Doctrine\DBAL\Driver\Statement::bindParam()`.
+
 ## BC BREAK: made parameter type in driver-level `Statement::bind*()` methods required.
 
 The `$type` parameter of the driver-level `Statement::bindParam()` and `::bindValue()` has been made required.

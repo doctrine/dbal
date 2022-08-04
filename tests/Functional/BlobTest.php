@@ -161,10 +161,8 @@ class BlobTest extends FunctionalTestCase
             "INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)"
         );
 
-        $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);
-
-        // Bind param does late binding (bind by reference), so create the stream only now:
         $stream = fopen('data://text/plain,test', 'r');
+        $stmt->bindValue(1, $stream, ParameterType::LARGE_OBJECT);
 
         $stmt->executeStatement();
 
