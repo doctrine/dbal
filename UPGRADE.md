@@ -826,6 +826,15 @@ The following methods have been removed.
 
 # Upgrade to 3.4
 
+## Deprecated wrapper- and driver-level `Statement::bindParam()` methods.
+
+The following methods have been deprecated:
+
+1. `Doctrine\DBAL\Statement::bindParam()`,
+2. `Doctrine\DBAL\Driver\Statement::bindParam()`.
+
+Use the corresponding `bindValue()` instead.
+
 ## Deprecated not passing parameter type to the driver-level `Statement::bind*()` methods.
 
 Not passing `$type` to the driver-level `Statement::bindParam()` and `::bindValue()` is deprecated.

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\PDO\Statement as PDOStatement;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use PDO;
 
 final class Statement extends AbstractStatementMiddleware
@@ -23,12 +24,22 @@ final class Statement extends AbstractStatementMiddleware
         $this->statement = $statement;
     }
 
+    /**
+     * @deprecated Use {@see bindValue()} instead.
+     */
     public function bindParam(
         int|string $param,
         mixed &$variable,
         ParameterType $type,
         ?int $length = null
     ): void {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5563',
+            '%s is deprecated. Use bindValue() instead.',
+            __METHOD__
+        );
+
         switch ($type) {
             case ParameterType::LARGE_OBJECT:
             case ParameterType::BINARY:

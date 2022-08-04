@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\NonStreamResourceUsedAsLargeObject;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use mysqli_sql_exception;
 use mysqli_stmt;
 
@@ -51,12 +52,22 @@ final class Statement implements StatementInterface
         $this->boundValues = array_fill(1, $paramCount, null);
     }
 
+    /**
+     * @deprecated Use {@see bindValue()} instead.
+     */
     public function bindParam(
         int|string $param,
         mixed &$variable,
         ParameterType $type,
         ?int $length = null
     ): void {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5563',
+            '%s is deprecated. Use bindValue() instead.',
+            __METHOD__
+        );
+
         assert(is_int($param));
 
         $this->types[$param - 1]   = $this->convertParameterType($type);

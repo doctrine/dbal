@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -31,12 +32,22 @@ final class Statement implements StatementInterface
         }
     }
 
+    /**
+     * @deprecated Use {@see bindValue()} instead.
+     */
     public function bindParam(
         string|int $param,
         mixed &$variable,
         ParameterType $type,
         ?int $length = null
     ): void {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5563',
+            '%s is deprecated. Use bindValue() instead.',
+            __METHOD__
+        );
+
         try {
             if ($length === null) {
                 $this->stmt->bindParam($param, $variable, $this->convertParamType($type));
