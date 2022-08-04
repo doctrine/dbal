@@ -123,6 +123,8 @@ class Statement
      *
      * Binding a parameter by reference does not support DBAL mapping types.
      *
+     * @deprecated Use {@see bindValue()} instead.
+     *
      * @param string|int $param    The name or position of the parameter.
      * @param mixed      $variable The reference to the variable to bind.
      * @param int        $type     The binding type.
@@ -135,6 +137,13 @@ class Statement
      */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5563',
+            '%s is deprecated. Use bindValue() instead.',
+            __METHOD__
+        );
+
         $this->params[$param] = $variable;
         $this->types[$param]  = $type;
 
