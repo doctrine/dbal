@@ -182,25 +182,6 @@ EOF
         self::assertEquals(2, $id);
     }
 
-    public function testReuseStatementWithParameterBoundByReference(): void
-    {
-        $this->connection->insert('stmt_test', ['id' => 1]);
-        $this->connection->insert('stmt_test', ['id' => 2]);
-
-        $stmt = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
-        $stmt->bindParam(1, $id);
-
-        $id = 1;
-
-        $result = $stmt->executeQuery();
-        self::assertEquals(1, $result->fetchOne());
-
-        $id = 2;
-
-        $result = $stmt->executeQuery();
-        self::assertEquals(2, $result->fetchOne());
-    }
-
     public function testReuseStatementWithReboundValue(): void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
@@ -215,36 +196,6 @@ EOF
         $stmt->bindValue(1, 2);
         $result = $stmt->executeQuery();
         self::assertEquals(2, $result->fetchOne());
-    }
-
-    public function testReuseStatementWithReboundParam(): void
-    {
-        $this->connection->insert('stmt_test', ['id' => 1]);
-        $this->connection->insert('stmt_test', ['id' => 2]);
-
-        $stmt = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
-
-        $x = 1;
-        $stmt->bindParam(1, $x);
-        $result = $stmt->executeQuery();
-        self::assertEquals(1, $result->fetchOne());
-
-        $y = 2;
-        $stmt->bindParam(1, $y);
-        $result = $stmt->executeQuery();
-        self::assertEquals(2, $result->fetchOne());
-    }
-
-    public function testBindParamWithNullLength(): void
-    {
-        $this->connection->insert('stmt_test', ['id' => 1]);
-
-        $stmt = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
-
-        $value = 1;
-        $stmt->bindParam(1, $value, ParameterType::INTEGER, null);
-
-        self::assertEquals(1, $stmt->executeQuery()->fetchOne());
     }
 
     public function testBindInvalidNamedParameter(): void

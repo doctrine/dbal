@@ -25,20 +25,6 @@ class StatementTest extends TestCase
         $this->stmt        = new Statement($this->wrappedStmt, $converter);
     }
 
-    public function testBindParam(): void
-    {
-        $column   = 'mycolumn';
-        $variable = 'myvalue';
-        $type     = ParameterType::STRING;
-        $length   = 666;
-
-        $this->wrappedStmt->expects(self::once())
-            ->method('bindParam')
-            ->with($column, $variable, $type, $length);
-
-        $this->stmt->bindParam($column, $variable, $type, $length);
-    }
-
     public function testBindValue(): void
     {
         $param = 'myparam';

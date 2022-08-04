@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 
 use function assert;
 use function is_int;
@@ -73,31 +72,6 @@ final class Statement implements StatementInterface
 
         $this->variables[$param] = $value;
         $this->types[$param]     = $type;
-    }
-
-    /**
-     * @deprecated Use {@see bindValue()} instead.
-     */
-    public function bindParam(
-        int|string $param,
-        mixed &$variable,
-        ParameterType $type,
-        ?int $length = null
-    ): void {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5563',
-            '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
-        );
-
-        assert(is_int($param));
-
-        $this->variables[$param] =& $variable;
-        $this->types[$param]     = $type;
-
-        // unset the statement resource if it exists as the new one will need to be bound to the new variable
-        $this->stmt = null;
     }
 
     public function execute(): Result

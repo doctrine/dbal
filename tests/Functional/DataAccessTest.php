@@ -56,24 +56,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
     }
 
-    public function testPrepareWithBindParam(): void
-    {
-        $paramInt = 1;
-        $paramStr = 'foo';
-
-        $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
-        $stmt = $this->connection->prepare($sql);
-
-        $stmt->bindParam(1, $paramInt);
-        $stmt->bindParam(2, $paramStr);
-
-        $row = $stmt->executeQuery()->fetchAssociative();
-
-        self::assertIsArray($row);
-        $row = array_change_key_case($row, CASE_LOWER);
-        self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
-    }
-
     public function testPrepareWithFetchAllAssociative(): void
     {
         $paramInt = 1;
@@ -82,8 +64,8 @@ class DataAccessTest extends FunctionalTestCase
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindParam(1, $paramInt);
-        $stmt->bindParam(2, $paramStr);
+        $stmt->bindValue(1, $paramInt);
+        $stmt->bindValue(2, $paramStr);
 
         $rows    = $stmt->executeQuery()->fetchAllAssociative();
         $rows[0] = array_change_key_case($rows[0], CASE_LOWER);
@@ -98,8 +80,8 @@ class DataAccessTest extends FunctionalTestCase
         $sql  = 'SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindParam(1, $paramInt);
-        $stmt->bindParam(2, $paramStr);
+        $stmt->bindValue(1, $paramInt);
+        $stmt->bindValue(2, $paramStr);
 
         $column = $stmt->executeQuery()->fetchOne();
         self::assertEquals(1, $column);
@@ -666,7 +648,7 @@ class DataAccessTest extends FunctionalTestCase
                     return '?';
                 },
                 static function (Statement $stmt, int $interval): void {
-                    $stmt->bindParam(1, $interval, ParameterType::INTEGER);
+                    $stmt->bindValue(1, $interval, ParameterType::INTEGER);
                 },
             ],
             'literal' => [

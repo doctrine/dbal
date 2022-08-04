@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\PDO\Statement as PDOStatement;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 use PDO;
 
 final class Statement extends AbstractStatementMiddleware
@@ -24,30 +23,15 @@ final class Statement extends AbstractStatementMiddleware
         $this->statement = $statement;
     }
 
-    /**
-     * @deprecated Use {@see bindValue()} instead.
-     */
-    public function bindParam(
-        int|string $param,
-        mixed &$variable,
-        ParameterType $type,
-        ?int $length = null
-    ): void {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5563',
-            '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
-        );
-
+    public function bindValue(int|string $param, mixed $value, ParameterType $type): void
+    {
         switch ($type) {
             case ParameterType::LARGE_OBJECT:
             case ParameterType::BINARY:
                 $this->statement->bindParamWithDriverOptions(
                     $param,
-                    $variable,
+                    $value,
                     $type,
-                    $length ?? 0,
                     PDO::SQLSRV_ENCODING_BINARY
                 );
                 break;
@@ -55,20 +39,14 @@ final class Statement extends AbstractStatementMiddleware
             case ParameterType::ASCII:
                 $this->statement->bindParamWithDriverOptions(
                     $param,
-                    $variable,
+                    $value,
                     ParameterType::STRING,
-                    $length ?? 0,
                     PDO::SQLSRV_ENCODING_SYSTEM
                 );
                 break;
 
             default:
-                $this->statement->bindParam($param, $variable, $type, $length ?? 0);
+                $this->statement->bindValue($param, $value, $type);
         }
-    }
-
-    public function bindValue(int|string $param, mixed $value, ParameterType $type): void
-    {
-        $this->bindParam($param, $value, $type);
     }
 }

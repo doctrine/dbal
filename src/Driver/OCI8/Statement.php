@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 
 use function is_int;
 use function oci_bind_by_name;
@@ -42,25 +41,6 @@ final class Statement implements StatementInterface
 
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
-        $this->bindParam($param, $value, $type);
-    }
-
-    /**
-     * @deprecated Use {@see bindValue()} instead.
-     */
-    public function bindParam(
-        int|string $param,
-        mixed &$variable,
-        ParameterType $type,
-        ?int $length = null
-    ): void {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5563',
-            '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
-        );
-
         if (is_int($param)) {
             if (! isset($this->parameterMap[$param])) {
                 throw UnknownParameterIndex::new($param);
@@ -70,11 +50,11 @@ final class Statement implements StatementInterface
         }
 
         if ($type === ParameterType::LARGE_OBJECT) {
-            if ($variable !== null) {
+            if ($value !== null) {
                 $lob = oci_new_descriptor($this->connection, OCI_D_LOB);
-                $lob->writeTemporary($variable, OCI_TEMP_BLOB);
+                $lob->writeTemporary($value, OCI_TEMP_BLOB);
 
-                $variable =& $lob;
+                $value =& $lob;
             } else {
                 $type = ParameterType::STRING;
             }
@@ -84,8 +64,8 @@ final class Statement implements StatementInterface
             ! @oci_bind_by_name(
                 $this->statement,
                 $param,
-                $variable,
-                $length ?? -1,
+                $value,
+                -1,
                 $this->convertParameterType($type)
             )
         ) {

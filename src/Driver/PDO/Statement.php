@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -33,33 +32,6 @@ final class Statement implements StatementInterface
     }
 
     /**
-     * @deprecated Use {@see bindValue()} instead.
-     */
-    public function bindParam(
-        string|int $param,
-        mixed &$variable,
-        ParameterType $type,
-        ?int $length = null
-    ): void {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5563',
-            '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
-        );
-
-        try {
-            if ($length === null) {
-                $this->stmt->bindParam($param, $variable, $this->convertParamType($type));
-            } else {
-                $this->stmt->bindParam($param, $variable, $this->convertParamType($type), $length);
-            }
-        } catch (PDOException $exception) {
-            throw Exception::new($exception);
-        }
-    }
-
-    /**
      * @internal Driver options can be only specified by a PDO-based driver.
      *
      * @throws ExceptionInterface
@@ -68,11 +40,10 @@ final class Statement implements StatementInterface
         string|int $param,
         mixed &$variable,
         ParameterType $type,
-        int $length,
         mixed $driverOptions
     ): void {
         try {
-            $this->stmt->bindParam($param, $variable, $this->convertParamType($type), $length, $driverOptions);
+            $this->stmt->bindParam($param, $variable, $this->convertParamType($type), 0, $driverOptions);
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }

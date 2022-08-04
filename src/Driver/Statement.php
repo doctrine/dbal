@@ -31,40 +31,6 @@ interface Statement
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void;
 
     /**
-     * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
-     * mark placeholder in the SQL statement that was use to prepare the statement. Unlike {@see bindValue()},
-     * the variable is bound as a reference and will only be evaluated at the time
-     * that PDOStatement->execute() is called.
-     *
-     * As mentioned above, the named parameters are not natively supported by the mysqli driver, use executeQuery(),
-     * fetchAll(), fetchArray(), fetchColumn(), fetchAssoc() methods to have the named parameter emulated by doctrine.
-     *
-     * Most parameters are input parameters, that is, parameters that are
-     * used in a read-only fashion to build up the query. Some drivers support the invocation
-     * of stored procedures that return data as output parameters, and some also as input/output
-     * parameters that both send in data and are updated to receive it.
-     *
-     * @deprecated Use {@see bindValue()} instead.
-     *
-     * @param int|string    $param    Parameter identifier. For a prepared statement using named placeholders,
-     *                                this will be a parameter name of the form :name. For a prepared statement using
-     *                                question mark placeholders, this will be the 1-indexed position of the parameter.
-     * @param mixed         $variable The variable to bind to the parameter.
-     * @param ParameterType $type     Explicit data type for the parameter using the {@see ParameterType}
-     *                                constants.
-     * @param int|null      $length   You must specify maxlength when using an OUT bind
-     *                                so that PHP allocates enough memory to hold the returned value.
-     *
-     * @throws Exception
-     */
-    public function bindParam(
-        int|string $param,
-        mixed &$variable,
-        ParameterType $type,
-        ?int $length = null
-    ): void;
-
-    /**
      * Executes a prepared statement
      *
      * @throws Exception
