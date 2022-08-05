@@ -20,7 +20,6 @@ use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DriverException;
-use Doctrine\DBAL\Exception\EmptyCriteriaNotAllowed;
 use Doctrine\DBAL\Exception\InvalidPlatformType;
 use Doctrine\DBAL\Exception\NoActiveTransaction;
 use Doctrine\DBAL\Exception\SavepointsNotSupported;
@@ -463,18 +462,20 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function delete(string $table, array $criteria, array $types = []): int|string
+    public function delete(string $table, array $criteria = [], array $types = []): int|string
     {
-        if (count($criteria) === 0) {
-            throw EmptyCriteriaNotAllowed::new();
-        }
-
         $columns = $values = $conditions = [];
 
         $this->addCriteriaCondition($criteria, $columns, $values, $conditions);
 
+        $sql = 'DELETE FROM ' . $table;
+
+        if ($conditions !== []) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
         return $this->executeStatement(
-            'DELETE FROM ' . $table . ' WHERE ' . implode(' AND ', $conditions),
+            $sql,
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
         );
@@ -528,7 +529,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function update(string $table, array $data, array $criteria, array $types = []): int|string
+    public function update(string $table, array $data, array $criteria = [], array $types = []): int|string
     {
         $columns = $values = $conditions = $set = [];
 
@@ -544,8 +545,11 @@ class Connection implements ServerVersionProvider
             $types = $this->extractTypeValues($columns, $types);
         }
 
-        $sql = 'UPDATE ' . $table . ' SET ' . implode(', ', $set)
-                . ' WHERE ' . implode(' AND ', $conditions);
+        $sql = 'UPDATE ' . $table . ' SET ' . implode(', ', $set);
+
+        if ($conditions !== []) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
 
         return $this->executeStatement($sql, $values, $types);
     }

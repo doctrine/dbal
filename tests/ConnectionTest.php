@@ -17,7 +17,6 @@ use Doctrine\DBAL\Event\TransactionCommitEventArgs;
 use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
@@ -627,15 +626,6 @@ class ConnectionTest extends TestCase
                 'baz',
             ],
         ];
-    }
-
-    public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException(): void
-    {
-        $driver = $this->createMock(Driver::class);
-        $conn   = new Connection([], $driver);
-
-        $this->expectException(InvalidArgumentException::class);
-        $conn->delete('kittens', []);
     }
 
     public function testCallConnectOnce(): void
