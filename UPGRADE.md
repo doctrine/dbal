@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: a non-empty WHERE clause is not enforced in data manipulation `Connection` methods.
+
+The `Connection::update()` and `::delete()` methods no longer enforce a non-empty WHERE clause. If modification
+of all table rows should not be allowed, it should be implemented in the application code.
+
 ## BC BREAK: removed wrapper- and driver-level `Statement::bindParam()` methods.
 
 The following methods have been removed:

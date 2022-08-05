@@ -120,6 +120,14 @@ class WriteTest extends FunctionalTestCase
         self::assertCount(0, $this->connection->fetchAllAssociative('SELECT * FROM write_table'));
     }
 
+    public function testDeleteAll(): void
+    {
+        $this->insertRows();
+
+        self::assertEquals(2, $this->connection->delete('write_table'));
+        self::assertCount(0, $this->connection->fetchAllAssociative('SELECT * FROM write_table'));
+    }
+
     public function testUpdate(): void
     {
         $this->insertRows();
@@ -140,6 +148,16 @@ class WriteTest extends FunctionalTestCase
             'write_table',
             ['test_string' => 'baz'],
             ['test_string' => 'bar']
+        ));
+    }
+
+    public function testUpdateAll(): void
+    {
+        $this->insertRows();
+
+        self::assertEquals(2, $this->connection->update(
+            'write_table',
+            ['test_string' => 'baz']
         ));
     }
 
