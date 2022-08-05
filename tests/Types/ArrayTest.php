@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Tests\Types\Fixtures\UnserializeWithDeprecationObject;
 use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\ConversionException;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -43,6 +44,14 @@ class ArrayTest extends TestCase
         );
 
         $this->type->convertToPHPValue('abcdefg', $this->platform);
+    }
+
+    public function testDeprecationDuringConversion(): void
+    {
+        @self::assertInstanceOf(UnserializeWithDeprecationObject::class, $this->type->convertToPHPValue(
+            serialize(new UnserializeWithDeprecationObject()),
+            $this->platform
+        ));
     }
 
     public function testNullConversion(): void
