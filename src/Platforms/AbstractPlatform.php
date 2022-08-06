@@ -3444,6 +3444,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     *
      * @return string
      *
      * @throws Exception If not supported on this platform.
@@ -3475,6 +3477,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     *
      * @param string $database
      *
      * @return string
@@ -3547,6 +3551,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to list all views of a database or user.
+     *
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
      *
      * @param string $database
      *

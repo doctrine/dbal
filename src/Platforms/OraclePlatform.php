@@ -415,6 +415,8 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
      */
     public function getListDatabasesSQL()
     {
@@ -423,6 +425,8 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
      */
     public function getListSequencesSQL($database)
     {
@@ -518,6 +522,8 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
      */
     public function getListViewsSQL($database)
     {

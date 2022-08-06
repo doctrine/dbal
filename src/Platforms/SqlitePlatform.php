@@ -573,6 +573,8 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
      */
     public function getListViewsSQL($database)
     {
