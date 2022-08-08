@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -1661,6 +1662,52 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         self::assertSame($localColumns, array_map('strtolower', $foreignKey->getLocalColumns()));
         self::assertSame($foreignColumns, array_map('strtolower', $foreignKey->getForeignColumns()));
+    }
+
+    public function testIntrospectReservedKeywordTableViaListTableDetails(): void
+    {
+        $this->createReservedKeywordTables();
+
+        $user = $this->schemaManager->listTableDetails('"user"');
+        self::assertCount(2, $user->getColumns());
+        self::assertCount(2, $user->getIndexes());
+        self::assertCount(1, $user->getForeignKeys());
+    }
+
+    public function testIntrospectReservedKeywordTableViaListTables(): void
+    {
+        $this->createReservedKeywordTables();
+
+        $tables = $this->schemaManager->listTables();
+
+        $user = $this->findTableByName($tables, 'user');
+        self::assertNotNull($user);
+        self::assertCount(2, $user->getColumns());
+        self::assertCount(2, $user->getIndexes());
+        self::assertCount(1, $user->getForeignKeys());
+    }
+
+    private function createReservedKeywordTables(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        $this->dropTableIfExists($platform->quoteIdentifier('user'));
+        $this->dropTableIfExists($platform->quoteIdentifier('group'));
+
+        $schema = new Schema();
+
+        $user = $schema->createTable('user');
+        $user->addColumn('id', 'integer');
+        $user->addColumn('group_id', 'integer');
+        $user->setPrimaryKey(['id']);
+        $user->addForeignKeyConstraint('group', ['group_id'], ['id']);
+
+        $group = $schema->createTable('group');
+        $group->addColumn('id', 'integer');
+        $group->setPrimaryKey(['id']);
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createSchemaObjects($schema);
     }
 
     /**

@@ -304,34 +304,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertInstanceOf(BlobType::class, $table->getColumn($columnName)->getType());
     }
 
-    public function testListQuotedTable(): void
-    {
-        $offlineTable = new Table('user');
-        $offlineTable->addColumn('id', 'integer');
-        $offlineTable->addColumn('username', 'string');
-        $offlineTable->addColumn('fk', 'integer');
-        $offlineTable->setPrimaryKey(['id']);
-        $offlineTable->addForeignKeyConstraint($offlineTable, ['fk'], ['id']);
-
-        $this->dropAndCreateTable($offlineTable);
-
-        $onlineTable = $this->schemaManager->listTableDetails('"user"');
-
-        $comparator = new Comparator();
-
-        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
-    }
-
     public function testListTableDetailsWhenCurrentSchemaNameQuoted(): void
     {
         $this->connection->executeStatement('CREATE SCHEMA "001_test"');
         $this->connection->executeStatement('SET search_path TO "001_test"');
+        $this->markConnectionNotReusable();
 
-        try {
-            $this->testListQuotedTable();
-        } finally {
-            $this->connection->close();
-        }
+        $this->testIntrospectReservedKeywordTableViaListTableDetails();
     }
 
     public function testListTablesExcludesViews(): void
