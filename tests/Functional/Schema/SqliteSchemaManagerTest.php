@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
+use function array_shift;
 use function dirname;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -83,7 +84,7 @@ EOS
                 ['parent'],
                 'user',
                 ['id'],
-                '1',
+                null,
                 ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false]
             ),
             new ForeignKeyConstraint(
@@ -191,5 +192,86 @@ SQL;
         self::assertNull($sm->listTableDetails('own_column_comment')
             ->getColumn('col1')
             ->getComment());
+    }
+
+    public function testNonSimpleAlterTableCreatedFromDDL(): void
+    {
+        $this->dropTableIfExists('nodes');
+
+        $ddl = <<<'DDL'
+        CREATE TABLE nodes (
+            id        INTEGER NOT NULL,
+            parent_id INTEGER,
+            name      TEXT,
+            PRIMARY KEY (id),
+            FOREIGN KEY (parent_id) REFERENCES nodes (id)
+        )
+        DDL;
+
+        $this->connection->executeStatement($ddl);
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $table1 = $schemaManager->listTableDetails('nodes');
+        $table2 = clone $table1;
+        $table2->addIndex(['name'], 'idx_name');
+
+        $comparator = $schemaManager->createComparator();
+        $diff       = $comparator->diffTable($table1, $table2);
+        self::assertNotFalse($diff);
+
+        $schemaManager->alterTable($diff);
+
+        $table = $schemaManager->listTableDetails('nodes');
+        $index = $table->getIndex('idx_name');
+        self::assertSame(['name'], $index->getColumns());
+    }
+
+    public function testIntrospectMultipleAnonymousForeignKeyConstraints(): void
+    {
+        $this->dropTableIfExists('album');
+        $this->dropTableIfExists('song');
+
+        $ddl = <<<'DDL'
+        CREATE TABLE artist(
+          id INTEGER,
+          name TEXT,
+          PRIMARY KEY(id)
+        );
+
+        CREATE TABLE album(
+          id INTEGER,
+          name TEXT,
+          PRIMARY KEY(id)
+        );
+
+        CREATE TABLE song(
+          id     INTEGER,
+          album_id INTEGER,
+          artist_id INTEGER,
+          FOREIGN KEY(album_id) REFERENCES album(id),
+          FOREIGN KEY(artist_id) REFERENCES artist(id)
+        );
+        DDL;
+
+        $this->connection->executeStatement($ddl);
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $song        = $schemaManager->listTableDetails('song');
+        $foreignKeys = $song->getForeignKeys();
+        self::assertCount(2, $foreignKeys);
+
+        $foreignKey1 = array_shift($foreignKeys);
+        self::assertEmpty($foreignKey1->getName());
+
+        self::assertSame(['album_id'], $foreignKey1->getLocalColumns());
+        self::assertSame(['id'], $foreignKey1->getForeignColumns());
+
+        $foreignKey2 = array_shift($foreignKeys);
+        self::assertEmpty($foreignKey2->getName());
+
+        self::assertSame(['artist_id'], $foreignKey2->getLocalColumns());
+        self::assertSame(['id'], $foreignKey2->getForeignColumns());
     }
 }
