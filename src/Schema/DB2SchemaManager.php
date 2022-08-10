@@ -285,7 +285,7 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' C.TABNAME,';
+            $sql .= ' C.TABNAME AS NAME,';
         }
 
         $sql .= <<<'SQL'
@@ -325,7 +325,7 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' IDX.TABNAME,';
+            $sql .= ' IDX.TABNAME AS NAME,';
         }
 
         $sql .= <<<'SQL'
@@ -364,7 +364,7 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' R.TABNAME,';
+            $sql .= ' R.TABNAME AS NAME,';
         }
 
         $sql .= <<<'SQL'

@@ -263,10 +263,10 @@ SQL
     protected function _getPortableTableDefinition($table)
     {
         if ($table['schema_name'] !== 'dbo') {
-            return $table['schema_name'] . '.' . $table['name'];
+            return $table['schema_name'] . '.' . $table['table_name'];
         }
 
-        return $table['name'];
+        return $table['table_name'];
     }
 
     /**
@@ -386,7 +386,7 @@ SQL
     {
         // The "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
         $sql = <<<'SQL'
-SELECT name,
+SELECT name AS table_name,
        SCHEMA_NAME(schema_id) AS schema_name
 FROM sys.objects
 WHERE type = 'U'
@@ -402,7 +402,7 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' obj.name AS tablename,';
+            $sql .= ' obj.name AS table_name, scm.name AS schema_name,';
         }
 
         $sql .= <<<'SQL'
@@ -451,7 +451,7 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' tbl.name AS tablename,';
+            $sql .= ' tbl.name AS table_name, scm.name AS schema_name,';
         }
 
         $sql .= <<<'SQL'
@@ -495,7 +495,7 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' OBJECT_NAME (f.parent_object_id),';
+            $sql .= ' OBJECT_NAME (f.parent_object_id) AS table_name, SCHEMA_NAME(f.schema_id) AS schema_name,';
         }
 
         $sql .= <<<'SQL'
