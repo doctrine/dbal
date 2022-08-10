@@ -433,7 +433,8 @@ SQL;
                 AND       prop.name = 'MS_Description'
 SQL;
 
-        $conditions = ["obj.type = 'U'"];
+        // The "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
+        $conditions = ["obj.type = 'U'", "obj.name != 'sysdiagrams'"];
         $params     = [];
 
         if ($tableName !== null) {
