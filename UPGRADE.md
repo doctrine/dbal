@@ -20,9 +20,9 @@ The following methods have been removed:
 1. `Doctrine\DBAL\Statement::bindParam()`,
 2. `Doctrine\DBAL\Driver\Statement::bindParam()`.
 
-## BC BREAK: made parameter type in driver-level `Statement::bind*()` methods required.
+## BC BREAK: made parameter type in driver-level `Statement::bindValue()` required.
 
-The `$type` parameter of the driver-level `Statement::bindParam()` and `::bindValue()` has been made required.
+The `$type` parameter of the driver-level `Statement::bindValue()` has been made required.
 
 ## BC BREAK: removed support for using NULL as prepared statement parameter type.
 
@@ -307,11 +307,11 @@ The `SqliteSchemaManager::createDatabase()` and `dropDatabase()` methods have be
 The following `AbstractSchemaManager` methods have been removed:
 
 1. `AbstractSchemaManager::dropAndCreateConstraint()`,
-6. `AbstractSchemaManager::dropAndCreateDatabase()`,
+2. `AbstractSchemaManager::dropAndCreateDatabase()`,
 3. `AbstractSchemaManager::dropAndCreateForeignKey()`,
-2. `AbstractSchemaManager::dropAndCreateIndex()`,
-4. `AbstractSchemaManager::dropAndCreateSequence()`,
-5. `AbstractSchemaManager::dropAndCreateTable()`,
+4. `AbstractSchemaMVersionAwarePlatformDriveranager::dropAndCreateIndex()`,
+5. `AbstractSchemaManager::dropAndCreateSequence()`,
+6. `AbstractSchemaManager::dropAndCreateTable()`,
 7. `AbstractSchemaManager::dropAndCreateView()`,
 8. `AbstractSchemaManager::tryMethod()`.
 
@@ -460,8 +460,8 @@ Reference from `ForeignKeyConstraint` to its local (referencing) `Table` is remo
 - `getLocalTable()`,
 - `getLocalTableName()`.
 
-The type of `SchemaDiff::$orphanedForeignKeys` has changed from list of foreign keys (list<ForeignKeyConstraint>)
-to map of referencing tables to their list of foreign keys (array<string,list<ForeignKeyConstraint>>).
+The type of `SchemaDiff::$orphanedForeignKeys` has changed from list of foreign keys (`list<ForeignKeyConstraint>`)
+to map of referencing tables to their list of foreign keys (`array<string,list<ForeignKeyConstraint>>`).
 
 ## BC BREAK: Removed redundant `AbstractPlatform` methods.
 
@@ -570,10 +570,6 @@ The following schema- and namespace-related methods have been removed:
 - `AbstractSchemaManager::getPortableNamespaceDefinition()`,
 - `PostgreSQLSchemaManager::getSchemaNames()`.
 
-## Removed the `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()`
-
-The `$driverOptions` argument of `PDO\Statement::bindParam()` and `PDO\SQLSrv\Statement::bindParam()` has been removed. The specifics of binding a parameter to the statement should be specified using the `$type` argument.
-
 ## BC BREAK: Removed `Connection::$_schemaManager` and `Connection::getSchemaManager()`
 
 The `Connection` and `AbstractSchemaManager` classes used to have a reference on each other effectively making a circular reference. Use `createSchemaManager()` to instantiate a schema manager.
@@ -600,20 +596,6 @@ The `CompositeExpression` class is now immutable.
 5. The `add()`, `getQueryPart()`, `getQueryParts()`, `resetQueryPart()` and `resetQueryParts()` methods are removed.
 6. For a `select()` query, the `getSQL()` method now throws an expression if no `SELECT` expressions have been provided.
 
-## BC BREAK: `OCI8Statement::convertPositionalToNamedPlaceholders()` is removed.
-
-The `OCI8Statement::convertPositionalToNamedPlaceholders()` method has been extracted to an internal utility class.
-
-## BC BREAK: `ServerInfoAwareConnection::requiresQueryForServerVersion()` is removed.
-
-The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been removed as an implementation detail which is the same for almost all supported drivers.
-
-## BC BREAK: Changes in obtaining the currently selected database name
-
-- The `Doctrine\DBAL\Driver::getDatabase()` method has been removed. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.
-- `Doctrine\DBAL\Connection::getDatabase()` will always return the name of the database currently connected to, regardless of the configuration parameters and will initialize a database connection if it's not yet established.
-- A call to `Doctrine\DBAL\Connection::getDatabase()`, when connected to an SQLite database, will no longer return the database file path.
-
 ## BC BREAK: Changes in handling string and binary columns
 
 - When generating schema DDL, DBAL no longer provides the default length for string and binary columns. The application may need to provide the column length if required by the target platform.
@@ -624,60 +606,14 @@ The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been
 
 Table columns are no longer indexed by column name. Use the `name` attribute of the column instead.
 
-## BC BREAK: Classes made final
-
-- Class constant `SQLSrvStatement::LAST_INSERT_ID_SQL` was changed from public to private.
-- Class `Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser` was made final.
-- Class `Doctrine\DBAL\Sharding\SQLAzure\Schema\MultiTenantVisitor` was made final.
-- Class `Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer` was made final.
-- Class `Doctrine\DBAL\Sharding\PoolingShardManager` was made final.
-- Class `Doctrine\DBAL\Id\TableGeneratorSchemaVisitor` was made final.
-- Class `Doctrine\DBAL\Driver\Mysqli\Driver` was made final.
-- Class `Doctrine\DBAL\Driver\Mysqli\MysqliStatement` was made final.
-- Class `Doctrine\DBAL\Driver\OCI8\Driver` was made final.
-- Class `Doctrine\DBAL\Driver\OCI8\OCI8Connection` was made final.
-- Class `Doctrine\DBAL\Driver\OCI8\OCI8Statement` was made final.
-- Class `Doctrine\DBAL\Driver\PDOSqlsrv\Driver` was made final.
-- Class `Doctrine\DBAL\Driver\PDOSqlsrv\Statement` was made final.
-- Class `Doctrine\DBAL\Driver\PDOMySql\Driver` was made final.
-- Class `Doctrine\DBAL\Driver\IBMDB2\DB2Connection` was made final.
-- Class `Doctrine\DBAL\Driver\IBMDB2\DB2Statement` was made final.
-- Class `Doctrine\DBAL\Driver\IBMDB2\DB2Driver` was made final.
-- Class `Doctrine\DBAL\Driver\SQLSrv\SQLSrvStatement` was made final.
-- Class `Doctrine\DBAL\Driver\SQLSrv\Driver` was made final.
-- Class `Doctrine\DBAL\Driver\SQLSrv\SQLSrvConnection` was made final.
-- Class `Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection` was made final.
-- Class `Doctrine\DBAL\Driver\SQLAnywhere\Driver` was made final.
-- Class `Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereStatement` was made final.
-- Class `Doctrine\DBAL\Driver\PDOPgSql\Driver` was made final.
-- Class `Doctrine\DBAL\Driver\PDOOracle\Driver` was made final.
-- Class `Doctrine\DBAL\Driver\PDOSqlite\Driver` was made final.
-- Class `Doctrine\DBAL\Driver\StatementIterator` was made final.
-- Class `Doctrine\DBAL\Cache\ResultCacheStatement` was made final.
-- Class `Doctrine\DBAL\Cache\ArrayStatement` was made final.
-- Class `Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer` was made final.
-- Class `Doctrine\DBAL\Portability\Statement` was made final.
-
 ## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
 
 - Column precision no longer defaults to 10. The default value is NULL.
 - Asset names are no longer nullable. An empty asset name should be represented as an empty string.
-- `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableTriggersList()` and `::_getPortableTriggerDefinition()` have been removed.
 
 ## BC BREAK: Changes in the `Doctrine\DBAL\Event` API
 
 - `SchemaAlterTableAddColumnEventArgs::addSql()` and the same method in other `SchemaEventArgs`-based classes no longer accept an array of SQL statements. They accept a variadic string.
-- `ConnectionEventArgs::getDriver()`, `::getDatabasePlatform()` and `::getSchemaManager()` methods have been removed. The connection information can be obtained from the connection which is available via `::getConnection()`.
-- `SchemaColumnDefinitionEventArgs::getDatabasePlatform()` and `SchemaIndexDefinitionEventArgs::getDatabasePlatform()` have been removed for the same reason as above.
-
-## BC BREAK: Changes in the `Doctrine\DBAL\Connection` API
-
-- The following methods have been removed as leaking internal implementation details: `::getHost()`, `::getPort()`, `::getUsername()`, `::getPassword()`.
-- The `::getDatabase()` method can now return null which means that no database is currently selected.
-
-## BC BREAK: Changes in `Doctrine\DBAL\Driver\SQLSrv\LastInsertId`
-
-- The class stores the last inserted ID as a nullable string, not an integer, which is reflected in the method signatures.
 
 ## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
 
@@ -687,47 +623,11 @@ Table columns are no longer indexed by column name. Use the `name` attribute of 
 - Property `Doctrine\DBAL\Schema\TableDiff::$newName` is now optionally null instead of false.
 - Method `Doctrine\DBAL\Schema\AbstractSchemaManager::tablesExist()` no longer accepts a string. Use `Doctrine\DBAL\Schema\AbstractSchemaManager::tableExists()` instead.
 - Method `Doctrine\DBAL\Schema\OracleSchemaManager::createDatabase()` no longer accepts `null` for `$database` argument.
-- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionsList()`
-- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionDefinition()`
-- Removed unused method `Doctrine\DBAL\Schema\OracleSchemaManager::_getPortableFunctionDefinition()`
-- Removed unused method `Doctrine\DBAL\Schema\SqliteSchemaManager::_getPortableTableIndexDefinition()`
-
-## BC BREAK: Changes in the `Doctrine\DBAL\Driver` API
-
-1. The `$username` and `$password` arguments of `::connect()` are no longer nullable. Use an empty string to indicate empty username or password.
-2. The return value of `::getDatabase()` has been documented as nullable since some of the drivers allow establishing a connection without selecting a database.
-
-## BC BREAK: `Doctrine\DBAL\Driver::getName()` removed
-
-The `Doctrine\DBAL\Driver::getName()` has been removed.
-
-## BC BREAK Removed previously deprecated features
-
- * Removed `json_array` type and all associated hacks.
- * Removed `Connection::TRANSACTION_*` constants.
- * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
- * Removed `MysqlSessionInit` listener.
- * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
- * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
- * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
- * Removed `Table::renameColumn()`.
- * Removed `SQLParserUtils::getPlaceholderPositions()`.
- * Removed `AbstractSchemaManager::getFilterSchemaAssetsExpression()`, `Configuration::getFilterSchemaAssetsExpression()`
-   and `Configuration::getFilterSchemaAssetsExpression()`.
- * `SQLParserUtils::*_TOKEN` constants made private.
-
-## BC BREAK `Connection::ping()` returns `void`.
-
-`Connection::ping()` and `PingableConnection::ping()` no longer return a boolean value. They will throw an exception in case of failure.
 
 ## BC BREAK PostgreSqlPlatform ForeignKeyConstraint support for `feferred` misspelling removed
 
 `PostgreSqlPlatform::getAdvancedForeignKeyOptionsSQL()` had a typo in it in 2.x. Both the option name
 `feferred` and `deferred` were supported in `2.x` but the misspelling was removed in 3.x.
-
-## BC BREAK `AbstractSchemaManager::extractDoctrineTypeFromComment()` changed, `::removeDoctrineTypeFromComment()` removed
-
-`AbstractSchemaManager::extractDoctrineTypeFromComment()` made `protected`. It takes the comment by reference, removes the type annotation from it and returns the extracted Doctrine type.
 
 The method was used internally and is no longer needed.
 
@@ -780,11 +680,7 @@ The default value of `$char` is now `null`, not `false`. Additionally, the metho
 
 ## BC BREAK `Statement` and `Connection` methods return `void`.
 
-`Connection::connect()`, `Statement::bindParam()`, `::bindValue()`, `::execute()`, `ResultStatement::setFetchMode()` and `::closeCursor()` no longer return a boolean value. They will throw an exception in case of failure.
-
-## BC BREAK `Statement::rowCount()` is moved.
-
-`Statement::rowCount()` has been moved to the `ResultStatement` interface where it belongs by definition.
+`Connection::connect()`, `::bindValue()` and `::execute()` no longer return a boolean value. They will throw an exception in case of failure.
 
 ## BC BREAK Transaction-related `Statement` methods return `void`.
 
@@ -798,26 +694,9 @@ Similarly to `PDOStatement::fetchColumn()`, DBAL statements throw an exception i
 
 Similarly to the drivers based on `pdo_pgsql` and `pdo_sqlsrv`, `OCI8Statement::execute()` and `MySQLiStatement::execute()` do not longer ignore redundant parameters.
 
-## BC BREAK: `Doctrine\DBAL\Types\Type::getDefaultLength()` removed
-
-The `Doctrine\DBAL\Types\Type::getDefaultLength()` method has been removed as it served no purpose.
-
-## BC BREAK: `Doctrine\DBAL\Types\Type::__toString()` removed
-
-Relying on string representation was discouraged and has been removed.
-
 ## BC BREAK: The `NULL` value of `$offset` in LIMIT queries is not allowed
 
 The `NULL` value of the `$offset` argument in `AbstractPlatform::(do)?ModifyLimitQuery()` methods is no longer allowed. The absence of the offset should be indicated with a `0` which is now the default value.
-
-## BC BREAK: Removed support for DB-generated UUIDs
-
-The support for DB-generated UUIDs was removed as non-portable.
-Please generate UUIDs on the application side (e.g. using [ramsey/uuid](https://packagist.org/packages/ramsey/uuid)).
-
-## BC BREAK: Removed Doctrine\DBAL\Version
-
-The Doctrine\DBAL\Version class is no longer available: please refrain from checking the DBAL version at runtime.
 
 ## BC BREAK: Changes to handling binary fields
 
