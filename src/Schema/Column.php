@@ -227,7 +227,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param string $value
+     * @param string|null $value
      *
      * @return Column
      */
