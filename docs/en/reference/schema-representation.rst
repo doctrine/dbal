@@ -47,7 +47,8 @@ foreign key, sequence and index changes.
 .. code-block:: php
 
     <?php
-    $comparator = new \Doctrine\DBAL\Schema\Comparator();
+    $schemaManager = $connection->createSchemaManager();
+    $comparator = $schemaManager->createComparator();
     $schemaDiff = $comparator->compare($fromSchema, $toSchema);
 
     $queries = $schemaDiff->toSql($myPlatform); // queries to get from one to another schema.
