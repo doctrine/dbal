@@ -214,7 +214,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableDefinition($table)
     {
-        return $table['name'];
+        return $table['table_name'];
     }
 
     /**
@@ -678,7 +678,7 @@ SQL
     protected function selectTableNames(string $databaseName): Result
     {
         $sql = <<<'SQL'
-SELECT name
+SELECT name AS table_name
 FROM sqlite_master
 WHERE type = 'table'
   AND name != 'sqlite_sequence'

@@ -16,7 +16,6 @@ use Throwable;
 use function array_filter;
 use function array_intersect;
 use function array_map;
-use function array_shift;
 use function array_values;
 use function assert;
 use function call_user_func_array;
@@ -1708,9 +1707,8 @@ abstract class AbstractSchemaManager
         $data = [];
 
         foreach ($result->fetchAllAssociative() as $row) {
-            $group = array_shift($row);
-            assert(is_string($group));
-            $data[$group][] = $row;
+            $tableName          = $this->_getPortableTableDefinition($row);
+            $data[$tableName][] = $row;
         }
 
         return $data;

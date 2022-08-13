@@ -1662,6 +1662,20 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertSame($localColumns, array_map('strtolower', $foreignKey->getLocalColumns()));
         self::assertSame($foreignColumns, array_map('strtolower', $foreignKey->getForeignColumns()));
     }
+
+    /**
+     * @param list<Table> $tables
+     */
+    protected function findTableByName(array $tables, string $name): ?Table
+    {
+        foreach ($tables as $table) {
+            if (strtolower($table->getName()) === $name) {
+                return $table;
+            }
+        }
+
+        return null;
+    }
 }
 
 interface ListTableColumnsDispatchEventListener

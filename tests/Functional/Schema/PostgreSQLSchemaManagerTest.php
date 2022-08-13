@@ -174,8 +174,11 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->createTable($nestedRelatedTable);
         $this->schemaManager->createTable($nestedSchemaTable);
 
-        $tables = $this->schemaManager->listTableNames();
-        self::assertContains('nested.schematable', $tables, 'The table should be detected with its non-public schema.');
+        $tableNames = $this->schemaManager->listTableNames();
+        self::assertContains('nested.schematable', $tableNames);
+
+        $tables = $this->schemaManager->listTables();
+        self::assertNotNull($this->findTableByName($tables, 'nested.schematable'));
 
         $nestedSchemaTable = $this->schemaManager->listTableDetails('nested.schematable');
         self::assertTrue($nestedSchemaTable->hasColumn('id'));
