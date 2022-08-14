@@ -264,4 +264,27 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
             "Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0."
         );
     }
+
+    public function testQuotedTableNameRemainsQuotedInSchema(): void
+    {
+        $table = new Table('"tester"');
+        $table->addColumn('"id"', Types::INTEGER);
+        $table->addColumn('"name"', Types::STRING);
+
+        $this->dropAndCreateTable($table);
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $fromSchema = $schemaManager->createSchema();
+        $toSchema   = clone $fromSchema;
+
+        $toSchema->getTable('"tester"')->dropColumn('"name"');
+        $diff = $schemaManager->createComparator()
+            ->compareSchemas($fromSchema, $toSchema);
+
+        $schemaManager->alterSchema($diff);
+
+        $columns = $schemaManager->listTableColumns('"tester"');
+        self::assertCount(1, $columns);
+    }
 }
