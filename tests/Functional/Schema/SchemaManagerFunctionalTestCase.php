@@ -218,21 +218,26 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->createTestTable('list_tables_test');
         $tables = $this->schemaManager->listTables();
 
-        $foundTable = false;
-        foreach ($tables as $table) {
-            self::assertInstanceOf(Table::class, $table);
-            if (strtolower($table->getName()) !== 'list_tables_test') {
-                continue;
-            }
+        $table = $this->findTableByName($tables, 'list_tables_test');
+        self::assertNotNull($table);
 
-            $foundTable = true;
+        self::assertTrue($table->hasColumn('id'));
+        self::assertTrue($table->hasColumn('test'));
+        self::assertTrue($table->hasColumn('foreign_key_test'));
+    }
 
-            self::assertTrue($table->hasColumn('id'));
-            self::assertTrue($table->hasColumn('test'));
-            self::assertTrue($table->hasColumn('foreign_key_test'));
-        }
+    public function testListTablesDoesNotIncludeViews(): void
+    {
+        $this->createTestTable('test_table_for_view');
 
-        self::assertTrue($foundTable, "The 'list_tables_test' table has to be found.");
+        $sql = 'SELECT * FROM test_table_for_view';
+
+        $view = new View('test_view', $sql);
+        $this->schemaManager->createView($view);
+
+        $tables = $this->schemaManager->listTables();
+        $view   = $this->findTableByName($tables, 'test_view');
+        self::assertNull($view);
     }
 
     /**

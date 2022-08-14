@@ -400,27 +400,30 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' TABLE_NAME,';
+            $sql .= ' c.TABLE_NAME,';
         }
 
         $sql .= <<<'SQL'
-       COLUMN_NAME        AS field,
-       COLUMN_TYPE        AS type,
-       IS_NULLABLE        AS `null`,
-       COLUMN_KEY         AS `key`,
-       COLUMN_DEFAULT     AS `default`,
-       EXTRA,
-       COLUMN_COMMENT     AS comment,
-       CHARACTER_SET_NAME AS characterset,
-       COLLATION_NAME     AS collation
-FROM information_schema.COLUMNS
+       c.COLUMN_NAME        AS field,
+       c.COLUMN_TYPE        AS type,
+       c.IS_NULLABLE        AS `null`,
+       c.COLUMN_KEY         AS `key`,
+       c.COLUMN_DEFAULT     AS `default`,
+       c.EXTRA,
+       c.COLUMN_COMMENT     AS comment,
+       c.CHARACTER_SET_NAME AS characterset,
+       c.COLLATION_NAME     AS collation
+FROM information_schema.COLUMNS c
+    INNER JOIN information_schema.TABLES t
+        ON t.TABLE_SCHEMA = c.TABLE_SCHEMA
+        AND t.TABLE_NAME = c.TABLE_NAME
 SQL;
 
-        $conditions = ['TABLE_SCHEMA = ?'];
+        $conditions = ['c.TABLE_SCHEMA = ?', "t.TABLE_TYPE = 'BASE TABLE'"];
         $params     = [$databaseName];
 
         if ($tableName !== null) {
-            $conditions[] = 'TABLE_NAME = ?';
+            $conditions[] = 't.TABLE_NAME = ?';
             $params[]     = $tableName;
         }
 
