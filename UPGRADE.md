@@ -998,6 +998,14 @@ The following schema introspection methods have been deprecated:
 - `AbstractPlatform::getListTableIndexesSQL()`,
 - `AbstractPlatform::getListTableForeignKeysSQL()`.
 
+## `AbstractPlatform` schema introspection methods made internal
+
+The following schema introspection methods have been marked as internal:
+
+- `AbstractPlatform::getListDatabasesSQL()`,
+- `AbstractPlatform::getListSequencesSQL()`,
+- `AbstractPlatform::getListViewsSQL()`.
+
 The queries used for schema introspection are an internal implementation detail of the DBAL.
 
 ## Deprecated `collate` option for MySQL

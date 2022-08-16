@@ -107,11 +107,17 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'CHAR_LENGTH(' . $string . ')';
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListDatabasesSQL(): string
     {
         return 'SHOW DATABASES';
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = ' . $this->quoteStringLiteral($database);

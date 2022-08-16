@@ -201,6 +201,9 @@ class DB2Platform extends AbstractPlatform
         throw NotSupported::new(__METHOD__);
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS';

@@ -90,7 +90,9 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     public function listTableForeignKeys(string $table): array
     {
-        $columns = $this->selectForeignKeyColumns('', $this->normalizeName($table))
+        $table = $this->normalizeName($table);
+
+        $columns = $this->selectForeignKeyColumns('', $table)
             ->fetchAllAssociative();
 
         if (count($columns) > 0) {
@@ -105,7 +107,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableDefinition(array $table): string
     {
-        return $table['name'];
+        return $table['table_name'];
     }
 
     /**
@@ -305,8 +307,8 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            $name  = $value['constraint_name'];
-            if (! isset($list[$name])) {
+            $id    = $value['id'];
+            if (! isset($list[$id])) {
                 if (! isset($value['on_delete']) || $value['on_delete'] === 'RESTRICT') {
                     $value['on_delete'] = null;
                 }
@@ -315,8 +317,8 @@ class SQLiteSchemaManager extends AbstractSchemaManager
                     $value['on_update'] = null;
                 }
 
-                $list[$name] = [
-                    'name' => $name,
+                $list[$id] = [
+                    'name' => $value['constraint_name'],
                     'local' => [],
                     'foreign' => [],
                     'foreignTable' => $value['table'],
@@ -327,13 +329,13 @@ class SQLiteSchemaManager extends AbstractSchemaManager
                 ];
             }
 
-            $list[$name]['local'][] = $value['from'];
+            $list[$id]['local'][] = $value['from'];
 
             if ($value['to'] === null) {
                 continue;
             }
 
-            $list[$name]['foreign'][] = $value['to'];
+            $list[$id]['foreign'][] = $value['to'];
         }
 
         return parent::_getPortableTableForeignKeysList($list);
@@ -505,7 +507,7 @@ SQL
 
         for ($i = 0, $count = count($match[0]); $i < $count; $i++) {
             $details[] = [
-                'constraint_name' => isset($names[$i]) && $names[$i] !== '' ? $names[$i] : (string) $i,
+                'constraint_name' => $names[$i] ?? '',
                 'deferrable'      => isset($deferrable[$i]) && strcasecmp($deferrable[$i], 'deferrable') === 0,
                 'deferred'        => isset($deferred[$i]) && strcasecmp($deferred[$i], 'deferred') === 0,
             ];
@@ -522,7 +524,7 @@ SQL
     protected function selectTableNames(string $databaseName): Result
     {
         $sql = <<<'SQL'
-SELECT name
+SELECT name AS table_name
 FROM sqlite_master
 WHERE type = 'table'
   AND name != 'sqlite_sequence'

@@ -134,6 +134,9 @@ class SQLServerPlatform extends AbstractPlatform
             ' MINVALUE ' . $sequence->getInitialValue();
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListSequencesSQL(string $database): string
     {
         return 'SELECT seq.name,
@@ -748,6 +751,9 @@ class SQLServerPlatform extends AbstractPlatform
         return 'INSERT INTO ' . $quotedTableName . ' DEFAULT VALUES';
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListViewsSQL(string $database): string
     {
         return "SELECT name, definition FROM sysobjects
@@ -821,6 +827,9 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListDatabasesSQL(): string
     {
         return 'SELECT * FROM sys.databases';

@@ -146,11 +146,17 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListDatabasesSQL(): string
     {
         return 'SELECT datname FROM pg_database';
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListSequencesSQL(string $database): string
     {
         return 'SELECT sequence_name AS relname,
@@ -163,6 +169,9 @@ class PostgreSQLPlatform extends AbstractPlatform
                 AND    sequence_schema != 'information_schema'";
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT quote_ident(table_name) AS viewname,

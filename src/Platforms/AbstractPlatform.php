@@ -1985,6 +1985,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     *
      * @throws Exception If not supported on this platform.
      */
     public function getListDatabasesSQL(): string
@@ -1993,6 +1995,8 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     *
      * @throws Exception If not supported on this platform.
      */
     public function getListSequencesSQL(string $database): string
@@ -2002,6 +2006,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to list all views of a database or user.
+     *
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
      */
     abstract public function getListViewsSQL(string $database): string;
 

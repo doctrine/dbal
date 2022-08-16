@@ -292,11 +292,17 @@ class OraclePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListDatabasesSQL(): string
     {
         return 'SELECT username FROM all_users';
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListSequencesSQL(string $database): string
     {
         return 'SELECT SEQUENCE_NAME, MIN_VALUE, INCREMENT_BY FROM SYS.ALL_SEQUENCES WHERE SEQUENCE_OWNER = '
@@ -335,6 +341,9 @@ class OraclePlatform extends AbstractPlatform
         return $sql;
     }
 
+    /**
+     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
+     */
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT view_name, text FROM sys.user_views';

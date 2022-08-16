@@ -147,7 +147,7 @@ class Column extends AbstractAsset
         return $this;
     }
 
-    public function setColumnDefinition(string $value): self
+    public function setColumnDefinition(?string $value): self
     {
         $this->_columnDefinition = $value;
 
