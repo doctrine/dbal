@@ -289,11 +289,12 @@ abstract class AbstractSchemaManager
     protected function doListTableIndexes($table): array
     {
         $database = $this->getDatabase(__METHOD__);
+        $table    = $this->normalizeName($table);
 
         return $this->_getPortableTableIndexesList(
             $this->selectIndexColumns(
                 $database,
-                $this->normalizeName($table)
+                $table
             )->fetchAllAssociative(),
             $table
         );
@@ -381,7 +382,7 @@ abstract class AbstractSchemaManager
     /**
      * Lists the tables for this connection.
      *
-     * @return Table[]
+     * @return list<Table>
      *
      * @throws Exception
      */
@@ -489,7 +490,9 @@ abstract class AbstractSchemaManager
      */
     protected function normalizeName(string $name): string
     {
-        return $name;
+        $identifier = new Identifier($name);
+
+        return $identifier->getName();
     }
 
     /**

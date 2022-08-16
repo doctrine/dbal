@@ -653,19 +653,21 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' pg_index.indrelid::REGCLASS AS table_name, tn.nspname AS schema_name,';
+            $sql .= ' tc.relname AS table_name, tn.nspname AS schema_name,';
         }
 
         $sql .= <<<'SQL'
-                   quote_ident(relname) AS relname,
-                   pg_index.indisunique,
-                   pg_index.indisprimary,
-                   pg_index.indkey,
-                   pg_index.indrelid,
-                   pg_get_expr(indpred, indrelid) AS where
-              FROM pg_index, pg_class
-                   JOIN pg_namespace tn ON tn.oid = pg_class.relnamespace
-             WHERE pg_class.oid IN (
+                   quote_ident(ic.relname) AS relname,
+                   i.indisunique,
+                   i.indisprimary,
+                   i.indkey,
+                   i.indrelid,
+                   pg_get_expr(indpred, indrelid) AS "where"
+              FROM pg_index i
+                   JOIN pg_class AS tc ON tc.oid = i.indrelid
+                   JOIN pg_namespace tn ON tn.oid = tc.relnamespace
+                   JOIN pg_class AS ic ON ic.oid = i.indexrelid
+             WHERE ic.oid IN (
                 SELECT indexrelid
                 FROM pg_index i, pg_class c, pg_namespace n
 SQL;
@@ -675,7 +677,7 @@ SQL;
             'c.relnamespace = n.oid',
         ], $this->buildQueryConditions($tableName));
 
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ') AND pg_index.indexrelid = pg_class.oid';
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ')';
 
         return $this->_conn->executeQuery($sql);
     }
@@ -685,7 +687,7 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' r.conrelid :: REGCLASS as table_name, tn.nspname AS schema_name,';
+            $sql .= ' tc.relname AS table_name, tn.nspname AS schema_name,';
         }
 
         $sql .= <<<'SQL'
@@ -697,7 +699,7 @@ SQL;
                   WHERE r.conrelid IN
                   (
                       SELECT c.oid
-                      FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
+                      FROM pg_class c, pg_namespace n
 SQL;
 
         $conditions = array_merge(['n.oid = c.relnamespace'], $this->buildQueryConditions($tableName));

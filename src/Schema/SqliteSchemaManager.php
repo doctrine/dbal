@@ -199,7 +199,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     public function listTableForeignKeys($table, $database = null)
     {
-        $columns = $this->selectForeignKeyColumns('', $this->normalizeName($table))
+        $table = $this->normalizeName($table);
+
+        $columns = $this->selectForeignKeyColumns('', $table)
             ->fetchAllAssociative();
 
         if (count($columns) > 0) {
