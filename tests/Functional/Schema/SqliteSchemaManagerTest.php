@@ -189,7 +189,7 @@ SQL;
         $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 
-        self::assertNull($sm->listTableDetails('own_column_comment')
+        self::assertNull($sm->getTable('own_column_comment')
             ->getColumn('col1')
             ->getComment());
     }
@@ -212,7 +212,7 @@ SQL;
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $table1 = $schemaManager->listTableDetails('nodes');
+        $table1 = $schemaManager->getTable('nodes');
         $table2 = clone $table1;
         $table2->addIndex(['name'], 'idx_name');
 
@@ -222,7 +222,7 @@ SQL;
 
         $schemaManager->alterTable($diff);
 
-        $table = $schemaManager->listTableDetails('nodes');
+        $table = $schemaManager->getTable('nodes');
         $index = $table->getIndex('idx_name');
         self::assertSame(['name'], $index->getColumns());
     }
@@ -258,7 +258,7 @@ SQL;
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $song        = $schemaManager->listTableDetails('song');
+        $song        = $schemaManager->getTable('song');
         $foreignKeys = $song->getForeignKeys();
         self::assertCount(2, $foreignKeys);
 

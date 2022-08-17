@@ -392,7 +392,7 @@ abstract class AbstractSchemaManager
 
         $tables = [];
         foreach ($tableNames as $tableName) {
-            $tables[] = $this->listTableDetails($tableName);
+            $tables[] = $this->getTable($tableName);
         }
 
         return $tables;
@@ -434,6 +434,8 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @deprecated Use {@see getTable()} instead.
+     *
      * @param string $name
      *
      * @return Table
@@ -442,6 +444,13 @@ abstract class AbstractSchemaManager
      */
     public function listTableDetails($name)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5595',
+            '%s is deprecated. Use getTable() instead.',
+            __METHOD__
+        );
+
         $columns     = $this->listTableColumns($name);
         $foreignKeys = [];
 
@@ -595,6 +604,22 @@ abstract class AbstractSchemaManager
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
         throw Exception::notSupported(__METHOD__);
+    }
+
+    /**
+     * Returns the table with the given name.
+     *
+     * @throws Exception
+     */
+    public function getTable(string $name): Table
+    {
+        $table = $this->listTableDetails($name);
+
+        if ($table->getColumns() === []) {
+            throw SchemaException::tableDoesNotExist($name);
+        }
+
+        return $table;
     }
 
     /**

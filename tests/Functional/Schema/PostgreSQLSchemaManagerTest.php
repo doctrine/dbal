@@ -65,13 +65,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $createTableSQL = 'CREATE TABLE domain_type_test (id INT PRIMARY KEY, value MyMoney)';
         $this->connection->executeStatement($createTableSQL);
 
-        $table = $this->connection->getSchemaManager()->listTableDetails('domain_type_test');
+        $table = $this->connection->getSchemaManager()->getTable('domain_type_test');
         self::assertInstanceOf(DecimalType::class, $table->getColumn('value')->getType());
 
         Type::addType('MyMoney', MoneyType::class);
         $this->connection->getDatabasePlatform()->registerDoctrineTypeMapping('MyMoney', 'MyMoney');
 
-        $table = $this->connection->getSchemaManager()->listTableDetails('domain_type_test');
+        $table = $this->connection->getSchemaManager()->getTable('domain_type_test');
         self::assertInstanceOf(MoneyType::class, $table->getColumn('value')->getType());
     }
 
@@ -81,7 +81,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column       = $autoincTable->addColumn('id', 'integer');
         $column->setAutoincrement(true);
         $this->dropAndCreateTable($autoincTable);
-        $autoincTable = $this->schemaManager->listTableDetails('autoinc_table');
+        $autoincTable = $this->schemaManager->getTable('autoinc_table');
 
         self::assertTrue($autoincTable->getColumn('id')->getAutoincrement());
     }
@@ -102,7 +102,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableFrom = new Table('autoinc_table_add');
         $tableFrom->addColumn('id', 'integer');
         $this->dropAndCreateTable($tableFrom);
-        $tableFrom = $this->schemaManager->listTableDetails('autoinc_table_add');
+        $tableFrom = $this->schemaManager->getTable('autoinc_table_add');
         self::assertFalse($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_table_add');
@@ -121,7 +121,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         ], $sql);
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->listTableDetails('autoinc_table_add');
+        $tableFinal = $this->schemaManager->getTable('autoinc_table_add');
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
@@ -136,7 +136,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column    = $tableFrom->addColumn('id', 'integer');
         $column->setAutoincrement(true);
         $this->dropAndCreateTable($tableFrom);
-        $tableFrom = $this->schemaManager->listTableDetails('autoinc_table_drop');
+        $tableFrom = $this->schemaManager->getTable('autoinc_table_drop');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_table_drop');
@@ -152,7 +152,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->listTableDetails('autoinc_table_drop');
+        $tableFinal = $this->schemaManager->getTable('autoinc_table_drop');
         self::assertFalse($tableFinal->getColumn('id')->getAutoincrement());
     }
 
@@ -180,7 +180,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tables = $this->schemaManager->listTables();
         self::assertNotNull($this->findTableByName($tables, 'nested.schematable'));
 
-        $nestedSchemaTable = $this->schemaManager->listTableDetails('nested.schematable');
+        $nestedSchemaTable = $this->schemaManager->getTable('nested.schematable');
         self::assertTrue($nestedSchemaTable->hasColumn('id'));
 
         $primaryKey = $nestedSchemaTable->getPrimaryKey();
@@ -206,7 +206,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             . ' FOREIGN KEY( "table" ) REFERENCES dbal91_something ON UPDATE CASCADE;';
         $this->connection->executeStatement($sql);
 
-        $table = $this->schemaManager->listTableDetails('dbal91_something');
+        $table = $this->schemaManager->getTable('dbal91_something');
 
         self::assertEquals(
             [
@@ -263,7 +263,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $testTable->setPrimaryKey(['id']);
         $this->dropAndCreateTable($testTable);
 
-        $databaseTable = $this->schemaManager->listTableDetails($testTable->getName());
+        $databaseTable = $this->schemaManager->getTable($testTable->getName());
 
         self::assertEquals('foo', $databaseTable->getColumn('def')->getDefault());
     }
@@ -281,7 +281,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $databaseTable = $this->schemaManager->listTableDetails($table->getName());
+        $databaseTable = $this->schemaManager->getTable($table->getName());
 
         $diff = $comparatorFactory($this->schemaManager)->diffTable($table, $databaseTable);
 
@@ -349,7 +349,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($offlineTable);
 
-        $onlineTable = $this->schemaManager->listTableDetails('person');
+        $onlineTable = $this->schemaManager->getTable('person');
 
         $comparator = new Comparator();
 
@@ -485,7 +485,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column    = $tableFrom->addColumn('id', $from);
         $column->setAutoincrement(true);
         $this->dropAndCreateTable($tableFrom);
-        $tableFrom = $this->schemaManager->listTableDetails('autoinc_type_modification');
+        $tableFrom = $this->schemaManager->getTable('autoinc_type_modification');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_type_modification');
@@ -500,7 +500,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->listTableDetails('autoinc_type_modification');
+        $tableFinal = $this->schemaManager->getTable('autoinc_type_modification');
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 

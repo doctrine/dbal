@@ -6,6 +6,13 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 3.5
+
+## Deprecated `AbstractSchemaManager::listTableDetails()`.
+
+The `AbstractSchemaManager::listTableDetails()` methods has been deprecated.
+Use `AbstractSchemaManager::getTable()` instead.
+
 # Upgrade to 3.4
 
 ## Deprecated wrapper- and driver-level `Statement::bindParam()` methods.
