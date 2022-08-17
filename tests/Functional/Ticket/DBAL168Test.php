@@ -21,7 +21,7 @@ class DBAL168Test extends FunctionalTestCase
         $table->addForeignKeyConstraint('domains', ['parent_id'], ['id']);
 
         $this->connection->getSchemaManager()->createTable($table);
-        $table = $this->connection->getSchemaManager()->listTableDetails('domains');
+        $table = $this->connection->getSchemaManager()->getTable('domains');
 
         self::assertEquals('domains', $table->getName());
     }

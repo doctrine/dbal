@@ -50,9 +50,18 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@see getTable()} instead.
      */
     public function listTableDetails($name)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5595',
+            '%s is deprecated. Use getTable() instead.',
+            __METHOD__
+        );
+
         return $this->doListTableDetails($name);
     }
 

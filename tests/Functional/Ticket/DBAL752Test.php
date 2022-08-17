@@ -34,7 +34,7 @@ SQL
 
         $schemaManager = $this->connection->getSchemaManager();
 
-        $fetchedTable = $schemaManager->listTableDetails('dbal752_unsigneds');
+        $fetchedTable = $schemaManager->getTable('dbal752_unsigneds');
 
         self::assertEquals('smallint', $fetchedTable->getColumn('small')->getType()->getName());
         self::assertEquals('smallint', $fetchedTable->getColumn('small_unsigned')->getType()->getName());

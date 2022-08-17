@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
 use function array_values;
@@ -45,9 +46,18 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@see getTable()} instead.
      */
     public function listTableDetails($name)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5595',
+            '%s is deprecated. Use getTable() instead.',
+            __METHOD__
+        );
+
         return $this->doListTableDetails($name);
     }
 

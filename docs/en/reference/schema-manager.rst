@@ -82,16 +82,16 @@ Now you can loop over the array inspecting each column object:
         echo $column->getName() . ': ' . $column->getType() . "\n";
     }
 
-listTableDetails()
+getTable()
 ----------------------------
 
 Retrieve a single ``Doctrine\DBAL\Schema\Table`` instance that
-encapsulates all the details of the given table:
+encapsulates the definition of the given table:
 
 .. code-block:: php
 
     <?php
-    $table = $sm->listTableDetails('user');
+    $table = $sm->getDetails('user');
 
 Now you can call methods on the table to manipulate the in memory
 schema for that table. For example we can add a new column:
@@ -232,4 +232,3 @@ table:
       0 => 'DROP TABLE user'
     )
     */
-
