@@ -50,11 +50,14 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testGetSchemaNames(): void
     {
+        $createSchemaSQL = 'CREATE SCHEMA schema_retrieval_test';
+        $this->connection->executeStatement($createSchemaSQL);
+
         assert($this->schemaManager instanceof PostgreSQLSchemaManager);
 
         $names = $this->schemaManager->getSchemaNames();
 
-        self::assertContains('public', $names, 'The public schema should be found.');
+        self::assertContains('schema_retrieval_test', $names, 'The schema_retrieval_test schema should be found.');
     }
 
     public function testSupportDomainTypeFallback(): void
