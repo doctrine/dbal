@@ -626,7 +626,7 @@ SQL
                 '#
                     (?:CONSTRAINT\s+(\S+)\s+)?
                     (?:FOREIGN\s+KEY[^)]+\)\s*)?
-                    REFERENCES\s+\S+\s+(?:\([^)]+\))?
+                    REFERENCES\s+\S+\s*(?:\([^)]+\))?
                     (?:
                         [^,]*?
                         (NOT\s+DEFERRABLE|DEFERRABLE)
