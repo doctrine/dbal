@@ -39,7 +39,7 @@ SQL
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $fetchedTable = $schemaManager->listTableDetails('dbal752_unsigneds');
+        $fetchedTable = $schemaManager->getTable('dbal752_unsigneds');
 
         self::assertInstanceOf(SmallIntType::class, $fetchedTable->getColumn('small')->getType());
         self::assertInstanceOf(SmallIntType::class, $fetchedTable->getColumn('small_unsigned')->getType());

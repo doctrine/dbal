@@ -13,6 +13,8 @@ use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_intersect;
@@ -223,10 +225,19 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @deprecated Use {@see getTable()} instead.
+     *
      * @throws Exception
      */
     public function listTableDetails(string $name): Table
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5595',
+            '%s is deprecated. Use getTable() instead.',
+            __METHOD__
+        );
+
         $database = $this->getDatabase(__METHOD__);
 
         $normalizedName = $this->normalizeName($name);
@@ -333,6 +344,22 @@ abstract class AbstractSchemaManager
      * @throws Exception
      */
     abstract protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array;
+
+    /**
+     * Returns the table with the given name.
+     *
+     * @throws Exception
+     */
+    public function getTable(string $name): Table
+    {
+        $table = $this->listTableDetails($name);
+
+        if ($table->getColumns() === []) {
+            throw TableDoesNotExist::new($name);
+        }
+
+        return $table;
+    }
 
     /**
      * Lists the views this connection has.

@@ -35,7 +35,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableOld->addColumn('bar_id', 'integer');
 
         $this->schemaManager->createTable($tableOld);
-        $tableFetched = $this->schemaManager->listTableDetails('switch_primary_key_columns');
+        $tableFetched = $this->schemaManager->getTable('switch_primary_key_columns');
         $tableNew     = clone $tableFetched;
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
@@ -45,7 +45,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table      = $this->schemaManager->listTableDetails('switch_primary_key_columns');
+        $table      = $this->schemaManager->getTable('switch_primary_key_columns');
         $primaryKey = $table->getPrimaryKeyColumns();
 
         self::assertCount(2, $primaryKey);
@@ -124,7 +124,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->listTableDetails('alter_table_add_pk');
+        $table = $this->schemaManager->getTable('alter_table_add_pk');
 
         self::assertFalse($table->hasIndex('idx_id'));
         self::assertTrue($table->hasPrimaryKey());
@@ -149,7 +149,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->listTableDetails('drop_primary_key');
+        $table = $this->schemaManager->getTable('drop_primary_key');
 
         self::assertFalse($table->hasPrimaryKey());
         self::assertFalse($table->getColumn('id')->getAutoincrement());
@@ -171,7 +171,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->listTableDetails('text_blob_default_value');
+        $onlineTable = $this->schemaManager->getTable('text_blob_default_value');
 
         self::assertNull($onlineTable->getColumn('def_text')->getDefault());
         self::assertNull($onlineTable->getColumn('def_text_null')->getDefault());
@@ -218,7 +218,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->listTableDetails($tableName);
+        $table = $this->schemaManager->getTable($tableName);
 
         self::assertEquals('ascii', $table->getColumn('col_text')->getPlatformOption('charset'));
     }
@@ -331,7 +331,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($offlineTable);
 
-        $onlineTable = $this->schemaManager->listTableDetails('list_guid_table_column');
+        $onlineTable = $this->schemaManager->getTable('list_guid_table_column');
 
         self::assertNull(
             $this->schemaManager->createComparator()->diffTable($onlineTable, $offlineTable),
@@ -388,7 +388,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->listTableDetails('test_column_defaults_current_timestamp');
+        $onlineTable = $this->schemaManager->getTable('test_column_defaults_current_timestamp');
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
 
@@ -463,7 +463,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->listTableDetails('test_column_defaults_current_time_and_date');
+        $onlineTable = $this->schemaManager->getTable('test_column_defaults_current_time_and_date');
 
         self::assertSame($currentTimestampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
@@ -490,7 +490,7 @@ PARTITION BY HASH (col1)
 SQL;
 
         $this->connection->executeStatement($sql);
-        $onlineTable = $this->schemaManager->listTableDetails('test_table_metadata');
+        $onlineTable = $this->schemaManager->getTable('test_table_metadata');
 
         self::assertEquals('InnoDB', $onlineTable->getOption('engine'));
         self::assertEquals('utf8mb4_general_ci', $onlineTable->getOption('collation'));
@@ -507,20 +507,13 @@ SQL;
         $this->connection->executeStatement('DROP TABLE IF EXISTS test_table_empty_metadata');
 
         $this->connection->executeStatement('CREATE TABLE test_table_empty_metadata(col1 INT NOT NULL)');
-        $onlineTable = $this->schemaManager->listTableDetails('test_table_empty_metadata');
+        $onlineTable = $this->schemaManager->getTable('test_table_empty_metadata');
 
         self::assertNotEmpty($onlineTable->getOption('engine'));
         // collation could be set to default or not set, information_schema indicate a possibly null value
         self::assertFalse($onlineTable->hasOption('autoincrement'));
         self::assertEquals('', $onlineTable->getOption('comment'));
         self::assertEquals([], $onlineTable->getOption('create_options'));
-    }
-
-    public function testParseNullCreateOptions(): void
-    {
-        $table = $this->schemaManager->listTableDetails('sys.processlist');
-
-        self::assertEquals([], $table->getOption('create_options'));
     }
 
     public function testListTableColumnsThrowsDatabaseRequired(): void
