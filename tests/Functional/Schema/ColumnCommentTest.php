@@ -124,7 +124,7 @@ class ColumnCommentTest extends FunctionalTestCase
         self::assertSame(
             $expectedComment,
             $this->connection->createSchemaManager()
-                ->listTableDetails($table)
+                ->getTable($table)
                 ->getColumn($column)
                 ->getComment()
         );

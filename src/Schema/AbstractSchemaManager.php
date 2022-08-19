@@ -14,7 +14,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_intersect;
@@ -225,36 +224,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @deprecated Use {@see getTable()} instead.
-     *
-     * @throws Exception
-     */
-    public function listTableDetails(string $name): Table
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5595',
-            '%s is deprecated. Use getTable() instead.',
-            __METHOD__
-        );
-
-        $database = $this->getDatabase(__METHOD__);
-
-        $normalizedName = $this->normalizeName($name);
-
-        $tableOptionsByTable = $this->fetchTableOptionsByTable($database, $normalizedName);
-
-        return new Table(
-            $name,
-            $this->listTableColumns($name),
-            $this->listTableIndexes($name),
-            [],
-            $this->listTableForeignKeys($name),
-            $tableOptionsByTable[$normalizedName] ?? []
-        );
-    }
-
-    /**
      * An extension point for those platforms where case sensitivity of the object name depends on whether it's quoted.
      *
      * Such platforms should convert a possibly quoted name into a value of the corresponding case.
@@ -352,13 +321,20 @@ abstract class AbstractSchemaManager
      */
     public function getTable(string $name): Table
     {
-        $table = $this->listTableDetails($name);
+        $columns = $this->listTableColumns($name);
 
-        if ($table->getColumns() === []) {
+        if ($columns === []) {
             throw TableDoesNotExist::new($name);
         }
 
-        return $table;
+        return new Table(
+            $name,
+            $columns,
+            $this->listTableIndexes($name),
+            [],
+            $this->listTableForeignKeys($name),
+            $this->getTableOptions($name)
+        );
     }
 
     /**
@@ -396,6 +372,21 @@ abstract class AbstractSchemaManager
                 $this->normalizeName($table)
             )->fetchAllAssociative()
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
+    private function getTableOptions(string $name): array
+    {
+        $normalizedName = $this->normalizeName($name);
+
+        return $this->fetchTableOptionsByTable(
+            $this->getDatabase(__METHOD__),
+            $normalizedName
+        )[$normalizedName] ?? [];
     }
 
     /* drop*() Methods */
