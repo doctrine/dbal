@@ -42,16 +42,6 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
-                <referencedMethod name="Doctrine\DBAL\Driver\Statement::bindParam"/>
-                <referencedMethod name="Doctrine\DBAL\Driver\IBMDB2\Statement::bindParam"/>
-                <referencedMethod name="Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware::bindParam"/>
-                <referencedMethod name="Doctrine\DBAL\Driver\OCI8\Statement::bindParam"/>
-                <referencedMethod name="Doctrine\DBAL\Driver\PDO\Statement::bindParam"/>
-                <referencedMethod name="Doctrine\DBAL\Driver\PDO\SQLSrv\Statement::bindParam"/>
-                <referencedMethod name="Doctrine\DBAL\Statement::bindParam"/>
-                <!--
-                    TODO: remove in 4.0.0
-                -->
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractSchemaManager::listTableDetails"/>
             </errorLevel>
         </DeprecatedMethod>
