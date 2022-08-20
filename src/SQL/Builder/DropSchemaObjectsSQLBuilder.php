@@ -27,8 +27,8 @@ final class DropSchemaObjectsSQLBuilder
     public function buildSQL(Schema $schema): array
     {
         return array_merge(
-            $this->buildTableStatements($schema->getTables()),
             $this->buildSequenceStatements($schema->getSequences()),
+            $this->buildTableStatements($schema->getTables()),
         );
     }
 
