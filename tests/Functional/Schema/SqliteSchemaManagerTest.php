@@ -274,4 +274,32 @@ SQL;
         self::assertSame(['artist_id'], $foreignKey2->getLocalColumns());
         self::assertSame(['id'], $foreignKey2->getForeignColumns());
     }
+
+    public function testNoWhitespaceInForeignKeyReference(): void
+    {
+        $this->dropTableIfExists('notes');
+        $this->dropTableIfExists('users');
+
+        $ddl = <<<'DDL'
+        CREATE TABLE "users" (
+            "id" INTEGER
+        );
+
+        CREATE TABLE "notes" (
+            "id" INTEGER,
+            "created_by" INTEGER,
+            FOREIGN KEY("created_by") REFERENCES "users"("id"));
+        DDL;
+
+        $this->connection->executeStatement($ddl);
+        $notes = $this->schemaManager->listTableDetails('notes');
+
+        $foreignKeys = $notes->getForeignKeys();
+        self::assertCount(1, $foreignKeys);
+
+        $foreignKey = array_shift($foreignKeys);
+        self::assertSame(['created_by'], $foreignKey->getLocalColumns());
+        self::assertSame('users', $foreignKey->getForeignTableName());
+        self::assertSame(['id'], $foreignKey->getForeignColumns());
+    }
 }
