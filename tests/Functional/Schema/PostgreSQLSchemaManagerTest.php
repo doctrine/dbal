@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\View;
@@ -302,6 +303,40 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     protected function assertVarBinaryColumnIsValid(Table $table, string $columnName, int $expectedLength): void
     {
         self::assertInstanceOf(BlobType::class, $table->getColumn($columnName)->getType());
+    }
+
+    /**
+     * Although this test would pass in isolation on any platform, we keep it here for the following reasons:
+     *
+     * 1. The DBAL currently doesn't properly drop tables in the namespaces that need to be quoted
+     *    (@see testListTableDetailsWhenCurrentSchemaNameQuoted()).
+     * 2. The schema returned by {@see AbstractSchemaManager::createSchema()} doesn't contain views, so
+     *    {@see AbstractSchemaManager::dropSchemaObjects()} cannot drop the tables that have dependent views
+     *    (@see testListTablesExcludesViews()).
+     * 3. In the case of inheritance, PHPUnit runs the tests declared immediately in the test class
+     *    and then runs the tests declared in the parent.
+     *
+     * This test needs to be executed before the ones it conflicts with, so it has to be declared in the same class.
+     */
+    public function testDropWithAutoincrement(): void
+    {
+        $this->dropTableIfExists('test_autoincrement');
+
+        $schema = new Schema();
+        $table  = $schema->createTable('test_autoincrement');
+        $table->addColumn('id', 'integer', [
+            'notnull' => true,
+            'autoincrement' => true,
+        ]);
+        $table->setPrimaryKey(['id']);
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createSchemaObjects($schema);
+
+        $schema = $schemaManager->createSchema();
+        $schemaManager->dropSchemaObjects($schema);
+
+        self::assertFalse($schemaManager->tablesExist(['test_autoincrement']));
     }
 
     public function testListTableDetailsWhenCurrentSchemaNameQuoted(): void
