@@ -242,7 +242,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertEquals(
             'ascii',
-            $this->schemaManager->listTableDetails('test_column_charset_change')
+            $this->schemaManager->getTable('test_column_charset_change')
                 ->getColumn('col_string')
                 ->getPlatformOption('charset')
         );

@@ -59,14 +59,14 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     public function renameTable(string $name, string $newName): void
     {
         $tableDiff            = new TableDiff($name);
-        $tableDiff->fromTable = $this->listTableDetails($name);
+        $tableDiff->fromTable = $this->getTable($name);
         $tableDiff->newName   = $newName;
         $this->alterTable($tableDiff);
     }
 
     public function createForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
     {
-        $table = $this->ensureTable($table);
+        $table = $this->getTable($table);
 
         $tableDiff = $this->getTableDiffForAlterForeignKey($table);
 
@@ -77,7 +77,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
     public function dropForeignKey(string $name, string $table): void
     {
-        $table = $this->ensureTable($table);
+        $table = $this->getTable($table);
 
         $tableDiff                       = $this->getTableDiffForAlterForeignKey($table);
         $tableDiff->removedForeignKeys[] = $table->getForeignKey($name);
@@ -366,15 +366,6 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         $tableDiff->fromTable = $table;
 
         return $tableDiff;
-    }
-
-    private function ensureTable(string|Table $table): Table
-    {
-        if (is_string($table)) {
-            $table = $this->listTableDetails($table);
-        }
-
-        return $table;
     }
 
     private function parseColumnCollationFromSQL(string $column, string $sql): ?string

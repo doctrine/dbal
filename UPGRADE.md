@@ -89,9 +89,9 @@ The following classes and constants have been removed:
 
 The `Driver::getSchemaManager()` method has been removed.
 
-## BC BREAK: removed `AbstractSchemaManager::getDatabasePlatform()`
+## BC BREAK: removed `AbstractSchemaManager` methods
 
-The `AbstractSchemaManager::getDatabasePlatform()` method has been removed.
+The `AbstractSchemaManager::getDatabasePlatform()` and `::listTableDetails()` methods have been removed.
 
 ## BC BREAK: removed Schema Visitor API.
 
