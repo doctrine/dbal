@@ -2585,7 +2585,7 @@ abstract class AbstractPlatform
      *
      * This method returns an array of SQL statements, since some platforms need several statements.
      *
-     * @return string[]
+     * @return list<string>
      *
      * @throws Exception If not supported on this platform.
      */

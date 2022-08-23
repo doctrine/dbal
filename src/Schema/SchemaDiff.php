@@ -88,7 +88,7 @@ class SchemaDiff
      *
      * This way it is ensured that assets are deleted which might not be relevant to the metadata schema at all.
      *
-     * @return string[]
+     * @return list<string>
      */
     public function toSaveSql(AbstractPlatform $platform)
     {
@@ -96,7 +96,7 @@ class SchemaDiff
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function toSql(AbstractPlatform $platform)
     {
@@ -106,7 +106,7 @@ class SchemaDiff
     /**
      * @param bool $saveMode
      *
-     * @return string[]
+     * @return list<string>
      */
     protected function _toSql(AbstractPlatform $platform, $saveMode = false)
     {
