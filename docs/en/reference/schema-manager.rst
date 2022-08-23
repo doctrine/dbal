@@ -82,8 +82,8 @@ Now you can loop over the array inspecting each column object:
         echo $column->getName() . ': ' . $column->getType() . "\n";
     }
 
-getTable()
-----------------------------
+introspectTable()
+-----------------
 
 Retrieve a single ``Doctrine\DBAL\Schema\Table`` instance that
 encapsulates the definition of the given table:
@@ -91,7 +91,7 @@ encapsulates the definition of the given table:
 .. code-block:: php
 
     <?php
-    $table = $sm->getDetails('user');
+    $table = $sm->introspectTable('user');
 
 Now you can call methods on the table to manipulate the in memory
 schema for that table. For example we can add a new column:
@@ -188,18 +188,18 @@ Now you can loop over the array inspecting each view object:
         echo $view->getName() . ': ' . $view->getSql() . "\n";
     }
 
-createSchema()
---------------
+introspectSchema()
+------------------
 
 For a complete representation of the current database you can use
-the ``createSchema()`` method which returns an instance of
+the ``introspectSchema()`` method which returns an instance of
 ``Doctrine\DBAL\Schema\Schema``, which you can use in conjunction
 with the SchemaTool or Schema Comparator.
 
 .. code-block:: php
 
     <?php
-    $fromSchema = $sm->createSchema();
+    $fromSchema = $sm->introspectSchema();
 
 Now we can clone the ``$fromSchema`` to ``$toSchema`` and drop a
 table:

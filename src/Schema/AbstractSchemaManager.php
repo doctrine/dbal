@@ -392,7 +392,7 @@ abstract class AbstractSchemaManager
 
         $tables = [];
         foreach ($tableNames as $tableName) {
-            $tables[] = $this->getTable($tableName);
+            $tables[] = $this->introspectTable($tableName);
         }
 
         return $tables;
@@ -434,7 +434,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @deprecated Use {@see getTable()} instead.
+     * @deprecated Use {@see introspectTable()} instead.
      *
      * @param string $name
      *
@@ -447,7 +447,7 @@ abstract class AbstractSchemaManager
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
-            '%s is deprecated. Use getTable() instead.',
+            '%s is deprecated. Use introspectTable() instead.',
             __METHOD__
         );
 
@@ -607,11 +607,11 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Returns the table with the given name.
+     * Introspects the table with the given name.
      *
      * @throws Exception
      */
-    public function getTable(string $name): Table
+    public function introspectTable(string $name): Table
     {
         $table = $this->listTableDetails($name);
 
@@ -1232,7 +1232,7 @@ abstract class AbstractSchemaManager
     public function migrateSchema(Schema $toSchema): void
     {
         $schemaDiff = $this->createComparator()
-            ->compareSchemas($this->createSchema(), $toSchema);
+            ->compareSchemas($this->introspectSchema(), $toSchema);
 
         $this->alterSchema($schemaDiff);
     }
@@ -1617,12 +1617,21 @@ abstract class AbstractSchemaManager
     /**
      * Creates a schema instance for the current database.
      *
+     * @deprecated Use {@link introspectSchema()} instead.
+     *
      * @return Schema
      *
      * @throws Exception
      */
     public function createSchema()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5613',
+            '%s is deprecated. Use introspectSchema() instead.',
+            __METHOD__
+        );
+
         $schemaNames = [];
 
         if ($this->_platform->supportsSchemas()) {
@@ -1638,6 +1647,16 @@ abstract class AbstractSchemaManager
         $tables = $this->listTables();
 
         return new Schema($tables, $sequences, $this->createSchemaConfig(), $schemaNames);
+    }
+
+    /**
+     * Returns a {@see Schema} instance representing the current database schema.
+     *
+     * @throws Exception
+     */
+    public function introspectSchema(): Schema
+    {
+        return $this->createSchema();
     }
 
     /**

@@ -32,7 +32,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableOld->addColumn('bar_id', 'integer');
 
         $this->schemaManager->createTable($tableOld);
-        $tableFetched = $this->schemaManager->getTable('switch_primary_key_columns');
+        $tableFetched = $this->schemaManager->introspectTable('switch_primary_key_columns');
         $tableNew     = clone $tableFetched;
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
@@ -42,7 +42,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table      = $this->schemaManager->getTable('switch_primary_key_columns');
+        $table      = $this->schemaManager->introspectTable('switch_primary_key_columns');
         $primaryKey = $table->getPrimaryKeyColumns();
 
         self::assertCount(2, $primaryKey);
@@ -65,7 +65,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addIndex(['localized_value']); // this is much more selective than the unique index
 
         $this->schemaManager->createTable($table);
-        $tableFetched = $this->schemaManager->getTable('diffbug_routing_translations');
+        $tableFetched = $this->schemaManager->introspectTable('diffbug_routing_translations');
 
         $diff = $this->schemaManager->createComparator()
             ->diffTable($tableFetched, $table);
@@ -144,7 +144,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->getTable('alter_table_add_pk');
+        $table = $this->schemaManager->introspectTable('alter_table_add_pk');
 
         self::assertFalse($table->hasIndex('idx_id'));
         self::assertTrue($table->hasPrimaryKey());
@@ -169,7 +169,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->getTable('drop_primary_key');
+        $table = $this->schemaManager->introspectTable('drop_primary_key');
 
         self::assertFalse($table->hasPrimaryKey());
         self::assertFalse($table->getColumn('id')->getAutoincrement());
@@ -191,7 +191,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->getTable('text_blob_default_value');
+        $onlineTable = $this->schemaManager->introspectTable('text_blob_default_value');
 
         self::assertNull($onlineTable->getColumn('def_text')->getDefault());
         self::assertNull($onlineTable->getColumn('def_text_null')->getDefault());
@@ -238,7 +238,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table = $this->schemaManager->getTable($tableName);
+        $table = $this->schemaManager->introspectTable($tableName);
 
         self::assertEquals('ascii', $table->getColumn('col_text')->getPlatformOption('charset'));
     }
@@ -349,7 +349,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($offlineTable);
 
-        $onlineTable = $this->schemaManager->getTable('list_guid_table_column');
+        $onlineTable = $this->schemaManager->introspectTable('list_guid_table_column');
 
         self::assertFalse(
             $this->schemaManager->createComparator()->diffTable($onlineTable, $offlineTable),
@@ -417,7 +417,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->getTable('test_column_defaults_current_timestamp');
+        $onlineTable = $this->schemaManager->introspectTable('test_column_defaults_current_timestamp');
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
 
@@ -489,7 +489,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->getTable('test_column_defaults_current_time_and_date');
+        $onlineTable = $this->schemaManager->introspectTable('test_column_defaults_current_time_and_date');
 
         self::assertSame($currentTimestampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
@@ -516,7 +516,7 @@ PARTITION BY HASH (col1)
 SQL;
 
         $this->connection->executeStatement($sql);
-        $onlineTable = $this->schemaManager->getTable('test_table_metadata');
+        $onlineTable = $this->schemaManager->introspectTable('test_table_metadata');
 
         self::assertEquals('InnoDB', $onlineTable->getOption('engine'));
         self::assertEquals('utf8mb4_general_ci', $onlineTable->getOption('collation'));
@@ -533,7 +533,7 @@ SQL;
         $this->connection->executeStatement('DROP TABLE IF EXISTS test_table_empty_metadata');
 
         $this->connection->executeStatement('CREATE TABLE test_table_empty_metadata(col1 INT NOT NULL)');
-        $onlineTable = $this->schemaManager->getTable('test_table_empty_metadata');
+        $onlineTable = $this->schemaManager->introspectTable('test_table_empty_metadata');
 
         self::assertNotEmpty($onlineTable->getOption('engine'));
         // collation could be set to default or not set, information_schema indicate a possibly null value

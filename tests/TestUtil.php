@@ -111,7 +111,7 @@ class TestUtil
 
             $sm = $testConn->createSchemaManager();
 
-            $schema = $sm->createSchema();
+            $schema = $sm->introspectSchema();
             $sm->dropSchemaObjects($schema);
 
             $testConn->close();

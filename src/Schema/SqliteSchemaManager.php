@@ -60,14 +60,14 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      *
-     * @deprecated Use {@see getTable()} instead.
+     * @deprecated Use {@see introspectTable()} instead.
      */
     public function listTableDetails($name)
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
-            '%s is deprecated. Use getTable() instead.',
+            '%s is deprecated. Use introspectTable() instead.',
             __METHOD__
         );
 

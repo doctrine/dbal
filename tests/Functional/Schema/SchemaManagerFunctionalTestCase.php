@@ -451,7 +451,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $offlineTable = $this->createListTableColumns();
         $this->dropAndCreateTable($offlineTable);
-        $onlineTable = $this->schemaManager->getTable('list_table_columns');
+        $onlineTable = $this->schemaManager->introspectTable('list_table_columns');
 
         $diff = $comparatorFactory($this->schemaManager)->diffTable($onlineTable, $offlineTable);
 
@@ -542,7 +542,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->dropAndCreateTable($tableA);
 
-        $fkTable       = $this->schemaManager->getTable('test_create_fk');
+        $fkTable       = $this->schemaManager->introspectTable('test_create_fk');
         $fkConstraints = $fkTable->getForeignKeys();
         self::assertCount(1, $fkConstraints, "Table 'test_create_fk' has to have one foreign key.");
 
@@ -591,7 +591,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->createTestTable('test_create_fk1');
         $this->createTestTable('test_create_fk2');
 
-        $table = $this->schemaManager->getTable('test_create_fk1');
+        $table = $this->schemaManager->introspectTable('test_create_fk1');
         $table->addForeignKeyConstraint(
             'test_create_fk2',
             ['foreign_key_test'],
@@ -617,11 +617,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::markTestSkipped('No Create Example View SQL was defined for this SchemaManager');
     }
 
-    public function testCreateSchema(): void
+    public function testSchemaIntrospection(): void
     {
         $this->createTestTable('test_table');
 
-        $schema = $this->schemaManager->createSchema();
+        $schema = $this->schemaManager->introspectSchema();
         self::assertTrue($schema->hasTable('test_table'));
     }
 
@@ -630,7 +630,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->createTestTable('table_to_alter');
         $this->createTestTable('table_to_drop');
 
-        $schema = $this->schemaManager->createSchema();
+        $schema = $this->schemaManager->introspectSchema();
 
         $tableToAlter = $schema->getTable('table_to_alter');
         $tableToAlter->dropColumn('foreign_key_test');
@@ -644,7 +644,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->migrateSchema($schema);
 
-        $schema = $this->schemaManager->createSchema();
+        $schema = $this->schemaManager->introspectSchema();
 
         self::assertTrue($schema->hasTable('table_to_alter'));
         self::assertFalse($schema->getTable('table_to_alter')->hasColumn('foreign_key_test'));
@@ -662,7 +662,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $alterTable = $this->createTestTable('alter_table');
         $this->createTestTable('alter_table_foreign');
 
-        $table = $this->schemaManager->getTable('alter_table');
+        $table = $this->schemaManager->introspectTable('alter_table');
         self::assertTrue($table->hasColumn('id'));
         self::assertTrue($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foreign_key_test'));
@@ -676,7 +676,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($tableDiff);
 
-        $table = $this->schemaManager->getTable('alter_table');
+        $table = $this->schemaManager->introspectTable('alter_table');
         self::assertFalse($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foo'));
 
@@ -686,7 +686,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($tableDiff);
 
-        $table = $this->schemaManager->getTable('alter_table');
+        $table = $this->schemaManager->introspectTable('alter_table');
         self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
         self::assertEquals(['foo'], array_map('strtolower', $table->getIndex('foo_idx')->getColumns()));
@@ -699,7 +699,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($tableDiff);
 
-        $table = $this->schemaManager->getTable('alter_table');
+        $table = $this->schemaManager->introspectTable('alter_table');
         self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
         self::assertEquals(
@@ -713,7 +713,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($tableDiff);
 
-        $table = $this->schemaManager->getTable('alter_table');
+        $table = $this->schemaManager->introspectTable('alter_table');
         self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('foo_idx'));
@@ -731,7 +731,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableDiff->addedForeignKeys[] = $fk;
 
         $this->schemaManager->alterTable($tableDiff);
-        $table = $this->schemaManager->getTable('alter_table');
+        $table = $this->schemaManager->introspectTable('alter_table');
 
         // dont check for index size here, some platforms automatically add indexes for foreign keys.
         self::assertFalse($table->hasIndex('bar_idx'));
@@ -805,7 +805,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $inferredTable = $this->schemaManager->getTable('test_autoincrement');
+        $inferredTable = $this->schemaManager->introspectTable('test_autoincrement');
         self::assertTrue($inferredTable->hasColumn('id'));
         self::assertTrue($inferredTable->getColumn('id')->getAutoincrement());
     }
@@ -824,7 +824,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $inferredTable = $this->schemaManager->getTable('test_not_autoincrement');
+        $inferredTable = $this->schemaManager->introspectTable('test_not_autoincrement');
         self::assertTrue($inferredTable->hasColumn('id'));
         self::assertFalse($inferredTable->getColumn('id')->getAutoincrement());
     }
@@ -867,7 +867,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table       = $this->schemaManager->getTable('test_fk_rename');
+        $table       = $this->schemaManager->introspectTable('test_fk_rename');
         $foreignKeys = $table->getForeignKeys();
 
         self::assertTrue($table->hasColumn('rename_fk_id'));
@@ -911,7 +911,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $foreignTable = $this->schemaManager->getTable('test_rename_index_foreign');
+        $foreignTable = $this->schemaManager->introspectTable('test_rename_index_foreign');
 
         self::assertFalse($foreignTable->hasIndex('rename_index_fk_idx'));
         self::assertTrue($foreignTable->hasIndex('renamed_index_fk_idx'));
@@ -1062,7 +1062,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $created = $this->schemaManager->getTable('test_blob_table');
+        $created = $this->schemaManager->introspectTable('test_blob_table');
 
         self::assertTrue($created->hasColumn('binarydata'));
         self::assertInstanceOf(BlobType::class, $created->getColumn('binarydata')->getType());
@@ -1217,7 +1217,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $table = $this->schemaManager->getTable($tableName);
+        $table = $this->schemaManager->introspectTable($tableName);
         $this->assertBinaryColumnIsValid($table, 'column_binary', 16);
         $this->assertVarBinaryColumnIsValid($table, 'column_varbinary', 32);
     }
@@ -1241,7 +1241,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testGetNonExistingTable(): void
     {
         $this->expectException(SchemaException::class);
-        $this->schemaManager->getTable('non_existing');
+        $this->schemaManager->introspectTable('non_existing');
     }
 
     public function testListTableDetailsWithFullQualifiedTableName(): void
@@ -1369,7 +1369,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $offlineTable->addColumn('no_comment2', 'integer');
         $this->dropAndCreateTable($offlineTable);
 
-        $onlineTable = $this->schemaManager->getTable('alter_column_comment_test');
+        $onlineTable = $this->schemaManager->introspectTable('alter_column_comment_test');
 
         self::assertSame($expectedComment1, $onlineTable->getColumn('comment1')->getComment());
         self::assertSame($expectedComment2, $onlineTable->getColumn('comment2')->getComment());
@@ -1387,7 +1387,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->alterTable($tableDiff);
 
-        $onlineTable = $this->schemaManager->getTable('alter_column_comment_test');
+        $onlineTable = $this->schemaManager->introspectTable('alter_column_comment_test');
 
         self::assertSame($expectedComment2, $onlineTable->getColumn('comment1')->getComment());
         self::assertSame($expectedComment1, $onlineTable->getColumn('comment2')->getComment());
@@ -1465,7 +1465,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addColumn('parameters', 'json');
 
         $tableDiff = $comparatorFactory($this->schemaManager)
-            ->diffTable($this->schemaManager->getTable('json_test'), $table);
+            ->diffTable($this->schemaManager->introspectTable('json_test'), $table);
 
         self::assertFalse($tableDiff);
     }
@@ -1617,7 +1617,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $onlineTable = $this->schemaManager->getTable('test_partial_column_index');
+        $onlineTable = $this->schemaManager->introspectTable('test_partial_column_index');
         self::assertEquals($expected, $onlineTable->getIndexes());
     }
 
@@ -1628,7 +1628,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->setComment('Foo with control characters \'\\');
         $this->dropAndCreateTable($table);
 
-        $table = $this->schemaManager->getTable('table_with_comment');
+        $table = $this->schemaManager->introspectTable('table_with_comment');
         self::assertSame('Foo with control characters \'\\', $table->getComment());
     }
 
@@ -1668,7 +1668,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $table = $this->schemaManager->getTable($foreignTable);
+        $table = $this->schemaManager->introspectTable($foreignTable);
 
         $foreignKey = $table->getForeignKey($foreignKey);
 
@@ -1680,7 +1680,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $this->createReservedKeywordTables();
 
-        $user = $this->schemaManager->getTable('"user"');
+        $user = $this->schemaManager->introspectTable('"user"');
         self::assertCount(2, $user->getColumns());
         self::assertCount(2, $user->getIndexes());
         self::assertCount(1, $user->getForeignKeys());

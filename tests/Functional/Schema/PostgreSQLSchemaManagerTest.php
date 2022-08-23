@@ -66,13 +66,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $createTableSQL = 'CREATE TABLE domain_type_test (id INT PRIMARY KEY, value MyMoney)';
         $this->connection->executeStatement($createTableSQL);
 
-        $table = $this->connection->getSchemaManager()->getTable('domain_type_test');
+        $table = $this->connection->getSchemaManager()->introspectTable('domain_type_test');
         self::assertInstanceOf(DecimalType::class, $table->getColumn('value')->getType());
 
         Type::addType('MyMoney', MoneyType::class);
         $this->connection->getDatabasePlatform()->registerDoctrineTypeMapping('MyMoney', 'MyMoney');
 
-        $table = $this->connection->getSchemaManager()->getTable('domain_type_test');
+        $table = $this->connection->getSchemaManager()->introspectTable('domain_type_test');
         self::assertInstanceOf(MoneyType::class, $table->getColumn('value')->getType());
     }
 
@@ -82,7 +82,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column       = $autoincTable->addColumn('id', 'integer');
         $column->setAutoincrement(true);
         $this->dropAndCreateTable($autoincTable);
-        $autoincTable = $this->schemaManager->getTable('autoinc_table');
+        $autoincTable = $this->schemaManager->introspectTable('autoinc_table');
 
         self::assertTrue($autoincTable->getColumn('id')->getAutoincrement());
     }
@@ -103,7 +103,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableFrom = new Table('autoinc_table_add');
         $tableFrom->addColumn('id', 'integer');
         $this->dropAndCreateTable($tableFrom);
-        $tableFrom = $this->schemaManager->getTable('autoinc_table_add');
+        $tableFrom = $this->schemaManager->introspectTable('autoinc_table_add');
         self::assertFalse($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_table_add');
@@ -122,7 +122,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         ], $sql);
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->getTable('autoinc_table_add');
+        $tableFinal = $this->schemaManager->introspectTable('autoinc_table_add');
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
@@ -137,7 +137,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column    = $tableFrom->addColumn('id', 'integer');
         $column->setAutoincrement(true);
         $this->dropAndCreateTable($tableFrom);
-        $tableFrom = $this->schemaManager->getTable('autoinc_table_drop');
+        $tableFrom = $this->schemaManager->introspectTable('autoinc_table_drop');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_table_drop');
@@ -153,7 +153,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->getTable('autoinc_table_drop');
+        $tableFinal = $this->schemaManager->introspectTable('autoinc_table_drop');
         self::assertFalse($tableFinal->getColumn('id')->getAutoincrement());
     }
 
@@ -181,7 +181,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tables = $this->schemaManager->listTables();
         self::assertNotNull($this->findTableByName($tables, 'nested.schematable'));
 
-        $nestedSchemaTable = $this->schemaManager->getTable('nested.schematable');
+        $nestedSchemaTable = $this->schemaManager->introspectTable('nested.schematable');
         self::assertTrue($nestedSchemaTable->hasColumn('id'));
 
         $primaryKey = $nestedSchemaTable->getPrimaryKey();
@@ -207,7 +207,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             . ' FOREIGN KEY( "table" ) REFERENCES dbal91_something ON UPDATE CASCADE;';
         $this->connection->executeStatement($sql);
 
-        $table = $this->schemaManager->getTable('dbal91_something');
+        $table = $this->schemaManager->introspectTable('dbal91_something');
 
         self::assertEquals(
             [
@@ -264,7 +264,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $testTable->setPrimaryKey(['id']);
         $this->dropAndCreateTable($testTable);
 
-        $databaseTable = $this->schemaManager->getTable($testTable->getName());
+        $databaseTable = $this->schemaManager->introspectTable($testTable->getName());
 
         self::assertEquals('foo', $databaseTable->getColumn('def')->getDefault());
     }
@@ -282,7 +282,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $databaseTable = $this->schemaManager->getTable($table->getName());
+        $databaseTable = $this->schemaManager->introspectTable($table->getName());
 
         $diff = $comparatorFactory($this->schemaManager)->diffTable($table, $databaseTable);
 
@@ -310,7 +310,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
      *
      * 1. The DBAL currently doesn't properly drop tables in the namespaces that need to be quoted
      *    (@see testListTableDetailsWhenCurrentSchemaNameQuoted()).
-     * 2. The schema returned by {@see AbstractSchemaManager::createSchema()} doesn't contain views, so
+     * 2. The schema returned by {@see AbstractSchemaManager::introspectSchema()} doesn't contain views, so
      *    {@see AbstractSchemaManager::dropSchemaObjects()} cannot drop the tables that have dependent views
      *    (@see testListTablesExcludesViews()).
      * 3. In the case of inheritance, PHPUnit runs the tests declared immediately in the test class
@@ -333,7 +333,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
         $schemaManager->createSchemaObjects($schema);
 
-        $schema = $schemaManager->createSchema();
+        $schema = $schemaManager->introspectSchema();
         $schemaManager->dropSchemaObjects($schema);
 
         self::assertFalse($schemaManager->tablesExist(['test_autoincrement']));
@@ -384,7 +384,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->dropAndCreateTable($offlineTable);
 
-        $onlineTable = $this->schemaManager->getTable('person');
+        $onlineTable = $this->schemaManager->introspectTable('person');
 
         $comparator = new Comparator();
 
@@ -520,7 +520,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column    = $tableFrom->addColumn('id', $from);
         $column->setAutoincrement(true);
         $this->dropAndCreateTable($tableFrom);
-        $tableFrom = $this->schemaManager->getTable('autoinc_type_modification');
+        $tableFrom = $this->schemaManager->introspectTable('autoinc_type_modification');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_type_modification');
@@ -535,7 +535,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
 
         $this->schemaManager->alterTable($diff);
-        $tableFinal = $this->schemaManager->getTable('autoinc_type_modification');
+        $tableFinal = $this->schemaManager->introspectTable('autoinc_type_modification');
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
