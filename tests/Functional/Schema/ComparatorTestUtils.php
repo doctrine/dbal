@@ -23,7 +23,7 @@ final class ComparatorTestUtils
         Table $desiredTable
     ) {
         return $comparator->diffTable(
-            $schemaManager->getTable($desiredTable->getName()),
+            $schemaManager->introspectTable($desiredTable->getName()),
             $desiredTable
         );
     }
@@ -40,7 +40,7 @@ final class ComparatorTestUtils
     ) {
         return $comparator->diffTable(
             $desiredTable,
-            $schemaManager->getTable($desiredTable->getName())
+            $schemaManager->introspectTable($desiredTable->getName())
         );
     }
 

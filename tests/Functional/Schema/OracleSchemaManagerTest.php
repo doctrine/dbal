@@ -121,8 +121,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->createTable($offlinePrimaryTable);
         $this->schemaManager->createTable($offlineForeignTable);
 
-        $onlinePrimaryTable = $this->schemaManager->getTable($primaryTableName);
-        $onlineForeignTable = $this->schemaManager->getTable($foreignTableName);
+        $onlinePrimaryTable = $this->schemaManager->introspectTable($primaryTableName);
+        $onlineForeignTable = $this->schemaManager->introspectTable($foreignTableName);
 
         $platform = $this->connection->getDatabasePlatform();
 

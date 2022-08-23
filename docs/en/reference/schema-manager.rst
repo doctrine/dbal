@@ -82,8 +82,8 @@ Now you can loop over the array inspecting each column object:
         echo $column->getName() . ': ' . $column->getType() . "\n";
     }
 
-getTable()
-----------------------------
+introspectTable()
+-----------------
 
 Retrieve a single ``Doctrine\DBAL\Schema\Table`` instance that
 encapsulates the definition of the given table:
@@ -91,7 +91,7 @@ encapsulates the definition of the given table:
 .. code-block:: php
 
     <?php
-    $table = $sm->getDetails('user');
+    $table = $sm->introspectTable('user');
 
 Now you can call methods on the table to manipulate the in memory
 schema for that table. For example we can add a new column:

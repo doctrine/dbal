@@ -392,7 +392,7 @@ abstract class AbstractSchemaManager
 
         $tables = [];
         foreach ($tableNames as $tableName) {
-            $tables[] = $this->getTable($tableName);
+            $tables[] = $this->introspectTable($tableName);
         }
 
         return $tables;
@@ -434,7 +434,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @deprecated Use {@see getTable()} instead.
+     * @deprecated Use {@see introspectTable()} instead.
      *
      * @param string $name
      *
@@ -447,7 +447,7 @@ abstract class AbstractSchemaManager
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
-            '%s is deprecated. Use getTable() instead.',
+            '%s is deprecated. Use introspectTable() instead.',
             __METHOD__
         );
 
@@ -607,11 +607,11 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Returns the table with the given name.
+     * Introspects the table with the given name.
      *
      * @throws Exception
      */
-    public function getTable(string $name): Table
+    public function introspectTable(string $name): Table
     {
         $table = $this->listTableDetails($name);
 
