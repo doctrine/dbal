@@ -617,11 +617,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::markTestSkipped('No Create Example View SQL was defined for this SchemaManager');
     }
 
-    public function testCreateSchema(): void
+    public function testSchemaIntrospection(): void
     {
         $this->createTestTable('test_table');
 
-        $schema = $this->schemaManager->createSchema();
+        $schema = $this->schemaManager->introspectSchema();
         self::assertTrue($schema->hasTable('test_table'));
     }
 
@@ -630,7 +630,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->createTestTable('table_to_alter');
         $this->createTestTable('table_to_drop');
 
-        $schema = $this->schemaManager->createSchema();
+        $schema = $this->schemaManager->introspectSchema();
 
         $tableToAlter = $schema->getTable('table_to_alter');
         $tableToAlter->dropColumn('foreign_key_test');
@@ -644,7 +644,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->migrateSchema($schema);
 
-        $schema = $this->schemaManager->createSchema();
+        $schema = $this->schemaManager->introspectSchema();
 
         self::assertTrue($schema->hasTable('table_to_alter'));
         self::assertFalse($schema->getTable('table_to_alter')->hasColumn('foreign_key_test'));

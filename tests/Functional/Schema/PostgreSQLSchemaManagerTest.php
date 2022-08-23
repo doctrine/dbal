@@ -310,7 +310,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
      *
      * 1. The DBAL currently doesn't properly drop tables in the namespaces that need to be quoted
      *    (@see testListTableDetailsWhenCurrentSchemaNameQuoted()).
-     * 2. The schema returned by {@see AbstractSchemaManager::createSchema()} doesn't contain views, so
+     * 2. The schema returned by {@see AbstractSchemaManager::introspectSchema()} doesn't contain views, so
      *    {@see AbstractSchemaManager::dropSchemaObjects()} cannot drop the tables that have dependent views
      *    (@see testListTablesExcludesViews()).
      * 3. In the case of inheritance, PHPUnit runs the tests declared immediately in the test class
@@ -333,7 +333,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
         $schemaManager->createSchemaObjects($schema);
 
-        $schema = $schemaManager->createSchema();
+        $schema = $schemaManager->introspectSchema();
         $schemaManager->dropSchemaObjects($schema);
 
         self::assertFalse($schemaManager->tablesExist(['test_autoincrement']));

@@ -275,7 +275,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $fromSchema = $schemaManager->createSchema();
+        $fromSchema = $schemaManager->introspectSchema();
         $toSchema   = clone $fromSchema;
 
         $toSchema->getTable('"tester"')->dropColumn('"name"');

@@ -12,10 +12,12 @@ awareness about deprecated code.
 
 The `AbstractSchemaManager::_execSql()` method has been marked as internal. It will not be available in 4.0.
 
-## Deprecated `AbstractSchemaManager::listTableDetails()`.
+## Deprecated `AbstractSchemaManager` schema introspection methods.
 
-The `AbstractSchemaManager::listTableDetails()` methods has been deprecated.
-Use `AbstractSchemaManager::introspectTable()` instead.
+The following `AbstractSchemaManager` methods has been deprecated:
+
+1. `listTableDetails()`. Use `introspectTable()` instead,
+2. `createSchema()`. Use `introspectSchema()` instead.
 
 # Upgrade to 3.4
 

@@ -36,7 +36,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         $this->dropTableIfExists('dbal2807');
 
         $schemaManager = $this->connection->getSchemaManager();
-        $schema        = $schemaManager->createSchema();
+        $schema        = $schemaManager->introspectSchema();
 
         $table = $schema->createTable('dbal2807');
         $table->addColumn('initial_id', 'integer');
@@ -55,7 +55,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
 
         $schemaManager->alterSchema($diff);
 
-        $validationSchema = $schemaManager->createSchema();
+        $validationSchema = $schemaManager->introspectSchema();
         $validationTable  = $validationSchema->getTable($table->getName());
 
         self::assertTrue($validationTable->hasColumn('new_id'));

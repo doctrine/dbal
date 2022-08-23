@@ -3974,7 +3974,7 @@ abstract class AbstractPlatform
      * @deprecated
      *
      * Platforms that either support or emulate schemas don't automatically
-     * filter a schema for the namespaced elements in {@see AbstractManager::createSchema()}.
+     * filter a schema for the namespaced elements in {@see AbstractManager::introspectSchema()}.
      *
      * @return bool
      */

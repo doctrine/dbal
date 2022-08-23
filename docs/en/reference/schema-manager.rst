@@ -188,18 +188,18 @@ Now you can loop over the array inspecting each view object:
         echo $view->getName() . ': ' . $view->getSql() . "\n";
     }
 
-createSchema()
---------------
+introspectSchema()
+------------------
 
 For a complete representation of the current database you can use
-the ``createSchema()`` method which returns an instance of
+the ``introspectSchema()`` method which returns an instance of
 ``Doctrine\DBAL\Schema\Schema``, which you can use in conjunction
 with the SchemaTool or Schema Comparator.
 
 .. code-block:: php
 
     <?php
-    $fromSchema = $sm->createSchema();
+    $fromSchema = $sm->introspectSchema();
 
 Now we can clone the ``$fromSchema`` to ``$toSchema`` and drop a
 table:
