@@ -709,7 +709,9 @@ abstract class AbstractSchemaManager
      */
     public function dropDatabase($database)
     {
-        $this->_execSql($this->_platform->getDropDatabaseSQL($database));
+        $this->_conn->executeStatement(
+            $this->_platform->getDropDatabaseSQL($database)
+        );
     }
 
     /**
@@ -719,7 +721,9 @@ abstract class AbstractSchemaManager
      */
     public function dropSchema(string $schemaName): void
     {
-        $this->_execSql($this->_platform->getDropSchemaSQL($schemaName));
+        $this->_conn->executeStatement(
+            $this->_platform->getDropSchemaSQL($schemaName)
+        );
     }
 
     /**
@@ -733,7 +737,9 @@ abstract class AbstractSchemaManager
      */
     public function dropTable($name)
     {
-        $this->_execSql($this->_platform->getDropTableSQL($name));
+        $this->_conn->executeStatement(
+            $this->_platform->getDropTableSQL($name)
+        );
     }
 
     /**
@@ -770,7 +776,9 @@ abstract class AbstractSchemaManager
             $table = $table->getQuotedName($this->_platform);
         }
 
-        $this->_execSql($this->_platform->getDropIndexSQL($index, $table));
+        $this->_conn->executeStatement(
+            $this->_platform->getDropIndexSQL($index, $table)
+        );
     }
 
     /**
@@ -797,10 +805,12 @@ abstract class AbstractSchemaManager
             $table = $table->getQuotedName($this->_platform);
         }
 
-        $this->_execSql($this->_platform->getDropConstraintSQL(
-            $constraint->getQuotedName($this->_platform),
-            $table
-        ));
+        $this->_conn->executeStatement(
+            $this->_platform->getDropConstraintSQL(
+                $constraint->getQuotedName($this->_platform),
+                $table
+            )
+        );
     }
 
     /**
@@ -838,7 +848,9 @@ abstract class AbstractSchemaManager
             $table = $table->getQuotedName($this->_platform);
         }
 
-        $this->_execSql($this->_platform->getDropForeignKeySQL($foreignKey, $table));
+        $this->_conn->executeStatement(
+            $this->_platform->getDropForeignKeySQL($foreignKey, $table)
+        );
     }
 
     /**
@@ -852,7 +864,9 @@ abstract class AbstractSchemaManager
      */
     public function dropSequence($name)
     {
-        $this->_execSql($this->_platform->getDropSequenceSQL($name));
+        $this->_conn->executeStatement(
+            $this->_platform->getDropSequenceSQL($name)
+        );
     }
 
     /**
@@ -862,7 +876,9 @@ abstract class AbstractSchemaManager
      */
     public function dropUniqueConstraint(string $name, string $tableName): void
     {
-        $this->_execSql($this->_platform->getDropUniqueConstraintSQL($name, $tableName));
+        $this->_conn->executeStatement(
+            $this->_platform->getDropUniqueConstraintSQL($name, $tableName)
+        );
     }
 
     /**
@@ -876,7 +892,9 @@ abstract class AbstractSchemaManager
      */
     public function dropView($name)
     {
-        $this->_execSql($this->_platform->getDropViewSQL($name));
+        $this->_conn->executeStatement(
+            $this->_platform->getDropViewSQL($name)
+        );
     }
 
     /* create*() Methods */
@@ -900,7 +918,9 @@ abstract class AbstractSchemaManager
      */
     public function createDatabase($database)
     {
-        $this->_execSql($this->_platform->getCreateDatabaseSQL($database));
+        $this->_conn->executeStatement(
+            $this->_platform->getCreateDatabaseSQL($database)
+        );
     }
 
     /**
@@ -927,7 +947,9 @@ abstract class AbstractSchemaManager
      */
     public function createSequence($sequence)
     {
-        $this->_execSql($this->_platform->getCreateSequenceSQL($sequence));
+        $this->_conn->executeStatement(
+            $this->_platform->getCreateSequenceSQL($sequence)
+        );
     }
 
     /**
@@ -943,7 +965,9 @@ abstract class AbstractSchemaManager
      */
     public function createConstraint(Constraint $constraint, $table)
     {
-        $this->_execSql($this->_platform->getCreateConstraintSQL($constraint, $table));
+        $this->_conn->executeStatement(
+            $this->_platform->getCreateConstraintSQL($constraint, $table)
+        );
     }
 
     /**
@@ -957,7 +981,9 @@ abstract class AbstractSchemaManager
      */
     public function createIndex(Index $index, $table)
     {
-        $this->_execSql($this->_platform->getCreateIndexSQL($index, $table));
+        $this->_conn->executeStatement(
+            $this->_platform->getCreateIndexSQL($index, $table)
+        );
     }
 
     /**
@@ -972,7 +998,9 @@ abstract class AbstractSchemaManager
      */
     public function createForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
-        $this->_execSql($this->_platform->getCreateForeignKeySQL($foreignKey, $table));
+        $this->_conn->executeStatement(
+            $this->_platform->getCreateForeignKeySQL($foreignKey, $table)
+        );
     }
 
     /**
@@ -982,7 +1010,9 @@ abstract class AbstractSchemaManager
      */
     public function createUniqueConstraint(UniqueConstraint $uniqueConstraint, string $tableName): void
     {
-        $this->_execSql($this->_platform->getCreateUniqueConstraintSQL($uniqueConstraint, $tableName));
+        $this->_conn->executeStatement(
+            $this->_platform->getCreateUniqueConstraintSQL($uniqueConstraint, $tableName)
+        );
     }
 
     /**
@@ -994,7 +1024,12 @@ abstract class AbstractSchemaManager
      */
     public function createView(View $view)
     {
-        $this->_execSql($this->_platform->getCreateViewSQL($view->getQuotedName($this->_platform), $view->getSql()));
+        $this->_conn->executeStatement(
+            $this->_platform->getCreateViewSQL(
+                $view->getQuotedName($this->_platform),
+                $view->getSql()
+            )
+        );
     }
 
     /* dropAndCreate*() Methods */
@@ -1213,9 +1248,7 @@ abstract class AbstractSchemaManager
      */
     public function alterTable(TableDiff $tableDiff)
     {
-        foreach ($this->_platform->getAlterTableSQL($tableDiff) as $ddlQuery) {
-            $this->_execSql($ddlQuery);
-        }
+        $this->_execSql($this->_platform->getAlterTableSQL($tableDiff));
     }
 
     /**
@@ -1566,6 +1599,8 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @internal
+     *
      * @param string[]|string $sql
      *
      * @return void

@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Marked `AbstractSchemaManager::_execSql()` as internal.
+
+The `AbstractSchemaManager::_execSql()` method has been marked as internal. It will not be available in 4.0.
+
 ## Deprecated `AbstractSchemaManager::listTableDetails()`.
 
 The `AbstractSchemaManager::listTableDetails()` methods has been deprecated.
