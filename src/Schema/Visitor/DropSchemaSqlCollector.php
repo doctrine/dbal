@@ -65,17 +65,13 @@ class DropSchemaSqlCollector extends AbstractVisitor
         $this->sequences->attach($sequence);
     }
 
-    /**
-     * @return void
-     */
+    /** @return void */
     public function clearQueries()
     {
         $this->initializeQueries();
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     public function getQueries()
     {
         $sql = [];

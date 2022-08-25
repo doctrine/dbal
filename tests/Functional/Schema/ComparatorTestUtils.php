@@ -58,9 +58,7 @@ final class ComparatorTestUtils
         TestCase::assertFalse(self::diffFromDesiredToActualTable($schemaManager, $comparator, $table));
     }
 
-    /**
-     * @return iterable<string,array<callable(AbstractSchemaManager):Comparator>>
-     */
+    /** @return iterable<string,array<callable(AbstractSchemaManager):Comparator>> */
     public static function comparatorProvider(): iterable
     {
         yield 'Generic comparator' => [

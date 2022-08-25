@@ -110,9 +110,7 @@ final class Result implements ResultInterface
         }
     }
 
-    /**
-     * @return mixed|false
-     */
+    /** @return mixed|false */
     private function fetch(int $fetchType)
     {
         return sqlsrv_fetch_array($this->statement, $fetchType) ?? false;

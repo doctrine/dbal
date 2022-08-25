@@ -11,9 +11,7 @@ final class Result extends AbstractResultMiddleware
 {
     private Converter $converter;
 
-    /**
-     * @internal The result can be only instantiated by the portability connection or statement.
-     */
+    /** @internal The result can be only instantiated by the portability connection or statement. */
     public function __construct(ResultInterface $result, Converter $converter)
     {
         parent::__construct($result);

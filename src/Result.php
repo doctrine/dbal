@@ -18,9 +18,7 @@ class Result
     private DriverResult $result;
     private Connection $connection;
 
-    /**
-     * @internal The result can be only instantiated by {@see Connection} or {@see Statement}.
-     */
+    /** @internal The result can be only instantiated by {@see Connection} or {@see Statement}. */
     public function __construct(DriverResult $result, Connection $connection)
     {
         $this->result     = $result;
@@ -225,9 +223,7 @@ class Result
         }
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function rowCount(): int
     {
         try {
@@ -237,9 +233,7 @@ class Result
         }
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function columnCount(): int
     {
         try {
@@ -254,9 +248,7 @@ class Result
         $this->result->free();
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function ensureHasKeyValue(): void
     {
         $columnCount = $this->columnCount();

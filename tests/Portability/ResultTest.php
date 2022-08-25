@@ -28,9 +28,7 @@ class ResultTest extends TestCase
         self::assertSame($return, $fetch($result));
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function fetchProvider(): iterable
     {
         yield 'numeric' => [

@@ -130,9 +130,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
         self::assertEmpty($this->visitor->getQueries());
     }
 
-    /**
-     * @return ForeignKeyConstraint&MockObject
-     */
+    /** @return ForeignKeyConstraint&MockObject */
     private function createForeignKeyConstraintMock()
     {
         return $this->getMockBuilder(ForeignKeyConstraint::class)
@@ -140,9 +138,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
             ->getMock();
     }
 
-    /**
-     * @return Sequence&MockObject
-     */
+    /** @return Sequence&MockObject */
     private function createSequenceMock()
     {
         return $this->getMockBuilder(Sequence::class)
@@ -150,9 +146,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
             ->getMock();
     }
 
-    /**
-     * @return Table&MockObject
-     */
+    /** @return Table&MockObject */
     private function createTableMock()
     {
         return $this->getMockBuilder(Table::class)

@@ -14,9 +14,7 @@ final class Statement extends AbstractStatementMiddleware
 {
     private PDOStatement $statement;
 
-    /**
-     * @internal The statement can be only instantiated by its driver connection.
-     */
+    /** @internal The statement can be only instantiated by its driver connection. */
     public function __construct(PDOStatement $statement)
     {
         parent::__construct($statement);

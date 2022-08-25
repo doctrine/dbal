@@ -120,9 +120,7 @@ class ColumnTest extends TestCase
         self::assertEquals('[bar]', $column->getQuotedName($sqlServerPlatform));
     }
 
-    /**
-     * @dataProvider getIsQuoted
-     */
+    /** @dataProvider getIsQuoted */
     public function testIsQuoted(string $columnName, bool $isQuoted): void
     {
         $type   = Type::getType('string');
@@ -131,9 +129,7 @@ class ColumnTest extends TestCase
         self::assertSame($isQuoted, $column->isQuoted());
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getIsQuoted(): iterable
     {
         return [

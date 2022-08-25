@@ -18,9 +18,7 @@ class FetchBooleanTest extends FunctionalTestCase
         self::markTestSkipped('Only PostgreSQL supports boolean values natively');
     }
 
-    /**
-     * @dataProvider booleanLiteralProvider
-     */
+    /** @dataProvider booleanLiteralProvider */
     public function testBooleanConversionSqlLiteral(string $literal, bool $expected): void
     {
         self::assertSame([$expected], $this->connection->fetchNumeric(
@@ -29,9 +27,7 @@ class FetchBooleanTest extends FunctionalTestCase
         ));
     }
 
-    /**
-     * @return iterable<array{string, bool}>
-     */
+    /** @return iterable<array{string, bool}> */
     public function booleanLiteralProvider(): iterable
     {
         yield ['true', true];

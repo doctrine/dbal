@@ -52,9 +52,7 @@ final class Statement implements StatementInterface
      */
     private array $values = [];
 
-    /**
-     * @internal The statement can be only instantiated by its driver connection.
-     */
+    /** @internal The statement can be only instantiated by its driver connection. */
     public function __construct(mysqli_stmt $stmt)
     {
         $this->stmt = $stmt;

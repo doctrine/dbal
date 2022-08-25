@@ -63,9 +63,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         return new Driver();
     }
 
-    /**
-     * @param array<int,mixed> $driverOptions
-     */
+    /** @param array<int,mixed> $driverOptions */
     private function connect(array $driverOptions): Connection
     {
         return $this->createDriver()->connect(

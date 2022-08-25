@@ -40,9 +40,7 @@ class ConsoleRunner
         $cli->run();
     }
 
-    /**
-     * @return void
-     */
+    /** @return void */
     public static function addCommands(Application $cli, ConnectionProvider $connectionProvider)
     {
         $cli->addCommands([

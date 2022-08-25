@@ -972,9 +972,7 @@ class DB2Platform extends AbstractPlatform
         return Keywords\DB2Keywords::class;
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
+    /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */
     public function getListTableCommentsSQL(string $table): string
     {
         return sprintf(

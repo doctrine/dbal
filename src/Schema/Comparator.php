@@ -29,9 +29,7 @@ class Comparator
 {
     private ?AbstractPlatform $platform = null;
 
-    /**
-     * @internal The comparator can be only instantiated by a schema manager.
-     */
+    /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(?AbstractPlatform $platform = null)
     {
         if ($platform === null) {
@@ -47,9 +45,7 @@ class Comparator
         $this->platform = $platform;
     }
 
-    /**
-     * @param list<mixed> $args
-     */
+    /** @param list<mixed> $args */
     public function __call(string $method, array $args): SchemaDiff
     {
         if ($method !== 'compareSchemas') {
@@ -59,9 +55,7 @@ class Comparator
         return $this->doCompareSchemas(...$args);
     }
 
-    /**
-     * @param list<mixed> $args
-     */
+    /** @param list<mixed> $args */
     public static function __callStatic(string $method, array $args): SchemaDiff
     {
         if ($method !== 'compareSchemas') {
@@ -249,9 +243,7 @@ class Comparator
         return false;
     }
 
-    /**
-     * @return bool
-     */
+    /** @return bool */
     public function diffSequence(Sequence $sequence1, Sequence $sequence2)
     {
         if ($sequence1->getAllocationSize() !== $sequence2->getAllocationSize()) {
@@ -475,9 +467,7 @@ class Comparator
         }
     }
 
-    /**
-     * @return bool
-     */
+    /** @return bool */
     public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2)
     {
         if (

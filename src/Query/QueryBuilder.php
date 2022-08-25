@@ -38,34 +38,22 @@ use function substr;
  */
 class QueryBuilder
 {
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const SELECT = 0;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const DELETE = 1;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const UPDATE = 2;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const INSERT = 3;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const STATE_DIRTY = 0;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const STATE_CLEAN = 1;
 
     /**
@@ -1349,9 +1337,7 @@ class QueryBuilder
         return $this;
     }
 
-    /**
-     * @throws QueryException
-     */
+    /** @throws QueryException */
     private function getSQLForSelect(): string
     {
         $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .

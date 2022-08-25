@@ -843,9 +843,7 @@ class ComparatorTest extends TestCase
         self::assertSame($diff->changedSequences[0], $schemaNew->getSequence('baz'));
     }
 
-    /**
-     * @psalm-suppress NullArgument
-     */
+    /** @psalm-suppress NullArgument */
     public function testDiffDecimalWithNullPrecision(): void
     {
         $column = new Column('foo', Type::getType('decimal'));
@@ -1183,9 +1181,7 @@ class ComparatorTest extends TestCase
         self::assertEquals(['notnull', 'default', 'comment'], $this->comparator->diffColumn($column2, $column1));
     }
 
-    /**
-     * @dataProvider getCompareColumnComments
-     */
+    /** @dataProvider getCompareColumnComments */
     public function testCompareColumnComments(?string $comment1, ?string $comment2, bool $equals): void
     {
         $column1 = new Column('foo', Type::getType('integer'), ['comment' => $comment1]);
@@ -1202,9 +1198,7 @@ class ComparatorTest extends TestCase
         self::assertSame($expectedDiff, $actualDiff);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getCompareColumnComments(): iterable
     {
         return [

@@ -20,9 +20,7 @@ final class Connection implements ServerInfoAwareConnection
 
     private mysqli $connection;
 
-    /**
-     * @internal The connection can be only instantiated by its driver.
-     */
+    /** @internal The connection can be only instantiated by its driver. */
     public function __construct(mysqli $connection)
     {
         $this->connection = $connection;

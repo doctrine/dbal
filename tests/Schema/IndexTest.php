@@ -7,9 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class IndexTest extends TestCase
 {
-    /**
-     * @param mixed[] $options
-     */
+    /** @param mixed[] $options */
     private function createIndex(bool $unique = false, bool $primary = false, array $options = []): Index
     {
         return new Index('foo', ['bar', 'baz'], $unique, $primary, [], $options);
@@ -118,9 +116,7 @@ class IndexTest extends TestCase
         self::assertSame($expected, $index2->isFullfilledBy($index1));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function indexLengthProvider(): iterable
     {
         return [

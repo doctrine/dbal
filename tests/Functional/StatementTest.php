@@ -310,33 +310,25 @@ EOF
         self::assertSame($expected, $value);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function emptyFetchProvider(): iterable
     {
         return [
             'fetch' => [
-                /**
-                 * @return mixed
-                 */
+                /** @return mixed */
                 static function (Result $result) {
                     return $result->fetchAssociative();
                 },
                 false,
             ],
-            /**
-             * @return mixed|false
-             */
+            /** @return mixed|false */
             'fetch-column' => [
                 static function (Result $result) {
                     return $result->fetchOne();
                 },
                 false,
             ],
-            /**
-             * @return mixed[]
-             */
+            /** @return mixed[] */
             'fetch-all' => [
                 static function (Result $result): array {
                     return $result->fetchAllAssociative();

@@ -15,9 +15,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 
 use function array_shift;
 
-/**
- * @extends AbstractPlatformTestCase<MySQLPlatform>
- */
+/** @extends AbstractPlatformTestCase<MySQLPlatform> */
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
     public function testModifyLimitQueryWitoutLimit(): void
@@ -44,9 +42,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             . 'PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB';
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
         return [
@@ -174,9 +170,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testUniquePrimaryKey(Comparator $comparator): void
     {
         $keyTable = new Table('foo');
@@ -267,9 +261,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(['ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)'], $sql);
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, '
@@ -277,9 +269,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedColumnInIndexSQL(): array
     {
         return [
@@ -289,9 +279,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedNameInIndexSQL(): array
     {
         return [
@@ -300,9 +288,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
@@ -383,9 +369,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('LONGBLOB', $this->platform->getBlobTypeDeclarationSQL([]));
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAlterTableAddPrimaryKey(Comparator $comparator): void
     {
         $table = new Table('alter_table_add_pk');
@@ -407,9 +391,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAlterPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('alter_primary_key');
@@ -435,9 +417,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testDropPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('drop_primary_key');
@@ -462,9 +442,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn(
         Comparator $comparator
     ): void {
@@ -492,9 +470,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('tbl');
@@ -521,9 +497,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAddAutoIncrementPrimaryKey(Comparator $comparator): void
     {
         $keyTable = new Table('foo');
@@ -555,9 +529,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ], $sql);
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAlterPrimaryKeyWithNewColumn(Comparator $comparator): void
     {
         $table = new Table('yolo');
@@ -714,9 +686,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getAlterTableRenameIndexSQL(): array
     {
         return [
@@ -725,9 +695,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
@@ -738,9 +706,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
@@ -749,9 +715,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
@@ -1049,9 +1013,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @return iterable<string,array{Comparator}>
-     */
+    /** @return iterable<string,array{Comparator}> */
     public static function comparatorProvider(): iterable
     {
         yield 'Generic comparator' => [

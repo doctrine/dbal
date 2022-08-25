@@ -15,9 +15,7 @@ use function sprintf;
 use const E_ALL;
 use const E_WARNING;
 
-/**
- * @requires extension oci8
- */
+/** @requires extension oci8 */
 class ResultTest extends FunctionalTestCase
 {
     /**
