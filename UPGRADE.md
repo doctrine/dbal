@@ -13,6 +13,22 @@ awareness about deprecated code.
 Relying on the default precision and scale of decimal columns provided by the DBAL is deprecated.
 When declaring decimal columns, specify the precision and scale explicitly.
 
+## Marked `ColumnDiff::hasChanged()` as internal.
+
+The `ColumnDiff::hasChanged()` method has been marked as internal. Use one of the following `ColumnDiff` methods
+in order to check if a given column property has changed:
+
+- `hasTypeChanged()`,
+- `hasLengthChanged()`,
+- `hasPrecisionChanged()`,
+- `hasScaleChanged()`,
+- `hasUnsignedChanged()`,
+- `hasFixedChanged()`,
+- `hasNotNullChanged()`,
+- `hasDefaultChanged()`,
+- `hasAutoIncrementChanged()`,
+- `hasCommentChanged()`.
+
 ## Deprecated `ColumnDiff` APIs dedicated to the old column name.
 
 The `$oldColumnName` property and the `getOldColumnName()` method of the `ColumnDiff` class have been deprecated.

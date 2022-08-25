@@ -907,13 +907,13 @@ SQL
             // Avoids unnecessary table alteration statements.
             if (
                 $column->getType() instanceof BinaryType &&
-                $columnDiff->hasChanged('fixed') &&
+                $columnDiff->hasFixedChanged() &&
                 count($columnDiff->changedProperties) === 1
             ) {
                 continue;
             }
 
-            $columnHasChangedComment = $columnDiff->hasChanged('comment');
+            $columnHasChangedComment = $columnDiff->hasCommentChanged();
 
             /**
              * Do not add query part if only comment has changed
@@ -921,7 +921,7 @@ SQL
             if (! ($columnHasChangedComment && count($columnDiff->changedProperties) === 1)) {
                 $columnInfo = $column->toArray();
 
-                if (! $columnDiff->hasChanged('notnull')) {
+                if (! $columnDiff->hasNotNullChanged()) {
                     unset($columnInfo['notnull']);
                 }
 
