@@ -131,6 +131,12 @@ class PortabilityTest extends FunctionalTestCase
         self::assertSame([null, null], $column);
     }
 
+    public function testGetDatabaseName(): void
+    {
+        $this->connectWithPortability(Connection::PORTABILITY_EMPTY_TO_NULL, 0);
+        self::assertNotNull($this->connection->getDatabase());
+    }
+
     private function connectWithPortability(int $mode, int $case): void
     {
         // closing the default connection prior to 4.0.0 to prevent connection leak
