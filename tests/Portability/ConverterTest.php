@@ -24,9 +24,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertNumericProvider(): iterable
     {
         $row = ['X ', ''];
@@ -82,9 +80,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertAssociativeProvider(): iterable
     {
         $row = [
@@ -198,9 +194,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertOneProvider(): iterable
     {
         yield 'None, trailing space' => ['X ', false, false, 'X '];
@@ -234,9 +228,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertAllNumericProvider(): iterable
     {
         $data = [
@@ -303,9 +295,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertAllAssociativeProvider(): iterable
     {
         $data = [
@@ -475,9 +465,7 @@ class ConverterTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertFirstColumnProvider(): iterable
     {
         $column = ['X ', ''];

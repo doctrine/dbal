@@ -29,9 +29,7 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use stdClass;
 
-/**
- * @requires extension pdo_mysql
- */
+/** @requires extension pdo_mysql */
 class ConnectionTest extends TestCase
 {
     use VerifyDeprecations;
@@ -52,9 +50,7 @@ class ConnectionTest extends TestCase
         $this->connection = DriverManager::getConnection($this->params);
     }
 
-    /**
-     * @return Connection&MockObject
-     */
+    /** @return Connection&MockObject */
     private function getExecuteStatementMockConnection()
     {
         $driverMock = $this->createMock(Driver::class);
@@ -294,9 +290,7 @@ class ConnectionTest extends TestCase
         $callback($connection, 'MUUHAAAAHAAAA');
     }
 
-    /**
-     * @return iterable<string, array<int, callable>>
-     */
+    /** @return iterable<string, array<int, callable>> */
     public static function getQueryMethods(): iterable
     {
         yield 'executeQuery' => [
@@ -375,9 +369,7 @@ class ConnectionTest extends TestCase
         self::assertTrue($conn->isTransactionActive());
     }
 
-    /**
-     * @dataProvider resultProvider
-     */
+    /** @dataProvider resultProvider */
     public function testCommitReturn(bool $expectedResult): void
     {
         $driverConnection = $this->createMock(DriverConnection::class);
@@ -397,9 +389,7 @@ class ConnectionTest extends TestCase
         self::assertSame($expectedResult, $conn->commit());
     }
 
-    /**
-     * @return bool[][]
-     */
+    /** @return bool[][] */
     public function resultProvider(): array
     {
         return [[true], [false]];
@@ -635,9 +625,7 @@ class ConnectionTest extends TestCase
         self::assertSame($expected, $invoke($conn, $query, $params, $types));
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function fetchModeProvider(): iterable
     {
         yield 'numeric' => [
@@ -822,9 +810,7 @@ class ConnectionTest extends TestCase
         (new Connection($connectionParams, $driver))->executeCacheQuery($query, [], [], $queryCacheProfileMock);
     }
 
-    /**
-     * @psalm-suppress InvalidArgument
-     */
+    /** @psalm-suppress InvalidArgument */
     public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {
         $connectionParams             = $this->params;

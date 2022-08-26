@@ -338,9 +338,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals($expectedResult, $row['trimmed']);
     }
 
-    /**
-     * @return array<int, array<int, mixed>>
-     */
+    /** @return array<int, array<int, mixed>> */
     public static function getTrimExpressionData(): iterable
     {
         return [

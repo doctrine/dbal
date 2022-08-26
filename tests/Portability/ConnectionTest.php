@@ -62,8 +62,6 @@ class ConnectionTest extends TestCase
 
 interface NativeDriverConnection extends ServerInfoAwareConnection
 {
-    /**
-     * @return object|resource
-     */
+    /** @return object|resource */
     public function getNativeConnection();
 }

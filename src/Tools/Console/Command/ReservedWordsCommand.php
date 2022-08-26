@@ -31,9 +31,7 @@ use function implode;
 use function is_array;
 use function is_string;
 
-/**
- * @deprecated Use database documentation instead.
- */
+/** @deprecated Use database documentation instead. */
 class ReservedWordsCommand extends Command
 {
     /** @var array<string,KeywordList> */

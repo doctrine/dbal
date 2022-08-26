@@ -21,9 +21,7 @@ class Comparator extends BaseComparator
     /** @var CollationMetadataProvider */
     private $collationMetadataProvider;
 
-    /**
-     * @internal The comparator can be only instantiated by a schema manager.
-     */
+    /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(AbstractMySQLPlatform $platform, CollationMetadataProvider $collationMetadataProvider)
     {
         parent::__construct($platform);

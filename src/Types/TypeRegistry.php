@@ -18,9 +18,7 @@ final class TypeRegistry
     /** @var array<string, Type> Map of type names and their corresponding flyweight objects. */
     private array $instances;
 
-    /**
-     * @param array<string, Type> $instances
-     */
+    /** @param array<string, Type> $instances */
     public function __construct(array $instances = [])
     {
         $this->instances = $instances;

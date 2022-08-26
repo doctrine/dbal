@@ -51,9 +51,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function booleanProvider(): iterable
     {
         return [
@@ -75,9 +73,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function integerProvider(): iterable
     {
         return [
@@ -98,9 +94,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function floatProvider(): iterable
     {
         return [
@@ -127,9 +121,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function toStringProvider(): iterable
     {
         return [
@@ -151,9 +143,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function toArrayProvider(): iterable
     {
         return [
@@ -175,9 +165,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function toObjectProvider(): iterable
     {
         $obj      = new stdClass();
@@ -189,9 +177,7 @@ class TypeConversionTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider toDateTimeProvider
-     */
+    /** @dataProvider toDateTimeProvider */
     public function testIdempotentConversionToDateTime(string $type, DateTime $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
@@ -209,9 +195,7 @@ class TypeConversionTest extends FunctionalTestCase
         );
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function toDateTimeProvider(): iterable
     {
         return [

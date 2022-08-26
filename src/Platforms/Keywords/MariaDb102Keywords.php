@@ -13,9 +13,7 @@ use Doctrine\Deprecations\Deprecation;
  */
 final class MariaDb102Keywords extends MariaDBKeywords
 {
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public function getName(): string
     {
         Deprecation::triggerIfCalledFromOutside(

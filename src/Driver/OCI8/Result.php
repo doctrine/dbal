@@ -129,9 +129,7 @@ final class Result implements ResultInterface
         return $result;
     }
 
-    /**
-     * @return array<mixed>
-     */
+    /** @return array<mixed> */
     private function fetchAll(int $mode, int $fetchStructure): array
     {
         oci_fetch_all(

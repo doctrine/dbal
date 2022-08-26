@@ -103,9 +103,7 @@ EOT
         return $this->connectionProvider->getDefaultConnection();
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function runQuery(SymfonyStyle $io, Connection $conn, string $sql): void
     {
         $resultSet = $conn->fetchAllAssociative($sql);
@@ -118,9 +116,7 @@ EOT
         $io->table(array_keys($resultSet[0]), $resultSet);
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function runStatement(SymfonyStyle $io, Connection $conn, string $sql): void
     {
         $io->success(sprintf('%d rows affected.', $conn->executeStatement($sql)));

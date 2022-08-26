@@ -50,9 +50,7 @@ abstract class Type
 
     private static ?TypeRegistry $typeRegistry = null;
 
-    /**
-     * @internal Do not instantiate directly - use {@see Type::addType()} method instead.
-     */
+    /** @internal Do not instantiate directly - use {@see Type::addType()} method instead. */
     final public function __construct()
     {
     }

@@ -100,9 +100,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($this->hasElementWithName($this->schemaManager->listSequences(), $name));
     }
 
-    /**
-     * @param AbstractAsset[] $items
-     */
+    /** @param AbstractAsset[] $items */
     private function hasElementWithName(array $items, string $name): bool
     {
         $filteredList = $this->filterElementsByName($items, $name);
@@ -171,9 +169,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertContains('test_create_database', $databases);
     }
 
-    /**
-     * @dataProvider listSchemaNamesMethodProvider
-     */
+    /** @dataProvider listSchemaNamesMethodProvider */
     public function testListSchemaNames(callable $method): void
     {
         $platform = $this->connection->getDatabasePlatform();
@@ -196,9 +192,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertContains('test_create_schema', $method($this->schemaManager));
     }
 
-    /**
-     * @return iterable<list<mixed>>
-     */
+    /** @return iterable<list<mixed>> */
     public static function listSchemaNamesMethodProvider(): iterable
     {
         yield [
@@ -241,9 +235,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertNull($view);
     }
 
-    /**
-     * @dataProvider tableFilterProvider
-     */
+    /** @dataProvider tableFilterProvider */
     public function testListTablesWithFilter(string $prefix, int $expectedCount): void
     {
         $this->createTestTable('filter_test_1');
@@ -261,9 +253,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertCount($expectedCount, $this->schemaManager->listTables());
     }
 
-    /**
-     * @return iterable<string, array{string, int}>
-     */
+    /** @return iterable<string, array{string, int}> */
     public static function tableFilterProvider(): iterable
     {
         yield 'One table' => ['filter_test_1', 1];
@@ -1067,9 +1057,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertInstanceOf(BlobType::class, $created->getColumn('binarydata')->getType());
     }
 
-    /**
-     * @param mixed[] $data
-     */
+    /** @param mixed[] $data */
     protected function createTestTable(string $name = 'test_table', array $data = []): Table
     {
         $options = $data['options'] ?? [];
@@ -1081,9 +1069,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         return $table;
     }
 
-    /**
-     * @param mixed[] $options
-     */
+    /** @param mixed[] $options */
     protected function getTestTable(string $name, array $options = []): Table
     {
         $table = new Table($name, [], [], [], [], $options);
@@ -1108,9 +1094,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         return $table;
     }
 
-    /**
-     * @param Table[] $tables
-     */
+    /** @param Table[] $tables */
     protected function assertHasTable(array $tables): void
     {
         $foundTable = false;
@@ -1388,9 +1372,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertSame($expectedComment2, $onlineTable->getColumn('no_comment2')->getComment());
     }
 
-    /**
-     * @return iterable<mixed[]>
-     */
+    /** @return iterable<mixed[]> */
     public static function getAlterColumnComment(): iterable
     {
         foreach (ComparatorTestUtils::comparatorProvider() as $comparatorArguments) {
@@ -1463,9 +1445,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertFalse($tableDiff);
     }
 
-    /**
-     * @dataProvider commentsProvider
-     */
+    /** @dataProvider commentsProvider */
     public function testExtractDoctrineTypeFromComment(string $comment, string $expected, string $currentType): void
     {
         $result = $this->schemaManager->extractDoctrineTypeFromComment($comment, $currentType);
@@ -1473,9 +1453,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertSame($expected, $result);
     }
 
-    /**
-     * @return string[][]
-     */
+    /** @return string[][] */
     public function commentsProvider(): array
     {
         $currentType = 'current type';
@@ -1715,9 +1693,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $schemaManager->createSchemaObjects($schema);
     }
 
-    /**
-     * @param list<Table> $tables
-     */
+    /** @param list<Table> $tables */
     protected function findTableByName(array $tables, string $name): ?Table
     {
         foreach ($tables as $table) {

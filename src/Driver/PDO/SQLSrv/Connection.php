@@ -55,9 +55,7 @@ final class Connection extends AbstractConnectionMiddleware
         return $this->connection->getNativeConnection();
     }
 
-    /**
-     * @deprecated Call {@see getNativeConnection()} instead.
-     */
+    /** @deprecated Call {@see getNativeConnection()} instead. */
     public function getWrappedConnection(): PDO
     {
         Deprecation::trigger(

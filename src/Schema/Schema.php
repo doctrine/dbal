@@ -191,9 +191,7 @@ class Schema extends AbstractAsset
         return $this->_tables[$name];
     }
 
-    /**
-     * @param string $name
-     */
+    /** @param string $name */
     private function getFullQualifiedAssetName($name): string
     {
         $name = $this->getUnquotedAssetName($name);
@@ -301,9 +299,7 @@ class Schema extends AbstractAsset
         return $this->_sequences[$name];
     }
 
-    /**
-     * @return Sequence[]
-     */
+    /** @return Sequence[] */
     public function getSequences()
     {
         return $this->_sequences;
