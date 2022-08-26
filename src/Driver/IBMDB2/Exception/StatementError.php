@@ -16,7 +16,9 @@ use function db2_stmt_errormsg;
  */
 final class StatementError extends AbstractException
 {
-    /** @param resource|null $statement */
+    /**
+     * @param resource|null $statement
+     */
     public static function new($statement = null): self
     {
         if ($statement !== null) {

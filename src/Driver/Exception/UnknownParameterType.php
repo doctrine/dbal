@@ -15,7 +15,9 @@ use function sprintf;
  */
 final class UnknownParameterType extends AbstractException
 {
-    /** @param mixed $type */
+    /**
+     * @param mixed $type
+     */
     public static function new($type): self
     {
         return new self(sprintf('Unknown parameter type, %d given.', $type));

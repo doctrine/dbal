@@ -17,7 +17,9 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
 
-/** @extends AbstractPlatformTestCase<SQLServerPlatform> */
+/**
+ * @extends AbstractPlatformTestCase<SQLServerPlatform>
+ */
 class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
@@ -1304,7 +1306,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame($expectedSql, $this->platform->getDefaultConstraintDeclarationSQL($table, $column));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL(): iterable
     {
         return [
@@ -1357,7 +1361,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame($expectedSql, $this->platform->getCreateTableSQL($table));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getGeneratesIdentifierNamesInCreateTableSQL(): iterable
     {
         return [
@@ -1406,7 +1412,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getGeneratesIdentifierNamesInAlterTableSQL(): iterable
     {
         return [
@@ -1826,7 +1834,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame($expectedResult, $this->platform->appendLockHint($fromClause, $lockMode));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getLockHints(): iterable
     {
         return [

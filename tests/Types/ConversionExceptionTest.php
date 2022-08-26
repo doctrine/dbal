@@ -74,7 +74,9 @@ class ConversionExceptionTest extends TestCase
         self::assertSame($previous, $exception->getPrevious());
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function nonScalarsProvider(): iterable
     {
         return [
@@ -84,7 +86,9 @@ class ConversionExceptionTest extends TestCase
         ];
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function scalarsProvider(): iterable
     {
         return [

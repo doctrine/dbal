@@ -26,7 +26,9 @@ final class Statement extends AbstractStatementMiddleware
     /** @var array<int,int>|array<string,int> */
     private array $types = [];
 
-    /** @internal This statement can be only instantiated by its connection. */
+    /**
+     * @internal This statement can be only instantiated by its connection.
+     */
     public function __construct(StatementInterface $statement, LoggerInterface $logger, string $sql)
     {
         parent::__construct($statement);

@@ -13,7 +13,9 @@ use function array_change_key_case;
 
 use const CASE_LOWER;
 
-/** @psalm-import-type Params from DriverManager */
+/**
+ * @psalm-import-type Params from DriverManager
+ */
 class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void

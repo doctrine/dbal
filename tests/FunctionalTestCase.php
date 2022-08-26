@@ -33,7 +33,9 @@ abstract class FunctionalTestCase extends TestCase
         $this->isConnectionReusable = false;
     }
 
-    /** @before */
+    /**
+     * @before
+     */
     final protected function connect(): void
     {
         if (self::$sharedConnection === null) {
@@ -43,7 +45,9 @@ abstract class FunctionalTestCase extends TestCase
         $this->connection = self::$sharedConnection;
     }
 
-    /** @after */
+    /**
+     * @after
+     */
     final protected function disconnect(): void
     {
         while ($this->connection->isTransactionActive()) {

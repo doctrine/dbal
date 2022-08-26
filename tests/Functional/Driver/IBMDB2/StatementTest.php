@@ -12,7 +12,9 @@ use const E_ALL;
 use const E_NOTICE;
 use const E_WARNING;
 
-/** @require extension ibm_db2 */
+/**
+ * @require extension ibm_db2
+ */
 class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void

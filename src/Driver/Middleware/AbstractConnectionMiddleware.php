@@ -98,7 +98,9 @@ abstract class AbstractConnectionMiddleware implements ServerInfoAwareConnection
         return $this->wrappedConnection->getServerVersion();
     }
 
-    /** @return resource|object */
+    /**
+     * @return resource|object
+     */
     public function getNativeConnection()
     {
         if (! method_exists($this->wrappedConnection, 'getNativeConnection')) {

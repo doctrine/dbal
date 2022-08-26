@@ -22,7 +22,9 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
 
-/** @internal */
+/**
+ * @internal
+ */
 final class ExceptionConverter implements ExceptionConverterInterface
 {
     /**

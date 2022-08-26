@@ -6,7 +6,9 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/** @requires extension pdo_pgsql */
+/**
+ * @requires extension pdo_pgsql
+ */
 class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -18,7 +20,9 @@ class ConnectionTest extends FunctionalTestCase
         self::markTestSkipped('This test requires the pdo_pgsql driver.');
     }
 
-    /** @dataProvider getValidCharsets */
+    /**
+     * @dataProvider getValidCharsets
+     */
     public function testConnectsWithValidCharsetOption(string $charset): void
     {
         $params            = $this->connection->getParams();
@@ -36,7 +40,9 @@ class ConnectionTest extends FunctionalTestCase
         );
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getValidCharsets(): iterable
     {
         return [

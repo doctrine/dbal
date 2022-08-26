@@ -32,7 +32,9 @@ abstract class KeywordList
         return isset($this->keywords[strtoupper($word)]);
     }
 
-    /** @return void */
+    /**
+     * @return void
+     */
     protected function initializeKeywords()
     {
         $this->keywords = array_flip(array_map('strtoupper', $this->getKeywords()));

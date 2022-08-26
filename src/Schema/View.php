@@ -20,7 +20,9 @@ class View extends AbstractAsset
         $this->sql = $sql;
     }
 
-    /** @return string */
+    /**
+     * @return string
+     */
     public function getSql()
     {
         return $this->sql;

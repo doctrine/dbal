@@ -160,7 +160,9 @@ SQL;
         $this->assertLimitResult([1, 2], $sql, null, 0);
     }
 
-    /** @param array<int, int> $expectedResults */
+    /**
+     * @param array<int, int> $expectedResults
+     */
     private function assertLimitResult(
         array $expectedResults,
         string $sql,

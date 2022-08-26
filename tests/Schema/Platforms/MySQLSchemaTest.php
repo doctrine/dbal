@@ -19,7 +19,9 @@ class MySQLSchemaTest extends TestCase
         $this->platform = new MySQLPlatform();
     }
 
-    /** @dataProvider comparatorProvider */
+    /**
+     * @dataProvider comparatorProvider
+     */
     public function testSwitchPrimaryKeyOrder(Comparator $comparator): void
     {
         $tableOld = new Table('test');
@@ -64,7 +66,9 @@ class MySQLSchemaTest extends TestCase
         );
     }
 
-    /** @dataProvider comparatorProvider */
+    /**
+     * @dataProvider comparatorProvider
+     */
     public function testClobNoAlterTable(Comparator $comparator): void
     {
         $tableOld = new Table('test');
@@ -85,7 +89,9 @@ class MySQLSchemaTest extends TestCase
         );
     }
 
-    /** @return iterable<string,array{Comparator}> */
+    /**
+     * @return iterable<string,array{Comparator}>
+     */
     public static function comparatorProvider(): iterable
     {
         yield 'Generic comparator' => [

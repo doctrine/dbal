@@ -13,7 +13,9 @@ use function rtrim;
 
 final class DecimalTest extends FunctionalTestCase
 {
-    /** @return string[][] */
+    /**
+     * @return string[][]
+     */
     public function dataValuesProvider(): array
     {
         return [
@@ -22,7 +24,9 @@ final class DecimalTest extends FunctionalTestCase
         ];
     }
 
-    /** @dataProvider dataValuesProvider */
+    /**
+     * @dataProvider dataValuesProvider
+     */
     public function testInsertAndRetrieveDecimal(string $expected): void
     {
         $table = new Table('decimal_table');

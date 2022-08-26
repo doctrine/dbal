@@ -220,7 +220,9 @@ class Configuration
         return $this;
     }
 
-    /** @return Middleware[] */
+    /**
+     * @return Middleware[]
+     */
     public function getMiddlewares(): array
     {
         return $this->middlewares;

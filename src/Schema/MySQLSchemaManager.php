@@ -31,7 +31,9 @@ use const CASE_LOWER;
  */
 class MySQLSchemaManager extends AbstractSchemaManager
 {
-    /** @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences */
+    /**
+     * @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences
+     */
     private const MARIADB_ESCAPE_SEQUENCES = [
         '\\0' => "\0",
         "\\'" => "'",
@@ -549,7 +551,9 @@ SQL;
         return $tableOptions;
     }
 
-    /** @return string[]|true[] */
+    /**
+     * @return string[]|true[]
+     */
     private function parseCreateOptions(?string $string): array
     {
         $options = [];

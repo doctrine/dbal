@@ -575,7 +575,9 @@ class QueryBuilderTest extends TestCase
         self::assertEquals($sql1, $qb->getSQL());
     }
 
-    /** @dataProvider maxResultsProvider */
+    /**
+     * @dataProvider maxResultsProvider
+     */
     public function testSetMaxResults(?int $maxResults): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -585,7 +587,9 @@ class QueryBuilderTest extends TestCase
         self::assertEquals($maxResults, $qb->getMaxResults());
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function maxResultsProvider(): iterable
     {
         return [

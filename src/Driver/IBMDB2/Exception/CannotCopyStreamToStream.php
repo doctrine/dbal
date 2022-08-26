@@ -13,7 +13,9 @@ use Doctrine\DBAL\Driver\AbstractException;
  */
 final class CannotCopyStreamToStream extends AbstractException
 {
-    /** @psalm-param array{message: string}|null $error */
+    /**
+     * @psalm-param array{message: string}|null $error
+     */
     public static function new(?array $error): self
     {
         $message = 'Could not copy source stream to temporary file';

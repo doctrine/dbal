@@ -394,7 +394,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                ' ORDER BY ORDINAL_POSITION ASC';
     }
 
-    /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableMetadataSQL(string $table, ?string $database = null): string
     {
         return sprintf(

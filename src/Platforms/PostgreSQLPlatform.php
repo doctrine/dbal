@@ -905,7 +905,9 @@ SQL
 
         return $this->doConvertBooleans(
             $item,
-            /** @param mixed $value */
+            /**
+             * @param mixed $value
+             */
             static function ($value) {
                 if ($value === null) {
                     return 'NULL';
@@ -927,7 +929,9 @@ SQL
 
         return $this->doConvertBooleans(
             $item,
-            /** @param mixed $value */
+            /**
+             * @param mixed $value
+             */
             static function ($value): ?int {
                 return $value === null ? null : (int) $value;
             }
@@ -1322,7 +1326,9 @@ SQL
         return $columnDiff->fromColumn !== null ? $this->getColumnComment($columnDiff->fromColumn) : null;
     }
 
-    /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableMetadataSQL(string $table, ?string $schema = null): string
     {
         if ($schema !== null) {

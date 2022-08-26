@@ -19,10 +19,14 @@ use function sprintf;
 use function strtoupper;
 use function uniqid;
 
-/** @extends AbstractPlatformTestCase<OraclePlatform> */
+/**
+ * @extends AbstractPlatformTestCase<OraclePlatform>
+ */
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function dataValidIdentifiers(): iterable
     {
         return [
@@ -38,7 +42,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /** @dataProvider dataValidIdentifiers */
+    /**
+     * @dataProvider dataValidIdentifiers
+     */
     public function testValidIdentifiers(string $identifier): void
     {
         $platform = $this->createPlatform();
@@ -47,7 +53,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $this->expectNotToPerformAssertions();
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function dataInvalidIdentifiers(): iterable
     {
         return [
@@ -59,7 +67,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /** @dataProvider dataInvalidIdentifiers */
+    /**
+     * @dataProvider dataInvalidIdentifiers
+     */
     public function testInvalidIdentifiers(string $identifier): void
     {
         $this->expectException(Exception::class);
@@ -237,7 +247,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertSame($expectedSql, $this->platform->getAdvancedForeignKeyOptionsSQL($foreignKey));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getGeneratesAdvancedForeignKeyOptionsSQLData(): iterable
     {
         return [
@@ -580,14 +592,18 @@ SQL
         self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
     }
 
-    /** @dataProvider dataCreateSequenceWithCache */
+    /**
+     * @dataProvider dataCreateSequenceWithCache
+     */
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
         $sequence = new Sequence('foo', 1, 1, $cacheSize);
         self::assertStringContainsString($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function dataCreateSequenceWithCache(): iterable
     {
         return [
@@ -689,7 +705,9 @@ SQL
         self::assertSame($expectedSql, $this->platform->getDropAutoincrementSql($table));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getReturnsDropAutoincrementSQL(): iterable
     {
         return [
@@ -806,7 +824,9 @@ EOD;
         self::assertEquals($createTriggerStatement, $sql[3]);
     }
 
-    /** @dataProvider getReturnsGetListTableColumnsSQL */
+    /**
+     * @dataProvider getReturnsGetListTableColumnsSQL
+     */
     public function testReturnsGetListTableColumnsSQL(?string $database, string $expectedSql): void
     {
         // note: this assertion is a bit strict, as it compares a full SQL string.
@@ -815,7 +835,9 @@ EOD;
         self::assertEquals($expectedSql, $this->platform->getListTableColumnsSQL('"test"', $database));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getReturnsGetListTableColumnsSQL(): iterable
     {
         return [
@@ -949,7 +971,9 @@ SQL
         );
     }
 
-    /** @return array<int, array{string, array<string, mixed>}> */
+    /**
+     * @return array<int, array{string, array<string, mixed>}>
+     */
     public function asciiStringSqlDeclarationDataProvider(): array
     {
         return [

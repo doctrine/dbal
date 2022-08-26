@@ -49,7 +49,9 @@ abstract class AbstractSchemaManager
      */
     protected $_platform;
 
-    /** @param T $platform */
+    /**
+     * @param T $platform
+     */
     public function __construct(Connection $connection, AbstractPlatform $platform)
     {
         $this->_conn     = $connection;
@@ -854,7 +856,9 @@ abstract class AbstractSchemaManager
 
     /* create*() Methods */
 
-    /** @throws Exception */
+    /**
+     * @throws Exception
+     */
     public function createSchemaObjects(Schema $schema): void
     {
         $this->_execSql($schema->toSql($this->_platform));
@@ -970,7 +974,9 @@ abstract class AbstractSchemaManager
 
     /* dropAndCreate*() Methods */
 
-    /** @throws Exception */
+    /**
+     * @throws Exception
+     */
     public function dropSchemaObjects(Schema $schema): void
     {
         $this->_execSql($schema->toDropSql($this->_platform));
@@ -1675,7 +1681,9 @@ abstract class AbstractSchemaManager
         return str_replace('(DC2Type:' . $type . ')', '', $comment);
     }
 
-    /** @throws Exception */
+    /**
+     * @throws Exception
+     */
     private function getDatabase(string $methodName): string
     {
         $database = $this->_conn->getDatabase();

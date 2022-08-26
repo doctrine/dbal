@@ -13,7 +13,9 @@ use Doctrine\Deprecations\Deprecation;
  */
 class PostgreSQL100Keywords extends PostgreSQL94Keywords
 {
-    /** @deprecated */
+    /**
+     * @deprecated
+     */
     public function getName(): string
     {
         Deprecation::triggerIfCalledFromOutside(

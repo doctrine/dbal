@@ -12,7 +12,9 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
-/** @extends AbstractPlatformTestCase<DB2Platform> */
+/**
+ * @extends AbstractPlatformTestCase<DB2Platform>
+ */
 class DB2PlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
@@ -577,7 +579,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /** @dataProvider getGeneratesAlterColumnSQL */
+    /**
+     * @dataProvider getGeneratesAlterColumnSQL
+     */
     public function testGeneratesAlterColumnSQL(
         string $changedProperty,
         Column $column,
@@ -598,7 +602,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertSame($expectedSQL, $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getGeneratesAlterColumnSQL(): iterable
     {
         return [

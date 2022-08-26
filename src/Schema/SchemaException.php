@@ -7,7 +7,9 @@ use Doctrine\DBAL\Exception;
 use function implode;
 use function sprintf;
 
-/** @psalm-immutable */
+/**
+ * @psalm-immutable
+ */
 class SchemaException extends Exception
 {
     public const TABLE_DOESNT_EXIST       = 10;
@@ -173,7 +175,9 @@ class SchemaException extends Exception
         );
     }
 
-    /** @return SchemaException */
+    /**
+     * @return SchemaException
+     */
     public static function namedForeignKeyRequired(Table $localTable, ForeignKeyConstraint $foreignKey)
     {
         return new self(

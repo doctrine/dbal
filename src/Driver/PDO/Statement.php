@@ -30,7 +30,9 @@ final class Statement implements StatementInterface
 
     private PDOStatement $stmt;
 
-    /** @internal The statement can be only instantiated by its driver connection. */
+    /**
+     * @internal The statement can be only instantiated by its driver connection.
+     */
     public function __construct(PDOStatement $stmt)
     {
         $this->stmt = $stmt;
