@@ -9,9 +9,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector
- */
+/** @covers \Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector */
 class DropSchemaSqlCollectorTest extends TestCase
 {
     public function testGetQueriesUsesAcceptedForeignKeys(): void

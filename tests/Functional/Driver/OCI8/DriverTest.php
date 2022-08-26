@@ -7,9 +7,7 @@ use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/**
- * @requires extension oci8
- */
+/** @requires extension oci8 */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void

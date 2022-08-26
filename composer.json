@@ -40,8 +40,8 @@
         "psr/log": "^1|^2|^3"
     },
     "require-dev": {
-        "doctrine/coding-standard": "9.0.0",
-        "jetbrains/phpstorm-stubs": "2022.1",
+        "doctrine/coding-standard": "9.0.1",
+        "jetbrains/phpstorm-stubs": "2022.2",
         "phpstan/phpstan": "1.8.2",
         "phpstan/phpstan-strict-rules": "^1.3",
         "phpunit/phpunit": "9.5.21",

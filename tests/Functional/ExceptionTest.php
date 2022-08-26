@@ -26,9 +26,7 @@ use const E_ALL;
 use const E_WARNING;
 use const PHP_OS_FAMILY;
 
-/**
- * @psalm-import-type Params from DriverManager
- */
+/** @psalm-import-type Params from DriverManager */
 class ExceptionTest extends FunctionalTestCase
 {
     public function testPrimaryConstraintViolationException(): void
@@ -341,9 +339,7 @@ class ExceptionTest extends FunctionalTestCase
         $conn->connect();
     }
 
-    /**
-     * @return array<int, array<int, mixed>>
-     */
+    /** @return array<int, array<int, mixed>> */
     public static function getConnectionParams(): iterable
     {
         return [

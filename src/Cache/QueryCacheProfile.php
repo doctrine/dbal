@@ -85,9 +85,7 @@ class QueryCacheProfile
         return $this->resultCache !== null ? DoctrineProvider::wrap($this->resultCache) : null;
     }
 
-    /**
-     * @return int
-     */
+    /** @return int */
     public function getLifetime()
     {
         return $this->lifetime;

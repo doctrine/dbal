@@ -19,9 +19,7 @@ use PHPUnit\Framework\TestCase;
 
 use function array_merge;
 
-/**
- * @psalm-import-type Params from DriverManager
- */
+/** @psalm-import-type Params from DriverManager */
 class MySQLInheritCharsetTest extends TestCase
 {
     public function testInheritTableOptionsFromDatabase(): void

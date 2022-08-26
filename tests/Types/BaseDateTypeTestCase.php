@@ -86,9 +86,7 @@ abstract class BaseDateTypeTestCase extends TestCase
         self::assertIsString($this->type->convertToDatabaseValue(new DateTimeImmutable(), $this->platform));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function invalidPHPValuesProvider(): iterable
     {
         return [

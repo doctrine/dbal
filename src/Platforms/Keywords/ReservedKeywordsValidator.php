@@ -15,9 +15,7 @@ use function count;
 use function implode;
 use function str_replace;
 
-/**
- * @deprecated Use database documentation instead.
- */
+/** @deprecated Use database documentation instead. */
 class ReservedKeywordsValidator implements Visitor
 {
     /** @var KeywordList[] */
@@ -26,9 +24,7 @@ class ReservedKeywordsValidator implements Visitor
     /** @var string[] */
     private array $violations = [];
 
-    /**
-     * @param KeywordList[] $keywordLists
-     */
+    /** @param KeywordList[] $keywordLists */
     public function __construct(array $keywordLists)
     {
         Deprecation::triggerIfCalledFromOutside(
@@ -40,9 +36,7 @@ class ReservedKeywordsValidator implements Visitor
         $this->keywordLists = $keywordLists;
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     public function getViolations()
     {
         return $this->violations;

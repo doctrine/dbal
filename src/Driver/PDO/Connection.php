@@ -17,9 +17,7 @@ final class Connection implements ServerInfoAwareConnection
 {
     private PDO $connection;
 
-    /**
-     * @internal The connection can be only instantiated by its driver.
-     */
+    /** @internal The connection can be only instantiated by its driver. */
     public function __construct(PDO $connection)
     {
         $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -127,9 +125,7 @@ final class Connection implements ServerInfoAwareConnection
         return $this->connection;
     }
 
-    /**
-     * @deprecated Call {@see getNativeConnection()} instead.
-     */
+    /** @deprecated Call {@see getNativeConnection()} instead. */
     public function getWrappedConnection(): PDO
     {
         Deprecation::triggerIfCalledFromOutside(

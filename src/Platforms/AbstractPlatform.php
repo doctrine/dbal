@@ -2277,9 +2277,7 @@ abstract class AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @return string
-     */
+    /** @return string */
     public function getCreateTemporaryTableSnippetSQL()
     {
         return 'CREATE TEMPORARY TABLE';
@@ -2710,9 +2708,7 @@ abstract class AbstractPlatform
         return $eventArgs->isDefaultPrevented();
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         $tableName = $diff->getName($this)->getQuotedName($this);
@@ -2743,9 +2739,7 @@ abstract class AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         $sql     = [];
@@ -4453,9 +4447,7 @@ abstract class AbstractPlatform
         ]);
     }
 
-    /**
-     * @internal
-     */
+    /** @internal */
     public function createSQLParser(): Parser
     {
         return new Parser(false);

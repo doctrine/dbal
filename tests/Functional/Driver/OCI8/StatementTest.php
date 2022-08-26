@@ -5,9 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\OCI8;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/**
- * @requires extension oci8
- */
+/** @requires extension oci8 */
 class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -51,9 +49,7 @@ class StatementTest extends FunctionalTestCase
         );
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
+    /** @return array<string, array<int, mixed>> */
     public static function queryConversionProvider(): iterable
     {
         return [

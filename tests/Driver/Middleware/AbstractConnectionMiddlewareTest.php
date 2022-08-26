@@ -99,8 +99,6 @@ final class AbstractConnectionMiddlewareTest extends TestCase
 
 interface NativeDriverConnection extends ServerInfoAwareConnection
 {
-    /**
-     * @return object|resource
-     */
+    /** @return object|resource */
     public function getNativeConnection();
 }

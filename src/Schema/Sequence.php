@@ -36,25 +36,19 @@ class Sequence extends AbstractAsset
         $this->cache = $cache;
     }
 
-    /**
-     * @return int
-     */
+    /** @return int */
     public function getAllocationSize()
     {
         return $this->allocationSize;
     }
 
-    /**
-     * @return int
-     */
+    /** @return int */
     public function getInitialValue()
     {
         return $this->initialValue;
     }
 
-    /**
-     * @return int|null
-     */
+    /** @return int|null */
     public function getCache()
     {
         return $this->cache;

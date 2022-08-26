@@ -92,17 +92,13 @@ class Table extends AbstractAsset
         $this->_options = array_merge($this->_options, $options);
     }
 
-    /**
-     * @return void
-     */
+    /** @return void */
     public function setSchemaConfig(SchemaConfig $schemaConfig)
     {
         $this->_schemaConfig = $schemaConfig;
     }
 
-    /**
-     * @return int
-     */
+    /** @return int */
     protected function _getMaxIdentifierLength()
     {
         if ($this->_schemaConfig instanceof SchemaConfig) {
@@ -508,9 +504,7 @@ class Table extends AbstractAsset
         return $this;
     }
 
-    /**
-     * @return self
-     */
+    /** @return self */
     protected function _addUniqueConstraint(UniqueConstraint $constraint): Table
     {
         $mergedNames = array_merge([$this->getName()], $constraint->getColumns());
@@ -540,9 +534,7 @@ class Table extends AbstractAsset
         return $this;
     }
 
-    /**
-     * @return self
-     */
+    /** @return self */
     protected function _addForeignKeyConstraint(ForeignKeyConstraint $constraint)
     {
         $constraint->setLocalTable($this);
@@ -840,9 +832,7 @@ class Table extends AbstractAsset
         return $this->_indexes[$name];
     }
 
-    /**
-     * @return Index[]
-     */
+    /** @return Index[] */
     public function getIndexes()
     {
         return $this->_indexes;
@@ -888,9 +878,7 @@ class Table extends AbstractAsset
         return $this->_options[$name];
     }
 
-    /**
-     * @return mixed[]
-     */
+    /** @return mixed[] */
     public function getOptions()
     {
         return $this->_options;

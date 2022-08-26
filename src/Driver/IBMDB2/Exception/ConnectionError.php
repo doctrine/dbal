@@ -16,9 +16,7 @@ use function db2_conn_errormsg;
  */
 final class ConnectionError extends AbstractException
 {
-    /**
-     * @param resource $connection
-     */
+    /** @param resource $connection */
     public static function new($connection): self
     {
         $message  = db2_conn_errormsg($connection);

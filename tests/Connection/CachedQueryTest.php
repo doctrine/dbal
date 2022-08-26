@@ -47,9 +47,7 @@ class CachedQueryTest extends TestCase
         self::assertCount(1, $cache->getItem(__FUNCTION__)->get());
     }
 
-    /**
-     * @param CacheItemPoolInterface|Cache $cache
-     */
+    /** @param CacheItemPoolInterface|Cache $cache */
     private function assertCachedQueryIsExecutedOnceAndYieldsTheSameResult(object $cache, string $cacheKey): void
     {
         $data = [['foo' => 'bar']];
@@ -82,9 +80,7 @@ class CachedQueryTest extends TestCase
         )->fetchAllAssociative());
     }
 
-    /**
-     * @param list<array<string, mixed>> $data
-     */
+    /** @param list<array<string, mixed>> $data */
     private function createConnection(int $expectedQueryCount, array $data): Connection
     {
         $connection = $this->createMock(Driver\Connection::class);

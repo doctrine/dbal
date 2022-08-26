@@ -9,9 +9,7 @@ use Doctrine\DBAL\Tests\TestUtil;
 
 class ResultTest extends FunctionalTestCase
 {
-    /**
-     * @dataProvider methodProvider
-     */
+    /** @dataProvider methodProvider */
     public function testExceptionHandling(callable $method): void
     {
         if (! TestUtil::isDriverOneOf('mysqli', 'ibm_db2')) {
@@ -28,9 +26,7 @@ class ResultTest extends FunctionalTestCase
         $method($result);
     }
 
-    /**
-     * @return iterable<string,array{callable(Result):void}>
-     */
+    /** @return iterable<string,array{callable(Result):void}> */
     public static function methodProvider(): iterable
     {
         yield 'fetchNumeric' => [

@@ -8,9 +8,7 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 class DatabaseRequired extends Exception
 {
     public static function new(string $methodName): self

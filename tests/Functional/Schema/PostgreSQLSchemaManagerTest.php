@@ -460,9 +460,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('(-1)', $columns['col_string']->getDefault());
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function serialTypes(): iterable
     {
         return [
@@ -471,9 +469,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider serialTypes
-     */
+    /** @dataProvider serialTypes */
     public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValue(string $type): void
     {
         $tableName = 'test_serial_type_' . $type;
@@ -488,9 +484,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($columns['id']->getDefault());
     }
 
-    /**
-     * @dataProvider serialTypes
-     */
+    /** @dataProvider serialTypes */
     public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValueEvenWhenDefaultIsSet(string $type): void
     {
         $tableName = 'test_serial_type_with_default_' . $type;
@@ -539,9 +533,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
-    /**
-     * @return iterable<mixed[]>
-     */
+    /** @return iterable<mixed[]> */
     public static function autoIncrementTypeMigrations(): iterable
     {
         foreach (ComparatorTestUtils::comparatorProvider() as $comparatorArguments) {

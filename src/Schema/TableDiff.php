@@ -138,9 +138,7 @@ class TableDiff
         );
     }
 
-    /**
-     * @return Identifier|false
-     */
+    /** @return Identifier|false */
     public function getNewName()
     {
         if ($this->newName === false) {

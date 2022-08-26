@@ -170,14 +170,15 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * The SQLite platform doesn't support the concept of a database, therefore, it always returns an empty string
+     * The DBAL doesn't support databases on the SQLite platform. The expression here always returns a fixed string
      * as an indicator of an implicitly selected database.
      *
-     * @see \Doctrine\DBAL\Connection::getDatabase()
+     * @link https://www.sqlite.org/lang_select.html
+     * @see Connection::getDatabase()
      */
     public function getCurrentDatabaseExpression(): string
     {
-        return "''";
+        return "'main'";
     }
 
     /**
@@ -1238,9 +1239,7 @@ class SqlitePlatform extends AbstractPlatform
         return array_merge($sql, $tableSql, $columnSql);
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     private function getColumnNamesInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $columns = [];
@@ -1278,9 +1277,7 @@ class SqlitePlatform extends AbstractPlatform
         return $columns;
     }
 
-    /**
-     * @return Index[]
-     */
+    /** @return Index[] */
     private function getIndexesInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $indexes     = $fromTable->getIndexes();
@@ -1346,9 +1343,7 @@ class SqlitePlatform extends AbstractPlatform
         return $indexes;
     }
 
-    /**
-     * @return ForeignKeyConstraint[]
-     */
+    /** @return ForeignKeyConstraint[] */
     private function getForeignKeysInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $foreignKeys = $fromTable->getForeignKeys();
@@ -1410,9 +1405,7 @@ class SqlitePlatform extends AbstractPlatform
         return $foreignKeys;
     }
 
-    /**
-     * @return Index[]
-     */
+    /** @return Index[] */
     private function getPrimaryIndexInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $primaryIndex = [];
