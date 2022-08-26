@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\BinaryType;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -572,17 +571,6 @@ END;';
             }
 
             $column = $columnDiff->column;
-
-            // Do not generate column alteration clause if type is binary and only fixed property has changed.
-            // Oracle only supports binary type columns with variable length.
-            // Avoids unnecessary table alteration statements.
-            if (
-                $column->getType() instanceof BinaryType &&
-                $columnDiff->hasChanged('fixed') &&
-                count($columnDiff->changedProperties) === 1
-            ) {
-                continue;
-            }
 
             $columnHasChangedComment = $columnDiff->hasChanged('comment');
 
