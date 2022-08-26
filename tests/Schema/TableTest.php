@@ -749,7 +749,9 @@ class TableTest extends TestCase
         $table->renameIndex('idx_id', 'idx_foo');
     }
 
-    /** @dataProvider getNormalizesAssetNames */
+    /**
+     * @dataProvider getNormalizesAssetNames
+     */
     public function testNormalizesColumnNames(string $assetName): void
     {
         $table = new Table('test');
@@ -804,7 +806,9 @@ class TableTest extends TestCase
         self::assertFalse($table->hasForeignKey('foo'));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function getNormalizesAssetNames(): iterable
     {
         return [

@@ -21,7 +21,9 @@ final class ConcatExpressionTest extends FunctionalTestCase
         self::assertEquals($expected, $this->connection->fetchOne($query));
     }
 
-    /** @return iterable<string,array{list<string>,string}> */
+    /**
+     * @return iterable<string,array{list<string>,string}>
+     */
     public static function expressionProvider(): iterable
     {
         yield 'strings' => [["'foo'", "'bar'"], 'foobar'];

@@ -27,7 +27,9 @@ class LoggerChainTest extends TestCase
         $listener->stopQuery();
     }
 
-    /** @param mixed ...$args */
+    /**
+     * @param mixed ...$args
+     */
     private function createChain(string $method, ...$args): LoggerChain
     {
         return new LoggerChain([
@@ -36,7 +38,9 @@ class LoggerChainTest extends TestCase
         ]);
     }
 
-    /** @param mixed ...$args */
+    /**
+     * @param mixed ...$args
+     */
     private function createLogger(string $method, ...$args): SQLLogger
     {
         $logger = $this->createMock(SQLLogger::class);

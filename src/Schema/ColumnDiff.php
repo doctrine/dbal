@@ -58,7 +58,9 @@ class ColumnDiff
         return in_array($propertyName, $this->changedProperties, true);
     }
 
-    /** @return Identifier */
+    /**
+     * @return Identifier
+     */
     public function getOldColumnName()
     {
         $quote = $this->fromColumn !== null && $this->fromColumn->isQuoted();

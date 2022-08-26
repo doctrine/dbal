@@ -67,7 +67,9 @@ class BinaryTest extends FunctionalTestCase
         self::assertSame(1, $result);
     }
 
-    /** @return mixed */
+    /**
+     * @return mixed
+     */
     private function select(string $id)
     {
         $value = $this->connection->fetchOne(

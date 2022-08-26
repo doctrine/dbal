@@ -7,7 +7,9 @@ use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/** @requires extension pdo_mysql */
+/**
+ * @requires extension pdo_mysql
+ */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void

@@ -1697,7 +1697,9 @@ class SQLServerPlatform extends AbstractPlatform
         );
     }
 
-    /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */
+    /**
+     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
+     */
     public function getListTableMetadataSQL(string $table): string
     {
         return sprintf(
@@ -1715,7 +1717,9 @@ class SQLServerPlatform extends AbstractPlatform
         );
     }
 
-    /** @param string $query */
+    /**
+     * @param string $query
+     */
     private function shouldAddOrderBy($query): bool
     {
         // Find the position of the last instance of ORDER BY and ensure it is not within a parenthetical statement

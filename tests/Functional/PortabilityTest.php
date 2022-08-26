@@ -61,14 +61,18 @@ class PortabilityTest extends FunctionalTestCase
         self::assertSame($expected, array_keys($row));
     }
 
-    /** @return iterable<string, array{int, list<string>}> */
+    /**
+     * @return iterable<string, array{int, list<string>}>
+     */
     public static function caseProvider(): iterable
     {
         yield 'lower' => [ColumnCase::LOWER, ['test_int', 'test_string', 'test_null']];
         yield 'upper' => [ColumnCase::UPPER, ['TEST_INT', 'TEST_STRING', 'TEST_NULL']];
     }
 
-    /** @param array<int, array<string, mixed>> $rows */
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     */
     private function assertFetchResultRows(array $rows): void
     {
         self::assertCount(2, $rows);
@@ -77,7 +81,9 @@ class PortabilityTest extends FunctionalTestCase
         }
     }
 
-    /** @param array<string, mixed> $row */
+    /**
+     * @param array<string, mixed> $row
+     */
     public function assertFetchResultRow(array $row): void
     {
         self::assertThat($row['test_int'], self::logicalOr(
@@ -106,7 +112,9 @@ class PortabilityTest extends FunctionalTestCase
         self::assertEquals($expected, $result->fetchFirstColumn());
     }
 
-    /** @return iterable<string, array<int, mixed>> */
+    /**
+     * @return iterable<string, array<int, mixed>>
+     */
     public static function fetchColumnProvider(): iterable
     {
         return [

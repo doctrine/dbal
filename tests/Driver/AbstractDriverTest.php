@@ -16,7 +16,9 @@ use ReflectionProperty;
 use function get_class;
 use function sprintf;
 
-/** @template P of AbstractPlatform */
+/**
+ * @template P of AbstractPlatform
+ */
 abstract class AbstractDriverTest extends TestCase
 {
     /**
@@ -125,13 +127,17 @@ abstract class AbstractDriverTest extends TestCase
 
     abstract protected function createExceptionConverter(): ExceptionConverter;
 
-    /** @return Connection&MockObject */
+    /**
+     * @return Connection&MockObject
+     */
     protected function getConnectionMock(): Connection
     {
         return $this->createMock(Connection::class);
     }
 
-    /** @return array<int, array<int, string>> */
+    /**
+     * @return array<int, array<int, string>>
+     */
     protected function getDatabasePlatformsForVersions(): array
     {
         return [];

@@ -12,7 +12,9 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 
-/** @extends AbstractDriverTest<OraclePlatform> */
+/**
+ * @extends AbstractDriverTest<OraclePlatform>
+ */
 class AbstractOracleDriverTest extends AbstractDriverTest
 {
     protected function createDriver(): Driver

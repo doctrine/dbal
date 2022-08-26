@@ -58,7 +58,9 @@ final class Connection implements ServerInfoAwareConnection
         return $matches[1];
     }
 
-    /** @throws Parser\Exception */
+    /**
+     * @throws Parser\Exception
+     */
     public function prepare(string $sql): DriverStatement
     {
         $visitor = new ConvertPositionalToNamedPlaceholders();
@@ -162,7 +164,9 @@ final class Connection implements ServerInfoAwareConnection
         return true;
     }
 
-    /** @return resource */
+    /**
+     * @return resource
+     */
     public function getNativeConnection()
     {
         return $this->connection;

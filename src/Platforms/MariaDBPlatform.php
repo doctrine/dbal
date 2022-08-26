@@ -33,7 +33,9 @@ class MariaDBPlatform extends MySQLPlatform
         return 'LONGTEXT';
     }
 
-    /** @deprecated Implement {@see createReservedKeywordsList()} instead. */
+    /**
+     * @deprecated Implement {@see createReservedKeywordsList()} instead.
+     */
     protected function getReservedKeywordsClass(): string
     {
         Deprecation::triggerIfCalledFromOutside(

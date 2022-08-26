@@ -11,7 +11,9 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
-/** @extends AbstractPlatformTestCase<SqlitePlatform> */
+/**
+ * @extends AbstractPlatformTestCase<SqlitePlatform>
+ */
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
@@ -335,7 +337,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expected, $this->platform->getAlterTableSQL($diff));
     }
 
-    /** @dataProvider complexDiffProvider */
+    /**
+     * @dataProvider complexDiffProvider
+     */
     public function testAlterTableAddComplexColumns(TableDiff $diff): void
     {
         $this->expectException(Exception::class);
@@ -356,7 +360,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->platform->getAlterTableSQL($tableDiff);
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function complexDiffProvider(): iterable
     {
         $date                       = new TableDiff('user');

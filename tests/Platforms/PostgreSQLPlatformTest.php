@@ -18,7 +18,9 @@ use UnexpectedValueException;
 
 use function sprintf;
 
-/** @extends AbstractPlatformTestCase<PostgreSQLPlatform> */
+/**
+ * @extends AbstractPlatformTestCase<PostgreSQLPlatform>
+ */
 class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
@@ -205,7 +207,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function serialTypes(): iterable
     {
         return [
@@ -214,7 +218,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /** @dataProvider serialTypes */
+    /**
+     * @dataProvider serialTypes
+     */
     public function testGenerateTableWithAutoincrementDoesNotSetDefault(string $type, string $definition): void
     {
         $table  = new Table('autoinc_table_notnull');
@@ -227,7 +233,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals([sprintf('CREATE TABLE autoinc_table_notnull (id %s)', $definition)], $sql);
     }
 
-    /** @dataProvider serialTypes */
+    /**
+     * @dataProvider serialTypes
+     */
     public function testCreateTableWithAutoincrementAndNotNullAddsConstraint(string $type, string $definition): void
     {
         $table  = new Table('autoinc_table_notnull_enabled');
@@ -240,7 +248,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals([sprintf('CREATE TABLE autoinc_table_notnull_enabled (id %s NOT NULL)', $definition)], $sql);
     }
 
-    /** @dataProvider serialTypes */
+    /**
+     * @dataProvider serialTypes
+     */
     public function testGetDefaultValueDeclarationSQLIgnoresTheDefaultKeyWhenTheFieldIsSerial(string $type): void
     {
         $sql = $this->platform->getDefaultValueDeclarationSQL(
@@ -609,14 +619,18 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertSame('mytable_mycolumn_seq', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
     }
 
-    /** @dataProvider dataCreateSequenceWithCache */
+    /**
+     * @dataProvider dataCreateSequenceWithCache
+     */
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
         $sequence = new Sequence('foo', 1, 1, $cacheSize);
         self::assertStringContainsString($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function dataCreateSequenceWithCache(): iterable
     {
         return [

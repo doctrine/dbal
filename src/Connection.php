@@ -1533,7 +1533,9 @@ class Connection
         return $this->_conn;
     }
 
-    /** @return resource|object */
+    /**
+     * @return resource|object
+     */
     public function getNativeConnection()
     {
         $this->connect();
@@ -1761,7 +1763,9 @@ class Connection
         return $this->handleDriverException($e, new Query($sql, $params, $types));
     }
 
-    /** @internal */
+    /**
+     * @internal
+     */
     final public function convertException(Driver\Exception $e): DriverException
     {
         return $this->handleDriverException($e, null);

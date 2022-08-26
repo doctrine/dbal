@@ -28,7 +28,9 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection([]);
     }
 
-    /** @psalm-suppress InvalidArgument */
+    /**
+     * @psalm-suppress InvalidArgument
+     */
     public function testInvalidDriver(): void
     {
         $this->expectException(Exception::class);
@@ -36,7 +38,9 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection(['driver' => 'invalid_driver']);
     }
 
-    /** @requires extension pdo_sqlite */
+    /**
+     * @requires extension pdo_sqlite
+     */
     public function testCustomPlatform(): void
     {
         $platform = $this->createMock(AbstractPlatform::class);
@@ -49,7 +53,9 @@ class DriverManagerTest extends TestCase
         self::assertSame($platform, $conn->getDatabasePlatform());
     }
 
-    /** @requires extension pdo_sqlite */
+    /**
+     * @requires extension pdo_sqlite
+     */
     public function testCustomWrapper(): void
     {
         $wrapper      = $this->createMock(Connection::class);
@@ -80,7 +86,9 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection($options);
     }
 
-    /** @psalm-suppress InvalidArgument */
+    /**
+     * @psalm-suppress InvalidArgument
+     */
     public function testInvalidDriverClass(): void
     {
         $this->expectException(Exception::class);
@@ -167,7 +175,9 @@ class DriverManagerTest extends TestCase
         }
     }
 
-    /** @return array<string, list<mixed>> */
+    /**
+     * @return array<string, list<mixed>>
+     */
     public function databaseUrls(): iterable
     {
         $driver      = $this->createMock(Driver::class);

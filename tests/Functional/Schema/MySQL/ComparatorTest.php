@@ -33,7 +33,9 @@ final class ComparatorTest extends FunctionalTestCase
         $this->comparator    = $this->schemaManager->createComparator();
     }
 
-    /** @dataProvider lobColumnProvider */
+    /**
+     * @dataProvider lobColumnProvider
+     */
     public function testLobLengthIncrementWithinLimit(string $type, int $length): void
     {
         $table = $this->createLobTable($type, $length - 1);
@@ -52,7 +54,9 @@ final class ComparatorTest extends FunctionalTestCase
         ));
     }
 
-    /** @dataProvider lobColumnProvider */
+    /**
+     * @dataProvider lobColumnProvider
+     */
     public function testLobLengthIncrementOverLimit(string $type, int $length): void
     {
         $table = $this->createLobTable($type, $length);
@@ -60,7 +64,9 @@ final class ComparatorTest extends FunctionalTestCase
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
-    /** @return iterable<array{string,int}> */
+    /**
+     * @return iterable<array{string,int}>
+     */
     public static function lobColumnProvider(): iterable
     {
         yield [Types::BLOB, AbstractMySQLPlatform::LENGTH_LIMIT_TINYBLOB];
@@ -72,7 +78,9 @@ final class ComparatorTest extends FunctionalTestCase
         yield [Types::TEXT, AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT];
     }
 
-    /** @throws Exception */
+    /**
+     * @throws Exception
+     */
     private function createLobTable(string $type, int $length): Table
     {
         $table = new Table('comparator_test');
@@ -83,7 +91,9 @@ final class ComparatorTest extends FunctionalTestCase
         return $table;
     }
 
-    /** @throws Exception */
+    /**
+     * @throws Exception
+     */
     private function increaseLobLength(Table $table): void
     {
         $column = $table->getColumn('lob');

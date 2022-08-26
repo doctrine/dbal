@@ -179,7 +179,9 @@ class BlobTest extends FunctionalTestCase
         self::assertEquals($text, stream_get_contents($blobValue));
     }
 
-    /** @return list<mixed> */
+    /**
+     * @return list<mixed>
+     */
     private function fetchRow(): array
     {
         $rows = $this->connection->fetchAllNumeric('SELECT clobcolumn, blobcolumn FROM blob_table');

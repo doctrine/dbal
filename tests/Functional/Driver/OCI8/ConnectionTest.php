@@ -6,7 +6,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/** @requires extension oci8 */
+/**
+ * @requires extension oci8
+ */
 class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void

@@ -29,19 +29,25 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
         $this->platform   = $platform;
     }
 
-    /** @return ColumnDiff */
+    /**
+     * @return ColumnDiff
+     */
     public function getColumnDiff()
     {
         return $this->columnDiff;
     }
 
-    /** @return TableDiff */
+    /**
+     * @return TableDiff
+     */
     public function getTableDiff()
     {
         return $this->tableDiff;
     }
 
-    /** @return AbstractPlatform */
+    /**
+     * @return AbstractPlatform
+     */
     public function getPlatform()
     {
         return $this->platform;
@@ -61,7 +67,9 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
         return $this;
     }
 
-    /** @return string[] */
+    /**
+     * @return string[]
+     */
     public function getSql()
     {
         return $this->sql;

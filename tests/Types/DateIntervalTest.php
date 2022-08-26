@@ -104,7 +104,9 @@ final class DateIntervalTest extends TestCase
         $this->type->convertToDatabaseValue($value, $this->platform);
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function invalidPHPValuesProvider(): iterable
     {
         return [

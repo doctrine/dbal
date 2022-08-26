@@ -48,7 +48,9 @@ final class ConvertPositionalToNamedPlaceholders implements Visitor
         return implode('', $this->buffer);
     }
 
-    /** @return array<int,string> */
+    /**
+     * @return array<int,string>
+     */
     public function getParameterMap(): array
     {
         return $this->parameterMap;

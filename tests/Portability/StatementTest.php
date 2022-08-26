@@ -67,7 +67,9 @@ class StatementTest extends TestCase
         $this->stmt->execute($params);
     }
 
-    /** @return Connection&MockObject */
+    /**
+     * @return Connection&MockObject
+     */
     protected function createConnection()
     {
         return $this->getMockBuilder(Connection::class)

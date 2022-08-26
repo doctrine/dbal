@@ -10,7 +10,9 @@ use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 
-/** @deprecated Use {@link CreateSchemaObjectsSQLBuilder} instead. */
+/**
+ * @deprecated Use {@link CreateSchemaObjectsSQLBuilder} instead.
+ */
 class CreateSchemaSqlCollector extends AbstractVisitor
 {
     /** @var string[] */
@@ -78,7 +80,9 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $this->createSequenceQueries[] = $this->platform->getCreateSequenceSQL($sequence);
     }
 
-    /** @return void */
+    /**
+     * @return void
+     */
     public function resetQueries()
     {
         $this->createNamespaceQueries    = [];

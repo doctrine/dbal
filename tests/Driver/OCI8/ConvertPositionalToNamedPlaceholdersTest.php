@@ -29,7 +29,9 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
         self::assertEquals($expectedOutputParamsMap, $visitor->getParameterMap());
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     */
     public static function positionalToNamedPlaceholdersProvider(): iterable
     {
         return [

@@ -354,13 +354,17 @@ SQL
         );
     }
 
-    /** @throws Exception */
+    /**
+     * @throws Exception
+     */
     public function createComparator(): Comparator
     {
         return new SQLServer\Comparator($this->_platform, $this->getDatabaseCollation());
     }
 
-    /** @throws Exception */
+    /**
+     * @throws Exception
+     */
     private function getDatabaseCollation(): string
     {
         if ($this->databaseCollation === null) {

@@ -14,7 +14,9 @@ class LoggerChain implements SQLLogger
     /** @var iterable<SQLLogger> */
     private iterable $loggers;
 
-    /** @param iterable<SQLLogger> $loggers */
+    /**
+     * @param iterable<SQLLogger> $loggers
+     */
     public function __construct(iterable $loggers = [])
     {
         Deprecation::trigger(

@@ -8,7 +8,9 @@ use Doctrine\DBAL\Schema\SchemaException;
 
 use function sprintf;
 
-/** @psalm-immutable */
+/**
+ * @psalm-immutable
+ */
 final class UnknownColumnOption extends SchemaException
 {
     public static function new(string $name): self

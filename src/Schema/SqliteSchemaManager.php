@@ -561,7 +561,9 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment === '' ? null : $comment;
     }
 
-    /** @throws Exception */
+    /**
+     * @throws Exception
+     */
     private function getCreateTableSQL(string $table): string
     {
         $sql = $this->_conn->fetchOne(

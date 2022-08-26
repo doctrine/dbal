@@ -22,10 +22,14 @@ use Doctrine\DBAL\Query;
 
 use function strpos;
 
-/** @internal */
+/**
+ * @internal
+ */
 final class ExceptionConverter implements ExceptionConverterInterface
 {
-    /** @link http://www.sqlite.org/c3ref/c_abort.html */
+    /**
+     * @link http://www.sqlite.org/c3ref/c_abort.html
+     */
     public function convert(Exception $exception, ?Query $query): DriverException
     {
         if (strpos($exception->getMessage(), 'database is locked') !== false) {

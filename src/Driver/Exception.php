@@ -6,7 +6,9 @@ namespace Doctrine\DBAL\Driver;
 
 use Throwable;
 
-/** @psalm-immutable */
+/**
+ * @psalm-immutable
+ */
 interface Exception extends Throwable
 {
     /**
