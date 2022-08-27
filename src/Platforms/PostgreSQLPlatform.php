@@ -561,8 +561,15 @@ SQL
                 continue;
             }
 
-            $oldColumnName = $columnDiff->getOldColumnName()->getQuotedName($this);
-            $column        = $columnDiff->column;
+            if ($columnDiff->fromColumn !== null) {
+                $fromColumn = $columnDiff->fromColumn;
+            } else {
+                $fromColumn = $columnDiff->getOldColumnName();
+            }
+
+            $oldColumnName = $fromColumn->getQuotedName($this);
+
+            $column = $columnDiff->column;
 
             if (
                 $columnDiff->hasChanged('type')

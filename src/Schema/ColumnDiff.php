@@ -11,7 +11,11 @@ use function in_array;
  */
 class ColumnDiff
 {
-    /** @var string */
+    /**
+     * @deprecated Use {@see $fromColumn} and {@see Column::getName()} instead.
+     *
+     * @var string
+     */
     public $oldColumnName;
 
     /** @var Column */
@@ -24,6 +28,8 @@ class ColumnDiff
     public $fromColumn;
 
     /**
+     * @internal The diff can be only instantiated by a {@see Comparator}.
+     *
      * @param string   $oldColumnName
      * @param string[] $changedProperties
      */
@@ -59,12 +65,27 @@ class ColumnDiff
     }
 
     /**
+     * @deprecated Use {@see $fromColumn} instead.
+     *
      * @return Identifier
      */
     public function getOldColumnName()
     {
-        $quote = $this->fromColumn !== null && $this->fromColumn->isQuoted();
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5622',
+            '%s is deprecated. Use $fromColumn instead.',
+            __METHOD__
+        );
 
-        return new Identifier($this->oldColumnName, $quote);
+        if ($this->fromColumn !== null) {
+            $name  = $this->fromColumn->getName();
+            $quote = $this->fromColumn->isQuoted();
+        } else {
+            $name  = $this->oldColumnName;
+            $quote = false;
+        }
+
+        return new Identifier($name, $quote);
     }
 }
