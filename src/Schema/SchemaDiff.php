@@ -67,6 +67,8 @@ class SchemaDiff
     /**
      * Constructs an SchemaDiff object.
      *
+     * @internal The diff can be only instantiated by a {@see Comparator}.
+     *
      * @param Table[]     $newTables
      * @param TableDiff[] $changedTables
      * @param Table[]     $removedTables

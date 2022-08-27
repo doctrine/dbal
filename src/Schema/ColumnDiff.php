@@ -24,6 +24,8 @@ class ColumnDiff
     public $fromColumn;
 
     /**
+     * @internal The diff can be only instantiated by a {@see Comparator}.
+     *
      * @param string   $oldColumnName
      * @param string[] $changedProperties
      */

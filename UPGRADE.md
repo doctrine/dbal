@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Marked schema diff constructors as internal.
+
+The constructors of the following classes have been marked as internal:
+
+1. `SchemaDiff`,
+2. `TableDiff`,
+3. `ColumnDiff`.
+
+These classes can be instantiated only by schema comparators. The signatures of the constructors may change in future
+versions.
+
 ## Marked `AbstractSchemaManager::_execSql()` as internal.
 
 The `AbstractSchemaManager::_execSql()` method has been marked as internal. It will not be available in 4.0.
