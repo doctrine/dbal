@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated `ColumnDiff` APIs dedicated to the old column name.
+
+The `$oldColumnName` property and the `getOldColumnName()` method of the `ColumnDiff` class have been deprecated.
+
+Make sure the `$fromColumn` argument is passed to the `ColumnDiff` constructor and use the `$fromColumn` property
+instead.
+
 ## Marked schema diff constructors as internal.
 
 The constructors of the following classes have been marked as internal:
