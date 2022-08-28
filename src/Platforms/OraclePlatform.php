@@ -538,15 +538,15 @@ END;';
         $commentsSQL = [];
         $columnSql   = [];
 
-        $fields = [];
+        $addColumnSQL = [];
 
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
-            $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-            $comment  = $column->getComment();
+            $addColumnSQL[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $comment        = $column->getComment();
 
             if ($comment === '') {
                 continue;
@@ -559,12 +559,12 @@ END;';
             );
         }
 
-        if (count($fields) > 0) {
+        if (count($addColumnSQL) > 0) {
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
-                . ' ADD (' . implode(', ', $fields) . ')';
+                . ' ADD (' . implode(', ', $addColumnSQL) . ')';
         }
 
-        $fields = [];
+        $modifyColumnSQL = [];
         foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
@@ -584,7 +584,7 @@ END;';
                     unset($columnInfo['notnull']);
                 }
 
-                $fields[] = $column->getQuotedName($this) . $this->getColumnDeclarationSQL('', $columnInfo);
+                $modifyColumnSQL[] = $column->getQuotedName($this) . $currentSQL;
             }
 
             if (! $columnHasChangedComment) {
@@ -598,9 +598,9 @@ END;';
             );
         }
 
-        if (count($fields) > 0) {
+        if (count($modifyColumnSQL) > 0) {
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
-                . ' MODIFY (' . implode(', ', $fields) . ')';
+                . ' MODIFY (' . implode(', ', $modifyColumnSQL) . ')';
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -614,18 +614,18 @@ END;';
                 ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
         }
 
-        $fields = [];
+        $dropColumnSQL = [];
         foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
-            $fields[] = $column->getQuotedName($this);
+            $dropColumnSQL[] = $column->getQuotedName($this);
         }
 
-        if (count($fields) > 0) {
+        if (count($dropColumnSQL) > 0) {
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
-                . ' DROP (' . implode(', ', $fields) . ')';
+                . ' DROP (' . implode(', ', $dropColumnSQL) . ')';
         }
 
         $tableSql = [];
