@@ -76,9 +76,7 @@ final class ExpandArrayParameters implements Visitor
         return implode('', $this->convertedSQL);
     }
 
-    /**
-     * @return list<mixed>
-     */
+    /** @return list<mixed> */
     public function getParameters(): array
     {
         return $this->convertedParameteres;
@@ -118,9 +116,7 @@ final class ExpandArrayParameters implements Visitor
         $this->appendTypedParameter($value, $type - Connection::ARRAY_PARAM_OFFSET);
     }
 
-    /**
-     * @return array<int,Type|int|string|null>
-     */
+    /** @return array<int,Type|int|string|null> */
     public function getTypes(): array
     {
         return $this->convertedTypes;

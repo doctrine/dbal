@@ -6,9 +6,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/**
- * @requires extension sqlsrv
- */
+/** @requires extension sqlsrv */
 class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void

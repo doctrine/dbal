@@ -18,7 +18,7 @@ class DBAL752Test extends FunctionalTestCase
 
     public function testUnsignedIntegerDetection(): void
     {
-        $this->connection->executeStatement(<<<SQL
+        $this->connection->executeStatement(<<<'SQL'
 CREATE TABLE dbal752_unsigneds (
     small SMALLINT,
     small_unsigned SMALLINT UNSIGNED,
@@ -29,8 +29,7 @@ CREATE TABLE dbal752_unsigneds (
     big BIGINT,
     big_unsigned BIGINT UNSIGNED
 );
-SQL
-        );
+SQL);
 
         $schemaManager = $this->connection->getSchemaManager();
 

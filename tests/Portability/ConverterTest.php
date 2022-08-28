@@ -20,13 +20,11 @@ class ConverterTest extends TestCase
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, null)
-                ->convertNumeric($row)
+                ->convertNumeric($row),
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertNumericProvider(): iterable
     {
         $row = ['X ', ''];
@@ -78,13 +76,11 @@ class ConverterTest extends TestCase
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, $case)
-                ->convertAssociative($row)
+                ->convertAssociative($row),
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertAssociativeProvider(): iterable
     {
         $row = [
@@ -194,13 +190,11 @@ class ConverterTest extends TestCase
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, null)
-                ->convertOne($value)
+                ->convertOne($value),
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertOneProvider(): iterable
     {
         yield 'None, trailing space' => ['X ', false, false, 'X '];
@@ -230,13 +224,11 @@ class ConverterTest extends TestCase
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, null)
-                ->convertAllNumeric($data)
+                ->convertAllNumeric($data),
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertAllNumericProvider(): iterable
     {
         $data = [
@@ -299,13 +291,11 @@ class ConverterTest extends TestCase
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, $case)
-                ->convertAllAssociative($row)
+                ->convertAllAssociative($row),
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertAllAssociativeProvider(): iterable
     {
         $data = [
@@ -471,13 +461,11 @@ class ConverterTest extends TestCase
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, null)
-                ->convertFirstColumn($column)
+                ->convertFirstColumn($column),
         );
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function convertFirstColumnProvider(): iterable
     {
         $column = ['X ', ''];

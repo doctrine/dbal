@@ -147,7 +147,7 @@ class PrimaryReadReplicaConnection extends Connection
         if ($connectionName !== null) {
             throw new InvalidArgumentException(
                 'Passing a connection name as first argument is not supported anymore.'
-                    . ' Use ensureConnectedToPrimary()/ensureConnectedToReplica() instead.'
+                    . ' Use ensureConnectedToPrimary()/ensureConnectedToReplica() instead.',
             );
         }
 

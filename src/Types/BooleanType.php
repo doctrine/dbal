@@ -63,7 +63,7 @@ class BooleanType extends Type
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5509',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         // We require a commented boolean type in order to distinguish between

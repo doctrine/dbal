@@ -35,7 +35,7 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'DB2Platform::getCharMaxLength() is deprecated.'
+            'DB2Platform::getCharMaxLength() is deprecated.',
         );
 
         return 254;
@@ -51,7 +51,7 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'DB2Platform::getBinaryMaxLength() is deprecated.'
+            'DB2Platform::getBinaryMaxLength() is deprecated.',
         );
 
         return 32704;
@@ -67,7 +67,7 @@ class DB2Platform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'Relying on the default binary column length is deprecated, specify the length explicitly.'
+            'Relying on the default binary column length is deprecated, specify the length explicitly.',
         );
 
         return 1;
@@ -128,7 +128,7 @@ class DB2Platform extends AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5058',
             '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         if ($doctrineType->getName() === Types::BOOLEAN) {
@@ -150,7 +150,7 @@ class DB2Platform extends AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3263',
                 'Relying on the default string column length on IBM DB2 is deprecated'
-                    . ', specify the length explicitly.'
+                    . ', specify the length explicitly.',
             );
         }
 
@@ -168,7 +168,7 @@ class DB2Platform extends AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3263',
                 'Relying on the default binary column length on IBM DB2 is deprecated'
-                . ', specify the length explicitly.'
+                . ', specify the length explicitly.',
             );
         }
 
@@ -192,7 +192,7 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4749',
-            'DB2Platform::getName() is deprecated. Identify platforms by their class.'
+            'DB2Platform::getName() is deprecated. Identify platforms by their class.',
         );
 
         return 'db2';
@@ -477,7 +477,7 @@ class DB2Platform extends AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return false;
@@ -587,7 +587,7 @@ class DB2Platform extends AbstractPlatform
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
                 $column->getQuotedName($this),
-                $comment
+                $comment,
             );
         }
 
@@ -608,7 +608,7 @@ class DB2Platform extends AbstractPlatform
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $columnDiff->column->getQuotedName($this),
-                    $this->getColumnComment($columnDiff->column)
+                    $this->getColumnComment($columnDiff->column),
                 );
 
                 if (count($columnDiff->changedProperties) === 1) {
@@ -650,14 +650,14 @@ class DB2Platform extends AbstractPlatform
                 $sql[] = sprintf(
                     'RENAME TABLE %s TO %s',
                     $diff->getName($this)->getQuotedName($this),
-                    $newName->getQuotedName($this)
+                    $newName->getQuotedName($this),
                 );
             }
 
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff)
+                $this->getPostAlterTableIndexForeignKeySQL($diff),
             );
         }
 
@@ -860,7 +860,7 @@ class DB2Platform extends AbstractPlatform
         return sprintf(
             'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
             $query,
-            implode(' AND ', $where)
+            implode(' AND ', $where),
         );
     }
 
@@ -919,7 +919,7 @@ class DB2Platform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/1519',
-            'DB2Platform::prefersIdentityColumns() is deprecated.'
+            'DB2Platform::prefersIdentityColumns() is deprecated.',
         );
 
         return true;
@@ -966,15 +966,13 @@ class DB2Platform extends AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4510',
             'DB2Platform::getReservedKeywordsClass() is deprecated,'
-                . ' use DB2Platform::createReservedKeywordsList() instead.'
+                . ' use DB2Platform::createReservedKeywordsList() instead.',
         );
 
         return Keywords\DB2Keywords::class;
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
+    /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */
     public function getListTableCommentsSQL(string $table): string
     {
         return sprintf(
@@ -984,7 +982,7 @@ SELECT REMARKS
   WHERE NAME = UPPER( %s )
 SQL
             ,
-            $this->quoteStringLiteral($table)
+            $this->quoteStringLiteral($table),
         );
     }
 

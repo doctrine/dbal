@@ -19,9 +19,9 @@ class ExceptionTest extends TestCase
             sprintf(
                 "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
                 'is given to DriverManager::getConnection(). Given URL: %s',
-                $url
+                $url,
             ),
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 
@@ -32,7 +32,7 @@ class ExceptionTest extends TestCase
         self::assertSame(
             "Option 'platform' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform', "
                 . "instance of 'stdClass' given",
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 
@@ -43,7 +43,7 @@ class ExceptionTest extends TestCase
         self::assertSame(
             "Option 'platform' must be an object and subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform'. "
                 . "Got 'string'",
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 }

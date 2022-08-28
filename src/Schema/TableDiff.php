@@ -134,13 +134,11 @@ class TableDiff
     public function getName(AbstractPlatform $platform)
     {
         return new Identifier(
-            $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name
+            $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name,
         );
     }
 
-    /**
-     * @return Identifier|false
-     */
+    /** @return Identifier|false */
     public function getNewName()
     {
         if ($this->newName === false) {

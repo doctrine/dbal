@@ -20,8 +20,8 @@ final class NonTerminatedStringLiteral extends AbstractException
         return new self(
             sprintf(
                 'The statement contains non-terminated string literal starting at offset %d.',
-                $offset
-            )
+                $offset,
+            ),
         );
     }
 }

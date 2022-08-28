@@ -16,9 +16,7 @@ use ReflectionProperty;
 use function get_class;
 use function sprintf;
 
-/**
- * @template P of AbstractPlatform
- */
+/** @template P of AbstractPlatform */
 abstract class AbstractDriverTest extends TestCase
 {
     /**
@@ -44,8 +42,8 @@ abstract class AbstractDriverTest extends TestCase
             sprintf(
                 'No test data found for test %s. You have to return test data from %s.',
                 static::class . '::' . __FUNCTION__,
-                static::class . '::getDatabasePlatformsForVersions'
-            )
+                static::class . '::getDatabasePlatformsForVersions',
+            ),
         );
 
         foreach ($data as $item) {
@@ -58,8 +56,8 @@ abstract class AbstractDriverTest extends TestCase
                     'Expected platform for version "%s" should be "%s", "%s" given',
                     $item[0],
                     $item[1],
-                    $generatedVersion
-                )
+                    $generatedVersion,
+                ),
             );
         }
     }
@@ -84,7 +82,7 @@ abstract class AbstractDriverTest extends TestCase
         $connection    = $this->getConnectionMock();
         $schemaManager = $this->driver->getSchemaManager(
             $connection,
-            $this->createPlatform()
+            $this->createPlatform(),
         );
 
         self::assertEquals($this->createSchemaManager($connection), $schemaManager);
@@ -127,17 +125,13 @@ abstract class AbstractDriverTest extends TestCase
 
     abstract protected function createExceptionConverter(): ExceptionConverter;
 
-    /**
-     * @return Connection&MockObject
-     */
+    /** @return Connection&MockObject */
     protected function getConnectionMock(): Connection
     {
         return $this->createMock(Connection::class);
     }
 
-    /**
-     * @return array<int, array<int, string>>
-     */
+    /** @return array<int, array<int, string>> */
     protected function getDatabasePlatformsForVersions(): array
     {
         return [];

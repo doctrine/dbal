@@ -24,7 +24,7 @@ final class LoggingTest extends TestCase
     {
         $this->createConnection(
             $this->createStub(DriverConnection::class),
-            'UPDATE table SET foo = ?'
+            'UPDATE table SET foo = ?',
         )
             ->executeStatement('UPDATE table SET foo = ?');
     }

@@ -54,7 +54,7 @@ class CompositeExpression implements Countable
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/3864',
-            'Do not use CompositeExpression constructor directly, use static and() and or() factory methods.'
+            'Do not use CompositeExpression constructor directly, use static and() and or() factory methods.',
         );
     }
 
@@ -90,7 +90,7 @@ class CompositeExpression implements Countable
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3844',
-            'CompositeExpression::addMultiple() is deprecated, use CompositeExpression::with() instead.'
+            'CompositeExpression::addMultiple() is deprecated, use CompositeExpression::with() instead.',
         );
 
         foreach ($parts as $part) {
@@ -114,7 +114,7 @@ class CompositeExpression implements Countable
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3844',
-            'CompositeExpression::add() is deprecated, use CompositeExpression::with() instead.'
+            'CompositeExpression::add() is deprecated, use CompositeExpression::with() instead.',
         );
 
         if ($part === null) {

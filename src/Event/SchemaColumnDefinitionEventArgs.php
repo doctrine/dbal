@@ -53,41 +53,31 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
         return $this;
     }
 
-    /**
-     * @return Column|null
-     */
+    /** @return Column|null */
     public function getColumn()
     {
         return $this->column;
     }
 
-    /**
-     * @return mixed[]
-     */
+    /** @return mixed[] */
     public function getTableColumn()
     {
         return $this->tableColumn;
     }
 
-    /**
-     * @return string
-     */
+    /** @return string */
     public function getTable()
     {
         return $this->table;
     }
 
-    /**
-     * @return string
-     */
+    /** @return string */
     public function getDatabase()
     {
         return $this->database;
     }
 
-    /**
-     * @return Connection
-     */
+    /** @return Connection */
     public function getConnection()
     {
         return $this->connection;

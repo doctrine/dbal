@@ -103,7 +103,7 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4503',
             'PostgreSQLSchemaManager::getSchemaNames() is deprecated,'
-                . ' use PostgreSQLSchemaManager::listSchemaNames() instead.'
+                . ' use PostgreSQLSchemaManager::listSchemaNames() instead.',
         );
 
         return $this->listNamespaceNames();
@@ -120,7 +120,7 @@ SELECT schema_name
 FROM   information_schema.schemata
 WHERE  schema_name NOT LIKE 'pg\_%'
 AND    schema_name != 'information_schema'
-SQL
+SQL,
         );
     }
 
@@ -134,7 +134,7 @@ SQL
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4821',
-            'PostgreSQLSchemaManager::getSchemaSearchPaths() is deprecated.'
+            'PostgreSQLSchemaManager::getSchemaSearchPaths() is deprecated.',
         );
 
         $params = $this->_conn->getParams();
@@ -220,7 +220,7 @@ SQL
             preg_match(
                 '(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
                 $tableForeignKey['condef'],
-                $match
+                $match,
             ) === 1
         ) {
             $onUpdate = $match[1];
@@ -230,7 +230,7 @@ SQL
             preg_match(
                 '(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
                 $tableForeignKey['condef'],
-                $match
+                $match,
             ) === 1
         ) {
             $onDelete = $match[1];
@@ -250,7 +250,7 @@ SQL
             $foreignTable,
             $foreignColumns,
             $tableForeignKey['conname'],
-            ['onUpdate' => $onUpdate, 'onDelete' => $onDelete]
+            ['onUpdate' => $onUpdate, 'onDelete' => $onDelete],
         );
     }
 
@@ -289,7 +289,7 @@ SQL
             $columnNameSql = sprintf(
                 'SELECT attnum, attname FROM pg_attribute WHERE attrelid=%d AND attnum IN (%s) ORDER BY attnum ASC',
                 $row['indrelid'],
-                implode(' ,', $colNumbers)
+                implode(' ,', $colNumbers),
             );
 
             $indexColumns = $this->_conn->fetchAllAssociative($columnNameSql);
@@ -334,7 +334,7 @@ SQL
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4503',
             'PostgreSQLSchemaManager::getPortableNamespaceDefinition() is deprecated,'
-                . ' use PostgreSQLSchemaManager::listSchemaNames() instead.'
+                . ' use PostgreSQLSchemaManager::listSchemaNames() instead.',
         );
 
         return $namespace['nspname'];
@@ -484,7 +484,7 @@ SQL
                     preg_match(
                         '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
                         $tableColumn['complete_type'],
-                        $match
+                        $match,
                     ) === 1
                 ) {
                     $precision = $match[1];
@@ -508,7 +508,7 @@ SQL
             $tableColumn['default'] !== null && preg_match(
                 "('([^']+)'::)",
                 $tableColumn['default'],
-                $match
+                $match,
             ) === 1
         ) {
             $tableColumn['default'] = $match[1];
@@ -545,7 +545,7 @@ SQL
                     DEPRECATION,
                     get_class($column->getType()),
                     JsonType::class,
-                    Types::JSON
+                    Types::JSON,
                 );
             }
 

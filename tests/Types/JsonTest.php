@@ -75,9 +75,7 @@ class JsonTest extends TestCase
         $this->type->convertToPHPValue($data, $this->platform);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function providerFailure(): iterable
     {
         return [['a'], ['{']];
@@ -89,9 +87,9 @@ class JsonTest extends TestCase
         $databaseValue = fopen(
             'data://text/plain;base64,' . base64_encode(json_encode(
                 $value,
-                JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION
+                JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION,
             )),
-            'r'
+            'r',
         );
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
@@ -132,7 +130,7 @@ class JsonTest extends TestCase
         $this->expectException(ConversionException::class);
         $this->expectExceptionMessage(
             'Could not convert PHP type \'stdClass\' to \'json\', as an \'Recursion detected\' error'
-            . ' was triggered by the serialization'
+            . ' was triggered by the serialization',
         );
         $this->type->convertToDatabaseValue($object, $this->platform);
     }

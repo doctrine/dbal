@@ -11,9 +11,7 @@ use PDO;
 
 use function array_merge;
 
-/**
- * @requires extension pdo_sqlsrv
- */
+/** @requires extension pdo_sqlsrv */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void
@@ -37,9 +35,7 @@ class DriverTest extends AbstractDriverTest
         return 'master';
     }
 
-    /**
-     * @param int[]|string[] $driverOptions
-     */
+    /** @param int[]|string[] $driverOptions */
     private function getConnection(array $driverOptions): Connection
     {
         $params = TestUtil::getConnectionParams();
@@ -51,8 +47,8 @@ class DriverTest extends AbstractDriverTest
         return (new Driver())->connect(
             array_merge(
                 $params,
-                ['driverOptions' => $driverOptions]
-            )
+                ['driverOptions' => $driverOptions],
+            ),
         );
     }
 
@@ -72,7 +68,7 @@ class DriverTest extends AbstractDriverTest
             PDO::CASE_UPPER,
             $connection
                 ->getNativeConnection()
-                ->getAttribute(PDO::ATTR_CASE)
+                ->getAttribute(PDO::ATTR_CASE),
         );
     }
 }

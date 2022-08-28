@@ -17,7 +17,7 @@ final class FetchEmptyTest extends FunctionalTestCase
         $this->query = sprintf(
             'SELECT * FROM (%s) t WHERE 1 = 0',
             $this->connection->getDatabasePlatform()
-                ->getDummySelectSQL('1 c')
+                ->getDummySelectSQL('1 c'),
         );
     }
 

@@ -56,7 +56,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
         throw ConversionException::conversionFailedInvalidType(
             $value,
             $this->getName(),
-            ['null', 'DateTime']
+            ['null', 'DateTime'],
         );
     }
 
@@ -74,7 +74,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),
-                $platform->getDateTimeTzFormatString()
+                $platform->getDateTimeTzFormatString(),
             );
         }
 

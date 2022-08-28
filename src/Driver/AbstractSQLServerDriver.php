@@ -38,7 +38,7 @@ abstract class AbstractSQLServerDriver implements Driver
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5458',
             'AbstractSQLServerDriver::getSchemaManager() is deprecated.'
-                . ' Use SQLServerPlatform::createSchemaManager() instead.'
+                . ' Use SQLServerPlatform::createSchemaManager() instead.',
         );
 
         assert($platform instanceof SQLServerPlatform);

@@ -97,7 +97,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4753',
-            'PostgreSQLPlatform::getNowExpression() is deprecated. Generate dates within the application.'
+            'PostgreSQLPlatform::getNowExpression() is deprecated. Generate dates within the application.',
         );
 
         return 'LOCALTIMESTAMP(0)';
@@ -179,7 +179,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return 'public';
@@ -214,7 +214,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return true;
@@ -231,7 +231,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $tableName . '_' . $columnName . '_seq';
@@ -258,7 +258,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5509',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return true;
@@ -285,7 +285,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4503',
             'PostgreSQLPlatform::getListNamespacesSQL() is deprecated,'
-                . ' use PostgreSQLSchemaManager::listSchemaNames() instead.'
+                . ' use PostgreSQLSchemaManager::listSchemaNames() instead.',
         );
 
         return "SELECT schema_name AS nspname
@@ -388,7 +388,7 @@ WHERE oid IN (
     )
 SQL
             ,
-            $table
+            $table,
         );
     }
 
@@ -436,7 +436,7 @@ SQL
             $classAlias,
             $table,
             $namespaceAlias,
-            $schema
+            $schema,
         );
     }
 
@@ -539,7 +539,7 @@ SQL
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
                 $column->getQuotedName($this),
-                $comment
+                $comment,
             );
         }
 
@@ -621,7 +621,7 @@ SQL
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
-                    $newComment
+                    $newComment,
                 );
             }
 
@@ -656,14 +656,14 @@ SQL
                 $sql[] = sprintf(
                     'ALTER TABLE %s RENAME TO %s',
                     $diff->getName($this)->getQuotedName($this),
-                    $newName->getQuotedName($this)
+                    $newName->getQuotedName($this),
                 );
             }
 
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff)
+                $this->getPostAlterTableIndexForeignKeySQL($diff),
             );
         }
 
@@ -734,7 +734,7 @@ SQL
             'COMMENT ON COLUMN %s.%s IS %s',
             $tableName->getQuotedName($this),
             $columnName->getQuotedName($this),
-            $comment
+            $comment,
         );
     }
 
@@ -905,16 +905,14 @@ SQL
 
         return $this->doConvertBooleans(
             $item,
-            /**
-             * @param mixed $value
-             */
+            /** @param mixed $value */
             static function ($value) {
                 if ($value === null) {
                     return 'NULL';
                 }
 
                 return $value === true ? 'true' : 'false';
-            }
+            },
         );
     }
 
@@ -929,12 +927,10 @@ SQL
 
         return $this->doConvertBooleans(
             $item,
-            /**
-             * @param mixed $value
-             */
+            /** @param mixed $value */
             static function ($value): ?int {
                 return $value === null ? null : (int) $value;
-            }
+            },
         );
     }
 
@@ -1092,7 +1088,7 @@ SQL
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4749',
-            'PostgreSQLPlatform::getName() is deprecated. Identify platforms by their class.'
+            'PostgreSQLPlatform::getName() is deprecated. Identify platforms by their class.',
         );
 
         return 'postgresql';
@@ -1197,7 +1193,7 @@ SQL
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'PostgreSQLPlatform::getVarcharMaxLength() is deprecated.'
+            'PostgreSQLPlatform::getVarcharMaxLength() is deprecated.',
         );
 
         return 65535;
@@ -1211,7 +1207,7 @@ SQL
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'PostgreSQLPlatform::getBinaryMaxLength() is deprecated.'
+            'PostgreSQLPlatform::getBinaryMaxLength() is deprecated.',
         );
 
         return 0;
@@ -1227,7 +1223,7 @@ SQL
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'Relying on the default binary column length is deprecated, specify the length explicitly.'
+            'Relying on the default binary column length is deprecated, specify the length explicitly.',
         );
 
         return 0;
@@ -1244,7 +1240,7 @@ SQL
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5509',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return true;
@@ -1261,7 +1257,7 @@ SQL
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4510',
             'PostgreSQLPlatform::getReservedKeywordsClass() is deprecated,'
-                . ' use PostgreSQLPlatform::createReservedKeywordsList() instead.'
+                . ' use PostgreSQLPlatform::createReservedKeywordsList() instead.',
         );
 
         return Keywords\PostgreSQL94Keywords::class;
@@ -1326,9 +1322,7 @@ SQL
         return $columnDiff->fromColumn !== null ? $this->getColumnComment($columnDiff->fromColumn) : null;
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
+    /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */
     public function getListTableMetadataSQL(string $table, ?string $schema = null): string
     {
         if ($schema !== null) {
@@ -1340,7 +1334,7 @@ SQL
 SELECT obj_description(%s::regclass) AS table_comment;
 SQL
             ,
-            $this->quoteStringLiteral($table)
+            $this->quoteStringLiteral($table),
         );
     }
 

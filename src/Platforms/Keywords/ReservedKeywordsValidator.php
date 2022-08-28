@@ -15,9 +15,7 @@ use function count;
 use function implode;
 use function str_replace;
 
-/**
- * @deprecated Use database documentation instead.
- */
+/** @deprecated Use database documentation instead. */
 class ReservedKeywordsValidator implements Visitor
 {
     /** @var KeywordList[] */
@@ -26,23 +24,19 @@ class ReservedKeywordsValidator implements Visitor
     /** @var string[] */
     private array $violations = [];
 
-    /**
-     * @param KeywordList[] $keywordLists
-     */
+    /** @param KeywordList[] $keywordLists */
     public function __construct(array $keywordLists)
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5431',
-            'ReservedKeywordsValidator is deprecated. Use database documentation instead.'
+            'ReservedKeywordsValidator is deprecated. Use database documentation instead.',
         );
 
         $this->keywordLists = $keywordLists;
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     public function getViolations()
     {
         return $this->violations;
@@ -91,7 +85,7 @@ class ReservedKeywordsValidator implements Visitor
     {
         $this->addViolation(
             'Table ' . $table->getName() . ' column ' . $column->getName(),
-            $this->isReservedWord($column->getName())
+            $this->isReservedWord($column->getName()),
         );
     }
 
@@ -130,7 +124,7 @@ class ReservedKeywordsValidator implements Visitor
     {
         $this->addViolation(
             'Table ' . $table->getName(),
-            $this->isReservedWord($table->getName())
+            $this->isReservedWord($table->getName()),
         );
     }
 }

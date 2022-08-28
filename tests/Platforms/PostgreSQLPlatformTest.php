@@ -18,9 +18,7 @@ use UnexpectedValueException;
 
 use function sprintf;
 
-/**
- * @extends AbstractPlatformTestCase<PostgreSQLPlatform>
- */
+/** @extends AbstractPlatformTestCase<PostgreSQLPlatform> */
 class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
@@ -80,12 +78,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'my_table',
             ['id'],
             'my_fk',
-            ['onDelete' => 'CASCADE']
+            ['onDelete' => 'CASCADE'],
         );
         self::assertEquals(
             'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
                 . ' REFERENCES my_table (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE',
-            $this->platform->getForeignKeyDeclarationSQL($foreignKey)
+            $this->platform->getForeignKeyDeclarationSQL($foreignKey),
         );
 
         $foreignKey = new ForeignKeyConstraint(
@@ -93,12 +91,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'my_table',
             ['id'],
             'my_fk',
-            ['match' => 'full']
+            ['match' => 'full'],
         );
         self::assertEquals(
             'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
                 . ' REFERENCES my_table (id) MATCH full NOT DEFERRABLE INITIALLY IMMEDIATE',
-            $this->platform->getForeignKeyDeclarationSQL($foreignKey)
+            $this->platform->getForeignKeyDeclarationSQL($foreignKey),
         );
 
         $foreignKey = new ForeignKeyConstraint(
@@ -106,12 +104,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'my_table',
             ['id'],
             'my_fk',
-            ['deferrable' => true]
+            ['deferrable' => true],
         );
         self::assertEquals(
             'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
                 . ' REFERENCES my_table (id) DEFERRABLE INITIALLY IMMEDIATE',
-            $this->platform->getForeignKeyDeclarationSQL($foreignKey)
+            $this->platform->getForeignKeyDeclarationSQL($foreignKey),
         );
 
         $foreignKey = new ForeignKeyConstraint(
@@ -119,12 +117,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'my_table',
             ['id'],
             'my_fk',
-            ['deferred' => true]
+            ['deferred' => true],
         );
         self::assertEquals(
             'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
                 . ' REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
-            $this->platform->getForeignKeyDeclarationSQL($foreignKey)
+            $this->platform->getForeignKeyDeclarationSQL($foreignKey),
         );
 
         $foreignKey = new ForeignKeyConstraint(
@@ -132,12 +130,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'my_table',
             ['id'],
             'my_fk',
-            ['feferred' => true]
+            ['feferred' => true],
         );
         self::assertEquals(
             'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
                 . ' REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
-            $this->platform->getForeignKeyDeclarationSQL($foreignKey)
+            $this->platform->getForeignKeyDeclarationSQL($foreignKey),
         );
 
         $foreignKey = new ForeignKeyConstraint(
@@ -145,12 +143,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'my_table',
             ['id'],
             'my_fk',
-            ['deferrable' => true, 'deferred' => true, 'match' => 'full']
+            ['deferrable' => true, 'deferred' => true, 'match' => 'full'],
         );
         self::assertEquals(
             'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
                 . ' REFERENCES my_table (id) MATCH full DEFERRABLE INITIALLY DEFERRED',
-            $this->platform->getForeignKeyDeclarationSQL($foreignKey)
+            $this->platform->getForeignKeyDeclarationSQL($foreignKey),
         );
     }
 
@@ -161,7 +159,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
         self::assertEquals(
             'column1 || column2 || column3',
-            $this->platform->getConcatExpression('column1', 'column2', 'column3')
+            $this->platform->getConcatExpression('column1', 'column2', 'column3'),
         );
 
         self::assertEquals('SUBSTRING(column FROM 5)', $this->platform->getSubstringExpression('column', 5));
@@ -172,19 +170,19 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED),
         );
         self::assertEquals(
             'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED),
         );
         self::assertEquals(
             'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ),
         );
         self::assertEquals(
             'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE),
         );
     }
 
@@ -203,13 +201,11 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
         self::assertEquals(
             ['CREATE TABLE autoinc_table (id SERIAL NOT NULL)'],
-            $this->platform->getCreateTableSQL($table)
+            $this->platform->getCreateTableSQL($table),
         );
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function serialTypes(): iterable
     {
         return [
@@ -218,9 +214,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @dataProvider serialTypes
-     */
+    /** @dataProvider serialTypes */
     public function testGenerateTableWithAutoincrementDoesNotSetDefault(string $type, string $definition): void
     {
         $table  = new Table('autoinc_table_notnull');
@@ -233,9 +227,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals([sprintf('CREATE TABLE autoinc_table_notnull (id %s)', $definition)], $sql);
     }
 
-    /**
-     * @dataProvider serialTypes
-     */
+    /** @dataProvider serialTypes */
     public function testCreateTableWithAutoincrementAndNotNullAddsConstraint(string $type, string $definition): void
     {
         $table  = new Table('autoinc_table_notnull_enabled');
@@ -248,9 +240,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals([sprintf('CREATE TABLE autoinc_table_notnull_enabled (id %s NOT NULL)', $definition)], $sql);
     }
 
-    /**
-     * @dataProvider serialTypes
-     */
+    /** @dataProvider serialTypes */
     public function testGetDefaultValueDeclarationSQLIgnoresTheDefaultKeyWhenTheFieldIsSerial(string $type): void
     {
         $sql = $this->platform->getDefaultValueDeclarationSQL(
@@ -258,7 +248,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
                 'autoincrement' => true,
                 'type'          => Type::getType($type),
                 'default'       => 1,
-            ]
+            ],
         );
 
         self::assertSame('', $sql);
@@ -268,17 +258,17 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'INT',
-            $this->platform->getIntegerTypeDeclarationSQL([])
+            $this->platform->getIntegerTypeDeclarationSQL([]),
         );
         self::assertEquals(
             'SERIAL',
-            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true])
+            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true]),
         );
         self::assertEquals(
             'SERIAL',
             $this->platform->getIntegerTypeDeclarationSQL(
-                ['autoincrement' => true, 'primary' => true]
-            )
+                ['autoincrement' => true, 'primary' => true],
+            ),
         );
     }
 
@@ -287,16 +277,16 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'CHAR(10)',
             $this->platform->getStringTypeDeclarationSQL(
-                ['length' => 10, 'fixed' => true]
-            )
+                ['length' => 10, 'fixed' => true],
+            ),
         );
         self::assertEquals(
             'VARCHAR(50)',
-            $this->platform->getStringTypeDeclarationSQL(['length' => 50])
+            $this->platform->getStringTypeDeclarationSQL(['length' => 50]),
         );
         self::assertEquals(
             'VARCHAR(255)',
-            $this->platform->getStringTypeDeclarationSQL([])
+            $this->platform->getStringTypeDeclarationSQL([]),
         );
     }
 
@@ -310,15 +300,15 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $sequence = new Sequence('myseq', 20, 1);
         self::assertEquals(
             'CREATE SEQUENCE myseq INCREMENT BY 20 MINVALUE 1 START 1',
-            $this->platform->getCreateSequenceSQL($sequence)
+            $this->platform->getCreateSequenceSQL($sequence),
         );
         self::assertEquals(
             'DROP SEQUENCE myseq CASCADE',
-            $this->platform->getDropSequenceSQL('myseq')
+            $this->platform->getDropSequenceSQL('myseq'),
         );
         self::assertEquals(
             "SELECT NEXTVAL('myseq')",
-            $this->platform->getSequenceNextValSQL('myseq')
+            $this->platform->getSequenceNextValSQL('myseq'),
         );
     }
 
@@ -542,36 +532,36 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             new Column(
                 'dloo1',
                 Type::getType('decimal'),
-                ['precision' => 16, 'scale' => 6]
+                ['precision' => 16, 'scale' => 6],
             ),
-            ['precision']
+            ['precision'],
         );
         $tableDiff->changedColumns['dloo2'] = new ColumnDiff(
             'dloo2',
             new Column(
                 'dloo2',
                 Type::getType('decimal'),
-                ['precision' => 10, 'scale' => 4]
+                ['precision' => 10, 'scale' => 4],
             ),
-            ['scale']
+            ['scale'],
         );
         $tableDiff->changedColumns['dloo3'] = new ColumnDiff(
             'dloo3',
             new Column(
                 'dloo3',
                 Type::getType('decimal'),
-                ['precision' => 10, 'scale' => 6]
+                ['precision' => 10, 'scale' => 6],
             ),
-            []
+            [],
         );
         $tableDiff->changedColumns['dloo4'] = new ColumnDiff(
             'dloo4',
             new Column(
                 'dloo4',
                 Type::getType('decimal'),
-                ['precision' => 16, 'scale' => 8]
+                ['precision' => 16, 'scale' => 8],
             ),
-            ['precision', 'scale']
+            ['precision', 'scale'],
         );
 
         $sql = $this->platform->getAlterTableSQL($tableDiff);
@@ -619,18 +609,14 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertSame('mytable_mycolumn_seq', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
     }
 
-    /**
-     * @dataProvider dataCreateSequenceWithCache
-     */
+    /** @dataProvider dataCreateSequenceWithCache */
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
         $sequence = new Sequence('foo', 1, 1, $cacheSize);
         self::assertStringContainsString($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function dataCreateSequenceWithCache(): iterable
     {
         return [
@@ -814,7 +800,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'COMMENT ON COLUMN mytable.id IS NULL',
-            $this->platform->getCommentOnColumnSQL('mytable', 'id', null)
+            $this->platform->getCommentOnColumnSQL('mytable', 'id', null),
         );
     }
 
@@ -875,7 +861,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertSame(
             ['COMMENT ON COLUMN "foo"."bar" IS \'baz\''],
-            $this->platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff),
         );
     }
 
@@ -894,7 +880,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
                 'ALTER TABLE "foo" ALTER "bar" TYPE TIMESTAMP(0) WITHOUT TIME ZONE',
                 'COMMENT ON COLUMN "foo"."bar" IS \'(DC2Type:datetime_immutable)\'',
             ],
-            $this->platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff),
         );
     }
 
@@ -939,7 +925,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"),
         );
     }
 
@@ -947,7 +933,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table")
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
         );
     }
 
@@ -955,7 +941,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableConstraintsSQL("Foo'Bar\\")
+            $this->platform->getListTableConstraintsSQL("Foo'Bar\\"),
         );
     }
 
@@ -963,7 +949,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\"),
         );
     }
 
@@ -971,7 +957,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table")
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
         );
     }
 
@@ -979,7 +965,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
+            $this->platform->getListTableColumnsSQL("Foo'Bar\\"),
         );
     }
 
@@ -987,7 +973,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table")
+            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
         );
     }
 
@@ -1007,7 +993,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
                 'ALTER TABLE foo ADD CONSTRAINT test_unique_constraint UNIQUE (id)',
             ],
             $this->platform->getCreateTableSQL($table),
-            'Unique constraints are added to table.'
+            'Unique constraints are added to table.',
         );
     }
 
@@ -1022,7 +1008,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
                 "COMMENT ON TABLE foo IS 'foo'",
             ],
             $this->platform->getCreateTableSQL($table),
-            'Comments are added to table.'
+            'Comments are added to table.',
         );
     }
 
@@ -1030,7 +1016,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'COLLATE "en_US.UTF-8"',
-            $this->platform->getColumnCollationDeclarationSQL('en_US.UTF-8')
+            $this->platform->getColumnCollationDeclarationSQL('en_US.UTF-8'),
         );
     }
 
@@ -1050,17 +1036,17 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         self::assertSame(
             'SMALLSERIAL',
-            $this->platform->getSmallIntTypeDeclarationSQL(['autoincrement' => true])
+            $this->platform->getSmallIntTypeDeclarationSQL(['autoincrement' => true]),
         );
 
         self::assertSame(
             'SMALLINT',
-            $this->platform->getSmallIntTypeDeclarationSQL(['autoincrement' => false])
+            $this->platform->getSmallIntTypeDeclarationSQL(['autoincrement' => false]),
         );
 
         self::assertSame(
             'SMALLINT',
-            $this->platform->getSmallIntTypeDeclarationSQL([])
+            $this->platform->getSmallIntTypeDeclarationSQL([]),
         );
     }
 

@@ -14,9 +14,7 @@ final class Statement extends AbstractStatementMiddleware
 {
     private PDOStatement $statement;
 
-    /**
-     * @internal The statement can be only instantiated by its driver connection.
-     */
+    /** @internal The statement can be only instantiated by its driver connection. */
     public function __construct(PDOStatement $statement)
     {
         parent::__construct($statement);
@@ -46,7 +44,7 @@ final class Statement extends AbstractStatementMiddleware
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5563',
             '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         if (func_num_args() < 3) {
@@ -54,7 +52,7 @@ final class Statement extends AbstractStatementMiddleware
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5558',
                 'Not passing $type to Statement::bindParam() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
+                    . ' Pass the type corresponding to the parameter being bound.',
             );
         }
 
@@ -62,7 +60,7 @@ final class Statement extends AbstractStatementMiddleware
             Deprecation::triggerIfCalledFromOutside(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4533',
-                'The $driverOptions argument of Statement::bindParam() is deprecated.'
+                'The $driverOptions argument of Statement::bindParam() is deprecated.',
             );
         }
 
@@ -93,7 +91,7 @@ final class Statement extends AbstractStatementMiddleware
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5558',
                 'Not passing $type to Statement::bindValue() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
+                    . ' Pass the type corresponding to the parameter being bound.',
             );
         }
 

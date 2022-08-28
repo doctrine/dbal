@@ -9,22 +9,18 @@ use function key;
 
 class QuotingTest extends FunctionalTestCase
 {
-    /**
-     * @dataProvider stringLiteralProvider
-     */
+    /** @dataProvider stringLiteralProvider */
     public function testQuoteStringLiteral(string $string): void
     {
         $platform = $this->connection->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL(
-            $platform->quoteStringLiteral($string)
+            $platform->quoteStringLiteral($string),
         );
 
         self::assertSame($string, $this->connection->fetchOne($query));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function stringLiteralProvider(): iterable
     {
         return [
@@ -33,22 +29,18 @@ class QuotingTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider identifierProvider
-     */
+    /** @dataProvider identifierProvider */
     public function testQuoteIdentifier(string $identifier): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        /**
-         * @link https://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
-         */
+        /** @link https://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm */
         if ($platform instanceof OraclePlatform && $identifier === '"') {
             self::markTestSkipped('Oracle does not support double quotes in identifiers');
         }
 
         $query = $platform->getDummySelectSQL(
-            'NULL AS ' . $platform->quoteIdentifier($identifier)
+            'NULL AS ' . $platform->quoteIdentifier($identifier),
         );
 
         $row = $this->connection->fetchAssociative($query);
@@ -57,9 +49,7 @@ class QuotingTest extends FunctionalTestCase
         self::assertSame($identifier, key($row));
     }
 
-    /**
-     * @return iterable<string,array{0:string}>
-     */
+    /** @return iterable<string,array{0:string}> */
     public static function identifierProvider(): iterable
     {
         return [

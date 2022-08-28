@@ -57,7 +57,7 @@ class ConversionException extends Exception
             'Could not convert database value "' . $value . '" to Doctrine Type ' .
             $toType . '. Expected format: ' . $expectedFormat,
             0,
-            $previous
+            $previous,
         );
     }
 
@@ -81,7 +81,7 @@ class ConversionException extends Exception
                 'Could not convert PHP value %s to type %s. Expected one of the following types: %s',
                 var_export($value, true),
                 $toType,
-                implode(', ', $possibleTypes)
+                implode(', ', $possibleTypes),
             ), 0, $previous);
         }
 
@@ -89,7 +89,7 @@ class ConversionException extends Exception
             'Could not convert PHP value of type %s to type %s. Expected one of the following types: %s',
             is_object($value) ? get_class($value) : gettype($value),
             $toType,
-            implode(', ', $possibleTypes)
+            implode(', ', $possibleTypes),
         ), 0, $previous);
     }
 
@@ -108,7 +108,7 @@ class ConversionException extends Exception
             "Could not convert PHP type '%s' to '%s', as an '%s' error was triggered by the serialization",
             $actualType,
             $format,
-            $error
+            $error,
         ), 0, func_num_args() >= 4 ? func_get_arg(3) : null);
     }
 
@@ -117,7 +117,7 @@ class ConversionException extends Exception
         return new self(sprintf(
             "Could not convert database value to '%s' as an error was triggered by the unserialization: '%s'",
             $format,
-            $error
+            $error,
         ));
     }
 }

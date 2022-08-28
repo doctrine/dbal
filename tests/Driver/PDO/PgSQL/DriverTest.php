@@ -30,31 +30,31 @@ class DriverTest extends AbstractPostgreSQLDriverTest
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertTrue(
-            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES)
+            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES),
         );
     }
 
     public function testConnectionDoesNotDisablePreparesWhenAttributeDefined(): void
     {
         $connection = $this->connect(
-            [\PDO::PGSQL_ATTR_DISABLE_PREPARES => false]
+            [\PDO::PGSQL_ATTR_DISABLE_PREPARES => false],
         );
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertNotTrue(
-            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES)
+            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES),
         );
     }
 
     public function testConnectionDisablePreparesWhenDisablePreparesIsExplicitlyDefined(): void
     {
         $connection = $this->connect(
-            [\PDO::PGSQL_ATTR_DISABLE_PREPARES => true]
+            [\PDO::PGSQL_ATTR_DISABLE_PREPARES => true],
         );
 
         self::assertInstanceOf(PDO\Connection::class, $connection);
         self::assertTrue(
-            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES)
+            $connection->getNativeConnection()->getAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES),
         );
     }
 
@@ -63,16 +63,14 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         return new Driver();
     }
 
-    /**
-     * @param array<int,mixed> $driverOptions
-     */
+    /** @param array<int,mixed> $driverOptions */
     private function connect(array $driverOptions): Connection
     {
         return $this->createDriver()->connect(
             array_merge(
                 TestUtil::getConnectionParams(),
-                ['driverOptions' => $driverOptions]
-            )
+                ['driverOptions' => $driverOptions],
+            ),
         );
     }
 }

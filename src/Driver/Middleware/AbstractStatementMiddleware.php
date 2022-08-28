@@ -28,7 +28,7 @@ abstract class AbstractStatementMiddleware implements Statement
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5558',
                 'Not passing $type to Statement::bindValue() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
+                    . ' Pass the type corresponding to the parameter being bound.',
             );
         }
 
@@ -46,7 +46,7 @@ abstract class AbstractStatementMiddleware implements Statement
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5563',
             '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         if (func_num_args() < 3) {
@@ -54,7 +54,7 @@ abstract class AbstractStatementMiddleware implements Statement
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5558',
                 'Not passing $type to Statement::bindParam() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
+                    . ' Pass the type corresponding to the parameter being bound.',
             );
         }
 

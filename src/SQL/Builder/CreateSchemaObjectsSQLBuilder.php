@@ -29,7 +29,7 @@ final class CreateSchemaObjectsSQLBuilder
         return array_merge(
             $this->buildNamespaceStatements($schema->getNamespaces()),
             $this->buildSequenceStatements($schema->getSequences()),
-            $this->buildTableStatements($schema->getTables())
+            $this->buildTableStatements($schema->getTables()),
         );
     }
 

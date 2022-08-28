@@ -33,16 +33,14 @@ class MariaDBPlatform extends MySQLPlatform
         return 'LONGTEXT';
     }
 
-    /**
-     * @deprecated Implement {@see createReservedKeywordsList()} instead.
-     */
+    /** @deprecated Implement {@see createReservedKeywordsList()} instead. */
     protected function getReservedKeywordsClass(): string
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4510',
             'MariaDb1027Platform::getReservedKeywordsClass() is deprecated,'
-                . ' use MariaDb1027Platform::createReservedKeywordsList() instead.'
+                . ' use MariaDb1027Platform::createReservedKeywordsList() instead.',
         );
 
         return Keywords\MariaDb102Keywords::class;

@@ -73,7 +73,7 @@ class Configuration
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4967',
             '%s is deprecated, use setMiddlewares() and Logging\\Middleware instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         $this->sqlLogger = $logger;
@@ -90,7 +90,7 @@ class Configuration
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4967',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $this->sqlLogger;
@@ -115,7 +115,7 @@ class Configuration
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4620',
             '%s is deprecated, call getResultCache() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $this->resultCacheImpl;
@@ -141,7 +141,7 @@ class Configuration
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4620',
             '%s is deprecated, call setResultCache() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         $this->resultCacheImpl = $cacheImpl;
@@ -158,7 +158,7 @@ class Configuration
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5483',
                 'Not passing an argument to %s is deprecated.',
-                __METHOD__
+                __METHOD__,
             );
         } elseif ($callable === null) {
             Deprecation::trigger(
@@ -220,9 +220,7 @@ class Configuration
         return $this;
     }
 
-    /**
-     * @return Middleware[]
-     */
+    /** @return Middleware[] */
     public function getMiddlewares(): array
     {
         return $this->middlewares;

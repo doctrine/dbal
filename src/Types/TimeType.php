@@ -57,7 +57,7 @@ class TimeType extends Type
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),
-                $platform->getTimeFormatString()
+                $platform->getTimeFormatString(),
             );
         }
 

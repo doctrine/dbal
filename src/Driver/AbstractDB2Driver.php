@@ -37,7 +37,7 @@ abstract class AbstractDB2Driver implements Driver
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5458',
             'AbstractDB2Driver::getSchemaManager() is deprecated.'
-                . ' Use DB2Platform::createSchemaManager() instead.'
+                . ' Use DB2Platform::createSchemaManager() instead.',
         );
 
         assert($platform instanceof DB2Platform);

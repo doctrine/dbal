@@ -31,7 +31,7 @@ class RemoveNamespacedAssets extends AbstractVisitor
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5432',
             'RemoveNamespacedAssets is deprecated. Do not use namespaces'
-                . " if the target database platform doesn't support them."
+                . " if the target database platform doesn't support them.",
         );
     }
 

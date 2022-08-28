@@ -8,9 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 
-/**
- * @internal
- */
+/** @internal */
 final class ConnectionCollationMetadataProvider implements CollationMetadataProvider
 {
     /** @var Connection */
@@ -21,9 +19,7 @@ final class ConnectionCollationMetadataProvider implements CollationMetadataProv
         $this->connection = $connection;
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function getCollationCharset(string $collation): ?string
     {
         $charset = $this->connection->fetchOne(
@@ -33,7 +29,7 @@ FROM information_schema.COLLATIONS
 WHERE COLLATION_NAME = ?;
 SQL
             ,
-            [$collation]
+            [$collation],
         );
 
         if ($charset !== false) {

@@ -128,7 +128,7 @@ class StatementTest extends TestCase
         $this->driverStatement->expects(self::once())
             ->method('execute')
             ->will(self::throwException(
-                $this->createMock(DriverException::class)
+                $this->createMock(DriverException::class),
             ));
 
         $statement = new Statement($this->conn, $this->driverStatement, '');

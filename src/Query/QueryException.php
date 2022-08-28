@@ -6,9 +6,7 @@ use Doctrine\DBAL\Exception;
 
 use function implode;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 class QueryException extends Exception
 {
     /**

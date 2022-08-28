@@ -139,7 +139,7 @@ class DataAccessTest extends FunctionalTestCase
         $data = $this->connection->fetchAllAssociative(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+            [ParameterType::STRING, Types::DATETIME_MUTABLE],
         );
 
         self::assertCount(1, $data);
@@ -174,7 +174,7 @@ class DataAccessTest extends FunctionalTestCase
         $row = $this->connection->fetchAssociative(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+            [ParameterType::STRING, Types::DATETIME_MUTABLE],
         );
 
         self::assertNotFalse($row);
@@ -204,7 +204,7 @@ class DataAccessTest extends FunctionalTestCase
         $row = $this->connection->fetchNumeric(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+            [ParameterType::STRING, Types::DATETIME_MUTABLE],
         );
 
         self::assertNotFalse($row);
@@ -237,7 +237,7 @@ class DataAccessTest extends FunctionalTestCase
         $column = $this->connection->fetchOne(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+            [ParameterType::STRING, Types::DATETIME_MUTABLE],
         );
 
         self::assertIsString($column);
@@ -250,7 +250,7 @@ class DataAccessTest extends FunctionalTestCase
         $value = $this->connection->fetchOne(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
             [new DateTime('2010-01-01 10:10:10')],
-            [Types::DATETIME_MUTABLE]
+            [Types::DATETIME_MUTABLE],
         );
 
         self::assertEquals(1, $value);
@@ -275,7 +275,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $this->connection->executeQuery(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
             [$datetime],
-            [Types::DATETIME_MUTABLE]
+            [Types::DATETIME_MUTABLE],
         )->fetchOne());
     }
 
@@ -302,7 +302,7 @@ class DataAccessTest extends FunctionalTestCase
         $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_int IN (?)',
             [[100, 101, 102, 103, 104]],
-            [Connection::PARAM_INT_ARRAY]
+            [Connection::PARAM_INT_ARRAY],
         );
 
         $data = $result->fetchAllNumeric();
@@ -312,7 +312,7 @@ class DataAccessTest extends FunctionalTestCase
         $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_string IN (?)',
             [['foo100', 'foo101', 'foo102', 'foo103', 'foo104']],
-            [Connection::PARAM_STR_ARRAY]
+            [Connection::PARAM_STR_ARRAY],
         );
 
         $data = $result->fetchAllNumeric();
@@ -338,9 +338,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals($expectedResult, $row['trimmed']);
     }
 
-    /**
-     * @return array<int, array<int, mixed>>
-     */
+    /** @return array<int, array<int, mixed>> */
     public static function getTrimExpressionData(): iterable
     {
         return [

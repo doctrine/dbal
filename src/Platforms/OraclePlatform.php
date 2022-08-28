@@ -78,7 +78,7 @@ class OraclePlatform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4753',
-            'OraclePlatform::getNowExpression() is deprecated. Generate dates within the application.'
+            'OraclePlatform::getNowExpression() is deprecated. Generate dates within the application.',
         );
 
         switch ($type) {
@@ -189,7 +189,7 @@ class OraclePlatform extends AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
 
             $table = $table->getQuotedName($this);
@@ -364,7 +364,7 @@ class OraclePlatform extends AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3263',
                 'Relying on the default string column length on Oracle is deprecated'
-                    . ', specify the length explicitly.'
+                    . ', specify the length explicitly.',
             );
         }
 
@@ -382,7 +382,7 @@ class OraclePlatform extends AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3263',
                 'Relying on the default binary column length on Oracle is deprecated'
-                . ', specify the length explicitly.'
+                . ', specify the length explicitly.',
             );
         }
 
@@ -399,7 +399,7 @@ class OraclePlatform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'OraclePlatform::getBinaryMaxLength() is deprecated.'
+            'OraclePlatform::getBinaryMaxLength() is deprecated.',
         );
 
         return 2000;
@@ -569,7 +569,7 @@ END;";
 
         $sequenceName = $this->getIdentitySequenceName(
             $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName,
-            $nameIdentifier->isQuoted() ? $quotedName : $unquotedName
+            $nameIdentifier->isQuoted() ? $quotedName : $unquotedName,
         );
         $sequence     = new Sequence($sequenceName, $start);
         $sql[]        = $this->getCreateSequenceSQL($sequence);
@@ -614,7 +614,7 @@ END;';
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);
         $identitySequenceName        = $this->getIdentitySequenceName(
             $table->isQuoted() ? $table->getQuotedName($this) : $table->getName(),
-            ''
+            '',
         );
 
         return [
@@ -759,7 +759,7 @@ SQL
             $colCommentsOwnerCondition,
             $tabColumnsTableName,
             $table,
-            $tabColumnsOwnerCondition
+            $tabColumnsOwnerCondition,
         );
     }
 
@@ -774,7 +774,7 @@ SQL
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $foreignKey as a ForeignKeyConstraint object to %s is deprecated.'
                 . ' Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
         } else {
             $foreignKey = new Identifier($foreignKey);
@@ -785,7 +785,7 @@ SQL
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
         } else {
             $table = new Identifier($table);
@@ -885,7 +885,7 @@ SQL
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
                 $column->getQuotedName($this),
-                $comment
+                $comment,
             );
         }
 
@@ -935,7 +935,7 @@ SQL
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
                 $column->getQuotedName($this),
-                $this->getColumnComment($column)
+                $this->getColumnComment($column),
             );
         }
 
@@ -980,14 +980,14 @@ SQL
                 $sql[] = sprintf(
                     'ALTER TABLE %s RENAME TO %s',
                     $diff->getName($this)->getQuotedName($this),
-                    $newName->getQuotedName($this)
+                    $newName->getQuotedName($this),
                 );
             }
 
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff)
+                $this->getPostAlterTableIndexForeignKeySQL($diff),
             );
         }
 
@@ -1049,7 +1049,7 @@ SQL
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return true;
@@ -1094,7 +1094,7 @@ SQL
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4749',
-            'OraclePlatform::getName() is deprecated. Identify platforms by their class.'
+            'OraclePlatform::getName() is deprecated. Identify platforms by their class.',
         );
 
         return 'oracle';
@@ -1261,7 +1261,7 @@ SQL
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4510',
             'OraclePlatform::getReservedKeywordsClass() is deprecated,'
-            . ' use OraclePlatform::createReservedKeywordsList() instead.'
+            . ' use OraclePlatform::createReservedKeywordsList() instead.',
         );
 
         return Keywords\OracleKeywords::class;
@@ -1275,9 +1275,7 @@ SQL
         return 'BLOB';
     }
 
-    /**
-     * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
-     */
+    /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */
     public function getListTableCommentsSQL(string $table, ?string $database = null): string
     {
         $tableCommentsName = 'user_tab_comments';
@@ -1286,7 +1284,7 @@ SQL
         if ($database !== null && $database !== '/') {
             $tableCommentsName = 'all_tab_comments';
             $ownerCondition    = ' AND owner = ' . $this->quoteStringLiteral(
-                $this->normalizeIdentifier($database)->getName()
+                $this->normalizeIdentifier($database)->getName(),
             );
         }
 
@@ -1297,7 +1295,7 @@ SQL
             ,
             $tableCommentsName,
             $this->quoteStringLiteral($this->normalizeIdentifier($table)->getName()),
-            $ownerCondition
+            $ownerCondition,
         );
     }
 

@@ -30,25 +30,19 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
         $this->platform  = $platform;
     }
 
-    /**
-     * @return Column
-     */
+    /** @return Column */
     public function getColumn()
     {
         return $this->column;
     }
 
-    /**
-     * @return TableDiff
-     */
+    /** @return TableDiff */
     public function getTableDiff()
     {
         return $this->tableDiff;
     }
 
-    /**
-     * @return AbstractPlatform
-     */
+    /** @return AbstractPlatform */
     public function getPlatform()
     {
         return $this->platform;
@@ -68,7 +62,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3580',
                 'Passing multiple SQL statements as an array to SchemaAlterTableAddColumnEventaArrgs::addSql() ' .
-                'is deprecated. Pass each statement as an individual argument instead.'
+                'is deprecated. Pass each statement as an individual argument instead.',
             );
         }
 
@@ -77,9 +71,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
         return $this;
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     public function getSql()
     {
         return $this->sql;

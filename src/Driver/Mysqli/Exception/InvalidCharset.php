@@ -23,7 +23,7 @@ final class InvalidCharset extends AbstractException
         return new self(
             sprintf('Failed to set charset "%s": %s', $charset, $connection->error),
             $connection->sqlstate,
-            $connection->errno
+            $connection->errno,
         );
     }
 
@@ -36,7 +36,7 @@ final class InvalidCharset extends AbstractException
             sprintf('Failed to set charset "%s": %s', $charset, $exception->getMessage()),
             $p->getValue($exception),
             (int) $exception->getCode(),
-            $exception
+            $exception,
         );
     }
 }

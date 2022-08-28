@@ -37,7 +37,7 @@ abstract class AbstractSQLiteDriver implements Driver
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5458',
             'AbstractSQLiteDriver::getSchemaManager() is deprecated.'
-                . ' Use SqlitePlatform::createSchemaManager() instead.'
+                . ' Use SqlitePlatform::createSchemaManager() instead.',
         );
 
         assert($platform instanceof SqlitePlatform);

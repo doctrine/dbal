@@ -21,7 +21,7 @@ class MySQL80Keywords extends MySQL57Keywords
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5433',
-            'MySQL80Keywords::getName() is deprecated.'
+            'MySQL80Keywords::getName() is deprecated.',
         );
 
         return 'MySQL80';

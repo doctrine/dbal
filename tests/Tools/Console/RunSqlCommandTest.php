@@ -56,7 +56,7 @@ class RunSqlCommandTest extends TestCase
 
         self::assertStringEqualsFile(
             __DIR__ . '/Fixtures/select-1.txt',
-            str_replace("\r\n", "\n", $this->commandTester->getDisplay())
+            str_replace("\r\n", "\n", $this->commandTester->getDisplay()),
         );
     }
 
@@ -80,7 +80,7 @@ class RunSqlCommandTest extends TestCase
 
         self::assertStringContainsString(
             '[OK] The query yielded an empty result set.',
-            $this->commandTester->getDisplay()
+            $this->commandTester->getDisplay(),
         );
     }
 
@@ -132,7 +132,7 @@ class RunSqlCommandTest extends TestCase
 
         self::assertStringEqualsFile(
             __DIR__ . '/Fixtures/select-1.txt',
-            str_replace("\r\n", "\n", $this->commandTester->getDisplay())
+            str_replace("\r\n", "\n", $this->commandTester->getDisplay()),
         );
     }
 }

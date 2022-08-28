@@ -19,7 +19,7 @@ class PostgreSQLKeywords extends KeywordList
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5433',
-            'PostgreSQLKeywords::getName() is deprecated.'
+            'PostgreSQLKeywords::getName() is deprecated.',
         );
 
         return 'PostgreSQL';

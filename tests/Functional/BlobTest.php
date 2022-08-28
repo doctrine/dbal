@@ -156,7 +156,7 @@ class BlobTest extends FunctionalTestCase
         }
 
         $stmt = $this->connection->prepare(
-            "INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)"
+            "INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)",
         );
 
         $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);
@@ -179,9 +179,7 @@ class BlobTest extends FunctionalTestCase
         self::assertEquals($text, stream_get_contents($blobValue));
     }
 
-    /**
-     * @return list<mixed>
-     */
+    /** @return list<mixed> */
     private function fetchRow(): array
     {
         $rows = $this->connection->fetchAllNumeric('SELECT clobcolumn, blobcolumn FROM blob_table');

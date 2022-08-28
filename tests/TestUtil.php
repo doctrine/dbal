@@ -75,9 +75,7 @@ class TestUtil
         return $connection;
     }
 
-    /**
-     * @return mixed[]
-     */
+    /** @return mixed[] */
     public static function getConnectionParams(): array
     {
         if (self::hasRequiredConnectionParams()) {
@@ -135,9 +133,7 @@ class TestUtil
         $privConn->close();
     }
 
-    /**
-     * @return mixed[]
-     */
+    /** @return mixed[] */
     private static function getFallbackConnectionParams(): array
     {
         if (! extension_loaded('pdo_sqlite')) {
@@ -151,9 +147,7 @@ class TestUtil
         ];
     }
 
-    /**
-     * @param list<string> $subscribers
-     */
+    /** @param list<string> $subscribers */
     private static function addDbEventSubscribers(Connection $connection, array $subscribers): void
     {
         $evm = $connection->getEventManager();
@@ -163,7 +157,7 @@ class TestUtil
                 throw new InvalidArgumentException(sprintf(
                     '"%s" is not a valid event subscriber. It must be a class that implements "%s".',
                     $subscriber,
-                    EventSubscriber::class
+                    EventSubscriber::class,
                 ));
             }
 
@@ -171,9 +165,7 @@ class TestUtil
         }
     }
 
-    /**
-     * @return mixed[]
-     */
+    /** @return mixed[] */
     private static function getPrivilegedConnectionParameters(): array
     {
         if (isset($GLOBALS['tmpdb_driver'])) {
@@ -186,9 +178,7 @@ class TestUtil
         return $parameters;
     }
 
-    /**
-     * @return mixed[]
-     */
+    /** @return mixed[] */
     private static function getTestConnectionParameters(): array
     {
         return self::mapConnectionParameters($GLOBALS, 'db_');
@@ -266,7 +256,7 @@ class TestUtil
                     }
 
                     return $value . ' ' . $platform->quoteIdentifier($column);
-                }, array_keys($row), array_values($row)))
+                }, array_keys($row), array_values($row))),
             );
         }, $rows));
     }

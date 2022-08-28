@@ -38,7 +38,7 @@ abstract class AbstractOracleDriver implements Driver
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5458',
             'AbstractOracleDriver::getSchemaManager() is deprecated.'
-                . ' Use OraclePlatform::createSchemaManager() instead.'
+                . ' Use OraclePlatform::createSchemaManager() instead.',
         );
 
         assert($platform instanceof OraclePlatform);

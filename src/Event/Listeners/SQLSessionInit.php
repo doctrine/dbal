@@ -15,9 +15,7 @@ class SQLSessionInit implements EventSubscriber
     /** @var string */
     protected $sql;
 
-    /**
-     * @param string $sql
-     */
+    /** @param string $sql */
     public function __construct($sql)
     {
         $this->sql = $sql;

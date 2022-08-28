@@ -19,7 +19,7 @@ class SQLiteKeywords extends KeywordList
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5433',
-            'SQLiteKeywords::getName() is deprecated.'
+            'SQLiteKeywords::getName() is deprecated.',
         );
 
         return 'SQLite';

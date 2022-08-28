@@ -20,14 +20,10 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
 
-/**
- * @internal
- */
+/** @internal */
 final class ExceptionConverter implements ExceptionConverterInterface
 {
-    /**
-     * @link http://www.dba-oracle.com/t_error_code_list.htm
-     */
+    /** @link http://www.dba-oracle.com/t_error_code_list.htm */
     public function convert(Exception $exception, ?Query $query): DriverException
     {
         switch ($exception->getCode()) {

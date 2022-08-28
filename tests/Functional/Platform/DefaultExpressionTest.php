@@ -65,8 +65,8 @@ class DefaultExpressionTest extends FunctionalTestCase
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO default_expr_test (actual_value) VALUES (%s)',
-                $defaultSql
-            )
+                $defaultSql,
+            ),
         );
 
         $row = $this->connection->fetchNumeric('SELECT default_value, actual_value FROM default_expr_test');

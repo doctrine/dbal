@@ -26,9 +26,7 @@ final class Statement extends AbstractStatementMiddleware
     /** @var array<int,int>|array<string,int> */
     private array $types = [];
 
-    /**
-     * @internal This statement can be only instantiated by its connection.
-     */
+    /** @internal This statement can be only instantiated by its connection. */
     public function __construct(StatementInterface $statement, LoggerInterface $logger, string $sql)
     {
         parent::__construct($statement);
@@ -48,7 +46,7 @@ final class Statement extends AbstractStatementMiddleware
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5563',
             '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         if (func_num_args() < 3) {
@@ -56,7 +54,7 @@ final class Statement extends AbstractStatementMiddleware
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5558',
                 'Not passing $type to Statement::bindParam() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
+                    . ' Pass the type corresponding to the parameter being bound.',
             );
         }
 
@@ -76,7 +74,7 @@ final class Statement extends AbstractStatementMiddleware
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5558',
                 'Not passing $type to Statement::bindValue() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
+                    . ' Pass the type corresponding to the parameter being bound.',
             );
         }
 
