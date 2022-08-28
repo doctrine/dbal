@@ -717,10 +717,34 @@ The following methods have been removed.
 
 # Upgrade to 3.5
 
-## Deprecated `AbstractSchemaManager::listTableDetails()`.
+## Deprecated `ColumnDiff` APIs dedicated to the old column name.
 
-The `AbstractSchemaManager::listTableDetails()` methods has been deprecated.
-Use `AbstractSchemaManager::getTable()` instead.
+The `$oldColumnName` property and the `getOldColumnName()` method of the `ColumnDiff` class have been deprecated.
+
+Make sure the `$fromColumn` argument is passed to the `ColumnDiff` constructor and use the `$fromColumn` property
+instead.
+
+## Marked schema diff constructors as internal.
+
+The constructors of the following classes have been marked as internal:
+
+1. `SchemaDiff`,
+2. `TableDiff`,
+3. `ColumnDiff`.
+
+These classes can be instantiated only by schema comparators. The signatures of the constructors may change in future
+versions.
+
+## Marked `AbstractSchemaManager::_execSql()` as internal.
+
+The `AbstractSchemaManager::_execSql()` method has been marked as internal. It will not be available in 4.0.
+
+## Deprecated `AbstractSchemaManager` schema introspection methods.
+
+The following `AbstractSchemaManager` methods has been deprecated:
+
+1. `listTableDetails()`. Use `introspectTable()` instead,
+2. `createSchema()`. Use `introspectSchema()` instead.
 
 # Upgrade to 3.4
 

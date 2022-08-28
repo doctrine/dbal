@@ -180,7 +180,7 @@ SQL;
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($table);
 
-        self::assertSame('', $sm->getTable('own_column_comment')
+        self::assertSame('', $sm->introspectTable('own_column_comment')
             ->getColumn('col1')
             ->getComment());
     }
@@ -203,7 +203,7 @@ SQL;
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $table1 = $schemaManager->getTable('nodes');
+        $table1 = $schemaManager->introspectTable('nodes');
         $table2 = clone $table1;
         $table2->addIndex(['name'], 'idx_name');
 
@@ -213,7 +213,7 @@ SQL;
 
         $schemaManager->alterTable($diff);
 
-        $table = $schemaManager->getTable('nodes');
+        $table = $schemaManager->introspectTable('nodes');
         $index = $table->getIndex('idx_name');
         self::assertSame(['name'], $index->getColumns());
     }
@@ -249,7 +249,7 @@ SQL;
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $song        = $schemaManager->getTable('song');
+        $song        = $schemaManager->introspectTable('song');
         $foreignKeys = $song->getForeignKeys();
         self::assertCount(2, $foreignKeys);
 
@@ -285,7 +285,7 @@ SQL;
         DDL;
 
         $this->connection->executeStatement($ddl);
-        $notes = $this->schemaManager->getTable('notes');
+        $notes = $this->schemaManager->introspectTable('notes');
 
         $foreignKeys = $notes->getForeignKeys();
         self::assertCount(1, $foreignKeys);

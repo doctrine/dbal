@@ -323,10 +323,6 @@ class DB2Platform extends AbstractPlatform
                     $columnDiff->column->getQuotedName($this),
                     $columnDiff->column->getComment()
                 );
-
-                if (count($columnDiff->changedProperties) === 1) {
-                    continue;
-                }
             }
 
             $this->gatherAlterColumnSQL($diff->getName($this), $columnDiff, $sql, $queryParts);

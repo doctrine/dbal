@@ -120,8 +120,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->createTable($offlinePrimaryTable);
         $this->schemaManager->createTable($offlineForeignTable);
 
-        $onlinePrimaryTable = $this->schemaManager->getTable($primaryTableName);
-        $onlineForeignTable = $this->schemaManager->getTable($foreignTableName);
+        $onlinePrimaryTable = $this->schemaManager->introspectTable($primaryTableName);
+        $onlineForeignTable = $this->schemaManager->introspectTable($foreignTableName);
 
         $platform = $this->connection->getDatabasePlatform();
 
@@ -272,7 +272,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $fromSchema = $schemaManager->createSchema();
+        $fromSchema = $schemaManager->introspectSchema();
         $toSchema   = clone $fromSchema;
 
         $toSchema->getTable('"tester"')->dropColumn('"name"');

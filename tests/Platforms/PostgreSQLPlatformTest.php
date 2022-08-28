@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -479,69 +478,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $schemaName = 'schema';
         $sql        = $this->platform->getCreateSchemaSQL($schemaName);
         self::assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
-    }
-
-    public function testAlterDecimalPrecisionScale(): void
-    {
-        $table = new Table('mytable');
-        $table->addColumn('dfoo1', 'decimal');
-        $table->addColumn('dfoo2', 'decimal', ['precision' => 10, 'scale' => 6]);
-        $table->addColumn('dfoo3', 'decimal', ['precision' => 10, 'scale' => 6]);
-        $table->addColumn('dfoo4', 'decimal', ['precision' => 10, 'scale' => 6]);
-
-        $tableDiff            = new TableDiff('mytable');
-        $tableDiff->fromTable = $table;
-
-        $tableDiff->changedColumns['dloo1'] = new ColumnDiff(
-            'dloo1',
-            new Column(
-                'dloo1',
-                Type::getType('decimal'),
-                ['precision' => 16, 'scale' => 6]
-            ),
-            ['precision'],
-            $table->getColumn('dfoo1')
-        );
-        $tableDiff->changedColumns['dloo2'] = new ColumnDiff(
-            'dloo2',
-            new Column(
-                'dloo2',
-                Type::getType('decimal'),
-                ['precision' => 10, 'scale' => 4]
-            ),
-            ['scale'],
-            $table->getColumn('dfoo2')
-        );
-        $tableDiff->changedColumns['dloo3'] = new ColumnDiff(
-            'dloo3',
-            new Column(
-                'dloo3',
-                Type::getType('decimal'),
-                ['precision' => 10, 'scale' => 6]
-            ),
-            [],
-            $table->getColumn('dfoo3')
-        );
-        $tableDiff->changedColumns['dloo4'] = new ColumnDiff(
-            'dloo4',
-            new Column(
-                'dloo4',
-                Type::getType('decimal'),
-                ['precision' => 16, 'scale' => 8]
-            ),
-            ['precision', 'scale'],
-            $table->getColumn('dfoo4')
-        );
-
-        $sql = $this->platform->getAlterTableSQL($tableDiff);
-
-        $expectedSql = [
-            'ALTER TABLE mytable ALTER dloo1 TYPE NUMERIC(16, 6)',
-            'ALTER TABLE mytable ALTER dloo2 TYPE NUMERIC(10, 4)',
-            'ALTER TABLE mytable ALTER dloo4 TYPE NUMERIC(16, 8)',
-        ];
-
-        self::assertEquals($expectedSql, $sql);
     }
 
     public function testDroppingConstraintsBeforeColumns(): void

@@ -49,7 +49,9 @@ class TableDiff
     public array $removedForeignKeys = [];
 
     /**
-     * Constructs an TableDiff object.
+     * Constructs a TableDiff object.
+     *
+     * @internal The diff can be only instantiated by a {@see Comparator}.
      *
      * @param array<string, Column>     $addedColumns
      * @param array<string, ColumnDiff> $changedColumns

@@ -396,22 +396,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertEquals($this->getCreateTableColumnCommentsSQL(), $this->platform->getCreateTableSQL($table));
     }
 
-    public function testAlterTableColumnComments(): void
-    {
-        $foo = new Column('foo', Type::getType('string'), ['length' => 255]);
-        $bar = new Column('baz', Type::getType('string'), [
-            'length'  => 255,
-            'comment' => 'B comment',
-        ]);
-
-        $tableDiff                        = new TableDiff('mytable');
-        $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['comment' => 'A comment']);
-        $tableDiff->changedColumns['foo'] = new ColumnDiff('foo', $foo, ['comment'], $foo);
-        $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $bar, ['comment'], $bar);
-
-        self::assertEquals($this->getAlterTableColumnCommentsSQL(), $this->platform->getAlterTableSQL($tableDiff));
-    }
-
     /**
      * @return string[]
      */

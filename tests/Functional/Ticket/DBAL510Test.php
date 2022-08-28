@@ -28,7 +28,7 @@ class DBAL510Test extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         $schemaManager = $this->connection->createSchemaManager();
-        $onlineTable   = $schemaManager->getTable('dbal510tbl');
+        $onlineTable   = $schemaManager->introspectTable('dbal510tbl');
 
         $diff = $schemaManager->createComparator()
             ->diffTable($onlineTable, $table);

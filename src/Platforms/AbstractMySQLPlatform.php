@@ -356,7 +356,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $columnArray = $column->toArray();
 
             $columnArray['comment'] = $column->getComment();
-            $queryParts[]           =  'CHANGE ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
+            $queryParts[]           =  'CHANGE ' . $columnDiff->fromColumn->getQuotedName($this) . ' '
                 . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 

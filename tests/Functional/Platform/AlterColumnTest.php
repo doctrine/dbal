@@ -25,12 +25,12 @@ class AlterColumnTest extends FunctionalTestCase
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
-            ->diffTable($sm->getTable('test_alter'), $table);
+            ->diffTable($sm->introspectTable('test_alter'), $table);
 
         self::assertNotNull($diff);
         $sm->alterTable($diff);
 
-        $table   = $sm->getTable('test_alter');
+        $table   = $sm->introspectTable('test_alter');
         $columns = $table->getColumns();
 
         self::assertCount(2, $columns);

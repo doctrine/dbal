@@ -50,6 +50,8 @@ class SchemaDiff
     /**
      * Constructs an SchemaDiff object.
      *
+     * @internal The diff can be only instantiated by a {@see Comparator}.
+     *
      * @param array<string, Table>     $newTables
      * @param array<string, TableDiff> $changedTables
      * @param array<string, Table>     $removedTables
@@ -71,7 +73,7 @@ class SchemaDiff
      *
      * This way it is ensured that assets are deleted which might not be relevant to the metadata schema at all.
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     public function toSaveSql(AbstractPlatform $platform): array
     {
@@ -79,7 +81,7 @@ class SchemaDiff
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function toSql(AbstractPlatform $platform): array
     {
@@ -87,7 +89,7 @@ class SchemaDiff
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     protected function _toSql(AbstractPlatform $platform, bool $saveMode = false): array
     {

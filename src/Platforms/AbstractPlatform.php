@@ -1283,7 +1283,7 @@ abstract class AbstractPlatform
      *
      * This method returns an array of SQL statements, since some platforms need several statements.
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     abstract public function getAlterTableSQL(TableDiff $diff): array;
 

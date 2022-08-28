@@ -25,12 +25,12 @@ class RenameColumnTest extends FunctionalTestCase
 
         $sm   =  $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
-            ->diffTable($sm->getTable('test_rename'), $table);
+            ->diffTable($sm->introspectTable('test_rename'), $table);
 
         self::assertNotNull($diff);
         $sm->alterTable($diff);
 
-        $table   = $sm->getTable('test_rename');
+        $table   = $sm->introspectTable('test_rename');
         $columns = $table->getColumns();
 
         self::assertCount(2, $columns);

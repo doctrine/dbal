@@ -59,14 +59,14 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     public function renameTable(string $name, string $newName): void
     {
         $tableDiff            = new TableDiff($name);
-        $tableDiff->fromTable = $this->getTable($name);
+        $tableDiff->fromTable = $this->introspectTable($name);
         $tableDiff->newName   = $newName;
         $this->alterTable($tableDiff);
     }
 
     public function createForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
     {
-        $table = $this->getTable($table);
+        $table = $this->introspectTable($table);
 
         $tableDiff = $this->getTableDiffForAlterForeignKey($table);
 
@@ -77,7 +77,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
     public function dropForeignKey(string $name, string $table): void
     {
-        $table = $this->getTable($table);
+        $table = $this->introspectTable($table);
 
         $tableDiff                       = $this->getTableDiffForAlterForeignKey($table);
         $tableDiff->removedForeignKeys[] = $table->getForeignKey($name);
