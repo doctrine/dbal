@@ -9,11 +9,9 @@ use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
@@ -353,73 +351,6 @@ SQL
                 . ' REFERENCES "foo-bar" ("create", bar, "foo-bar")',
             'CREATE INDEX IDX_22660D028FD6E0FB8C736521D79164E3 ON "quoted" ("create", foo, "bar")',
         ];
-    }
-
-    public function testAlterTableNotNULL(): void
-    {
-        $tableDiff = new TableDiff('mytable');
-
-        $foo = new Column(
-            'foo',
-            Type::getType('string'),
-            [
-                'length' => 255,
-                'default' => 'bla',
-                'notnull' => true,
-            ]
-        );
-
-        $bar = new Column(
-            'baz',
-            Type::getType('string'),
-            [
-                'length' => 255,
-                'default' => 'bla',
-                'notnull' => true,
-            ]
-        );
-
-        $baz = new Column(
-            'baz',
-            Type::getType('string'),
-            [
-                'length' => 255,
-                'default' => 'bla',
-                'notnull' => true,
-            ]
-        );
-
-        $metar = new Column(
-            'metar',
-            Type::getType('string'),
-            [
-                'length' => 2000,
-                'notnull' => false,
-            ]
-        );
-
-        $tableDiff->changedColumns['foo'] = new ColumnDiff(
-            'foo',
-            $foo,
-            ['type'],
-            $foo
-        );
-
-        $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $bar, ['type', 'notnull'], $baz);
-
-        $tableDiff->changedColumns['metar'] = new ColumnDiff(
-            'metar',
-            $metar,
-            ['notnull'],
-            $metar
-        );
-
-        $expectedSql = [
-            "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, "
-                . 'metar VARCHAR2(2000) DEFAULT NULL NULL)',
-        ];
-
-        self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
     public function testInitializesDoctrineTypeMappings(): void
