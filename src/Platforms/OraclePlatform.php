@@ -572,22 +572,20 @@ END;';
 
             $column = $columnDiff->column;
 
-            $columnHasChangedComment = $columnDiff->hasChanged('comment');
+            $columnInfo = $column->toArray();
+            $fromSQL    = $this->getColumnDeclarationSQL('', $columnDiff->fromColumn->toArray());
+            $currentSQL = $this->getColumnDeclarationSQL('', $columnInfo);
 
-            /**
-             * Do not add query part if only comment has changed
-             */
-            if (! ($columnHasChangedComment && count($columnDiff->changedProperties) === 1)) {
-                $columnInfo = $column->toArray();
-
+            if ($currentSQL !== $fromSQL) {
                 if (! $columnDiff->hasChanged('notnull')) {
                     unset($columnInfo['notnull']);
+                    $currentSQL = $this->getColumnDeclarationSQL('', $columnInfo);
                 }
 
                 $modifyColumnSQL[] = $column->getQuotedName($this) . $currentSQL;
             }
 
-            if (! $columnHasChangedComment) {
+            if (! $columnDiff->hasChanged('comment')) {
                 continue;
             }
 

@@ -249,7 +249,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table = new Table('mytable');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'string');
+        $table->addColumn('bar', 'string', ['length' => 32]);
         $table->addColumn('bloo', 'boolean');
         $table->setPrimaryKey(['id']);
 
