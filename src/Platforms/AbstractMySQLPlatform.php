@@ -440,7 +440,8 @@ SQL
                     'doctrine/dbal',
                     'https://github.com/doctrine/dbal/pull/5414',
                     'Relying on the DBAL not generating DDL for foreign keys on MySQL engines'
-                        . ' other than InnoDB is deprecated. Define foreign key constraints only if they are necessary.',
+                        . ' other than InnoDB is deprecated.'
+                        . ' Define foreign key constraints only if they are necessary.',
                 );
             }
         }
@@ -497,7 +498,8 @@ SQL
                     'doctrine/dbal',
                     'https://github.com/doctrine/dbal/pull/5414',
                     'Relying on the DBAL not generating DDL for foreign keys on MySQL engines'
-                        . ' other than InnoDB is deprecated. Define foreign key constraints only if they are necessary.',
+                    . ' other than InnoDB is deprecated.'
+                    . ' Define foreign key constraints only if they are necessary.',
                 );
             }
         }

@@ -172,7 +172,8 @@ class Statement
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4580',
-            'Statement::execute() is deprecated, use Statement::executeQuery() or Statement::executeStatement() instead',
+            '%s() is deprecated, use Statement::executeQuery() or Statement::executeStatement() instead',
+            __METHOD__,
         );
 
         if ($params !== null) {
