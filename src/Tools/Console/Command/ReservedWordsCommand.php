@@ -31,9 +31,7 @@ use function implode;
 use function is_array;
 use function is_string;
 
-/**
- * @deprecated Use database documentation instead.
- */
+/** @deprecated Use database documentation instead. */
 class ReservedWordsCommand extends Command
 {
     /** @var array<string,KeywordList> */
@@ -46,7 +44,7 @@ class ReservedWordsCommand extends Command
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5431',
-            'ReservedWordsCommand is deprecated. Use database documentation instead.'
+            'ReservedWordsCommand is deprecated. Use database documentation instead.',
         );
 
         parent::__construct();
@@ -88,7 +86,7 @@ class ReservedWordsCommand extends Command
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4510',
             'ReservedWordsCommand::setKeywordListClass() is deprecated,'
-                . ' use ReservedWordsCommand::setKeywordList() instead.'
+                . ' use ReservedWordsCommand::setKeywordList() instead.',
         );
 
         $this->keywordLists[$name] = new $class();
@@ -106,10 +104,10 @@ class ReservedWordsCommand extends Command
                 'list',
                 'l',
                 InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'Keyword-List name.'
+                'Keyword-List name.',
             ),
         ])
-        ->setHelp(<<<EOT
+        ->setHelp(<<<'EOT'
 Checks if the current database contains tables and columns
 with names that are identifiers in this dialect or in other SQL dialects.
 
@@ -134,8 +132,7 @@ The following keyword lists are currently shipped with Doctrine:
     * pgsql100
     * sqlite
     * sqlserver
-EOT
-        );
+EOT);
     }
 
     /**
@@ -149,7 +146,7 @@ EOT
     {
         $output->writeln(
             '<comment>The <info>dbal:reserved-words</info> command is deprecated.</comment>'
-                . ' Use the documentation on the used database platform(s) instead.'
+                . ' Use the documentation on the used database platform(s) instead.',
         );
         $output->writeln('');
 
@@ -172,7 +169,7 @@ EOT
             if (! isset($this->keywordLists[$keywordList])) {
                 throw new InvalidArgumentException(
                     "There exists no keyword list with name '" . $keywordList . "'. " .
-                    'Known lists: ' . implode(', ', array_keys($this->keywordLists))
+                    'Known lists: ' . implode(', ', array_keys($this->keywordLists)),
                 );
             }
 
@@ -181,7 +178,7 @@ EOT
 
         $output->write(
             'Checking keyword violations for <comment>' . implode(', ', $keywordLists) . '</comment>...',
-            true
+            true,
         );
 
         $schema  = $conn->getSchemaManager()->createSchema();
@@ -193,7 +190,7 @@ EOT
             $output->write(
                 'There are <error>' . count($violations) . '</error> reserved keyword violations'
                 . ' in your database schema:',
-                true
+                true,
             );
 
             foreach ($violations as $violation) {

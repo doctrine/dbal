@@ -97,7 +97,7 @@ final class Connection implements ServerInfoAwareConnection
             Deprecation::triggerIfCalledFromOutside(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4687',
-                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
+                'The usage of Connection::lastInsertId() with a sequence name is deprecated.',
             );
 
             $result = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?')
@@ -136,9 +136,7 @@ final class Connection implements ServerInfoAwareConnection
         return true;
     }
 
-    /**
-     * @return resource
-     */
+    /** @return resource */
     public function getNativeConnection()
     {
         return $this->connection;

@@ -267,7 +267,7 @@ abstract class AbstractPlatform
                     'Binary column length %d is greater than supported by the platform (%d).'
                         . ' Reduce the column length or use a BLOB column instead.',
                     $column['length'],
-                    $maxLength
+                    $maxLength,
                 );
             }
 
@@ -416,7 +416,7 @@ abstract class AbstractPlatform
 
         if (! isset($this->doctrineTypeMapping[$dbType])) {
             throw new Exception(
-                'Unknown database type ' . $dbType . ' requested, ' . static::class . ' may not support it.'
+                'Unknown database type ' . $dbType . ' requested, ' . static::class . ' may not support it.',
             );
         }
 
@@ -454,7 +454,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5058',
             '%s is deprecated and will be removed in Doctrine DBAL 4.0.',
-            __METHOD__
+            __METHOD__,
         );
 
         $this->doctrineTypeComments = [];
@@ -483,7 +483,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5058',
             '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         if ($this->doctrineTypeComments === null) {
@@ -506,7 +506,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5058',
             '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         if ($this->doctrineTypeComments === null) {
@@ -531,7 +531,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5107',
             '%s is deprecated and will be removed in Doctrine DBAL 4.0.',
-            __METHOD__
+            __METHOD__,
         );
 
         return '(DC2Type:' . $doctrineType->getName() . ')';
@@ -550,7 +550,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5107',
             '%s is deprecated and will be removed in Doctrine DBAL 4.0.',
-            __METHOD__
+            __METHOD__,
         );
 
         $comment = $column->getComment();
@@ -574,7 +574,7 @@ abstract class AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5388',
-            'AbstractPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.'
+            'AbstractPlatform::getIdentifierQuoteCharacter() is deprecated. Use quoteIdentifier() instead.',
         );
 
         return '"';
@@ -592,7 +592,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getSqlCommentStartString() is deprecated.'
+            'AbstractPlatform::getSqlCommentStartString() is deprecated.',
         );
 
         return '--';
@@ -610,7 +610,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getSqlCommentEndString() is deprecated.'
+            'AbstractPlatform::getSqlCommentEndString() is deprecated.',
         );
 
         return "\n";
@@ -626,7 +626,7 @@ abstract class AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'AbstractPlatform::getCharMaxLength() is deprecated.'
+            'AbstractPlatform::getCharMaxLength() is deprecated.',
         );
 
         return $this->getVarcharMaxLength();
@@ -644,7 +644,7 @@ abstract class AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'AbstractPlatform::getVarcharMaxLength() is deprecated.'
+            'AbstractPlatform::getVarcharMaxLength() is deprecated.',
         );
 
         return 4000;
@@ -662,7 +662,7 @@ abstract class AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'Relying on the default varchar column length is deprecated, specify the length explicitly.'
+            'Relying on the default varchar column length is deprecated, specify the length explicitly.',
         );
 
         return 255;
@@ -680,7 +680,7 @@ abstract class AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'AbstractPlatform::getBinaryMaxLength() is deprecated.'
+            'AbstractPlatform::getBinaryMaxLength() is deprecated.',
         );
 
         return 4000;
@@ -698,7 +698,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'Relying on the default binary column length is deprecated, specify the length explicitly.'
+            'Relying on the default binary column length is deprecated, specify the length explicitly.',
         );
 
         return 255;
@@ -717,7 +717,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
             'AbstractPlatform::getWildcards() is deprecated.'
-            . ' Use AbstractPlatform::getLikeWildcardCharacters() instead.'
+            . ' Use AbstractPlatform::getLikeWildcardCharacters() instead.',
         );
 
         return ['%', '_'];
@@ -749,7 +749,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getAvgExpression() is deprecated. Use AVG() in SQL instead.'
+            'AbstractPlatform::getAvgExpression() is deprecated. Use AVG() in SQL instead.',
         );
 
         return 'AVG(' . $column . ')';
@@ -771,7 +771,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getCountExpression() is deprecated. Use COUNT() in SQL instead.'
+            'AbstractPlatform::getCountExpression() is deprecated. Use COUNT() in SQL instead.',
         );
 
         return 'COUNT(' . $column . ')';
@@ -791,7 +791,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getMaxExpression() is deprecated. Use MAX() in SQL instead.'
+            'AbstractPlatform::getMaxExpression() is deprecated. Use MAX() in SQL instead.',
         );
 
         return 'MAX(' . $column . ')';
@@ -811,7 +811,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getMinExpression() is deprecated. Use MIN() in SQL instead.'
+            'AbstractPlatform::getMinExpression() is deprecated. Use MIN() in SQL instead.',
         );
 
         return 'MIN(' . $column . ')';
@@ -831,7 +831,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getSumExpression() is deprecated. Use SUM() in SQL instead.'
+            'AbstractPlatform::getSumExpression() is deprecated. Use SUM() in SQL instead.',
         );
 
         return 'SUM(' . $column . ')';
@@ -855,7 +855,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getMd5Expression() is deprecated.'
+            'AbstractPlatform::getMd5Expression() is deprecated.',
         );
 
         return 'MD5(' . $column . ')';
@@ -887,7 +887,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getSqrtExpression() is deprecated. Use SQRT() in SQL instead.'
+            'AbstractPlatform::getSqrtExpression() is deprecated. Use SQRT() in SQL instead.',
         );
 
         return 'SQRT(' . $column . ')';
@@ -908,7 +908,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getRoundExpression() is deprecated. Use ROUND() in SQL instead.'
+            'AbstractPlatform::getRoundExpression() is deprecated. Use ROUND() in SQL instead.',
         );
 
         return 'ROUND(' . $column . ', ' . $decimals . ')';
@@ -979,7 +979,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getRtrimExpression() is deprecated. Use RTRIM() in SQL instead.'
+            'AbstractPlatform::getRtrimExpression() is deprecated. Use RTRIM() in SQL instead.',
         );
 
         return 'RTRIM(' . $str . ')';
@@ -999,7 +999,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getLtrimExpression() is deprecated. Use LTRIM() in SQL instead.'
+            'AbstractPlatform::getLtrimExpression() is deprecated. Use LTRIM() in SQL instead.',
         );
 
         return 'LTRIM(' . $str . ')';
@@ -1020,7 +1020,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getUpperExpression() is deprecated. Use UPPER() in SQL instead.'
+            'AbstractPlatform::getUpperExpression() is deprecated. Use UPPER() in SQL instead.',
         );
 
         return 'UPPER(' . $str . ')';
@@ -1041,7 +1041,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getLowerExpression() is deprecated. Use LOWER() in SQL instead.'
+            'AbstractPlatform::getLowerExpression() is deprecated. Use LOWER() in SQL instead.',
         );
 
         return 'LOWER(' . $str . ')';
@@ -1075,7 +1075,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4753',
-            'AbstractPlatform::getNowExpression() is deprecated. Generate dates within the application.'
+            'AbstractPlatform::getNowExpression() is deprecated. Generate dates within the application.',
         );
 
         return 'NOW()';
@@ -1137,7 +1137,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getNotExpression() is deprecated. Use NOT() in SQL instead.'
+            'AbstractPlatform::getNotExpression() is deprecated. Use NOT() in SQL instead.',
         );
 
         return 'NOT(' . $expression . ')';
@@ -1157,7 +1157,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getIsNullExpression() is deprecated. Use IS NULL in SQL instead.'
+            'AbstractPlatform::getIsNullExpression() is deprecated. Use IS NULL in SQL instead.',
         );
 
         return $expression . ' IS NULL';
@@ -1177,7 +1177,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getIsNotNullExpression() is deprecated. Use IS NOT NULL in SQL instead.'
+            'AbstractPlatform::getIsNotNullExpression() is deprecated. Use IS NOT NULL in SQL instead.',
         );
 
         return $expression . ' IS NOT NULL';
@@ -1205,7 +1205,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getBetweenExpression() is deprecated. Use BETWEEN in SQL instead.'
+            'AbstractPlatform::getBetweenExpression() is deprecated. Use BETWEEN in SQL instead.',
         );
 
         return $expression . ' BETWEEN ' . $value1 . ' AND ' . $value2;
@@ -1225,7 +1225,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getAcosExpression() is deprecated. Use ACOS() in SQL instead.'
+            'AbstractPlatform::getAcosExpression() is deprecated. Use ACOS() in SQL instead.',
         );
 
         return 'ACOS(' . $value . ')';
@@ -1245,7 +1245,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getSinExpression() is deprecated. Use SIN() in SQL instead.'
+            'AbstractPlatform::getSinExpression() is deprecated. Use SIN() in SQL instead.',
         );
 
         return 'SIN(' . $value . ')';
@@ -1263,7 +1263,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getPiExpression() is deprecated. Use PI() in SQL instead.'
+            'AbstractPlatform::getPiExpression() is deprecated. Use PI() in SQL instead.',
         );
 
         return 'PI()';
@@ -1283,7 +1283,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getCosExpression() is deprecated. Use COS() in SQL instead.'
+            'AbstractPlatform::getCosExpression() is deprecated. Use COS() in SQL instead.',
         );
 
         return 'COS(' . $value . ')';
@@ -1322,7 +1322,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $seconds as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $seconds as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1345,7 +1345,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $seconds as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $seconds as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1368,7 +1368,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $minutes as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $minutes as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1391,7 +1391,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $minutes as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $minutes as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1414,7 +1414,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $hours as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $hours as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1437,7 +1437,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $hours as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $hours as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1460,7 +1460,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $days as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $days as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1483,7 +1483,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $days as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $days as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1506,7 +1506,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $weeks as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $weeks as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1529,7 +1529,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $weeks as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $weeks as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1552,7 +1552,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $months as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $months as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1575,7 +1575,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $months as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $months as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1598,7 +1598,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $quarters as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $quarters as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1621,7 +1621,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $quarters as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $quarters as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1644,7 +1644,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $years as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $years as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1667,7 +1667,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/3498',
-                'Passing $years as an integer is deprecated. Pass it as a numeric string instead.'
+                'Passing $years as an integer is deprecated. Pass it as a numeric string instead.',
             );
         }
 
@@ -1799,7 +1799,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
 
             $table = $table->getQuotedName($this);
@@ -1807,7 +1807,7 @@ abstract class AbstractPlatform
 
         if (! is_string($table)) {
             throw new InvalidArgumentException(
-                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
+                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.',
             );
         }
 
@@ -1843,7 +1843,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
 
             $table = $table->getQuotedName($this);
@@ -1869,13 +1869,13 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $index as an Index object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
 
             $index = $index->getQuotedName($this);
         } elseif (! is_string($index)) {
             throw new InvalidArgumentException(
-                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.',
             );
         }
 
@@ -1899,7 +1899,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $constraint as a Constraint object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
         } else {
             $constraint = new Identifier($constraint);
@@ -1910,7 +1910,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
         } else {
             $table = new Identifier($table);
@@ -1938,7 +1938,7 @@ abstract class AbstractPlatform
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $foreignKey as a ForeignKeyConstraint object to %s is deprecated.'
                     . ' Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
         } else {
             $foreignKey = new Identifier($foreignKey);
@@ -1949,7 +1949,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
         } else {
             $table = new Identifier($table);
@@ -1985,7 +1985,7 @@ abstract class AbstractPlatform
     {
         if (! is_int($createFlags)) {
             throw new InvalidArgumentException(
-                'Second argument of AbstractPlatform::getCreateTableSQL() has to be integer.'
+                'Second argument of AbstractPlatform::getCreateTableSQL() has to be integer.',
             );
         }
 
@@ -1993,7 +1993,7 @@ abstract class AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5416',
-                'Unsetting the CREATE_INDEXES flag in AbstractPlatform::getCreateTableSQL() is deprecated.'
+                'Unsetting the CREATE_INDEXES flag in AbstractPlatform::getCreateTableSQL() is deprecated.',
             );
         }
 
@@ -2003,14 +2003,14 @@ abstract class AbstractPlatform
                 'https://github.com/doctrine/dbal/pull/5416',
                 'Not setting the CREATE_FOREIGNKEYS flag in AbstractPlatform::getCreateTableSQL()'
                     . ' is deprecated. In order to build the statements that create multiple tables'
-                    . ' referencing each other via foreign keys, use AbstractPlatform::getCreateTablesSQL().'
+                    . ' referencing each other via foreign keys, use AbstractPlatform::getCreateTablesSQL().',
             );
         }
 
         return $this->buildCreateTableSQL(
             $table,
             ($createFlags & self::CREATE_INDEXES) > 0,
-            ($createFlags & self::CREATE_FOREIGNKEYS) > 0
+            ($createFlags & self::CREATE_FOREIGNKEYS) > 0,
         );
     }
 
@@ -2146,7 +2146,7 @@ abstract class AbstractPlatform
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL(
                     $foreignKey,
-                    $table->getQuotedName($this)
+                    $table->getQuotedName($this),
                 );
             }
         }
@@ -2167,7 +2167,7 @@ abstract class AbstractPlatform
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL(
                     $foreignKey->getQuotedName($this),
-                    $table->getQuotedName($this)
+                    $table->getQuotedName($this),
                 );
             }
         }
@@ -2186,7 +2186,7 @@ abstract class AbstractPlatform
         return sprintf(
             'COMMENT ON TABLE %s IS %s',
             $tableName->getQuotedName($this),
-            $this->quoteStringLiteral((string) $comment)
+            $this->quoteStringLiteral((string) $comment),
         );
     }
 
@@ -2206,7 +2206,7 @@ abstract class AbstractPlatform
             'COMMENT ON COLUMN %s.%s IS %s',
             $tableName->getQuotedName($this),
             $columnName->getQuotedName($this),
-            $this->quoteStringLiteral((string) $comment)
+            $this->quoteStringLiteral((string) $comment),
         );
     }
 
@@ -2277,9 +2277,7 @@ abstract class AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @return string
-     */
+    /** @return string */
     public function getCreateTemporaryTableSnippetSQL()
     {
         return 'CREATE TEMPORARY TABLE';
@@ -2329,7 +2327,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $sequence as a Sequence object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
 
             $sequence = $sequence->getQuotedName($this);
@@ -2357,7 +2355,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
 
             $table = $table->getQuotedName($this);
@@ -2375,7 +2373,7 @@ abstract class AbstractPlatform
                 $query .= ' UNIQUE';
             } else {
                 throw new InvalidArgumentException(
-                    'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
+                    'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().',
                 );
             }
         } elseif ($constraint instanceof UniqueConstraint) {
@@ -2408,7 +2406,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
 
             $table = $table->getQuotedName($this);
@@ -2469,7 +2467,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
 
             $table = $table->getQuotedName($this);
@@ -2571,7 +2569,7 @@ abstract class AbstractPlatform
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4798',
                 'Passing $table as a Table object to %s is deprecated. Pass it as a quoted name instead.',
-                __METHOD__
+                __METHOD__,
             );
 
             $table = $table->getQuotedName($this);
@@ -2710,9 +2708,7 @@ abstract class AbstractPlatform
         return $eventArgs->isDefaultPrevented();
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         $tableName = $diff->getName($this)->getQuotedName($this);
@@ -2743,9 +2739,7 @@ abstract class AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         $sql     = [];
@@ -2779,7 +2773,7 @@ abstract class AbstractPlatform
             $oldIndexName = new Identifier($oldIndexName);
             $sql          = array_merge(
                 $sql,
-                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName)
+                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName),
             );
         }
 
@@ -3067,7 +3061,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5527',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $column['columnDefinition'];
@@ -3085,7 +3079,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5527',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return implode(', ', $index->getQuotedColumns($this));
@@ -3105,7 +3099,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5527',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         $ret = [];
@@ -3142,7 +3136,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getTemporaryTableSQL() is deprecated.'
+            'AbstractPlatform::getTemporaryTableSQL() is deprecated.',
         );
 
         return 'TEMPORARY';
@@ -3271,7 +3265,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getUniqueFieldDeclarationSQL() is deprecated. Use UNIQUE in SQL instead.'
+            'AbstractPlatform::getUniqueFieldDeclarationSQL() is deprecated. Use UNIQUE in SQL instead.',
         );
 
         return 'UNIQUE';
@@ -3318,7 +3312,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/1519',
-            'AbstractPlatform::prefersIdentityColumns() is deprecated.'
+            'AbstractPlatform::prefersIdentityColumns() is deprecated.',
         );
 
         return false;
@@ -3470,7 +3464,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4503',
             'AbstractPlatform::getListNamespacesSQL() is deprecated,'
-                . ' use AbstractSchemaManager::listSchemaNames() instead.'
+                . ' use AbstractSchemaManager::listSchemaNames() instead.',
         );
 
         throw Exception::notSupported(__METHOD__);
@@ -3543,7 +3537,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::getListUsersSQL() is deprecated.'
+            'AbstractPlatform::getListUsersSQL() is deprecated.',
         );
 
         throw Exception::notSupported(__METHOD__);
@@ -3805,7 +3799,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return false;
@@ -3842,7 +3836,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::supportsIndexes() is deprecated.'
+            'AbstractPlatform::supportsIndexes() is deprecated.',
         );
 
         return true;
@@ -3878,7 +3872,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::supportsAlterTable() is deprecated. All platforms must implement altering tables.'
+            'AbstractPlatform::supportsAlterTable() is deprecated. All platforms must implement altering tables.',
         );
 
         return true;
@@ -3896,7 +3890,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::supportsTransactions() is deprecated.'
+            'AbstractPlatform::supportsTransactions() is deprecated.',
         );
 
         return true;
@@ -3934,7 +3928,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::supportsPrimaryConstraints() is deprecated.'
+            'AbstractPlatform::supportsPrimaryConstraints() is deprecated.',
         );
 
         return true;
@@ -3952,7 +3946,7 @@ abstract class AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5409',
-            'AbstractPlatform::supportsForeignKeyConstraints() is deprecated.'
+            'AbstractPlatform::supportsForeignKeyConstraints() is deprecated.',
         );
 
         return true;
@@ -3983,7 +3977,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4805',
-            'AbstractPlatform::canEmulateSchemas() is deprecated.'
+            'AbstractPlatform::canEmulateSchemas() is deprecated.',
         );
 
         return false;
@@ -4018,7 +4012,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return true;
@@ -4036,7 +4030,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::supportsGettingAffectedRows() is deprecated.'
+            'AbstractPlatform::supportsGettingAffectedRows() is deprecated.',
         );
 
         return true;
@@ -4075,7 +4069,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5509',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return false;
@@ -4094,7 +4088,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5509',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return false;
@@ -4112,7 +4106,7 @@ abstract class AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
-            'AbstractPlatform::supportsViews() is deprecated. All platforms must implement support for views.'
+            'AbstractPlatform::supportsViews() is deprecated. All platforms must implement support for views.',
         );
 
         return true;
@@ -4186,14 +4180,14 @@ abstract class AbstractPlatform
         if ($offset < 0) {
             throw new Exception(sprintf(
                 'Offset must be a positive integer or zero, %d given',
-                $offset
+                $offset,
             ));
         }
 
         if ($offset > 0 && ! $this->supportsLimitOffset()) {
             throw new Exception(sprintf(
                 'Platform %s does not support offset values in limit queries.',
-                $this->getName()
+                $this->getName(),
             ));
         }
 
@@ -4239,7 +4233,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4724',
             'AbstractPlatform::supportsViews() is deprecated.'
-            . ' All platforms must implement support for offsets in modify limit clauses.'
+            . ' All platforms must implement support for offsets in modify limit clauses.',
         );
 
         return true;
@@ -4379,7 +4373,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4510',
             'AbstractPlatform::getReservedKeywordsClass() is deprecated,'
-                . ' use AbstractPlatform::createReservedKeywordsList() instead.'
+                . ' use AbstractPlatform::createReservedKeywordsList() instead.',
         );
 
         throw Exception::notSupported(__METHOD__);
@@ -4415,7 +4409,7 @@ abstract class AbstractPlatform
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5388',
             'AbstractPlatform::getStringLiteralQuoteCharacter() is deprecated.'
-                . ' Use quoteStringLiteral() instead.'
+                . ' Use quoteStringLiteral() instead.',
         );
 
         return "'";
@@ -4434,7 +4428,7 @@ abstract class AbstractPlatform
         return preg_replace(
             '~([' . preg_quote($this->getLikeWildcardCharacters() . $escapeChar, '~') . '])~u',
             addcslashes($escapeChar, '\\') . '$1',
-            $inputString
+            $inputString,
         );
     }
 
@@ -4453,9 +4447,7 @@ abstract class AbstractPlatform
         ]);
     }
 
-    /**
-     * @internal
-     */
+    /** @internal */
     public function createSQLParser(): Parser
     {
         return new Parser(false);

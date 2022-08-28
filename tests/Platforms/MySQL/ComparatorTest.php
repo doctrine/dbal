@@ -18,7 +18,7 @@ class ComparatorTest extends BaseComparatorTest
                 {
                     return null;
                 }
-            }
+            },
         );
     }
 }

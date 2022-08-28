@@ -30,7 +30,7 @@ final class Statement extends AbstractStatementMiddleware
     {
         return new Result(
             parent::execute($params),
-            $this->converter
+            $this->converter,
         );
     }
 }

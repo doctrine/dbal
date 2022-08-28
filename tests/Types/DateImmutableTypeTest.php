@@ -55,7 +55,7 @@ class DateImmutableTypeTest extends TestCase
 
         self::assertSame(
             '2016-01-01',
-            $this->type->convertToDatabaseValue($date, $this->platform)
+            $this->type->convertToDatabaseValue($date, $this->platform),
         );
     }
 

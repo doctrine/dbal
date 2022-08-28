@@ -21,7 +21,7 @@ class MySQL57Keywords extends MySQLKeywords
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5433',
-            'MySQL57Keywords::getName() is deprecated.'
+            'MySQL57Keywords::getName() is deprecated.',
         );
 
         return 'MySQL57';

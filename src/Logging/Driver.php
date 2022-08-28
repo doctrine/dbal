@@ -12,9 +12,7 @@ final class Driver extends AbstractDriverMiddleware
 {
     private LoggerInterface $logger;
 
-    /**
-     * @internal This driver can be only instantiated by its middleware.
-     */
+    /** @internal This driver can be only instantiated by its middleware. */
     public function __construct(DriverInterface $driver, LoggerInterface $logger)
     {
         parent::__construct($driver);
@@ -31,7 +29,7 @@ final class Driver extends AbstractDriverMiddleware
 
         return new Connection(
             parent::connect($params),
-            $this->logger
+            $this->logger,
         );
     }
 

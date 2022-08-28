@@ -45,7 +45,7 @@ abstract class AbstractDriverMiddleware implements VersionAwarePlatformDriver
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5458',
             'AbstractDriverMiddleware::getSchemaManager() is deprecated.'
-                . ' Use AbstractPlatform::createSchemaManager() instead.'
+                . ' Use AbstractPlatform::createSchemaManager() instead.',
         );
 
         return $this->wrappedDriver->getSchemaManager($conn, $platform);

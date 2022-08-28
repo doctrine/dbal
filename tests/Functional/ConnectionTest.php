@@ -113,7 +113,7 @@ class ConnectionTest extends FunctionalTestCase
             $connection = DriverManager::getConnection(
                 $params,
                 $this->connection->getConfiguration(),
-                $this->connection->getEventManager()
+                $this->connection->getEventManager(),
             );
         } else {
             $connection = $this->connection;
@@ -329,7 +329,7 @@ class ConnectionTest extends FunctionalTestCase
     {
         self::assertEquals(
             $this->connection->quote('foo', Types::STRING),
-            $this->connection->quote('foo', ParameterType::STRING)
+            $this->connection->quote('foo', ParameterType::STRING),
         );
     }
 
@@ -347,7 +347,7 @@ class ConnectionTest extends FunctionalTestCase
         $connection = DriverManager::getConnection(
             $params,
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager()
+            $this->connection->getEventManager(),
         );
 
         self::assertTrue($connection->connect());
@@ -370,7 +370,7 @@ class ConnectionTest extends FunctionalTestCase
         $connection = DriverManager::getConnection(
             $params,
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager()
+            $this->connection->getEventManager(),
         );
 
         self::assertInstanceOf(AbstractPlatform::class, $connection->getDatabasePlatform());

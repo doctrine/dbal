@@ -20,9 +20,9 @@ final class LikeWildcardsEscapingTest extends FunctionalTestCase
                     "(CASE WHEN '%s' LIKE '%s' ESCAPE '%s' THEN 1 ELSE 0 END)",
                     $string,
                     $databasePlatform->escapeStringForLike($string, $escapeChar),
-                    $escapeChar
-                )
-            )
+                    $escapeChar,
+                ),
+            ),
         )->execute();
 
         self::assertTrue((bool) $result->fetchOne());

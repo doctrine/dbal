@@ -64,7 +64,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),
-                $platform->getDateTimeFormatString()
+                $platform->getDateTimeFormatString(),
             );
         }
 

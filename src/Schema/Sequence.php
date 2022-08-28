@@ -36,25 +36,19 @@ class Sequence extends AbstractAsset
         $this->cache = $cache;
     }
 
-    /**
-     * @return int
-     */
+    /** @return int */
     public function getAllocationSize()
     {
         return $this->allocationSize;
     }
 
-    /**
-     * @return int
-     */
+    /** @return int */
     public function getInitialValue()
     {
         return $this->initialValue;
     }
 
-    /**
-     * @return int|null
-     */
+    /** @return int|null */
     public function getCache()
     {
         return $this->cache;
@@ -149,7 +143,7 @@ class Sequence extends AbstractAsset
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5435',
-            'Sequence::visit() is deprecated.'
+            'Sequence::visit() is deprecated.',
         );
 
         $visitor->acceptSequence($this);

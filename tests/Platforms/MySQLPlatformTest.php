@@ -22,7 +22,7 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
     {
         self::assertEquals(
             TransactionIsolationLevel::REPEATABLE_READ,
-            $this->platform->getDefaultTransactionIsolationLevel()
+            $this->platform->getDefaultTransactionIsolationLevel(),
         );
     }
 
@@ -39,7 +39,7 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
         $table->addOption('collation', 'my_collation');
         self::assertStringContainsString(
             'my_collation',
-            $this->platform->getCreateTableSQL($table)[0]
+            $this->platform->getCreateTableSQL($table)[0],
         );
     }
 
@@ -51,7 +51,7 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/5214');
         self::assertStringContainsString(
             'my_collation',
-            $this->platform->getCreateTableSQL($table)[0]
+            $this->platform->getCreateTableSQL($table)[0],
         );
     }
 }

@@ -45,7 +45,7 @@ class TypeRegistryTest extends TestCase
     {
         self::assertSame(
             $this->registry->get(self::TEST_TYPE_NAME),
-            $this->registry->get(self::TEST_TYPE_NAME)
+            $this->registry->get(self::TEST_TYPE_NAME),
         );
     }
 
@@ -53,11 +53,11 @@ class TypeRegistryTest extends TestCase
     {
         self::assertSame(
             self::TEST_TYPE_NAME,
-            $this->registry->lookupName($this->testType)
+            $this->registry->lookupName($this->testType),
         );
         self::assertSame(
             self::OTHER_TEST_TYPE_NAME,
-            $this->registry->lookupName($this->otherTestType)
+            $this->registry->lookupName($this->otherTestType),
         );
 
         $this->expectException(Exception::class);

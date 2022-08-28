@@ -19,9 +19,7 @@ class DataSourceNameTest extends TestCase
         $this->assertSame($expected, $dsn->toString());
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function connectionParametersProvider(): iterable
     {
         yield 'empty-params' => [[], ''];

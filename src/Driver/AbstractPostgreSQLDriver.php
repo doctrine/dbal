@@ -31,7 +31,7 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
         if (preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts) === 0) {
             throw Exception::invalidPlatformVersionSpecified(
                 $version,
-                '<major_version>.<minor_version>.<patch_version>'
+                '<major_version>.<minor_version>.<patch_version>',
             );
         }
 
@@ -48,7 +48,7 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5060',
             'PostgreSQL 9 support is deprecated and will be removed in DBAL 4.'
-                . ' Consider upgrading to Postgres 10 or later.'
+                . ' Consider upgrading to Postgres 10 or later.',
         );
 
         return new PostgreSQL94Platform();
@@ -73,7 +73,7 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5458',
             'AbstractPostgreSQLDriver::getSchemaManager() is deprecated.'
-                . ' Use PostgreSQLPlatform::createSchemaManager() instead.'
+                . ' Use PostgreSQLPlatform::createSchemaManager() instead.',
         );
 
         assert($platform instanceof PostgreSQLPlatform);

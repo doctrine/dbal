@@ -31,7 +31,7 @@ class DebugStackTest extends TestCase
                     'executionMS' => 0,
                 ],
             ],
-            $this->logger->queries
+            $this->logger->queries,
         );
 
         $this->logger->stopQuery();

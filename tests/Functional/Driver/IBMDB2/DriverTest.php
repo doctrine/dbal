@@ -7,9 +7,7 @@ use Doctrine\DBAL\Driver\IBMDB2\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/**
- * @requires extension ibm_db2
- */
+/** @requires extension ibm_db2 */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void

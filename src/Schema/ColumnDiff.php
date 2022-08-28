@@ -38,7 +38,7 @@ class ColumnDiff
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/4785',
                 'Not passing the $fromColumn to %s is deprecated.',
-                __METHOD__
+                __METHOD__,
             );
         }
 
@@ -58,9 +58,7 @@ class ColumnDiff
         return in_array($propertyName, $this->changedProperties, true);
     }
 
-    /**
-     * @return Identifier
-     */
+    /** @return Identifier */
     public function getOldColumnName()
     {
         $quote = $this->fromColumn !== null && $this->fromColumn->isQuoted();

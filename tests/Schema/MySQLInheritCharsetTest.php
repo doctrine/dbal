@@ -19,9 +19,7 @@ use PHPUnit\Framework\TestCase;
 
 use function array_merge;
 
-/**
- * @psalm-import-type Params from DriverManager
- */
+/** @psalm-import-type Params from DriverManager */
 class MySQLInheritCharsetTest extends TestCase
 {
     public function testInheritTableOptionsFromDatabase(): void
@@ -52,7 +50,7 @@ class MySQLInheritCharsetTest extends TestCase
                 'CREATE TABLE foobar (aa INT NOT NULL)'
                     . ' DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
             ],
-            $platform->getCreateTableSQL($table)
+            $platform->getCreateTableSQL($table),
         );
 
         // explicit utf8
@@ -63,7 +61,7 @@ class MySQLInheritCharsetTest extends TestCase
                 'CREATE TABLE foobar (aa INT NOT NULL)'
                     . ' DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
             ],
-            $platform->getCreateTableSQL($table)
+            $platform->getCreateTableSQL($table),
         );
 
         // explicit utf8mb4
@@ -73,7 +71,7 @@ class MySQLInheritCharsetTest extends TestCase
             ['CREATE TABLE foobar (aa INT NOT NULL)'
                     . ' DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB',
             ],
-            $platform->getCreateTableSQL($table)
+            $platform->getCreateTableSQL($table),
         );
     }
 

@@ -50,17 +50,13 @@ final class Query
         return $this->sql;
     }
 
-    /**
-     * @return array<mixed>
-     */
+    /** @return array<mixed> */
     public function getParams(): array
     {
         return $this->params;
     }
 
-    /**
-     * @return array<Type|int|string|null>
-     */
+    /** @return array<Type|int|string|null> */
     public function getTypes(): array
     {
         return $this->types;

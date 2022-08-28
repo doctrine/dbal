@@ -192,7 +192,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             $tableForeignKey['foreign_table'],
             $tableForeignKey['foreign_columns'],
             $tableForeignKey['name'],
-            $tableForeignKey['options']
+            $tableForeignKey['options'],
         );
     }
 

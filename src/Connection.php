@@ -294,7 +294,7 @@ class Connection
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4515',
             'Connection::getExpressionBuilder() is deprecated,'
-                . ' use Connection::createExpressionBuilder() instead.'
+                . ' use Connection::createExpressionBuilder() instead.',
         );
 
         return $this->_expr;
@@ -315,7 +315,7 @@ class Connection
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4966',
-            'Public access to Connection::connect() is deprecated.'
+            'Public access to Connection::connect() is deprecated.',
         );
 
         if ($this->_conn !== null) {
@@ -445,7 +445,7 @@ class Connection
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pulls/4750',
             'Not implementing the ServerInfoAwareConnection interface in %s is deprecated',
-            get_class($connection)
+            get_class($connection),
         );
 
         // Unable to detect platform version.
@@ -626,7 +626,7 @@ class Connection
         return $this->executeStatement(
             'DELETE FROM ' . $table . ' WHERE ' . implode(' AND ', $conditions),
             $values,
-            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
+            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
         );
     }
 
@@ -738,7 +738,7 @@ class Connection
             'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ')' .
             ' VALUES (' . implode(', ', $set) . ')',
             $values,
-            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
+            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
         );
     }
 
@@ -1172,7 +1172,7 @@ class Connection
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4687',
-                'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
+                'The usage of Connection::lastInsertId() with a sequence name is deprecated.',
             );
         }
 
@@ -1233,7 +1233,7 @@ class Connection
                 Nesting transactions without enabling savepoints is deprecated.
                 Call %s::setNestTransactionsWithSavepoints(true) to enable savepoints.
                 DEPRECATION,
-                self::class
+                self::class,
             );
         }
 
@@ -1308,7 +1308,7 @@ class Connection
                 Nesting transactions without enabling savepoints is deprecated.
                 Call %s::setNestTransactionsWithSavepoints(true) to enable savepoints.
                 DEPRECATION,
-                self::class
+                self::class,
             );
         }
 
@@ -1523,7 +1523,7 @@ class Connection
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4966',
             'Connection::getWrappedConnection() is deprecated.'
-                . ' Use Connection::getNativeConnection() to access the native connection.'
+                . ' Use Connection::getNativeConnection() to access the native connection.',
         );
 
         $this->connect();
@@ -1533,9 +1533,7 @@ class Connection
         return $this->_conn;
     }
 
-    /**
-     * @return resource|object
-     */
+    /** @return resource|object */
     public function getNativeConnection()
     {
         $this->connect();
@@ -1544,7 +1542,7 @@ class Connection
         if (! method_exists($this->_conn, 'getNativeConnection')) {
             throw new LogicException(sprintf(
                 'The driver connection %s does not support accessing the native connection.',
-                get_class($this->_conn)
+                get_class($this->_conn),
             ));
         }
 
@@ -1561,7 +1559,7 @@ class Connection
     {
         return $this->_driver->getSchemaManager(
             $this,
-            $this->getDatabasePlatform()
+            $this->getDatabasePlatform(),
         );
     }
 
@@ -1580,7 +1578,7 @@ class Connection
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4515',
-            'Connection::getSchemaManager() is deprecated, use Connection::createSchemaManager() instead.'
+            'Connection::getSchemaManager() is deprecated, use Connection::createSchemaManager() instead.',
         );
 
         return $this->_schemaManager ??= $this->createSchemaManager();
@@ -1677,7 +1675,7 @@ class Connection
                             'doctrine/dbal',
                             'https://github.com/doctrine/dbal/pull/5550',
                             'Using NULL as prepared statement parameter type is deprecated.'
-                                . 'Omit or use Parameter::STRING instead'
+                                . 'Omit or use Parameter::STRING instead',
                         );
                     }
 
@@ -1700,7 +1698,7 @@ class Connection
                             'doctrine/dbal',
                             'https://github.com/doctrine/dbal/pull/5550',
                             'Using NULL as prepared statement parameter type is deprecated.'
-                                . 'Omit or use Parameter::STRING instead'
+                                . 'Omit or use Parameter::STRING instead',
                         );
                     }
 
@@ -1763,9 +1761,7 @@ class Connection
         return $this->handleDriverException($e, new Query($sql, $params, $types));
     }
 
-    /**
-     * @internal
-     */
+    /** @internal */
     final public function convertException(Driver\Exception $e): DriverException
     {
         return $this->handleDriverException($e, null);

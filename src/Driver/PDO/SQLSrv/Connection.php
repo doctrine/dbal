@@ -22,7 +22,7 @@ final class Connection extends AbstractConnectionMiddleware
     public function prepare(string $sql): StatementInterface
     {
         return new Statement(
-            $this->connection->prepare($sql)
+            $this->connection->prepare($sql),
         );
     }
 
@@ -38,11 +38,11 @@ final class Connection extends AbstractConnectionMiddleware
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4687',
-            'The usage of Connection::lastInsertId() with a sequence name is deprecated.'
+            'The usage of Connection::lastInsertId() with a sequence name is deprecated.',
         );
 
         $statement = $this->prepare(
-            'SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?'
+            'SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?',
         );
         $statement->bindValue(1, $name);
 
@@ -55,16 +55,14 @@ final class Connection extends AbstractConnectionMiddleware
         return $this->connection->getNativeConnection();
     }
 
-    /**
-     * @deprecated Call {@see getNativeConnection()} instead.
-     */
+    /** @deprecated Call {@see getNativeConnection()} instead. */
     public function getWrappedConnection(): PDO
     {
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5037',
             '%s is deprecated, call getNativeConnection() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $this->connection->getWrappedConnection();

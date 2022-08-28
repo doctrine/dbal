@@ -73,9 +73,7 @@ class CompositeExpressionTest extends TestCase
         self::assertEquals($expects, (string) $expr);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function provideDataForConvertToString(): iterable
     {
         return [
@@ -105,7 +103,7 @@ class CompositeExpressionTest extends TestCase
                     'u.user = 1',
                     CompositeExpression::or(
                         'u.group_id = 1',
-                        'u.group_id = 2'
+                        'u.group_id = 2',
                     ),
                 ],
                 '(u.user = 1) AND ((u.group_id = 1) OR (u.group_id = 2))',
@@ -116,7 +114,7 @@ class CompositeExpressionTest extends TestCase
                     'u.group_id = 1',
                     CompositeExpression::and(
                         'u.user = 1',
-                        'u.group_id = 2'
+                        'u.group_id = 2',
                     ),
                 ],
                 '(u.group_id = 1) OR ((u.user = 1) AND (u.group_id = 2))',

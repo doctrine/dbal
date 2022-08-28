@@ -27,7 +27,7 @@ class ConnectionTest extends TestCase
     {
         $connection = new Connection(
             $this->createMock(DriverConnection::class),
-            new Converter(false, false, 0)
+            new Converter(false, false, 0),
         );
 
         $this->expectException(LogicException::class);
@@ -52,7 +52,7 @@ class ConnectionTest extends TestCase
     {
         $connection = new Connection(
             $this->createMock(DriverConnection::class),
-            new Converter(false, false, 0)
+            new Converter(false, false, 0),
         );
 
         $this->expectException(LogicException::class);
@@ -62,8 +62,6 @@ class ConnectionTest extends TestCase
 
 interface NativeDriverConnection extends ServerInfoAwareConnection
 {
-    /**
-     * @return object|resource
-     */
+    /** @return object|resource */
     public function getNativeConnection();
 }

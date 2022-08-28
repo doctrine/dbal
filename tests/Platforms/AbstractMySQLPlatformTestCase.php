@@ -15,9 +15,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 
 use function array_shift;
 
-/**
- * @extends AbstractPlatformTestCase<MySQLPlatform>
- */
+/** @extends AbstractPlatformTestCase<MySQLPlatform> */
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
     public function testModifyLimitQueryWitoutLimit(): void
@@ -34,7 +32,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
             'CREATE TABLE Foo (Bar INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
-            array_shift($sql)
+            array_shift($sql),
         );
     }
 
@@ -44,9 +42,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             . 'PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB';
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
         return [
@@ -75,7 +71,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertEquals(
             'CONCAT(column1, column2, column3)',
-            $this->platform->getConcatExpression('column1', 'column2', 'column3')
+            $this->platform->getConcatExpression('column1', 'column2', 'column3'),
         );
     }
 
@@ -84,19 +80,19 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(
             'SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
             $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED),
-            ''
+            '',
         );
         self::assertEquals(
             'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED),
         );
         self::assertEquals(
             'SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ),
         );
         self::assertEquals(
             'SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE),
         );
     }
 
@@ -112,17 +108,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'INT',
-            $this->platform->getIntegerTypeDeclarationSQL([])
+            $this->platform->getIntegerTypeDeclarationSQL([]),
         );
         self::assertEquals(
             'INT AUTO_INCREMENT',
-            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true])
+            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true]),
         );
         self::assertEquals(
             'INT AUTO_INCREMENT',
             $this->platform->getIntegerTypeDeclarationSQL(
-                ['autoincrement' => true, 'primary' => true]
-            )
+                ['autoincrement' => true, 'primary' => true],
+            ),
         );
     }
 
@@ -131,16 +127,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(
             'CHAR(10)',
             $this->platform->getStringTypeDeclarationSQL(
-                ['length' => 10, 'fixed' => true]
-            )
+                ['length' => 10, 'fixed' => true],
+            ),
         );
         self::assertEquals(
             'VARCHAR(50)',
-            $this->platform->getStringTypeDeclarationSQL(['length' => 50])
+            $this->platform->getStringTypeDeclarationSQL(['length' => 50]),
         );
         self::assertEquals(
             'VARCHAR(255)',
-            $this->platform->getStringTypeDeclarationSQL([])
+            $this->platform->getStringTypeDeclarationSQL([]),
         );
     }
 
@@ -174,9 +170,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testUniquePrimaryKey(Comparator $comparator): void
     {
         $keyTable = new Table('foo');
@@ -267,9 +261,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(['ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)'], $sql);
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, '
@@ -277,9 +269,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedColumnInIndexSQL(): array
     {
         return [
@@ -289,9 +279,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedNameInIndexSQL(): array
     {
         return [
@@ -300,9 +288,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
@@ -335,7 +321,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 . 'FULLTEXT INDEX fulltext_text (text)) '
                 . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = MyISAM',
             ],
-            $sql
+            $sql,
         );
     }
 
@@ -355,7 +341,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'CREATE TABLE spatial_table (point LONGTEXT NOT NULL, SPATIAL INDEX spatial_text (point)) '
                 . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = MyISAM',
             ],
-            $sql
+            $sql,
         );
     }
 
@@ -383,9 +369,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('LONGBLOB', $this->platform->getBlobTypeDeclarationSQL([]));
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAlterTableAddPrimaryKey(Comparator $comparator): void
     {
         $table = new Table('alter_table_add_pk');
@@ -403,13 +387,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertEquals(
             ['DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'],
-            $this->platform->getAlterTableSQL($diff)
+            $this->platform->getAlterTableSQL($diff),
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAlterPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('alter_primary_key');
@@ -431,13 +413,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'DROP INDEX `primary` ON alter_primary_key',
                 'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)',
             ],
-            $this->platform->getAlterTableSQL($diff)
+            $this->platform->getAlterTableSQL($diff),
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testDropPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('drop_primary_key');
@@ -458,13 +438,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
                 'DROP INDEX `primary` ON drop_primary_key',
             ],
-            $this->platform->getAlterTableSQL($diff)
+            $this->platform->getAlterTableSQL($diff),
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn(
         Comparator $comparator
     ): void {
@@ -488,13 +466,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'DROP INDEX `primary` ON tbl',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id)',
             ],
-            $this->platform->getAlterTableSQL($diff)
+            $this->platform->getAlterTableSQL($diff),
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('tbl');
@@ -517,13 +493,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'DROP INDEX `primary` ON tbl',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id, foo)',
             ],
-            $this->platform->getAlterTableSQL($diff)
+            $this->platform->getAlterTableSQL($diff),
         );
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAddAutoIncrementPrimaryKey(Comparator $comparator): void
     {
         $keyTable = new Table('foo');
@@ -555,9 +529,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ], $sql);
     }
 
-    /**
-     * @dataProvider comparatorProvider
-     */
+    /** @dataProvider comparatorProvider */
     public function testAlterPrimaryKeyWithNewColumn(Comparator $comparator): void
     {
         $table = new Table('yolo');
@@ -580,7 +552,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ],
-            $this->platform->getAlterTableSQL($diff)
+            $this->platform->getAlterTableSQL($diff),
         );
     }
 
@@ -652,8 +624,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             ],
             $this->platform->getCreateTableSQL(
                 $table,
-                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
-            )
+                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS,
+            ),
         );
 
         $table = clone $table;
@@ -669,8 +641,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             ],
             $this->platform->getCreateTableSQL(
                 $table,
-                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
-            )
+                AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS,
+            ),
         );
     }
 
@@ -710,13 +682,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE foreign_table ADD CONSTRAINT fk_add FOREIGN KEY (fk_id) REFERENCES foo (id)',
                 'ALTER TABLE foreign_table ADD CONSTRAINT fk_change FOREIGN KEY (fk_id) REFERENCES bar (id)',
             ],
-            $this->platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff),
         );
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getAlterTableRenameIndexSQL(): array
     {
         return [
@@ -725,9 +695,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
@@ -738,9 +706,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
@@ -749,9 +715,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
@@ -788,7 +752,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                     . 'def_blob_null LONGBLOB DEFAULT NULL'
                     . ') DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
             ],
-            $this->platform->getCreateTableSQL($table)
+            $this->platform->getCreateTableSQL($table),
         );
 
         $diffTable = clone $table;
@@ -799,7 +763,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $comparator = new MySQL\Comparator(
             $this->platform,
-            $this->createMock(CollationMetadataProvider::class)
+            $this->createMock(CollationMetadataProvider::class),
         );
 
         self::assertFalse($comparator->diffTable($table, $diffTable));
@@ -948,7 +912,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\", 'foo_db')
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\", 'foo_db'),
         );
     }
 
@@ -956,7 +920,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\\\'",
-            $this->platform->getListTableIndexesSQL('foo_table', "Foo'Bar\\")
+            $this->platform->getListTableIndexesSQL('foo_table', "Foo'Bar\\"),
         );
     }
 
@@ -964,7 +928,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\\\'",
-            $this->platform->getListViewsSQL("Foo'Bar\\")
+            $this->platform->getListViewsSQL("Foo'Bar\\"),
         );
     }
 
@@ -972,7 +936,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"),
         );
     }
 
@@ -980,7 +944,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\\\'",
-            $this->platform->getListTableForeignKeysSQL('foo_table', "Foo'Bar\\")
+            $this->platform->getListTableForeignKeysSQL('foo_table', "Foo'Bar\\"),
         );
     }
 
@@ -988,7 +952,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
+            $this->platform->getListTableColumnsSQL("Foo'Bar\\"),
         );
     }
 
@@ -996,7 +960,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\\\'",
-            $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\")
+            $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"),
         );
     }
 
@@ -1016,7 +980,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertSame(
             'CHARACTER SET ascii',
-            $this->platform->getColumnCharsetDeclarationSQL('ascii')
+            $this->platform->getColumnCharsetDeclarationSQL('ascii'),
         );
     }
 
@@ -1029,7 +993,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertSame(
             'COLLATE `ascii_general_ci`',
-            $this->platform->getColumnCollationDeclarationSQL('ascii_general_ci')
+            $this->platform->getColumnCollationDeclarationSQL('ascii_general_ci'),
         );
     }
 
@@ -1045,13 +1009,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                     . 'column_collation VARCHAR(255) NOT NULL COLLATE `ascii_general_ci`) '
                     . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
             ],
-            $this->platform->getCreateTableSQL($table)
+            $this->platform->getCreateTableSQL($table),
         );
     }
 
-    /**
-     * @return iterable<string,array{Comparator}>
-     */
+    /** @return iterable<string,array{Comparator}> */
     public static function comparatorProvider(): iterable
     {
         yield 'Generic comparator' => [
@@ -1066,7 +1028,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                     {
                         return null;
                     }
-                }
+                },
             ),
         ];
     }

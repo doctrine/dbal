@@ -103,7 +103,7 @@ class StatementTest extends FunctionalTestCase
         $table->addColumn('contents', 'blob', ['length' => 0xFFFFFFFF]);
         $this->dropAndCreateTable($table);
 
-        $contents = base64_decode(<<<EOF
+        $contents = base64_decode(<<<'EOF'
 H4sICJRACVgCA2RvY3RyaW5lLmljbwDtVNtLFHEU/ia1i9fVzVWxvJSrZmoXS6pd0zK7QhdNc03z
 lrpppq1pWqJCFERZkUFEDybYBQqJhB6iUOqhh+whgl4qkF6MfGh+s87O7GVmO6OlBfUfdIZvznxn
 fpzznW9gAI4unQ50XwirH2AAkEygEuIwU58ODnPBzXGv14sEq4BrwzKKL4sY++SGTz6PodcutN5x
@@ -128,7 +128,7 @@ EOF
         $stream = Type::getType('blob')
             ->convertToPHPValue(
                 $result->fetchOne(),
-                $this->connection->getDatabasePlatform()
+                $this->connection->getDatabasePlatform(),
             );
 
         self::assertSame($contents, stream_get_contents($stream));
@@ -272,7 +272,7 @@ EOF
         $query = $platform->getDummySelectSQL(
             $platform->getLengthExpression('?')
                 . ', '
-                . $platform->getLengthExpression('?')
+                . $platform->getLengthExpression('?'),
         );
 
         $stmt = $this->connection->prepare($query);
@@ -310,33 +310,25 @@ EOF
         self::assertSame($expected, $value);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function emptyFetchProvider(): iterable
     {
         return [
             'fetch' => [
-                /**
-                 * @return mixed
-                 */
+                /** @return mixed */
                 static function (Result $result) {
                     return $result->fetchAssociative();
                 },
                 false,
             ],
-            /**
-             * @return mixed|false
-             */
+            /** @return mixed|false */
             'fetch-column' => [
                 static function (Result $result) {
                     return $result->fetchOne();
                 },
                 false,
             ],
-            /**
-             * @return mixed[]
-             */
+            /** @return mixed[] */
             'fetch-all' => [
                 static function (Result $result): array {
                     return $result->fetchAllAssociative();

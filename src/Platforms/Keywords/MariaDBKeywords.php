@@ -6,15 +6,13 @@ use Doctrine\Deprecations\Deprecation;
 
 class MariaDBKeywords extends MySQLKeywords
 {
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public function getName(): string
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5433',
-            'MariaDBKeywords::getName() is deprecated.'
+            'MariaDBKeywords::getName() is deprecated.',
         );
 
         return 'MariaDB';

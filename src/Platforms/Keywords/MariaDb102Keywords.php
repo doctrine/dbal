@@ -13,15 +13,13 @@ use Doctrine\Deprecations\Deprecation;
  */
 final class MariaDb102Keywords extends MariaDBKeywords
 {
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public function getName(): string
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5433',
-            'MariaDb102Keywords::getName() is deprecated.'
+            'MariaDb102Keywords::getName() is deprecated.',
         );
 
         return 'MariaDb102';

@@ -35,7 +35,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
         throw ConversionException::conversionFailedInvalidType(
             $value,
             $this->getName(),
-            ['null', DateTimeImmutable::class]
+            ['null', DateTimeImmutable::class],
         );
     }
 
@@ -54,7 +54,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),
-                $platform->getDateTimeTzFormatString()
+                $platform->getDateTimeTzFormatString(),
             );
         }
 
@@ -72,7 +72,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5509',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return true;

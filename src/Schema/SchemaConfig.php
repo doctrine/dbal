@@ -35,7 +35,7 @@ class SchemaConfig
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4822',
-            'SchemaConfig::hasExplicitForeignKeyIndexes() is deprecated.'
+            'SchemaConfig::hasExplicitForeignKeyIndexes() is deprecated.',
         );
 
         return $this->hasExplicitForeignKeyIndexes;
@@ -53,7 +53,7 @@ class SchemaConfig
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4822',
-            'SchemaConfig::setExplicitForeignKeyIndexes() is deprecated.'
+            'SchemaConfig::setExplicitForeignKeyIndexes() is deprecated.',
         );
 
         $this->hasExplicitForeignKeyIndexes = (bool) $flag;
@@ -69,9 +69,7 @@ class SchemaConfig
         $this->maxIdentifierLength = (int) $length;
     }
 
-    /**
-     * @return int
-     */
+    /** @return int */
     public function getMaxIdentifierLength()
     {
         return $this->maxIdentifierLength;

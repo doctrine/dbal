@@ -47,33 +47,25 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
         return $this;
     }
 
-    /**
-     * @return Index|null
-     */
+    /** @return Index|null */
     public function getIndex()
     {
         return $this->index;
     }
 
-    /**
-     * @return mixed[]
-     */
+    /** @return mixed[] */
     public function getTableIndex()
     {
         return $this->tableIndex;
     }
 
-    /**
-     * @return string
-     */
+    /** @return string */
     public function getTable()
     {
         return $this->table;
     }
 
-    /**
-     * @return Connection
-     */
+    /** @return Connection */
     public function getConnection()
     {
         return $this->connection;

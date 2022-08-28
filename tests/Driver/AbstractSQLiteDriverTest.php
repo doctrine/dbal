@@ -12,9 +12,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
-/**
- * @extends AbstractDriverTest<SqlitePlatform>
- */
+/** @extends AbstractDriverTest<SqlitePlatform> */
 class AbstractSQLiteDriverTest extends AbstractDriverTest
 {
     protected function createDriver(): Driver
@@ -31,7 +29,7 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
     {
         return new SqliteSchemaManager(
             $connection,
-            $this->createPlatform()
+            $this->createPlatform(),
         );
     }
 

@@ -141,7 +141,7 @@ class Statement
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5563',
             '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         $this->params[$param] = $variable;
@@ -172,7 +172,7 @@ class Statement
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4580',
-            'Statement::execute() is deprecated, use Statement::executeQuery() or Statement::executeStatement() instead'
+            'Statement::execute() is deprecated, use Statement::executeQuery() or Statement::executeStatement() instead',
         );
 
         if ($params !== null) {
@@ -187,7 +187,7 @@ class Statement
         try {
             return new Result(
                 $this->stmt->execute($params),
-                $this->conn
+                $this->conn,
             );
         } catch (Driver\Exception $ex) {
             throw $this->conn->convertExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);
@@ -212,7 +212,7 @@ class Statement
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5556',
                 'Passing $params to Statement::executeQuery() is deprecated. Bind parameters using'
-                    . ' Statement::bindParam() or Statement::bindValue() instead.'
+                    . ' Statement::bindParam() or Statement::bindValue() instead.',
             );
         }
 
@@ -237,7 +237,7 @@ class Statement
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5556',
                 'Passing $params to Statement::executeStatement() is deprecated. Bind parameters using'
-                    . ' Statement::bindParam() or Statement::bindValue() instead.'
+                    . ' Statement::bindParam() or Statement::bindValue() instead.',
             );
         }
 

@@ -97,7 +97,7 @@ class Schema extends AbstractAsset
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4822',
-            'Schema::hasExplicitForeignKeyIndexes() is deprecated.'
+            'Schema::hasExplicitForeignKeyIndexes() is deprecated.',
         );
 
         return $this->_schemaConfig->hasExplicitForeignKeyIndexes();
@@ -191,9 +191,7 @@ class Schema extends AbstractAsset
         return $this->_tables[$name];
     }
 
-    /**
-     * @param string $name
-     */
+    /** @param string $name */
     private function getFullQualifiedAssetName($name): string
     {
         $name = $this->getUnquotedAssetName($name);
@@ -266,7 +264,7 @@ class Schema extends AbstractAsset
             'https://github.com/doctrine/dbal/pull/4800',
             'Schema::getTableNames() is deprecated.'
             . ' Use Schema::getTables() and Table::getName() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         return array_keys($this->_tables);
@@ -301,9 +299,7 @@ class Schema extends AbstractAsset
         return $this->_sequences[$name];
     }
 
-    /**
-     * @return Sequence[]
-     */
+    /** @return Sequence[] */
     public function getSequences()
     {
         return $this->_sequences;
@@ -489,7 +485,7 @@ class Schema extends AbstractAsset
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5435',
-            'Schema::visit() is deprecated.'
+            'Schema::visit() is deprecated.',
         );
 
         $visitor->acceptSchema($this);
