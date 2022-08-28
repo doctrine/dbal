@@ -416,8 +416,11 @@ abstract class AbstractPlatform
      * @param TrimMode    $mode The position of the trim.
      * @param string|null $char The char to trim, has to be quoted already. Defaults to space.
      */
-    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
-    {
+    public function getTrimExpression(
+        string $str,
+        TrimMode $mode = TrimMode::UNSPECIFIED,
+        ?string $char = null,
+    ): string {
         $tokens = [];
 
         switch ($mode) {

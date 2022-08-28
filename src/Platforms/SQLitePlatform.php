@@ -55,8 +55,11 @@ class SQLitePlatform extends AbstractPlatform
         return 'REGEXP';
     }
 
-    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
-    {
+    public function getTrimExpression(
+        string $str,
+        TrimMode $mode = TrimMode::UNSPECIFIED,
+        ?string $char = null,
+    ): string {
         $trimFn = match ($mode) {
             TrimMode::UNSPECIFIED,
             TrimMode::BOTH => 'TRIM',

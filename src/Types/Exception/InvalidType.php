@@ -26,8 +26,12 @@ final class InvalidType extends ConversionException implements TypesException
      * @todo split into two methods
      * @todo sanitize value
      */
-    public static function new(mixed $value, string $toType, array $possibleTypes, ?Throwable $previous = null): self
-    {
+    public static function new(
+        mixed $value,
+        string $toType,
+        array $possibleTypes,
+        ?Throwable $previous = null,
+    ): self {
         if (is_scalar($value) || $value === null) {
             $message = sprintf(
                 'Could not convert PHP value %s to type %s. Expected one of the following types: %s.',

@@ -15,8 +15,11 @@ use const CASE_UPPER;
 
 final class Driver extends AbstractDriverMiddleware
 {
-    public function __construct(DriverInterface $driver, private readonly int $mode, private readonly ?ColumnCase $case)
-    {
+    public function __construct(
+        DriverInterface $driver,
+        private readonly int $mode,
+        private readonly ?ColumnCase $case,
+    ) {
         parent::__construct($driver);
     }
 

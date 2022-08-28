@@ -19,8 +19,12 @@ use function substr;
  */
 final class ValueNotConvertible extends ConversionException implements TypesException
 {
-    public static function new(mixed $value, string $toType, ?string $message = null, ?Throwable $previous = null): self
-    {
+    public static function new(
+        mixed $value,
+        string $toType,
+        ?string $message = null,
+        ?Throwable $previous = null,
+    ): self {
         if ($message !== null) {
             $message = sprintf(
                 'Could not convert database value to "%s" as an error was triggered by the unserialization: %s',

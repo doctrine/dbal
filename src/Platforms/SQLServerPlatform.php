@@ -790,8 +790,11 @@ class SQLServerPlatform extends AbstractPlatform
         return $dividend . ' % ' . $divisor;
     }
 
-    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
-    {
+    public function getTrimExpression(
+        string $str,
+        TrimMode $mode = TrimMode::UNSPECIFIED,
+        ?string $char = null,
+    ): string {
         if ($char === null) {
             return match ($mode) {
                 TrimMode::LEADING => 'LTRIM(' . $str . ')',

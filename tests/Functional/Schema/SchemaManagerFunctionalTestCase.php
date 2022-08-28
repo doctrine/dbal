@@ -385,7 +385,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         if ($this->connection->getDatabasePlatform() instanceof OraclePlatform) {
             self::markTestSkipped(
-                'Does not work with Oracle, since it cannot detect DateTime, Date and Time differences (at the moment).',
+                'Does not work with Oracle,'
+                . ' since it cannot detect DateTime, Date and Time differences (at the moment).',
             );
         }
 
