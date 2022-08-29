@@ -726,18 +726,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable ADD quota INT NOT NULL',
-            "EXEC sp_addextendedproperty N'MS_Description', N'A comment', "
-                . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', quota",
-        ];
-    }
-
     public function testGeneratesCreateTableSQLWithColumnComments(): void
     {
         $table = new Table('mytable');

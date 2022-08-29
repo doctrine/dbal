@@ -354,19 +354,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable ADD quota INT NOT NULL',
-            "COMMENT ON COLUMN mytable.quota IS 'A comment'",
-            "COMMENT ON COLUMN mytable.foo IS ''",
-            "COMMENT ON COLUMN mytable.baz IS 'B comment'",
-        ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY("create"))'];

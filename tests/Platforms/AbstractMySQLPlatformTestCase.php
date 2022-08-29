@@ -205,18 +205,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        return [
-            "ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', "
-                . 'CHANGE foo foo VARCHAR(255) NOT NULL, '
-                . "CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'",
-        ];
-    }
-
     public function testChangeIndexWithForeignKeys(): void
     {
         $index  = new Index('idx', ['col'], false);

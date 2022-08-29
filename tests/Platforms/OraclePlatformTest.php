@@ -280,19 +280,6 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)',
-            "COMMENT ON COLUMN mytable.quota IS 'A comment'",
-            "COMMENT ON COLUMN mytable.foo IS ''",
-            "COMMENT ON COLUMN mytable.baz IS 'B comment'",
-        ];
-    }
-
     public function getBitAndComparisonExpressionSql(string $value1, string $value2): string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';

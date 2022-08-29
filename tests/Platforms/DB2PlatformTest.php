@@ -145,21 +145,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable ' .
-            'ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT',
-            "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
-            "COMMENT ON COLUMN mytable.quota IS 'A comment'",
-            "COMMENT ON COLUMN mytable.foo IS ''",
-            "COMMENT ON COLUMN mytable.baz IS 'B comment'",
-        ];
-    }
-
     public function testGeneratesCreateTableSQLWithCommonIndexes(): void
     {
         $table = new Table('test');

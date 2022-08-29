@@ -404,14 +404,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::markTestSkipped('Platform does not support Column comments.');
     }
 
-    /**
-     * @return string[]
-     */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        self::markTestSkipped('Platform does not support Column comments.');
-    }
-
     public function testGetDefaultValueDeclarationSQL(): void
     {
         // non-timestamp value will get single quotes
