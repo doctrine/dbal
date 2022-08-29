@@ -344,8 +344,16 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'test_list_decimal_columns';
         $table     = new Table($tableName);
 
-        $table->addColumn('col', 'decimal');
-        $table->addColumn('col_unsigned', 'decimal', ['unsigned' => true]);
+        $table->addColumn('col', 'decimal', [
+            'precision' => 10,
+            'scale' => 6,
+        ]);
+
+        $table->addColumn('col_unsigned', 'decimal', [
+            'precision' => 10,
+            'scale' => 6,
+            'unsigned' => true,
+        ]);
 
         $this->dropAndCreateTable($table);
 

@@ -471,7 +471,7 @@ class Comparator
                 $changedProperties[] = 'fixed';
             }
         } elseif ($properties1['type'] instanceof Types\DecimalType) {
-            if (($properties1['precision'] ?? 10) !== ($properties2['precision'] ?? 10)) {
+            if ($properties1['precision'] !== $properties2['precision']) {
                 $changedProperties[] = 'precision';
             }
 

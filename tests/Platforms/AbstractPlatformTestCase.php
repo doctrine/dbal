@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\ColumnPrecisionRequired;
+use Doctrine\DBAL\Exception\ColumnScaleRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -739,6 +741,18 @@ abstract class AbstractPlatformTestCase extends TestCase
         return 'VARBINARY(16)';
     }
 
+    public function testGetDecimalTypeDeclarationSQLNoPrecision(): void
+    {
+        $this->expectException(ColumnPrecisionRequired::class);
+        $this->platform->getDecimalTypeDeclarationSQL(['scale' => 2]);
+    }
+
+    public function testGetDecimalTypeDeclarationSQLNoScale(): void
+    {
+        $this->expectException(ColumnScaleRequired::class);
+        $this->platform->getDecimalTypeDeclarationSQL(['precision' => 10]);
+    }
+
     public function testReturnsJsonTypeDeclarationSQL(): void
     {
         $column = [
@@ -1207,17 +1221,11 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertSame($expectedSql, $this->platform->getDecimalTypeDeclarationSQL($column));
     }
 
-    /** @return mixed[][] */
+    /** @return iterable<array{array<string,mixed>,string}> */
     public static function getGeneratesDecimalTypeDeclarationSQL(): iterable
     {
-        return [
-            [[], 'NUMERIC(10, 0)'],
-            [['unsigned' => true], 'NUMERIC(10, 0)'],
-            [['unsigned' => false], 'NUMERIC(10, 0)'],
-            [['precision' => 5], 'NUMERIC(5, 0)'],
-            [['scale' => 5], 'NUMERIC(10, 5)'],
-            [['precision' => 8, 'scale' => 2], 'NUMERIC(8, 2)'],
-        ];
+        yield [['precision' => 10, 'scale' => 0], 'NUMERIC(10, 0)'];
+        yield [['precision' => 8, 'scale' => 2], 'NUMERIC(8, 2)'];
     }
 
     /**

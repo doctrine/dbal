@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed default precision and scale of decimal columns.
+
+The DBAL no longer provides default values for precision and scale of decimal columns.
+
 ## BC BREAK: a non-empty WHERE clause is not enforced in data manipulation `Connection` methods.
 
 The `Connection::update()` and `::delete()` methods no longer enforce a non-empty WHERE clause. If modification

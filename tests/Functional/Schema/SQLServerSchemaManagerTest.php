@@ -25,7 +25,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('sqlsrv_drop_column');
         $table->addColumn('id', 'integer');
-        $table->addColumn('todrop', 'decimal', ['default' => 10.2]);
+        $table->addColumn('todrop', 'integer', ['default' => 10]);
 
         $this->schemaManager->createTable($table);
 
@@ -33,7 +33,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'sqlsrv_drop_column',
             [],
             [],
-            ['todrop' => new Column('todrop', Type::getType('decimal'))],
+            ['todrop' => new Column('todrop', Type::getType('integer'))],
         );
 
         $this->schemaManager->alterTable($diff);
