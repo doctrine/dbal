@@ -53,7 +53,8 @@ class ConnectionTest extends TestCase
         $this->connection = DriverManager::getConnection($this->params);
     }
 
-    private function getExecuteStatementMockConnection(): Connection&MockObject
+    /** @return Connection&MockObject */
+    private function getExecuteStatementMockConnection(): Connection
     {
         $driverMock = $this->createMock(Driver::class);
 

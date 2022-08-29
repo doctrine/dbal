@@ -16,7 +16,8 @@ class MiddlewareTest extends TestCase
 {
     private Driver $driver;
 
-    private LoggerInterface&MockObject $logger;
+    /** @var LoggerInterface&MockObject */
+    private LoggerInterface $logger;
 
     public function setUp(): void
     {
