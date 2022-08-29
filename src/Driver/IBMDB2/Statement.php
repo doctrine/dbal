@@ -69,9 +69,7 @@ final class Statement implements StatementInterface
         }
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function bind(int $position, mixed &$variable, int $parameterType, int $dataType): void
     {
         $this->parameters[$position] =& $variable;

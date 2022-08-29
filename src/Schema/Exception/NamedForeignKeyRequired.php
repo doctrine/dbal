@@ -11,9 +11,7 @@ use Doctrine\DBAL\Schema\Table;
 use function implode;
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class NamedForeignKeyRequired extends SchemaException
 {
     public static function new(Table $localTable, ForeignKeyConstraint $foreignKey): self
@@ -25,8 +23,8 @@ final class NamedForeignKeyRequired extends SchemaException
                 $localTable->getName(),
                 implode(', ', $foreignKey->getLocalColumns()),
                 $foreignKey->getForeignTableName(),
-                implode(', ', $foreignKey->getForeignColumns())
-            )
+                implode(', ', $foreignKey->getForeignColumns()),
+            ),
         );
     }
 }

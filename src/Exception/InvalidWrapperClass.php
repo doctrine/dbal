@@ -9,9 +9,7 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class InvalidWrapperClass extends Exception
 {
     public static function new(string $wrapperClass): self
@@ -20,8 +18,8 @@ final class InvalidWrapperClass extends Exception
             sprintf(
                 'The given "wrapperClass" %s has to be a subtype of %s.',
                 $wrapperClass,
-                Connection::class
-            )
+                Connection::class,
+            ),
         );
     }
 }

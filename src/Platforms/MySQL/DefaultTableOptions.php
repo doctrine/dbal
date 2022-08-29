@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms\MySQL;
 
-/**
- * @internal
- */
+/** @internal */
 final class DefaultTableOptions
 {
     public function __construct(private readonly string $charset, private readonly string $collation)

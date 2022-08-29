@@ -45,7 +45,7 @@ class Index extends AbstractAsset
         bool $isUnique = false,
         bool $isPrimary = false,
         array $flags = [],
-        private readonly array $options = []
+        private readonly array $options = [],
     ) {
         $isUnique = $isUnique || $isPrimary;
 
@@ -103,9 +103,7 @@ class Index extends AbstractAsset
         return $columns;
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function getUnquotedColumns(): array
     {
         return array_map($this->trimQuotes(...), $this->getColumns());
@@ -269,9 +267,7 @@ class Index extends AbstractAsset
         return $this->options[strtolower($name)];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getOptions(): array
     {
         return $this->options;

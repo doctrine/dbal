@@ -22,7 +22,7 @@ final class Query
     public function __construct(
         private readonly string $sql,
         private readonly array $params,
-        private readonly array $types
+        private readonly array $types,
     ) {
     }
 
@@ -31,17 +31,13 @@ final class Query
         return $this->sql;
     }
 
-    /**
-     * @return array<mixed>
-     */
+    /** @return array<mixed> */
     public function getParams(): array
     {
         return $this->params;
     }
 
-    /**
-     * @return array<int|string|ParameterType|Type>
-     */
+    /** @return array<int|string|ParameterType|Type> */
     public function getTypes(): array
     {
         return $this->types;

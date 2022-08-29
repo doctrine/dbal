@@ -16,9 +16,7 @@ use Doctrine\DBAL\Schema\TableDiff;
  */
 class Comparator extends BaseComparator
 {
-    /**
-     * @internal The comparator can be only instantiated by a schema manager.
-     */
+    /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(SQLServerPlatform $platform, private readonly string $databaseCollation)
     {
         parent::__construct($platform);

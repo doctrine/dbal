@@ -53,9 +53,7 @@ class SchemaConfig
         return $this->defaultTableOptions;
     }
 
-    /**
-     * @param array<string, mixed> $defaultTableOptions
-     */
+    /** @param array<string, mixed> $defaultTableOptions */
     public function setDefaultTableOptions(array $defaultTableOptions): void
     {
         $this->defaultTableOptions = $defaultTableOptions;

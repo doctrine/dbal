@@ -54,7 +54,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
             throw InvalidFormat::new(
                 $value,
                 static::class,
-                $platform->getDateTimeFormatString()
+                $platform->getDateTimeFormatString(),
             );
         }
 

@@ -29,7 +29,7 @@ class VarDateTimeImmutableType extends VarDateTimeType
         throw InvalidType::new(
             $value,
             static::class,
-            ['null', DateTimeImmutable::class]
+            ['null', DateTimeImmutable::class],
         );
     }
 

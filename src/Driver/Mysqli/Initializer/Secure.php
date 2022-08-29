@@ -14,7 +14,7 @@ final class Secure implements Initializer
         private readonly string $cert,
         private readonly string $ca,
         private readonly string $capath,
-        private readonly string $cipher
+        private readonly string $cipher,
     ) {
     }
 

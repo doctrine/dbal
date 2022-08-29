@@ -51,7 +51,7 @@ class ForeignKeyConstraint extends AbstractAsset
         string $foreignTableName,
         array $foreignColumnNames,
         string $name = '',
-        protected array $options = []
+        protected array $options = [],
     ) {
         $this->_setName($name);
 

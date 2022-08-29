@@ -14,9 +14,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @template P of AbstractPlatform
- */
+/** @template P of AbstractPlatform */
 abstract class AbstractDriverTest extends TestCase
 {
     /**
@@ -29,13 +27,11 @@ abstract class AbstractDriverTest extends TestCase
         $this->driver = $this->createDriver();
     }
 
-    /**
-     * @dataProvider platformVersionProvider
-     */
+    /** @dataProvider platformVersionProvider */
     public function testCreatesDatabasePlatformForVersion(string $version, string $expectedClass): void
     {
         $platform = $this->driver->getDatabasePlatform(
-            new StaticServerVersionProvider($version)
+            new StaticServerVersionProvider($version),
         );
 
         self::assertSame($expectedClass, $platform::class);
@@ -45,7 +41,7 @@ abstract class AbstractDriverTest extends TestCase
     {
         $this->expectException(Exception::class);
         $this->driver->getDatabasePlatform(
-            new StaticServerVersionProvider('foo')
+            new StaticServerVersionProvider('foo'),
         );
     }
 
@@ -81,16 +77,12 @@ abstract class AbstractDriverTest extends TestCase
 
     abstract protected function createExceptionConverter(): ExceptionConverter;
 
-    /**
-     * @return Connection&MockObject
-     */
+    /** @return Connection&MockObject */
     protected function getConnectionMock(): Connection
     {
         return $this->createMock(Connection::class);
     }
 
-    /**
-     * @return array<int, array<int, string>>
-     */
+    /** @return array<int, array<int, string>> */
     abstract public static function platformVersionProvider(): array;
 }

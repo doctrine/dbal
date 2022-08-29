@@ -72,17 +72,13 @@ final class ExpandArrayParameters implements Visitor
         return implode('', $this->convertedSQL);
     }
 
-    /**
-     * @return list<mixed>
-     */
+    /** @return list<mixed> */
     public function getParameters(): array
     {
         return $this->convertedParameters;
     }
 
-    /**
-     * @throws InvalidParameterType
-     */
+    /** @throws InvalidParameterType */
     private function acceptParameter(int|string $key, mixed $value): void
     {
         if (! isset($this->types[$key])) {
@@ -114,17 +110,13 @@ final class ExpandArrayParameters implements Visitor
         });
     }
 
-    /**
-     * @return array<int,string|ParameterType|Type>
-     */
+    /** @return array<int,string|ParameterType|Type> */
     public function getTypes(): array
     {
         return $this->convertedTypes;
     }
 
-    /**
-     * @param list<mixed> $values
-     */
+    /** @param list<mixed> $values */
     private function appendTypedParameter(array $values, string|ParameterType|Type $type): void
     {
         $this->convertedSQL[] = implode(', ', array_fill(0, count($values), '?'));

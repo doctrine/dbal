@@ -7,9 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\OCI8;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/**
- * @requires extension oci8
- */
+/** @requires extension oci8 */
 class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -31,13 +29,11 @@ class StatementTest extends FunctionalTestCase
     {
         self::assertEquals(
             $expected,
-            $this->connection->executeQuery($query, $params)->fetchAssociative()
+            $this->connection->executeQuery($query, $params)->fetchAssociative(),
         );
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
+    /** @return array<string, array<int, mixed>> */
     public static function queryConversionProvider(): iterable
     {
         return [
@@ -97,7 +93,7 @@ World?!',
         self::assertEquals(
             ['COL1' => 1],
             $statement->executeQuery()
-                ->fetchAssociative()
+                ->fetchAssociative(),
         );
     }
 }

@@ -50,9 +50,7 @@ final class Connection implements ConnectionInterface
         return $matches[1];
     }
 
-    /**
-     * @throws Parser\Exception
-     */
+    /** @throws Parser\Exception */
     public function prepare(string $sql): Statement
     {
         $visitor = new ConvertPositionalToNamedPlaceholders();
@@ -116,9 +114,7 @@ final class Connection implements ConnectionInterface
         $this->executionMode->enableAutoCommit();
     }
 
-    /**
-     * @return resource
-     */
+    /** @return resource */
     public function getNativeConnection()
     {
         return $this->connection;

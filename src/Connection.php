@@ -130,7 +130,7 @@ class Connection implements ServerVersionProvider
         array $params,
         protected Driver $driver,
         ?Configuration $config = null,
-        ?EventManager $eventManager = null
+        ?EventManager $eventManager = null,
     ) {
         $this->_config       = $config ?? new Configuration();
         $this->_eventManager = $eventManager ?? new EventManager();
@@ -436,7 +436,7 @@ class Connection implements ServerVersionProvider
         array $criteria,
         array &$columns,
         array &$values,
-        array &$conditions
+        array &$conditions,
     ): void {
         foreach ($criteria as $columnName => $value) {
             if ($value === null) {
@@ -477,7 +477,7 @@ class Connection implements ServerVersionProvider
         return $this->executeStatement(
             $sql,
             $values,
-            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
+            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
         );
     }
 
@@ -586,7 +586,7 @@ class Connection implements ServerVersionProvider
             'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ')' .
             ' VALUES (' . implode(', ', $set) . ')',
             $values,
-            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
+            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types,
         );
     }
 
@@ -829,7 +829,7 @@ class Connection implements ServerVersionProvider
         string $sql,
         array $params = [],
         array $types = [],
-        ?QueryCacheProfile $qcp = null
+        ?QueryCacheProfile $qcp = null,
     ): Result {
         if ($qcp !== null) {
             return $this->executeCacheQuery($sql, $params, $types, $qcp);
@@ -1015,7 +1015,7 @@ class Connection implements ServerVersionProvider
         if (! $nestTransactionsWithSavepoints) {
             throw new InvalidArgumentException(sprintf(
                 'Calling %s with false to enable nesting transactions without savepoints is no longer supported.',
-                __METHOD__
+                __METHOD__,
             ));
         }
 
@@ -1023,7 +1023,7 @@ class Connection implements ServerVersionProvider
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5383',
             '%s is deprecated and will be removed in 5.0',
-            __METHOD__
+            __METHOD__,
         );
     }
 
@@ -1038,7 +1038,7 @@ class Connection implements ServerVersionProvider
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5383',
             '%s is deprecated and will be removed in 5.0',
-            __METHOD__
+            __METHOD__,
         );
 
         return true;
@@ -1052,9 +1052,7 @@ class Connection implements ServerVersionProvider
         return 'DOCTRINE2_SAVEPOINT_' . $this->transactionNestingLevel;
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function beginTransaction(): void
     {
         $connection = $this->connect();
@@ -1070,9 +1068,7 @@ class Connection implements ServerVersionProvider
         $this->getEventManager()->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function commit(): void
     {
         if ($this->transactionNestingLevel === 0) {
@@ -1126,9 +1122,7 @@ class Connection implements ServerVersionProvider
         }
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function rollBack(): void
     {
         if ($this->transactionNestingLevel === 0) {
@@ -1388,14 +1382,12 @@ class Connection implements ServerVersionProvider
         Driver\Exception $e,
         string $sql,
         array $params = [],
-        array $types = []
+        array $types = [],
     ): DriverException {
         return $this->handleDriverException($e, new Query($sql, $params, $types));
     }
 
-    /**
-     * @internal
-     */
+    /** @internal */
     final public function convertException(Driver\Exception $e): DriverException
     {
         return $this->handleDriverException($e, null);
@@ -1447,7 +1439,7 @@ class Connection implements ServerVersionProvider
 
     private function handleDriverException(
         Driver\Exception $driverException,
-        ?Query $query
+        ?Query $query,
     ): DriverException {
         $this->exceptionConverter ??= $this->driver->getExceptionConverter();
         $exception                  = $this->exceptionConverter->convert($driverException, $query);

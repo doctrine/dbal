@@ -31,17 +31,13 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
         self::assertSame(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ['ALTER TABLE mytable RENAME INDEX idx_foo TO idx_bar'];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
@@ -50,17 +46,13 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar'];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
@@ -81,7 +73,7 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
     {
         self::assertEquals(
             TransactionIsolationLevel::REPEATABLE_READ,
-            $this->platform->getDefaultTransactionIsolationLevel()
+            $this->platform->getDefaultTransactionIsolationLevel(),
         );
     }
 
@@ -92,7 +84,7 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
         $table->addOption('collation', 'my_collation');
         self::assertStringContainsString(
             'my_collation',
-            $this->platform->getCreateTableSQL($table)[0]
+            $this->platform->getCreateTableSQL($table)[0],
         );
     }
 }

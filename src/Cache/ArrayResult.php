@@ -11,17 +11,13 @@ use function array_values;
 use function count;
 use function reset;
 
-/**
- * @internal The class is internal to the caching layer implementation.
- */
+/** @internal The class is internal to the caching layer implementation. */
 final class ArrayResult implements Result
 {
     private readonly int $columnCount;
     private int $num = 0;
 
-    /**
-     * @param list<array<string, mixed>> $data
-     */
+    /** @param list<array<string, mixed>> $data */
     public function __construct(private array $data)
     {
         $this->columnCount = $data === [] ? 0 : count($data[0]);
@@ -93,9 +89,7 @@ final class ArrayResult implements Result
         $this->data = [];
     }
 
-    /**
-     * @return array<string, mixed>|false
-     */
+    /** @return array<string, mixed>|false */
     private function fetch(): array|false
     {
         if (! isset($this->data[$this->num])) {

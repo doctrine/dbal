@@ -144,7 +144,7 @@ class LegacyAPITest extends FunctionalTestCase
         $this->connection->executeUpdate(
             'INSERT INTO legacy_table (test_int, test_string) VALUES (?, ?)',
             [2, 'bar'],
-            ['integer', 'string']
+            ['integer', 'string'],
         );
 
         $sql = 'SELECT test_string FROM legacy_table';

@@ -70,7 +70,7 @@ class Schema extends AbstractAsset
         array $tables = [],
         array $sequences = [],
         ?SchemaConfig $schemaConfig = null,
-        array $namespaces = []
+        array $namespaces = [],
     ) {
         $schemaConfig ??= new SchemaConfig();
 
@@ -95,9 +95,7 @@ class Schema extends AbstractAsset
         }
     }
 
-    /**
-     * @throws SchemaException
-     */
+    /** @throws SchemaException */
     protected function _addTable(Table $table): void
     {
         $namespaceName = $table->getNamespaceName();
@@ -119,9 +117,7 @@ class Schema extends AbstractAsset
         $table->setSchemaConfig($this->_schemaConfig);
     }
 
-    /**
-     * @throws SchemaException
-     */
+    /** @throws SchemaException */
     protected function _addSequence(Sequence $sequence): void
     {
         $namespaceName = $sequence->getNamespaceName();
@@ -162,9 +158,7 @@ class Schema extends AbstractAsset
         return array_values($this->_tables);
     }
 
-    /**
-     * @throws SchemaException
-     */
+    /** @throws SchemaException */
     public function getTable(string $name): Table
     {
         $name = $this->getFullQualifiedAssetName($name);
@@ -244,9 +238,7 @@ class Schema extends AbstractAsset
         return isset($this->_sequences[$name]);
     }
 
-    /**
-     * @throws SchemaException
-     */
+    /** @throws SchemaException */
     public function getSequence(string $name): Sequence
     {
         $name = $this->getFullQualifiedAssetName($name);
@@ -257,9 +249,7 @@ class Schema extends AbstractAsset
         return $this->_sequences[$name];
     }
 
-    /**
-     * @return list<Sequence>
-     */
+    /** @return list<Sequence> */
     public function getSequences(): array
     {
         return array_values($this->_sequences);
@@ -349,9 +339,7 @@ class Schema extends AbstractAsset
         return $seq;
     }
 
-    /**
-     * @return $this
-     */
+    /** @return $this */
     public function dropSequence(string $name): self
     {
         $name = $this->getFullQualifiedAssetName($name);

@@ -17,9 +17,7 @@ use function array_search;
  */
 final class TypeRegistry
 {
-    /**
-     * @param array<string, Type> $instances
-     */
+    /** @param array<string, Type> $instances */
     public function __construct(private array $instances = [])
     {
     }

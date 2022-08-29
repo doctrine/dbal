@@ -11,9 +11,7 @@ use PDOStatement;
 
 final class Result implements ResultInterface
 {
-    /**
-     * @internal The result can be only instantiated by its driver connection or statement.
-     */
+    /** @internal The result can be only instantiated by its driver connection or statement. */
     public function __construct(private readonly PDOStatement $statement)
     {
     }
@@ -80,9 +78,7 @@ final class Result implements ResultInterface
         $this->statement->closeCursor();
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function fetch(int $mode): mixed
     {
         try {

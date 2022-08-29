@@ -60,7 +60,7 @@ class SchemaDiff
         public array $newTables = [],
         public array $changedTables = [],
         public array $removedTables = [],
-        public ?Schema $fromSchema = null
+        public ?Schema $fromSchema = null,
     ) {
     }
 
@@ -80,17 +80,13 @@ class SchemaDiff
         return $this->_toSql($platform, true);
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     public function toSql(AbstractPlatform $platform): array
     {
         return $this->_toSql($platform, false);
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     protected function _toSql(AbstractPlatform $platform, bool $saveMode = false): array
     {
         $sql = [];
@@ -106,7 +102,7 @@ class SchemaDiff
                 foreach ($tableOrphanedForeignKey as $orphanedForeignKey) {
                     $sql[] = $platform->getDropForeignKeySQL(
                         $orphanedForeignKey->getQuotedName($platform),
-                        $localTableName
+                        $localTableName,
                     );
                 }
             }

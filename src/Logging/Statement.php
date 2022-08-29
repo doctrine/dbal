@@ -18,13 +18,11 @@ final class Statement extends AbstractStatementMiddleware
     /** @var array<int,ParameterType>|array<string,ParameterType> */
     private array $types = [];
 
-    /**
-     * @internal This statement can be only instantiated by its connection.
-     */
+    /** @internal This statement can be only instantiated by its connection. */
     public function __construct(
         StatementInterface $statement,
         private readonly LoggerInterface $logger,
-        private readonly string $sql
+        private readonly string $sql,
     ) {
         parent::__construct($statement);
     }

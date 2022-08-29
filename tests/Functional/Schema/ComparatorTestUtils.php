@@ -14,31 +14,27 @@ use PHPUnit\Framework\TestCase;
 
 final class ComparatorTestUtils
 {
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public static function diffFromActualToDesiredTable(
         AbstractSchemaManager $schemaManager,
         Comparator $comparator,
-        Table $desiredTable
+        Table $desiredTable,
     ): ?TableDiff {
         return $comparator->diffTable(
             $schemaManager->introspectTable($desiredTable->getName()),
-            $desiredTable
+            $desiredTable,
         );
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public static function diffFromDesiredToActualTable(
         AbstractSchemaManager $schemaManager,
         Comparator $comparator,
-        Table $desiredTable
+        Table $desiredTable,
     ): ?TableDiff {
         return $comparator->diffTable(
             $desiredTable,
-            $schemaManager->introspectTable($desiredTable->getName())
+            $schemaManager->introspectTable($desiredTable->getName()),
         );
     }
 

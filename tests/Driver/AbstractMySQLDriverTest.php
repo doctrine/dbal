@@ -16,9 +16,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 
-/**
- * @extends AbstractDriverTest<MySQLPlatform>
- */
+/** @extends AbstractDriverTest<MySQLPlatform> */
 class AbstractMySQLDriverTest extends AbstractDriverTest
 {
     protected function createDriver(): Driver
@@ -35,7 +33,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
     {
         return new MySQLSchemaManager(
             $connection,
-            $this->createPlatform()
+            $this->createPlatform(),
         );
     }
 

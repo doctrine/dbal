@@ -56,12 +56,12 @@ abstract class AbstractMySQLDriver implements Driver
             preg_match(
                 '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
                 $versionString,
-                $versionParts
+                $versionParts,
             ) === 0
         ) {
             throw InvalidPlatformVersion::new(
                 $versionString,
-                '<major_version>.<minor_version>.<patch_version>'
+                '<major_version>.<minor_version>.<patch_version>',
             );
         }
 

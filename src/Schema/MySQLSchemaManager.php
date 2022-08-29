@@ -36,9 +36,7 @@ use const CASE_LOWER;
  */
 class MySQLSchemaManager extends AbstractSchemaManager
 {
-    /**
-     * @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences
-     */
+    /** @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences */
     private const MARIADB_ESCAPE_SEQUENCES = [
         '\\0' => "\0",
         "\\'" => "'",
@@ -151,7 +149,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
                     preg_match(
                         '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
                         $tableColumn['type'],
-                        $match
+                        $match,
                     ) === 1
                 ) {
                     $precision = (int) $match[1];
@@ -311,24 +309,22 @@ class MySQLSchemaManager extends AbstractSchemaManager
             [
                 'onDelete' => $tableForeignKey['onDelete'],
                 'onUpdate' => $tableForeignKey['onUpdate'],
-            ]
+            ],
         );
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function createComparator(): Comparator
     {
         return new MySQL\Comparator(
             $this->platform,
             new CachingCharsetMetadataProvider(
-                new ConnectionCharsetMetadataProvider($this->connection)
+                new ConnectionCharsetMetadataProvider($this->connection),
             ),
             new CachingCollationMetadataProvider(
-                new ConnectionCollationMetadataProvider($this->connection)
+                new ConnectionCollationMetadataProvider($this->connection),
             ),
-            $this->getDefaultTableOptions()
+            $this->getDefaultTableOptions(),
         );
     }
 
@@ -501,9 +497,7 @@ SQL;
         return $tableOptions;
     }
 
-    /**
-     * @return array<string, string>|array<string, true>
-     */
+    /** @return array<string, string>|array<string, true> */
     private function parseCreateOptions(?string $string): array
     {
         $options = [];
@@ -521,9 +515,7 @@ SQL;
         return $options;
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function getDefaultTableOptions(): DefaultTableOptions
     {
         if ($this->defaultTableOptions === null) {

@@ -40,9 +40,7 @@ class TypeConversionTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
     }
 
-    /**
-     * @dataProvider booleanProvider
-     */
+    /** @dataProvider booleanProvider */
     public function testIdempotentConversionToBoolean(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
@@ -51,9 +49,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function booleanProvider(): iterable
     {
         return [
@@ -62,9 +58,7 @@ class TypeConversionTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider integerProvider
-     */
+    /** @dataProvider integerProvider */
     public function testIdempotentConversionToInteger(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
@@ -73,9 +67,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function integerProvider(): iterable
     {
         return [
@@ -83,9 +75,7 @@ class TypeConversionTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider floatProvider
-     */
+    /** @dataProvider floatProvider */
     public function testIdempotentConversionToFloat(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
@@ -94,9 +84,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function floatProvider(): iterable
     {
         return [
@@ -104,9 +92,7 @@ class TypeConversionTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider toStringProvider
-     */
+    /** @dataProvider toStringProvider */
     public function testIdempotentConversionToString(string $type, mixed $originalValue): void
     {
         if ($type === 'text' && TestUtil::isDriverOneOf('pdo_oci')) {
@@ -121,9 +107,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function toStringProvider(): iterable
     {
         return [
@@ -137,9 +121,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals(['foo' => 'bar'], $this->processValue('json', ['foo' => 'bar']));
     }
 
-    /**
-     * @dataProvider toDateTimeProvider
-     */
+    /** @dataProvider toDateTimeProvider */
     public function testIdempotentConversionToDateTime(string $type, DateTime $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
@@ -153,13 +135,11 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
         self::assertEquals(
             $originalValue->getTimezone(),
-            $dbValue->getTimezone()
+            $dbValue->getTimezone(),
         );
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function toDateTimeProvider(): iterable
     {
         return [
@@ -176,7 +156,7 @@ class TypeConversionTest extends FunctionalTestCase
         $typeInstance   = Type::getType($type);
         $insertionValue = $typeInstance->convertToDatabaseValue(
             $originalValue,
-            $this->connection->getDatabasePlatform()
+            $this->connection->getDatabasePlatform(),
         );
 
         $this->connection->insert('type_conversion', ['id' => ++self::$typeCounter, $columnName => $insertionValue]);
@@ -185,7 +165,7 @@ class TypeConversionTest extends FunctionalTestCase
 
         return $typeInstance->convertToPHPValue(
             $this->connection->fetchOne($sql),
-            $this->connection->getDatabasePlatform()
+            $this->connection->getDatabasePlatform(),
         );
     }
 }

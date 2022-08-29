@@ -27,9 +27,7 @@ class OracleSessionInitTest extends TestCase
         $listener->postConnect($eventArgs);
     }
 
-    /**
-     * @dataProvider getPostConnectWithSessionParameterValuesData
-     */
+    /** @dataProvider getPostConnectWithSessionParameterValuesData */
     public function testPostConnectQuotesSessionParameterValues(string $name, string $value): void
     {
         $connectionMock = $this->getMockBuilder(Connection::class)
@@ -45,9 +43,7 @@ class OracleSessionInitTest extends TestCase
         $listener->postConnect($eventArgs);
     }
 
-    /**
-     * @return array<int, array<int, mixed>>
-     */
+    /** @return array<int, array<int, mixed>> */
     public static function getPostConnectWithSessionParameterValuesData(): iterable
     {
         return [

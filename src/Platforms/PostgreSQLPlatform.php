@@ -95,7 +95,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        DateIntervalUnit $unit
+        DateIntervalUnit $unit,
     ): string {
         if ($unit === DateIntervalUnit::QUARTER) {
             $interval = $this->multiplyInterval($interval, 3);
@@ -130,33 +130,25 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsPartialIndexes(): bool
     {
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsCommentOnStatement(): bool
     {
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListDatabasesSQL(): string
     {
         return 'SELECT datname FROM pg_database';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListSequencesSQL(string $database): string
     {
         return 'SELECT sequence_name AS relname,
@@ -169,9 +161,7 @@ class PostgreSQLPlatform extends AbstractPlatform
                 AND    sequence_schema != 'information_schema'";
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT quote_ident(table_name) AS viewname,
@@ -199,13 +189,11 @@ class PostgreSQLPlatform extends AbstractPlatform
             $classAlias,
             $table,
             $namespaceAlias,
-            $schema
+            $schema,
         );
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';
@@ -259,7 +247,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
                 $column->getQuotedName($this),
-                $comment
+                $comment,
             );
         }
 
@@ -335,7 +323,7 @@ class PostgreSQLPlatform extends AbstractPlatform
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
-                    $newComment
+                    $newComment,
                 );
             }
 
@@ -370,14 +358,14 @@ class PostgreSQLPlatform extends AbstractPlatform
                 $sql[] = sprintf(
                     'ALTER TABLE %s RENAME TO %s',
                     $diff->getName($this)->getQuotedName($this),
-                    $newName->getQuotedName($this)
+                    $newName->getQuotedName($this),
                 );
             }
 
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff)
+                $this->getPostAlterTableIndexForeignKeySQL($diff),
             );
         }
 
@@ -537,7 +525,7 @@ class PostgreSQLPlatform extends AbstractPlatform
 
         throw new UnexpectedValueException(sprintf(
             'Unrecognized boolean literal, %s given.',
-            $value
+            $value,
         ));
     }
 
@@ -577,16 +565,14 @@ class PostgreSQLPlatform extends AbstractPlatform
 
         return $this->doConvertBooleans(
             $item,
-            /**
-             * @param mixed $value
-             */
+            /** @param mixed $value */
             static function ($value): string {
                 if ($value === null) {
                     return 'NULL';
                 }
 
                 return $value === true ? 'true' : 'false';
-            }
+            },
         );
     }
 
@@ -598,12 +584,10 @@ class PostgreSQLPlatform extends AbstractPlatform
 
         return $this->doConvertBooleans(
             $item,
-            /**
-             * @param mixed $value
-             */
+            /** @param mixed $value */
             static function ($value): ?int {
                 return $value === null ? null : (int) $value;
-            }
+            },
         );
     }
 
@@ -841,17 +825,13 @@ class PostgreSQLPlatform extends AbstractPlatform
         return parent::getDefaultValueDeclarationSQL($column);
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsColumnCollation(): bool
     {
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getColumnCollationDeclarationSQL(string $collation): string
     {
         return 'COLLATE ' . $this->quoteSingleIdentifier($collation);

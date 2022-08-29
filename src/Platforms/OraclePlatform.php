@@ -54,7 +54,7 @@ class OraclePlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        DateIntervalUnit $unit
+        DateIntervalUnit $unit,
     ): string {
         switch ($unit) {
             case DateIntervalUnit::MONTH:
@@ -291,22 +291,18 @@ class OraclePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListDatabasesSQL(): string
     {
         return 'SELECT username FROM all_users';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListSequencesSQL(string $database): string
     {
         return 'SELECT SEQUENCE_NAME, MIN_VALUE, INCREMENT_BY FROM SYS.ALL_SEQUENCES WHERE SEQUENCE_OWNER = '
             . $this->quoteStringLiteral(
-                $this->normalizeIdentifier($database)->getName()
+                $this->normalizeIdentifier($database)->getName(),
             );
     }
 
@@ -340,17 +336,13 @@ class OraclePlatform extends AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT view_name, text FROM sys.user_views';
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     protected function getCreateAutoincrementSql(string $name, string $table, int $start = 1): array
     {
         $tableIdentifier   = $this->normalizeIdentifier($table);
@@ -380,7 +372,7 @@ BEGIN
 END;";
 
         $sequenceName = $this->getIdentitySequenceName(
-            $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName
+            $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName,
         );
         $sequence     = new Sequence($sequenceName, $start);
         $sql[]        = $this->getCreateSequenceSQL($sequence);
@@ -424,7 +416,7 @@ END;';
         $table                       = $this->normalizeIdentifier($table);
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);
         $identitySequenceName        = $this->getIdentitySequenceName(
-            $table->isQuoted() ? $table->getQuotedName($this) : $table->getName()
+            $table->isQuoted() ? $table->getQuotedName($this) : $table->getName(),
         );
 
         return [
@@ -485,9 +477,7 @@ END;';
         return $this->getDropConstraintSQL($foreignKey, $table);
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $referentialAction = '';
@@ -503,9 +493,7 @@ END;';
         return '';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getForeignKeyReferentialActionSQL(string $action): string
     {
         $action = strtoupper($action);
@@ -555,7 +543,7 @@ END;';
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
                 $column->getQuotedName($this),
-                $comment
+                $comment,
             );
         }
 
@@ -592,7 +580,7 @@ END;';
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
                 $column->getQuotedName($this),
-                $column->getComment()
+                $column->getComment(),
             );
         }
 
@@ -637,14 +625,14 @@ END;';
                 $sql[] = sprintf(
                     'ALTER TABLE %s RENAME TO %s',
                     $diff->getName($this)->getQuotedName($this),
-                    $newName->getQuotedName($this)
+                    $newName->getQuotedName($this),
                 );
             }
 
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff)
+                $this->getPostAlterTableIndexForeignKeySQL($diff),
             );
         }
 
@@ -710,9 +698,7 @@ END;';
         return $identitySequenceIdentifier->getQuotedName($this);
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsCommentOnStatement(): bool
     {
         return true;

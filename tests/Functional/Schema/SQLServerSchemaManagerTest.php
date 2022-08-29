@@ -33,7 +33,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'sqlsrv_drop_column',
             [],
             [],
-            ['todrop' => new Column('todrop', Type::getType('decimal'))]
+            ['todrop' => new Column('todrop', Type::getType('decimal'))],
         );
 
         $this->schemaManager->alterTable($diff);
@@ -102,7 +102,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     'df_integer',
                     new Column('df_integer', Type::getType('integer'), ['default' => 0]),
                     ['default'],
-                    new Column('df_integer', Type::getType('integer'), ['default' => 666])
+                    new Column('df_integer', Type::getType('integer'), ['default' => 666]),
                 ),
                 'df_string_2' => new ColumnDiff(
                     'df_string_2',
@@ -111,7 +111,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     new Column('df_string_2', Type::getType('string'), [
                         'length' => 32,
                         'default' => 'Doctrine rocks!!!',
-                    ])
+                    ]),
                 ),
                 'df_string_3' => new ColumnDiff(
                     'df_string_3',
@@ -123,13 +123,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     new Column('df_string_3', Type::getType('string'), [
                         'length' => 50,
                         'default' => 'another default value',
-                    ])
+                    ]),
                 ),
                 'df_boolean' => new ColumnDiff(
                     'df_boolean',
                     new Column('df_boolean', Type::getType('boolean'), ['default' => false]),
                     ['default'],
-                    new Column('df_boolean', Type::getType('boolean'), ['default' => true])
+                    new Column('df_boolean', Type::getType('boolean'), ['default' => true]),
                 ),
             ],
             [
@@ -138,13 +138,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             [],
             [],
             [],
-            $table
+            $table,
         );
         $diff->newName                       = 'sqlsrv_default_constraints';
         $diff->renamedColumns['df_string_4'] = new Column(
             'df_string_renamed',
             Type::getType('string'),
-            ['default' => 'column to rename']
+            ['default' => 'column to rename'],
         );
 
         $this->schemaManager->alterTable($diff);
@@ -168,14 +168,14 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     'df_integer',
                     new Column('df_integer', Type::getType('integer'), ['default' => 666]),
                     ['default'],
-                    new Column('df_integer', Type::getType('integer'), ['default' => 0])
+                    new Column('df_integer', Type::getType('integer'), ['default' => 0]),
                 ),
             ],
             [],
             [],
             [],
             [],
-            $table
+            $table,
         );
 
         $this->schemaManager->alterTable($diff);

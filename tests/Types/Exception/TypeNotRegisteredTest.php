@@ -16,7 +16,7 @@ class TypeNotRegisteredTest extends TestCase
 
         self::assertMatchesRegularExpression(
             '/Type of the class Doctrine\\\DBAL\\\Types\\\StringType@([0-9a-zA-Z]+) is not registered./',
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 }

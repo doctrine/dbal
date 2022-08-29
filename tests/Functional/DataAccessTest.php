@@ -111,7 +111,7 @@ class DataAccessTest extends FunctionalTestCase
         $data = $this->connection->fetchAllAssociative(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+            [ParameterType::STRING, Types::DATETIME_MUTABLE],
         );
 
         self::assertCount(1, $data);
@@ -146,7 +146,7 @@ class DataAccessTest extends FunctionalTestCase
         $row = $this->connection->fetchAssociative(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+            [ParameterType::STRING, Types::DATETIME_MUTABLE],
         );
 
         self::assertNotFalse($row);
@@ -176,7 +176,7 @@ class DataAccessTest extends FunctionalTestCase
         $row = $this->connection->fetchNumeric(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+            [ParameterType::STRING, Types::DATETIME_MUTABLE],
         );
 
         self::assertNotFalse($row);
@@ -209,7 +209,7 @@ class DataAccessTest extends FunctionalTestCase
         $column = $this->connection->fetchOne(
             $sql,
             [1, $datetime],
-            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+            [ParameterType::STRING, Types::DATETIME_MUTABLE],
         );
 
         self::assertIsString($column);
@@ -222,7 +222,7 @@ class DataAccessTest extends FunctionalTestCase
         $value = $this->connection->fetchOne(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
             [new DateTime('2010-01-01 10:10:10')],
-            [Types::DATETIME_MUTABLE]
+            [Types::DATETIME_MUTABLE],
         );
 
         self::assertEquals(1, $value);
@@ -247,7 +247,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $this->connection->executeQuery(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
             [$datetime],
-            [Types::DATETIME_MUTABLE]
+            [Types::DATETIME_MUTABLE],
         )->fetchOne());
     }
 
@@ -275,7 +275,7 @@ class DataAccessTest extends FunctionalTestCase
         $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_int IN (?)',
             [[100, 101, 102, 103, 104]],
-            [Connection::PARAM_INT_ARRAY]
+            [Connection::PARAM_INT_ARRAY],
         );
 
         $data = $result->fetchAllNumeric();
@@ -285,7 +285,7 @@ class DataAccessTest extends FunctionalTestCase
         $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_string IN (?)',
             [['foo100', 'foo101', 'foo102', 'foo103', 'foo104']],
-            [Connection::PARAM_STR_ARRAY]
+            [Connection::PARAM_STR_ARRAY],
         );
 
         $data = $result->fetchAllNumeric();
@@ -293,9 +293,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals([[100], [101], [102], [103], [104]], $data);
     }
 
-    /**
-     * @dataProvider getTrimExpressionData
-     */
+    /** @dataProvider getTrimExpressionData */
     public function testTrimExpression(string $value, TrimMode $mode, ?string $char, string $expectedResult): void
     {
         $sql = 'SELECT ' .
@@ -309,9 +307,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals($expectedResult, $row['trimmed']);
     }
 
-    /**
-     * @return array<int, array<int, mixed>>
-     */
+    /** @return array<int, array<int, mixed>> */
     public static function getTrimExpressionData(): iterable
     {
         return [
@@ -354,9 +350,7 @@ class DataAccessTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateAddSeconds(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -366,13 +360,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateAddSecondsExpression('test_datetime', $interval);
             },
             1,
-            '2010-01-01 10:10:11'
+            '2010-01-01 10:10:11',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateSubSeconds(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -382,13 +374,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateSubSecondsExpression('test_datetime', $interval);
             },
             1,
-            '2010-01-01 10:10:09'
+            '2010-01-01 10:10:09',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateAddMinutes(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -398,13 +388,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateAddMinutesExpression('test_datetime', $interval);
             },
             5,
-            '2010-01-01 10:15:10'
+            '2010-01-01 10:15:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateSubMinutes(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -414,13 +402,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateSubMinutesExpression('test_datetime', $interval);
             },
             5,
-            '2010-01-01 10:05:10'
+            '2010-01-01 10:05:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateAddHours(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -430,13 +416,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateAddHourExpression('test_datetime', $interval);
             },
             3,
-            '2010-01-01 13:10:10'
+            '2010-01-01 13:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateSubHours(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -446,13 +430,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateSubHourExpression('test_datetime', $interval);
             },
             3,
-            '2010-01-01 07:10:10'
+            '2010-01-01 07:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateAddDays(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -462,13 +444,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateAddDaysExpression('test_datetime', $interval);
             },
             10,
-            '2010-01-11 10:10:10'
+            '2010-01-11 10:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateSubDays(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -478,13 +458,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateSubDaysExpression('test_datetime', $interval);
             },
             10,
-            '2009-12-22 10:10:10'
+            '2009-12-22 10:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateAddWeeks(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -494,13 +472,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateAddWeeksExpression('test_datetime', $interval);
             },
             1,
-            '2010-01-08 10:10:10'
+            '2010-01-08 10:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateSubWeeks(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -510,13 +486,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateSubWeeksExpression('test_datetime', $interval);
             },
             1,
-            '2009-12-25 10:10:10'
+            '2009-12-25 10:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateAddMonths(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -526,13 +500,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateAddMonthExpression('test_datetime', $interval);
             },
             2,
-            '2010-03-01 10:10:10'
+            '2010-03-01 10:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateSubMonths(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -542,13 +514,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateSubMonthExpression('test_datetime', $interval);
             },
             2,
-            '2009-11-01 10:10:10'
+            '2009-11-01 10:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateAddQuarters(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -558,13 +528,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateAddQuartersExpression('test_datetime', $interval);
             },
             3,
-            '2010-10-01 10:10:10'
+            '2010-10-01 10:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateSubQuarters(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -574,13 +542,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateSubQuartersExpression('test_datetime', $interval);
             },
             3,
-            '2009-04-01 10:10:10'
+            '2009-04-01 10:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateAddYears(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -590,13 +556,11 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateAddYearsExpression('test_datetime', $interval);
             },
             6,
-            '2016-01-01 10:10:10'
+            '2016-01-01 10:10:10',
         );
     }
 
-    /**
-     * @dataProvider modeProvider
-     */
+    /** @dataProvider modeProvider */
     public function testDateSubYears(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -606,7 +570,7 @@ class DataAccessTest extends FunctionalTestCase
                 return $platform->getDateSubYearsExpression('test_datetime', $interval);
             },
             6,
-            '2004-01-01 10:10:10'
+            '2004-01-01 10:10:10',
         );
     }
 
@@ -622,7 +586,7 @@ class DataAccessTest extends FunctionalTestCase
         callable $bindParams,
         callable $expression,
         int $interval,
-        string $expected
+        string $expected,
     ): void {
         $connection = $this->connection;
         $platform   = $connection->getDatabasePlatform();
@@ -637,9 +601,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals($expected, date('Y-m-d H:i:s', strtotime($date)));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function modeProvider(): array
     {
         return [
@@ -726,23 +688,19 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(0, $row['locate9']);
     }
 
-    /**
-     * @dataProvider substringExpressionProvider
-     */
+    /** @dataProvider substringExpressionProvider */
     public function testSubstringExpression(string $string, string $start, ?string $length, string $expected): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
         $query = $platform->getDummySelectSQL(
-            $platform->getSubstringExpression($string, $start, $length)
+            $platform->getSubstringExpression($string, $start, $length),
         );
 
         self::assertEquals($expected, $this->connection->fetchOne($query));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function substringExpressionProvider(): iterable
     {
         return [

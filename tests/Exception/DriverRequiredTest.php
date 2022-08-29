@@ -20,9 +20,9 @@ class DriverRequiredTest extends TestCase
             sprintf(
                 'The options "driver" or "driverClass" are mandatory if a connection URL without scheme ' .
                 'is given to DriverManager::getConnection(). Given URL "%s".',
-                $url
+                $url,
             ),
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 }

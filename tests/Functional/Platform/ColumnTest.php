@@ -19,25 +19,19 @@ abstract class ColumnTest extends FunctionalTestCase
         $this->assertColumn(Types::STRING, [], 'Test', ParameterType::STRING);
     }
 
-    /**
-     * @dataProvider string8Provider
-     */
+    /** @dataProvider string8Provider */
     public function testVariableLengthStringWithLength(string $value): void
     {
         $this->assertColumn(Types::STRING, ['length' => 8], $value, ParameterType::STRING);
     }
 
-    /**
-     * @dataProvider string1Provider
-     */
+    /** @dataProvider string1Provider */
     public function testFixedLengthStringNoLength(string $value): void
     {
         $this->assertColumn(Types::STRING, ['fixed' => true], $value, ParameterType::STRING);
     }
 
-    /**
-     * @dataProvider string8Provider
-     */
+    /** @dataProvider string8Provider */
     public function testFixedLengthStringWithLength(string $value): void
     {
         $this->assertColumn(Types::STRING, [
@@ -46,9 +40,7 @@ abstract class ColumnTest extends FunctionalTestCase
         ], $value, ParameterType::STRING);
     }
 
-    /**
-     * @return iterable<string, array<int, mixed>>
-     */
+    /** @return iterable<string, array<int, mixed>> */
     public static function string1Provider(): iterable
     {
         return [
@@ -57,9 +49,7 @@ abstract class ColumnTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @return iterable<string, array<int, mixed>>
-     */
+    /** @return iterable<string, array<int, mixed>> */
     public static function string8Provider(): iterable
     {
         return [
@@ -100,9 +90,7 @@ abstract class ColumnTest extends FunctionalTestCase
         self::markTestSkipped(sprintf('The test requires %s', $class));
     }
 
-    /**
-     * @param array<string, mixed> $column
-     */
+    /** @param array<string, mixed> $column */
     protected function assertColumn(string $type, array $column, string $value, ParameterType $bindType): void
     {
         $table = new Table('column_test');
@@ -114,7 +102,7 @@ abstract class ColumnTest extends FunctionalTestCase
 
         self::assertSame($value, Type::getType($type)->convertToPHPValue(
             $this->connection->fetchOne('SELECT val FROM column_test'),
-            $this->connection->getDatabasePlatform()
+            $this->connection->getDatabasePlatform(),
         ));
     }
 }

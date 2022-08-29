@@ -106,7 +106,7 @@ class PrimaryReadReplicaConnection extends Connection
         array $params,
         Driver $driver,
         ?Configuration $config = null,
-        ?EventManager $eventManager = null
+        ?EventManager $eventManager = null,
     ) {
         if (! isset($params['replica'], $params['primary'])) {
             throw new InvalidArgumentException('primary or replica configuration missing');
@@ -142,7 +142,7 @@ class PrimaryReadReplicaConnection extends Connection
         if ($connectionName !== null) {
             throw new InvalidArgumentException(
                 'Passing a connection name as first argument is not supported anymore.'
-                    . ' Use ensureConnectedToPrimary()/ensureConnectedToReplica() instead.'
+                    . ' Use ensureConnectedToPrimary()/ensureConnectedToReplica() instead.',
             );
         }
 

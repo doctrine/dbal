@@ -90,7 +90,7 @@ class TemporaryTableTest extends FunctionalTestCase
 
         try {
             $this->connection->executeStatement(
-                $platform->getDropTemporaryTableSQL($tempTable)
+                $platform->getDropTemporaryTableSQL($tempTable),
             );
         } catch (Throwable) {
         }
@@ -103,7 +103,7 @@ class TemporaryTableTest extends FunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
         $sql      = $platform->getDropTemporaryTableSQL(
-            $platform->getTemporaryTableName($name)
+            $platform->getTemporaryTableName($name),
         );
 
         try {

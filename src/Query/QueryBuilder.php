@@ -300,7 +300,7 @@ class QueryBuilder
             $this->getSQL(),
             $this->params,
             $this->types,
-            $this->resultCacheProfile
+            $this->resultCacheProfile,
         );
     }
 
@@ -362,7 +362,7 @@ class QueryBuilder
     public function setParameter(
         int|string $key,
         mixed $value,
-        string|ParameterType|Type $type = ParameterType::STRING
+        string|ParameterType|Type $type = ParameterType::STRING,
     ): self {
         $this->params[$key] = $value;
         $this->types[$key]  = $type;
@@ -863,7 +863,7 @@ class QueryBuilder
             $this->where,
             CompositeExpression::TYPE_AND,
             $predicate,
-            ...$predicates
+            ...$predicates,
         );
 
         $this->sql = null;
@@ -1036,7 +1036,7 @@ class QueryBuilder
             $this->having,
             CompositeExpression::TYPE_AND,
             $predicate,
-            ...$predicates
+            ...$predicates,
         );
 
         $this->sql = null;
@@ -1059,7 +1059,7 @@ class QueryBuilder
             $this->having,
             CompositeExpression::TYPE_OR,
             $predicate,
-            ...$predicates
+            ...$predicates,
         );
 
         $this->sql = null;
@@ -1072,7 +1072,7 @@ class QueryBuilder
      */
     private function createPredicate(
         string|CompositeExpression $predicate,
-        string|CompositeExpression ...$predicates
+        string|CompositeExpression ...$predicates,
     ): string|CompositeExpression {
         if (count($predicates) === 0) {
             return $predicate;
@@ -1087,7 +1087,7 @@ class QueryBuilder
     private function appendToPredicate(
         string|CompositeExpression|null $currentPredicate,
         string $type,
-        string|CompositeExpression ...$predicates
+        string|CompositeExpression ...$predicates,
     ): string|CompositeExpression {
         if ($currentPredicate instanceof CompositeExpression && $currentPredicate->getType() === $type) {
             return $currentPredicate->with(...$predicates);
@@ -1149,9 +1149,7 @@ class QueryBuilder
         return $this;
     }
 
-    /**
-     * @throws QueryException
-     */
+    /** @throws QueryException */
     private function getSQLForSelect(): string
     {
         if (count($this->select) === 0) {
@@ -1190,7 +1188,7 @@ class QueryBuilder
             return $this->connection->getDatabasePlatform()->modifyLimitQuery(
                 $query,
                 $this->maxResults,
-                $this->firstResult
+                $this->firstResult,
             );
         }
 
@@ -1322,7 +1320,7 @@ class QueryBuilder
     public function createNamedParameter(
         mixed $value,
         string|ParameterType|Type $type = ParameterType::STRING,
-        ?string $placeHolder = null
+        ?string $placeHolder = null,
     ): string {
         if ($placeHolder === null) {
             $this->boundCounter++;
@@ -1353,7 +1351,7 @@ class QueryBuilder
      */
     public function createPositionalParameter(
         mixed $value,
-        string|ParameterType|Type $type = ParameterType::STRING
+        string|ParameterType|Type $type = ParameterType::STRING,
     ): string {
         $this->setParameter($this->boundCounter, $value, $type);
         $this->boundCounter++;

@@ -53,10 +53,7 @@ class ConnectionTest extends TestCase
         $this->connection = DriverManager::getConnection($this->params);
     }
 
-    /**
-     * @return Connection&MockObject
-     */
-    private function getExecuteStatementMockConnection()
+    private function getExecuteStatementMockConnection(): Connection&MockObject
     {
         $driverMock = $this->createMock(Driver::class);
 
@@ -136,8 +133,8 @@ class ConnectionTest extends TestCase
                 self::callback(
                     static function (TransactionBeginEventArgs $eventArgs) use ($conn): bool {
                         return $eventArgs->getConnection() === $conn;
-                    }
-                )
+                    },
+                ),
             );
         $eventManager->addEventListener([Events::onTransactionBegin], $listenerMock);
 
@@ -157,8 +154,8 @@ class ConnectionTest extends TestCase
                 self::callback(
                     static function (TransactionCommitEventArgs $eventArgs) use ($conn): bool {
                         return $eventArgs->getConnection() === $conn;
-                    }
-                )
+                    },
+                ),
             );
         $eventManager->addEventListener([Events::onTransactionCommit], $listenerMock);
 
@@ -189,8 +186,8 @@ class ConnectionTest extends TestCase
                 self::callback(
                     static function (TransactionRollBackEventArgs $eventArgs) use ($conn): bool {
                         return $eventArgs->getConnection() === $conn;
-                    }
-                )
+                    },
+                ),
             );
         $eventManager->addEventListener([Events::onTransactionRollBack], $rollBackListenerMock);
 
@@ -220,8 +217,8 @@ class ConnectionTest extends TestCase
                 self::callback(
                     static function (TransactionRollBackEventArgs $eventArgs) use ($conn): bool {
                         return $eventArgs->getConnection() === $conn;
-                    }
-                )
+                    },
+                ),
             );
 
         $eventManager->addEventListener([Events::onTransactionRollBack], $listenerMock);
@@ -256,7 +253,7 @@ class ConnectionTest extends TestCase
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 near "MUUHAAAAHAAAA"'
+            'An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 near "MUUHAAAAHAAAA"',
         );
 
         $connection = DriverManager::getConnection([
@@ -267,9 +264,7 @@ class ConnectionTest extends TestCase
         $callback($connection, 'MUUHAAAAHAAAA');
     }
 
-    /**
-     * @return iterable<string, array<int, callable>>
-     */
+    /** @return iterable<string, array<int, callable>> */
     public static function getQueryMethods(): iterable
     {
         yield 'executeQuery' => [
@@ -330,9 +325,7 @@ class ConnectionTest extends TestCase
         self::assertTrue($conn->isTransactionActive());
     }
 
-    /**
-     * @return bool[][]
-     */
+    /** @return bool[][] */
     public function resultProvider(): array
     {
         return [[true], [false]];
@@ -408,7 +401,7 @@ class ConnectionTest extends TestCase
                     'boolean',
                     'integer',
                     'string',
-                ]
+                ],
             );
 
         $conn->update(
@@ -426,7 +419,7 @@ class ConnectionTest extends TestCase
                 'is_edited' => 'boolean',
                 'id' => 'integer',
                 'name' => 'string',
-            ]
+            ],
         );
     }
 
@@ -449,7 +442,7 @@ class ConnectionTest extends TestCase
                     'boolean',
                     'integer',
                     'boolean',
-                ]
+                ],
             );
 
         $conn->update(
@@ -466,7 +459,7 @@ class ConnectionTest extends TestCase
                 'text' => 'string',
                 'is_edited' => 'boolean',
                 'id' => 'integer',
-            ]
+            ],
         );
     }
 
@@ -487,7 +480,7 @@ class ConnectionTest extends TestCase
                     'string',
                     'boolean',
                     'string',
-                ]
+                ],
             );
 
         $conn->update(
@@ -505,7 +498,7 @@ class ConnectionTest extends TestCase
                 'is_edited' => 'boolean',
                 'id' => 'integer',
                 'name' => 'string',
-            ]
+            ],
         );
     }
 
@@ -518,7 +511,7 @@ class ConnectionTest extends TestCase
             ->with(
                 'DELETE FROM TestTable WHERE id IS NULL AND name = ?',
                 ['foo'],
-                ['string']
+                ['string'],
             );
 
         $conn->delete(
@@ -530,13 +523,11 @@ class ConnectionTest extends TestCase
             [
                 'id' => 'integer',
                 'name' => 'string',
-            ]
+            ],
         );
     }
 
-    /**
-     * @dataProvider fetchModeProvider
-     */
+    /** @dataProvider fetchModeProvider */
     public function testFetch(string $method, callable $invoke, mixed $expected): void
     {
         $query  = 'SELECT * FROM foo WHERE bar = ?';
@@ -565,9 +556,7 @@ class ConnectionTest extends TestCase
         self::assertSame($expected, $invoke($conn, $query, $params, $types));
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function fetchModeProvider(): iterable
     {
         yield 'numeric' => [
@@ -760,9 +749,7 @@ class ConnectionTest extends TestCase
         (new Connection($connectionParams, $driver))->executeCacheQuery($query, [], [], $queryCacheProfileMock);
     }
 
-    /**
-     * @psalm-suppress InvalidArgument
-     */
+    /** @psalm-suppress InvalidArgument */
     public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {
         $connectionParams             = $this->params;

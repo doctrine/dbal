@@ -48,7 +48,7 @@ class WriteTest extends FunctionalTestCase
         $affected = $this->connection->executeStatement(
             $sql,
             [1, 'foo'],
-            [ParameterType::INTEGER, ParameterType::STRING]
+            [ParameterType::INTEGER, ParameterType::STRING],
         );
 
         self::assertEquals(1, $affected, 'executeStatement() should return the number of affected rows!');
@@ -135,19 +135,19 @@ class WriteTest extends FunctionalTestCase
         self::assertEquals(1, $this->connection->update(
             'write_table',
             ['test_string' => 'bar'],
-            ['test_string' => 'foo']
+            ['test_string' => 'foo'],
         ));
 
         self::assertEquals(2, $this->connection->update(
             'write_table',
             ['test_string' => 'baz'],
-            ['test_string' => 'bar']
+            ['test_string' => 'bar'],
         ));
 
         self::assertEquals(0, $this->connection->update(
             'write_table',
             ['test_string' => 'baz'],
-            ['test_string' => 'bar']
+            ['test_string' => 'bar'],
         ));
     }
 
@@ -157,7 +157,7 @@ class WriteTest extends FunctionalTestCase
 
         self::assertEquals(2, $this->connection->update(
             'write_table',
-            ['test_string' => 'baz']
+            ['test_string' => 'baz'],
         ));
     }
 
@@ -204,14 +204,14 @@ class WriteTest extends FunctionalTestCase
         $this->connection->insert(
             'write_table',
             ['test_int' => '30', 'test_string' => $testString],
-            ['test_string' => 'datetime', 'test_int' => 'integer']
+            ['test_string' => 'datetime', 'test_int' => 'integer'],
         );
 
         $data = $this->connection->fetchOne('SELECT test_string FROM write_table WHERE test_int = 30');
 
         self::assertEquals(
             $testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()),
-            $data
+            $data,
         );
     }
 
@@ -222,7 +222,7 @@ class WriteTest extends FunctionalTestCase
         $this->connection->insert(
             'write_table',
             ['test_int' => '30', 'test_string' => $testString],
-            ['test_string' => 'datetime', 'test_int' => 'integer']
+            ['test_string' => 'datetime', 'test_int' => 'integer'],
         );
 
         $testString = new DateTime('2013-04-15 10:10:10');
@@ -231,14 +231,14 @@ class WriteTest extends FunctionalTestCase
             'write_table',
             ['test_string' => $testString],
             ['test_int' => '30'],
-            ['test_string' => 'datetime', 'test_int' => 'integer']
+            ['test_string' => 'datetime', 'test_int' => 'integer'],
         );
 
         $data = $this->connection->fetchOne('SELECT test_string FROM write_table WHERE test_int = 30');
 
         self::assertEquals(
             $testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()),
-            $data
+            $data,
         );
     }
 
@@ -248,7 +248,7 @@ class WriteTest extends FunctionalTestCase
         $this->connection->insert(
             'write_table',
             ['test_int' => '30', 'test_string' => $val],
-            ['test_string' => 'datetime', 'test_int' => 'integer']
+            ['test_string' => 'datetime', 'test_int' => 'integer'],
         );
 
         $this->connection->delete('write_table', [
@@ -270,7 +270,7 @@ class WriteTest extends FunctionalTestCase
 
         if (! $platform->supportsIdentityColumns()) {
             self::markTestSkipped(
-                'Test only works on platforms with native support for identity columns.'
+                'Test only works on platforms with native support for identity columns.',
             );
         }
 
@@ -305,7 +305,7 @@ class WriteTest extends FunctionalTestCase
         $this->connection->insert(
             'write_table',
             ['test_int' => '30', 'test_string' => null],
-            ['test_string' => 'string', 'test_int' => 'integer']
+            ['test_string' => 'string', 'test_int' => 'integer'],
         );
 
         $data = $this->connection->fetchAllAssociative('SELECT * FROM write_table WHERE test_int = 30');
@@ -327,7 +327,7 @@ class WriteTest extends FunctionalTestCase
         $this->connection->insert(
             'write_table',
             ['test_int' => '30', 'test_string' => null],
-            ['test_string' => 'string', 'test_int' => 'integer']
+            ['test_string' => 'string', 'test_int' => 'integer'],
         );
 
         $data = $this->connection->fetchAllAssociative('SELECT * FROM write_table WHERE test_int = 30');
@@ -341,9 +341,7 @@ class WriteTest extends FunctionalTestCase
         self::assertCount(0, $data);
     }
 
-    /**
-     * @param class-string<Driver\Exception> $expectedClass
-     */
+    /** @param class-string<Driver\Exception> $expectedClass */
     private function expectDriverException(string $expectedClass, Closure $test): void
     {
         try {

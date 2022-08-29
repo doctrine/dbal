@@ -37,20 +37,18 @@ class CachedQueryTest extends TestCase
             'SELECT 1',
             [],
             [],
-            new QueryCacheProfile(0, __FUNCTION__, new ArrayAdapter())
+            new QueryCacheProfile(0, __FUNCTION__, new ArrayAdapter()),
         )->fetchAllAssociative());
 
         self::assertSame($data, $connection->executeCacheQuery(
             'SELECT 1',
             [],
             [],
-            new QueryCacheProfile(0, __FUNCTION__, new ArrayAdapter())
+            new QueryCacheProfile(0, __FUNCTION__, new ArrayAdapter()),
         )->fetchAllAssociative());
     }
 
-    /**
-     * @param list<array<string, mixed>> $data
-     */
+    /** @param list<array<string, mixed>> $data */
     private function createConnection(int $expectedQueryCount, array $data): Connection
     {
         $connection = $this->createMock(Driver\Connection::class);

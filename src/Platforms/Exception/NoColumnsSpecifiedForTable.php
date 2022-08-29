@@ -8,9 +8,7 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class NoColumnsSpecifiedForTable extends Exception implements PlatformException
 {
     public static function new(string $tableName): self

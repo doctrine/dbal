@@ -20,9 +20,7 @@ class ComparatorTest extends FunctionalTestCase
         $this->schemaManager = $this->connection->createSchemaManager();
     }
 
-    /**
-     * @dataProvider defaultValueProvider
-     */
+    /** @dataProvider defaultValueProvider */
     public function testDefaultValueComparison(string $type, mixed $value): void
     {
         $platform = $this->connection->getDatabasePlatform();
@@ -43,13 +41,11 @@ class ComparatorTest extends FunctionalTestCase
 
         self::assertNull(
             $this->schemaManager->createComparator()
-                ->diffTable($table, $onlineTable)
+                ->diffTable($table, $onlineTable),
         );
     }
 
-    /**
-     * @return iterable<mixed[]>
-     */
+    /** @return iterable<mixed[]> */
     public static function defaultValueProvider(): iterable
     {
         return [

@@ -83,9 +83,7 @@ final class EasyConnectString
         ]);
     }
 
-    /**
-     * @param mixed[] $params
-     */
+    /** @param mixed[] $params */
     private static function renderParams(array $params): string
     {
         $chunks = [];

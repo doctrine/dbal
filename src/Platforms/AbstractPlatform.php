@@ -72,14 +72,10 @@ use function strtoupper;
  */
 abstract class AbstractPlatform
 {
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const CREATE_INDEXES = 1;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const CREATE_FOREIGNKEYS = 2;
 
     /** @var string[]|null */
@@ -361,7 +357,7 @@ abstract class AbstractPlatform
             throw new Exception(sprintf(
                 'Unknown database type "%s" requested, %s may not support it.',
                 $dbType,
-                static::class
+                static::class,
             ));
         }
 
@@ -688,7 +684,7 @@ abstract class AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        DateIntervalUnit $unit
+        DateIntervalUnit $unit,
     ): string;
 
     /**
@@ -783,7 +779,7 @@ abstract class AbstractPlatform
 
                 if ($sql === null) {
                     throw new UnexpectedValueException(
-                        'Default implementation of DROP TABLE was overridden with NULL.'
+                        'Default implementation of DROP TABLE was overridden with NULL.',
                     );
                 }
 
@@ -979,7 +975,7 @@ abstract class AbstractPlatform
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL(
                     $foreignKey,
-                    $table->getQuotedName($this)
+                    $table->getQuotedName($this),
                 );
             }
         }
@@ -1000,7 +996,7 @@ abstract class AbstractPlatform
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL(
                     $foreignKey->getQuotedName($this),
-                    $table->getQuotedName($this)
+                    $table->getQuotedName($this),
                 );
             }
         }
@@ -1019,13 +1015,11 @@ abstract class AbstractPlatform
         return sprintf(
             'COMMENT ON TABLE %s IS %s',
             $tableName->getQuotedName($this),
-            $this->quoteStringLiteral($comment)
+            $this->quoteStringLiteral($comment),
         );
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getCommentOnColumnSQL(string $tableName, string $columnName, string $comment): string
     {
         $tableName  = new Identifier($tableName);
@@ -1035,7 +1029,7 @@ abstract class AbstractPlatform
             'COMMENT ON COLUMN %s.%s IS %s',
             $tableName->getQuotedName($this),
             $columnName->getQuotedName($this),
-            $this->quoteStringLiteral($comment)
+            $this->quoteStringLiteral($comment),
         );
     }
 
@@ -1287,9 +1281,7 @@ abstract class AbstractPlatform
      */
     abstract public function getAlterTableSQL(TableDiff $diff): array;
 
-    /**
-     * @param mixed[] $columnSql
-     */
+    /** @param mixed[] $columnSql */
     protected function onSchemaAlterTableAddColumn(Column $column, TableDiff $diff, array &$columnSql): bool
     {
         if ($this->_eventManager === null) {
@@ -1308,9 +1300,7 @@ abstract class AbstractPlatform
         return $eventArgs->isDefaultPrevented();
     }
 
-    /**
-     * @param string[] $columnSql
-     */
+    /** @param string[] $columnSql */
     protected function onSchemaAlterTableRemoveColumn(Column $column, TableDiff $diff, array &$columnSql): bool
     {
         if ($this->_eventManager === null) {
@@ -1329,9 +1319,7 @@ abstract class AbstractPlatform
         return $eventArgs->isDefaultPrevented();
     }
 
-    /**
-     * @param string[] $columnSql
-     */
+    /** @param string[] $columnSql */
     protected function onSchemaAlterTableChangeColumn(ColumnDiff $columnDiff, TableDiff $diff, array &$columnSql): bool
     {
         if ($this->_eventManager === null) {
@@ -1350,14 +1338,12 @@ abstract class AbstractPlatform
         return $eventArgs->isDefaultPrevented();
     }
 
-    /**
-     * @param string[] $columnSql
-     */
+    /** @param string[] $columnSql */
     protected function onSchemaAlterTableRenameColumn(
         string $oldColumnName,
         Column $column,
         TableDiff $diff,
-        array &$columnSql
+        array &$columnSql,
     ): bool {
         if ($this->_eventManager === null) {
             return false;
@@ -1375,9 +1361,7 @@ abstract class AbstractPlatform
         return $eventArgs->isDefaultPrevented();
     }
 
-    /**
-     * @param string[] $sql
-     */
+    /** @param string[] $sql */
     protected function onSchemaAlterTable(TableDiff $diff, array &$sql): bool
     {
         if ($this->_eventManager === null) {
@@ -1396,9 +1380,7 @@ abstract class AbstractPlatform
         return $eventArgs->isDefaultPrevented();
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
         $tableName = $diff->getName($this)->getQuotedName($this);
@@ -1424,9 +1406,7 @@ abstract class AbstractPlatform
         return $sql;
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql     = [];
@@ -1458,7 +1438,7 @@ abstract class AbstractPlatform
             $oldIndexName = new Identifier($oldIndexName);
             $sql          = array_merge(
                 $sql,
-                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName)
+                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName),
             );
         }
 
@@ -2021,9 +2001,7 @@ abstract class AbstractPlatform
         return 'DROP VIEW ' . $name;
     }
 
-    /**
-     * @throws Exception If not supported on this platform.
-     */
+    /** @throws Exception If not supported on this platform. */
     public function getSequenceNextValSQL(string $sequence): string
     {
         throw NotSupported::new(__METHOD__);
@@ -2088,9 +2066,7 @@ abstract class AbstractPlatform
      */
     abstract public function getTimeTypeDeclarationSQL(array $column): string;
 
-    /**
-     * @param mixed[] $column
-     */
+    /** @param mixed[] $column */
     public function getFloatDeclarationSQL(array $column): string
     {
         return 'DOUBLE PRECISION';
@@ -2253,7 +2229,7 @@ abstract class AbstractPlatform
         if ($offset < 0) {
             throw new Exception(sprintf(
                 'Offset must be a positive integer or zero, %d given.',
-                $offset
+                $offset,
             ));
         }
 
@@ -2379,7 +2355,7 @@ abstract class AbstractPlatform
         $sql = preg_replace(
             '~([' . preg_quote($this->getLikeWildcardCharacters() . $escapeChar, '~') . '])~u',
             addcslashes($escapeChar, '\\') . '$1',
-            $inputString
+            $inputString,
         );
 
         assert(is_string($sql));
@@ -2400,9 +2376,7 @@ abstract class AbstractPlatform
         ]);
     }
 
-    /**
-     * @internal
-     */
+    /** @internal */
     public function createSQLParser(): Parser
     {
         return new Parser(false);

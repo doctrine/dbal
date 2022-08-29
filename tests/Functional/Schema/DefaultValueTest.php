@@ -29,9 +29,7 @@ class DefaultValueTest extends FunctionalTestCase
         $this->connection->insert('default_value', ['id' => 1]);
     }
 
-    /**
-     * @dataProvider columnProvider
-     */
+    /** @dataProvider columnProvider */
     public function testEscapedDefaultValueCanBeIntrospected(string $name, ?string $expectedDefault): void
     {
         self::assertSame(
@@ -40,17 +38,15 @@ class DefaultValueTest extends FunctionalTestCase
                 ->createSchemaManager()
                 ->introspectTable('default_value')
                 ->getColumn($name)
-                ->getDefault()
+                ->getDefault(),
         );
     }
 
-    /**
-     * @dataProvider columnProvider
-     */
+    /** @dataProvider columnProvider */
     public function testEscapedDefaultValueCanBeInserted(string $name, ?string $expectedDefault): void
     {
         $value = $this->connection->fetchOne(
-            sprintf('SELECT %s FROM default_value', $name)
+            sprintf('SELECT %s FROM default_value', $name),
         );
 
         self::assertSame($expectedDefault, $value);

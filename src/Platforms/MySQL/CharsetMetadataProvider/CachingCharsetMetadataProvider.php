@@ -8,9 +8,7 @@ use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 
 use function array_key_exists;
 
-/**
- * @internal
- */
+/** @internal */
 final class CachingCharsetMetadataProvider implements CharsetMetadataProvider
 {
     /** @var array<string,?string> */

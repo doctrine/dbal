@@ -183,7 +183,7 @@ class QueryBuilderTest extends TestCase
         self::assertEquals(
             'SELECT u.*, p.* FROM users u'
                 . ' WHERE (((u.username = ?) AND (u.username = ?)) OR (u.name = ?)) AND (u.name = ?)',
-            (string) $qb
+            (string) $qb,
         );
     }
 
@@ -258,7 +258,7 @@ class QueryBuilderTest extends TestCase
 
         self::assertEquals(
             'SELECT u.*, p.* FROM users u GROUP BY u.id HAVING (u.name = ?) AND (u.username = ?)',
-            (string) $qb
+            (string) $qb,
         );
     }
 
@@ -274,7 +274,7 @@ class QueryBuilderTest extends TestCase
 
         self::assertEquals(
             'SELECT u.*, p.* FROM users u GROUP BY u.id HAVING (u.name = ?) OR (u.username = ?)',
-            (string) $qb
+            (string) $qb,
         );
     }
 
@@ -290,7 +290,7 @@ class QueryBuilderTest extends TestCase
 
         self::assertEquals(
             'SELECT u.*, p.* FROM users u GROUP BY u.id HAVING (u.name = ?) OR (u.username = ?)',
-            (string) $qb
+            (string) $qb,
         );
     }
 
@@ -307,7 +307,7 @@ class QueryBuilderTest extends TestCase
 
         self::assertEquals(
             'SELECT u.*, p.* FROM users u GROUP BY u.id HAVING ((u.name = ?) OR (u.username = ?)) AND (u.username = ?)',
-            (string) $qb
+            (string) $qb,
         );
     }
 
@@ -425,7 +425,7 @@ class QueryBuilderTest extends TestCase
                 [
                     'foo' => '?',
                     'bar' => '?',
-                ]
+                ],
             );
 
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
@@ -439,13 +439,13 @@ class QueryBuilderTest extends TestCase
                 [
                     'foo' => '?',
                     'bar' => '?',
-                ]
+                ],
             )
             ->values(
                 [
                     'bar' => '?',
                     'foo' => '?',
-                ]
+                ],
             );
 
         self::assertEquals('INSERT INTO users (bar, foo) VALUES(?, ?)', (string) $qb);
@@ -467,7 +467,7 @@ class QueryBuilderTest extends TestCase
         $qb = new QueryBuilder($this->conn);
         $qb->insert('users')
             ->values(
-                ['foo' => '?']
+                ['foo' => '?'],
             )
             ->setValue('bar', '?');
 
@@ -480,9 +480,7 @@ class QueryBuilderTest extends TestCase
         self::assertSame($this->conn, $qb->getConnection());
     }
 
-    /**
-     * @dataProvider maxResultsProvider
-     */
+    /** @dataProvider maxResultsProvider */
     public function testSetMaxResults(?int $maxResults): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -491,9 +489,7 @@ class QueryBuilderTest extends TestCase
         self::assertEquals($maxResults, $qb->getMaxResults());
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function maxResultsProvider(): iterable
     {
         return [
@@ -515,7 +511,7 @@ class QueryBuilderTest extends TestCase
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where(
-            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER))
+            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER)),
         );
 
         self::assertEquals('SELECT u.* FROM users u WHERE u.name = :dcValue1', (string) $qb);
@@ -528,7 +524,7 @@ class QueryBuilderTest extends TestCase
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where(
-            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER, ':test'))
+            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER, ':test')),
         );
 
         self::assertEquals('SELECT u.* FROM users u WHERE u.name = :test', (string) $qb);
@@ -541,7 +537,7 @@ class QueryBuilderTest extends TestCase
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where(
-            $qb->expr()->eq('u.name', $qb->createPositionalParameter(10, ParameterType::INTEGER))
+            $qb->expr()->eq('u.name', $qb->createPositionalParameter(10, ParameterType::INTEGER)),
         );
 
         self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
@@ -563,7 +559,7 @@ class QueryBuilderTest extends TestCase
         $this->expectException(QueryException::class);
         $this->expectExceptionMessage(
             'The given alias "invalid" is not part of any FROM or JOIN clause table. '
-                . 'The currently registered aliases are: news, nv.'
+                . 'The currently registered aliases are: news, nv.',
         );
         self::assertEquals('', $qb->getSQL());
     }
@@ -585,7 +581,7 @@ class QueryBuilderTest extends TestCase
                 . " INNER JOIN nodeversion nv ON nv.refId = news.id AND nv.refEntityname='Entity\\News'"
                 . ' INNER JOIN nodetranslation nt ON nv.nodetranslation = nt.id'
                 . ' INNER JOIN node n ON nt.node = n.id WHERE (nt.lang = ?) AND (n.deleted = 0)',
-            $qb->getSQL()
+            $qb->getSQL(),
         );
     }
 
@@ -606,7 +602,7 @@ class QueryBuilderTest extends TestCase
             . ' INNER JOIN permissions p ON p.user_id = u.id, articles a'
             . ' INNER JOIN comments c ON c.article_id = a.id'
             . ' WHERE (u.id = a.user_id) AND (p.read = 1)',
-            $qb->getSQL()
+            $qb->getSQL(),
         );
     }
 
@@ -628,7 +624,7 @@ class QueryBuilderTest extends TestCase
             'INNER JOIN table_d d ON a.fk_d = d.id ' .
             'INNER JOIN table_c c ON c.fk_b = b.id AND b.language = ? ' .
             'INNER JOIN table_e e ON e.fk_c = c.id AND e.fk_d = d.id',
-            (string) $qb
+            (string) $qb,
         );
     }
 
@@ -654,7 +650,7 @@ class QueryBuilderTest extends TestCase
             'INNER JOIN table_e e ON e.fk_c = c.id AND e.fk_d = d.id, ' .
             'table_f f ' .
             'INNER JOIN table_g g ON f.fk_g = g.id',
-            (string) $qb
+            (string) $qb,
         );
     }
 
@@ -725,7 +721,7 @@ class QueryBuilderTest extends TestCase
                 . ' INNER JOIN permissions p ON p.user_id = users.id, articles'
                 . ' INNER JOIN comments c ON c.article_id = articles.id'
                 . ' WHERE (users.id = articles.user_id) AND (p.read = 1)',
-            $qb->getSQL()
+            $qb->getSQL(),
         );
     }
 
@@ -743,7 +739,7 @@ class QueryBuilderTest extends TestCase
             'SELECT u.id FROM users u'
                 . ' INNER JOIN permissions p ON p.user_id = u.id, articles'
                 . ' INNER JOIN comments c ON c.article_id = articles.id',
-            $qb->getSQL()
+            $qb->getSQL(),
         );
     }
 
@@ -819,7 +815,7 @@ class QueryBuilderTest extends TestCase
 
         $this->expectException(QueryException::class);
         $this->expectExceptionMessage(
-            'The given alias "a" is not unique in FROM and JOIN clause table. The currently registered aliases are: a.'
+            'The given alias "a" is not unique in FROM and JOIN clause table. The currently registered aliases are: a.',
         );
 
         $qb->getSQL();
@@ -837,7 +833,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $parameters,
         array $parameterTypes,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $mockedResult = $this->createMock(Result::class);
@@ -872,7 +868,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $parameters,
         array $parameterTypes,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $mockedResult = $this->createMock(Result::class);
@@ -907,7 +903,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $parameters,
         array $parameterTypes,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $mockedResult = $this->createMock(Result::class);
@@ -942,7 +938,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $parameters,
         array $parameterTypes,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $mockedResult = $this->createMock(Result::class);
@@ -958,7 +954,7 @@ class QueryBuilderTest extends TestCase
                 [
                     ['username' => 'jwage', 'password' => 'changeme'],
                     ['username' => 'support', 'password' => 'p@ssword'],
-                ]
+                ],
             );
 
         $results = $qb->select($select)
@@ -972,7 +968,7 @@ class QueryBuilderTest extends TestCase
                 ['username' => 'jwage', 'password' => 'changeme'],
                 ['username' => 'support', 'password' => 'p@ssword'],
             ],
-            $results
+            $results,
         );
     }
 
@@ -988,7 +984,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $parameters,
         array $parameterTypes,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $mockedResult = $this->createMock(Result::class);
@@ -1004,7 +1000,7 @@ class QueryBuilderTest extends TestCase
                 [
                     ['jwage', 'changeme'],
                     ['support', 'p@ssword'],
-                ]
+                ],
             );
 
         $results = $qb->select($select)
@@ -1018,7 +1014,7 @@ class QueryBuilderTest extends TestCase
                 ['jwage', 'changeme'],
                 ['support', 'p@ssword'],
             ],
-            $results
+            $results,
         );
     }
 
@@ -1034,7 +1030,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $parameters,
         array $parameterTypes,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $mockedResult = $this->createMock(Result::class);
@@ -1050,7 +1046,7 @@ class QueryBuilderTest extends TestCase
                 [
                     'jwage' => 'changeme',
                     'support' => 'p@ssw0rd',
-                ]
+                ],
             );
 
         $results = $qb->select($select)
@@ -1064,7 +1060,7 @@ class QueryBuilderTest extends TestCase
                 'jwage' => 'changeme',
                 'support' => 'p@ssw0rd',
             ],
-            $results
+            $results,
         );
     }
 
@@ -1080,7 +1076,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $parameters,
         array $parameterTypes,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $mockedResult = $this->createMock(Result::class);
@@ -1098,7 +1094,7 @@ class QueryBuilderTest extends TestCase
                         'username' => 'jwage',
                         'password' => 'changeme',
                     ],
-                ]
+                ],
             );
 
         $results = $qb->select($select)
@@ -1114,7 +1110,7 @@ class QueryBuilderTest extends TestCase
                     'password' => 'changeme',
                 ],
             ],
-            $results
+            $results,
         );
     }
 
@@ -1130,7 +1126,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $parameters,
         array $parameterTypes,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $mockedResult = $this->createMock(Result::class);
@@ -1146,7 +1142,7 @@ class QueryBuilderTest extends TestCase
                 [
                     'jwage',
                     'support',
-                ]
+                ],
             );
 
         $results = $qb->select($select)
@@ -1160,7 +1156,7 @@ class QueryBuilderTest extends TestCase
                 'jwage',
                 'support',
             ],
-            $results
+            $results,
         );
     }
 
@@ -1227,7 +1223,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $params,
         array $types,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $mockedResult = $this->createMock(Result::class);
@@ -1245,7 +1241,7 @@ class QueryBuilderTest extends TestCase
 
         self::assertSame(
             $mockedResult,
-            $results
+            $results,
         );
     }
 
@@ -1261,7 +1257,7 @@ class QueryBuilderTest extends TestCase
         string $where,
         array $parameters,
         array $parameterTypes,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $qb           = new QueryBuilder($this->conn);
         $qcp          = new QueryCacheProfile(300);
@@ -1281,7 +1277,7 @@ class QueryBuilderTest extends TestCase
 
         self::assertSame(
             $mockedResult,
-            $results
+            $results,
         );
     }
 
@@ -1315,7 +1311,7 @@ class QueryBuilderTest extends TestCase
 
         self::assertSame(
             $mockedResult,
-            $results
+            $results,
         );
     }
 }

@@ -47,7 +47,7 @@ class Statement
     public function __construct(
         protected Connection $conn,
         protected Driver\Statement $stmt,
-        protected string $sql
+        protected string $sql,
     ) {
         $this->platform = $conn->getDatabasePlatform();
     }
@@ -73,7 +73,7 @@ class Statement
     public function bindValue(
         string|int $param,
         mixed $value,
-        string|ParameterType|Type $type = ParameterType::STRING
+        string|ParameterType|Type $type = ParameterType::STRING,
     ): void {
         $this->params[$param] = $value;
         $this->types[$param]  = $type;
@@ -96,15 +96,13 @@ class Statement
         }
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function execute(): Result
     {
         try {
             return new Result(
                 $this->stmt->execute(),
-                $this->conn
+                $this->conn,
             );
         } catch (Driver\Exception $ex) {
             throw $this->conn->convertExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);

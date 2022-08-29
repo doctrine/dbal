@@ -35,13 +35,11 @@ class CompositeExpression implements Countable
      */
     private array $parts;
 
-    /**
-     * @internal Use the and() / or() factory methods.
-     */
+    /** @internal Use the and() / or() factory methods. */
     public function __construct(
         private readonly string $type,
         self|string $part,
-        self|string ...$parts
+        self|string ...$parts,
     ) {
         $this->parts = array_merge([$part], array_values($parts));
     }

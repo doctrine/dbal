@@ -9,9 +9,7 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class InvalidDriverClass extends Exception
 {
     public static function new(string $driverClass): self
@@ -20,8 +18,8 @@ final class InvalidDriverClass extends Exception
             sprintf(
                 'The given "driverClass" %s has to implement the %s interface.',
                 $driverClass,
-                Driver::class
-            )
+                Driver::class,
+            ),
         );
     }
 }

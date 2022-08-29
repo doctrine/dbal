@@ -27,9 +27,7 @@ use const E_ALL;
 use const E_WARNING;
 use const PHP_OS_FAMILY;
 
-/**
- * @psalm-import-type Params from DriverManager
- */
+/** @psalm-import-type Params from DriverManager */
 class ExceptionTest extends FunctionalTestCase
 {
     public function testPrimaryConstraintViolationException(): void
@@ -166,7 +164,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->expectException(Exception\ReadOnlyException::class);
         $this->expectExceptionMessage(
             'An exception occurred while executing a query: SQLSTATE[HY000]: ' .
-            'General error: 8 attempt to write a readonly database'
+            'General error: 8 attempt to write a readonly database',
         );
 
         try {
@@ -192,7 +190,7 @@ class ExceptionTest extends FunctionalTestCase
     {
         if (TestUtil::isDriverOneOf('pdo_sqlsrv', 'sqlsrv')) {
             self::markTestSkipped(
-                'Some sqlsrv and pdo_sqlsrv versions do not provide the exception code or SQLSTATE for login timeout'
+                'Some sqlsrv and pdo_sqlsrv versions do not provide the exception code or SQLSTATE for login timeout',
             );
         }
 
@@ -221,9 +219,7 @@ class ExceptionTest extends FunctionalTestCase
         $conn->executeQuery($platform->getDummySelectSQL());
     }
 
-    /**
-     * @return array<int, array<int, mixed>>
-     */
+    /** @return array<int, array<int, mixed>> */
     public static function getConnectionParams(): iterable
     {
         return [

@@ -27,9 +27,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
         return $this->platform;
     }
 
-    /**
-     * @return $this
-     */
+    /** @return $this */
     public function setSql(string $sql): self
     {
         $this->sql = $sql;

@@ -23,7 +23,7 @@ class QueryCacheProfile
     public function __construct(
         private readonly int $lifetime = 0,
         private readonly ?string $cacheKey = null,
-        private readonly ?CacheItemPoolInterface $resultCache = null
+        private readonly ?CacheItemPoolInterface $resultCache = null,
     ) {
     }
 
@@ -37,9 +37,7 @@ class QueryCacheProfile
         return $this->lifetime;
     }
 
-    /**
-     * @throws CacheException
-     */
+    /** @throws CacheException */
     public function getCacheKey(): string
     {
         if ($this->cacheKey === null) {

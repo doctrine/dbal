@@ -32,9 +32,7 @@ class SchemaAlterTableEventArgs extends SchemaEventArgs
         return $this->platform;
     }
 
-    /**
-     * @return $this
-     */
+    /** @return $this */
     public function addSql(string ...$sql): self
     {
         $this->sql = array_merge($this->sql, array_values($sql));
@@ -42,9 +40,7 @@ class SchemaAlterTableEventArgs extends SchemaEventArgs
         return $this;
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function getSql(): array
     {
         return $this->sql;

@@ -43,7 +43,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 SELECT name
 FROM   sys.schemas
 WHERE  name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')
-SQL
+SQL,
         );
     }
 
@@ -217,7 +217,7 @@ SQL
             $tableForeignKey['foreign_table'],
             $tableForeignKey['foreign_columns'],
             $tableForeignKey['name'],
-            $tableForeignKey['options']
+            $tableForeignKey['options'],
         );
     }
 
@@ -259,8 +259,8 @@ SQL
                         sprintf(
                             'ALTER TABLE %s DROP CONSTRAINT %s',
                             $tableDiff->name,
-                            $constraint
-                        )
+                            $constraint,
+                        ),
                     );
                 }
             }
@@ -294,21 +294,17 @@ WHERE t.name = ?
   AND c.name = ?
 SQL
             ,
-            [$table, $column]
+            [$table, $column],
         );
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function createComparator(): Comparator
     {
         return new SQLServer\Comparator($this->platform, $this->getDatabaseCollation());
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function getDatabaseCollation(): string
     {
         if ($this->databaseCollation === null) {
@@ -465,7 +461,7 @@ SQL;
             $conditions[] = $this->getTableWhereClause(
                 $tableName,
                 'SCHEMA_NAME(f.schema_id)',
-                'OBJECT_NAME(f.parent_object_id)'
+                'OBJECT_NAME(f.parent_object_id)',
             );
 
             $sql .= ' WHERE ' . implode(' AND ', $conditions);

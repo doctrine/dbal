@@ -18,7 +18,7 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
     public function testConvertPositionalToNamedParameters(
         string $inputSQL,
         string $expectedOutputSQL,
-        array $expectedOutputParamsMap
+        array $expectedOutputParamsMap,
     ): void {
         $parser  = new Parser(false);
         $visitor = new ConvertPositionalToNamedPlaceholders();
@@ -29,9 +29,7 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
         self::assertEquals($expectedOutputParamsMap, $visitor->getParameterMap());
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function positionalToNamedPlaceholdersProvider(): iterable
     {
         return [

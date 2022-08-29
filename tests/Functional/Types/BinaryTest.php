@@ -71,7 +71,7 @@ class BinaryTest extends FunctionalTestCase
         $value = $this->connection->fetchOne(
             'SELECT val FROM binary_table WHERE id = ?',
             [$id],
-            [ParameterType::BINARY]
+            [ParameterType::BINARY],
         );
 
         return Type::getType('binary')->convertToPHPValue($value, $this->connection->getDatabasePlatform());

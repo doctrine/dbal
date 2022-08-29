@@ -51,13 +51,13 @@ final class ComparatorTest extends FunctionalTestCase
         self::assertNull(ComparatorTestUtils::diffFromActualToDesiredTable(
             $this->schemaManager,
             $this->comparator,
-            $table
+            $table,
         ));
 
         self::assertNull(ComparatorTestUtils::diffFromDesiredToActualTable(
             $this->schemaManager,
             $this->comparator,
-            $table
+            $table,
         ));
     }
 }

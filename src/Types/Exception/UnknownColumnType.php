@@ -8,9 +8,7 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class UnknownColumnType extends Exception implements TypesException
 {
     public static function new(string $name): self
@@ -24,8 +22,8 @@ final class UnknownColumnType extends Exception implements TypesException
                     . 'Use AbstractPlatform#registerDoctrineTypeMapping() or have your custom types implement '
                     . 'Type#getMappedDatabaseTypes(). If the type name is empty you might '
                     . 'have a problem with the cache or forgot some mapping information.',
-                $name
-            )
+                $name,
+            ),
         );
     }
 }

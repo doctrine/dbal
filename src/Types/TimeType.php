@@ -47,7 +47,7 @@ class TimeType extends Type
             throw InvalidFormat::new(
                 $value,
                 static::class,
-                $platform->getTimeFormatString()
+                $platform->getTimeFormatString(),
             );
         }
 

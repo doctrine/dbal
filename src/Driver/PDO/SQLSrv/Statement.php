@@ -11,16 +11,10 @@ use PDO;
 
 final class Statement extends AbstractStatementMiddleware
 {
-    private readonly PDOStatement $statement;
-
-    /**
-     * @internal The statement can be only instantiated by its driver connection.
-     */
-    public function __construct(PDOStatement $statement)
+    /** @internal The statement can be only instantiated by its driver connection. */
+    public function __construct(private readonly PDOStatement $statement)
     {
         parent::__construct($statement);
-
-        $this->statement = $statement;
     }
 
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
@@ -32,7 +26,7 @@ final class Statement extends AbstractStatementMiddleware
                     $param,
                     $value,
                     $type,
-                    PDO::SQLSRV_ENCODING_BINARY
+                    PDO::SQLSRV_ENCODING_BINARY,
                 );
                 break;
 
@@ -41,7 +35,7 @@ final class Statement extends AbstractStatementMiddleware
                     $param,
                     $value,
                     ParameterType::STRING,
-                    PDO::SQLSRV_ENCODING_SYSTEM
+                    PDO::SQLSRV_ENCODING_SYSTEM,
                 );
                 break;
 

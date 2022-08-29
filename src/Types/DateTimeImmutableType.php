@@ -29,7 +29,7 @@ class DateTimeImmutableType extends DateTimeType
         throw InvalidType::new(
             $value,
             static::class,
-            ['null', DateTimeImmutable::class]
+            ['null', DateTimeImmutable::class],
         );
     }
 
@@ -49,7 +49,7 @@ class DateTimeImmutableType extends DateTimeType
             throw InvalidFormat::new(
                 $value,
                 static::class,
-                $platform->getDateTimeFormatString()
+                $platform->getDateTimeFormatString(),
             );
         }
 

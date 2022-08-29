@@ -46,7 +46,7 @@ final class AbstractConnectionMiddlewareTest extends TestCase
 
         self::assertSame(
             42,
-            $this->createMiddleware($connection)->exec('UPDATE foo SET bar=\'baz\' WHERE some_field > 0')
+            $this->createMiddleware($connection)->exec('UPDATE foo SET bar=\'baz\' WHERE some_field > 0'),
         );
     }
 

@@ -29,7 +29,7 @@ final class Driver extends AbstractDriverMiddleware
 
         $portability = (new OptimizeFlags())(
             $this->getDatabasePlatform($connection),
-            $this->mode
+            $this->mode,
         );
 
         $case = null;
@@ -57,7 +57,7 @@ final class Driver extends AbstractDriverMiddleware
 
         return new Connection(
             $connection,
-            new Converter($convertEmptyStringToNull, $rightTrimString, $case)
+            new Converter($convertEmptyStringToNull, $rightTrimString, $case),
         );
     }
 }

@@ -100,9 +100,7 @@ final class Result implements ResultInterface
         oci_cancel($this->statement);
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function fetch(int $mode): mixed
     {
         $result = oci_fetch_array($this->statement, $mode | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
@@ -114,9 +112,7 @@ final class Result implements ResultInterface
         return $result;
     }
 
-    /**
-     * @return array<mixed>
-     */
+    /** @return array<mixed> */
     private function fetchAll(int $mode, int $fetchStructure): array
     {
         oci_fetch_all(
@@ -124,7 +120,7 @@ final class Result implements ResultInterface
             $result,
             0,
             -1,
-            $mode | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS
+            $mode | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS,
         );
 
         return $result;

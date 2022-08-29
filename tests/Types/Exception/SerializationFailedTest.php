@@ -24,7 +24,7 @@ class SerializationFailedTest extends TestCase
         self::assertSame(
             'Could not convert PHP type "float" to "json". An error was triggered by the serialization: '
                 . 'Inf and NaN cannot be JSON encoded',
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 }

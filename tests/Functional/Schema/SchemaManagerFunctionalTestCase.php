@@ -100,9 +100,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($this->hasElementWithName($this->schemaManager->listSequences(), $name));
     }
 
-    /**
-     * @param AbstractAsset[] $items
-     */
+    /** @param AbstractAsset[] $items */
     private function hasElementWithName(array $items, string $name): bool
     {
         $filteredList = $this->filterElementsByName($items, $name);
@@ -123,7 +121,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $items,
             static function (AbstractAsset $item) use ($name): bool {
                 return $item->getShortestName($item->getNamespaceName()) === $name;
-            }
+            },
         );
     }
 
@@ -136,7 +134,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         $this->schemaManager->createSequence(
-            new Sequence('list_sequences_test_seq', 20, 10)
+            new Sequence('list_sequences_test_seq', 20, 10),
         );
 
         foreach ($this->schemaManager->listSequences() as $sequence) {
@@ -183,7 +181,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertNotContains('test_create_schema', $this->schemaManager->listSchemaNames());
 
         $this->connection->executeStatement(
-            $platform->getCreateSchemaSQL('test_create_schema')
+            $platform->getCreateSchemaSQL('test_create_schema'),
         );
 
         self::assertContains('test_create_schema', $this->schemaManager->listSchemaNames());
@@ -216,9 +214,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertNull($view);
     }
 
-    /**
-     * @dataProvider tableFilterProvider
-     */
+    /** @dataProvider tableFilterProvider */
     public function testListTablesWithFilter(string $prefix, int $expectedCount): void
     {
         $this->createTestTable('filter_test_1');
@@ -229,16 +225,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->connection->getConfiguration()->setSchemaAssetsFilter(
             static function (string $name) use ($prefix): bool {
                 return str_starts_with(strtolower($name), $prefix);
-            }
+            },
         );
 
         self::assertCount($expectedCount, $this->schemaManager->listTableNames());
         self::assertCount($expectedCount, $this->schemaManager->listTables());
     }
 
-    /**
-     * @return iterable<string, array{string, int}>
-     */
+    /** @return iterable<string, array{string, int}> */
     public static function tableFilterProvider(): iterable
     {
         yield 'One table' => ['filter_test_1', 1];
@@ -315,7 +309,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(5, array_search('baz2', $columnsKeys, true));
         self::assertContains(
             $columns['baz2']->getType()::class,
-            [TimeType::class, DateType::class, DateTimeType::class]
+            [TimeType::class, DateType::class, DateTimeType::class],
         );
         self::assertEquals(true, $columns['baz2']->getNotnull());
         self::assertEquals(null, $columns['baz2']->getDefault());
@@ -324,7 +318,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(6, array_search('baz3', $columnsKeys, true));
         self::assertContains(
             $columns['baz3']->getType()::class,
-            [TimeType::class, DateType::class, DateTimeType::class]
+            [TimeType::class, DateType::class, DateTimeType::class],
         );
         self::assertEquals(true, $columns['baz3']->getNotnull());
         self::assertEquals(null, $columns['baz3']->getDefault());
@@ -391,7 +385,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         if ($this->connection->getDatabasePlatform() instanceof OraclePlatform) {
             self::markTestSkipped(
-                'Does not work with Oracle, since it cannot detect DateTime, Date and Time differences (at the moment).'
+                'Does not work with Oracle, since it cannot detect DateTime, Date and Time differences (at the moment).',
             );
         }
 
@@ -514,7 +508,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             'test_create_fk2',
             ['id'],
             'foreign_key_test_fk',
-            ['onDelete' => 'CASCADE']
+            ['onDelete' => 'CASCADE'],
         );
 
         $this->schemaManager->createForeignKey($foreignKey, 'test_create_fk1');
@@ -622,7 +616,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($table->hasIndex('foo_idx'));
         self::assertEquals(
             ['foo', 'foreign_key_test'],
-            array_map('strtolower', $table->getIndex('foo_idx')->getColumns())
+            array_map('strtolower', $table->getIndex('foo_idx')->getColumns()),
         );
 
         $tableDiff                            = new TableDiff('alter_table');
@@ -637,7 +631,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertFalse($table->hasIndex('foo_idx'));
         self::assertEquals(
             ['foo', 'foreign_key_test'],
-            array_map('strtolower', $table->getIndex('bar_idx')->getColumns())
+            array_map('strtolower', $table->getIndex('bar_idx')->getColumns()),
         );
         self::assertFalse($table->getIndex('bar_idx')->isPrimary());
         self::assertFalse($table->getIndex('bar_idx')->isUnique());
@@ -649,7 +643,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableDiff->addedForeignKeys[] = new ForeignKeyConstraint(
             ['foreign_key_test'],
             'alter_table_foreign',
-            ['id']
+            ['id'],
         );
 
         $this->schemaManager->alterTable($tableDiff);
@@ -807,7 +801,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             ['fk'],
             ['id'],
             [],
-            'fk_constraint'
+            'fk_constraint',
         );
 
         $this->dropTableIfExists($foreignTable->getName());
@@ -851,7 +845,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             'col_int',
             new Column('col_int', Type::getType('integer'), ['default' => 666]),
             ['type'],
-            new Column('col_int', Type::getType('smallint'), ['default' => 666])
+            new Column('col_int', Type::getType('smallint'), ['default' => 666]),
         );
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
@@ -865,7 +859,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             new Column('col_string', Type::getType('string'), [
                 'length' => 3,
                 'default' => 'foo',
-            ])
+            ]),
         );
 
         $this->schemaManager->alterTable($tableDiff);
@@ -892,9 +886,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertInstanceOf(BlobType::class, $created->getColumn('binarydata')->getType());
     }
 
-    /**
-     * @param mixed[] $data
-     */
+    /** @param mixed[] $data */
     protected function createTestTable(string $name = 'test_table', array $data = []): Table
     {
         $options = $data['options'] ?? [];
@@ -906,9 +898,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         return $table;
     }
 
-    /**
-     * @param mixed[] $options
-     */
+    /** @param mixed[] $options */
     protected function getTestTable(string $name, array $options = []): Table
     {
         $table = new Table($name, [], [], [], [], $options);
@@ -933,9 +923,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         return $table;
     }
 
-    /**
-     * @param Table[] $tables
-     */
+    /** @param Table[] $tables */
     protected function assertHasTable(array $tables): void
     {
         $foundTable = false;
@@ -960,7 +948,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             ['id', 'foreign_key_test'],
             'test_create_fk4',
             ['id', 'other_id'],
-            'foreign_key_test_fk2'
+            'foreign_key_test_fk2',
         );
 
         $this->schemaManager->createForeignKey($foreignKey, 'test_create_fk3');
@@ -1096,15 +1084,15 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         self::assertEquals(
             $this->schemaManager->listTableColumns($primaryTableName),
-            $this->schemaManager->listTableColumns($defaultSchemaName . '.' . $primaryTableName)
+            $this->schemaManager->listTableColumns($defaultSchemaName . '.' . $primaryTableName),
         );
         self::assertEquals(
             $this->schemaManager->listTableIndexes($primaryTableName),
-            $this->schemaManager->listTableIndexes($defaultSchemaName . '.' . $primaryTableName)
+            $this->schemaManager->listTableIndexes($defaultSchemaName . '.' . $primaryTableName),
         );
         self::assertEquals(
             $this->schemaManager->listTableForeignKeys($primaryTableName),
-            $this->schemaManager->listTableForeignKeys($defaultSchemaName . '.' . $primaryTableName)
+            $this->schemaManager->listTableForeignKeys($defaultSchemaName . '.' . $primaryTableName),
         );
     }
 
@@ -1192,8 +1180,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 $this->schemaManager->listSequences(),
                 static function (Sequence $sequence) use ($sequenceName): bool {
                     return strcasecmp($sequence->getName(), $sequenceName) === 0;
-                }
-            )
+                },
+            ),
         )[0] ?? null;
 
         self::assertNotNull($createdSequence);
@@ -1215,7 +1203,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
         $lastUsedIdBeforeDelete = (int) $this->connection->fetchOne(
-            "SELECT id FROM test_pk_auto_increment WHERE text = '1'"
+            "SELECT id FROM test_pk_auto_increment WHERE text = '1'",
         );
 
         $this->connection->executeStatement('DELETE FROM test_pk_auto_increment');
@@ -1223,7 +1211,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
         $lastUsedIdAfterDelete = (int) $this->connection->fetchOne(
-            "SELECT id FROM test_pk_auto_increment WHERE text = '2'"
+            "SELECT id FROM test_pk_auto_increment WHERE text = '2'",
         );
 
         self::assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
@@ -1233,7 +1221,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         if (! $this->connection->getDatabasePlatform()->supportsColumnLengthIndexes()) {
             self::markTestSkipped(
-                'This test is only supported on platforms that support indexes with column length definitions.'
+                'This test is only supported on platforms that support indexes with column length definitions.',
             );
         }
 
@@ -1293,7 +1281,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $localColumns,
             $foreignColumns,
             [],
-            $foreignKey
+            $foreignKey,
         );
 
         $this->schemaManager->createTable($table);
@@ -1352,9 +1340,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $schemaManager->createSchemaObjects($schema);
     }
 
-    /**
-     * @param list<Table> $tables
-     */
+    /** @param list<Table> $tables */
     protected function findTableByName(array $tables, string $name): ?Table
     {
         foreach ($tables as $table) {

@@ -22,6 +22,8 @@
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant"/>
         <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
+        <!-- https://github.com/doctrine/coding-standard/issues/288 -->
+        <exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat.DisallowedShortNullable"/>
 
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
         <!-- https://github.com/slevomat/coding-standard/issues/867 -->

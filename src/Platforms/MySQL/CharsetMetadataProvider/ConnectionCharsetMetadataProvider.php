@@ -8,18 +8,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 
-/**
- * @internal
- */
+/** @internal */
 final class ConnectionCharsetMetadataProvider implements CharsetMetadataProvider
 {
     public function __construct(private readonly Connection $connection)
     {
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function getDefaultCharsetCollation(string $charset): ?string
     {
         $collation = $this->connection->fetchOne(
@@ -29,7 +25,7 @@ final class ConnectionCharsetMetadataProvider implements CharsetMetadataProvider
             WHERE CHARACTER_SET_NAME = ?;
             SQL
             ,
-            [$charset]
+            [$charset],
         );
 
         if ($collation !== false) {

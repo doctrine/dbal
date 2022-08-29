@@ -20,7 +20,7 @@ class Sequence extends AbstractAsset
         string $name,
         int $allocationSize = 1,
         int $initialValue = 1,
-        protected ?int $cache = null
+        protected ?int $cache = null,
     ) {
         $this->_setName($name);
         $this->setAllocationSize($allocationSize);

@@ -18,9 +18,7 @@ use PHPUnit\Framework\TestCase;
 
 use function array_merge;
 
-/**
- * @psalm-import-type Params from DriverManager
- */
+/** @psalm-import-type Params from DriverManager */
 class MySQLInheritCharsetTest extends TestCase
 {
     public function testInheritTableOptionsFromDatabase(): void
@@ -48,7 +46,7 @@ class MySQLInheritCharsetTest extends TestCase
         $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
         self::assertSame(
             ['CREATE TABLE foobar (aa INT NOT NULL)'],
-            $platform->getCreateTableSQL($table)
+            $platform->getCreateTableSQL($table),
         );
 
         // charset
@@ -56,7 +54,7 @@ class MySQLInheritCharsetTest extends TestCase
         $table->addOption('charset', 'utf8');
         self::assertSame(
             ['CREATE TABLE foobar (aa INT NOT NULL) DEFAULT CHARACTER SET utf8'],
-            $platform->getCreateTableSQL($table)
+            $platform->getCreateTableSQL($table),
         );
     }
 

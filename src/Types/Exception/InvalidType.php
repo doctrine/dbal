@@ -33,14 +33,14 @@ final class InvalidType extends ConversionException implements TypesException
                 'Could not convert PHP value %s to type %s. Expected one of the following types: %s.',
                 var_export($value, true),
                 $toType,
-                implode(', ', $possibleTypes)
+                implode(', ', $possibleTypes),
             );
         } else {
             $message = sprintf(
                 'Could not convert PHP value of type %s to type %s. Expected one of the following types: %s.',
                 get_debug_type($value),
                 $toType,
-                implode(', ', $possibleTypes)
+                implode(', ', $possibleTypes),
             );
         }
 

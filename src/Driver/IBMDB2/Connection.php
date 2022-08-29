@@ -117,9 +117,7 @@ final class Connection implements ConnectionInterface
         }
     }
 
-    /**
-     * @return resource
-     */
+    /** @return resource */
     public function getNativeConnection()
     {
         return $this->connection;

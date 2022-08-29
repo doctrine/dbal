@@ -17,9 +17,7 @@ class ParserTest extends TestCase implements Visitor
     /** @var list<string> */
     private array $result = [];
 
-    /**
-     * @dataProvider statementsWithParametersProvider
-     */
+    /** @dataProvider statementsWithParametersProvider */
     public function testStatementsWithParameters(bool $mySQLStringEscaping, string $sql, string $expected): void
     {
         $parser = new Parser($mySQLStringEscaping);
@@ -28,9 +26,7 @@ class ParserTest extends TestCase implements Visitor
         $this->assertParsed($expected);
     }
 
-    /**
-     * @return iterable<string,list<mixed>>
-     */
+    /** @return iterable<string,list<mixed>> */
     public static function statementsWithParametersProvider(): iterable
     {
         foreach (self::getModes() as $mode => $mySQLStringEscaping) {
@@ -40,9 +36,7 @@ class ParserTest extends TestCase implements Visitor
         }
     }
 
-    /**
-     * @return iterable<list<string>>
-     */
+    /** @return iterable<list<string>> */
     private static function getStatementsWithParameters(): iterable
     {
         yield [
@@ -310,9 +304,7 @@ SQL
         ];
     }
 
-    /**
-     * @dataProvider statementsWithoutParametersProvider
-     */
+    /** @dataProvider statementsWithoutParametersProvider */
     public function testStatementsWithoutParameters(bool $mySQLStringEscaping, string $sql): void
     {
         $parser = new Parser($mySQLStringEscaping);
@@ -321,9 +313,7 @@ SQL
         $this->assertParsed($sql);
     }
 
-    /**
-     * @return iterable<string,list<mixed>>
-     */
+    /** @return iterable<string,list<mixed>> */
     public static function statementsWithoutParametersProvider(): iterable
     {
         foreach (self::getModes() as $mode => $mySQLStringEscaping) {
@@ -333,9 +323,7 @@ SQL
         }
     }
 
-    /**
-     * @return iterable<int,string>
-     */
+    /** @return iterable<int,string> */
     private static function getStatementsWithoutParameters(): iterable
     {
         yield 'SELECT * FROM Foo';
@@ -350,9 +338,7 @@ SQL
         yield 'SELECT @rank := 1';
     }
 
-    /**
-     * @dataProvider ansiParametersProvider
-     */
+    /** @dataProvider ansiParametersProvider */
     public function testAnsiEscaping(string $sql, string $expected): void
     {
         $parser = new Parser(false);
@@ -361,9 +347,7 @@ SQL
         $this->assertParsed($expected);
     }
 
-    /**
-     * @return iterable<string,list<string>>
-     */
+    /** @return iterable<string,list<string>> */
     public static function ansiParametersProvider(): iterable
     {
         yield 'Quotes inside literals escaped by doubling' => [
@@ -395,9 +379,7 @@ SQL,
         ];
     }
 
-    /**
-     * @dataProvider mySQLParametersProvider
-     */
+    /** @dataProvider mySQLParametersProvider */
     public function testMySQLEscaping(string $sql, string $expected): void
     {
         $parser = new Parser(true);
@@ -406,9 +388,7 @@ SQL,
         $this->assertParsed($expected);
     }
 
-    /**
-     * @return iterable<string,list<string>>
-     */
+    /** @return iterable<string,list<string>> */
     public static function mySQLParametersProvider(): iterable
     {
         yield 'Quotes inside literals escaped by backslash' => [
@@ -459,9 +439,7 @@ SQL
         $this->result[] = $sql;
     }
 
-    /**
-     * @return iterable<string,bool>
-     */
+    /** @return iterable<string,bool> */
     private static function getModes(): iterable
     {
         yield 'ANSI' => false;

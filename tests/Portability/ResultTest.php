@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class ResultTest extends TestCase
 {
-    /**
-     * @dataProvider fetchProvider
-     */
+    /** @dataProvider fetchProvider */
     public function testFetch(string $source, callable $fetch, mixed $return): void
     {
         $driverResult = $this->createMock(DriverResult::class);
@@ -26,9 +24,7 @@ class ResultTest extends TestCase
         self::assertSame($return, $fetch($result));
     }
 
-    /**
-     * @return iterable<string,array<int,mixed>>
-     */
+    /** @return iterable<string,array<int,mixed>> */
     public static function fetchProvider(): iterable
     {
         yield 'numeric' => [
@@ -126,7 +122,7 @@ class ResultTest extends TestCase
     {
         return new Result(
             $driverResult,
-            new Converter(false, false, null)
+            new Converter(false, false, null),
         );
     }
 }
