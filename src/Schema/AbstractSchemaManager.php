@@ -497,7 +497,7 @@ abstract class AbstractSchemaManager
      */
     public function createSchemaObjects(Schema $schema): void
     {
-        $this->_execSql($schema->toSql($this->platform));
+        $this->executeStatements($schema->toSql($this->platform));
     }
 
     /**
@@ -519,7 +519,7 @@ abstract class AbstractSchemaManager
      */
     public function createTable(Table $table): void
     {
-        $this->_execSql($this->platform->getCreateTableSQL($table));
+        $this->executeStatements($this->platform->getCreateTableSQL($table));
     }
 
     /**
@@ -595,7 +595,7 @@ abstract class AbstractSchemaManager
      */
     public function dropSchemaObjects(Schema $schema): void
     {
-        $this->_execSql($schema->toDropSql($this->platform));
+        $this->executeStatements($schema->toDropSql($this->platform));
     }
 
     /**
@@ -605,7 +605,7 @@ abstract class AbstractSchemaManager
      */
     public function alterSchema(SchemaDiff $schemaDiff): void
     {
-        $this->_execSql($schemaDiff->toSql($this->platform));
+        $this->executeStatements($schemaDiff->toSql($this->platform));
     }
 
     /**
@@ -630,7 +630,7 @@ abstract class AbstractSchemaManager
      */
     public function alterTable(TableDiff $tableDiff): void
     {
-        $this->_execSql($this->platform->getAlterTableSQL($tableDiff));
+        $this->executeStatements($this->platform->getAlterTableSQL($tableDiff));
     }
 
     /**
@@ -833,15 +833,13 @@ abstract class AbstractSchemaManager
     abstract protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint;
 
     /**
-     * @internal
-     *
-     * @param array<int, string>|string $sql
+     * @param array<int, string> $sql
      *
      * @throws Exception
      */
-    protected function _execSql(array|string $sql): void
+    private function executeStatements(array $sql): void
     {
-        foreach ((array) $sql as $query) {
+        foreach ($sql as $query) {
             $this->connection->executeStatement($query);
         }
     }
