@@ -343,17 +343,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getCreateTableColumnCommentsSQL(): array
-    {
-        return [
-            'CREATE TABLE test (id INT NOT NULL, PRIMARY KEY(id))',
-            "COMMENT ON COLUMN test.id IS 'This is a comment'",
-        ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY("create"))'];

@@ -134,17 +134,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return 'BITOR(' . $value1 . ', ' . $value2 . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateTableColumnCommentsSQL(): array
-    {
-        return [
-            'CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))',
-            "COMMENT ON COLUMN test.id IS 'This is a comment'",
-        ];
-    }
-
     public function testGeneratesCreateTableSQLWithCommonIndexes(): void
     {
         $table = new Table('test');

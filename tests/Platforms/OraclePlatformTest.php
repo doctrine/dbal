@@ -269,17 +269,6 @@ SQL
         ], $this->platform->getCreateTableSQL($table));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateTableColumnCommentsSQL(): array
-    {
-        return [
-            'CREATE TABLE test (id NUMBER(10) NOT NULL, PRIMARY KEY(id))',
-            "COMMENT ON COLUMN test.id IS 'This is a comment'",
-        ];
-    }
-
     public function getBitAndComparisonExpressionSql(string $value1, string $value2): string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
