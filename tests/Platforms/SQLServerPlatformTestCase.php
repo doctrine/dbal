@@ -714,30 +714,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateTableColumnCommentsSQL(): array
-    {
-        return [
-            'CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))',
-            "EXEC sp_addextendedproperty N'MS_Description', N'This is a comment', "
-                . "N'SCHEMA', 'dbo', N'TABLE', 'test', N'COLUMN', id",
-        ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable ADD quota INT NOT NULL',
-            "EXEC sp_addextendedproperty N'MS_Description', N'A comment', "
-                . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', quota",
-        ];
-    }
-
     public function testGeneratesCreateTableSQLWithColumnComments(): void
     {
         $table = new Table('mytable');

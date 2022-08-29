@@ -194,29 +194,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL([]));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateTableColumnCommentsSQL(): array
-    {
-        return [
-            "CREATE TABLE test (id INT NOT NULL COMMENT 'This is a comment', "
-                . 'PRIMARY KEY(id))',
-        ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        return [
-            "ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', "
-                . 'CHANGE foo foo VARCHAR(255) NOT NULL, '
-                . "CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'",
-        ];
-    }
-
     public function testChangeIndexWithForeignKeys(): void
     {
         $index  = new Index('idx', ['col'], false);

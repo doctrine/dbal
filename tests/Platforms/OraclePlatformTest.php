@@ -269,30 +269,6 @@ SQL
         ], $this->platform->getCreateTableSQL($table));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreateTableColumnCommentsSQL(): array
-    {
-        return [
-            'CREATE TABLE test (id NUMBER(10) NOT NULL, PRIMARY KEY(id))',
-            "COMMENT ON COLUMN test.id IS 'This is a comment'",
-        ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)',
-            "COMMENT ON COLUMN mytable.quota IS 'A comment'",
-            "COMMENT ON COLUMN mytable.foo IS ''",
-            "COMMENT ON COLUMN mytable.baz IS 'B comment'",
-        ];
-    }
-
     public function getBitAndComparisonExpressionSql(string $value1, string $value2): string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';

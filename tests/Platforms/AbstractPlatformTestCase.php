@@ -387,31 +387,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $this->platform->getAlterTableSQL($tableDiff);
     }
 
-    public function testCreateTableColumnComments(): void
-    {
-        $table = new Table('test');
-        $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
-        $table->setPrimaryKey(['id']);
-
-        self::assertEquals($this->getCreateTableColumnCommentsSQL(), $this->platform->getCreateTableSQL($table));
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCreateTableColumnCommentsSQL(): array
-    {
-        self::markTestSkipped('Platform does not support Column comments.');
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getAlterTableColumnCommentsSQL(): array
-    {
-        self::markTestSkipped('Platform does not support Column comments.');
-    }
-
     public function testGetDefaultValueDeclarationSQL(): void
     {
         // non-timestamp value will get single quotes
