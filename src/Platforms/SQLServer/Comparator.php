@@ -15,9 +15,7 @@ class Comparator extends BaseComparator
 {
     private string $databaseCollation;
 
-    /**
-     * @internal The comparator can be only instantiated by a schema manager.
-     */
+    /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(SQLServerPlatform $platform, string $databaseCollation)
     {
         parent::__construct($platform);

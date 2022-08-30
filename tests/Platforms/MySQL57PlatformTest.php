@@ -29,17 +29,13 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
         self::assertSame(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getAlterTableRenameIndexSQL(): array
     {
         return ['ALTER TABLE mytable RENAME INDEX idx_foo TO idx_bar'];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
@@ -48,17 +44,13 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
         ];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar'];
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [

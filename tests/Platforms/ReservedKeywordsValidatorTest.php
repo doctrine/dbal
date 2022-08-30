@@ -23,7 +23,7 @@ class ReservedKeywordsValidatorTest extends TestCase
 
         self::assertEquals(
             ['Table TABLE keyword violations: MySQL'],
-            $this->validator->getViolations()
+            $this->validator->getViolations(),
         );
     }
 
@@ -36,7 +36,7 @@ class ReservedKeywordsValidatorTest extends TestCase
 
         self::assertEquals(
             ['Table TABLE column table keyword violations: MySQL'],
-            $this->validator->getViolations()
+            $this->validator->getViolations(),
         );
     }
 }

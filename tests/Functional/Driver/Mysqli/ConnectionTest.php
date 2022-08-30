@@ -12,9 +12,7 @@ use function array_merge;
 
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
 
-/**
- * @require extension mysqli
- */
+/** @require extension mysqli */
 class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -47,14 +45,12 @@ class ConnectionTest extends FunctionalTestCase
         (new Driver())->connect(
             array_merge(
                 $params,
-                ['charset' => 'invalid']
-            )
+                ['charset' => 'invalid'],
+            ),
         );
     }
 
-    /**
-     * @param mixed[] $driverOptions
-     */
+    /** @param mixed[] $driverOptions */
     private function getConnection(array $driverOptions): Connection
     {
         $params = TestUtil::getConnectionParams();
@@ -70,8 +66,8 @@ class ConnectionTest extends FunctionalTestCase
         return (new Driver())->connect(
             array_merge(
                 $params,
-                ['driverOptions' => $driverOptions]
-            )
+                ['driverOptions' => $driverOptions],
+            ),
         );
     }
 }

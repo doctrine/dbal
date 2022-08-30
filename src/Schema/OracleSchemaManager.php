@@ -55,7 +55,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $this->doListTableDetails($name);
@@ -277,7 +277,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $this->getQuotedIdentifierName($tableForeignKey['foreignTable']),
             array_values($tableForeignKey['foreign']),
             $this->getQuotedIdentifierName($tableForeignKey['name']),
-            ['onDelete' => $tableForeignKey['onDelete']]
+            ['onDelete' => $tableForeignKey['onDelete']],
         );
     }
 
@@ -291,7 +291,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         return new Sequence(
             $this->getQuotedIdentifierName($sequence['sequence_name']),
             (int) $sequence['increment_by'],
-            (int) $sequence['min_value']
+            (int) $sequence['min_value'],
         );
     }
 

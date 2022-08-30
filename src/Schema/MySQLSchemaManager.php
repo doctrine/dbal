@@ -32,9 +32,7 @@ use const CASE_LOWER;
  */
 class MySQLSchemaManager extends AbstractSchemaManager
 {
-    /**
-     * @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences
-     */
+    /** @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences */
     private const MARIADB_ESCAPE_SEQUENCES = [
         '\\0' => "\0",
         "\\'" => "'",
@@ -79,7 +77,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $this->doListTableDetails($name);
@@ -208,7 +206,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
                     preg_match(
                         '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
                         $tableColumn['type'],
-                        $match
+                        $match,
                     ) === 1
                 ) {
                     $precision = $match[1];
@@ -378,7 +376,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
             [
                 'onDelete' => $tableForeignKey['onDelete'],
                 'onUpdate' => $tableForeignKey['onUpdate'],
-            ]
+            ],
         );
     }
 
@@ -387,8 +385,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
         return new MySQL\Comparator(
             $this->_platform,
             new CachingCollationMetadataProvider(
-                new ConnectionCollationMetadataProvider($this->_conn)
-            )
+                new ConnectionCollationMetadataProvider($this->_conn),
+            ),
         );
     }
 
@@ -561,9 +559,7 @@ SQL;
         return $tableOptions;
     }
 
-    /**
-     * @return string[]|true[]
-     */
+    /** @return string[]|true[] */
     private function parseCreateOptions(?string $string): array
     {
         $options = [];

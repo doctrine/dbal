@@ -44,7 +44,7 @@ class ColumnDiff
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/4785',
                 'Not passing the $fromColumn to %s is deprecated.',
-                __METHOD__
+                __METHOD__,
             );
         }
 
@@ -75,7 +75,7 @@ class ColumnDiff
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5622',
             '%s is deprecated. Use $fromColumn instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         if ($this->fromColumn !== null) {

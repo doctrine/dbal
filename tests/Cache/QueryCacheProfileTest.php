@@ -42,7 +42,7 @@ class QueryCacheProfileTest extends TestCase
             $this->query,
             $this->params,
             $this->types,
-            $this->connectionParams
+            $this->connectionParams,
         );
 
         self::assertEquals(self::CACHE_KEY, $cacheKey, 'The returned cache key should match the given one');
@@ -56,13 +56,13 @@ class QueryCacheProfileTest extends TestCase
             $this->query,
             $this->params,
             $this->types,
-            $this->connectionParams
+            $this->connectionParams,
         );
 
         self::assertNotEquals(
             self::CACHE_KEY,
             $cacheKey,
-            'The returned cache key should be generated automatically'
+            'The returned cache key should be generated automatically',
         );
 
         self::assertNotEmpty($cacheKey, 'The generated cache key should not be empty');
@@ -76,7 +76,7 @@ class QueryCacheProfileTest extends TestCase
             $this->query,
             $this->params,
             $this->types,
-            $this->connectionParams
+            $this->connectionParams,
         );
 
         $this->connectionParams['host'] = 'a_different_host';
@@ -85,7 +85,7 @@ class QueryCacheProfileTest extends TestCase
             $this->query,
             $this->params,
             $this->types,
-            $this->connectionParams
+            $this->connectionParams,
         );
 
         self::assertNotEquals($firstCacheKey, $secondCacheKey, 'Cache keys should be different');
@@ -99,7 +99,7 @@ class QueryCacheProfileTest extends TestCase
             $this->query,
             $this->params,
             $this->types,
-            $this->connectionParams
+            $this->connectionParams,
         );
 
         $params = [];
@@ -120,14 +120,14 @@ class QueryCacheProfileTest extends TestCase
             $this->query,
             $this->params,
             $this->types,
-            $this->connectionParams
+            $this->connectionParams,
         );
 
         [$secondCacheKey] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
             $this->params,
             $this->types,
-            $this->connectionParams
+            $this->connectionParams,
         );
 
         self::assertEquals($firstCacheKey, $secondCacheKey, 'Cache keys should be the same');
@@ -142,7 +142,7 @@ class QueryCacheProfileTest extends TestCase
             [
                 'user'     => 'database_user',
                 'password' => 'first-password',
-            ]
+            ],
         );
 
         [, $secondRealCacheKey] = $this->queryCacheProfile->generateCacheKeys(
@@ -152,13 +152,13 @@ class QueryCacheProfileTest extends TestCase
             [
                 'user'     => 'database_user',
                 'password' => 'second-password',
-            ]
+            ],
         );
 
         self::assertEquals(
             $firstRealCacheKey,
             $secondRealCacheKey,
-            'Cache keys for different password should be the same'
+            'Cache keys for different password should be the same',
         );
     }
 }

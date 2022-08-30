@@ -10,9 +10,7 @@ use ReflectionMethod;
 
 class SqliteSchemaManagerTest extends TestCase
 {
-    /**
-     * @dataProvider getDataColumnCollation
-     */
+    /** @dataProvider getDataColumnCollation */
     public function testParseColumnCollation(?string $collation, string $column, string $sql): void
     {
         $conn = $this->createMock(Connection::class);
@@ -24,9 +22,7 @@ class SqliteSchemaManagerTest extends TestCase
         self::assertSame($collation, $ref->invoke($manager, $column, $sql));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getDataColumnCollation(): iterable
     {
         return [
@@ -126,9 +122,7 @@ class SqliteSchemaManagerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getDataColumnComment
-     */
+    /** @dataProvider getDataColumnComment */
     public function testParseColumnCommentFromSQL(?string $comment, string $column, string $sql): void
     {
         $conn = $this->createMock(Connection::class);
@@ -140,9 +134,7 @@ class SqliteSchemaManagerTest extends TestCase
         self::assertSame($comment, $ref->invoke($manager, $column, $sql));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getDataColumnComment(): iterable
     {
         return [

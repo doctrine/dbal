@@ -77,9 +77,7 @@ class Index extends AbstractAsset implements Constraint
         }
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
+    /** @throws InvalidArgumentException */
     protected function _addColumn(string $column): void
     {
         $this->_columns[$column] = new Identifier($column);
@@ -118,9 +116,7 @@ class Index extends AbstractAsset implements Constraint
         return $columns;
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     public function getUnquotedColumns()
     {
         return array_map([$this, 'trimQuotes'], $this->getColumns());
@@ -136,17 +132,13 @@ class Index extends AbstractAsset implements Constraint
         return ! $this->_isPrimary && ! $this->_isUnique;
     }
 
-    /**
-     * @return bool
-     */
+    /** @return bool */
     public function isUnique()
     {
         return $this->_isUnique;
     }
 
-    /**
-     * @return bool
-     */
+    /** @return bool */
     public function isPrimary()
     {
         return $this->_isPrimary;
@@ -326,9 +318,7 @@ class Index extends AbstractAsset implements Constraint
         return $this->options[strtolower($name)];
     }
 
-    /**
-     * @return mixed[]
-     */
+    /** @return mixed[] */
     public function getOptions()
     {
         return $this->options;

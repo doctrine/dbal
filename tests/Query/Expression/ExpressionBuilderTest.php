@@ -50,9 +50,7 @@ class ExpressionBuilderTest extends TestCase
         self::assertEquals($expected, (string) $composite);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function provideDataForAnd(): iterable
     {
         return [
@@ -77,7 +75,7 @@ class ExpressionBuilderTest extends TestCase
                     'u.user = 1',
                     CompositeExpression::or(
                         'u.group_id = 1',
-                        'u.group_id = 2'
+                        'u.group_id = 2',
                     ),
                 ],
                 '(u.user = 1) AND ((u.group_id = 1) OR (u.group_id = 2))',
@@ -87,7 +85,7 @@ class ExpressionBuilderTest extends TestCase
                     'u.group_id = 1',
                     CompositeExpression::and(
                         'u.user = 1',
-                        'u.group_id = 2'
+                        'u.group_id = 2',
                     ),
                 ],
                 '(u.group_id = 1) AND ((u.user = 1) AND (u.group_id = 2))',
@@ -123,9 +121,7 @@ class ExpressionBuilderTest extends TestCase
         self::assertEquals($expected, (string) $composite);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function provideDataForOr(): iterable
     {
         return [
@@ -150,7 +146,7 @@ class ExpressionBuilderTest extends TestCase
                     'u.user = 1',
                     CompositeExpression::or(
                         'u.group_id = 1',
-                        'u.group_id = 2'
+                        'u.group_id = 2',
                     ),
                 ],
                 '(u.user = 1) OR ((u.group_id = 1) OR (u.group_id = 2))',
@@ -160,7 +156,7 @@ class ExpressionBuilderTest extends TestCase
                     'u.group_id = 1',
                     CompositeExpression::and(
                         'u.user = 1',
-                        'u.group_id = 2'
+                        'u.group_id = 2',
                     ),
                 ],
                 '(u.group_id = 1) OR ((u.user = 1) AND (u.group_id = 2))',
@@ -168,9 +164,7 @@ class ExpressionBuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideDataForComparison
-     */
+    /** @dataProvider provideDataForComparison */
     public function testComparison(string $leftExpr, string $operator, string $rightExpr, string $expected): void
     {
         $part = $this->expr->comparison($leftExpr, $operator, $rightExpr);
@@ -178,9 +172,7 @@ class ExpressionBuilderTest extends TestCase
         self::assertEquals($expected, $part);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function provideDataForComparison(): iterable
     {
         return [
@@ -262,7 +254,7 @@ class ExpressionBuilderTest extends TestCase
     {
         self::assertEquals(
             "a.song LIKE 'a virgin' ESCAPE '💩'",
-            $this->expr->like('a.song', "'a virgin'", "'💩'")
+            $this->expr->like('a.song', "'a virgin'", "'💩'"),
         );
     }
 
@@ -270,7 +262,7 @@ class ExpressionBuilderTest extends TestCase
     {
         self::assertEquals(
             "s.last_words NOT LIKE 'this'",
-            $this->expr->notLike('s.last_words', "'this'")
+            $this->expr->notLike('s.last_words', "'this'"),
         );
     }
 
@@ -278,7 +270,7 @@ class ExpressionBuilderTest extends TestCase
     {
         self::assertEquals(
             "p.description NOT LIKE '20💩%' ESCAPE '💩'",
-            $this->expr->notLike('p.description', "'20💩%'", "'💩'")
+            $this->expr->notLike('p.description', "'20💩%'", "'💩'"),
         );
     }
 }

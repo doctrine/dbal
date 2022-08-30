@@ -13,9 +13,7 @@ use function rtrim;
 
 final class DecimalTest extends FunctionalTestCase
 {
-    /**
-     * @return string[][]
-     */
+    /** @return string[][] */
     public function dataValuesProvider(): array
     {
         return [
@@ -24,9 +22,7 @@ final class DecimalTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider dataValuesProvider
-     */
+    /** @dataProvider dataValuesProvider */
     public function testInsertAndRetrieveDecimal(string $expected): void
     {
         $table = new Table('decimal_table');
@@ -37,12 +33,12 @@ final class DecimalTest extends FunctionalTestCase
         $this->connection->insert(
             'decimal_table',
             ['val' => $expected],
-            ['val' => Types::DECIMAL]
+            ['val' => Types::DECIMAL],
         );
 
         $value = Type::getType(Types::DECIMAL)->convertToPHPValue(
             $this->connection->fetchOne('SELECT val FROM decimal_table'),
-            $this->connection->getDatabasePlatform()
+            $this->connection->getDatabasePlatform(),
         );
 
         self::assertIsString($value);

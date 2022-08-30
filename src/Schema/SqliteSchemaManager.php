@@ -68,7 +68,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $this->doListTableDetails($name);
@@ -116,7 +116,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4963',
-            'SqliteSchemaManager::dropDatabase() is deprecated. Delete the database file using the filesystem.'
+            'SqliteSchemaManager::dropDatabase() is deprecated. Delete the database file using the filesystem.',
         );
 
         if (! file_exists($database)) {
@@ -137,7 +137,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4963',
             'SqliteSchemaManager::createDatabase() is deprecated.'
-                . ' The engine will create the database file automatically.'
+                . ' The engine will create the database file automatically.',
         );
 
         $params = $this->_conn->getParams();
@@ -183,7 +183,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4897',
             'SqliteSchemaManager::dropAndCreateForeignKey() is deprecated.'
-                . ' Use SqliteSchemaManager::dropForeignKey() and SqliteSchemaManager::createForeignKey() instead.'
+                . ' Use SqliteSchemaManager::dropForeignKey() and SqliteSchemaManager::createForeignKey() instead.',
         );
 
         $tableDiff                       = $this->getTableDiffForAlterForeignKey($table);
@@ -252,7 +252,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 }
 
                 return $a['pk'] - $b['pk'];
-            }
+            },
         );
 
         foreach ($indexArray as $indexColumnRow) {
@@ -335,7 +335,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             if ($type instanceof StringType || $type instanceof TextType) {
                 $column->setPlatformOption(
                     'collation',
-                    $this->parseColumnCollationFromSQL($columnName, $createSql) ?? 'BINARY'
+                    $this->parseColumnCollationFromSQL($columnName, $createSql) ?? 'BINARY',
                 );
             }
 
@@ -503,7 +503,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 'onUpdate' => $tableForeignKey['onUpdate'],
                 'deferrable' => $tableForeignKey['deferrable'],
                 'deferred' => $tableForeignKey['deferred'],
-            ]
+            ],
         );
     }
 
@@ -570,9 +570,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment === '' ? null : $comment;
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function getCreateTableSQL(string $table): string
     {
         $sql = $this->_conn->fetchOne(
@@ -589,7 +587,7 @@ WHERE type = 'table'
 AND name = ?
 SQL
             ,
-            [$table]
+            [$table],
         );
 
         if ($sql !== false) {
@@ -642,7 +640,7 @@ SQL
                         (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
                     )?#isx',
                 $createSql,
-                $match
+                $match,
             ) === 0
         ) {
             return [];
@@ -679,7 +677,7 @@ SQL
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4821',
-            'SqliteSchemaManager::getSchemaSearchPaths() is deprecated.'
+            'SqliteSchemaManager::getSchemaSearchPaths() is deprecated.',
         );
 
         // SQLite does not support schemas or databases
@@ -707,7 +705,7 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT t.name AS table_name,
                    c.*
               FROM sqlite_master t
@@ -732,7 +730,7 @@ SQL;
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT t.name AS table_name,
                    i.*
               FROM sqlite_master t
@@ -757,7 +755,7 @@ SQL;
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT t.name AS table_name,
                    p.*
               FROM sqlite_master t

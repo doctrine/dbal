@@ -32,7 +32,7 @@ final class Driver extends AbstractSQLiteDriver
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->userDefinedFunctions = array_merge(
                 $this->userDefinedFunctions,
-                $driverOptions['userDefinedFunctions']
+                $driverOptions['userDefinedFunctions'],
             );
             unset($driverOptions['userDefinedFunctions']);
         }
@@ -42,7 +42,7 @@ final class Driver extends AbstractSQLiteDriver
                 $this->constructPdoDsn($params),
                 $params['user'] ?? '',
                 $params['password'] ?? '',
-                $driverOptions
+                $driverOptions,
             );
         } catch (PDOException $exception) {
             throw Exception::new($exception);

@@ -39,7 +39,7 @@ class ArrayTest extends TestCase
         $this->expectException(ConversionException::class);
         $this->expectExceptionMessage(
             "Could not convert database value to 'array' as an error was triggered by the unserialization:"
-                . " 'unserialize(): Error at offset 0 of 7 bytes'"
+                . " 'unserialize(): Error at offset 0 of 7 bytes'",
         );
 
         $this->type->convertToPHPValue('abcdefg', $this->platform);
@@ -49,7 +49,7 @@ class ArrayTest extends TestCase
     {
         @self::assertInstanceOf(UnserializeWithDeprecationObject::class, $this->type->convertToPHPValue(
             serialize(new UnserializeWithDeprecationObject()),
-            $this->platform
+            $this->platform,
         ));
     }
 

@@ -12,9 +12,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 
-/**
- * @extends AbstractDriverTest<DB2Platform>
- */
+/** @extends AbstractDriverTest<DB2Platform> */
 class AbstractDB2DriverTest extends AbstractDriverTest
 {
     protected function createDriver(): Driver
@@ -31,7 +29,7 @@ class AbstractDB2DriverTest extends AbstractDriverTest
     {
         return new DB2SchemaManager(
             $connection,
-            $this->createPlatform()
+            $this->createPlatform(),
         );
     }
 

@@ -31,7 +31,7 @@ final class Connection extends AbstractConnectionMiddleware
     {
         return new Statement(
             parent::prepare($sql),
-            $this->converter
+            $this->converter,
         );
     }
 
@@ -39,7 +39,7 @@ final class Connection extends AbstractConnectionMiddleware
     {
         return new Result(
             parent::query($sql),
-            $this->converter
+            $this->converter,
         );
     }
 }

@@ -35,7 +35,7 @@ class TimeImmutableType extends TimeType
         throw ConversionException::conversionFailedInvalidType(
             $value,
             $this->getName(),
-            ['null', DateTimeImmutable::class]
+            ['null', DateTimeImmutable::class],
         );
     }
 
@@ -54,7 +54,7 @@ class TimeImmutableType extends TimeType
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),
-                $platform->getTimeFormatString()
+                $platform->getTimeFormatString(),
             );
         }
 
@@ -72,7 +72,7 @@ class TimeImmutableType extends TimeType
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5509',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return true;

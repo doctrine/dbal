@@ -38,7 +38,7 @@ class DebugStack implements SQLLogger
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4967',
-            'DebugStack is deprecated.'
+            'DebugStack is deprecated.',
         );
     }
 

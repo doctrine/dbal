@@ -24,7 +24,7 @@ final class ComparatorTestUtils
     ) {
         return $comparator->diffTable(
             $schemaManager->introspectTable($desiredTable->getName()),
-            $desiredTable
+            $desiredTable,
         );
     }
 
@@ -40,7 +40,7 @@ final class ComparatorTestUtils
     ) {
         return $comparator->diffTable(
             $desiredTable,
-            $schemaManager->introspectTable($desiredTable->getName())
+            $schemaManager->introspectTable($desiredTable->getName()),
         );
     }
 
@@ -58,9 +58,7 @@ final class ComparatorTestUtils
         TestCase::assertFalse(self::diffFromDesiredToActualTable($schemaManager, $comparator, $table));
     }
 
-    /**
-     * @return iterable<string,array<callable(AbstractSchemaManager):Comparator>>
-     */
+    /** @return iterable<string,array<callable(AbstractSchemaManager):Comparator>> */
     public static function comparatorProvider(): iterable
     {
         yield 'Generic comparator' => [

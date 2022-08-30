@@ -52,9 +52,7 @@ class ComparatorTest extends FunctionalTestCase
         self::assertFalse($comparatorFactory($this->schemaManager)->diffTable($table, $onlineTable));
     }
 
-    /**
-     * @return iterable<mixed[]>
-     */
+    /** @return iterable<mixed[]> */
     public static function defaultValueProvider(): iterable
     {
         foreach (ComparatorTestUtils::comparatorProvider() as $comparatorType => $comparatorArguments) {
@@ -69,7 +67,7 @@ class ComparatorTest extends FunctionalTestCase
                     '%s with default %s value %s',
                     $comparatorType,
                     $testArguments[0],
-                    var_export($testArguments[1], true)
+                    var_export($testArguments[1], true),
                 ) => array_merge($comparatorArguments, $testArguments);
             }
         }

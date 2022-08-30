@@ -361,14 +361,14 @@ class SchemaTest extends TestCase
             ->method('acceptTable')
             ->withConsecutive(
                 [$schema->getTable('baz')],
-                [$schema->getTable('bla.bloo')]
+                [$schema->getTable('bla.bloo')],
             );
 
         $visitor->expects(self::exactly(2))
             ->method('acceptSequence')
             ->withConsecutive(
                 [$schema->getSequence('moo')],
-                [$schema->getSequence('war')]
+                [$schema->getSequence('war')],
             );
 
         $schema->visit($visitor);
@@ -400,14 +400,14 @@ class SchemaTest extends TestCase
             ->method('acceptTable')
             ->withConsecutive(
                 [$schema->getTable('baz')],
-                [$schema->getTable('bla.bloo')]
+                [$schema->getTable('bla.bloo')],
             );
 
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence')
             ->withConsecutive(
                 [$schema->getSequence('moo')],
-                [$schema->getSequence('war')]
+                [$schema->getSequence('war')],
             );
 
         $schema->visit($visitor);

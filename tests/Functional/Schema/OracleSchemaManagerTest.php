@@ -89,7 +89,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlinePrimaryTable->addColumn(
             '"Id"',
             'integer',
-            ['autoincrement' => true, 'comment' => 'Explicit casing.']
+            ['autoincrement' => true, 'comment' => 'Explicit casing.'],
         );
         $offlinePrimaryTable->addColumn('select', 'integer', ['comment' => 'Reserved keyword.']);
         $offlinePrimaryTable->addColumn('foo', 'integer', ['comment' => 'Implicit uppercasing.']);
@@ -111,7 +111,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ['"Fk"'],
             ['"Id"'],
             [],
-            '"Primary_Table_Fk"'
+            '"Primary_Table_Fk"',
         );
         $offlineForeignTable->setPrimaryKey(['id']);
 
@@ -186,15 +186,15 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($onlineForeignTable->hasForeignKey('"Primary_Table_Fk"'));
         self::assertSame(
             $primaryTableName,
-            $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignTableName($platform)
+            $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignTableName($platform),
         );
         self::assertSame(
             ['"Fk"'],
-            $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedLocalColumns($platform)
+            $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedLocalColumns($platform),
         );
         self::assertSame(
             ['"Id"'],
-            $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignColumns($platform)
+            $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignColumns($platform),
         );
     }
 
@@ -231,7 +231,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->createIndex(
             new Index('id_pk_id_index', ['id'], true, true),
-            'list_table_indexes_pk_id_test'
+            'list_table_indexes_pk_id_test',
         );
 
         $tableIndexes = $this->schemaManager->listTableIndexes('list_table_indexes_pk_id_test');
@@ -261,7 +261,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testCreateAndListSequences(): void
     {
         self::markTestSkipped(
-            "Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0."
+            "Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0.",
         );
     }
 

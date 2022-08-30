@@ -14,9 +14,7 @@ use const CASE_LOWER;
 
 class NamedParametersTest extends FunctionalTestCase
 {
-    /**
-     * @return iterable<int, array<int, mixed>>
-     */
+    /** @return iterable<int, array<int, mixed>> */
     public static function ticketProvider(): iterable
     {
         return [

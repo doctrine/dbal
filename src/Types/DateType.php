@@ -57,7 +57,7 @@ class DateType extends Type
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),
-                $platform->getDateFormatString()
+                $platform->getDateFormatString(),
             );
         }
 

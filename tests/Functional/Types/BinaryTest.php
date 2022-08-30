@@ -67,15 +67,13 @@ class BinaryTest extends FunctionalTestCase
         self::assertSame(1, $result);
     }
 
-    /**
-     * @return mixed
-     */
+    /** @return mixed */
     private function select(string $id)
     {
         $value = $this->connection->fetchOne(
             'SELECT val FROM binary_table WHERE id = ?',
             [$id],
-            [ParameterType::BINARY]
+            [ParameterType::BINARY],
         );
 
         // Currently, `BinaryType` mistakenly converts string values fetched from the DB to a stream.

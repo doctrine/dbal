@@ -38,34 +38,22 @@ use function substr;
  */
 class QueryBuilder
 {
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const SELECT = 0;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const DELETE = 1;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const UPDATE = 2;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const INSERT = 3;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const STATE_DIRTY = 0;
 
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public const STATE_CLEAN = 1;
 
     /**
@@ -189,7 +177,7 @@ class QueryBuilder
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5551',
             'Relying on the type of the query being built is deprecated.'
-                . ' If necessary, track the type of the query being built outside of the builder.'
+                . ' If necessary, track the type of the query being built outside of the builder.',
         );
 
         return $this->type;
@@ -217,7 +205,7 @@ class QueryBuilder
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5551',
-            'Relying on the query builder state is deprecated as it is an internal concern.'
+            'Relying on the query builder state is deprecated as it is an internal concern.',
         );
 
         return $this->state;
@@ -336,7 +324,7 @@ class QueryBuilder
             $this->getSQL(),
             $this->params,
             $this->paramTypes,
-            $this->resultCacheProfile
+            $this->resultCacheProfile,
         );
     }
 
@@ -369,7 +357,7 @@ class QueryBuilder
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/4578',
-                'QueryBuilder::execute() is deprecated, use QueryBuilder::executeQuery() for SQL queries instead.'
+                'QueryBuilder::execute() is deprecated, use QueryBuilder::executeQuery() for SQL queries instead.',
             );
 
             return $this->executeQuery();
@@ -378,7 +366,7 @@ class QueryBuilder
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4578',
-            'QueryBuilder::execute() is deprecated, use QueryBuilder::executeStatement() for SQL statements instead.'
+            'QueryBuilder::execute() is deprecated, use QueryBuilder::executeStatement() for SQL statements instead.',
         );
 
         return $this->connection->executeStatement($this->getSQL(), $this->params, $this->paramTypes);
@@ -453,7 +441,7 @@ class QueryBuilder
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5550',
                 'Using NULL as prepared statement parameter type is deprecated.'
-                    . 'Omit or use Parameter::STRING instead'
+                    . 'Omit or use Parameter::STRING instead',
             );
         }
 
@@ -666,7 +654,7 @@ class QueryBuilder
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3837',
                 'Passing an array for the first argument to QueryBuilder::select() is deprecated, ' .
-                'pass each value as an individual variadic argument instead.'
+                'pass each value as an individual variadic argument instead.',
             );
         }
 
@@ -725,7 +713,7 @@ class QueryBuilder
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3837',
                 'Passing an array for the first argument to QueryBuilder::addSelect() is deprecated, ' .
-                'pass each value as an individual variadic argument instead.'
+                'pass each value as an individual variadic argument instead.',
             );
         }
 
@@ -1106,7 +1094,7 @@ class QueryBuilder
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3837',
                 'Passing an array for the first argument to QueryBuilder::groupBy() is deprecated, ' .
-                'pass each value as an individual variadic argument instead.'
+                'pass each value as an individual variadic argument instead.',
             );
         }
 
@@ -1144,7 +1132,7 @@ class QueryBuilder
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3837',
                 'Passing an array for the first argument to QueryBuilder::addGroupBy() is deprecated, ' .
-                'pass each value as an individual variadic argument instead.'
+                'pass each value as an individual variadic argument instead.',
             );
         }
 
@@ -1349,9 +1337,7 @@ class QueryBuilder
         return $this;
     }
 
-    /**
-     * @throws QueryException
-     */
+    /** @throws QueryException */
     private function getSQLForSelect(): string
     {
         $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
@@ -1367,7 +1353,7 @@ class QueryBuilder
             return $this->connection->getDatabasePlatform()->modifyLimitQuery(
                 $query,
                 $this->maxResults,
-                $this->firstResult
+                $this->firstResult,
             );
         }
 

@@ -97,9 +97,7 @@ class SchemaDiff
         return $this->_toSql($platform, true);
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     public function toSql(AbstractPlatform $platform)
     {
         return $this->_toSql($platform, false);

@@ -61,7 +61,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListForeignKeysFromExistingDatabase(): void
     {
-        $this->connection->executeStatement(<<<EOS
+        $this->connection->executeStatement(<<<'EOS'
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
@@ -69,8 +69,7 @@ CREATE TABLE user (
     log INTEGER,
     CONSTRAINT FK_3 FOREIGN KEY (log) REFERENCES log ON UPDATE SET NULL NOT DEFERRABLE
 )
-EOS
-        );
+EOS);
 
         $expected = [
             new ForeignKeyConstraint(
@@ -78,21 +77,21 @@ EOS
                 'page',
                 ['key'],
                 'FK_1',
-                ['onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true]
+                ['onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true],
             ),
             new ForeignKeyConstraint(
                 ['parent'],
                 'user',
                 ['id'],
                 null,
-                ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false]
+                ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false],
             ),
             new ForeignKeyConstraint(
                 ['log'],
                 'log',
                 [],
                 'FK_3',
-                ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false]
+                ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false],
             ),
         ];
 
@@ -134,7 +133,7 @@ EOS
 
     public function testListTableColumnsWithWhitespacesInTypeDeclarations(): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 CREATE TABLE dbal_1779 (
     foo VARCHAR (64) ,
     bar TEXT (100)
@@ -172,7 +171,7 @@ SQL;
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
         $lastUsedIdAfterDelete = (int) $this->connection->fetchOne(
-            'SELECT id FROM test_pk_auto_increment WHERE text = "2"'
+            'SELECT id FROM test_pk_auto_increment WHERE text = "2"',
         );
 
         // with an empty table, non autoincrement rowid is always 1

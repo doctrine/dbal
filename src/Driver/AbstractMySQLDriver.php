@@ -53,7 +53,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5060',
             'MySQL 5.6 support is deprecated and will be removed in DBAL 4.'
-                . ' Consider upgrading to MySQL 5.7 or later.'
+                . ' Consider upgrading to MySQL 5.7 or later.',
         );
 
         return $this->getDatabasePlatform();
@@ -73,12 +73,12 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
             preg_match(
                 '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
                 $versionString,
-                $versionParts
+                $versionParts,
             ) === 0
         ) {
             throw Exception::invalidPlatformVersionSpecified(
                 $versionString,
-                '<major_version>.<minor_version>.<patch_version>'
+                '<major_version>.<minor_version>.<patch_version>',
             );
         }
 
@@ -107,12 +107,12 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
             preg_match(
                 '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
                 $versionString,
-                $versionParts
+                $versionParts,
             ) === 0
         ) {
             throw Exception::invalidPlatformVersionSpecified(
                 $versionString,
-                '^(?:5\.5\.5-)?(mariadb-)?<major_version>.<minor_version>.<patch_version>'
+                '^(?:5\.5\.5-)?(mariadb-)?<major_version>.<minor_version>.<patch_version>',
             );
         }
 
@@ -142,7 +142,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5458',
             'AbstractMySQLDriver::getSchemaManager() is deprecated.'
-                . ' Use MySQLPlatform::createSchemaManager() instead.'
+                . ' Use MySQLPlatform::createSchemaManager() instead.',
         );
 
         assert($platform instanceof AbstractMySQLPlatform);

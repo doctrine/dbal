@@ -86,9 +86,7 @@ final class EasyConnectString
         ]);
     }
 
-    /**
-     * @param mixed[] $params
-     */
+    /** @param mixed[] $params */
     private static function renderParams(array $params): string
     {
         $chunks = [];
@@ -106,9 +104,7 @@ final class EasyConnectString
         return implode('', $chunks);
     }
 
-    /**
-     * @param mixed $value
-     */
+    /** @param mixed $value */
     private static function renderValue($value): string
     {
         if (is_array($value)) {

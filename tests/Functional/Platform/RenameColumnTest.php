@@ -11,9 +11,7 @@ use function strtolower;
 
 class RenameColumnTest extends FunctionalTestCase
 {
-    /**
-     * @dataProvider columnNameProvider
-     */
+    /** @dataProvider columnNameProvider */
     public function testColumnPositionRetainedAfterRenaming(string $columnName, string $newColumnName): void
     {
         $table = new Table('test_rename');
@@ -36,9 +34,7 @@ class RenameColumnTest extends FunctionalTestCase
         self::assertSame([strtolower($newColumnName), 'c2'], array_keys($table->getColumns()));
     }
 
-    /**
-     * @return iterable<array{string}>
-     */
+    /** @return iterable<array{string}> */
     public static function columnNameProvider(): iterable
     {
         yield ['c1', 'c1_x'];

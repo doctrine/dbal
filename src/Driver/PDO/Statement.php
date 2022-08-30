@@ -30,9 +30,7 @@ final class Statement implements StatementInterface
 
     private PDOStatement $stmt;
 
-    /**
-     * @internal The statement can be only instantiated by its driver connection.
-     */
+    /** @internal The statement can be only instantiated by its driver connection. */
     public function __construct(PDOStatement $stmt)
     {
         $this->stmt = $stmt;
@@ -48,7 +46,7 @@ final class Statement implements StatementInterface
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5558',
                 'Not passing $type to Statement::bindValue() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
+                    . ' Pass the type corresponding to the parameter being bound.',
             );
         }
 
@@ -83,7 +81,7 @@ final class Statement implements StatementInterface
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5563',
             '%s is deprecated. Use bindValue() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         if (func_num_args() < 3) {
@@ -91,7 +89,7 @@ final class Statement implements StatementInterface
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5558',
                 'Not passing $type to Statement::bindParam() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.'
+                    . ' Pass the type corresponding to the parameter being bound.',
             );
         }
 
@@ -99,7 +97,7 @@ final class Statement implements StatementInterface
             Deprecation::triggerIfCalledFromOutside(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/4533',
-                'The $driverOptions argument of Statement::bindParam() is deprecated.'
+                'The $driverOptions argument of Statement::bindParam() is deprecated.',
             );
         }
 
@@ -111,7 +109,7 @@ final class Statement implements StatementInterface
                 $variable,
                 $type,
                 $length ?? 0,
-                ...array_slice(func_get_args(), 4)
+                ...array_slice(func_get_args(), 4),
             );
         } catch (PDOException $exception) {
             throw Exception::new($exception);
@@ -128,7 +126,7 @@ final class Statement implements StatementInterface
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5556',
                 'Passing $params to Statement::execute() is deprecated. Bind parameters using'
-                    . ' Statement::bindParam() or Statement::bindValue() instead.'
+                    . ' Statement::bindParam() or Statement::bindValue() instead.',
             );
         }
 

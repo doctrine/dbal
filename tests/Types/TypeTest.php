@@ -10,17 +10,13 @@ use ReflectionClass;
 
 class TypeTest extends TestCase
 {
-    /**
-     * @dataProvider defaultTypesProvider()
-     */
+    /** @dataProvider defaultTypesProvider() */
     public function testDefaultTypesAreRegistered(string $name): void
     {
         self::assertTrue(Type::hasType($name));
     }
 
-    /**
-     * @return iterable<string[]>
-     */
+    /** @return iterable<string[]> */
     public function defaultTypesProvider(): iterable
     {
         foreach ((new ReflectionClass(Type::class))->getReflectionConstants() as $constant) {

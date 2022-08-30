@@ -82,13 +82,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     'df_integer',
                     new Column('df_integer', Type::getType('integer'), ['default' => 0]),
                     ['default'],
-                    new Column('df_integer', Type::getType('integer'), ['default' => 666])
+                    new Column('df_integer', Type::getType('integer'), ['default' => 666]),
                 ),
                 'df_string_2' => new ColumnDiff(
                     'df_string_2',
                     new Column('df_string_2', Type::getType('string')),
                     ['default'],
-                    new Column('df_string_2', Type::getType('string'), ['default' => 'Doctrine rocks!!!'])
+                    new Column('df_string_2', Type::getType('string'), ['default' => 'Doctrine rocks!!!']),
                 ),
                 'df_string_3' => new ColumnDiff(
                     'df_string_3',
@@ -100,13 +100,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     new Column('df_string_3', Type::getType('string'), [
                         'length' => 50,
                         'default' => 'another default value',
-                    ])
+                    ]),
                 ),
                 'df_boolean' => new ColumnDiff(
                     'df_boolean',
                     new Column('df_boolean', Type::getType('boolean'), ['default' => false]),
                     ['default'],
-                    new Column('df_boolean', Type::getType('boolean'), ['default' => true])
+                    new Column('df_boolean', Type::getType('boolean'), ['default' => true]),
                 ),
             ],
             [
@@ -115,13 +115,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             [],
             [],
             [],
-            $table
+            $table,
         );
         $diff->newName                       = 'sqlsrv_default_constraints';
         $diff->renamedColumns['df_string_4'] = new Column(
             'df_string_renamed',
             Type::getType('string'),
-            ['default' => 'column to rename']
+            ['default' => 'column to rename'],
         );
 
         $this->schemaManager->alterTable($diff);
@@ -145,14 +145,14 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     'df_integer',
                     new Column('df_integer', Type::getType('integer'), ['default' => 666]),
                     ['default'],
-                    new Column('df_integer', Type::getType('integer'), ['default' => 0])
+                    new Column('df_integer', Type::getType('integer'), ['default' => 0]),
                 ),
             ],
             [],
             [],
             [],
             [],
-            $table
+            $table,
         );
 
         $this->schemaManager->alterTable($diff);
@@ -175,7 +175,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn(
             '`comment_quoted`',
             'integer',
-            ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!']
+            ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'],
         );
         $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
         $table->addColumn('commented_type', 'object');
@@ -197,7 +197,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('Doctrine 0wnz you!', $columns['comment']->getComment());
         self::assertEquals(
             'Doctrine 0wnz comments for explicitly quoted columns!',
-            $columns['comment_quoted']->getComment()
+            $columns['comment_quoted']->getComment(),
         );
         self::assertEquals('Doctrine 0wnz comments for reserved keyword columns!', $columns['[create]']->getComment());
         self::assertNull($columns['commented_type']->getComment());
@@ -251,7 +251,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'id',
             new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
             ['comment'],
-            new Column('id', Type::getType('integer'), ['autoincrement' => true])
+            new Column('id', Type::getType('integer'), ['autoincrement' => true]),
         );
 
         // Remove comment from null-commented column.
@@ -259,7 +259,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'comment_null',
             new Column('comment_null', Type::getType('string')),
             ['type'],
-            new Column('comment_null', Type::getType('integer'), ['comment' => null])
+            new Column('comment_null', Type::getType('integer'), ['comment' => null]),
         );
 
         // Add comment to false-commented column.
@@ -267,7 +267,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'comment_false',
             new Column('comment_false', Type::getType('integer'), ['comment' => 'false']),
             ['comment'],
-            new Column('comment_false', Type::getType('integer'), ['comment' => false])
+            new Column('comment_false', Type::getType('integer'), ['comment' => false]),
         );
 
         // Change type to custom type from empty string commented column.
@@ -275,7 +275,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'comment_empty_string',
             new Column('comment_empty_string', Type::getType('object')),
             ['type'],
-            new Column('comment_empty_string', Type::getType('integer'), ['comment' => ''])
+            new Column('comment_empty_string', Type::getType('integer'), ['comment' => '']),
         );
 
         // Change comment to false-comment from zero-string commented column.
@@ -283,7 +283,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'comment_string_0',
             new Column('comment_string_0', Type::getType('integer'), ['comment' => false]),
             ['comment'],
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => '0'])
+            new Column('comment_string_0', Type::getType('integer'), ['comment' => '0']),
         );
 
         // Remove comment from regular commented column.
@@ -291,7 +291,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'comment',
             new Column('comment', Type::getType('integer')),
             ['comment'],
-            new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!'])
+            new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
         );
 
         // Change comment and change type to custom type from regular commented column.
@@ -299,7 +299,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             '`comment_quoted`',
             new Column('`comment_quoted`', Type::getType('array'), ['comment' => 'Doctrine array.']),
             ['comment', 'type'],
-            new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!'])
+            new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
         );
 
         // Remove comment and change type to custom type from regular commented column.
@@ -310,8 +310,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             new Column(
                 'create',
                 Type::getType('integer'),
-                ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']
-            )
+                ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!'],
+            ),
         );
 
         // Add comment and change custom type to regular type from non-commented column.
@@ -319,7 +319,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'commented_type',
             new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
             ['comment', 'type'],
-            new Column('commented_type', Type::getType('object'))
+            new Column('commented_type', Type::getType('object')),
         );
 
         // Remove comment from commented custom type column.
@@ -327,7 +327,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'commented_type_with_comment',
             new Column('commented_type_with_comment', Type::getType('array')),
             ['comment'],
-            new Column('commented_type_with_comment', Type::getType('array'), ['comment' => 'Doctrine array type.'])
+            new Column('commented_type_with_comment', Type::getType('array'), ['comment' => 'Doctrine array type.']),
         );
 
         // Change column requirements without changing comment.
@@ -336,13 +336,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             new Column(
                 'commented_req_change_column',
                 Type::getType('integer'),
-                ['comment' => 'Some comment', 'notnull' => true]
+                ['comment' => 'Some comment', 'notnull' => true],
             ),
             ['notnull'],
             new Column(
                 'commented_req_change_column',
                 Type::getType('integer'),
-                ['comment' => 'Some comment', 'notnull' => false]
+                ['comment' => 'Some comment', 'notnull' => false],
             ),
         );
 

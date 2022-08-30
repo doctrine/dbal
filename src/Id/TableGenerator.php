@@ -85,7 +85,7 @@ class TableGenerator
         $this->conn = DriverManager::getConnection(
             $conn->getParams(),
             $conn->getConfiguration(),
-            $conn->getEventManager()
+            $conn->getEventManager(),
         );
 
         $this->generatorTableName = $generatorTableName;
@@ -147,7 +147,7 @@ class TableGenerator
             } else {
                 $this->conn->insert(
                     $this->generatorTableName,
-                    ['sequence_name' => $sequence, 'sequence_value' => 1, 'sequence_increment_by' => 1]
+                    ['sequence_name' => $sequence, 'sequence_value' => 1, 'sequence_increment_by' => 1],
                 );
                 $value = 1;
             }
@@ -159,7 +159,7 @@ class TableGenerator
             throw new Exception(
                 'Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(),
                 0,
-                $e
+                $e,
             );
         }
 

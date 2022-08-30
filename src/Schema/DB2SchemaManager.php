@@ -54,7 +54,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $this->doListTableDetails($name);
@@ -202,7 +202,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             $tableForeignKey['foreign_table'],
             $tableForeignKey['foreign_columns'],
             $tableForeignKey['name'],
-            $tableForeignKey['options']
+            $tableForeignKey['options'],
         );
     }
 

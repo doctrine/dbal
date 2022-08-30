@@ -15,9 +15,7 @@ use function strcasecmp;
  */
 class Comparator extends BaseComparator
 {
-    /**
-     * @internal The comparator can be only instantiated by a schema manager.
-     */
+    /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(SqlitePlatform $platform)
     {
         parent::__construct($platform);

@@ -33,7 +33,7 @@ final class SchemaTest extends FunctionalTestCase
 
         $result = $this->connection->fetchAssociative(
             'SELECT column_default FROM information_schema.columns WHERE table_name = ?',
-            ['my_table']
+            ['my_table'],
         );
 
         $this->assertNotFalse($result);

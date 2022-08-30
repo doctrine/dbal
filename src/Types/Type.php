@@ -50,9 +50,7 @@ abstract class Type
 
     private static ?TypeRegistry $typeRegistry = null;
 
-    /**
-     * @internal Do not instantiate directly - use {@see Type::addType()} method instead.
-     */
+    /** @internal Do not instantiate directly - use {@see Type::addType()} method instead. */
     final public function __construct()
     {
     }
@@ -206,7 +204,7 @@ abstract class Type
             static function (Type $type): string {
                 return get_class($type);
             },
-            self::getTypeRegistry()->getMap()
+            self::getTypeRegistry()->getMap(),
         );
     }
 
@@ -279,7 +277,7 @@ abstract class Type
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5509',
             '%s is deprecated.',
-            __METHOD__
+            __METHOD__,
         );
 
         return false;

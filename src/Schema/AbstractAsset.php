@@ -123,7 +123,7 @@ abstract class AbstractAsset
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4814',
             'AbstractAsset::getFullQualifiedName() is deprecated.'
-            . ' Use AbstractAsset::getNamespaceName() and ::getName() instead.'
+            . ' Use AbstractAsset::getNamespaceName() and ::getName() instead.',
         );
 
         $name = $this->getName();

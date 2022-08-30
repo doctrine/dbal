@@ -42,7 +42,7 @@ final class Driver extends AbstractSQLServerDriver
                 $this->constructDsn($params, $dsnOptions),
                 $params['user'] ?? '',
                 $params['password'] ?? '',
-                $driverOptions
+                $driverOptions,
             );
         } catch (\PDOException $exception) {
             throw PDOException::new($exception);

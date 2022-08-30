@@ -11,14 +11,10 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 interface Constraint
 {
-    /**
-     * @return string
-     */
+    /** @return string */
     public function getName();
 
-    /**
-     * @return string
-     */
+    /** @return string */
     public function getQuotedName(AbstractPlatform $platform);
 
     /**

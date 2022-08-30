@@ -59,7 +59,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',
-            __METHOD__
+            __METHOD__,
         );
 
         return $this->doListTableDetails($name);
@@ -99,7 +99,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 SELECT name
 FROM   sys.schemas
 WHERE  name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')
-SQL
+SQL,
         );
     }
 
@@ -262,7 +262,7 @@ SQL
             $tableForeignKey['foreign_table'],
             $tableForeignKey['foreign_columns'],
             $tableForeignKey['name'],
-            $tableForeignKey['options']
+            $tableForeignKey['options'],
         );
     }
 
@@ -297,7 +297,7 @@ SQL
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4503',
             'SQLServerSchemaManager::getPortableNamespaceDefinition() is deprecated,'
-                . ' use SQLServerSchemaManager::listSchemaNames() instead.'
+                . ' use SQLServerSchemaManager::listSchemaNames() instead.',
         );
 
         return $namespace['name'];
@@ -324,8 +324,8 @@ SQL
                         sprintf(
                             'ALTER TABLE %s DROP CONSTRAINT %s',
                             $tableDiff->name,
-                            $constraint
-                        )
+                            $constraint,
+                        ),
                     );
                 }
             }
@@ -359,21 +359,17 @@ WHERE t.name = ?
   AND c.name = ?
 SQL
             ,
-            [$table, $column]
+            [$table, $column],
         );
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function createComparator(): Comparator
     {
         return new SQLServer\Comparator($this->_platform, $this->getDatabaseCollation());
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function getDatabaseCollation(): string
     {
         if ($this->databaseCollation === null) {
@@ -530,7 +526,7 @@ SQL;
             $conditions[] = $this->getTableWhereClause(
                 $tableName,
                 'SCHEMA_NAME(f.schema_id)',
-                'OBJECT_NAME(f.parent_object_id)'
+                'OBJECT_NAME(f.parent_object_id)',
             );
 
             $sql .= ' WHERE ' . implode(' AND ', $conditions);

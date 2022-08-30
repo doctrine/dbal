@@ -13,15 +13,13 @@ use Doctrine\Deprecations\Deprecation;
  */
 class PostgreSQL100Keywords extends PostgreSQL94Keywords
 {
-    /**
-     * @deprecated
-     */
+    /** @deprecated */
     public function getName(): string
     {
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5433',
-            'PostgreSQL100Keywords::getName() is deprecated.'
+            'PostgreSQL100Keywords::getName() is deprecated.',
         );
 
         return 'PostgreSQL100';

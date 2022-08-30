@@ -12,9 +12,7 @@ use function is_object;
 use function spl_object_hash;
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 class Exception extends \Exception
 {
     public static function notSupported(string $method): self
@@ -22,9 +20,7 @@ class Exception extends \Exception
         return new self(sprintf("Operation '%s' is not supported by platform.", $method));
     }
 
-    /**
-     * @param mixed $invalidPlatform
-     */
+    /** @param mixed $invalidPlatform */
     public static function invalidPlatformType($invalidPlatform): self
     {
         if (is_object($invalidPlatform)) {
@@ -32,8 +28,8 @@ class Exception extends \Exception
                 sprintf(
                     "Option 'platform' must be a subtype of '%s', instance of '%s' given",
                     AbstractPlatform::class,
-                    get_class($invalidPlatform)
-                )
+                    get_class($invalidPlatform),
+                ),
             );
         }
 
@@ -41,8 +37,8 @@ class Exception extends \Exception
             sprintf(
                 "Option 'platform' must be an object and subtype of '%s'. Got '%s'",
                 AbstractPlatform::class,
-                gettype($invalidPlatform)
-            )
+                gettype($invalidPlatform),
+            ),
         );
     }
 
@@ -59,14 +55,12 @@ class Exception extends \Exception
                 'Invalid platform version "%s" specified. ' .
                 'The platform version has to be specified in the format: "%s".',
                 $version,
-                $expectedFormat
-            )
+                $expectedFormat,
+            ),
         );
     }
 
-    /**
-     * @param string|null $url The URL that was provided in the connection parameters (if any).
-     */
+    /** @param string|null $url The URL that was provided in the connection parameters (if any). */
     public static function driverRequired(?string $url = null): self
     {
         if ($url !== null) {
@@ -74,8 +68,8 @@ class Exception extends \Exception
                 sprintf(
                     "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
                     'is given to DriverManager::getConnection(). Given URL: %s',
-                    $url
-                )
+                    $url,
+                ),
             );
         }
 
@@ -83,9 +77,7 @@ class Exception extends \Exception
             'instance is given to DriverManager::getConnection().');
     }
 
-    /**
-     * @param string[] $knownDrivers
-     */
+    /** @param string[] $knownDrivers */
     public static function unknownDriver(string $unknownDriverName, array $knownDrivers): self
     {
         return new self("The given 'driver' " . $unknownDriverName . ' is unknown, ' .
@@ -101,7 +93,7 @@ class Exception extends \Exception
     public static function invalidDriverClass(string $driverClass): self
     {
         return new self(
-            "The given 'driverClass' " . $driverClass . ' has to implement the ' . Driver::class . ' interface.'
+            "The given 'driverClass' " . $driverClass . ' has to implement the ' . Driver::class . ' interface.',
         );
     }
 
@@ -134,14 +126,14 @@ class Exception extends \Exception
     public static function typeNotRegistered(Type $type): self
     {
         return new self(
-            sprintf('Type of the class %s@%s is not registered.', get_class($type), spl_object_hash($type))
+            sprintf('Type of the class %s@%s is not registered.', get_class($type), spl_object_hash($type)),
         );
     }
 
     public static function typeAlreadyRegistered(Type $type): self
     {
         return new self(
-            sprintf('Type of the class %s@%s is already registered.', get_class($type), spl_object_hash($type))
+            sprintf('Type of the class %s@%s is already registered.', get_class($type), spl_object_hash($type)),
         );
     }
 }
