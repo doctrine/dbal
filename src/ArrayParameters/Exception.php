@@ -6,9 +6,7 @@ namespace Doctrine\DBAL\ArrayParameters;
 
 use Throwable;
 
-/**
- * @internal
- */
+/** @internal */
 interface Exception extends Throwable
 {
 }

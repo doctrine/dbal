@@ -649,7 +649,7 @@ class TableTest extends TestCase
         self::assertEquals(new Index('pk_new', ['id'], true, true), $table->getIndex('pk_new'));
         self::assertEquals(
             new Index('idx_new', ['foo'], false, false, ['flag']),
-            $table->getIndex('idx_new')
+            $table->getIndex('idx_new'),
         );
         self::assertEquals(new Index('uniq_new', ['bar', 'baz'], true), $table->getIndex('uniq_new'));
 
@@ -671,11 +671,11 @@ class TableTest extends TestCase
         self::assertEquals(new Index('primary', ['id'], true, true), $table->getIndex('primary'));
         self::assertEquals(
             new Index('IDX_D87F7E0C8C736521', ['foo'], false, false, ['flag']),
-            $table->getIndex('IDX_D87F7E0C8C736521')
+            $table->getIndex('IDX_D87F7E0C8C736521'),
         );
         self::assertEquals(
             new Index('UNIQ_D87F7E0C76FF8CAA78240498', ['bar', 'baz'], true),
-            $table->getIndex('UNIQ_D87F7E0C76FF8CAA78240498')
+            $table->getIndex('UNIQ_D87F7E0C76FF8CAA78240498'),
         );
 
         // Rename to same name (changed case).
@@ -735,9 +735,7 @@ class TableTest extends TestCase
         $table->renameIndex('idx_id', 'idx_foo');
     }
 
-    /**
-     * @dataProvider getNormalizesAssetNames
-     */
+    /** @dataProvider getNormalizesAssetNames */
     public function testNormalizesColumnNames(string $assetName): void
     {
         $table = new Table('test');
@@ -786,9 +784,7 @@ class TableTest extends TestCase
         self::assertFalse($table->hasForeignKey('foo'));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getNormalizesAssetNames(): iterable
     {
         return [

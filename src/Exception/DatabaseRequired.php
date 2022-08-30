@@ -8,9 +8,7 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 class DatabaseRequired extends Exception
 {
     public static function new(string $methodName): self
@@ -18,8 +16,8 @@ class DatabaseRequired extends Exception
         return new self(
             sprintf(
                 'A database is required for the method: %s.',
-                $methodName
-            )
+                $methodName,
+            ),
         );
     }
 }

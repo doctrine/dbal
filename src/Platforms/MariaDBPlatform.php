@@ -55,13 +55,11 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     {
         return array_merge(
             parent::getPostAlterTableIndexForeignKeySQL($diff),
-            $this->getPostAlterTableRenameIndexForeignKeySQL($diff)
+            $this->getPostAlterTableRenameIndexForeignKeySQL($diff),
         );
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     private function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql     = [];
@@ -104,7 +102,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
 
         $remainingForeignKeys = array_diff_key(
             $diff->fromTable->getForeignKeys(),
-            $diff->removedForeignKeys
+            $diff->removedForeignKeys,
         );
 
         foreach ($remainingForeignKeys as $foreignKey) {

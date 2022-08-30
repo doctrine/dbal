@@ -24,7 +24,7 @@ class DateTest extends BaseDateTypeTestCase
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         self::assertInstanceOf(
             DateTime::class,
-            $this->type->convertToPHPValue('1985-09-01', $this->platform)
+            $this->type->convertToPHPValue('1985-09-01', $this->platform),
         );
     }
 

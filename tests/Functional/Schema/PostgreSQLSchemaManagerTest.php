@@ -108,7 +108,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertEquals(
             ['ALTER TABLE autoinc_table_drop ALTER id DROP IDENTITY'],
-            $platform->getAlterTableSQL($diff)
+            $platform->getAlterTableSQL($diff),
         );
 
         $this->schemaManager->alterTable($diff);
@@ -175,7 +175,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 'ALTER TABLE dbal91_something ADD CONSTRAINT something_input FOREIGN KEY ("table")'
                     . ' REFERENCES dbal91_something (id) ON UPDATE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE',
             ],
-            $this->connection->getDatabasePlatform()->getCreateTableSQL($table)
+            $this->connection->getDatabasePlatform()->getCreateTableSQL($table),
         );
     }
 
@@ -191,7 +191,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 'test_create_fk2',
                 ['id'],
                 'foreign_key_test' . $i . '_fk',
-                ['onDelete' => $fkOptions[$i]]
+                ['onDelete' => $fkOptions[$i]],
             );
         }
 
@@ -344,7 +344,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertNull(
             $this->schemaManager->createComparator()
-                ->diffTable($offlineTable, $onlineTable)
+                ->diffTable($offlineTable, $onlineTable),
         );
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
         self::assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
@@ -385,9 +385,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('(-1)', $columns['col_string']->getDefault());
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function serialTypes(): iterable
     {
         return [
@@ -396,9 +394,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         ];
     }
 
-    /**
-     * @dataProvider serialTypes
-     */
+    /** @dataProvider serialTypes */
     public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValue(string $type): void
     {
         $tableName = 'test_serial_type_' . $type;
@@ -413,9 +409,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($columns['id']->getDefault());
     }
 
-    /**
-     * @dataProvider serialTypes
-     */
+    /** @dataProvider serialTypes */
     public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValueEvenWhenDefaultIsSet(string $type): void
     {
         $tableName = 'test_serial_type_with_default_' . $type;
@@ -430,9 +424,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($columns['id']->getDefault());
     }
 
-    /**
-     * @dataProvider autoIncrementTypeMigrations
-     */
+    /** @dataProvider autoIncrementTypeMigrations */
     public function testAlterTableAutoIncrementIntToBigInt(string $from, string $to, string $expected): void
     {
         $tableFrom = new Table('autoinc_type_modification');
@@ -451,7 +443,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNotNull($diff);
         self::assertSame(
             ['ALTER TABLE autoinc_type_modification ALTER id TYPE ' . $expected],
-            $this->connection->getDatabasePlatform()->getAlterTableSQL($diff)
+            $this->connection->getDatabasePlatform()->getAlterTableSQL($diff),
         );
 
         $this->schemaManager->alterTable($diff);
@@ -459,9 +451,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
-    /**
-     * @return iterable<mixed[]>
-     */
+    /** @return iterable<mixed[]> */
     public static function autoIncrementTypeMigrations(): iterable
     {
         return [

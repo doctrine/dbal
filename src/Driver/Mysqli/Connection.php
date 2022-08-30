@@ -17,9 +17,7 @@ final class Connection implements ConnectionInterface
      */
     public const OPTION_FLAGS = 'flags';
 
-    /**
-     * @internal The connection can be only instantiated by its driver.
-     */
+    /** @internal The connection can be only instantiated by its driver. */
     public function __construct(private readonly mysqli $connection)
     {
     }

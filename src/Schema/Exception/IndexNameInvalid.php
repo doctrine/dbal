@@ -8,16 +8,14 @@ use Doctrine\DBAL\Schema\SchemaException;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class IndexNameInvalid extends SchemaException
 {
     public static function new(string $indexName): self
     {
         return new self(
             sprintf('Invalid index name "%s" given, has to be [a-zA-Z0-9_].', $indexName),
-            self::INDEX_INVALID_NAME
+            self::INDEX_INVALID_NAME,
         );
     }
 }

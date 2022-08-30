@@ -71,7 +71,7 @@ class SQLServerPlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        DateIntervalUnit $unit
+        DateIntervalUnit $unit,
     ): string {
         $factorClause = '';
 
@@ -107,9 +107,7 @@ class SQLServerPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsColumnCollation(): bool
     {
         return true;
@@ -134,9 +132,7 @@ class SQLServerPlatform extends AbstractPlatform
             ' MINVALUE ' . $sequence->getInitialValue();
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListSequencesSQL(string $database): string
     {
         return 'SELECT seq.name,
@@ -286,7 +282,7 @@ class SQLServerPlatform extends AbstractPlatform
             'TABLE',
             $tableSQL,
             'COLUMN',
-            $columnName
+            $columnName,
         );
     }
 
@@ -387,7 +383,7 @@ class SQLServerPlatform extends AbstractPlatform
             $commentsSql[] = $this->getCreateColumnCommentSQL(
                 $diff->name,
                 $column->getQuotedName($this),
-                $comment
+                $comment,
             );
         }
 
@@ -466,7 +462,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
                 $diff->name,
-                $fromColumnName->getQuotedName($this)
+                $fromColumnName->getQuotedName($this),
             );
             $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $column);
         }
@@ -509,7 +505,7 @@ class SQLServerPlatform extends AbstractPlatform
         $sql = array_merge(
             $this->getPreAlterTableIndexForeignKeySQL($diff),
             $sql,
-            $this->getPostAlterTableIndexForeignKeySQL($diff)
+            $this->getPostAlterTableIndexForeignKeySQL($diff),
         );
 
         return array_merge($sql, $tableSql, $columnSql);
@@ -601,7 +597,7 @@ class SQLServerPlatform extends AbstractPlatform
             'TABLE',
             $tableSQL,
             'COLUMN',
-            $columnName
+            $columnName,
         );
     }
 
@@ -637,7 +633,7 @@ class SQLServerPlatform extends AbstractPlatform
             'TABLE',
             $tableSQL,
             'COLUMN',
-            $columnName
+            $columnName,
         );
     }
 
@@ -650,7 +646,7 @@ class SQLServerPlatform extends AbstractPlatform
             "EXEC sp_rename N'%s.%s', N'%s', N'INDEX'",
             $tableName,
             $oldIndexName,
-            $index->getQuotedName($this)
+            $index->getQuotedName($this),
         ),
         ];
     }
@@ -677,7 +673,7 @@ class SQLServerPlatform extends AbstractPlatform
         ?string $level1Type = null,
         ?string $level1Name = null,
         ?string $level2Type = null,
-        ?string $level2Name = null
+        ?string $level2Name = null,
     ): string {
         return 'EXEC sp_addextendedproperty ' .
             'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral((string) $value) . ', ' .
@@ -706,7 +702,7 @@ class SQLServerPlatform extends AbstractPlatform
         ?string $level1Type = null,
         ?string $level1Name = null,
         ?string $level2Type = null,
-        ?string $level2Name = null
+        ?string $level2Name = null,
     ): string {
         return 'EXEC sp_dropextendedproperty ' .
             'N' . $this->quoteStringLiteral($name) . ', ' .
@@ -737,7 +733,7 @@ class SQLServerPlatform extends AbstractPlatform
         ?string $level1Type = null,
         ?string $level1Name = null,
         ?string $level2Type = null,
-        ?string $level2Name = null
+        ?string $level2Name = null,
     ): string {
         return 'EXEC sp_updateextendedproperty ' .
             'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral((string) $value) . ', ' .
@@ -751,9 +747,7 @@ class SQLServerPlatform extends AbstractPlatform
         return 'INSERT INTO ' . $quotedTableName . ' DEFAULT VALUES';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListViewsSQL(string $database): string
     {
         return "SELECT name, definition FROM sysobjects
@@ -796,8 +790,11 @@ class SQLServerPlatform extends AbstractPlatform
         return $dividend . ' % ' . $divisor;
     }
 
-    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
-    {
+    public function getTrimExpression(
+        string $str,
+        TrimMode $mode = TrimMode::UNSPECIFIED,
+        ?string $char = null,
+    ): string {
         if ($char === null) {
             return match ($mode) {
                 TrimMode::LEADING => 'LTRIM(' . $str . ')',
@@ -827,9 +824,7 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListDatabasesSQL(): string
     {
         return 'SELECT * FROM sys.databases';
@@ -1114,9 +1109,7 @@ class SQLServerPlatform extends AbstractPlatform
         return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getForeignKeyReferentialActionSQL(string $action): string
     {
         // RESTRICT is not supported, therefore falling back to NO ACTION.
@@ -1243,7 +1236,7 @@ class SQLServerPlatform extends AbstractPlatform
                 SQL
             ,
             $this->quoteStringLiteral($comment),
-            $this->quoteStringLiteral($tableName)
+            $this->quoteStringLiteral($tableName),
         );
     }
 

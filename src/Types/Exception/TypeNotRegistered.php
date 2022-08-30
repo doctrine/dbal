@@ -11,9 +11,7 @@ use function get_debug_type;
 use function spl_object_hash;
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class TypeNotRegistered extends Exception implements TypesException
 {
     public static function new(Type $type): self
@@ -21,7 +19,7 @@ final class TypeNotRegistered extends Exception implements TypesException
         return new self(sprintf(
             'Type of the class %s@%s is not registered.',
             get_debug_type($type),
-            spl_object_hash($type)
+            spl_object_hash($type),
         ));
     }
 }

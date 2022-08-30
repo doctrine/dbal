@@ -10,9 +10,7 @@ use Doctrine\DBAL\Types\Types;
 
 class AlterDecimalColumnTest extends FunctionalTestCase
 {
-    /**
-     * @dataProvider scaleAndPrecisionProvider
-     */
+    /** @dataProvider scaleAndPrecisionProvider */
     public function testAlterPrecisionAndScale(int $newPrecision, int $newScale): void
     {
         $table  = new Table('decimal_table');
@@ -37,9 +35,7 @@ class AlterDecimalColumnTest extends FunctionalTestCase
         self::assertSame($newScale, $column->getScale());
     }
 
-    /**
-     * @return iterable<string,array{int,int}>
-     */
+    /** @return iterable<string,array{int,int}> */
     public function scaleAndPrecisionProvider(): iterable
     {
         yield 'Precision' => [12, 6];

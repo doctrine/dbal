@@ -10,9 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function get_debug_type;
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class ColumnLengthRequired extends Exception
 {
     /**
@@ -25,8 +23,8 @@ final class ColumnLengthRequired extends Exception
             sprintf(
                 '%s requires the length of a %s column to be specified',
                 get_debug_type($platform),
-                $type
-            )
+                $type,
+            ),
         );
     }
 }

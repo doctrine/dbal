@@ -38,17 +38,13 @@ use function trim;
  */
 class SQLitePlatform extends AbstractPlatform
 {
-    /**
-     * @throws NotSupported
-     */
+    /** @throws NotSupported */
     public function getCreateDatabaseSQL(string $name): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * @throws NotSupported
-     */
+    /** @throws NotSupported */
     public function getDropDatabaseSQL(string $name): string
     {
         throw NotSupported::new(__METHOD__);
@@ -59,8 +55,11 @@ class SQLitePlatform extends AbstractPlatform
         return 'REGEXP';
     }
 
-    public function getTrimExpression(string $str, TrimMode $mode = TrimMode::UNSPECIFIED, ?string $char = null): string
-    {
+    public function getTrimExpression(
+        string $str,
+        TrimMode $mode = TrimMode::UNSPECIFIED,
+        ?string $char = null,
+    ): string {
         $trimFn = match ($mode) {
             TrimMode::UNSPECIFIED,
             TrimMode::BOTH => 'TRIM',
@@ -99,7 +98,7 @@ class SQLitePlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        DateIntervalUnit $unit
+        DateIntervalUnit $unit,
     ): string {
         switch ($unit) {
             case DateIntervalUnit::WEEK:
@@ -116,7 +115,7 @@ class SQLitePlatform extends AbstractPlatform
         return 'DATETIME(' . $date . ',' . $this->getConcatExpression(
             $this->quoteStringLiteral($operator),
             $interval,
-            $this->quoteStringLiteral(' ' . $unit->value)
+            $this->quoteStringLiteral(' ' . $unit->value),
         ) . ')';
     }
 
@@ -233,9 +232,7 @@ class SQLitePlatform extends AbstractPlatform
         return ! empty($column['unsigned']) ? ' UNSIGNED' : '';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {
         return parent::getForeignKeyDeclarationSQL(new ForeignKeyConstraint(
@@ -243,7 +240,7 @@ class SQLitePlatform extends AbstractPlatform
             $foreignKey->getQuotedForeignTableName($this),
             $foreignKey->getQuotedForeignColumns($this),
             $foreignKey->getName(),
-            $foreignKey->getOptions()
+            $foreignKey->getOptions(),
         ));
     }
 
@@ -350,17 +347,13 @@ class SQLitePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListViewsSQL(string $database): string
     {
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
@@ -386,17 +379,13 @@ class SQLitePlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsColumnCollation(): bool
     {
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsInlineColumnComments(): bool
     {
         return true;
@@ -414,9 +403,7 @@ class SQLitePlatform extends AbstractPlatform
         return '';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getInlineColumnCommentSQL(string $comment): string
     {
         if ($comment === '') {
@@ -492,7 +479,7 @@ class SQLitePlatform extends AbstractPlatform
 
         if ($fromTable === null) {
             throw new Exception(
-                'Sqlite platform requires for alter table the table diff with reference to original table schema.'
+                'Sqlite platform requires for alter table the table diff with reference to original table schema.',
             );
         }
 
@@ -592,7 +579,7 @@ class SQLitePlatform extends AbstractPlatform
         $fromTable = $diff->fromTable;
         if ($fromTable === null) {
             throw new Exception(
-                'Sqlite platform requires for alter table the table diff with reference to original table schema.'
+                'Sqlite platform requires for alter table the table diff with reference to original table schema.',
             );
         }
 
@@ -620,7 +607,7 @@ class SQLitePlatform extends AbstractPlatform
             unset(
                 $columns[$columnName],
                 $oldColumnNames[$columnName],
-                $newColumnNames[$columnName]
+                $newColumnNames[$columnName],
             );
         }
 
@@ -674,7 +661,7 @@ class SQLitePlatform extends AbstractPlatform
                 $this->getPrimaryIndexInAlteredTable($diff, $fromTable),
                 [],
                 $this->getForeignKeysInAlteredTable($diff, $fromTable),
-                $fromTable->getOptions()
+                $fromTable->getOptions(),
             );
 
             $newTable->addOption('alter', true);
@@ -685,7 +672,7 @@ class SQLitePlatform extends AbstractPlatform
                 'CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s',
                 $dataTable->getQuotedName($this),
                 implode(', ', $oldColumnNames),
-                $fromTable->getQuotedName($this)
+                $fromTable->getQuotedName($this),
             );
             $sql[] = $this->getDropTableSQL($fromTable->getQuotedName($this));
 
@@ -695,7 +682,7 @@ class SQLitePlatform extends AbstractPlatform
                 $newTable->getQuotedName($this),
                 implode(', ', $newColumnNames),
                 implode(', ', $oldColumnNames),
-                $dataTable->getQuotedName($this)
+                $dataTable->getQuotedName($this),
             );
             $sql[] = $this->getDropTableSQL($dataTable->getQuotedName($this));
 
@@ -705,7 +692,7 @@ class SQLitePlatform extends AbstractPlatform
                 $sql[] = sprintf(
                     'ALTER TABLE %s RENAME TO %s',
                     $newTable->getQuotedName($this),
-                    $newName->getQuotedName($this)
+                    $newName->getQuotedName($this),
                 );
             }
 
@@ -832,9 +819,7 @@ class SQLitePlatform extends AbstractPlatform
         return array_merge($sql, $tableSql, $columnSql);
     }
 
-    /**
-     * @return string[]
-     */
+    /** @return string[] */
     private function getColumnNamesInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $columns = [];
@@ -873,9 +858,7 @@ class SQLitePlatform extends AbstractPlatform
         return $columns;
     }
 
-    /**
-     * @return Index[]
-     */
+    /** @return Index[] */
     private function getIndexesInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $indexes     = $fromTable->getIndexes();
@@ -916,7 +899,7 @@ class SQLitePlatform extends AbstractPlatform
                 $indexColumns,
                 $index->isUnique(),
                 $index->isPrimary(),
-                $index->getFlags()
+                $index->getFlags(),
             );
         }
 
@@ -943,9 +926,7 @@ class SQLitePlatform extends AbstractPlatform
         return $indexes;
     }
 
-    /**
-     * @return ForeignKeyConstraint[]
-     */
+    /** @return ForeignKeyConstraint[] */
     private function getForeignKeysInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $foreignKeys = $fromTable->getForeignKeys();
@@ -978,7 +959,7 @@ class SQLitePlatform extends AbstractPlatform
                 $constraint->getForeignTableName(),
                 $constraint->getForeignColumns(),
                 $constraint->getName(),
-                $constraint->getOptions()
+                $constraint->getOptions(),
             );
         }
 
@@ -1005,9 +986,7 @@ class SQLitePlatform extends AbstractPlatform
         return $foreignKeys;
     }
 
-    /**
-     * @return Index[]
-     */
+    /** @return Index[] */
     private function getPrimaryIndexInAlteredTable(TableDiff $diff, Table $fromTable): array
     {
         $primaryIndex = [];

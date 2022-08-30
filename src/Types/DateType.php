@@ -47,7 +47,7 @@ class DateType extends Type
             throw InvalidFormat::new(
                 $value,
                 static::class,
-                $platform->getDateFormatString()
+                $platform->getDateFormatString(),
             );
         }
 

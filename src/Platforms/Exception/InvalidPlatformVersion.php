@@ -8,9 +8,7 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class InvalidPlatformVersion extends Exception implements PlatformException
 {
     /**
@@ -24,7 +22,7 @@ final class InvalidPlatformVersion extends Exception implements PlatformExceptio
         return new self(sprintf(
             'Invalid platform version "%s" specified. The platform version has to be specified in the format: "%s".',
             $version,
-            $expectedFormat
+            $expectedFormat,
         ));
     }
 }

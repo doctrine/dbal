@@ -13,9 +13,7 @@ class SchemaEventArgs extends EventArgs
 {
     private bool $preventDefault = false;
 
-    /**
-     * @return $this
-     */
+    /** @return $this */
     public function preventDefault(): self
     {
         $this->preventDefault = true;

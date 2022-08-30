@@ -35,7 +35,7 @@ final class Statement implements StatementInterface
         private readonly mixed $connection,
         private readonly mixed $statement,
         private readonly array $parameterMap,
-        private readonly ExecutionMode $executionMode
+        private readonly ExecutionMode $executionMode,
     ) {
     }
 
@@ -66,7 +66,7 @@ final class Statement implements StatementInterface
                 $param,
                 $value,
                 -1,
-                $this->convertParameterType($type)
+                $this->convertParameterType($type),
             )
         ) {
             throw Error::new($this->statement);

@@ -71,7 +71,7 @@ class Table extends AbstractAsset
         array $indexes = [],
         array $uniqueConstraints = [],
         array $fkConstraints = [],
-        array $options = []
+        array $options = [],
     ) {
         if ($name === '') {
             throw InvalidTableName::new($name);
@@ -137,12 +137,12 @@ class Table extends AbstractAsset
         array $columnNames,
         ?string $indexName = null,
         array $flags = [],
-        array $options = []
+        array $options = [],
     ): self {
         $indexName ??= $this->_generateIdentifierName(
             array_merge([$this->getName()], $columnNames),
             'uniq',
-            $this->_getMaxIdentifierLength()
+            $this->_getMaxIdentifierLength(),
         );
 
         return $this->_addUniqueConstraint($this->_createUniqueConstraint($columnNames, $indexName, $flags, $options));
@@ -157,12 +157,12 @@ class Table extends AbstractAsset
         array $columnNames,
         ?string $indexName = null,
         array $flags = [],
-        array $options = []
+        array $options = [],
     ): self {
         $indexName ??= $this->_generateIdentifierName(
             array_merge([$this->getName()], $columnNames),
             'idx',
-            $this->_getMaxIdentifierLength()
+            $this->_getMaxIdentifierLength(),
         );
 
         return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, false, $flags, $options));
@@ -210,7 +210,7 @@ class Table extends AbstractAsset
         $indexName ??= $this->_generateIdentifierName(
             array_merge([$this->getName()], $columnNames),
             'uniq',
-            $this->_getMaxIdentifierLength()
+            $this->_getMaxIdentifierLength(),
         );
 
         return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, false, [], $options));
@@ -333,12 +333,12 @@ class Table extends AbstractAsset
         array $localColumnNames,
         array $foreignColumnNames,
         array $options = [],
-        ?string $name = null
+        ?string $name = null,
     ): self {
         $name ??= $this->_generateIdentifierName(
             array_merge([$this->getName()], $localColumnNames),
             'fk',
-            $this->_getMaxIdentifierLength()
+            $this->_getMaxIdentifierLength(),
         );
 
         foreach ($localColumnNames as $columnName) {
@@ -352,7 +352,7 @@ class Table extends AbstractAsset
             $foreignTableName,
             $foreignColumnNames,
             $name,
-            $options
+            $options,
         );
 
         return $this->_addForeignKeyConstraint($constraint);
@@ -563,9 +563,7 @@ class Table extends AbstractAsset
         return $this->_indexes[$name];
     }
 
-    /**
-     * @return array<string, Index>
-     */
+    /** @return array<string, Index> */
     public function getIndexes(): array
     {
         return $this->_indexes;
@@ -601,9 +599,7 @@ class Table extends AbstractAsset
         return $this->_options[$name] ?? null;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getOptions(): array
     {
         return $this->_options;
@@ -634,9 +630,7 @@ class Table extends AbstractAsset
             : 63;
     }
 
-    /**
-     * @throws SchemaException
-     */
+    /** @throws SchemaException */
     protected function _addColumn(Column $column): void
     {
         $columnName = $column->getName();
@@ -695,7 +689,7 @@ class Table extends AbstractAsset
             : $this->_generateIdentifierName(
                 array_merge((array) $this->getName(), $constraint->getColumns()),
                 'fk',
-                $this->_getMaxIdentifierLength()
+                $this->_getMaxIdentifierLength(),
             );
 
         $name = $this->normalizeIdentifier($name);
@@ -708,7 +702,7 @@ class Table extends AbstractAsset
         $indexName = $this->_generateIdentifierName(
             array_merge([$this->getName()], $constraint->getColumns()),
             'idx',
-            $this->_getMaxIdentifierLength()
+            $this->_getMaxIdentifierLength(),
         );
 
         $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, true, false);
@@ -731,7 +725,7 @@ class Table extends AbstractAsset
             : $this->_generateIdentifierName(
                 array_merge((array) $this->getName(), $constraint->getLocalColumns()),
                 'fk',
-                $this->_getMaxIdentifierLength()
+                $this->_getMaxIdentifierLength(),
             );
 
         $name = $this->normalizeIdentifier($name);
@@ -745,7 +739,7 @@ class Table extends AbstractAsset
         $indexName = $this->_generateIdentifierName(
             array_merge([$this->getName()], $constraint->getLocalColumns()),
             'idx',
-            $this->_getMaxIdentifierLength()
+            $this->_getMaxIdentifierLength(),
         );
 
         $indexCandidate = $this->_createIndex($constraint->getLocalColumns(), $indexName, false, false);
@@ -800,7 +794,7 @@ class Table extends AbstractAsset
         array $columns,
         string $indexName,
         array $flags = [],
-        array $options = []
+        array $options = [],
     ): UniqueConstraint {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw IndexNameInvalid::new($indexName);
@@ -834,7 +828,7 @@ class Table extends AbstractAsset
         bool $isUnique,
         bool $isPrimary,
         array $flags = [],
-        array $options = []
+        array $options = [],
     ): Index {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw IndexNameInvalid::new($indexName);

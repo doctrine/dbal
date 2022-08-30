@@ -25,7 +25,7 @@ final class Statement extends AbstractStatementMiddleware
     {
         return new Result(
             parent::execute(),
-            $this->converter
+            $this->converter,
         );
     }
 }

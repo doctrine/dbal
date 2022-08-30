@@ -26,7 +26,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
         private readonly Table $table,
         private readonly array $columns,
         private readonly array $options,
-        private readonly AbstractPlatform $platform
+        private readonly AbstractPlatform $platform,
     ) {
     }
 
@@ -35,17 +35,13 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
         return $this->table;
     }
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
+    /** @return array<int, array<string, mixed>> */
     public function getColumns(): array
     {
         return $this->columns;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getOptions(): array
     {
         return $this->options;
@@ -56,9 +52,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
         return $this->platform;
     }
 
-    /**
-     * @return $this
-     */
+    /** @return $this */
     public function addSql(string ...$sql): self
     {
         $this->sql = array_merge($this->sql, array_values($sql));
@@ -66,9 +60,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
         return $this;
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function getSql(): array
     {
         return $this->sql;

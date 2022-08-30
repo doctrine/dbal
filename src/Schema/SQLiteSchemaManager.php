@@ -134,7 +134,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
                 }
 
                 return $a['pk'] - $b['pk'];
-            }
+            },
         );
 
         foreach ($indexArray as $indexColumnRow) {
@@ -217,7 +217,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             if ($type instanceof StringType || $type instanceof TextType) {
                 $column->setPlatformOption(
                     'collation',
-                    $this->parseColumnCollationFromSQL($columnName, $createSql) ?? 'BINARY'
+                    $this->parseColumnCollationFromSQL($columnName, $createSql) ?? 'BINARY',
                 );
             }
 
@@ -356,7 +356,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
                 'onUpdate' => $tableForeignKey['onUpdate'],
                 'deferrable' => $tableForeignKey['deferrable'],
                 'deferred' => $tableForeignKey['deferred'],
-            ]
+            ],
         );
     }
 
@@ -415,9 +415,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment;
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function getCreateTableSQL(string $table): string
     {
         $sql = $this->connection->fetchOne(
@@ -434,7 +432,7 @@ WHERE type = 'table'
 AND name = ?
 SQL
             ,
-            [$table]
+            [$table],
         );
 
         if ($sql !== false) {
@@ -485,7 +483,7 @@ SQL
                         (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
                     )?#isx',
                 $createSql,
-                $match
+                $match,
             ) === 0
         ) {
             return [];
@@ -533,7 +531,7 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT t.name AS table_name,
                    c.*
               FROM sqlite_master t
@@ -558,7 +556,7 @@ SQL;
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT t.name AS table_name,
                    i.*
               FROM sqlite_master t
@@ -583,7 +581,7 @@ SQL;
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT t.name AS table_name,
                    p.*
               FROM sqlite_master t

@@ -31,7 +31,7 @@ abstract class ComparatorTest extends TestCase
                 'bugdb',
                 [
                     'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
         $schema2 = new Schema([
@@ -39,7 +39,7 @@ abstract class ComparatorTest extends TestCase
                 'bugdb',
                 [
                     'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
 
@@ -56,7 +56,7 @@ abstract class ComparatorTest extends TestCase
                 [
                     'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
                     'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
         $schema2 = new Schema([
@@ -65,7 +65,7 @@ abstract class ComparatorTest extends TestCase
                 [
                     'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                     'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
 
@@ -123,7 +123,7 @@ abstract class ComparatorTest extends TestCase
                 [
                     'integercolumn1' => $missingColumn,
                     'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
         $schema2       = new Schema([
@@ -131,7 +131,7 @@ abstract class ComparatorTest extends TestCase
                 'bugdb',
                 [
                     'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
 
@@ -142,9 +142,9 @@ abstract class ComparatorTest extends TestCase
                     'bugdb',
                     [],
                     [],
-                    ['integercolumn1' => $missingColumn]
+                    ['integercolumn1' => $missingColumn],
                 ),
-            ]
+            ],
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
@@ -159,7 +159,7 @@ abstract class ComparatorTest extends TestCase
                 'bugdb',
                 [
                     'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
         $schema2 = new Schema([
@@ -168,7 +168,7 @@ abstract class ComparatorTest extends TestCase
                 [
                     'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
                     'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
 
@@ -179,9 +179,9 @@ abstract class ComparatorTest extends TestCase
                     'bugdb',
                     [
                         'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
-                    ]
+                    ],
                 ),
-            ]
+            ],
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
@@ -259,9 +259,9 @@ abstract class ComparatorTest extends TestCase
                     'primary' => new Index(
                         'primary',
                         ['integercolumn1'],
-                        true
+                        true,
                     ),
-                ]
+                ],
             ),
         ]);
         $schema2 = new Schema([
@@ -270,7 +270,7 @@ abstract class ComparatorTest extends TestCase
                 [
                     'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
                     'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
 
@@ -288,11 +288,11 @@ abstract class ComparatorTest extends TestCase
                         'primary' => new Index(
                             'primary',
                             ['integercolumn1'],
-                            true
+                            true,
                         ),
-                    ]
+                    ],
                 ),
-            ]
+            ],
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
@@ -308,7 +308,7 @@ abstract class ComparatorTest extends TestCase
                 [
                     'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
                     'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
         $schema2 = new Schema([
@@ -322,9 +322,9 @@ abstract class ComparatorTest extends TestCase
                     'primary' => new Index(
                         'primary',
                         ['integercolumn1'],
-                        true
+                        true,
                     ),
-                ]
+                ],
             ),
         ]);
 
@@ -340,11 +340,11 @@ abstract class ComparatorTest extends TestCase
                         'primary' => new Index(
                             'primary',
                             ['integercolumn1'],
-                            true
+                            true,
                         ),
-                    ]
+                    ],
                 ),
-            ]
+            ],
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
@@ -365,9 +365,9 @@ abstract class ComparatorTest extends TestCase
                     'primary' => new Index(
                         'primary',
                         ['integercolumn1'],
-                        true
+                        true,
                     ),
-                ]
+                ],
             ),
         ]);
         $schema2 = new Schema([
@@ -381,9 +381,9 @@ abstract class ComparatorTest extends TestCase
                     'primary' => new Index(
                         'primary',
                         ['integercolumn1', 'integercolumn2'],
-                        true
+                        true,
                     ),
-                ]
+                ],
             ),
         ]);
 
@@ -403,11 +403,11 @@ abstract class ComparatorTest extends TestCase
                                 'integercolumn1',
                                 'integercolumn2',
                             ],
-                            true
+                            true,
                         ),
-                    ]
+                    ],
                 ),
-            ]
+            ],
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
@@ -426,7 +426,7 @@ abstract class ComparatorTest extends TestCase
                 ],
                 [
                     'primary' => new Index('primary', ['integercolumn1', 'integercolumn2'], true),
-                ]
+                ],
             ),
         ]);
         $schema2 = new Schema([
@@ -438,7 +438,7 @@ abstract class ComparatorTest extends TestCase
                 ],
                 [
                     'primary' => new Index('primary', ['integercolumn2', 'integercolumn1'], true),
-                ]
+                ],
             ),
         ]);
 
@@ -453,9 +453,9 @@ abstract class ComparatorTest extends TestCase
                     [],
                     [
                         'primary' => new Index('primary', ['integercolumn2', 'integercolumn1'], true),
-                    ]
+                    ],
                 ),
-            ]
+            ],
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
@@ -643,7 +643,7 @@ abstract class ComparatorTest extends TestCase
 
         self::assertEquals(
             $tableDiff,
-            $this->comparator->diffTable($tableA, $tableB)
+            $this->comparator->diffTable($tableA, $tableB),
         );
     }
 
@@ -818,9 +818,7 @@ abstract class ComparatorTest extends TestCase
         self::assertSame($diff->changedSequences[0], $schemaNew->getSequence('baz'));
     }
 
-    /**
-     * @psalm-suppress NullArgument
-     */
+    /** @psalm-suppress NullArgument */
     public function testDiffDecimalWithNullPrecision(): void
     {
         $column = new Column('foo', Type::getType('decimal'));
@@ -1003,7 +1001,7 @@ abstract class ComparatorTest extends TestCase
             'id',
             $table->getColumn('id'),
             ['type'],
-            $tableFoo->getColumn('id')
+            $tableFoo->getColumn('id'),
         );
 
         self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
@@ -1030,7 +1028,7 @@ abstract class ComparatorTest extends TestCase
             'id',
             $table->getColumn('id'),
             ['length', 'fixed'],
-            $tableFoo->getColumn('id')
+            $tableFoo->getColumn('id'),
         );
 
         self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
@@ -1050,7 +1048,7 @@ abstract class ComparatorTest extends TestCase
         SchemaDiff $diff,
         int $newTableCount = 0,
         int $changeTableCount = 0,
-        int $removeTableCount = 0
+        int $removeTableCount = 0,
     ): void {
         self::assertCount($newTableCount, $diff->newTables);
         self::assertCount($changeTableCount, $diff->changedTables);
@@ -1061,7 +1059,7 @@ abstract class ComparatorTest extends TestCase
         SchemaDiff $diff,
         int $newSequenceCount = 0,
         int $changeSequenceCount = 0,
-        int $removeSequenceCount = 0
+        int $removeSequenceCount = 0,
     ): void {
         self::assertCount($newSequenceCount, $diff->newSequences);
         self::assertCount($changeSequenceCount, $diff->changedSequences);
@@ -1140,16 +1138,14 @@ abstract class ComparatorTest extends TestCase
         $column2 = new Column(
             'foo',
             Type::getType('guid'),
-            ['notnull' => false, 'length' => 36, 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.']
+            ['notnull' => false, 'length' => 36, 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.'],
         );
 
         self::assertEquals(['notnull', 'default', 'comment'], $this->comparator->diffColumn($column1, $column2));
         self::assertEquals(['notnull', 'default', 'comment'], $this->comparator->diffColumn($column2, $column1));
     }
 
-    /**
-     * @dataProvider getCompareColumnComments
-     */
+    /** @dataProvider getCompareColumnComments */
     public function testCompareColumnComments(string $comment1, string $comment2, bool $equals): void
     {
         $column1 = new Column('foo', Type::getType('integer'), ['comment' => $comment1]);
@@ -1166,9 +1162,7 @@ abstract class ComparatorTest extends TestCase
         self::assertSame($expectedDiff, $actualDiff);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getCompareColumnComments(): iterable
     {
         return [
@@ -1195,7 +1189,7 @@ abstract class ComparatorTest extends TestCase
                 'table1',
                 [
                     'id' => new Column('id', Type::getType('integer')),
-                ]
+                ],
             ),
             'table2' => new Table(
                 'table2',
@@ -1207,7 +1201,7 @@ abstract class ComparatorTest extends TestCase
                 [],
                 [
                     new ForeignKeyConstraint(['id_table1'], 'table1', ['id'], 'fk_table2_table1'),
-                ]
+                ],
             ),
         ]);
         $toSchema   = new Schema([
@@ -1221,13 +1215,13 @@ abstract class ComparatorTest extends TestCase
                 [],
                 [
                     new ForeignKeyConstraint(['id_table3'], 'table3', ['id'], 'fk_table2_table3'),
-                ]
+                ],
             ),
             'table3' => new Table(
                 'table3',
                 [
                     'id' => new Column('id', Type::getType('integer')),
-                ]
+                ],
             ),
         ]);
         $actual     = $this->comparator->compareSchemas($fromSchema, $toSchema);
@@ -1249,11 +1243,11 @@ abstract class ComparatorTest extends TestCase
                         new Column(
                             'is_default',
                             Type::getType('string'),
-                            ['length' => 32]
+                            ['length' => 32],
                         ),
-                    ]
+                    ],
                 ),
-            ]
+            ],
         );
         $toSchema   = new Schema(
             [
@@ -1264,15 +1258,15 @@ abstract class ComparatorTest extends TestCase
                             'columnDefinition' => 'ENUM(\'default\')',
                             'length' => 32,
                         ]),
-                    ]
+                    ],
                 ),
-            ]
+            ],
         );
 
         self::assertEmpty(
             $this->comparator->compareSchemas($fromSchema, $toSchema)
                 ->changedTables,
-            'Schema diff is empty, since only `columnDefinition` changed from `null` (not detected) to a defined one'
+            'Schema diff is empty, since only `columnDefinition` changed from `null` (not detected) to a defined one',
         );
     }
 

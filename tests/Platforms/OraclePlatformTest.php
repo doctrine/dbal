@@ -19,9 +19,7 @@ use function sprintf;
 use function strtoupper;
 use function uniqid;
 
-/**
- * @extends AbstractPlatformTestCase<OraclePlatform>
- */
+/** @extends AbstractPlatformTestCase<OraclePlatform> */
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
@@ -70,7 +68,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'column1 || column2 || column3',
-            $this->platform->getConcatExpression('column1', 'column2', 'column3')
+            $this->platform->getConcatExpression('column1', 'column2', 'column3'),
         );
     }
 
@@ -78,19 +76,19 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED),
         );
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL READ COMMITTED',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED),
         );
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ),
         );
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE),
         );
     }
 
@@ -113,17 +111,17 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'NUMBER(10)',
-            $this->platform->getIntegerTypeDeclarationSQL([])
+            $this->platform->getIntegerTypeDeclarationSQL([]),
         );
         self::assertEquals(
             'NUMBER(10)',
-            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true])
+            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true]),
         );
         self::assertEquals(
             'NUMBER(10)',
             $this->platform->getIntegerTypeDeclarationSQL(
-                ['autoincrement' => true, 'primary' => true]
-            )
+                ['autoincrement' => true, 'primary' => true],
+            ),
         );
     }
 
@@ -169,9 +167,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertSame($expectedSql, $this->platform->getAdvancedForeignKeyOptionsSQL($foreignKey));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getGeneratesAdvancedForeignKeyOptionsSQLData(): iterable
     {
         return [
@@ -227,11 +223,11 @@ SQL
                 $tableName,
                 $tableName,
                 $tableName,
-                $columnName
+                $columnName,
             ),
             sprintf('CREATE SEQUENCE %s_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1', $tableName),
             sprintf(
-                <<<SQL
+                <<<'SQL'
 CREATE TRIGGER %s_AI_PK
    BEFORE INSERT
    ON %s
@@ -264,7 +260,7 @@ SQL
                 $tableName,
                 $columnName,
                 $tableName,
-                $tableName
+                $tableName,
             ),
         ], $this->platform->getCreateTableSQL($table));
     }
@@ -395,22 +391,18 @@ SQL
 
         self::assertNull(
             $this->createComparator()
-                ->diffTable($table1, $table2)
+                ->diffTable($table1, $table2),
         );
     }
 
-    /**
-     * @dataProvider dataCreateSequenceWithCache
-     */
+    /** @dataProvider dataCreateSequenceWithCache */
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
         $sequence = new Sequence('foo', 1, 1, $cacheSize);
         self::assertStringContainsString($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function dataCreateSequenceWithCache(): iterable
     {
         return [
@@ -507,9 +499,7 @@ SQL
         self::assertSame($expectedSql, $this->platform->getDropAutoincrementSql($table));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getReturnsDropAutoincrementSQL(): iterable
     {
         return [
@@ -581,7 +571,7 @@ SQL
         self::assertNotNull($tableDiff);
         self::assertSame(
             ['COMMENT ON COLUMN "foo"."bar" IS \'baz\''],
-            $this->platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff),
         );
     }
 
@@ -598,7 +588,7 @@ SQL
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals('CREATE TABLE "test" ("id" NUMBER(10) NOT NULL)', $sql[0]);
         self::assertEquals('CREATE SEQUENCE "test_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[2]);
-        $createTriggerStatement = <<<EOD
+        $createTriggerStatement = <<<'EOD'
 CREATE TRIGGER "test_AI_PK"
    BEFORE INSERT
    ON "test"
@@ -660,13 +650,11 @@ EOD;
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListSequencesSQL("Foo'Bar\\")
+            $this->platform->getListSequencesSQL("Foo'Bar\\"),
         );
     }
 
-    /**
-     * @return array<int, array{string, array<string, mixed>}>
-     */
+    /** @return array<int, array{string, array<string, mixed>}> */
     public function asciiStringSqlDeclarationDataProvider(): array
     {
         return [

@@ -8,9 +8,7 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class TypesAlreadyExists extends Exception implements TypesException
 {
     public static function new(string $name): self

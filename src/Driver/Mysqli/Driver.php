@@ -64,7 +64,7 @@ final class Driver extends AbstractMySQLDriver
                 $params['dbname'] ?? '',
                 $params['port'] ?? 0,
                 $params['unix_socket'] ?? '',
-                $flags
+                $flags,
             );
         } catch (mysqli_sql_exception $e) {
             throw ConnectionFailed::upcast($e);
@@ -116,7 +116,7 @@ final class Driver extends AbstractMySQLDriver
                 $params['ssl_cert']   ?? '',
                 $params['ssl_ca']     ?? '',
                 $params['ssl_capath'] ?? '',
-                $params['ssl_cipher'] ?? ''
+                $params['ssl_cipher'] ?? '',
             );
         }
 

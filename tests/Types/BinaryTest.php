@@ -46,9 +46,7 @@ class BinaryTest extends TestCase
         self::assertSame($expectedDeclaration, $this->type->getSQLDeclaration($definition, $platform));
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function definitionProvider(): iterable
     {
         return [
@@ -99,9 +97,7 @@ class BinaryTest extends TestCase
         return implode(array_map('chr', range(0, 255)));
     }
 
-    /**
-     * @dataProvider getInvalidDatabaseValues
-     */
+    /** @dataProvider getInvalidDatabaseValues */
     public function testThrowsConversionExceptionOnInvalidDatabaseValue(mixed $value): void
     {
         $this->expectException(ConversionException::class);
@@ -109,9 +105,7 @@ class BinaryTest extends TestCase
         $this->type->convertToPHPValue($value, $this->platform);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getInvalidDatabaseValues(): iterable
     {
         return [

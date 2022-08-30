@@ -8,16 +8,14 @@ use Doctrine\DBAL\Schema\SchemaException;
 
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class SequenceDoesNotExist extends SchemaException
 {
     public static function new(string $sequenceName): self
     {
         return new self(
             sprintf('There exists no sequence with the name "%s".', $sequenceName),
-            self::SEQUENCE_DOENST_EXIST
+            self::SEQUENCE_DOENST_EXIST,
         );
     }
 }

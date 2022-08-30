@@ -39,12 +39,12 @@ abstract class AbstractDriverTest extends FunctionalTestCase
             $params,
             $this->connection->getDriver(),
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager()
+            $this->connection->getEventManager(),
         );
 
         self::assertSame(
             static::getDatabaseNameForConnectionWithoutDatabaseNameParameter(),
-            $connection->getDatabase()
+            $connection->getDatabase(),
         );
     }
 
@@ -54,7 +54,7 @@ abstract class AbstractDriverTest extends FunctionalTestCase
 
         self::assertThat($nativeConnection, self::logicalOr(
             new IsType(IsType::TYPE_OBJECT),
-            new IsType(IsType::TYPE_RESOURCE)
+            new IsType(IsType::TYPE_RESOURCE),
         ));
     }
 

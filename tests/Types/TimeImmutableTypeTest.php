@@ -50,7 +50,7 @@ class TimeImmutableTypeTest extends TestCase
 
         self::assertSame(
             '15:58:59',
-            $this->type->convertToDatabaseValue($date, $this->platform)
+            $this->type->convertToDatabaseValue($date, $this->platform),
         );
     }
 

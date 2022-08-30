@@ -21,9 +21,7 @@ class EasyConnectStringTest extends TestCase
         self::assertSame($expected, (string) $string);
     }
 
-    /**
-     * @return iterable<string, array<int, mixed>>
-     */
+    /** @return iterable<string, array<int, mixed>> */
     public static function connectionParametersProvider(): iterable
     {
         return [

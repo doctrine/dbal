@@ -57,7 +57,7 @@ class AsciiStringTest extends FunctionalTestCase
         $value = $this->connection->fetchOne(
             'SELECT val FROM ascii_table WHERE id = ?',
             [$id],
-            [ParameterType::ASCII]
+            [ParameterType::ASCII],
         );
 
         self::assertIsString($value);

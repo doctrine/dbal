@@ -37,17 +37,13 @@ class OracleSessionInit implements EventSubscriber
         'NLS_NUMERIC_CHARACTERS' => '.,',
     ];
 
-    /**
-     * @param array<string, string> $oracleSessionVars
-     */
+    /** @param array<string, string> $oracleSessionVars */
     public function __construct(array $oracleSessionVars = [])
     {
         $this->_defaultSessionVars = array_merge($this->_defaultSessionVars, $oracleSessionVars);
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function postConnect(ConnectionEventArgs $args): void
     {
         if (count($this->_defaultSessionVars) === 0) {

@@ -10,9 +10,7 @@ use Throwable;
 use function get_debug_type;
 use function sprintf;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class SerializationFailed extends ConversionException implements TypesException
 {
     public static function new(mixed $value, string $format, string $error, ?Throwable $previous = null): self
@@ -22,10 +20,10 @@ final class SerializationFailed extends ConversionException implements TypesExce
                 'Could not convert PHP type "%s" to "%s". An error was triggered by the serialization: %s',
                 get_debug_type($value),
                 $format,
-                $error
+                $error,
             ),
             0,
-            $previous
+            $previous,
         );
     }
 }

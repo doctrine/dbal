@@ -41,9 +41,7 @@ final class Statement implements StatementInterface
      */
     private array $values = [];
 
-    /**
-     * @internal The statement can be only instantiated by its driver connection.
-     */
+    /** @internal The statement can be only instantiated by its driver connection. */
     public function __construct(private readonly mysqli_stmt $stmt)
     {
         $paramCount        = $this->stmt->param_count;

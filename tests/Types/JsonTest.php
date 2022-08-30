@@ -69,9 +69,7 @@ class JsonTest extends TestCase
         $this->type->convertToPHPValue($data, $this->platform);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function providerFailure(): iterable
     {
         return [['a'], ['{']];
@@ -118,7 +116,7 @@ class JsonTest extends TestCase
         $this->expectException(ConversionException::class);
         $this->expectExceptionMessage(
             'Could not convert PHP type "stdClass" to "json". '
-            . 'An error was triggered by the serialization: Recursion detected'
+            . 'An error was triggered by the serialization: Recursion detected',
         );
         $this->type->convertToDatabaseValue($object, $this->platform);
     }

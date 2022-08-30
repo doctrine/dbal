@@ -21,9 +21,7 @@ use function strtolower;
  */
 class Comparator
 {
-    /**
-     * @internal The comparator can be only instantiated by a schema manager.
-     */
+    /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(private readonly AbstractPlatform $platform)
     {
     }
@@ -67,7 +65,7 @@ class Comparator
             } else {
                 $tableDifferences = $this->diffTable(
                     $fromSchema->getTable($tableName),
-                    $toSchema->getTable($tableName)
+                    $toSchema->getTable($tableName),
                 );
 
                 if ($tableDifferences !== null) {
@@ -224,7 +222,7 @@ class Comparator
                 $column->getName(),
                 $toColumn,
                 $this->diffColumn($column, $toColumn),
-                $column
+                $column,
             );
 
             $changes++;
@@ -334,7 +332,7 @@ class Comparator
             $tableDifferences->renamedColumns[$removedColumnName] = $addedColumn;
             unset(
                 $tableDifferences->addedColumns[$addedColumnName],
-                $tableDifferences->removedColumns[strtolower($removedColumnName)]
+                $tableDifferences->removedColumns[strtolower($removedColumnName)],
             );
         }
     }
@@ -379,7 +377,7 @@ class Comparator
             $tableDifferences->renamedIndexes[$removedIndexName] = $addedIndex;
             unset(
                 $tableDifferences->addedIndexes[$addedIndexName],
-                $tableDifferences->removedIndexes[$removedIndexName]
+                $tableDifferences->removedIndexes[$removedIndexName],
             );
         }
     }

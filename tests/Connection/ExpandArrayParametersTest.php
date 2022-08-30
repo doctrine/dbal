@@ -15,9 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 class ExpandArrayParametersTest extends TestCase
 {
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function dataExpandListParameters(): iterable
     {
         return [
@@ -331,7 +329,7 @@ class ExpandArrayParametersTest extends TestCase
         array $types,
         string $expectedQuery,
         array $expectedParams,
-        array $expectedTypes
+        array $expectedTypes,
     ): void {
         [$query, $params, $types] = $this->expandArrayParameters($query, $params, $types);
 
@@ -340,9 +338,7 @@ class ExpandArrayParametersTest extends TestCase
         self::assertEquals($expectedTypes, $types, 'Types dont match');
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function missingNamedParameterProvider(): iterable
     {
         return [
@@ -394,9 +390,7 @@ class ExpandArrayParametersTest extends TestCase
         $this->expandArrayParameters($query, $params, []);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function missingPositionalParameterProvider(): iterable
     {
         return [

@@ -49,7 +49,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
         throw InvalidType::new(
             $value,
             static::class,
-            ['null', 'DateTime']
+            ['null', 'DateTime'],
         );
     }
 
@@ -64,7 +64,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             throw InvalidFormat::new(
                 $value,
                 static::class,
-                $platform->getDateTimeTzFormatString()
+                $platform->getDateTimeTzFormatString(),
             );
         }
 

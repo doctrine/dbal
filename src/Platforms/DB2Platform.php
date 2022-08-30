@@ -134,7 +134,7 @@ class DB2Platform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        DateIntervalUnit $unit
+        DateIntervalUnit $unit,
     ): string {
         switch ($unit) {
             case DateIntervalUnit::WEEK:
@@ -201,17 +201,13 @@ class DB2Platform extends AbstractPlatform
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsCommentOnStatement(): bool
     {
         return true;
@@ -232,9 +228,7 @@ class DB2Platform extends AbstractPlatform
         return 'CURRENT TIMESTAMP';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getIndexDeclarationSQL(Index $index): string
     {
         // Index declaration in statements like CREATE TABLE is not supported.
@@ -300,7 +294,7 @@ class DB2Platform extends AbstractPlatform
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
                 $column->getQuotedName($this),
-                $comment
+                $comment,
             );
         }
 
@@ -321,7 +315,7 @@ class DB2Platform extends AbstractPlatform
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $columnDiff->column->getQuotedName($this),
-                    $columnDiff->column->getComment()
+                    $columnDiff->column->getComment(),
                 );
             }
 
@@ -359,14 +353,14 @@ class DB2Platform extends AbstractPlatform
                 $sql[] = sprintf(
                     'RENAME TABLE %s TO %s',
                     $diff->getName($this)->getQuotedName($this),
-                    $newName->getQuotedName($this)
+                    $newName->getQuotedName($this),
                 );
             }
 
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff)
+                $this->getPostAlterTableIndexForeignKeySQL($diff),
             );
         }
 
@@ -385,7 +379,7 @@ class DB2Platform extends AbstractPlatform
         Identifier $table,
         ColumnDiff $columnDiff,
         array &$sql,
-        array &$queryParts
+        array &$queryParts,
     ): void {
         $alterColumnClauses = $this->getAlterColumnClausesSQL($columnDiff);
 

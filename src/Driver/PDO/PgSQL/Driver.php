@@ -28,7 +28,7 @@ final class Driver extends AbstractPostgreSQLDriver
                 $this->constructPdoDsn($params),
                 $params['user'] ?? '',
                 $params['password'] ?? '',
-                $driverOptions
+                $driverOptions,
             );
         } catch (PDOException $exception) {
             throw Exception::new($exception);

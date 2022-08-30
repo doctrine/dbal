@@ -47,7 +47,7 @@ SELECT schema_name
 FROM   information_schema.schemata
 WHERE  schema_name NOT LIKE 'pg\_%'
 AND    schema_name != 'information_schema'
-SQL
+SQL,
         );
     }
 
@@ -95,7 +95,7 @@ SQL
             preg_match(
                 '(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
                 $tableForeignKey['condef'],
-                $match
+                $match,
             ) === 1
         ) {
             $onUpdate = $match[1];
@@ -105,7 +105,7 @@ SQL
             preg_match(
                 '(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
                 $tableForeignKey['condef'],
-                $match
+                $match,
             ) === 1
         ) {
             $onDelete = $match[1];
@@ -125,7 +125,7 @@ SQL
             $foreignTable,
             $foreignColumns,
             $tableForeignKey['conname'],
-            ['onUpdate' => $onUpdate, 'onDelete' => $onDelete]
+            ['onUpdate' => $onUpdate, 'onDelete' => $onDelete],
         );
     }
 
@@ -164,7 +164,7 @@ SQL
             $columnNameSql = sprintf(
                 'SELECT attnum, attname FROM pg_attribute WHERE attrelid=%d AND attnum IN (%s) ORDER BY attnum ASC',
                 $row['indrelid'],
-                implode(' ,', $colNumbers)
+                implode(' ,', $colNumbers),
             );
 
             $indexColumns = $this->connection->fetchAllAssociative($columnNameSql);
@@ -318,7 +318,7 @@ SQL
                     preg_match(
                         '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
                         $tableColumn['complete_type'],
-                        $match
+                        $match,
                     ) === 1
                 ) {
                     $precision = (int) $match[1];
@@ -342,7 +342,7 @@ SQL
             is_string($tableColumn['default']) && preg_match(
                 "('([^']+)'::)",
                 $tableColumn['default'],
-                $match
+                $match,
             ) === 1
         ) {
             $tableColumn['default'] = $match[1];
@@ -535,9 +535,7 @@ SQL;
         return $this->connection->fetchAllAssociativeIndexed($sql);
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     private function buildQueryConditions(?string $tableName): array
     {
         $conditions = [];

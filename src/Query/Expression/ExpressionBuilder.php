@@ -35,7 +35,7 @@ class ExpressionBuilder
      */
     public function and(
         string|CompositeExpression $expression,
-        string|CompositeExpression ...$expressions
+        string|CompositeExpression ...$expressions,
     ): CompositeExpression {
         return CompositeExpression::and($expression, ...$expressions);
     }
@@ -45,7 +45,7 @@ class ExpressionBuilder
      */
     public function or(
         string|CompositeExpression $expression,
-        string|CompositeExpression ...$expressions
+        string|CompositeExpression ...$expressions,
     ): CompositeExpression {
         return CompositeExpression::or($expression, ...$expressions);
     }

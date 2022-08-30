@@ -38,7 +38,7 @@ class UniqueConstraint extends AbstractAsset
         string $name,
         array $columns,
         array $flags = [],
-        private readonly array $options = []
+        private readonly array $options = [],
     ) {
         $this->_setName($name);
 
@@ -73,9 +73,7 @@ class UniqueConstraint extends AbstractAsset
         return $columns;
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function getUnquotedColumns(): array
     {
         return array_map($this->trimQuotes(...), $this->getColumns());
@@ -131,9 +129,7 @@ class UniqueConstraint extends AbstractAsset
         return $this->options[strtolower($name)];
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getOptions(): array
     {
         return $this->options;

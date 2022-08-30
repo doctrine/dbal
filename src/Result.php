@@ -15,9 +15,7 @@ use function func_num_args;
 
 class Result
 {
-    /**
-     * @internal The result can be only instantiated by {@see Connection} or {@see Statement}.
-     */
+    /** @internal The result can be only instantiated by {@see Connection} or {@see Statement}. */
     public function __construct(private readonly DriverResult $result, private readonly Connection $connection)
     {
     }
@@ -218,9 +216,7 @@ class Result
         }
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function rowCount(): int
     {
         try {
@@ -230,9 +226,7 @@ class Result
         }
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function columnCount(): int
     {
         try {
@@ -247,9 +241,7 @@ class Result
         $this->result->free();
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     private function ensureHasKeyValue(): void
     {
         $columnCount = $this->columnCount();

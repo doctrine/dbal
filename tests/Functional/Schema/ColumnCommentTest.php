@@ -44,9 +44,7 @@ class ColumnCommentTest extends FunctionalTestCase
         $this->assertColumnComment('column_comments', $name, $options['comment'] ?? '');
     }
 
-    /**
-     * @return iterable<string,array{0: string, 1: string, 2: mixed[]}>
-     */
+    /** @return iterable<string,array{0: string, 1: string, 2: mixed[]}> */
     public static function columnProvider(): iterable
     {
         foreach (
@@ -81,9 +79,7 @@ class ColumnCommentTest extends FunctionalTestCase
         }
     }
 
-    /**
-     * @dataProvider alterColumnCommentProvider
-     */
+    /** @dataProvider alterColumnCommentProvider */
     public function testAlterColumnComment(string $comment1, string $comment2): void
     {
         $table1 = new Table('column_comments');
@@ -105,9 +101,7 @@ class ColumnCommentTest extends FunctionalTestCase
         $this->assertColumnComment('column_comments', 'id', $comment2);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function alterColumnCommentProvider(): iterable
     {
         return [
@@ -126,7 +120,7 @@ class ColumnCommentTest extends FunctionalTestCase
             $this->connection->createSchemaManager()
                 ->introspectTable($table)
                 ->getColumn($column)
-                ->getComment()
+                ->getComment(),
         );
     }
 }

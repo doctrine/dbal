@@ -46,7 +46,7 @@ class VarDateTimeImmutableTypeTest extends TestCase
 
         self::assertSame(
             '2016-01-01 15:58:59',
-            $this->type->convertToDatabaseValue($date, $this->platform)
+            $this->type->convertToDatabaseValue($date, $this->platform),
         );
     }
 

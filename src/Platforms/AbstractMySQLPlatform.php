@@ -85,7 +85,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         string $date,
         string $operator,
         string $interval,
-        DateIntervalUnit $unit
+        DateIntervalUnit $unit,
     ): string {
         $function = $operator === '+' ? 'DATE_ADD' : 'DATE_SUB';
 
@@ -107,17 +107,13 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'CHAR_LENGTH(' . $string . ')';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListDatabasesSQL(): string
     {
         return 'SHOW DATABASES';
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = ' . $this->quoteStringLiteral($database);
@@ -199,17 +195,13 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsInlineColumnComments(): bool
     {
         return true;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsColumnCollation(): bool
     {
         return true;
@@ -401,7 +393,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff)
+                $this->getPostAlterTableIndexForeignKeySQL($diff),
             );
         }
 
@@ -465,7 +457,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $sql,
             $this->getPreAlterTableAlterIndexForeignKeySQL($diff),
             parent::getPreAlterTableIndexForeignKeySQL($diff),
-            $this->getPreAlterTableRenameIndexForeignKeySQL($diff)
+            $this->getPreAlterTableRenameIndexForeignKeySQL($diff),
         );
     }
 
@@ -637,25 +629,19 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $this->getUnsignedDeclaration($column) . $autoinc;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getColumnCharsetDeclarationSQL(string $charset): string
     {
         return 'CHARACTER SET ' . $charset;
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getColumnCollationDeclarationSQL(string $collation): string
     {
         return 'COLLATE ' . $this->quoteSingleIdentifier($collation);
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';

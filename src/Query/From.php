@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Query;
 
-/**
- * @internal
- */
+/** @internal */
 final class From
 {
     public function __construct(

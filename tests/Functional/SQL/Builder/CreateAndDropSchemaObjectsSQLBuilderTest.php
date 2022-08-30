@@ -42,7 +42,7 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
     private function introspectForeignKey(
         AbstractSchemaManager $schemaManager,
         string $tableName,
-        string $expectedForeignTableName
+        string $expectedForeignTableName,
     ): void {
         $foreignKeys = $schemaManager->listTableForeignKeys($tableName);
         self::assertCount(1, $foreignKeys);

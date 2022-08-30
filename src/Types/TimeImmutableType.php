@@ -27,7 +27,7 @@ class TimeImmutableType extends TimeType
         throw InvalidType::new(
             $value,
             static::class,
-            ['null', DateTimeImmutable::class]
+            ['null', DateTimeImmutable::class],
         );
     }
 
@@ -43,7 +43,7 @@ class TimeImmutableType extends TimeType
             throw InvalidFormat::new(
                 $value,
                 static::class,
-                $platform->getTimeFormatString()
+                $platform->getTimeFormatString(),
             );
         }
 

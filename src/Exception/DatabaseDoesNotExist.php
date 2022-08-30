@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Exception;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 class DatabaseDoesNotExist extends DatabaseObjectNotFoundException
 {
 }

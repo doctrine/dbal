@@ -22,7 +22,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
     public function __construct(
         private readonly Column $column,
         private readonly TableDiff $tableDiff,
-        private readonly AbstractPlatform $platform
+        private readonly AbstractPlatform $platform,
     ) {
     }
 
@@ -41,9 +41,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
         return $this->platform;
     }
 
-    /**
-     * @return $this
-     */
+    /** @return $this */
     public function addSql(string ...$sql): self
     {
         $this->sql = array_merge($this->sql, array_values($sql));
@@ -51,9 +49,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
         return $this;
     }
 
-    /**
-     * @return array<int, string>
-     */
+    /** @return array<int, string> */
     public function getSql(): array
     {
         return $this->sql;

@@ -44,7 +44,7 @@ class MySQLSchemaTest extends TestCase
                 'DROP INDEX `primary` ON test',
                 'ALTER TABLE test ADD PRIMARY KEY (bar_id, foo_id)',
             ],
-            $sql
+            $sql,
         );
     }
 
@@ -64,7 +64,7 @@ class MySQLSchemaTest extends TestCase
                 'ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F FOREIGN KEY (foo_id)'
                     . ' REFERENCES test_foreign (foo_id)',
             ],
-            $sqls
+            $sqls,
         );
     }
 
@@ -85,7 +85,7 @@ class MySQLSchemaTest extends TestCase
 
         self::assertEquals(
             ['ALTER TABLE test ADD PRIMARY KEY (id)'],
-            $sql
+            $sql,
         );
     }
 
@@ -95,7 +95,7 @@ class MySQLSchemaTest extends TestCase
             new MySQLPlatform(),
             $this->createStub(CharsetMetadataProvider::class),
             $this->createStub(CollationMetadataProvider::class),
-            new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci')
+            new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),
         );
     }
 }

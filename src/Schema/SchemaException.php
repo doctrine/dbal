@@ -6,9 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 class SchemaException extends Exception
 {
     public const TABLE_DOESNT_EXIST       = 10;

@@ -22,6 +22,8 @@
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant"/>
         <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
+        <!-- https://github.com/doctrine/coding-standard/issues/288 -->
+        <exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat.DisallowedShortNullable"/>
 
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
         <!-- https://github.com/slevomat/coding-standard/issues/867 -->
@@ -118,6 +120,8 @@
     <rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
         <exclude-pattern>src/Platforms/SQLitePlatform.php</exclude-pattern>
         <exclude-pattern>src/Platforms/*/Comparator.php</exclude-pattern>
+        <exclude-pattern>src/Driver/PDO/SQLSrv/Connection.php</exclude-pattern>
+        <exclude-pattern>src/Driver/PDO/SQLSrv/Statement.php</exclude-pattern>
     </rule>
 
     <!-- This issue is likely fixed in Slevomat Coding Standard 8.0.0 -->

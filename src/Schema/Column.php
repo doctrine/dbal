@@ -130,9 +130,7 @@ class Column extends AbstractAsset
         return $this;
     }
 
-    /**
-     * @param array<string, mixed> $platformOptions
-     */
+    /** @param array<string, mixed> $platformOptions */
     public function setPlatformOptions(array $platformOptions): self
     {
         $this->_platformOptions = $platformOptions;
@@ -194,9 +192,7 @@ class Column extends AbstractAsset
         return $this->_default;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getPlatformOptions(): array
     {
         return $this->_platformOptions;
@@ -241,9 +237,7 @@ class Column extends AbstractAsset
         return $this->_comment;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return array_merge([

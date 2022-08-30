@@ -24,7 +24,7 @@ abstract class AbstractException extends BaseException implements Exception
         string $message,
         private readonly ?string $sqlState = null,
         int $code = 0,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     ) {
         parent::__construct($message, $code, $previous);
     }

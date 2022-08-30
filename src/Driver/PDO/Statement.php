@@ -13,9 +13,7 @@ use PDOStatement;
 
 final class Statement implements StatementInterface
 {
-    /**
-     * @internal The statement can be only instantiated by its driver connection.
-     */
+    /** @internal The statement can be only instantiated by its driver connection. */
     public function __construct(private readonly PDOStatement $stmt)
     {
     }
@@ -40,7 +38,7 @@ final class Statement implements StatementInterface
         string|int $param,
         mixed &$variable,
         ParameterType $type,
-        mixed $driverOptions
+        mixed $driverOptions,
     ): void {
         try {
             $this->stmt->bindParam($param, $variable, $this->convertParamType($type), 0, $driverOptions);

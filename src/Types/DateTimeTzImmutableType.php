@@ -27,7 +27,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
         throw InvalidType::new(
             $value,
             static::class,
-            ['null', DateTimeImmutable::class]
+            ['null', DateTimeImmutable::class],
         );
     }
 
@@ -43,7 +43,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
             throw InvalidFormat::new(
                 $value,
                 static::class,
-                $platform->getDateTimeTzFormatString()
+                $platform->getDateTimeTzFormatString(),
             );
         }
 

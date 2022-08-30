@@ -14,7 +14,7 @@ class SingleConnectionProvider implements ConnectionProvider
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly string $defaultConnectionName = 'default'
+        private readonly string $defaultConnectionName = 'default',
     ) {
     }
 

@@ -19,7 +19,7 @@ class ComparatorTest extends BaseComparatorTest
             new MySQLPlatform(),
             $this->createStub(CharsetMetadataProvider::class),
             $this->createStub(CollationMetadataProvider::class),
-            new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci')
+            new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),
         );
     }
 }

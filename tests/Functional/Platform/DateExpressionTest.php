@@ -12,9 +12,7 @@ use function sprintf;
 
 class DateExpressionTest extends FunctionalTestCase
 {
-    /**
-     * @dataProvider differenceProvider
-     */
+    /** @dataProvider differenceProvider */
     public function testDifference(string $date1, string $date2, int $expected): void
     {
         $table = new Table('date_expr_test');
@@ -34,15 +32,13 @@ class DateExpressionTest extends FunctionalTestCase
         self::assertEquals($expected, $diff);
     }
 
-    /**
-     * @return  array<string, array<int, int|string|false>>
-     */
+    /** @return  array<string, array<int, int|string|false>> */
     public static function differenceProvider(): iterable
     {
         $date1    = new DateTimeImmutable();
         $date2    = new DateTimeImmutable('2018-04-10 10:10:10');
         $expected = $date1->modify('midnight')->diff(
-            $date2->modify('midnight')
+            $date2->modify('midnight'),
         )->days;
 
         return [

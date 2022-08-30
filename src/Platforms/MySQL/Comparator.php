@@ -20,14 +20,12 @@ use function array_diff_assoc;
  */
 class Comparator extends BaseComparator
 {
-    /**
-     * @internal The comparator can be only instantiated by a schema manager.
-     */
+    /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(
         AbstractMySQLPlatform $platform,
         private readonly CharsetMetadataProvider $charsetMetadataProvider,
         private readonly CollationMetadataProvider $collationMetadataProvider,
-        private readonly DefaultTableOptions $defaultTableOptions
+        private readonly DefaultTableOptions $defaultTableOptions,
     ) {
         parent::__construct($platform);
     }
@@ -36,7 +34,7 @@ class Comparator extends BaseComparator
     {
         return parent::diffTable(
             $this->normalizeTable($fromTable),
-            $this->normalizeTable($toTable)
+            $this->normalizeTable($toTable),
         );
     }
 

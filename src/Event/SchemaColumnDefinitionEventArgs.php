@@ -14,14 +14,12 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
 {
     private ?Column $column = null;
 
-    /**
-     * @param array<string, mixed> $tableColumn
-     */
+    /** @param array<string, mixed> $tableColumn */
     public function __construct(
         private readonly array $tableColumn,
         private readonly string $table,
         private readonly string $database,
-        private readonly Connection $connection
+        private readonly Connection $connection,
     ) {
     }
 
@@ -43,9 +41,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
         return $this->column;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function getTableColumn(): array
     {
         return $this->tableColumn;

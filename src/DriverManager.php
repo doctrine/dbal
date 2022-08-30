@@ -187,7 +187,7 @@ final class DriverManager
     public static function getConnection(
         array $params,
         ?Configuration $config = null,
-        ?EventManager $eventManager = null
+        ?EventManager $eventManager = null,
     ): Connection {
         // create default config and event manager, if not set
         $config       ??= new Configuration();

@@ -15,9 +15,7 @@ use function sprintf;
 use const E_ALL;
 use const E_WARNING;
 
-/**
- * @requires extension oci8
- */
+/** @requires extension oci8 */
 class ResultTest extends FunctionalTestCase
 {
     /**
@@ -55,7 +53,7 @@ class ResultTest extends FunctionalTestCase
      * @dataProvider dataProviderForTestTruncatedFetch
      */
     public function testTruncatedFetch(
-        bool $invalidateDataMidFetch
+        bool $invalidateDataMidFetch,
     ): void {
         if ($invalidateDataMidFetch) {
             // prevent the PHPUnit error handler from handling the warnings that oci_*() functions may trigger
@@ -78,7 +76,7 @@ class ResultTest extends FunctionalTestCase
         // Query the pipelined function to get initial dataset
         $statement = $separateConnection->prepare(sprintf(
             'SELECT * FROM TABLE(%s.test_oracle_fetch_failure())',
-            $this->connectionParams['user']
+            $this->connectionParams['user'],
         ));
         $result    = $statement->executeQuery();
 
@@ -114,8 +112,8 @@ class ResultTest extends FunctionalTestCase
             sprintf(
                 'Expected to have %s total rows fetched but only found %s rows fetched',
                 $expectedTotalRowCount,
-                $result->rowCount()
-            )
+                $result->rowCount(),
+            ),
         );
     }
 
@@ -131,7 +129,7 @@ class ResultTest extends FunctionalTestCase
     private function createReturnTypeNeededForPipelinedFunction(): void
     {
         $this->connection->executeQuery(
-            'CREATE TYPE return_numbers AS TABLE OF NUMBER(11)'
+            'CREATE TYPE return_numbers AS TABLE OF NUMBER(11)',
         );
     }
 
@@ -160,7 +158,7 @@ class ResultTest extends FunctionalTestCase
 
                 RETURN;
             END;',
-            $totalRowCount
+            $totalRowCount,
         ));
     }
 }

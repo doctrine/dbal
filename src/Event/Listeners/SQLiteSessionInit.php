@@ -11,9 +11,7 @@ use Doctrine\DBAL\Exception;
 
 class SQLiteSessionInit implements EventSubscriber
 {
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function postConnect(ConnectionEventArgs $args): void
     {
         $args->getConnection()->executeStatement('PRAGMA foreign_keys=ON');

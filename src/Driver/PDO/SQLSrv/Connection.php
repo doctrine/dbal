@@ -10,19 +10,15 @@ use PDO;
 
 final class Connection extends AbstractConnectionMiddleware
 {
-    private readonly PDOConnection $connection;
-
-    public function __construct(PDOConnection $connection)
+    public function __construct(private readonly PDOConnection $connection)
     {
         parent::__construct($connection);
-
-        $this->connection = $connection;
     }
 
     public function prepare(string $sql): Statement
     {
         return new Statement(
-            $this->connection->prepare($sql)
+            $this->connection->prepare($sql),
         );
     }
 

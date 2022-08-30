@@ -90,7 +90,7 @@ class ConnectionTest extends FunctionalTestCase
             $connection = DriverManager::getConnection(
                 $params,
                 $this->connection->getConfiguration(),
-                $this->connection->getEventManager()
+                $this->connection->getEventManager(),
             );
         } else {
             $connection = $this->connection;
@@ -283,11 +283,11 @@ class ConnectionTest extends FunctionalTestCase
         $connection = DriverManager::getConnection(
             $params,
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager()
+            $this->connection->getEventManager(),
         );
 
         self::assertEquals(1, $connection->fetchOne(
-            $platform->getDummySelectSQL()
+            $platform->getDummySelectSQL(),
         ));
     }
 
@@ -306,7 +306,7 @@ class ConnectionTest extends FunctionalTestCase
         $connection = DriverManager::getConnection(
             $params,
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager()
+            $this->connection->getEventManager(),
         );
 
         self::assertFalse($connection->isConnected());

@@ -6,9 +6,7 @@ namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Exception;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 class QueryException extends Exception
 {
 }

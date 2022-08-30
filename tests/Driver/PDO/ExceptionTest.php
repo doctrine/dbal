@@ -8,9 +8,7 @@ use Doctrine\DBAL\Driver\PDO\Exception;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @requires extension pdo
- */
+/** @requires extension pdo */
 class ExceptionTest extends TestCase
 {
     private const ERROR_CODE = 666;

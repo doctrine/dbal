@@ -15,9 +15,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
-/**
- * @extends AbstractPlatformTestCase<SQLitePlatform>
- */
+/** @extends AbstractPlatformTestCase<SQLitePlatform> */
 class SQLitePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
@@ -57,19 +55,19 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'PRAGMA read_uncommitted = 0',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED),
         );
         self::assertEquals(
             'PRAGMA read_uncommitted = 1',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED),
         );
         self::assertEquals(
             'PRAGMA read_uncommitted = 1',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ),
         );
         self::assertEquals(
             'PRAGMA read_uncommitted = 1',
-            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE),
         );
     }
 
@@ -77,7 +75,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertSame(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true, 'unsigned' => true])
+            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true, 'unsigned' => true]),
         );
     }
 
@@ -85,25 +83,25 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'SMALLINT',
-            $this->platform->getSmallIntTypeDeclarationSQL([])
+            $this->platform->getSmallIntTypeDeclarationSQL([]),
         );
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getSmallIntTypeDeclarationSQL(['autoincrement' => true])
+            $this->platform->getSmallIntTypeDeclarationSQL(['autoincrement' => true]),
         );
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->platform->getSmallIntTypeDeclarationSQL(
-                ['autoincrement' => true, 'primary' => true]
-            )
+                ['autoincrement' => true, 'primary' => true],
+            ),
         );
         self::assertEquals(
             'SMALLINT',
-            $this->platform->getSmallIntTypeDeclarationSQL(['unsigned' => false])
+            $this->platform->getSmallIntTypeDeclarationSQL(['unsigned' => false]),
         );
         self::assertEquals(
             'SMALLINT UNSIGNED',
-            $this->platform->getSmallIntTypeDeclarationSQL(['unsigned' => true])
+            $this->platform->getSmallIntTypeDeclarationSQL(['unsigned' => true]),
         );
     }
 
@@ -111,29 +109,29 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'INTEGER',
-            $this->platform->getIntegerTypeDeclarationSQL([])
+            $this->platform->getIntegerTypeDeclarationSQL([]),
         );
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true])
+            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true]),
         );
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true, 'unsigned' => true])
+            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true, 'unsigned' => true]),
         );
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->platform->getIntegerTypeDeclarationSQL(
-                ['autoincrement' => true, 'primary' => true]
-            )
+                ['autoincrement' => true, 'primary' => true],
+            ),
         );
         self::assertEquals(
             'INTEGER',
-            $this->platform->getIntegerTypeDeclarationSQL(['unsigned' => false])
+            $this->platform->getIntegerTypeDeclarationSQL(['unsigned' => false]),
         );
         self::assertEquals(
             'INTEGER UNSIGNED',
-            $this->platform->getIntegerTypeDeclarationSQL(['unsigned' => true])
+            $this->platform->getIntegerTypeDeclarationSQL(['unsigned' => true]),
         );
     }
 
@@ -141,29 +139,29 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'BIGINT',
-            $this->platform->getBigIntTypeDeclarationSQL([])
+            $this->platform->getBigIntTypeDeclarationSQL([]),
         );
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getBigIntTypeDeclarationSQL(['autoincrement' => true])
+            $this->platform->getBigIntTypeDeclarationSQL(['autoincrement' => true]),
         );
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
-            $this->platform->getBigIntTypeDeclarationSQL(['autoincrement' => true, 'unsigned' => true])
+            $this->platform->getBigIntTypeDeclarationSQL(['autoincrement' => true, 'unsigned' => true]),
         );
         self::assertEquals(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->platform->getBigIntTypeDeclarationSQL(
-                ['autoincrement' => true, 'primary' => true]
-            )
+                ['autoincrement' => true, 'primary' => true],
+            ),
         );
         self::assertEquals(
             'BIGINT',
-            $this->platform->getBigIntTypeDeclarationSQL(['unsigned' => false])
+            $this->platform->getBigIntTypeDeclarationSQL(['unsigned' => false]),
         );
         self::assertEquals(
             'BIGINT UNSIGNED',
-            $this->platform->getBigIntTypeDeclarationSQL(['unsigned' => true])
+            $this->platform->getBigIntTypeDeclarationSQL(['unsigned' => true]),
         );
     }
 
@@ -234,7 +232,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $createTableSQL = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
             'CREATE TABLE test ("like" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)',
-            $createTableSQL[0]
+            $createTableSQL[0],
         );
     }
 
@@ -256,9 +254,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expected, $this->platform->getAlterTableSQL($diff));
     }
 
-    /**
-     * @dataProvider complexDiffProvider
-     */
+    /** @dataProvider complexDiffProvider */
     public function testAlterTableAddComplexColumns(TableDiff $diff): void
     {
         $this->expectException(Exception::class);
@@ -279,9 +275,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $this->platform->getAlterTableSQL($tableDiff);
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function complexDiffProvider(): iterable
     {
         $date                       = new TableDiff('user');
@@ -520,7 +514,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::markTestIncomplete(
             'Test currently produces broken SQL due to SQLitePlatform::getAlterTable() being broken ' .
-            'when used with schemas.'
+            'when used with schemas.',
         );
     }
 
@@ -528,7 +522,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::markTestIncomplete(
             'Test currently produces broken SQL due to SQLitePlatform::getAlterTable() being broken ' .
-            'when used with schemas.'
+            'when used with schemas.',
         );
     }
 
@@ -662,7 +656,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertSame(
             "DATETIME(rentalBeginsOn,'+' || 12 || ' DAY')",
-            $this->platform->getDateAddDaysExpression('rentalBeginsOn', '12')
+            $this->platform->getDateAddDaysExpression('rentalBeginsOn', '12'),
         );
     }
 
@@ -670,7 +664,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertSame(
             "DATETIME(rentalBeginsOn,'+' || duration || ' DAY')",
-            $this->platform->getDateAddDaysExpression('rentalBeginsOn', 'duration')
+            $this->platform->getDateAddDaysExpression('rentalBeginsOn', 'duration'),
         );
     }
 
@@ -683,7 +677,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertSame(
             'COLLATE NOCASE',
-            $this->platform->getColumnCollationDeclarationSQL('NOCASE')
+            $this->platform->getColumnCollationDeclarationSQL('NOCASE'),
         );
     }
 
@@ -698,7 +692,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
                 'CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, '
                     . 'column_collation VARCHAR(255) NOT NULL COLLATE NOCASE)',
             ],
-            $this->platform->getCreateTableSQL($table)
+            $this->platform->getCreateTableSQL($table),
         );
     }
 }

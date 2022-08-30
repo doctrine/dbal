@@ -159,7 +159,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         if ($this->connection->getDatabasePlatform() instanceof MariaDBPlatform) {
             self::markTestSkipped(
-                'MariaDB supports default values for BLOB and TEXT columns and will propagate values'
+                'MariaDB supports default values for BLOB and TEXT columns and will propagate values',
             );
         }
 
@@ -244,7 +244,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'ascii',
             $this->schemaManager->introspectTable('test_column_charset_change')
                 ->getColumn('col_string')
-                ->getPlatformOption('charset')
+                ->getPlatformOption('charset'),
         );
     }
 
@@ -291,36 +291,36 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertSame(
             $platform->getClobTypeDeclarationSQL($table->getColumn('col_tinytext')->toArray()),
-            $platform->getClobTypeDeclarationSQL($onlineColumns['col_tinytext']->toArray())
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_tinytext']->toArray()),
         );
         self::assertSame(
             $platform->getClobTypeDeclarationSQL($table->getColumn('col_text')->toArray()),
-            $platform->getClobTypeDeclarationSQL($onlineColumns['col_text']->toArray())
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_text']->toArray()),
         );
         self::assertSame(
             $platform->getClobTypeDeclarationSQL($table->getColumn('col_mediumtext')->toArray()),
-            $platform->getClobTypeDeclarationSQL($onlineColumns['col_mediumtext']->toArray())
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_mediumtext']->toArray()),
         );
         self::assertSame(
             $platform->getClobTypeDeclarationSQL($table->getColumn('col_longtext')->toArray()),
-            $platform->getClobTypeDeclarationSQL($onlineColumns['col_longtext']->toArray())
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_longtext']->toArray()),
         );
 
         self::assertSame(
             $platform->getBlobTypeDeclarationSQL($table->getColumn('col_tinyblob')->toArray()),
-            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_tinyblob']->toArray())
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_tinyblob']->toArray()),
         );
         self::assertSame(
             $platform->getBlobTypeDeclarationSQL($table->getColumn('col_blob')->toArray()),
-            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_blob']->toArray())
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_blob']->toArray()),
         );
         self::assertSame(
             $platform->getBlobTypeDeclarationSQL($table->getColumn('col_mediumblob')->toArray()),
-            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_mediumblob']->toArray())
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_mediumblob']->toArray()),
         );
         self::assertSame(
             $platform->getBlobTypeDeclarationSQL($table->getColumn('col_longblob')->toArray()),
-            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_longblob']->toArray())
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_longblob']->toArray()),
         );
     }
 
@@ -335,7 +335,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertNull(
             $this->schemaManager->createComparator()->diffTable($onlineTable, $offlineTable),
-            'No differences should be detected with the offline vs online schema.'
+            'No differences should be detected with the offline vs online schema.',
         );
     }
 
@@ -415,11 +415,11 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement(
-            'INSERT INTO test_column_defaults_are_valid () VALUES()'
+            'INSERT INTO test_column_defaults_are_valid () VALUES()',
         );
 
         $row = $this->connection->fetchAssociative(
-            'SELECT *, DATEDIFF(CURRENT_TIMESTAMP(), col_datetime) as diff_seconds FROM test_column_defaults_are_valid'
+            'SELECT *, DATEDIFF(CURRENT_TIMESTAMP(), col_datetime) as diff_seconds FROM test_column_defaults_are_valid',
         );
         self::assertNotFalse($row);
 

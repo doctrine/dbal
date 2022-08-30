@@ -14,9 +14,7 @@ use function array_key_exists;
 use function microtime;
 use function sprintf;
 
-/**
- * @requires extension pdo_pgsql
- */
+/** @requires extension pdo_pgsql */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void
@@ -30,13 +28,11 @@ class DriverTest extends AbstractDriverTest
         self::markTestSkipped('This test requires the pdo_pgsql driver.');
     }
 
-    /**
-     * @dataProvider getDatabaseParameter
-     */
+    /** @dataProvider getDatabaseParameter */
     public function testDatabaseParameters(
         ?string $databaseName,
         ?string $defaultDatabaseName,
-        ?string $expectedDatabaseName
+        ?string $expectedDatabaseName,
     ): void {
         $params = $this->connection->getParams();
 
@@ -54,18 +50,16 @@ class DriverTest extends AbstractDriverTest
             $params,
             $this->connection->getDriver(),
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager()
+            $this->connection->getEventManager(),
         );
 
         self::assertSame(
             $expectedDatabaseName,
-            $connection->getDatabase()
+            $connection->getDatabase(),
         );
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function getDatabaseParameter(): iterable
     {
         $params            = TestUtil::getConnectionParams();

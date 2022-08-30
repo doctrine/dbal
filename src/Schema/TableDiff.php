@@ -68,17 +68,15 @@ class TableDiff
         public array $addedIndexes = [],
         public array $changedIndexes = [],
         public array $removedIndexes = [],
-        public ?Table $fromTable = null
+        public ?Table $fromTable = null,
     ) {
     }
 
-    /**
-     * @param AbstractPlatform $platform The platform to use for retrieving this table diff's name.
-     */
+    /** @param AbstractPlatform $platform The platform to use for retrieving this table diff's name. */
     public function getName(AbstractPlatform $platform): Identifier
     {
         return new Identifier(
-            $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name
+            $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name,
         );
     }
 

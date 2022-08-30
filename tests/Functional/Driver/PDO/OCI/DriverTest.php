@@ -9,9 +9,7 @@ use Doctrine\DBAL\Driver\PDO\OCI\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/**
- * @requires extension pdo_oci
- */
+/** @requires extension pdo_oci */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void

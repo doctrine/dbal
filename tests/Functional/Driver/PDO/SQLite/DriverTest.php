@@ -9,9 +9,7 @@ use Doctrine\DBAL\Driver\PDO\SQLite\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/**
- * @requires extension pdo_sqlite
- */
+/** @requires extension pdo_sqlite */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void

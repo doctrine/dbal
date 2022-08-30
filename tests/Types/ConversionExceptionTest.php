@@ -26,22 +26,18 @@ class ConversionExceptionTest extends TestCase
         self::assertSame($previous, $exception->getPrevious());
     }
 
-    /**
-     * @dataProvider scalarsProvider
-     */
+    /** @dataProvider scalarsProvider */
     public function testConversionFailedInvalidTypeWithScalar(mixed $scalarValue, string $expected): void
     {
         $exception = InvalidType::new($scalarValue, 'foo', ['bar', 'baz']);
 
         self::assertStringContainsString(
             $expected,
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 
-    /**
-     * @dataProvider nonScalarsProvider
-     */
+    /** @dataProvider nonScalarsProvider */
     public function testConversionFailedInvalidTypeWithNonScalar(mixed $nonScalar): void
     {
         $exception = InvalidType::new($nonScalar, 'foo', ['bar', 'baz']);
@@ -50,9 +46,9 @@ class ConversionExceptionTest extends TestCase
             sprintf(
                 'Could not convert PHP value of type %s to type foo.'
                     . ' Expected one of the following types: bar, baz.',
-                get_debug_type($nonScalar)
+                get_debug_type($nonScalar),
             ),
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 
@@ -74,9 +70,7 @@ class ConversionExceptionTest extends TestCase
         self::assertSame($previous, $exception->getPrevious());
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function nonScalarsProvider(): iterable
     {
         return [
@@ -86,9 +80,7 @@ class ConversionExceptionTest extends TestCase
         ];
     }
 
-    /**
-     * @return mixed[][]
-     */
+    /** @return mixed[][] */
     public static function scalarsProvider(): iterable
     {
         return [

@@ -222,7 +222,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $this->getQuotedIdentifierName($tableForeignKey['foreignTable']),
             array_values($tableForeignKey['foreign']),
             $this->getQuotedIdentifierName($tableForeignKey['name']),
-            ['onDelete' => $tableForeignKey['onDelete']]
+            ['onDelete' => $tableForeignKey['onDelete']],
         );
     }
 
@@ -236,7 +236,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         return new Sequence(
             $this->getQuotedIdentifierName($sequence['sequence_name']),
             (int) $sequence['increment_by'],
-            (int) $sequence['min_value']
+            (int) $sequence['min_value'],
         );
     }
 
@@ -266,9 +266,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $this->connection->executeStatement($statement);
     }
 
-    /**
-     * @throws Exception
-     */
+    /** @throws Exception */
     protected function dropAutoincrement(string $table): bool
     {
         $sql = $this->platform->getDropAutoincrementSql($table);

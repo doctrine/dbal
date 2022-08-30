@@ -138,7 +138,7 @@ class ModifyLimitQueryTest extends FunctionalTestCase
         $this->connection->insert('modify_limit_table', ['test_int' => 2]);
         $this->connection->insert('modify_limit_table', ['test_int' => 3]);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT
 *
 FROM
@@ -162,15 +162,13 @@ SQL;
         $this->assertLimitResult([1, 2], $sql, null, 0);
     }
 
-    /**
-     * @param array<int, int> $expectedResults
-     */
+    /** @param array<int, int> $expectedResults */
     private function assertLimitResult(
         array $expectedResults,
         string $sql,
         ?int $limit,
         int $offset,
-        bool $deterministic = true
+        bool $deterministic = true,
     ): void {
         $p    = $this->connection->getDatabasePlatform();
         $data = [];

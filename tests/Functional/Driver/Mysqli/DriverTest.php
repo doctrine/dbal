@@ -9,9 +9,7 @@ use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/**
- * @requires extension mysqli
- */
+/** @requires extension mysqli */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void
