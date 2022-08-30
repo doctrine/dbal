@@ -617,7 +617,7 @@ SQL
      */
     private function getForeignKeyDetails($table)
     {
-        $createSql = $this->getCreateTableSQL($table);
+        $createSql = $this->getCreateTableSQL($table).PHP_EOL;
 
         if (
             preg_match_all(
