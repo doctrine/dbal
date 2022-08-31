@@ -247,6 +247,10 @@ EOF
             self::markTestSkipped('The driver does not support named statement parameters');
         }
 
+        if (TestUtil::isDriverOneOf('sqlite3')) {
+            self::markTestSkipped('SQLite3 does not report this error');
+        }
+
         if (PHP_VERSION_ID < 80000 && TestUtil::isDriverOneOf('pdo_oci')) {
             self::markTestSkipped('pdo_oci on PHP 7 does not report this error');
         }

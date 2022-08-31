@@ -56,6 +56,12 @@
         <exclude-pattern>*/src/*</exclude-pattern>
     </rule>
 
+    <rule ref="SlevomatCodingStandard.Exceptions.ReferenceThrowableOnly">
+        <!-- ext-sqlite3 throws generic exceptions. -->
+        <!-- Catching \Exception is legit here, and we don't want to widen types to \Throwable. -->
+        <exclude-pattern>src/Driver/SQLite3/*</exclude-pattern>
+    </rule>
+
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
         <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>
