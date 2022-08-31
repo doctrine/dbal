@@ -2912,12 +2912,37 @@ abstract class AbstractPlatform
      */
     public function getDecimalTypeDeclarationSQL(array $column)
     {
-        $column['precision'] = ! isset($column['precision']) || empty($column['precision'])
-            ? 10 : $column['precision'];
-        $column['scale']     = ! isset($column['scale']) || empty($column['scale'])
-            ? 0 : $column['scale'];
+        if (empty($column['precision'])) {
+            if (! isset($column['precision'])) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5637',
+                    'Relying on the default decimal column precision is deprecated'
+                        . ', specify the precision explicitly.',
+                );
+            }
 
-        return 'NUMERIC(' . $column['precision'] . ', ' . $column['scale'] . ')';
+            $precision = 10;
+        } else {
+            $precision = $column['precision'];
+        }
+
+        if (empty($column['scale'])) {
+            if (! isset($column['scale'])) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5637',
+                    'Relying on the default decimal column scale is deprecated'
+                        . ', specify the scale explicitly.',
+                );
+            }
+
+            $scale = 0;
+        } else {
+            $scale = $column['scale'];
+        }
+
+        return 'NUMERIC(' . $precision . ', ' . $scale . ')';
     }
 
     /**

@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated relying on the default precision and scale of decimal columns.
+
+Relying on the default precision and scale of decimal columns provided by the DBAL is deprecated.
+When declaring decimal columns, specify the precision and scale explicitly.
+
 ## Deprecated `ColumnDiff` APIs dedicated to the old column name.
 
 The `$oldColumnName` property and the `getOldColumnName()` method of the `ColumnDiff` class have been deprecated.
