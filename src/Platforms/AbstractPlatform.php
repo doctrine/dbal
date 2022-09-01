@@ -17,6 +17,8 @@ use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Exception\ColumnPrecisionRequired;
+use Doctrine\DBAL\Exception\ColumnScaleRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
@@ -36,7 +38,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -1575,40 +1576,21 @@ abstract class AbstractPlatform
      * Returns the SQL snippet that declares a floating point column of arbitrary precision.
      *
      * @param mixed[] $column
+     *
+     * @throws ColumnPrecisionRequired
+     * @throws ColumnScaleRequired
      */
     public function getDecimalTypeDeclarationSQL(array $column): string
     {
-        if (empty($column['precision'])) {
-            if (! isset($column['precision'])) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5637',
-                    'Relying on the default decimal column precision is deprecated'
-                        . ', specify the precision explicitly.',
-                );
-            }
-
-            $precision = 10;
-        } else {
-            $precision = $column['precision'];
+        if (! isset($column['precision'])) {
+            throw ColumnPrecisionRequired::new();
         }
 
-        if (empty($column['scale'])) {
-            if (! isset($column['scale'])) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5637',
-                    'Relying on the default decimal column scale is deprecated'
-                        . ', specify the scale explicitly.',
-                );
-            }
-
-            $scale = 0;
-        } else {
-            $scale = $column['scale'];
+        if (! isset($column['scale'])) {
+            throw ColumnScaleRequired::new();
         }
 
-        return 'NUMERIC(' . $precision . ', ' . $scale . ')';
+        return 'NUMERIC(' . $column['precision'] . ', ' . $column['scale'] . ')';
     }
 
     /**

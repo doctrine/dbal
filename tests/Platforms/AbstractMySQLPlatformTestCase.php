@@ -688,14 +688,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public static function getGeneratesDecimalTypeDeclarationSQL(): iterable
     {
-        return [
-            [[], 'NUMERIC(10, 0)'],
-            [['unsigned' => true], 'NUMERIC(10, 0) UNSIGNED'],
-            [['unsigned' => false], 'NUMERIC(10, 0)'],
-            [['precision' => 5], 'NUMERIC(5, 0)'],
-            [['scale' => 5], 'NUMERIC(10, 5)'],
-            [['precision' => 8, 'scale' => 2], 'NUMERIC(8, 2)'],
-        ];
+        yield [['precision' => 10, 'scale' => 8, 'unsigned' => true], 'NUMERIC(10, 8) UNSIGNED'];
+
+        yield from parent::getGeneratesDecimalTypeDeclarationSQL();
     }
 
     /**

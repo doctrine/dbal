@@ -370,7 +370,11 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_integer', 'integer', ['default' => -1]);
         $table->addColumn('col_bigint', 'bigint', ['default' => -1]);
         $table->addColumn('col_float', 'float', ['default' => -1.1]);
-        $table->addColumn('col_decimal', 'decimal', ['default' => -1.1]);
+        $table->addColumn('col_decimal', 'decimal', [
+            'precision' => 2,
+            'scale' => 1,
+            'default' => -1.1,
+        ]);
         $table->addColumn('col_string', 'string', ['default' => '(-1)']);
 
         $this->dropAndCreateTable($table);
