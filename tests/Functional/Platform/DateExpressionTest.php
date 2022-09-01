@@ -30,7 +30,7 @@ class DateExpressionTest extends FunctionalTestCase
         self::assertEquals($expected, $diff);
     }
 
-    /** @return string[][]|int[][] */
+    /** @return array<string, array{string, string, int}> */
     public static function differenceProvider(): iterable
     {
         $date1    = new DateTimeImmutable();
