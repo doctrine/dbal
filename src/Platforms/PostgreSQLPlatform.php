@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -15,15 +14,11 @@ use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\BinaryType;
-use Doctrine\DBAL\Types\BlobType;
 use UnexpectedValueException;
 
-use function array_diff;
 use function array_merge;
 use function array_unique;
 use function array_values;
-use function count;
 use function explode;
 use function implode;
 use function in_array;
@@ -265,10 +260,6 @@ class PostgreSQLPlatform extends AbstractPlatform
                 continue;
             }
 
-            if ($this->isUnchangedBinaryColumn($columnDiff)) {
-                continue;
-            }
-
             $fromColumn = $columnDiff->fromColumn;
 
             $oldColumnName = $fromColumn->getQuotedName($this);
@@ -370,32 +361,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         }
 
         return array_merge($sql, $tableSql, $columnSql);
-    }
-
-    /**
-     * Checks whether a given column diff is a logically unchanged binary type column.
-     *
-     * Used to determine whether a column alteration for a binary type column can be skipped.
-     * Doctrine's {@see BinaryType} and {@see BlobType} are mapped to the same database column type on this platform
-     * as this platform does not have a native VARBINARY/BINARY column type. Therefore the comparator
-     * might detect differences for binary type columns which do not have to be propagated
-     * to database as there actually is no difference at database level.
-     */
-    private function isUnchangedBinaryColumn(ColumnDiff $columnDiff): bool
-    {
-        $columnType = $columnDiff->column->getType();
-
-        if (! $columnType instanceof BinaryType && ! $columnType instanceof BlobType) {
-            return false;
-        }
-
-        $fromColumnType = $columnDiff->fromColumn->getType();
-
-        if (! $fromColumnType instanceof BinaryType && ! $fromColumnType instanceof BlobType) {
-            return false;
-        }
-
-        return count(array_diff($columnDiff->changedProperties, ['type', 'length', 'fixed'])) === 0;
     }
 
     /**
