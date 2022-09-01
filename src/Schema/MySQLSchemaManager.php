@@ -413,12 +413,14 @@ SQL;
        c.COLLATION_NAME     AS collation
 FROM information_schema.COLUMNS c
     INNER JOIN information_schema.TABLES t
-        ON t.TABLE_SCHEMA = c.TABLE_SCHEMA
-        AND t.TABLE_NAME = c.TABLE_NAME
+        ON t.TABLE_NAME = c.TABLE_NAME
 SQL;
 
-        $conditions = ['c.TABLE_SCHEMA = ?', "t.TABLE_TYPE = 'BASE TABLE'"];
-        $params     = [$databaseName];
+        // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
+        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
+        // caused by https://bugs.mysql.com/bug.php?id=81347
+        $conditions = ['c.TABLE_SCHEMA = ?', 't.TABLE_SCHEMA = ?', "t.TABLE_TYPE = 'BASE TABLE'"];
+        $params     = [$databaseName, $databaseName];
 
         if ($tableName !== null) {
             $conditions[] = 't.TABLE_NAME = ?';
