@@ -13,8 +13,15 @@ use function in_array;
  */
 class ColumnDiff
 {
-    /** @param array<string> $changedProperties */
+    /**
+     * @internal The diff can be only instantiated by a {@see Comparator}.
+     *
+     * @param array<string> $changedProperties
+     */
     public function __construct(
+        /**
+         * @deprecated Use {@see $fromColumn} and {@see Column::getName()} instead.
+         */
         public string $oldColumnName,
         public Column $column,
         public array $changedProperties,
