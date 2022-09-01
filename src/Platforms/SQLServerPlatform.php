@@ -22,7 +22,6 @@ use InvalidArgumentException;
 use function array_merge;
 use function array_unique;
 use function array_values;
-use function count;
 use function crc32;
 use function dechex;
 use function explode;
@@ -415,8 +414,15 @@ class SQLServerPlatform extends AbstractPlatform
                 $commentsSql[] = $this->getCreateColumnCommentSQL($diff->name, $column->getQuotedName($this), $comment);
             }
 
-            // Do not add query part if only comment has changed.
-            if ($columnDiff->hasChanged('comment') && count($columnDiff->changedProperties) === 1) {
+            $columnNameSQL = $column->getQuotedName($this);
+
+            $oldDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $columnDiff->fromColumn->toArray());
+            $newDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $column->toArray());
+
+            $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
+            $defaultChanged        = $columnDiff->hasChanged('default');
+
+            if (! $declarationSQLChanged && ! $defaultChanged) {
                 continue;
             }
 
@@ -429,14 +435,13 @@ class SQLServerPlatform extends AbstractPlatform
                 );
             }
 
-            $columnDef = $column->toArray();
-
-            $queryParts[] = 'ALTER COLUMN ' .
-                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
+            if ($declarationSQLChanged) {
+                $queryParts[] = 'ALTER COLUMN ' . $newDeclarationSQL;
+            }
 
             if (
-                ! isset($columnDef['default'])
-                || (! $requireDropDefaultConstraint && ! $columnDiff->hasChanged('default'))
+                $column->getDefault() === null
+                || (! $requireDropDefaultConstraint && ! $defaultChanged)
             ) {
                 continue;
             }
