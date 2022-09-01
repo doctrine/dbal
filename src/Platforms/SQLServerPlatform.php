@@ -583,7 +583,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             // Do not add query part if only comment has changed.
-            if ($columnDiff->hasChanged('comment') && count($columnDiff->changedProperties) === 1) {
+            if ($columnDiff->hasCommentChanged() && count($columnDiff->changedProperties) === 1) {
                 continue;
             }
 
@@ -609,7 +609,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             if (
                 ! isset($columnDef['default'])
-                || (! $requireDropDefaultConstraint && ! $columnDiff->hasChanged('default'))
+                || (! $requireDropDefaultConstraint && ! $columnDiff->hasDefaultChanged())
             ) {
                 continue;
             }
@@ -733,13 +733,13 @@ class SQLServerPlatform extends AbstractPlatform
 
         // We need to drop an existing default constraint if the column was
         // defined with a default value before and it has changed.
-        if ($columnDiff->hasChanged('default')) {
+        if ($columnDiff->hasDefaultChanged()) {
             return true;
         }
 
         // We need to drop an existing default constraint if the column was
         // defined with a default value before and the native column type has changed.
-        return $columnDiff->hasChanged('type') || $columnDiff->hasChanged('fixed');
+        return $columnDiff->hasTypeChanged() || $columnDiff->hasFixedChanged();
     }
 
     /**

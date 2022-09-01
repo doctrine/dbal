@@ -1161,7 +1161,7 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            if (! $columnDiff->hasChanged('type') && $columnDiff->hasChanged('unsigned')) {
+            if (! $columnDiff->hasTypeChanged() && $columnDiff->hasUnsignedChanged()) {
                 unset($diff->changedColumns[$oldColumnName]);
 
                 continue;

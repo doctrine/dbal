@@ -572,10 +572,10 @@ SQL
             $column = $columnDiff->column;
 
             if (
-                $columnDiff->hasChanged('type')
-                || $columnDiff->hasChanged('precision')
-                || $columnDiff->hasChanged('scale')
-                || $columnDiff->hasChanged('fixed')
+                $columnDiff->hasTypeChanged()
+                || $columnDiff->hasPrecisionChanged()
+                || $columnDiff->hasScaleChanged()
+                || $columnDiff->hasFixedChanged()
             ) {
                 $type = $column->getType();
 
@@ -588,7 +588,7 @@ SQL
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
-            if ($columnDiff->hasChanged('default')) {
+            if ($columnDiff->hasDefaultChanged()) {
                 $defaultClause = $column->getDefault() === null
                     ? ' DROP DEFAULT'
                     : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
@@ -596,12 +596,12 @@ SQL
                 $sql[]         = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
-            if ($columnDiff->hasChanged('notnull')) {
+            if ($columnDiff->hasNotNullChanged()) {
                 $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
-            if ($columnDiff->hasChanged('autoincrement')) {
+            if ($columnDiff->hasAutoIncrementChanged()) {
                 if ($column->getAutoincrement()) {
                     // add autoincrement
                     $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
@@ -622,7 +622,7 @@ SQL
             $oldComment = $this->getOldColumnComment($columnDiff);
 
             if (
-                $columnDiff->hasChanged('comment')
+                $columnDiff->hasCommentChanged()
                 || ($columnDiff->fromColumn !== null && $oldComment !== $newComment)
             ) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
@@ -632,7 +632,7 @@ SQL
                 );
             }
 
-            if (! $columnDiff->hasChanged('length')) {
+            if (! $columnDiff->hasLengthChanged()) {
                 continue;
             }
 
@@ -706,7 +706,7 @@ SQL
             return count(array_diff($columnDiff->changedProperties, ['type', 'length', 'fixed'])) === 0;
         }
 
-        if ($columnDiff->hasChanged('type')) {
+        if ($columnDiff->hasTypeChanged()) {
             return false;
         }
 
