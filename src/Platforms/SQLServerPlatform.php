@@ -420,7 +420,7 @@ class SQLServerPlatform extends AbstractPlatform
             $newDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $column->toArray());
 
             $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
-            $defaultChanged        = $columnDiff->hasChanged('default');
+            $defaultChanged        = $columnDiff->hasDefaultChanged();
 
             if (! $declarationSQLChanged && ! $defaultChanged) {
                 continue;
@@ -559,13 +559,13 @@ class SQLServerPlatform extends AbstractPlatform
 
         // We need to drop an existing default constraint if the column was
         // defined with a default value before and it has changed.
-        if ($columnDiff->hasChanged('default')) {
+        if ($columnDiff->hasDefaultChanged()) {
             return true;
         }
 
         // We need to drop an existing default constraint if the column was
         // defined with a default value before and the native column type has changed.
-        return $columnDiff->hasChanged('type') || $columnDiff->hasChanged('fixed');
+        return $columnDiff->hasTypeChanged() || $columnDiff->hasFixedChanged();
     }
 
     /**

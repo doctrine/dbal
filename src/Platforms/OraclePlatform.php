@@ -565,7 +565,7 @@ END;';
             $currentSQL = $this->getColumnDeclarationSQL('', $columnInfo);
 
             if ($currentSQL !== $fromSQL) {
-                if (! $columnDiff->hasChanged('notnull')) {
+                if (! $columnDiff->hasNotNullChanged()) {
                     unset($columnInfo['notnull']);
                     $currentSQL = $this->getColumnDeclarationSQL('', $columnInfo);
                 }
@@ -573,7 +573,7 @@ END;';
                 $modifyColumnSQL[] = $column->getQuotedName($this) . $currentSQL;
             }
 
-            if (! $columnDiff->hasChanged('comment')) {
+            if (! $columnDiff->hasCommentChanged()) {
                 continue;
             }
 

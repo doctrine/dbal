@@ -311,7 +311,7 @@ class DB2Platform extends AbstractPlatform
                 continue;
             }
 
-            if ($columnDiff->hasChanged('comment')) {
+            if ($columnDiff->hasCommentChanged()) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $columnDiff->column->getQuotedName($this),
@@ -420,20 +420,20 @@ class DB2Platform extends AbstractPlatform
         $clauses = [];
 
         if (
-            $columnDiff->hasChanged('type') ||
-            $columnDiff->hasChanged('length') ||
-            $columnDiff->hasChanged('precision') ||
-            $columnDiff->hasChanged('scale') ||
-            $columnDiff->hasChanged('fixed')
+            $columnDiff->hasTypeChanged() ||
+            $columnDiff->hasLengthChanged() ||
+            $columnDiff->hasPrecisionChanged() ||
+            $columnDiff->hasScaleChanged() ||
+            $columnDiff->hasFixedChanged()
         ) {
             $clauses[] = $alterClause . ' SET DATA TYPE ' . $column['type']->getSQLDeclaration($column, $this);
         }
 
-        if ($columnDiff->hasChanged('notnull')) {
+        if ($columnDiff->hasNotNullChanged()) {
             $clauses[] = $column['notnull'] ? $alterClause . ' SET NOT NULL' : $alterClause . ' DROP NOT NULL';
         }
 
-        if ($columnDiff->hasChanged('default')) {
+        if ($columnDiff->hasDefaultChanged()) {
             if (isset($column['default'])) {
                 $defaultClause = $this->getDefaultValueDeclarationSQL($column);
 
