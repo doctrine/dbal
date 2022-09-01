@@ -844,7 +844,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableDiff->fromTable                 = $table;
         $tableDiff->changedColumns['col_int'] = new ColumnDiff(
             new Column('col_int', Type::getType('integer'), ['default' => 666]),
-            ['type'],
             new Column('col_int', Type::getType('smallint'), ['default' => 666]),
         );
 
@@ -854,7 +853,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                 'fixed' => true,
                 'default' => 'foo',
             ]),
-            ['fixed'],
             new Column('col_string', Type::getType('string'), [
                 'length' => 3,
                 'default' => 'foo',

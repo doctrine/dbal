@@ -106,7 +106,7 @@
 
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->
     <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
-        <exclude-pattern>src/Schema/Comparator.php</exclude-pattern>
+        <exclude-pattern>src/Schema/ColumnDiff.php</exclude-pattern>
     </rule>
 
     <!-- The SQLSRV_* functions are defined in the upper case by the sqlsrv extension and violate the standard

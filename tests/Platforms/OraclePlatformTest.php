@@ -43,20 +43,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getGenerateAlterTableSql(): array
-    {
-        return [
-            'ALTER TABLE mytable ADD (quota NUMBER(10) DEFAULT NULL NULL)',
-            "ALTER TABLE mytable MODIFY (baz VARCHAR2(255) DEFAULT 'def' NOT NULL, "
-                . 'bloo NUMBER(1) DEFAULT 0 NOT NULL)',
-            'ALTER TABLE mytable DROP (foo)',
-            'ALTER TABLE mytable RENAME TO userlist',
-        ];
-    }
-
     public function testRLike(): void
     {
         $this->expectException(Exception::class);

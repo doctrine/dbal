@@ -100,12 +100,10 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             [
                 'df_integer' => new ColumnDiff(
                     new Column('df_integer', Type::getType('integer'), ['default' => 0]),
-                    ['default'],
                     new Column('df_integer', Type::getType('integer'), ['default' => 666]),
                 ),
                 'df_string_2' => new ColumnDiff(
                     new Column('df_string_2', Type::getType('string'), ['length' => 32]),
-                    ['default'],
                     new Column('df_string_2', Type::getType('string'), [
                         'length' => 32,
                         'default' => 'Doctrine rocks!!!',
@@ -116,7 +114,6 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                         'length' => 50,
                         'default' => 'another default value',
                     ]),
-                    ['length'],
                     new Column('df_string_3', Type::getType('string'), [
                         'length' => 50,
                         'default' => 'another default value',
@@ -124,7 +121,6 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 ),
                 'df_boolean' => new ColumnDiff(
                     new Column('df_boolean', Type::getType('boolean'), ['default' => false]),
-                    ['default'],
                     new Column('df_boolean', Type::getType('boolean'), ['default' => true]),
                 ),
             ],
@@ -162,7 +158,6 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             [
                 'df_integer' => new ColumnDiff(
                     new Column('df_integer', Type::getType('integer'), ['default' => 666]),
-                    ['default'],
                     new Column('df_integer', Type::getType('integer'), ['default' => 0]),
                 ),
             ],

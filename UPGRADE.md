@@ -537,9 +537,13 @@ Instead of returning an empty value, `Connection::lastInsertId()` throws an exce
 
 The method `Comparator::compareSchemas()` cannot be called statically anymore.
 
-## Removed `Comparator::compare()`
+## Removed `Comparator` methods
 
-The method `Comparator::compare()` has been removed, use `Comparator::compareSchemas()` instead.
+The `Comparator::compare()` and `::diffColumn()` methods have been removed.
+
+## Removed `ColumnDiff` methods
+
+The `ColumnDiff::hasChanged()` method has been removed.
 
 ## Removed `TableGenerator` component
 

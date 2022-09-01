@@ -6,13 +6,8 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types;
-use Doctrine\Deprecations\Deprecation;
 
-use function array_intersect_key;
-use function array_keys;
 use function array_map;
-use function array_unique;
 use function assert;
 use function count;
 use function strtolower;
@@ -221,7 +216,6 @@ class Comparator
 
             $tableDifferences->changedColumns[$column->getName()] = new ColumnDiff(
                 $toColumn,
-                $this->diffColumn($column, $toColumn),
                 $column,
             );
 
@@ -417,99 +411,6 @@ class Comparator
     protected function columnsEqual(Column $column1, Column $column2): bool
     {
         return $this->platform->columnsEqual($column1, $column2);
-    }
-
-    /**
-     * Returns the difference between the columns
-     *
-     * If there are differences this method returns the changed properties as a
-     * string array, otherwise an empty array gets returned.
-     *
-     * @deprecated Use {@see diffTable()} instead.
-     *
-     * @return array<int, string>
-     */
-    public function diffColumn(Column $column1, Column $column2): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5650',
-            '%s is deprecated. Use diffTable() instead.',
-            __METHOD__,
-        );
-
-        $properties1 = $column1->toArray();
-        $properties2 = $column2->toArray();
-
-        $changedProperties = [];
-
-        if ($properties1['type']::class !== $properties2['type']::class) {
-            $changedProperties[] = 'type';
-        }
-
-        foreach (['notnull', 'unsigned', 'autoincrement'] as $property) {
-            if ($properties1[$property] === $properties2[$property]) {
-                continue;
-            }
-
-            $changedProperties[] = $property;
-        }
-
-        // Null values need to be checked additionally as they tell whether to create or drop a default value.
-        // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
-        if (
-            ($properties1['default'] === null) !== ($properties2['default'] === null)
-            || $properties1['default'] != $properties2['default']
-        ) {
-            $changedProperties[] = 'default';
-        }
-
-        if (
-            ($properties1['type'] instanceof Types\StringType && ! $properties1['type'] instanceof Types\GuidType) ||
-            $properties1['type'] instanceof Types\BinaryType
-        ) {
-            if (
-                (isset($properties1['length']) !== isset($properties2['length']))
-                || (isset($properties1['length']) && isset($properties2['length'])
-                    && $properties1['length'] !== $properties2['length'])
-            ) {
-                $changedProperties[] = 'length';
-            }
-
-            if ($properties1['fixed'] !== $properties2['fixed']) {
-                $changedProperties[] = 'fixed';
-            }
-        } elseif ($properties1['type'] instanceof Types\DecimalType) {
-            if ($properties1['precision'] !== $properties2['precision']) {
-                $changedProperties[] = 'precision';
-            }
-
-            if ($properties1['scale'] !== $properties2['scale']) {
-                $changedProperties[] = 'scale';
-            }
-        }
-
-        // A null value and an empty string are actually equal for a comment so they should not trigger a change.
-        if (
-            $properties1['comment'] !== $properties2['comment'] &&
-            ! ($properties1['comment'] === null && $properties2['comment'] === '') &&
-            ! ($properties2['comment'] === null && $properties1['comment'] === '')
-        ) {
-            $changedProperties[] = 'comment';
-        }
-
-        $platformOptions1 = $column1->getPlatformOptions();
-        $platformOptions2 = $column2->getPlatformOptions();
-
-        foreach (array_keys(array_intersect_key($platformOptions1, $platformOptions2)) as $key) {
-            if ($properties1[$key] === $properties2[$key]) {
-                continue;
-            }
-
-            $changedProperties[] = $key;
-        }
-
-        return array_unique($changedProperties);
     }
 
     /**

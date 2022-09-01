@@ -205,24 +205,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('SELECT * FROM user LIMIT -1 OFFSET 10', $sql);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getGenerateAlterTableSql(): array
-    {
-        return [
-            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT id, bar, bloo FROM mytable',
-            'DROP TABLE mytable',
-            'CREATE TABLE mytable (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, '
-                . "baz VARCHAR(255) DEFAULT 'def' NOT NULL, "
-                . 'bloo BOOLEAN DEFAULT 0 NOT NULL, '
-                . 'quota INTEGER DEFAULT NULL)',
-            'INSERT INTO mytable (id, baz, bloo) SELECT id, bar, bloo FROM __temp__mytable',
-            'DROP TABLE __temp__mytable',
-            'ALTER TABLE mytable RENAME TO userlist',
-        ];
-    }
-
     public function testGenerateTableSqlShouldNotAutoQuotePrimaryKey(): void
     {
         $table = new Table('test');

@@ -54,18 +54,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getGenerateAlterTableSql(): array
-    {
-        return [
-            'ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, '
-                . "CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, "
-                . 'CHANGE bloo bloo TINYINT(1) DEFAULT 0 NOT NULL',
-        ];
-    }
-
     public function testGeneratesSqlSnippets(): void
     {
         self::assertEquals('RLIKE', $this->platform->getRegexpExpression());
