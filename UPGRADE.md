@@ -572,6 +572,7 @@ The former has also been made final.
 The following schema- and namespace-related methods have been removed:
 
 - `AbstractPlatform::getListNamespacesSQL()`,
+- `AbstractSchemaManager::createSchema()`,
 - `AbstractSchemaManager::listNamespaceNames()`,
 - `AbstractSchemaManager::getPortableNamespacesList()`,
 - `AbstractSchemaManager::getPortableNamespaceDefinition()`,

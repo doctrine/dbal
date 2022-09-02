@@ -14,7 +14,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_intersect;
@@ -833,21 +832,12 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Creates a schema instance for the current database.
-     *
-     * @deprecated Use {@link introspectSchema()} instead.
+     * Returns a {@see Schema} instance representing the current database schema.
      *
      * @throws Exception
      */
-    public function createSchema(): Schema
+    public function introspectSchema(): Schema
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5613',
-            '%s is deprecated. Use introspectSchema() instead.',
-            __METHOD__,
-        );
-
         $schemaNames = [];
 
         if ($this->platform->supportsSchemas()) {
@@ -863,16 +853,6 @@ abstract class AbstractSchemaManager
         $tables = $this->listTables();
 
         return new Schema($tables, $sequences, $this->createSchemaConfig(), $schemaNames);
-    }
-
-    /**
-     * Returns a {@see Schema} instance representing the current database schema.
-     *
-     * @throws Exception
-     */
-    public function introspectSchema(): Schema
-    {
-        return $this->createSchema();
     }
 
     /**
