@@ -998,7 +998,6 @@ abstract class ComparatorTest extends TestCase
         $tableDiff->fromTable = $tableFoo;
 
         $tableDiff->changedColumns['id'] = new ColumnDiff(
-            'id',
             $table->getColumn('id'),
             ['type'],
             $tableFoo->getColumn('id'),
@@ -1025,7 +1024,6 @@ abstract class ComparatorTest extends TestCase
         $tableDiff->fromTable = $tableFoo;
 
         $tableDiff->changedColumns['id'] = new ColumnDiff(
-            'id',
             $table->getColumn('id'),
             ['length', 'fixed'],
             $tableFoo->getColumn('id'),

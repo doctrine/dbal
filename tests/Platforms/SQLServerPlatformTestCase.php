@@ -681,7 +681,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     {
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
-            'quota',
             new Column('quota', Type::getType('integer'), []),
             ['comment'],
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
@@ -699,7 +698,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     {
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
-            'quota',
             new Column('quota', Type::getType('integer'), ['comment' => 'B comment']),
             ['comment'],
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
@@ -818,7 +816,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
         // Add comment to non-commented column.
         $tableDiff->changedColumns['id'] = new ColumnDiff(
-            'id',
             new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
             ['comment'],
             new Column('id', Type::getType('integer'), ['autoincrement' => true]),
@@ -826,7 +823,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
         // Change type to custom type from empty string commented column.
         $tableDiff->changedColumns['comment_empty_string'] = new ColumnDiff(
-            'comment_empty_string',
             new Column('comment_empty_string', Type::getType('json')),
             ['type'],
             new Column('comment_empty_string', Type::getType('integer'), ['comment' => '']),
@@ -834,7 +830,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
         // Change comment to empty comment from zero-string commented column.
         $tableDiff->changedColumns['comment_string_0'] = new ColumnDiff(
-            'comment_string_0',
             new Column('comment_string_0', Type::getType('integer'), ['comment' => '']),
             ['comment'],
             new Column('comment_string_0', Type::getType('integer'), ['comment' => '0']),
@@ -842,7 +837,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
         // Remove comment from regular commented column.
         $tableDiff->changedColumns['comment'] = new ColumnDiff(
-            'comment',
             new Column('comment', Type::getType('integer')),
             ['comment'],
             new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
@@ -850,7 +844,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
         // Change comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['`comment_quoted`'] = new ColumnDiff(
-            '`comment_quoted`',
             new Column('`comment_quoted`', Type::getType('json'), ['comment' => 'Doctrine JSON.']),
             ['comment', 'type'],
             new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
@@ -858,7 +851,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
         // Remove comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['create'] = new ColumnDiff(
-            'create',
             new Column('create', Type::getType('json')),
             ['comment', 'type'],
             new Column(
@@ -870,7 +862,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
         // Add comment and change custom type to regular type from non-commented column.
         $tableDiff->changedColumns['commented_type'] = new ColumnDiff(
-            'commented_type',
             new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
             ['comment', 'type'],
             new Column('commented_type', Type::getType('json')),
@@ -878,7 +869,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
         // Remove comment from commented custom type column.
         $tableDiff->changedColumns['commented_type_with_comment'] = new ColumnDiff(
-            'commented_type_with_comment',
             new Column('commented_type_with_comment', Type::getType('json')),
             ['comment'],
             new Column('commented_type_with_comment', Type::getType('json'), ['comment' => 'Doctrine JSON type.']),
@@ -886,7 +876,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
         // Change comment from comment with string literal char column.
         $tableDiff->changedColumns['comment_with_string_literal_char'] = new ColumnDiff(
-            'comment_with_string_literal_char',
             new Column('comment_with_string_literal_char', Type::getType('string'), ['comment' => "'"]),
             ['comment'],
             new Column('comment_with_string_literal_char', Type::getType('json'), ['comment' => "O'Reilly"]),
@@ -1074,14 +1063,12 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         $tableDiff                            = new TableDiff($tableName);
         $tableDiff->fromTable                 = $table;
         $tableDiff->changedColumns['col_int'] = new ColumnDiff(
-            'col_int',
             new Column('col_int', Type::getType('integer'), ['default' => 666]),
             ['type'],
             new Column('col_int', Type::getType('smallint'), ['default' => 666]),
         );
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
-            'col_string',
             new Column('col_string', Type::getType('string'), [
                 'length' => 255,
                 'fixed' => true,
@@ -1244,7 +1231,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                     ],
                     [
                         'mycolumn' => new ColumnDiff(
-                            'mycolumn',
                             new Column('mycolumn', Type::getType('string'), [
                                 'length' => 255,
                                 'default' => 'bar',
@@ -1284,7 +1270,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                     ],
                     [
                         'mycolumn' => new ColumnDiff(
-                            '`mycolumn`',
                             new Column('`mycolumn`', Type::getType('string'), [
                                 'length' => 255,
                                 'default' => 'bar',
@@ -1324,7 +1309,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                     ],
                     [
                         'select' => new ColumnDiff(
-                            'select',
                             new Column('select', Type::getType('string'), [
                                 'length' => 255,
                                 'default' => 'bar',
@@ -1364,7 +1348,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                     ],
                     [
                         'select' => new ColumnDiff(
-                            '`select`',
                             new Column('`select`', Type::getType('string'), [
                                 'length' => 255,
                                 'default' => 'bar',
@@ -1641,7 +1624,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     {
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
-            'quota',
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => true]),
             ['notnull'],
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => false]),

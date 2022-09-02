@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\Deprecations\Deprecation;
-
 use function in_array;
 
 /**
@@ -19,10 +17,6 @@ class ColumnDiff
      * @param array<string> $changedProperties
      */
     public function __construct(
-        /**
-         * @deprecated Use {@see $fromColumn} and {@see Column::getName()} instead.
-         */
-        public string $oldColumnName,
         public Column $column,
         public array $changedProperties,
         public Column $fromColumn,
@@ -85,18 +79,5 @@ class ColumnDiff
     public function hasChanged(string $propertyName): bool
     {
         return in_array($propertyName, $this->changedProperties, true);
-    }
-
-    /** @deprecated Use {@see $fromColumn} instead. */
-    public function getOldColumnName(): Identifier
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5622',
-            '%s is deprecated. Use $fromColumn instead.',
-            __METHOD__,
-        );
-
-        return new Identifier($this->oldColumnName, $this->fromColumn->isQuoted());
     }
 }

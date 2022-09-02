@@ -249,7 +249,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['notnull' => false]);
         $tableDiff->removedColumns['foo'] = new Column('foo', Type::getType('integer'));
         $tableDiff->changedColumns['bar'] = new ColumnDiff(
-            'bar',
             new Column(
                 'baz',
                 Type::getType('string'),
@@ -263,7 +262,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         );
 
         $tableDiff->changedColumns['bloo'] = new ColumnDiff(
-            'bloo',
             new Column(
                 'bloo',
                 Type::getType('boolean'),
@@ -367,7 +365,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->addedColumns['added']     = new Column('added', Type::getType('integer'), []);
         $tableDiff->removedColumns['removed'] = new Column('removed', Type::getType('integer'), []);
         $tableDiff->changedColumns['changed'] = new ColumnDiff(
-            'changed',
             new Column('changed2', Type::getType('string'), ['length' => 255]),
             [],
             $table->getColumn('changed'),
@@ -615,7 +612,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff                           = new TableDiff('mytable');
         $tableDiff->fromTable                = $table;
         $tableDiff->changedColumns['select'] = new ColumnDiff(
-            'select',
             new Column(
                 'select',
                 Type::getType('string'),
@@ -1134,7 +1130,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->newName               = 'table';
         $tableDiff->addedColumns['bloo']  = new Column('bloo', Type::getType('integer'));
         $tableDiff->changedColumns['bar'] = new ColumnDiff(
-            'bar',
             new Column('bar', Type::getType('integer'), ['notnull' => false]),
             ['notnull'],
             $table->getColumn('bar'),
@@ -1163,7 +1158,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->fromTable = $table;
 
         $tableDiff->changedColumns['name'] = new ColumnDiff(
-            'name',
             new Column(
                 'name',
                 Type::getType('string'),
