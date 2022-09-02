@@ -219,7 +219,6 @@ class Comparator
             }
 
             $tableDifferences->changedColumns[$column->getName()] = new ColumnDiff(
-                $column->getName(),
                 $toColumn,
                 $this->diffColumn($column, $toColumn),
                 $column,

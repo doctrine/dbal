@@ -421,7 +421,10 @@ the name of the object as a separate parameter. The name of the passed index or 
 The `AbstractPlatform::canEmulateSchemas()` method and the schema emulation implemented in the SQLite platform
 have been removed.
 
-## BC BREAK: The `$fromColumn` parameter of the `ColumnDiff` constructor made required
+## BC BREAK: Changes in the `ColumnDiff` class
+
+1. The `$fromColumn` parameter of the `ColumnDiff` constructor has been made required.
+2. The `$oldColumnName` property and the `getOldColumnName()` method have been removed.
 
 ## BC BREAK: Changes in the return value of `Table::getColumns()`
 
