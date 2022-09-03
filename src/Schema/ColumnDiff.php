@@ -18,6 +18,11 @@ class ColumnDiff
      */
     public function __construct(
         public Column $column,
+        /**
+         * @deprecated Use {@see hasTypeChanged()}, {@see hasLengthChanged()}, {@see hasPrecisionChanged()},
+         * {@see hasScaleChanged()}, {@see hasUnsignedChanged()}, {@see hasFixedChanged()}, {@see hasNotNullChanged()},
+         * {@see hasDefaultChanged()}, {@see hasAutoIncrementChanged()} or {@see hasCommentChanged()} instead.
+         */
         public array $changedProperties,
         public Column $fromColumn,
     ) {
@@ -74,7 +79,9 @@ class ColumnDiff
     }
 
     /**
-     * @internal
+     * @deprecated Use {@see hasTypeChanged()}, {@see hasLengthChanged()}, {@see hasPrecisionChanged()},
+     * {@see hasScaleChanged()}, {@see hasUnsignedChanged()}, {@see hasFixedChanged()}, {@see hasNotNullChanged()},
+     * {@see hasDefaultChanged()}, {@see hasAutoIncrementChanged()} or {@see hasCommentChanged()} instead.
      */
     public function hasChanged(string $propertyName): bool
     {

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_intersect_key;
 use function array_keys;
@@ -381,6 +382,9 @@ class Comparator
         }
     }
 
+    /**
+     * @internal The method should be only used from within the {@see Comparator} class hierarchy.
+     */
     public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2): bool
     {
         if (
@@ -411,6 +415,8 @@ class Comparator
     /**
      * Compares the definitions of the given columns
      *
+     * @internal The method should be only used from within the {@see Comparator} class hierarchy.
+     *
      * @throws Exception
      */
     public function columnsEqual(Column $column1, Column $column2): bool
@@ -424,10 +430,19 @@ class Comparator
      * If there are differences this method returns the changed properties as a
      * string array, otherwise an empty array gets returned.
      *
+     * @deprecated Use {@see diffTable()} instead.
+     *
      * @return array<int, string>
      */
     public function diffColumn(Column $column1, Column $column2): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5650',
+            '%s is deprecated. Use diffTable() instead.',
+            __METHOD__,
+        );
+
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
 
@@ -507,6 +522,8 @@ class Comparator
      *
      * Compares $index1 with $index2 and returns $index2 if there are any
      * differences or false in case there are no differences.
+     *
+     * @internal The method should be only used from within the {@see Comparator} class hierarchy.
      */
     public function diffIndex(Index $index1, Index $index2): bool
     {
