@@ -21,7 +21,13 @@ class ColumnDiff
     /** @var Column */
     public $column;
 
-    /** @var string[] */
+    /**
+     * @deprecated Use {@see hasTypeChanged()}, {@see hasLengthChanged()}, {@see hasPrecisionChanged()},
+     * {@see hasScaleChanged()}, {@see hasUnsignedChanged()}, {@see hasFixedChanged()}, {@see hasNotNullChanged()},
+     * {@see hasDefaultChanged()}, {@see hasAutoIncrementChanged()} or {@see hasCommentChanged()} instead.
+     *
+     * @var string[]
+     */
     public $changedProperties = [];
 
     /** @var Column|null */
@@ -105,7 +111,9 @@ class ColumnDiff
     }
 
     /**
-     * @internal
+     * @deprecated Use {@see hasTypeChanged()}, {@see hasLengthChanged()}, {@see hasPrecisionChanged()},
+     * {@see hasScaleChanged()}, {@see hasUnsignedChanged()}, {@see hasFixedChanged()}, {@see hasNotNullChanged()},
+     * {@see hasDefaultChanged()}, {@see hasAutoIncrementChanged()} or {@see hasCommentChanged()} instead.
      *
      * @param string $propertyName
      *

@@ -467,7 +467,11 @@ class Comparator
         }
     }
 
-    /** @return bool */
+    /**
+     * @internal The method should be only used from within the {@see Comparator} class hierarchy.
+     *
+     * @return bool
+     */
     public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2)
     {
         if (
@@ -498,6 +502,8 @@ class Comparator
     /**
      * Compares the definitions of the given columns
      *
+     * @internal The method should be only used from within the {@see Comparator} class hierarchy.
+     *
      * @throws Exception
      */
     public function columnsEqual(Column $column1, Column $column2): bool
@@ -515,10 +521,19 @@ class Comparator
      * If there are differences this method returns the changed properties as a
      * string array, otherwise an empty array gets returned.
      *
+     * @deprecated Use {@see diffTable()} instead.
+     *
      * @return string[]
      */
     public function diffColumn(Column $column1, Column $column2)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5650',
+            '%s is deprecated. Use diffTable() instead.',
+            __METHOD__,
+        );
+
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
 
@@ -608,6 +623,8 @@ class Comparator
      *
      * Compares $index1 with $index2 and returns $index2 if there are any
      * differences or false in case there are no differences.
+     *
+     * @internal The method should be only used from within the {@see Comparator} class hierarchy.
      *
      * @return bool
      */
