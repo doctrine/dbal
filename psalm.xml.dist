@@ -418,6 +418,11 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\ColumnDiff::getOldColumnName"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\ColumnDiff::hasChanged"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\Comparator::diffColumn"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
@@ -451,6 +456,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedProperty name="Doctrine\DBAL\Schema\ColumnDiff::$oldColumnName"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedProperty name="Doctrine\DBAL\Schema\ColumnDiff::$changedProperties"/>
             </errorLevel>
         </DeprecatedProperty>
         <DocblockTypeContradiction>

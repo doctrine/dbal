@@ -13,10 +13,20 @@ awareness about deprecated code.
 Relying on the default precision and scale of decimal columns provided by the DBAL is deprecated.
 When declaring decimal columns, specify the precision and scale explicitly.
 
-## Marked `ColumnDiff::hasChanged()` as internal.
+## Marked `Comparator` methods as internal.
 
-The `ColumnDiff::hasChanged()` method has been marked as internal. Use one of the following `ColumnDiff` methods
-in order to check if a given column property has changed:
+The following `Comparator` methods have been marked as internal:
+
+- `columnsEqual()`,
+- `diffForeignKey()`,
+- `diffIndex()`.
+
+The `diffColumn()` method has been deprecated. Use `diffTable()` instead.
+
+## Deprecated `ColumnDiff::$changedProperties` and `::hasChanged()`.
+
+The `ColumnDiff::$changedProperties` property and the `hasChanged()` method have been deprecated. Use one of the
+following `ColumnDiff` methods in order to check if a given column property has changed:
 
 - `hasTypeChanged()`,
 - `hasLengthChanged()`,
