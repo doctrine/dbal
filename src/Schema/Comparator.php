@@ -382,10 +382,7 @@ class Comparator
         }
     }
 
-    /**
-     * @internal The method should be only used from within the {@see Comparator} class hierarchy.
-     */
-    public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2): bool
+    protected function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2): bool
     {
         if (
             array_map('strtolower', $key1->getUnquotedLocalColumns())
@@ -415,11 +412,9 @@ class Comparator
     /**
      * Compares the definitions of the given columns
      *
-     * @internal The method should be only used from within the {@see Comparator} class hierarchy.
-     *
      * @throws Exception
      */
-    public function columnsEqual(Column $column1, Column $column2): bool
+    protected function columnsEqual(Column $column1, Column $column2): bool
     {
         return $this->platform->columnsEqual($column1, $column2);
     }
@@ -522,10 +517,8 @@ class Comparator
      *
      * Compares $index1 with $index2 and returns $index2 if there are any
      * differences or false in case there are no differences.
-     *
-     * @internal The method should be only used from within the {@see Comparator} class hierarchy.
      */
-    public function diffIndex(Index $index1, Index $index2): bool
+    protected function diffIndex(Index $index1, Index $index2): bool
     {
         return ! ($index1->isFullfilledBy($index2) && $index2->isFullfilledBy($index1));
     }
