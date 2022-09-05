@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
-use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
@@ -466,14 +466,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
-        $this->expectException(ColumnLengthRequired::class);
+        $this->expectException(InvalidColumnDeclaration::class);
 
         parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
 
     public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength(): void
     {
-        $this->expectException(ColumnLengthRequired::class);
+        $this->expectException(InvalidColumnDeclaration::class);
 
         parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }

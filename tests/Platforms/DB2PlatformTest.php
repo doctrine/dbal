@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
-use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\Column;
@@ -354,7 +354,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
-        $this->expectException(ColumnLengthRequired::class);
+        $this->expectException(InvalidColumnDeclaration::class);
 
         parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
@@ -376,7 +376,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength(): void
     {
-        $this->expectException(ColumnLengthRequired::class);
+        $this->expectException(InvalidColumnDeclaration::class);
 
         parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }

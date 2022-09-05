@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer;
@@ -987,7 +987,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
-        $this->expectException(ColumnLengthRequired::class);
+        $this->expectException(InvalidColumnDeclaration::class);
 
         parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
@@ -999,7 +999,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength(): void
     {
-        $this->expectException(ColumnLengthRequired::class);
+        $this->expectException(InvalidColumnDeclaration::class);
 
         parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }
