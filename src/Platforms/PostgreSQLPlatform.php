@@ -522,15 +522,15 @@ SQL
         $commentsSQL = [];
         $columnSql   = [];
 
-        foreach ($diff->addedColumns as $column) {
-            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+        foreach ($diff->addedColumns as $newColumn) {
+            if ($this->onSchemaAlterTableAddColumn($newColumn, $diff, $columnSql)) {
                 continue;
             }
 
-            $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $query = 'ADD ' . $this->getColumnDeclarationSQL($newColumn->getQuotedName($this), $newColumn->toArray());
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
 
-            $comment = $this->getColumnComment($column);
+            $comment = $this->getColumnComment($newColumn);
 
             if ($comment === null || $comment === '') {
                 continue;
@@ -538,17 +538,17 @@ SQL
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
-                $column->getQuotedName($this),
+                $newColumn->getQuotedName($this),
                 $comment,
             );
         }
 
-        foreach ($diff->removedColumns as $column) {
-            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+        foreach ($diff->removedColumns as $newColumn) {
+            if ($this->onSchemaAlterTableRemoveColumn($newColumn, $diff, $columnSql)) {
                 continue;
             }
 
-            $query = 'DROP ' . $column->getQuotedName($this);
+            $query = 'DROP ' . $newColumn->getQuotedName($this);
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
         }
 
@@ -561,15 +561,10 @@ SQL
                 continue;
             }
 
-            if ($columnDiff->fromColumn !== null) {
-                $fromColumn = $columnDiff->fromColumn;
-            } else {
-                $fromColumn = $columnDiff->getOldColumnName();
-            }
+            $oldColumn = $columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName();
+            $newColumn = $columnDiff->getNewColumn();
 
-            $oldColumnName = $fromColumn->getQuotedName($this);
-
-            $column = $columnDiff->column;
+            $oldColumnName = $oldColumn->getQuotedName($this);
 
             if (
                 $columnDiff->hasTypeChanged()
@@ -577,10 +572,10 @@ SQL
                 || $columnDiff->hasScaleChanged()
                 || $columnDiff->hasFixedChanged()
             ) {
-                $type = $column->getType();
+                $type = $newColumn->getType();
 
                 // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
-                $columnDefinition                  = $column->toArray();
+                $columnDefinition                  = $newColumn->toArray();
                 $columnDefinition['autoincrement'] = false;
 
                 // here was a server version check before, but DBAL API does not support this anymore.
@@ -589,20 +584,21 @@ SQL
             }
 
             if ($columnDiff->hasDefaultChanged()) {
-                $defaultClause = $column->getDefault() === null
+                $defaultClause = $newColumn->getDefault() === null
                     ? ' DROP DEFAULT'
-                    : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
-                $query         = 'ALTER ' . $oldColumnName . $defaultClause;
-                $sql[]         = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                    : ' SET' . $this->getDefaultValueDeclarationSQL($newColumn->toArray());
+
+                $query = 'ALTER ' . $oldColumnName . $defaultClause;
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
             if ($columnDiff->hasNotNullChanged()) {
-                $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
+                $query = 'ALTER ' . $oldColumnName . ' ' . ($newColumn->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
             if ($columnDiff->hasAutoIncrementChanged()) {
-                if ($column->getAutoincrement()) {
+                if ($newColumn->getAutoincrement()) {
                     // add autoincrement
                     $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
 
@@ -610,24 +606,24 @@ SQL
                     $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ') FROM '
                         . $diff->getName($this)->getQuotedName($this) . '))';
                     $query = 'ALTER ' . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
-                    $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
                 } else {
                     // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
                     $query = 'ALTER ' . $oldColumnName . ' DROP DEFAULT';
-                    $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
                 }
+
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
-            $newComment = $this->getColumnComment($column);
             $oldComment = $this->getOldColumnComment($columnDiff);
+            $newComment = $this->getColumnComment($newColumn);
 
             if (
                 $columnDiff->hasCommentChanged()
-                || ($columnDiff->fromColumn !== null && $oldComment !== $newComment)
+                || ($columnDiff->getOldColumn() !== null && $oldComment !== $newComment)
             ) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
-                    $column->getQuotedName($this),
+                    $newColumn->getQuotedName($this),
                     $newComment,
                 );
             }
@@ -637,7 +633,7 @@ SQL
             }
 
             $query = 'ALTER ' . $oldColumnName . ' TYPE '
-                . $column->getType()->getSQLDeclaration($column->toArray(), $this);
+                . $newColumn->getType()->getSQLDeclaration($newColumn->toArray(), $this);
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
         }
 
@@ -688,18 +684,18 @@ SQL
      */
     private function isUnchangedBinaryColumn(ColumnDiff $columnDiff): bool
     {
-        $columnType = $columnDiff->column->getType();
+        $newColumnType = $columnDiff->getNewColumn()->getType();
 
-        if (! $columnType instanceof BinaryType && ! $columnType instanceof BlobType) {
+        if (! $newColumnType instanceof BinaryType && ! $newColumnType instanceof BlobType) {
             return false;
         }
 
-        $fromColumn = $columnDiff->fromColumn instanceof Column ? $columnDiff->fromColumn : null;
+        $oldColumn = $columnDiff->getOldColumn() instanceof Column ? $columnDiff->getOldColumn() : null;
 
-        if ($fromColumn !== null) {
-            $fromColumnType = $fromColumn->getType();
+        if ($oldColumn !== null) {
+            $oldColumnType = $oldColumn->getType();
 
-            if (! $fromColumnType instanceof BinaryType && ! $fromColumnType instanceof BlobType) {
+            if (! $oldColumnType instanceof BinaryType && ! $oldColumnType instanceof BlobType) {
                 return false;
             }
 
@@ -1326,7 +1322,13 @@ SQL
 
     private function getOldColumnComment(ColumnDiff $columnDiff): ?string
     {
-        return $columnDiff->fromColumn !== null ? $this->getColumnComment($columnDiff->fromColumn) : null;
+        $oldColumn = $columnDiff->getOldColumn();
+
+        if ($oldColumn !== null) {
+            return $this->getColumnComment($oldColumn);
+        }
+
+        return null;
     }
 
     /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */

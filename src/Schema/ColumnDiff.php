@@ -18,7 +18,11 @@ class ColumnDiff
      */
     public $oldColumnName;
 
-    /** @var Column */
+    /**
+     * @internal Use {@see getNewColumn()} instead.
+     *
+     * @var Column
+     */
     public $column;
 
     /**
@@ -30,7 +34,11 @@ class ColumnDiff
      */
     public $changedProperties = [];
 
-    /** @var Column|null */
+    /**
+     * @internal Use {@see getOldColumn()} instead.
+     *
+     * @var Column|null
+     */
     public $fromColumn;
 
     /**
@@ -58,6 +66,16 @@ class ColumnDiff
         $this->column            = $column;
         $this->changedProperties = $changedProperties;
         $this->fromColumn        = $fromColumn;
+    }
+
+    public function getOldColumn(): ?Column
+    {
+        return $this->fromColumn;
+    }
+
+    public function getNewColumn(): Column
+    {
+        return $this->column;
     }
 
     public function hasTypeChanged(): bool

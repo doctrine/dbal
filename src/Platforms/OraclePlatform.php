@@ -900,13 +900,13 @@ SQL
                 continue;
             }
 
-            $column = $columnDiff->column;
+            $newColumn = $columnDiff->getNewColumn();
 
             // Do not generate column alteration clause if type is binary and only fixed property has changed.
             // Oracle only supports binary type columns with variable length.
             // Avoids unnecessary table alteration statements.
             if (
-                $column->getType() instanceof BinaryType &&
+                $newColumn->getType() instanceof BinaryType &&
                 $columnDiff->hasFixedChanged() &&
                 count($columnDiff->changedProperties) === 1
             ) {
@@ -919,13 +919,13 @@ SQL
              * Do not add query part if only comment has changed
              */
             if (! ($columnHasChangedComment && count($columnDiff->changedProperties) === 1)) {
-                $columnInfo = $column->toArray();
+                $newColumnProperties = $newColumn->toArray();
 
                 if (! $columnDiff->hasNotNullChanged()) {
-                    unset($columnInfo['notnull']);
+                    unset($newColumnProperties['notnull']);
                 }
 
-                $fields[] = $column->getQuotedName($this) . $this->getColumnDeclarationSQL('', $columnInfo);
+                $fields[] = $newColumn->getQuotedName($this) . $this->getColumnDeclarationSQL('', $newColumnProperties);
             }
 
             if (! $columnHasChangedComment) {
@@ -934,8 +934,8 @@ SQL
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
-                $column->getQuotedName($this),
-                $this->getColumnComment($column),
+                $newColumn->getQuotedName($this),
+                $this->getColumnComment($newColumn),
             );
         }
 
