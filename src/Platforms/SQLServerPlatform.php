@@ -1203,42 +1203,18 @@ class SQLServerPlatform extends AbstractPlatform
     public function getColumnDeclarationSQL(string $name, array $column): string
     {
         if (isset($column['columnDefinition'])) {
-            $columnDef = $column['columnDefinition'];
+            $declaration = $column['columnDefinition'];
         } else {
             $collation = ! empty($column['collation']) ?
                 ' ' . $this->getColumnCollationDeclarationSQL($column['collation']) : '';
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            if (! empty($column['unique'])) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5656',
-                    'The usage of the "unique" column property is deprecated. Use unique constraints instead.',
-                );
-
-                $unique = ' UNIQUE';
-            } else {
-                $unique = '';
-            }
-
-            if (! empty($column['check'])) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5656',
-                    'The usage of the "check" column property is deprecated.',
-                );
-
-                $check = ' ' . $column['check'];
-            } else {
-                $check = '';
-            }
-
-            $typeDecl  = $column['type']->getSQLDeclaration($column, $this);
-            $columnDef = $typeDecl . $collation . $notnull . $unique . $check;
+            $typeDecl    = $column['type']->getSQLDeclaration($column, $this);
+            $declaration = $typeDecl . $collation . $notnull;
         }
 
-        return $name . ' ' . $columnDef;
+        return $name . ' ' . $declaration;
     }
 
     /**

@@ -38,7 +38,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -1489,10 +1488,8 @@ abstract class AbstractPlatform
      *          Integer value that determines the maximum length of the text
      *          column. If this argument is missing the column should be
      *          declared to have the longest length allowed by the DBMS.
-     *
      *      default
      *          Text value to be used as default for this column.
-     *
      *      notnull
      *          Boolean flag that indicates whether this column is constrained
      *          to not be set to null.
@@ -1500,8 +1497,6 @@ abstract class AbstractPlatform
      *          Text value with the default CHARACTER SET for this column.
      *      collation
      *          Text value with the default COLLATION for this column.
-     *      unique
-     *          unique constraint
      */
     public function getColumnDeclarationListSQL(array $columns): string
     {
@@ -1529,10 +1524,8 @@ abstract class AbstractPlatform
      *          Integer value that determines the maximum length of the text
      *          column. If this argument is missing the column should be
      *          declared to have the longest length allowed by the DBMS.
-     *
      *      default
      *          Text value to be used as default for this column.
-     *
      *      notnull
      *          Boolean flag that indicates whether this column is constrained
      *          to not be set to null.
@@ -1540,10 +1533,6 @@ abstract class AbstractPlatform
      *          Text value with the default CHARACTER SET for this column.
      *      collation
      *          Text value with the default COLLATION for this column.
-     *      unique
-     *          unique constraint
-     *      check
-     *          column check constraint
      *      columnDefinition
      *          a string that defines the complete column
      *
@@ -1566,32 +1555,8 @@ abstract class AbstractPlatform
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            if (! empty($column['unique'])) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5656',
-                    'The usage of the "unique" column property is deprecated. Use unique constraints instead.',
-                );
-
-                $unique = ' UNIQUE';
-            } else {
-                $unique = '';
-            }
-
-            if (! empty($column['check'])) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5656',
-                    'The usage of the "check" column property is deprecated.',
-                );
-
-                $check = ' ' . $column['check'];
-            } else {
-                $check = '';
-            }
-
             $typeDecl    = $column['type']->getSQLDeclaration($column, $this);
-            $declaration = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
+            $declaration = $typeDecl . $charset . $default . $notnull . $collation;
 
             if ($this->supportsInlineColumnComments() && isset($column['comment']) && $column['comment'] !== '') {
                 $declaration .= ' ' . $this->getInlineColumnCommentSQL($column['comment']);

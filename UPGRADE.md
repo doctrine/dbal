@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed support for "unique" and "check" column properties.
+
+The "unique" and "check" column properties are no longer supported.
+
 ## BC BREAK: removed default precision and scale of decimal columns.
 
 The DBAL no longer provides default values for precision and scale of decimal columns.
