@@ -1650,6 +1650,16 @@ class SQLServerPlatform extends AbstractPlatform
         return $name . ' ' . $columnDef;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * SQL Server does not support quoting collation identifiers.
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $collation;
+    }
+
     public function columnsEqual(Column $column1, Column $column2): bool
     {
         if (! parent::columnsEqual($column1, $column2)) {
