@@ -74,4 +74,12 @@ class ForeignKeyConstraintTest extends TestCase
             ['foreign_table', 'foreign_table'],
         ];
     }
+
+    public function testCompareRestrictAndNoActionAreTheSame(): void
+    {
+        $fk1 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'NO ACTION']);
+        $fk2 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'RESTRICT']);
+
+        self::assertSame($fk1->onDelete(), $fk2->onDelete());
+    }
 }

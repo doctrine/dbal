@@ -662,22 +662,6 @@ abstract class ComparatorTest extends TestCase
         self::assertNull($tableDiff);
     }
 
-    public function testCompareForeignKeyRestrictNoActionAreTheSame(): void
-    {
-        $fk1 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'NO ACTION']);
-        $fk2 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'RESTRICT']);
-
-        self::assertFalse($this->comparator->diffForeignKey($fk1, $fk2));
-    }
-
-    public function testCompareForeignKeyNamesUnqualifiedAsNoSchemaInformationIsAvailable(): void
-    {
-        $fk1 = new ForeignKeyConstraint(['foo'], 'foo.bar', ['baz'], 'fk1');
-        $fk2 = new ForeignKeyConstraint(['foo'], 'baz.bar', ['baz'], 'fk1');
-
-        self::assertFalse($this->comparator->diffForeignKey($fk1, $fk2));
-    }
-
     public function testDetectRenameColumn(): void
     {
         $tableA = new Table('foo');
@@ -1030,16 +1014,6 @@ abstract class ComparatorTest extends TestCase
         );
 
         self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
-    }
-
-    public function testCompareQuotedAndUnquotedForeignKeyColumns(): void
-    {
-        $fk1 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'NO ACTION']);
-        $fk2 = new ForeignKeyConstraint(['`foo`'], 'bar', ['`baz`'], 'fk1', ['onDelete' => 'NO ACTION']);
-
-        $diff = $this->comparator->diffForeignKey($fk1, $fk2);
-
-        self::assertFalse($diff);
     }
 
     public function assertSchemaTableChangeCount(
