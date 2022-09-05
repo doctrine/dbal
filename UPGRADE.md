@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated "unique" and "check" column properties.
+
+The "unique" and "check" column properties have been deprecated. Use unique constraints to define unique columns.
+
 ## Deprecated relying on the default precision and scale of decimal columns.
 
 Relying on the default precision and scale of decimal columns provided by the DBAL is deprecated.
