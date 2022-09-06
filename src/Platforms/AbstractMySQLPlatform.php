@@ -618,11 +618,14 @@ SQL
                 continue;
             }
 
-            $columnArray = array_merge($column->toArray(), [
+            $columnProperties = array_merge($column->toArray(), [
                 'comment' => $this->getColumnComment($column),
             ]);
 
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL(
+                $column->getQuotedName($this),
+                $columnProperties,
+            );
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -638,19 +641,16 @@ SQL
                 continue;
             }
 
-            $column      = $columnDiff->column;
-            $columnArray = $column->toArray();
+            $newColumn = $columnDiff->getNewColumn();
 
-            $columnArray['comment'] = $this->getColumnComment($column);
+            $newColumnProperties = array_merge($newColumn->toArray(), [
+                'comment' => $this->getColumnComment($newColumn),
+            ]);
 
-            if ($columnDiff->fromColumn !== null) {
-                $fromColumn = $columnDiff->fromColumn;
-            } else {
-                $fromColumn = $columnDiff->getOldColumnName();
-            }
+            $oldColumn = $columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName();
 
-            $queryParts[] =  'CHANGE ' . $fromColumn->getQuotedName($this) . ' '
-                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $queryParts[] =  'CHANGE ' . $oldColumn->getQuotedName($this) . ' '
+                . $this->getColumnDeclarationSQL($newColumn->getQuotedName($this), $newColumnProperties);
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -658,11 +658,14 @@ SQL
                 continue;
             }
 
-            $oldColumnName          = new Identifier($oldColumnName);
-            $columnArray            = $column->toArray();
-            $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[]           =  'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $oldColumnName = new Identifier($oldColumnName);
+
+            $columnProperties = array_merge($column->toArray(), [
+                'comment' => $this->getColumnComment($column),
+            ]);
+
+            $queryParts[] = 'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
+                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnProperties);
         }
 
         if (isset($diff->addedIndexes['primary'])) {

@@ -607,8 +607,8 @@ class DB2Platform extends AbstractPlatform
             if ($columnDiff->hasCommentChanged()) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
-                    $columnDiff->column->getQuotedName($this),
-                    $this->getColumnComment($columnDiff->column),
+                    $columnDiff->getNewColumn()->getQuotedName($this),
+                    $this->getColumnComment($columnDiff->getNewColumn()),
                 );
             }
 
@@ -702,12 +702,12 @@ class DB2Platform extends AbstractPlatform
      */
     private function getAlterColumnClausesSQL(ColumnDiff $columnDiff): array
     {
-        $column = $columnDiff->column->toArray();
+        $newColumn = $columnDiff->getNewColumn()->toArray();
 
-        $alterClause = 'ALTER COLUMN ' . $columnDiff->column->getQuotedName($this);
+        $alterClause = 'ALTER COLUMN ' . $columnDiff->getNewColumn()->getQuotedName($this);
 
-        if ($column['columnDefinition'] !== null) {
-            return [$alterClause . ' ' . $column['columnDefinition']];
+        if ($newColumn['columnDefinition'] !== null) {
+            return [$alterClause . ' ' . $newColumn['columnDefinition']];
         }
 
         $clauses = [];
@@ -719,16 +719,16 @@ class DB2Platform extends AbstractPlatform
             $columnDiff->hasScaleChanged() ||
             $columnDiff->hasFixedChanged()
         ) {
-            $clauses[] = $alterClause . ' SET DATA TYPE ' . $column['type']->getSQLDeclaration($column, $this);
+            $clauses[] = $alterClause . ' SET DATA TYPE ' . $newColumn['type']->getSQLDeclaration($newColumn, $this);
         }
 
         if ($columnDiff->hasNotNullChanged()) {
-            $clauses[] = $column['notnull'] ? $alterClause . ' SET NOT NULL' : $alterClause . ' DROP NOT NULL';
+            $clauses[] = $newColumn['notnull'] ? $alterClause . ' SET NOT NULL' : $alterClause . ' DROP NOT NULL';
         }
 
         if ($columnDiff->hasDefaultChanged()) {
-            if (isset($column['default'])) {
-                $defaultClause = $this->getDefaultValueDeclarationSQL($column);
+            if (isset($newColumn['default'])) {
+                $defaultClause = $this->getDefaultValueDeclarationSQL($newColumn);
 
                 if ($defaultClause !== '') {
                     $clauses[] = $alterClause . ' SET' . $defaultClause;
