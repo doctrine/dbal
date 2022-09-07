@@ -22,17 +22,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         return $platform instanceof OraclePlatform;
     }
 
-    public function testRenameTable(): void
-    {
-        $this->createTestTable('list_tables_test');
-        $this->dropTableIfExists('list_tables_test_new_name');
-        $this->schemaManager->renameTable('list_tables_test', 'list_tables_test_new_name');
-
-        $tables = $this->schemaManager->listTables();
-
-        self::assertHasTable($tables);
-    }
-
     /**
      * Oracle currently stores VARBINARY columns as RAW (fixed-size)
      */

@@ -153,17 +153,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function renameTable($name, $newName)
-    {
-        $tableDiff            = new TableDiff($name);
-        $tableDiff->fromTable = $this->listTableDetails($name);
-        $tableDiff->newName   = $newName;
-        $this->alterTable($tableDiff);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function createForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
         $tableDiff                     = $this->getTableDiffForAlterForeignKey($table);
