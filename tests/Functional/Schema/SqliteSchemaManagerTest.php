@@ -41,16 +41,6 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFileDoesNotExist($path);
     }
 
-    public function testRenameTable(): void
-    {
-        $this->createTestTable('oldname');
-        $this->schemaManager->renameTable('oldname', 'newname');
-
-        $tables = $this->schemaManager->listTableNames();
-        self::assertContains('newname', $tables);
-        self::assertNotContains('oldname', $tables);
-    }
-
     public function createListTableColumns(): Table
     {
         $table = parent::createListTableColumns();
