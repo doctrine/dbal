@@ -264,7 +264,8 @@ class Comparator
      */
     public function diffTable(Table $fromTable, Table $toTable)
     {
-        $changes          = 0;
+        $hasChanges = false;
+
         $tableDifferences = new TableDiff($fromTable->getName(), [], [], [], [], [], [], $fromTable);
 
         $fromTableColumns = $fromTable->getColumns();
@@ -277,7 +278,8 @@ class Comparator
             }
 
             $tableDifferences->addedColumns[$columnName] = $column;
-            $changes++;
+
+            $hasChanges = true;
         }
 
         /* See if there are any removed columns in "to" table */
@@ -285,7 +287,8 @@ class Comparator
             // See if column is removed in "to" table.
             if (! $toTable->hasColumn($columnName)) {
                 $tableDifferences->removedColumns[$columnName] = $column;
-                $changes++;
+
+                $hasChanges = true;
                 continue;
             }
 
@@ -309,7 +312,7 @@ class Comparator
                 $column,
             );
 
-            $changes++;
+            $hasChanges = true;
         }
 
         $this->detectColumnRenamings($tableDifferences);
@@ -324,7 +327,8 @@ class Comparator
             }
 
             $tableDifferences->addedIndexes[$indexName] = $index;
-            $changes++;
+
+            $hasChanges = true;
         }
 
         /* See if there are any removed indexes in "to" table */
@@ -335,7 +339,8 @@ class Comparator
                 ! $index->isPrimary() && ! $toTable->hasIndex($indexName)
             ) {
                 $tableDifferences->removedIndexes[$indexName] = $index;
-                $changes++;
+
+                $hasChanges = true;
                 continue;
             }
 
@@ -348,7 +353,8 @@ class Comparator
             }
 
             $tableDifferences->changedIndexes[$indexName] = $toTableIndex;
-            $changes++;
+
+            $hasChanges = true;
         }
 
         $this->detectIndexRenamings($tableDifferences);
@@ -363,7 +369,8 @@ class Comparator
                 } else {
                     if (strtolower($fromConstraint->getName()) === strtolower($toConstraint->getName())) {
                         $tableDifferences->changedForeignKeys[] = $toConstraint;
-                        $changes++;
+
+                        $hasChanges = true;
                         unset($fromForeignKeys[$fromKey], $toForeignKeys[$toKey]);
                     }
                 }
@@ -372,15 +379,17 @@ class Comparator
 
         foreach ($fromForeignKeys as $fromConstraint) {
             $tableDifferences->removedForeignKeys[] = $fromConstraint;
-            $changes++;
+
+            $hasChanges = true;
         }
 
         foreach ($toForeignKeys as $toConstraint) {
             $tableDifferences->addedForeignKeys[] = $toConstraint;
-            $changes++;
+
+            $hasChanges = true;
         }
 
-        return $changes > 0 ? $tableDifferences : false;
+        return $hasChanges ? $tableDifferences : false;
     }
 
     /**
