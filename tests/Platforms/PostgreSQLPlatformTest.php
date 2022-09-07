@@ -43,24 +43,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getGenerateAlterTableSql(): array
-    {
-        return [
-            'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
-            'ALTER TABLE mytable DROP foo',
-            'ALTER TABLE mytable ALTER bar TYPE VARCHAR(255)',
-            "ALTER TABLE mytable ALTER bar SET DEFAULT 'def'",
-            'ALTER TABLE mytable ALTER bar SET NOT NULL',
-            'ALTER TABLE mytable ALTER bloo TYPE BOOLEAN',
-            'ALTER TABLE mytable ALTER bloo SET DEFAULT false',
-            'ALTER TABLE mytable ALTER bloo SET NOT NULL',
-            'ALTER TABLE mytable RENAME TO userlist',
-        ];
-    }
-
     public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';

@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
@@ -104,14 +105,14 @@ abstract class ComparatorTest extends TestCase
         self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
     }
 
-    public function testCompareOnlyAutoincrementChanged(): void
+    public function testCompareAutoIncrementChanged(): void
     {
         $column1 = new Column('foo', Type::getType('integer'), ['autoincrement' => true]);
         $column2 = new Column('foo', Type::getType('integer'), ['autoincrement' => false]);
 
-        $changedProperties = $this->comparator->diffColumn($column1, $column2);
+        $diff = new ColumnDiff($column1, $column2);
 
-        self::assertEquals(['autoincrement'], $changedProperties);
+        self::assertTrue($diff->hasAutoIncrementChanged());
     }
 
     public function testCompareMissingField(): void
@@ -191,39 +192,45 @@ abstract class ComparatorTest extends TestCase
 
     public function testCompareChangedColumnsChangeType(): void
     {
-        $column1 = new Column('charcolumn1', Type::getType('string'));
-        $column2 = new Column('charcolumn1', Type::getType('integer'));
+        $column1 = new Column('id', Type::getType(Types::STRING));
+        $column2 = new Column('id', Type::getType(Types::INTEGER));
 
-        self::assertEquals(['type'], $this->comparator->diffColumn($column1, $column2));
-        self::assertEquals([], $this->comparator->diffColumn($column1, $column1));
+        $diff12 = new ColumnDiff($column1, $column2);
+        self::assertTrue($diff12->hasTypeChanged());
+
+        $diff11 = new ColumnDiff($column1, $column1);
+        self::assertFalse($diff11->hasTypeChanged());
     }
 
-    public function testCompareColumnsMultipleTypeInstances(): void
+    public function testDifferentTypeInstancesOfTheSameType(): void
     {
-        $integerType1 = Type::getType('integer');
-        Type::overrideType('integer', $integerType1::class);
-        $integerType2 = Type::getType('integer');
+        $type1 = Type::getType(Types::INTEGER);
+        $type2 = clone $type1;
 
-        $column1 = new Column('integercolumn1', $integerType1);
-        $column2 = new Column('integercolumn1', $integerType2);
+        self::assertNotSame($type1, $type2);
 
-        self::assertEquals([], $this->comparator->diffColumn($column1, $column2));
+        $column1 = new Column('id', $type1);
+        $column2 = new Column('id', $type2);
+
+        $diff = new ColumnDiff($column1, $column2);
+        self::assertFalse($diff->hasTypeChanged());
     }
 
-    public function testCompareColumnsOverriddenType(): void
+    public function testOverriddenType(): void
     {
-        $oldStringInstance = Type::getType('string');
-        $integerType       = Type::getType('integer');
+        $defaultStringType = Type::getType(Types::STRING);
+        $integerType       = Type::getType(Types::INTEGER);
 
-        Type::overrideType('string', $integerType::class);
-        $overriddenStringType = Type::getType('string');
+        Type::overrideType(Types::STRING, $integerType::class);
+        $overriddenStringType = Type::getType(Types::STRING);
 
-        Type::overrideType('string', $oldStringInstance::class);
+        Type::overrideType(Types::STRING, $defaultStringType::class);
 
-        $column1 = new Column('integercolumn1', $integerType);
-        $column2 = new Column('integercolumn1', $overriddenStringType);
+        $column1 = new Column('id', $integerType);
+        $column2 = new Column('id', $overriddenStringType);
 
-        self::assertEquals([], $this->comparator->diffColumn($column1, $column2));
+        $diff = new ColumnDiff($column1, $column2);
+        self::assertFalse($diff->hasTypeChanged());
     }
 
     public function testCompareChangeColumnsMultipleNewColumnsRename(): void
@@ -802,17 +809,6 @@ abstract class ComparatorTest extends TestCase
         self::assertSame($diff->changedSequences[0], $schemaNew->getSequence('baz'));
     }
 
-    /** @psalm-suppress NullArgument */
-    public function testDiffDecimalWithNullPrecision(): void
-    {
-        $column = new Column('foo', Type::getType('decimal'));
-        $column->setPrecision(null);
-
-        $column2 = new Column('foo', Type::getType('decimal'));
-
-        self::assertEquals([], $this->comparator->diffColumn($column, $column2));
-    }
-
     public function testFqnSchemaComparison(): void
     {
         $config = new SchemaConfig();
@@ -983,7 +979,6 @@ abstract class ComparatorTest extends TestCase
 
         $tableDiff->changedColumns['id'] = new ColumnDiff(
             $table->getColumn('id'),
-            ['type'],
             $tableFoo->getColumn('id'),
         );
 
@@ -1009,7 +1004,6 @@ abstract class ComparatorTest extends TestCase
 
         $tableDiff->changedColumns['id'] = new ColumnDiff(
             $table->getColumn('id'),
-            ['length', 'fixed'],
             $tableFoo->getColumn('id'),
         );
 
@@ -1036,39 +1030,6 @@ abstract class ComparatorTest extends TestCase
         self::assertCount($newSequenceCount, $diff->newSequences);
         self::assertCount($changeSequenceCount, $diff->changedSequences);
         self::assertCount($removeSequenceCount, $diff->removedSequences);
-    }
-
-    public function testDiffColumnPlatformOptions(): void
-    {
-        $column1 = new Column('foo', Type::getType('string'), [
-            'platformOptions' => [
-                'foo' => 'foo',
-                'bar' => 'bar',
-            ],
-        ]);
-
-        $column2 = new Column('foo', Type::getType('string'), [
-            'platformOptions' => [
-                'foo' => 'foo',
-                'foobar' => 'foobar',
-            ],
-        ]);
-
-        $column3 = new Column('foo', Type::getType('string'), [
-            'platformOptions' => [
-                'foo' => 'foo',
-                'bar' => 'rab',
-            ],
-        ]);
-
-        $column4 = new Column('foo', Type::getType('string'));
-
-        self::assertEquals([], $this->comparator->diffColumn($column1, $column2));
-        self::assertEquals([], $this->comparator->diffColumn($column2, $column1));
-        self::assertEquals(['bar'], $this->comparator->diffColumn($column1, $column3));
-        self::assertEquals(['bar'], $this->comparator->diffColumn($column3, $column1));
-        self::assertEquals([], $this->comparator->diffColumn($column1, $column4));
-        self::assertEquals([], $this->comparator->diffColumn($column4, $column1));
     }
 
     public function testComparesNamespaces(): void
@@ -1104,34 +1065,17 @@ abstract class ComparatorTest extends TestCase
         self::assertEquals($expected, $this->comparator->compareSchemas($fromSchema, $toSchema));
     }
 
-    public function testCompareGuidColumns(): void
-    {
-        $column1 = new Column('foo', Type::getType('guid'), ['comment' => 'GUID 1']);
-        $column2 = new Column(
-            'foo',
-            Type::getType('guid'),
-            ['notnull' => false, 'length' => 36, 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.'],
-        );
-
-        self::assertEquals(['notnull', 'default', 'comment'], $this->comparator->diffColumn($column1, $column2));
-        self::assertEquals(['notnull', 'default', 'comment'], $this->comparator->diffColumn($column2, $column1));
-    }
-
     /** @dataProvider getCompareColumnComments */
     public function testCompareColumnComments(string $comment1, string $comment2, bool $equals): void
     {
         $column1 = new Column('foo', Type::getType('integer'), ['comment' => $comment1]);
         $column2 = new Column('foo', Type::getType('integer'), ['comment' => $comment2]);
 
-        $expectedDiff = $equals ? [] : ['comment'];
+        $diff1 = new ColumnDiff($column1, $column2);
+        $diff2 = new ColumnDiff($column2, $column1);
 
-        $actualDiff = $this->comparator->diffColumn($column1, $column2);
-
-        self::assertSame($expectedDiff, $actualDiff);
-
-        $actualDiff = $this->comparator->diffColumn($column2, $column1);
-
-        self::assertSame($expectedDiff, $actualDiff);
+        self::assertSame(! $equals, $diff1->hasCommentChanged());
+        self::assertSame(! $equals, $diff2->hasCommentChanged());
     }
 
     /** @return mixed[][] */

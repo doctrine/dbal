@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use function in_array;
-
 /**
  * Represents the change of a column.
  */
@@ -13,78 +11,88 @@ class ColumnDiff
 {
     /**
      * @internal The diff can be only instantiated by a {@see Comparator}.
-     *
-     * @param array<string> $changedProperties
      */
-    public function __construct(
-        public Column $column,
-        /**
-         * @deprecated Use {@see hasTypeChanged()}, {@see hasLengthChanged()}, {@see hasPrecisionChanged()},
-         * {@see hasScaleChanged()}, {@see hasUnsignedChanged()}, {@see hasFixedChanged()}, {@see hasNotNullChanged()},
-         * {@see hasDefaultChanged()}, {@see hasAutoIncrementChanged()} or {@see hasCommentChanged()} instead.
-         */
-        public array $changedProperties,
-        public Column $fromColumn,
-    ) {
+    public function __construct(public Column $column, public Column $fromColumn)
+    {
     }
 
     public function hasTypeChanged(): bool
     {
-        return $this->hasChanged('type');
+        return $this->column->getType()::class !== $this->fromColumn->getType()::class;
     }
 
     public function hasLengthChanged(): bool
     {
-        return $this->hasChanged('length');
+        return $this->hasPropertyChanged(static function (Column $column): ?int {
+            return $column->getLength();
+        });
     }
 
     public function hasPrecisionChanged(): bool
     {
-        return $this->hasChanged('precision');
+        return $this->hasPropertyChanged(static function (Column $column): ?int {
+            return $column->getPrecision();
+        });
     }
 
     public function hasScaleChanged(): bool
     {
-        return $this->hasChanged('scale');
+        return $this->hasPropertyChanged(static function (Column $column): int {
+            return $column->getScale();
+        });
     }
 
     public function hasUnsignedChanged(): bool
     {
-        return $this->hasChanged('unsigned');
+        return $this->hasPropertyChanged(static function (Column $column): bool {
+            return $column->getUnsigned();
+        });
     }
 
     public function hasFixedChanged(): bool
     {
-        return $this->hasChanged('fixed');
+        return $this->hasPropertyChanged(static function (Column $column): bool {
+            return $column->getFixed();
+        });
     }
 
     public function hasNotNullChanged(): bool
     {
-        return $this->hasChanged('notnull');
+        return $this->hasPropertyChanged(static function (Column $column): bool {
+            return $column->getNotnull();
+        });
     }
 
     public function hasDefaultChanged(): bool
     {
-        return $this->hasChanged('default');
+        $oldDefault = $this->fromColumn->getDefault();
+        $newDefault = $this->column->getDefault();
+
+        // Null values need to be checked additionally as they tell whether to create or drop a default value.
+        // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
+        if (($newDefault === null) xor ($oldDefault === null)) {
+            return true;
+        }
+
+        return $newDefault != $oldDefault;
     }
 
     public function hasAutoIncrementChanged(): bool
     {
-        return $this->hasChanged('autoincrement');
+        return $this->hasPropertyChanged(static function (Column $column): bool {
+            return $column->getAutoincrement();
+        });
     }
 
     public function hasCommentChanged(): bool
     {
-        return $this->hasChanged('comment');
+        return $this->hasPropertyChanged(static function (Column $column): string {
+            return $column->getComment();
+        });
     }
 
-    /**
-     * @deprecated Use {@see hasTypeChanged()}, {@see hasLengthChanged()}, {@see hasPrecisionChanged()},
-     * {@see hasScaleChanged()}, {@see hasUnsignedChanged()}, {@see hasFixedChanged()}, {@see hasNotNullChanged()},
-     * {@see hasDefaultChanged()}, {@see hasAutoIncrementChanged()} or {@see hasCommentChanged()} instead.
-     */
-    public function hasChanged(string $propertyName): bool
+    private function hasPropertyChanged(callable $property): bool
     {
-        return in_array($propertyName, $this->changedProperties, true);
+        return $property($this->column) !== $property($this->fromColumn);
     }
 }

@@ -229,53 +229,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         );
     }
 
-    /** @return string[] */
-    abstract public function getGenerateAlterTableSql(): array;
-
-    public function testGeneratesTableAlterationSql(): void
-    {
-        $expectedSql = $this->getGenerateAlterTableSql();
-
-        $table = new Table('mytable');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'string', ['length' => 32]);
-        $table->addColumn('bloo', 'boolean');
-        $table->setPrimaryKey(['id']);
-
-        $tableDiff                        = new TableDiff('mytable');
-        $tableDiff->fromTable             = $table;
-        $tableDiff->newName               = 'userlist';
-        $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['notnull' => false]);
-        $tableDiff->removedColumns['foo'] = new Column('foo', Type::getType('integer'));
-        $tableDiff->changedColumns['bar'] = new ColumnDiff(
-            new Column(
-                'baz',
-                Type::getType('string'),
-                [
-                    'length' => 255,
-                    'default' => 'def',
-                ],
-            ),
-            ['type', 'notnull', 'default'],
-            $table->getColumn('bar'),
-        );
-
-        $tableDiff->changedColumns['bloo'] = new ColumnDiff(
-            new Column(
-                'bloo',
-                Type::getType('boolean'),
-                ['default' => false],
-            ),
-            ['type', 'notnull', 'default'],
-            $table->getColumn('bloo'),
-        );
-
-        $sql = $this->platform->getAlterTableSQL($tableDiff);
-
-        self::assertEquals($expectedSql, $sql);
-    }
-
     public function testGetCustomColumnDeclarationSql(): void
     {
         self::assertEquals(
@@ -366,7 +319,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->removedColumns['removed'] = new Column('removed', Type::getType('integer'), []);
         $tableDiff->changedColumns['changed'] = new ColumnDiff(
             new Column('changed2', Type::getType('string'), ['length' => 255]),
-            [],
             $table->getColumn('changed'),
         );
         $tableDiff->renamedColumns['renamed'] = new Column('renamed2', Type::getType('integer'));
@@ -617,7 +569,6 @@ abstract class AbstractPlatformTestCase extends TestCase
                 Type::getType('string'),
                 ['length' => 255],
             ),
-            ['type'],
             $table->getColumn('select'),
         );
 
@@ -1131,7 +1082,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->addedColumns['bloo']  = new Column('bloo', Type::getType('integer'));
         $tableDiff->changedColumns['bar'] = new ColumnDiff(
             new Column('bar', Type::getType('integer'), ['notnull' => false]),
-            ['notnull'],
             $table->getColumn('bar'),
         );
         $tableDiff->renamedColumns['id']  = new Column('war', Type::getType('integer'));
@@ -1163,7 +1113,6 @@ abstract class AbstractPlatformTestCase extends TestCase
                 Type::getType('string'),
                 ['fixed' => true, 'length' => 2],
             ),
-            ['fixed'],
             $table->getColumn('name'),
         );
 

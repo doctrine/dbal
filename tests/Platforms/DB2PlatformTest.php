@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 /** @extends AbstractPlatformTestCase<DB2Platform> */
 class DB2PlatformTest extends AbstractPlatformTestCase
@@ -20,26 +21,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function createPlatform(): AbstractPlatform
     {
         return new DB2Platform();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getGenerateAlterTableSql(): array
-    {
-        return [
-            'ALTER TABLE mytable ALTER COLUMN baz SET DATA TYPE VARCHAR(255)',
-            'ALTER TABLE mytable ALTER COLUMN baz SET NOT NULL',
-            "ALTER TABLE mytable ALTER COLUMN baz SET DEFAULT 'def'",
-            'ALTER TABLE mytable ALTER COLUMN bloo SET DATA TYPE SMALLINT',
-            'ALTER TABLE mytable ALTER COLUMN bloo SET NOT NULL',
-            'ALTER TABLE mytable ALTER COLUMN bloo SET DEFAULT 0',
-            'ALTER TABLE mytable ' .
-            'ADD COLUMN quota INTEGER DEFAULT NULL ' .
-            'DROP COLUMN foo',
-            "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
-            'RENAME TABLE mytable TO userlist',
-        ];
     }
 
     protected function getGenerateForeignKeySql(): string
@@ -516,13 +497,13 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     /** @dataProvider getGeneratesAlterColumnSQL */
     public function testGeneratesAlterColumnSQL(
-        string $changedProperty,
-        Column $column,
-        ?string $expectedSQLClause = null,
+        Column $oldColumn,
+        Column $newColumn,
+        ?string $expectedSQLClause,
     ): void {
         $tableDiff                        = new TableDiff('foo');
         $tableDiff->fromTable             = new Table('foo');
-        $tableDiff->changedColumns['bar'] = new ColumnDiff($column, [$changedProperty], $column);
+        $tableDiff->changedColumns['bar'] = new ColumnDiff($newColumn, $oldColumn);
 
         $expectedSQL = [];
 
@@ -540,58 +521,58 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return [
             [
-                'columnDefinition',
-                new Column('bar', Type::getType('decimal'), ['columnDefinition' => 'MONEY NOT NULL']),
+                new Column('bar', Type::getType(Types::DECIMAL), ['columnDefinition' => 'MONEY NULL']),
+                new Column('bar', Type::getType(Types::DECIMAL), ['columnDefinition' => 'MONEY NOT NULL']),
                 'MONEY NOT NULL',
             ],
             [
-                'type',
-                new Column('bar', Type::getType('integer')),
+                new Column('bar', Type::getType(Types::STRING)),
+                new Column('bar', Type::getType(Types::INTEGER)),
                 'SET DATA TYPE INTEGER',
             ],
             [
-                'length',
-                new Column('bar', Type::getType('string'), ['length' => 100]),
+                new Column('bar', Type::getType(Types::STRING), ['length' => 50]),
+                new Column('bar', Type::getType(Types::STRING), ['length' => 100]),
                 'SET DATA TYPE VARCHAR(100)',
             ],
             [
-                'precision',
-                new Column('bar', Type::getType('decimal'), ['precision' => 10, 'scale' => 2]),
+                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 8, 'scale' => 2]),
+                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 10, 'scale' => 2]),
                 'SET DATA TYPE NUMERIC(10, 2)',
             ],
             [
-                'scale',
-                new Column('bar', Type::getType('decimal'), ['precision' => 5, 'scale' => 4]),
+                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 5, 'scale' => 3]),
+                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 5, 'scale' => 4]),
                 'SET DATA TYPE NUMERIC(5, 4)',
             ],
             [
-                'fixed',
-                new Column('bar', Type::getType('string'), ['length' => 20, 'fixed' => true]),
+                new Column('bar', Type::getType(Types::STRING), ['length' => 10, 'fixed' => true]),
+                new Column('bar', Type::getType(Types::STRING), ['length' => 20, 'fixed' => true]),
                 'SET DATA TYPE CHAR(20)',
             ],
             [
-                'notnull',
-                new Column('bar', Type::getType('string'), ['notnull' => true]),
+                new Column('bar', Type::getType(Types::STRING), ['notnull' => false]),
+                new Column('bar', Type::getType(Types::STRING), ['notnull' => true]),
                 'SET NOT NULL',
             ],
             [
-                'notnull',
-                new Column('bar', Type::getType('string'), ['notnull' => false]),
+                new Column('bar', Type::getType(Types::STRING), ['notnull' => true]),
+                new Column('bar', Type::getType(Types::STRING), ['notnull' => false]),
                 'DROP NOT NULL',
             ],
             [
-                'default',
-                new Column('bar', Type::getType('string'), ['default' => 'foo']),
+                new Column('bar', Type::getType(Types::STRING)),
+                new Column('bar', Type::getType(Types::STRING), ['default' => 'foo']),
                 "SET DEFAULT 'foo'",
             ],
             [
-                'default',
-                new Column('bar', Type::getType('integer'), ['autoincrement' => true, 'default' => 666]),
+                new Column('bar', Type::getType(Types::INTEGER)),
+                new Column('bar', Type::getType(Types::INTEGER), ['autoincrement' => true, 'default' => 666]),
                 null,
             ],
             [
-                'default',
-                new Column('bar', Type::getType('string')),
+                new Column('bar', Type::getType(Types::STRING), ['default' => 'foo']),
+                new Column('bar', Type::getType(Types::STRING)),
                 'DROP DEFAULT',
             ],
         ];
