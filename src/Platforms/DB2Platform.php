@@ -643,6 +643,13 @@ class DB2Platform extends AbstractPlatform
             $newName = $diff->getNewName();
 
             if ($newName !== false) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5663',
+                    'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
+                    __METHOD__,
+                );
+
                 $sql[] = sprintf(
                     'RENAME TABLE %s TO %s',
                     $diff->getName($this)->getQuotedName($this),
@@ -658,6 +665,16 @@ class DB2Platform extends AbstractPlatform
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRenameTableSQL(string $oldName, string $newName): array
+    {
+        return [
+            sprintf('RENAME TABLE %s TO %s', $oldName, $newName),
+        ];
     }
 
     /**

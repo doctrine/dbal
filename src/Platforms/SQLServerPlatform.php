@@ -661,24 +661,14 @@ class SQLServerPlatform extends AbstractPlatform
         $newName = $diff->getNewName();
 
         if ($newName !== false) {
-            $sql[] = "sp_rename '" . $diff->getName($this)->getQuotedName($this) . "', '" . $newName->getName() . "'";
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5663',
+                'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
+                __METHOD__,
+            );
 
-            /**
-             * Rename table's default constraints names
-             * to match the new table name.
-             * This is necessary to ensure that the default
-             * constraints can be referenced in future table
-             * alterations as the table name is encoded in
-             * default constraints' names.
-             */
-            $sql[] = "DECLARE @sql NVARCHAR(MAX) = N''; " .
-                "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
-                "+ REPLACE(dc.name, '" . $this->generateIdentifierName($diff->name) . "', " .
-                "'" . $this->generateIdentifierName($newName->getName()) . "') + ''', ''OBJECT'';' " .
-                'FROM sys.default_constraints dc ' .
-                'JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
-                "WHERE tbl.name = '" . $newName->getName() . "';" .
-                'EXEC sp_executesql @sql';
+            $sql = array_merge($sql, $this->getRenameTableSQL($diff->name, $newName->getName()));
         }
 
         $sql = array_merge(
@@ -688,6 +678,38 @@ class SQLServerPlatform extends AbstractPlatform
         );
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getRenameTableSQL(string $oldName, string $newName): array
+    {
+        return [
+            sprintf('sp_rename %s, %s', $this->quoteStringLiteral($oldName), $this->quoteStringLiteral($newName)),
+
+            /* Rename table's default constraints names
+             * to match the new table name.
+             * This is necessary to ensure that the default
+             * constraints can be referenced in future table
+             * alterations as the table name is encoded in
+             * default constraints' names. */
+            sprintf(
+                <<<'SQL'
+                DECLARE @sql NVARCHAR(MAX) = N'';
+                SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N'''
+                    + REPLACE(dc.name, '%s', '%s') + ''', ''OBJECT'';'
+                    FROM sys.default_constraints dc
+                    JOIN sys.tables tbl
+                        ON dc.parent_object_id = tbl.object_id
+                    WHERE tbl.name = %s;
+                EXEC sp_executesql @sql
+                SQL,
+                $this->generateIdentifierName($oldName),
+                $this->generateIdentifierName($newName),
+                $this->quoteStringLiteral($newName),
+            ),
+        ];
     }
 
     /**

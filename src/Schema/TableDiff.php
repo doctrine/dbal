@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Deprecations\Deprecation;
 
 /**
  * Table Diff.
@@ -12,7 +13,11 @@ class TableDiff
     /** @var string */
     public $name;
 
-    /** @var string|false */
+    /**
+     * @deprecated Rename tables via {@link AbstractSchemaManager::renameTable()} instead.
+     *
+     * @var string|false
+     */
     public $newName = false;
 
     /**
@@ -140,9 +145,20 @@ class TableDiff
         );
     }
 
-    /** @return Identifier|false */
+    /**
+     * @deprecated Rename tables via {@link AbstractSchemaManager::renameTable()} instead.
+     *
+     * @return Identifier|false
+     */
     public function getNewName()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5663',
+            '%s is deprecated. Rename tables via AbstractSchemaManager::renameTable() instead.',
+            __METHOD__,
+        );
+
         if ($this->newName === false) {
             return false;
         }
