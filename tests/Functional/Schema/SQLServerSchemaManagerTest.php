@@ -6,11 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types\Type;
 
 use function array_shift;
 
@@ -23,18 +19,21 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testDropColumnConstraints(): void
     {
-        $table = new Table('sqlsrv_drop_column');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('todrop', 'integer', ['default' => 10]);
+        $oldTable = new Table('sqlsrv_drop_column');
+        $oldTable->addColumn('id', 'integer');
+        $oldTable->addColumn('todrop', 'integer', ['default' => 10]);
 
-        $this->schemaManager->createTable($table);
+        $newTable = clone $oldTable;
+        $newTable->dropColumn('todrop');
 
-        $diff = new TableDiff(
-            'sqlsrv_drop_column',
-            [],
-            [],
-            ['todrop' => new Column('todrop', Type::getType('integer'))],
-        );
+        $this->schemaManager->createTable($oldTable);
+
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable(
+                $this->schemaManager->introspectTable('sqlsrv_drop_column'),
+                $newTable
+            );
+        self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
 
@@ -63,28 +62,30 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testDefaultConstraints(): void
     {
-        $table = new Table('sqlsrv_default_constraints');
-        $table->addColumn('no_default', 'string', ['length' => 32]);
-        $table->addColumn('df_integer', 'integer', ['default' => 666]);
-        $table->addColumn('df_string_1', 'string', [
+        $oldTable = new Table('sqlsrv_default_constraints');
+        $oldTable->addColumn('no_default', 'string', ['length' => 32]);
+        $oldTable->addColumn('df_integer', 'integer', ['default' => 666]);
+        $oldTable->addColumn('df_string_1', 'string', [
             'length' => 32,
             'default' => 'foobar',
         ]);
-        $table->addColumn('df_string_2', 'string', [
+        $oldTable->addColumn('df_string_2', 'string', [
             'length' => 32,
             'default' => 'Doctrine rocks!!!',
         ]);
-        $table->addColumn('df_string_3', 'string', [
+        $oldTable->addColumn('df_string_3', 'string', [
             'length' => 32,
             'default' => 'another default value',
         ]);
-        $table->addColumn('df_string_4', 'string', [
+        $oldTable->addColumn('df_string_4', 'string', [
             'length' => 32,
             'default' => 'column to rename',
         ]);
-        $table->addColumn('df_boolean', 'boolean', ['default' => true]);
+        $oldTable->addColumn('df_boolean', 'boolean', ['default' => true]);
 
-        $this->schemaManager->createTable($table);
+        $newTable = clone $oldTable;
+
+        $this->schemaManager->createTable($oldTable);
         $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
 
         self::assertNull($columns['no_default']->getDefault());
@@ -94,50 +95,29 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('another default value', $columns['df_string_3']->getDefault());
         self::assertEquals(1, $columns['df_boolean']->getDefault());
 
-        $diff                                = new TableDiff(
-            'sqlsrv_default_constraints',
-            [],
-            [
-                'df_integer' => new ColumnDiff(
-                    new Column('df_integer', Type::getType('integer'), ['default' => 0]),
-                    new Column('df_integer', Type::getType('integer'), ['default' => 666]),
-                ),
-                'df_string_2' => new ColumnDiff(
-                    new Column('df_string_2', Type::getType('string'), ['length' => 32]),
-                    new Column('df_string_2', Type::getType('string'), [
-                        'length' => 32,
-                        'default' => 'Doctrine rocks!!!',
-                    ]),
-                ),
-                'df_string_3' => new ColumnDiff(
-                    new Column('df_string_3', Type::getType('string'), [
-                        'length' => 50,
-                        'default' => 'another default value',
-                    ]),
-                    new Column('df_string_3', Type::getType('string'), [
-                        'length' => 50,
-                        'default' => 'another default value',
-                    ]),
-                ),
-                'df_boolean' => new ColumnDiff(
-                    new Column('df_boolean', Type::getType('boolean'), ['default' => false]),
-                    new Column('df_boolean', Type::getType('boolean'), ['default' => true]),
-                ),
-            ],
-            [
-                'df_string_1' => new Column('df_string_1', Type::getType('string'), ['length' => 32]),
-            ],
-            [],
-            [],
-            [],
-            $table,
-        );
-        $diff->newName                       = 'sqlsrv_default_constraints';
-        $diff->renamedColumns['df_string_4'] = new Column(
-            'df_string_renamed',
-            Type::getType('string'),
-            ['default' => 'column to rename'],
-        );
+        $newTable->getColumn('df_integer')
+            ->setDefault(0);
+
+        $newTable->dropColumn('df_string_1');
+
+        $newTable->getColumn('df_string_2')
+            ->setDefault(null);
+
+        $newTable->getColumn('df_boolean')
+            ->setDefault(false);
+
+        $newTable->dropColumn('df_string_4');
+        $newTable->addColumn('df_string_4_renamed', 'string', [
+            'length' => 32,
+            'default' => 'column to rename',
+        ]);
+
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable(
+                $this->schemaManager->introspectTable('sqlsrv_default_constraints'),
+                $newTable
+            );
+        self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
         $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
@@ -147,31 +127,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($columns['df_string_2']->getDefault());
         self::assertEquals('another default value', $columns['df_string_3']->getDefault());
         self::assertEquals(0, $columns['df_boolean']->getDefault());
-        self::assertEquals('column to rename', $columns['df_string_renamed']->getDefault());
-
-        /**
-         * Test that column default constraints can still be referenced after table rename
-         */
-        $diff = new TableDiff(
-            'sqlsrv_default_constraints',
-            [],
-            [
-                'df_integer' => new ColumnDiff(
-                    new Column('df_integer', Type::getType('integer'), ['default' => 666]),
-                    new Column('df_integer', Type::getType('integer'), ['default' => 0]),
-                ),
-            ],
-            [],
-            [],
-            [],
-            [],
-            $table,
-        );
-
-        $this->schemaManager->alterTable($diff);
-        $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
-
-        self::assertEquals(666, $columns['df_integer']->getDefault());
+        self::assertEquals('column to rename', $columns['df_string_4_renamed']->getDefault());
     }
 
     public function testPkOrdering(): void

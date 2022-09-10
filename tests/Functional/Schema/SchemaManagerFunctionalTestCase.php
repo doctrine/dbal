@@ -16,7 +16,6 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Schema;
@@ -838,39 +837,34 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testChangeColumnsTypeWithDefaultValue(): void
     {
-        $tableName = 'column_def_change_type';
-        $table     = new Table($tableName);
+        $oldTable = new Table('column_def_change_type');
 
-        $table->addColumn('col_int', 'smallint', ['default' => 666]);
-        $table->addColumn('col_string', 'string', [
+        $oldTable->addColumn('col_int', 'smallint', ['default' => 666]);
+        $oldTable->addColumn('col_string', 'string', [
             'length' => 3,
             'default' => 'foo',
         ]);
 
-        $this->dropAndCreateTable($table);
+        $this->dropAndCreateTable($oldTable);
 
-        $tableDiff                            = new TableDiff($tableName);
-        $tableDiff->fromTable                 = $table;
-        $tableDiff->changedColumns['col_int'] = new ColumnDiff(
-            new Column('col_int', Type::getType('integer'), ['default' => 666]),
-            new Column('col_int', Type::getType('smallint'), ['default' => 666]),
-        );
+        $newTable = clone $oldTable;
 
-        $tableDiff->changedColumns['col_string'] = new ColumnDiff(
-            new Column('col_string', Type::getType('string'), [
-                'length' => 3,
-                'fixed' => true,
-                'default' => 'foo',
-            ]),
-            new Column('col_string', Type::getType('string'), [
-                'length' => 3,
-                'default' => 'foo',
-            ]),
-        );
+        $newTable->getColumn('col_int')
+            ->setType(Type::getType('integer'));
 
-        $this->schemaManager->alterTable($tableDiff);
+        $newTable->getColumn('col_string')
+            ->setFixed(true);
 
-        $columns = $this->schemaManager->listTableColumns($tableName);
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable(
+                $this->schemaManager->introspectTable('column_def_change_type'),
+                $newTable
+            );
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
+
+        $columns = $this->schemaManager->listTableColumns('column_def_change_type');
 
         self::assertInstanceOf(IntegerType::class, $columns['col_int']->getType());
         self::assertEquals(666, $columns['col_int']->getDefault());
@@ -969,45 +963,48 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testColumnDefaultLifecycle(): void
     {
-        $table = new Table('col_def_lifecycle');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('column1', 'string', [
+        $oldTable = new Table('col_def_lifecycle');
+        $oldTable->addColumn('id', 'integer', ['autoincrement' => true]);
+        $oldTable->addColumn('column1', 'string', [
             'length' => 1,
             'default' => null,
         ]);
-        $table->addColumn('column2', 'string', [
+        $oldTable->addColumn('column2', 'string', [
             'length' => 1,
             'default' => '',
         ]);
-        $table->addColumn('column3', 'string', [
+        $oldTable->addColumn('column3', 'string', [
             'length' => 8,
             'default' => 'default1',
         ]);
-        $table->addColumn('column4', 'integer', [
+        $oldTable->addColumn('column4', 'integer', [
             'length' => 1,
             'default' => 0,
         ]);
-        $table->setPrimaryKey(['id']);
+        $oldTable->setPrimaryKey(['id']);
 
-        $this->dropAndCreateTable($table);
+        $this->dropAndCreateTable($oldTable);
 
-        $columns = $this->schemaManager->listTableColumns('col_def_lifecycle');
+        $oldTable = $this->schemaManager->introspectTable('col_def_lifecycle');
 
-        self::assertNull($columns['id']->getDefault());
-        self::assertNull($columns['column1']->getDefault());
-        self::assertSame('', $columns['column2']->getDefault());
-        self::assertSame('default1', $columns['column3']->getDefault());
-        self::assertSame('0', $columns['column4']->getDefault());
+        self::assertNull($oldTable->getColumn('id')->getDefault());
+        self::assertNull($oldTable->getColumn('column1')->getDefault());
+        self::assertSame('', $oldTable->getColumn('column2')->getDefault());
+        self::assertSame('default1', $oldTable->getColumn('column3')->getDefault());
+        self::assertSame('0', $oldTable->getColumn('column4')->getDefault());
 
-        $diffTable = clone $table;
+        $newTable = clone $oldTable;
 
-        $diffTable->changeColumn('column1', ['default' => '']);
-        $diffTable->changeColumn('column2', ['default' => null]);
-        $diffTable->changeColumn('column3', ['default' => 'default2']);
-        $diffTable->changeColumn('column4', ['default' => null]);
+        $newTable->changeColumn('column1', ['default' => '']);
+        $newTable->changeColumn('column2', ['default' => null]);
+        $newTable->changeColumn('column3', ['default' => 'default2']);
+        $newTable->changeColumn('column4', ['default' => null]);
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable($table, $diffTable);
+            ->diffTable(
+                $this->schemaManager->introspectTable('col_def_lifecycle'),
+                $newTable
+            );
         self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
