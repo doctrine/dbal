@@ -239,6 +239,15 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         yield 'Two tables' => ['filter_test_', 2];
     }
 
+    public function testRenameTable(): void
+    {
+        $this->createTestTable('old_name');
+        $this->schemaManager->renameTable('old_name', 'new_name');
+
+        self::assertFalse($this->schemaManager->tablesExist(['old_name']));
+        self::assertTrue($this->schemaManager->tablesExist(['new_name']));
+    }
+
     public function createListTableColumns(): Table
     {
         $table = new Table('list_table_columns');

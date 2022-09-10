@@ -16,6 +16,16 @@ class ColumnDiff
     {
     }
 
+    public function getOldColumn(): Column
+    {
+        return $this->fromColumn;
+    }
+
+    public function getNewColumn(): Column
+    {
+        return $this->column;
+    }
+
     public function hasTypeChanged(): bool
     {
         return $this->column->getType()::class !== $this->fromColumn->getType()::class;

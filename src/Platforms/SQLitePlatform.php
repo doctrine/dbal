@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+use Doctrine\DBAL\Types\IntegerType;
 
 use function array_combine;
 use function array_keys;
@@ -632,13 +633,14 @@ class SQLitePlatform extends AbstractPlatform
             }
 
             $oldColumnName = strtolower($oldColumnName);
-            $columns       = $this->replaceColumn($diff->name, $columns, $oldColumnName, $columnDiff->column);
+            $newColumn     = $columnDiff->getNewColumn();
+            $columns       = $this->replaceColumn($diff->name, $columns, $oldColumnName, $newColumn);
 
             if (! isset($newColumnNames[$oldColumnName])) {
                 continue;
             }
 
-            $newColumnNames[$oldColumnName] = $columnDiff->column->getQuotedName($this);
+            $newColumnNames[$oldColumnName] = $newColumn->getQuotedName($this);
         }
 
         foreach ($diff->addedColumns as $columnName => $column) {
@@ -737,10 +739,9 @@ class SQLitePlatform extends AbstractPlatform
     {
         // Suppress changes on integer type autoincrement columns.
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
-            if (
-                ! $columnDiff->column->getAutoincrement() ||
-                ! $columnDiff->column->getType() instanceof Types\IntegerType
-            ) {
+            $newColumn = $columnDiff->getNewColumn();
+
+            if (! $newColumn->getAutoincrement() || ! $newColumn->getType() instanceof IntegerType) {
                 continue;
             }
 
@@ -750,7 +751,8 @@ class SQLitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $fromColumnType = $columnDiff->fromColumn->getType();
+            $fromColumnType = $columnDiff->getOldColumn()
+                ->getType();
 
             if (! ($fromColumnType instanceof Types\SmallIntType) && ! ($fromColumnType instanceof Types\BigIntType)) {
                 continue;
@@ -845,9 +847,9 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
-            $columnName                          = $columnDiff->column->getName();
-            $columns[strtolower($oldColumnName)] = $columnName;
-            $columns[strtolower($columnName)]    = $columnName;
+            $newColumnName                       = $columnDiff->getNewColumn()->getName();
+            $columns[strtolower($oldColumnName)] = $newColumnName;
+            $columns[strtolower($newColumnName)] = $newColumnName;
         }
 
         foreach ($diff->addedColumns as $column) {

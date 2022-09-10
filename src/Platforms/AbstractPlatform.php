@@ -1875,7 +1875,7 @@ abstract class AbstractPlatform
      */
     public function getColumnCollationDeclarationSQL(string $collation): string
     {
-        return $this->supportsColumnCollation() ? 'COLLATE ' . $collation : '';
+        return $this->supportsColumnCollation() ? 'COLLATE ' . $this->quoteSingleIdentifier($collation) : '';
     }
 
     /**

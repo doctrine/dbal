@@ -744,6 +744,11 @@ The following `Comparator` methods have been marked as internal:
 
 The `diffColumn()` method has been deprecated. Use `diffTable()` instead.
 
+## Marked `ColumnDiff` public properties as internal.
+
+The `$fromColumn` and `$column` properties of the `ColumnDiff` class have been marked as internal. Use the
+`getOldColumn()` and `getNewColumn()` methods instead.
+
 ## Deprecated `ColumnDiff::$changedProperties` and `::hasChanged()`.
 
 The `ColumnDiff::$changedProperties` property and the `hasChanged()` method have been deprecated. Use one of the

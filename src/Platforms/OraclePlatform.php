@@ -558,19 +558,22 @@ END;';
                 continue;
             }
 
-            $column = $columnDiff->column;
+            $newColumn = $columnDiff->getNewColumn();
+            $oldColumn = $columnDiff->getOldColumn();
 
-            $columnInfo = $column->toArray();
-            $fromSQL    = $this->getColumnDeclarationSQL('', $columnDiff->fromColumn->toArray());
-            $currentSQL = $this->getColumnDeclarationSQL('', $columnInfo);
+            $newColumnProperties = $newColumn->toArray();
+            $oldColumnProperties = $oldColumn->toArray();
 
-            if ($currentSQL !== $fromSQL) {
+            $oldSQL = $this->getColumnDeclarationSQL('', $oldColumnProperties);
+            $newSQL = $this->getColumnDeclarationSQL('', $newColumnProperties);
+
+            if ($newSQL !== $oldSQL) {
                 if (! $columnDiff->hasNotNullChanged()) {
-                    unset($columnInfo['notnull']);
-                    $currentSQL = $this->getColumnDeclarationSQL('', $columnInfo);
+                    unset($newColumnProperties['notnull']);
+                    $newSQL = $this->getColumnDeclarationSQL('', $newColumnProperties);
                 }
 
-                $modifyColumnSQL[] = $column->getQuotedName($this) . $currentSQL;
+                $modifyColumnSQL[] = $newColumn->getQuotedName($this) . $newSQL;
             }
 
             if (! $columnDiff->hasCommentChanged()) {
@@ -579,8 +582,8 @@ END;';
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $diff->getName($this)->getQuotedName($this),
-                $column->getQuotedName($this),
-                $column->getComment(),
+                $newColumn->getQuotedName($this),
+                $newColumn->getComment(),
             );
         }
 

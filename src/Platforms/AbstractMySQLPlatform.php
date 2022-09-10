@@ -324,11 +324,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 continue;
             }
 
-            $columnArray = array_merge($column->toArray(), [
+            $columnProperties = array_merge($column->toArray(), [
                 'comment' => $column->getComment(),
             ]);
 
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL(
+                $column->getQuotedName($this),
+                $columnProperties,
+            );
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -344,12 +347,16 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 continue;
             }
 
-            $column      = $columnDiff->column;
-            $columnArray = $column->toArray();
+            $newColumn = $columnDiff->getNewColumn();
 
-            $columnArray['comment'] = $column->getComment();
-            $queryParts[]           =  'CHANGE ' . $columnDiff->fromColumn->getQuotedName($this) . ' '
-                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $newColumnProperties = array_merge($newColumn->toArray(), [
+                'comment' => $newColumn->getComment(),
+            ]);
+
+            $oldColumn = $columnDiff->getOldColumn();
+
+            $queryParts[] =  'CHANGE ' . $oldColumn->getQuotedName($this) . ' '
+                . $this->getColumnDeclarationSQL($newColumn->getQuotedName($this), $newColumnProperties);
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -357,11 +364,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 continue;
             }
 
-            $oldColumnName          = new Identifier($oldColumnName);
-            $columnArray            = $column->toArray();
-            $columnArray['comment'] = $column->getComment();
-            $queryParts[]           =  'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
-                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $oldColumnName = new Identifier($oldColumnName);
+
+            $columnProperties = array_merge($column->toArray(), [
+                'comment' => $column->getComment(),
+            ]);
+
+            $queryParts[] = 'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
+                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnProperties);
         }
 
         if (isset($diff->addedIndexes['primary'])) {
@@ -633,12 +643,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getColumnCharsetDeclarationSQL(string $charset): string
     {
         return 'CHARACTER SET ' . $charset;
-    }
-
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function getColumnCollationDeclarationSQL(string $collation): string
-    {
-        return 'COLLATE ' . $this->quoteSingleIdentifier($collation);
     }
 
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */

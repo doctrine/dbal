@@ -655,14 +655,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         self::assertTrue($this->platform->supportsColumnCollation());
     }
 
-    public function testColumnCollationDeclarationSQL(): void
-    {
-        self::assertSame(
-            'COLLATE NOCASE',
-            $this->platform->getColumnCollationDeclarationSQL('NOCASE'),
-        );
-    }
-
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
@@ -672,7 +664,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         self::assertSame(
             [
                 'CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, '
-                    . 'column_collation VARCHAR(255) NOT NULL COLLATE NOCASE)',
+                    . 'column_collation VARCHAR(255) NOT NULL COLLATE "NOCASE")',
             ],
             $this->platform->getCreateTableSQL($table),
         );
