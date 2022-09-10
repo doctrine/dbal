@@ -25,8 +25,6 @@ use function in_array;
 use function is_numeric;
 use function sprintf;
 use function str_replace;
-use function strtoupper;
-use function trim;
 
 /**
  * Provides the base implementation for the lowest versions of supported MySQL-like database platforms.
@@ -253,7 +251,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         $sql = [implode(' ', $sql)];
 
-        // Propagate foreign key constraints only for InnoDB.
         if (isset($options['foreignKeys'])) {
             foreach ($options['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $name);
@@ -438,19 +435,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
                 break;
             }
-        }
-
-        $engine = 'INNODB';
-
-        if ($diff->fromTable instanceof Table && $diff->fromTable->hasOption('engine')) {
-            $engine = strtoupper(trim($diff->fromTable->getOption('engine')));
-        }
-
-        // Suppress foreign key constraint propagation on non-supporting engines.
-        if ($engine !== 'INNODB') {
-            $diff->addedForeignKeys   = [];
-            $diff->changedForeignKeys = [];
-            $diff->removedForeignKeys = [];
         }
 
         return array_merge(
