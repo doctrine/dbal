@@ -14,7 +14,11 @@ use function array_merge;
  */
 class SchemaDiff
 {
-    /** @var Schema|null */
+    /**
+     * @deprecated
+     *
+     * @var Schema|null
+     */
     public $fromSchema;
 
     /**
