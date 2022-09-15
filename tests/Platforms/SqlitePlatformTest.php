@@ -782,6 +782,42 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testDateAddStaticNumberOfTimes(): void
+    {
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+10 SECOND')",
+            $this->platform->getDateAddSecondsExpression('rentalBeginsOn', 10)
+        );
+
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+10 MINUTE')",
+            $this->platform->getDateAddMinutesExpression('rentalBeginsOn', 10)
+        );
+
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+10 HOUR')",
+            $this->platform->getDateAddHourExpression('rentalBeginsOn', 10)
+        );
+    }
+
+    public function testDateAddNumberOfTimesFromColumn(): void
+    {
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+' || duration || ' SECOND')",
+            $this->platform->getDateAddSecondsExpression('rentalBeginsOn', 'duration')
+        );
+
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+' || duration || ' MINUTE')",
+            $this->platform->getDateAddMinutesExpression('rentalBeginsOn', 'duration')
+        );
+
+        self::assertSame(
+            "DATETIME(rentalBeginsOn,'+' || duration || ' HOUR')",
+            $this->platform->getDateAddHourExpression('rentalBeginsOn', 'duration')
+        );
+    }
+
     public function testSupportsColumnCollation(): void
     {
         self::assertTrue($this->platform->supportsColumnCollation());
