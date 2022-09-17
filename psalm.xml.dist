@@ -7,10 +7,12 @@
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
+        <directory name="generated" />
         <directory name="src" />
         <directory name="static-analysis" />
         <directory name="tests" />
         <ignoreFiles>
+            <directory name="generated" />
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>

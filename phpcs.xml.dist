@@ -85,6 +85,15 @@
         <exclude-pattern>src/Driver/Mysqli/Exception/ConnectionFailed.php</exclude-pattern>
     </rule>
 
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <!--
+            These files use the underlying driver APIs that don't comply with the coding standard
+            phpcs wrongly complains about them, and that has been reported here:
+            https://github.com/squizlabs/PHP_CodeSniffer/issues/2950
+        -->
+        <exclude-pattern>src/Schema/SQLiteSchemaManager/CreateTableListener.php</exclude-pattern>
+    </rule>
+
     <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
     <rule ref="Squiz.NamingConventions.ValidVariableName.NotCamelCaps">
         <exclude-pattern>src/Connection.php</exclude-pattern>

@@ -33,6 +33,7 @@
     "require": {
         "php": "^8.1",
         "composer-runtime-api": "^2",
+        "antlr/antlr4-php-runtime": "^0.7.0",
         "doctrine/deprecations": "^0.5.3|^1",
         "doctrine/event-manager": "^1.0",
         "psr/cache": "^1|^2|^3",
@@ -62,7 +63,10 @@
         }
     },
     "autoload": {
-        "psr-4": { "Doctrine\\DBAL\\": "src" }
+        "psr-4": {
+            "Doctrine\\DBAL\\": "src",
+            "Doctrine\\DBAL\\Generated\\": "generated"
+        }
     },
     "autoload-dev": {
         "psr-4": { "Doctrine\\DBAL\\Tests\\": "tests" }

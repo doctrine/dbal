@@ -1,8 +1,12 @@
 parameters:
     level: 8
     paths:
+        - generated
         - src
         - tests
+    excludePaths:
+        analyse:
+            - generated
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false

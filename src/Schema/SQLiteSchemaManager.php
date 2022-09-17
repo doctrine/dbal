@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Antlr\Antlr4\Runtime\CommonTokenStream;
+use Antlr\Antlr4\Runtime\InputStream;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Generated\SQLiteLexer;
+use Doctrine\DBAL\Generated\SQLiteParser;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\SQLiteSchemaManager\CreateTableListener;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -19,14 +24,12 @@ use function count;
 use function implode;
 use function is_string;
 use function preg_match;
-use function preg_match_all;
 use function preg_quote;
 use function preg_replace;
 use function rtrim;
 use function str_contains;
 use function str_replace;
 use function str_starts_with;
-use function strcasecmp;
 use function strtolower;
 use function trim;
 use function usort;
@@ -458,40 +461,18 @@ SQL
      */
     private function getForeignKeyDetails(string $table)
     {
-        $createSql = $this->getCreateTableSQL($table);
+        $ddl = $this->getCreateTableSQL($table);
 
-        if (
-            preg_match_all(
-                '#
-                    (?:CONSTRAINT\s+(\S+)\s+)?
-                    (?:FOREIGN\s+KEY[^)]+\)\s*)?
-                    REFERENCES\s+\S+\s*(?:\([^)]+\))?
-                    (?:
-                        [^,]*?
-                        (NOT\s+DEFERRABLE|DEFERRABLE)
-                        (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
-                    )?#isx',
-                $createSql,
-                $match,
-            ) === 0
-        ) {
-            return [];
-        }
+        $listener = new CreateTableListener();
 
-        $names      = $match[1];
-        $deferrable = $match[2];
-        $deferred   = $match[3];
-        $details    = [];
+        $input  = InputStream::fromString($ddl);
+        $lexer  = new SQLiteLexer($input);
+        $tokens = new CommonTokenStream($lexer);
+        $parser = new SQLiteParser($tokens);
+        $parser->addParseListener($listener);
+        $parser->parse();
 
-        for ($i = 0, $count = count($match[0]); $i < $count; $i++) {
-            $details[] = [
-                'constraint_name' => $names[$i] ?? '',
-                'deferrable'      => isset($deferrable[$i]) && strcasecmp($deferrable[$i], 'deferrable') === 0,
-                'deferred'        => isset($deferred[$i]) && strcasecmp($deferred[$i], 'deferred') === 0,
-            ];
-        }
-
-        return $details;
+        return $listener->getForeignKeyConstraints();
     }
 
     public function createComparator(): Comparator
