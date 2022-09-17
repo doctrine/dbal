@@ -62,6 +62,10 @@ The constructors of the following classes have been marked as internal:
 These classes can be instantiated only by schema comparators. The signatures of the constructors may change in future
 versions.
 
+## Deprecated `SchemaDiff` reference to the original schema.
+
+The `SchemaDiff::$fromSchema` property has been deprecated.
+
 ## Marked `AbstractSchemaManager::_execSql()` as internal.
 
 The `AbstractSchemaManager::_execSql()` method has been marked as internal. It will not be available in 4.0.
