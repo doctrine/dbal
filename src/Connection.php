@@ -443,7 +443,7 @@ class Connection
 
         Deprecation::trigger(
             'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pulls/4750',
+            'https://github.com/doctrine/dbal/pull/4750',
             'Not implementing the ServerInfoAwareConnection interface in %s is deprecated',
             get_class($connection),
         );

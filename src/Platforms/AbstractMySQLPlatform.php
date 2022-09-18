@@ -332,7 +332,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     {
         Deprecation::trigger(
             'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pulls/1519',
+            'https://github.com/doctrine/dbal/pull/1519',
             'AbstractMySQLPlatform::prefersIdentityColumns() is deprecated.',
         );
 
