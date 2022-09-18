@@ -44,9 +44,7 @@ abstract class ComparatorTest extends TestCase
             ),
         ]);
 
-        $expected             = new SchemaDiff();
-        $expected->fromSchema = $schema1;
-        self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
+        self::assertEquals(new SchemaDiff(), $this->comparator->compareSchemas($schema1, $schema2));
     }
 
     public function testCompareSame2(): void
@@ -70,9 +68,7 @@ abstract class ComparatorTest extends TestCase
             ),
         ]);
 
-        $expected             = new SchemaDiff();
-        $expected->fromSchema = $schema1;
-        self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
+        self::assertEquals(new SchemaDiff(), $this->comparator->compareSchemas($schema1, $schema2));
     }
 
     public function testCompareMissingTable(): void
@@ -85,7 +81,7 @@ abstract class ComparatorTest extends TestCase
         $schema1 = new Schema([$table], [], $schemaConfig);
         $schema2 = new Schema([], [], $schemaConfig);
 
-        $expected = new SchemaDiff([], [], ['bugdb' => $table], $schema1);
+        $expected = new SchemaDiff([], [], ['bugdb' => $table]);
 
         self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
     }
@@ -100,7 +96,7 @@ abstract class ComparatorTest extends TestCase
         $schema1 = new Schema([], [], $schemaConfig);
         $schema2 = new Schema([$table], [], $schemaConfig);
 
-        $expected = new SchemaDiff(['bugdb' => $table], [], [], $schema1);
+        $expected = new SchemaDiff(['bugdb' => $table], [], []);
 
         self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
     }
@@ -136,7 +132,7 @@ abstract class ComparatorTest extends TestCase
             ),
         ]);
 
-        $expected                                    = new SchemaDiff(
+        $expected = new SchemaDiff(
             [],
             [
                 'bugdb' => new TableDiff(
@@ -147,7 +143,7 @@ abstract class ComparatorTest extends TestCase
                 ),
             ],
         );
-        $expected->fromSchema                        = $schema1;
+
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
 
         self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
@@ -173,7 +169,7 @@ abstract class ComparatorTest extends TestCase
             ),
         ]);
 
-        $expected                                    = new SchemaDiff(
+        $expected = new SchemaDiff(
             [],
             [
                 'bugdb' => new TableDiff(
@@ -184,7 +180,7 @@ abstract class ComparatorTest extends TestCase
                 ),
             ],
         );
-        $expected->fromSchema                        = $schema1;
+
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
 
         self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
@@ -281,7 +277,7 @@ abstract class ComparatorTest extends TestCase
             ),
         ]);
 
-        $expected                                    = new SchemaDiff(
+        $expected = new SchemaDiff(
             [],
             [
                 'bugdb' => new TableDiff(
@@ -301,7 +297,7 @@ abstract class ComparatorTest extends TestCase
                 ),
             ],
         );
-        $expected->fromSchema                        = $schema1;
+
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
 
         self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
@@ -335,7 +331,7 @@ abstract class ComparatorTest extends TestCase
             ),
         ]);
 
-        $expected                                    = new SchemaDiff(
+        $expected = new SchemaDiff(
             [],
             [
                 'bugdb' => new TableDiff(
@@ -353,7 +349,7 @@ abstract class ComparatorTest extends TestCase
                 ),
             ],
         );
-        $expected->fromSchema                        = $schema1;
+
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
 
         self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
@@ -394,7 +390,7 @@ abstract class ComparatorTest extends TestCase
             ),
         ]);
 
-        $expected                                    = new SchemaDiff(
+        $expected = new SchemaDiff(
             [],
             [
                 'bugdb' => new TableDiff(
@@ -416,7 +412,7 @@ abstract class ComparatorTest extends TestCase
                 ),
             ],
         );
-        $expected->fromSchema                        = $schema1;
+
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
 
         self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
@@ -449,7 +445,7 @@ abstract class ComparatorTest extends TestCase
             ),
         ]);
 
-        $expected                                    = new SchemaDiff(
+        $expected = new SchemaDiff(
             [],
             [
                 'bugdb' => new TableDiff(
@@ -464,7 +460,7 @@ abstract class ComparatorTest extends TestCase
                 ),
             ],
         );
-        $expected->fromSchema                        = $schema1;
+
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
 
         self::assertEquals($expected, $this->comparator->compareSchemas($schema1, $schema2));
@@ -820,8 +816,7 @@ abstract class ComparatorTest extends TestCase
         $newSchema = new Schema([], [], $config);
         $newSchema->createTable('foo.bar');
 
-        $expected             = new SchemaDiff();
-        $expected->fromSchema = $oldSchema;
+        $expected = new SchemaDiff();
 
         self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
     }
@@ -841,7 +836,6 @@ abstract class ComparatorTest extends TestCase
         $newSchema->createTable('war.tab');
 
         $expected                = new SchemaDiff();
-        $expected->fromSchema    = $oldSchema;
         $expected->newNamespaces = ['bar' => 'bar', 'baz' => 'baz'];
 
         $diff = $this->comparator->compareSchemas($oldSchema, $newSchema);
@@ -861,10 +855,7 @@ abstract class ComparatorTest extends TestCase
         $newSchema = new Schema();
         $newSchema->createTable('bar');
 
-        $expected             = new SchemaDiff();
-        $expected->fromSchema = $oldSchema;
-
-        self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
+        self::assertEquals(new SchemaDiff(), $this->comparator->compareSchemas($oldSchema, $newSchema));
     }
 
     public function testFqnSchemaComparisonNoSchemaSame(): void
@@ -877,10 +868,7 @@ abstract class ComparatorTest extends TestCase
         $newSchema = new Schema();
         $newSchema->createTable('bar');
 
-        $expected             = new SchemaDiff();
-        $expected->fromSchema = $oldSchema;
-
-        self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
+        self::assertEquals(new SchemaDiff(), $this->comparator->compareSchemas($oldSchema, $newSchema));
     }
 
     public function testAutoIncrementSequences(): void
@@ -971,8 +959,7 @@ abstract class ComparatorTest extends TestCase
         $table     = $newSchema->createTable('foo');
         $table->addColumn('id', 'string', ['length' => 32]);
 
-        $expected             = new SchemaDiff();
-        $expected->fromSchema = $oldSchema;
+        $expected = new SchemaDiff();
 
         $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
         $tableDiff->fromTable = $tableFoo;
@@ -996,8 +983,7 @@ abstract class ComparatorTest extends TestCase
         $table     = $newSchema->createTable('foo');
         $table->addColumn('id', 'binary', ['length' => 42, 'fixed' => true]);
 
-        $expected             = new SchemaDiff();
-        $expected->fromSchema = $oldSchema;
+        $expected = new SchemaDiff();
 
         $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
         $tableDiff->fromTable = $tableFoo;
@@ -1058,7 +1044,6 @@ abstract class ComparatorTest extends TestCase
             ->willReturnOnConsecutiveCalls(false, true);
 
         $expected                    = new SchemaDiff();
-        $expected->fromSchema        = $fromSchema;
         $expected->newNamespaces     = ['baz' => 'baz'];
         $expected->removedNamespaces = ['foo' => 'foo'];
 

@@ -11,9 +11,6 @@ use function array_values;
 
 /**
  * Differences between two schemas.
- *
- * The object contains the operations to change the schema stored in $fromSchema
- * to a target schema.
  */
 class SchemaDiff
 {
@@ -60,10 +57,6 @@ class SchemaDiff
         public array $newTables = [],
         public array $changedTables = [],
         public array $removedTables = [],
-        /**
-         * @deprecated
-         */
-        public ?Schema $fromSchema = null,
     ) {
     }
 
