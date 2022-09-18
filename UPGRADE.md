@@ -17,6 +17,14 @@ The "unique" and "check" column properties have been deprecated. Use unique cons
 Relying on the default precision and scale of decimal columns provided by the DBAL is deprecated.
 When declaring decimal columns, specify the precision and scale explicitly.
 
+## Deprecated renaming tables via `TableDiff` and `AbstractPlatform::alterTable()`.
+
+Renaming tables via setting the `$newName` property on a `TableDiff` and passing it to `AbstractPlatform::alterTable()`
+is deprecated. The implementations of `AbstractSchemaManager::alterTable()` should use `AbstractPlatform::renameTable()`
+instead.
+
+The `TableDiff::$newName` property and the `TableDiff::getNewName()` method have been deprecated.
+
 ## Marked `Comparator` methods as internal.
 
 The following `Comparator` methods have been marked as internal:

@@ -1255,9 +1255,7 @@ abstract class AbstractSchemaManager
      */
     public function renameTable($name, $newName)
     {
-        $tableDiff          = new TableDiff($name);
-        $tableDiff->newName = $newName;
-        $this->alterTable($tableDiff);
+        $this->_execSql($this->_platform->getRenameTableSQL($name, $newName));
     }
 
     /**

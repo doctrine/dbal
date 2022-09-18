@@ -2592,6 +2592,14 @@ abstract class AbstractPlatform
         throw Exception::notSupported(__METHOD__);
     }
 
+    /** @return list<string> */
+    public function getRenameTableSQL(string $oldName, string $newName): array
+    {
+        return [
+            sprintf('ALTER TABLE %s RENAME TO %s', $oldName, $newName),
+        ];
+    }
+
     /**
      * @param mixed[] $columnSql
      *

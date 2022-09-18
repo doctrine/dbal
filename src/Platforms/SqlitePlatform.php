@@ -1104,6 +1104,13 @@ class SqlitePlatform extends AbstractPlatform
             $newName = $diff->getNewName();
 
             if ($newName !== false) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5663',
+                    'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
+                    __METHOD__,
+                );
+
                 $sql[] = sprintf(
                     'ALTER TABLE %s RENAME TO %s',
                     $newTable->getQuotedName($this),
@@ -1234,6 +1241,14 @@ class SqlitePlatform extends AbstractPlatform
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5663',
+                    'Generation of SQL that renames a table using %s is deprecated.'
+                        . ' Use getRenameTableSQL() instead.',
+                    __METHOD__,
+                );
+
                 $newTable = new Identifier($diff->newName);
 
                 $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' RENAME TO '
