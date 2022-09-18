@@ -477,9 +477,8 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             'ALTER COLUMN bar DROP NOT NULL ' .
             'RENAME COLUMN id TO war',
             'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE "foo"\')',
-            'RENAME TABLE "foo" TO "table"',
-            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+            'ALTER TABLE "foo" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE "foo" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
         ];
     }
 

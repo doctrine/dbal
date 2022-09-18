@@ -62,14 +62,9 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     /** @return list<string> */
     private function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
-        $sql     = [];
-        $newName = $diff->getNewName();
+        $sql = [];
 
-        if ($newName !== null) {
-            $tableName = $newName->getQuotedName($this);
-        } else {
-            $tableName = $diff->getName($this)->getQuotedName($this);
-        }
+        $tableName = $diff->getName($this)->getQuotedName($this);
 
         foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
             if (in_array($foreignKey, $diff->changedForeignKeys, true)) {

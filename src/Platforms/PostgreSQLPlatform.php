@@ -14,7 +14,6 @@ use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_merge;
@@ -342,27 +341,10 @@ class PostgreSQLPlatform extends AbstractPlatform
         $tableSql = [];
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
-            $sql = array_merge($sql, $commentsSQL);
-
-            $newName = $diff->getNewName();
-
-            if ($newName !== null) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5663',
-                    'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
-                    __METHOD__,
-                );
-                $sql[] = sprintf(
-                    'ALTER TABLE %s RENAME TO %s',
-                    $diff->getName($this)->getQuotedName($this),
-                    $newName->getQuotedName($this),
-                );
-            }
-
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
+                $commentsSQL,
                 $this->getPostAlterTableIndexForeignKeySQL($diff),
             );
         }

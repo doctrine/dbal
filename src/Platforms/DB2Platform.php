@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function count;
@@ -347,27 +346,10 @@ class DB2Platform extends AbstractPlatform
                 $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $diff->getName($this)->getQuotedName($this) . "')";
             }
 
-            $sql = array_merge($sql, $commentsSQL);
-
-            $newName = $diff->getNewName();
-
-            if ($newName !== null) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5663',
-                    'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
-                    __METHOD__,
-                );
-                $sql[] = sprintf(
-                    'RENAME TABLE %s TO %s',
-                    $diff->getName($this)->getQuotedName($this),
-                    $newName->getQuotedName($this),
-                );
-            }
-
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
+                $commentsSQL,
                 $this->getPostAlterTableIndexForeignKeySQL($diff),
             );
         }

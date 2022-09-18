@@ -1078,7 +1078,6 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $tableDiff                        = new TableDiff('"foo"');
         $tableDiff->fromTable             = $table;
-        $tableDiff->newName               = 'table';
         $tableDiff->addedColumns['bloo']  = new Column('bloo', Type::getType('integer'));
         $tableDiff->changedColumns['bar'] = new ColumnDiff(
             new Column('bar', Type::getType('integer'), ['notnull' => false]),

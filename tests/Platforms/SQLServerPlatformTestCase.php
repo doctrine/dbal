@@ -1367,14 +1367,8 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             'ALTER TABLE [foo] ADD bloo INT NOT NULL',
             'ALTER TABLE [foo] DROP COLUMN baz',
             'ALTER TABLE [foo] ALTER COLUMN bar INT',
-            "sp_rename '[foo]', 'table'",
-            "DECLARE @sql NVARCHAR(MAX) = N''; " .
-            "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', " .
-            "N''' + REPLACE(dc.name, '8C736521', 'F6298F46') + ''', ''json'';' " .
-            'FROM sys.default_constraints dc JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
-            "WHERE tbl.name = 'table';EXEC sp_executesql @sql",
-            'ALTER TABLE [table] ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE [table] ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+            'ALTER TABLE [foo] ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE [foo] ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
         ];
     }
 
