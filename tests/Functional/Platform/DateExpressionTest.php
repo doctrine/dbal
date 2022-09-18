@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
-use DateTimeImmutable;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -32,21 +31,10 @@ class DateExpressionTest extends FunctionalTestCase
         self::assertEquals($expected, $diff);
     }
 
-    /** @return  array<string, array<int, int|string|false>> */
+    /** @return array<string, array{string, string, int}> */
     public static function differenceProvider(): iterable
     {
-        $date1    = new DateTimeImmutable();
-        $date2    = new DateTimeImmutable('2018-04-10 10:10:10');
-        $expected = $date1->modify('midnight')->diff(
-            $date2->modify('midnight'),
-        )->days;
-
         return [
-            'dynamic'  => [
-                $date1->format('Y-m-d H:i:s'),
-                $date2->format('Y-m-d H:i:s'),
-                $expected,
-            ],
             'same day' => ['2018-04-14 23:59:59', '2018-04-14 00:00:00', 0],
             'midnight' => ['2018-04-14 00:00:00', '2018-04-13 23:59:59', 1],
         ];

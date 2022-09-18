@@ -734,10 +734,22 @@ The following methods have been removed.
 
 # Upgrade to 3.5
 
+## Deprecated "unique" and "check" column properties.
+
+The "unique" and "check" column properties have been deprecated. Use unique constraints to define unique columns.
+
 ## Deprecated relying on the default precision and scale of decimal columns.
 
 Relying on the default precision and scale of decimal columns provided by the DBAL is deprecated.
 When declaring decimal columns, specify the precision and scale explicitly.
+
+## Deprecated renaming tables via `TableDiff` and `AbstractPlatform::alterTable()`.
+
+Renaming tables via setting the `$newName` property on a `TableDiff` and passing it to `AbstractPlatform::alterTable()`
+is deprecated. The implementations of `AbstractSchemaManager::alterTable()` should use `AbstractPlatform::renameTable()`
+instead.
+
+The `TableDiff::$newName` property and the `TableDiff::getNewName()` method have been deprecated.
 
 ## Marked `Comparator` methods as internal.
 
@@ -787,6 +799,10 @@ The constructors of the following classes have been marked as internal:
 
 These classes can be instantiated only by schema comparators. The signatures of the constructors may change in future
 versions.
+
+## Deprecated `SchemaDiff` reference to the original schema.
+
+The `SchemaDiff::$fromSchema` property has been deprecated.
 
 ## Marked `AbstractSchemaManager::_execSql()` as internal.
 

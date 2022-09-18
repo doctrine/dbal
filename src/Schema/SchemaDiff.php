@@ -60,6 +60,9 @@ class SchemaDiff
         public array $newTables = [],
         public array $changedTables = [],
         public array $removedTables = [],
+        /**
+         * @deprecated
+         */
         public ?Schema $fromSchema = null,
     ) {
     }

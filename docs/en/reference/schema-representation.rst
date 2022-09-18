@@ -107,9 +107,6 @@ The following options are considered to be fully portable across all database pl
 -  **customSchemaOptions** (array): Additional options for the column that are
    supported by all vendors:
 
-   -  **unique** (boolean): Whether to automatically add a unique constraint for the column.
-      Defaults to ``false``.
-
 Common options
 ^^^^^^^^^^^^^^
 
@@ -138,5 +135,3 @@ The following options are completely vendor specific and absolutely not portable
       on MySQL.
    -  **collation** (string): The collation to use for the column. Supported by MySQL, PostgreSQL,
       Sqlite and SQL Server.
-   -  **check** (string): The check constraint clause to add to the column.
-      Defaults to ``null``.

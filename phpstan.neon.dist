@@ -27,7 +27,6 @@ parameters:
         -
             message: '~^Only booleans are allowed in .*, mixed given~'
             paths:
-                - src/Driver/*/Driver.php
                 - src/Platforms/*Platform.php
                 - src/Schema/*SchemaManager.php
 
@@ -76,11 +75,6 @@ parameters:
                 - src/Driver/Mysqli/Exception/ConnectionFailed.php
                 - src/Driver/Mysqli/Exception/InvalidCharset.php
                 - src/Driver/Mysqli/Exception/StatementError.php
-
-        -
-            message: '~^Unable to resolve the template type T in call to method Doctrine\\DBAL\\Portability\\Converter\:\:compose\(\)$~'
-            paths:
-                - src/Portability/Converter.php
 
         # We're testing with invalid input.
         -

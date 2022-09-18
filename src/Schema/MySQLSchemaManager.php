@@ -361,12 +361,14 @@ SQL;
        c.COLLATION_NAME     AS collation
 FROM information_schema.COLUMNS c
     INNER JOIN information_schema.TABLES t
-        ON t.TABLE_SCHEMA = c.TABLE_SCHEMA
-        AND t.TABLE_NAME = c.TABLE_NAME
+        ON t.TABLE_NAME = c.TABLE_NAME
 SQL;
 
-        $conditions = ['c.TABLE_SCHEMA = ?', "t.TABLE_TYPE = 'BASE TABLE'"];
-        $params     = [$databaseName];
+        // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
+        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
+        // caused by https://bugs.mysql.com/bug.php?id=81347
+        $conditions = ['c.TABLE_SCHEMA = ?', 't.TABLE_SCHEMA = ?', "t.TABLE_TYPE = 'BASE TABLE'"];
+        $params     = [$databaseName, $databaseName];
 
         if ($tableName !== null) {
             $conditions[] = 't.TABLE_NAME = ?';
@@ -427,8 +429,7 @@ SQL;
 FROM information_schema.key_column_usage k /*!50116
 INNER JOIN information_schema.referential_constraints c
 ON c.CONSTRAINT_NAME = k.CONSTRAINT_NAME
-AND c.TABLE_NAME = k.TABLE_NAME
-AND c.CONSTRAINT_SCHEMA = k.TABLE_SCHEMA */
+AND c.TABLE_NAME = k.TABLE_NAME */
 SQL;
 
         $conditions = ['k.TABLE_SCHEMA = ?'];
@@ -441,7 +442,14 @@ SQL;
 
         $conditions[] = 'k.REFERENCED_COLUMN_NAME IS NOT NULL';
 
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY k.ORDINAL_POSITION';
+        $sql .= ' WHERE ' . implode(' AND ', $conditions)
+            // The schema name is passed multiple times in the WHERE clause instead of using a JOIN condition
+            // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
+            // caused by https://bugs.mysql.com/bug.php?id=81347.
+            // Use a string literal for the database name since the internal PDO SQL parser
+            // cannot recognize parameter placeholders inside conditional comments
+            . ' /*!50116 AND c.CONSTRAINT_SCHEMA = ' . $this->connection->quote($databaseName) . ' */'
+            . ' ORDER BY k.ORDINAL_POSITION';
 
         return $this->connection->executeQuery($sql, $params);
     }

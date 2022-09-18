@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -625,6 +626,12 @@ END;';
             $newName = $diff->getNewName();
 
             if ($newName !== null) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5663',
+                    'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
+                    __METHOD__,
+                );
                 $sql[] = sprintf(
                     'ALTER TABLE %s RENAME TO %s',
                     $diff->getName($this)->getQuotedName($this),
@@ -660,10 +667,29 @@ END;';
                 $notnull = $column['notnull'] ? ' NOT NULL' : ' NULL';
             }
 
-            $unique = ! empty($column['unique']) ? ' UNIQUE' : '';
+            if (! empty($column['unique'])) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5656',
+                    'The usage of the "unique" column property is deprecated. Use unique constraints instead.',
+                );
 
-            $check = ! empty($column['check']) ?
-                ' ' . $column['check'] : '';
+                $unique = ' UNIQUE';
+            } else {
+                $unique = '';
+            }
+
+            if (! empty($column['check'])) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5656',
+                    'The usage of the "check" column property is deprecated.',
+                );
+
+                $check = ' ' . $column['check'];
+            } else {
+                $check = '';
+            }
 
             $typeDecl  = $column['type']->getSQLDeclaration($column, $this);
             $columnDef = $typeDecl . $default . $notnull . $unique . $check;

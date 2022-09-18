@@ -38,6 +38,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
@@ -1286,6 +1287,14 @@ abstract class AbstractPlatform
      */
     abstract public function getAlterTableSQL(TableDiff $diff): array;
 
+    /** @return list<string> */
+    public function getRenameTableSQL(string $oldName, string $newName): array
+    {
+        return [
+            sprintf('ALTER TABLE %s RENAME TO %s', $oldName, $newName),
+        ];
+    }
+
     /** @param mixed[] $columnSql */
     protected function onSchemaAlterTableAddColumn(Column $column, TableDiff $diff, array &$columnSql): bool
     {
@@ -1557,9 +1566,29 @@ abstract class AbstractPlatform
 
             $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $unique = ! empty($column['unique']) ? ' UNIQUE' : '';
+            if (! empty($column['unique'])) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5656',
+                    'The usage of the "unique" column property is deprecated. Use unique constraints instead.',
+                );
 
-            $check = ! empty($column['check']) ? ' ' . $column['check'] : '';
+                $unique = ' UNIQUE';
+            } else {
+                $unique = '';
+            }
+
+            if (! empty($column['check'])) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5656',
+                    'The usage of the "check" column property is deprecated.',
+                );
+
+                $check = ' ' . $column['check'];
+            } else {
+                $check = '';
+            }
 
             $typeDecl    = $column['type']->getSQLDeclaration($column, $this);
             $declaration = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;

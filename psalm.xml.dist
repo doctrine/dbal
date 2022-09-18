@@ -39,14 +39,26 @@
                     See https://github.com/doctrine/dbal/pull/4317
                 -->
                 <file name="tests/Functional/LegacyAPITest.php"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\TableDiff::getNewName"/>
             </errorLevel>
         </DeprecatedMethod>
-        <DocblockTypeContradiction>
+        <DeprecatedProperty>
             <errorLevel type="suppress">
                 <!--
-                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1158
+                    TODO: remove in 4.0.0
                 -->
-                <file name="src/Driver/IBMDB2/Connection.php"/>
+                <referencedProperty name="Doctrine\DBAL\Schema\SchemaDiff::$fromSchema"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedProperty name="Doctrine\DBAL\Schema\TableDiff::$newName"/>
+            </errorLevel>
+        </DeprecatedProperty>
+        <DocblockTypeContradiction>
+            <errorLevel type="suppress">
                 <!--
                     These issues can be mostly divided in the following categories:
                       1. Union types not supported at the language level (require dropping PHP 7 support)
