@@ -423,13 +423,13 @@ SQL;
             k.COLUMN_NAME,
             k.REFERENCED_TABLE_NAME,
             k.REFERENCED_COLUMN_NAME,
-            k.ORDINAL_POSITION /*!50116,
+            k.ORDINAL_POSITION,
             c.UPDATE_RULE,
-            c.DELETE_RULE */
-FROM information_schema.key_column_usage k /*!50116
+            c.DELETE_RULE
+FROM information_schema.key_column_usage k
 INNER JOIN information_schema.referential_constraints c
 ON c.CONSTRAINT_NAME = k.CONSTRAINT_NAME
-AND c.TABLE_NAME = k.TABLE_NAME */
+AND c.TABLE_NAME = k.TABLE_NAME
 SQL;
 
         $conditions = ['k.TABLE_SCHEMA = ?'];
@@ -440,16 +440,15 @@ SQL;
             $params[]     = $tableName;
         }
 
+        // The schema name is passed multiple times in the WHERE clause instead of using a JOIN condition
+        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
+        // caused by https://bugs.mysql.com/bug.php?id=81347
+        $conditions[] = 'c.CONSTRAINT_SCHEMA = ?';
+        $params[]     = $databaseName;
+
         $conditions[] = 'k.REFERENCED_COLUMN_NAME IS NOT NULL';
 
-        $sql .= ' WHERE ' . implode(' AND ', $conditions)
-            // The schema name is passed multiple times in the WHERE clause instead of using a JOIN condition
-            // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
-            // caused by https://bugs.mysql.com/bug.php?id=81347.
-            // Use a string literal for the database name since the internal PDO SQL parser
-            // cannot recognize parameter placeholders inside conditional comments
-            . ' /*!50116 AND c.CONSTRAINT_SCHEMA = ' . $this->connection->quote($databaseName) . ' */'
-            . ' ORDER BY k.ORDINAL_POSITION';
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY k.ORDINAL_POSITION';
 
         return $this->connection->executeQuery($sql, $params);
     }
