@@ -46,6 +46,11 @@ The following classes have been converted to enums:
 
 The corresponding class constants are now instances of their enum type.
 
+## BC BREAK: dropped naming convention for default constraints on SQL Server
+
+The DBAL no longer generates default constraint names using the table name and column name. The name is now generated
+by the database.
+
 ## BC BREAK: renamed SQLite platform classes
 
 1. `SqlitePlatform` => `SQLitePlatform`

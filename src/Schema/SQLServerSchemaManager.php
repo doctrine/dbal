@@ -12,7 +12,6 @@ use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function assert;
-use function count;
 use function explode;
 use function implode;
 use function is_string;
@@ -65,7 +64,7 @@ SQL,
 
         $length = (int) $tableColumn['length'];
 
-        $precision = $default = null;
+        $precision = null;
 
         $scale = 0;
         $fixed = false;
@@ -80,10 +79,6 @@ SQL,
 
         if ($tableColumn['precision'] !== null) {
             $precision = (int) $tableColumn['precision'];
-        }
-
-        if ($tableColumn['default'] !== null) {
-            $default = $this->parseDefaultExpression($tableColumn['default']);
         }
 
         switch ($dbType) {
@@ -118,7 +113,6 @@ SQL,
 
         $options = [
             'fixed'         => $fixed,
-            'default'       => $default,
             'notnull'       => (bool) $tableColumn['notnull'],
             'scale'         => $scale,
             'precision'     => $precision,
@@ -134,6 +128,16 @@ SQL,
         }
 
         $column = new Column($tableColumn['name'], Type::getType($type), $options);
+
+        if ($tableColumn['default'] !== null) {
+            $default = $this->parseDefaultExpression($tableColumn['default']);
+
+            $column->setDefault($default);
+            $column->setPlatformOption(
+                SQLServerPlatform::OPTION_DEFAULT_CONSTRAINT_NAME,
+                $tableColumn['df_name'],
+            );
+        }
 
         if (isset($tableColumn['collation']) && $tableColumn['collation'] !== 'NULL') {
             $column->setPlatformOption('collation', $tableColumn['collation']);
@@ -246,56 +250,7 @@ SQL,
      */
     protected function _getPortableViewDefinition(array $view): View
     {
-        // @todo
         return new View($view['name'], $view['definition']);
-    }
-
-    public function alterTable(TableDiff $tableDiff): void
-    {
-        if (count($tableDiff->removedColumns) > 0) {
-            foreach ($tableDiff->removedColumns as $col) {
-                foreach ($this->getColumnConstraints($tableDiff->name, $col->getName()) as $constraint) {
-                    $this->connection->executeStatement(
-                        sprintf(
-                            'ALTER TABLE %s DROP CONSTRAINT %s',
-                            $tableDiff->name,
-                            $constraint,
-                        ),
-                    );
-                }
-            }
-        }
-
-        parent::alterTable($tableDiff);
-    }
-
-    /**
-     * Returns the names of the constraints for a given column.
-     *
-     * @return iterable<string>
-     *
-     * @throws Exception
-     */
-    private function getColumnConstraints(string $table, string $column): iterable
-    {
-        return $this->connection->iterateColumn(
-            <<<'SQL'
-SELECT o.name
-FROM sys.objects o
-         INNER JOIN sys.objects t
-                    ON t.object_id = o.parent_object_id
-                        AND t.type = 'U'
-         INNER JOIN sys.default_constraints dc
-                    ON dc.object_id = o.object_id
-         INNER JOIN sys.columns c
-                    ON c.column_id = dc.parent_column_id
-                        AND c.object_id = t.object_id
-WHERE t.name = ?
-  AND c.name = ?
-SQL
-            ,
-            [$table, $column],
-        );
     }
 
     /** @throws Exception */
@@ -351,6 +306,7 @@ SQL;
                           col.max_length AS length,
                           ~col.is_nullable AS notnull,
                           def.definition AS [default],
+                          def.name AS df_name,
                           col.scale,
                           col.precision,
                           col.is_identity AS autoincrement,

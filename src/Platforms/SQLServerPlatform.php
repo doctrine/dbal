@@ -45,6 +45,9 @@ use const PREG_OFFSET_CAPTURE;
  */
 class SQLServerPlatform extends AbstractPlatform
 {
+    /** @internal Should be used only from within the {@see AbstractSchemaManager} class hierarchy. */
+    public const OPTION_DEFAULT_CONSTRAINT_NAME = 'default_constraint_name';
+
     public function getCurrentDateSQL(): string
     {
         return $this->getConvertExpression('date', 'GETDATE()');
@@ -182,7 +185,7 @@ class SQLServerPlatform extends AbstractPlatform
             // Build default constraints SQL statements.
             if (isset($column['default'])) {
                 $defaultConstraintsSql[] = 'ALTER TABLE ' . $name .
-                    ' ADD' . $this->getDefaultConstraintDeclarationSQL($name, $column);
+                    ' ADD' . $this->getDefaultConstraintDeclarationSQL($column);
             }
 
             if (empty($column['comment']) && ! is_numeric($column['comment'])) {
@@ -288,12 +291,11 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL snippet for declaring a default constraint.
      *
-     * @param string  $table  Name of the table to return the default constraint declaration for.
      * @param mixed[] $column Column definition.
      *
      * @throws InvalidArgumentException
      */
-    protected function getDefaultConstraintDeclarationSQL(string $table, array $column): string
+    protected function getDefaultConstraintDeclarationSQL(array $column): string
     {
         if (! isset($column['default'])) {
             throw new InvalidArgumentException('Incomplete column definition. "default" required.');
@@ -301,10 +303,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         $columnName = new Identifier($column['name']);
 
-        return ' CONSTRAINT ' .
-            $this->generateDefaultConstraintName($table, $column['name']) .
-            $this->getDefaultValueDeclarationSQL($column) .
-            ' FOR ' . $columnName->getQuotedName($this);
+        return $this->getDefaultValueDeclarationSQL($column) . ' FOR ' . $columnName->getQuotedName($this);
     }
 
     public function getCreateIndexSQL(Index $index, string $table): string
@@ -368,9 +367,7 @@ class SQLServerPlatform extends AbstractPlatform
             $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnProperties);
 
             if (isset($columnProperties['default'])) {
-                $addColumnSql .= ' CONSTRAINT ' .
-                    $this->generateDefaultConstraintName($diff->name, $column->getQuotedName($this)) .
-                    $this->getDefaultValueDeclarationSQL($columnProperties);
+                $addColumnSql .= $this->getDefaultValueDeclarationSQL($columnProperties);
             }
 
             $queryParts[] = $addColumnSql;
@@ -391,6 +388,10 @@ class SQLServerPlatform extends AbstractPlatform
         foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
+            }
+
+            if ($column->getDefault() !== null) {
+                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($column);
             }
 
             $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
@@ -440,10 +441,7 @@ class SQLServerPlatform extends AbstractPlatform
             $requireDropDefaultConstraint = $this->alterColumnRequiresDropDefaultConstraint($columnDiff);
 
             if ($requireDropDefaultConstraint) {
-                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
-                    $diff->name,
-                    $oldColumn->getName(),
-                );
+                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($oldColumn);
             }
 
             if ($declarationSQLChanged) {
@@ -467,20 +465,12 @@ class SQLServerPlatform extends AbstractPlatform
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = "sp_rename '" .
-                $diff->getName($this)->getQuotedName($this) . '.' . $oldColumnName->getQuotedName($this) .
-                "', '" . $newColumn->getQuotedName($this) . "', 'COLUMN'";
-
-            // Recreate default constraint with new column name if necessary (for future reference).
-            if ($newColumn->getDefault() === null) {
-                continue;
-            }
-
-            $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
-                $diff->name,
+            $sql[] = sprintf(
+                "sp_rename '%s.%s', '%s', 'COLUMN'",
+                $diff->getName($this)->getQuotedName($this),
                 $oldColumnName->getQuotedName($this),
+                $newColumn->getQuotedName($this)
             );
-            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $newColumn);
         }
 
         $tableSql = [];
@@ -499,23 +489,6 @@ class SQLServerPlatform extends AbstractPlatform
 
         if ($newName !== null) {
             $sql[] = "sp_rename '" . $diff->getName($this)->getQuotedName($this) . "', '" . $newName->getName() . "'";
-
-            /**
-             * Rename table's default constraints names
-             * to match the new table name.
-             * This is necessary to ensure that the default
-             * constraints can be referenced in future table
-             * alterations as the table name is encoded in
-             * default constraints' names.
-             */
-            $sql[] = "DECLARE @sql NVARCHAR(MAX) = N''; " .
-                "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
-                "+ REPLACE(dc.name, '" . $this->generateIdentifierName($diff->name) . "', " .
-                "'" . $this->generateIdentifierName($newName->getName()) . "') + ''', ''OBJECT'';' " .
-                'FROM sys.default_constraints dc ' .
-                'JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
-                "WHERE tbl.name = '" . $newName->getName() . "';" .
-                'EXEC sp_executesql @sql';
         }
 
         $sql = array_merge(
@@ -538,18 +511,24 @@ class SQLServerPlatform extends AbstractPlatform
         $columnDef         = $column->toArray();
         $columnDef['name'] = $column->getQuotedName($this);
 
-        return 'ADD' . $this->getDefaultConstraintDeclarationSQL($tableName, $columnDef);
+        return 'ADD' . $this->getDefaultConstraintDeclarationSQL($columnDef);
     }
 
     /**
      * Returns the SQL clause for dropping an existing default constraint in an ALTER TABLE statement.
-     *
-     * @param string $tableName  The name of the table to generate the clause for.
-     * @param string $columnName The name of the column to generate the clause for.
      */
-    private function getAlterTableDropDefaultConstraintClause(string $tableName, string $columnName): string
+    private function getAlterTableDropDefaultConstraintClause(Column $column): string
     {
-        return 'DROP CONSTRAINT ' . $this->generateDefaultConstraintName($tableName, $columnName);
+        if (! $column->hasPlatformOption(self::OPTION_DEFAULT_CONSTRAINT_NAME)) {
+            throw new InvalidArgumentException(
+                'Column ' . $column->getName() . ' was not properly introspected as it has a default value'
+                    . ' but does not have the default constraint name.',
+            );
+        }
+
+        return 'DROP CONSTRAINT ' . $this->quoteIdentifier(
+            $column->getPlatformOption(self::OPTION_DEFAULT_CONSTRAINT_NAME),
+        );
     }
 
     /**
@@ -1224,17 +1203,6 @@ class SQLServerPlatform extends AbstractPlatform
     protected function getLikeWildcardCharacters(): string
     {
         return parent::getLikeWildcardCharacters() . '[]^';
-    }
-
-    /**
-     * Returns a unique default constraint name for a table and column.
-     *
-     * @param string $table  Name of the table to generate the unique default constraint name for.
-     * @param string $column Name of the column in the table to generate the unique default constraint name for.
-     */
-    private function generateDefaultConstraintName(string $table, string $column): string
-    {
-        return 'DF_' . $this->generateIdentifierName($table) . '_' . $this->generateIdentifierName($column);
     }
 
     /**
