@@ -29,8 +29,7 @@ class Comparator
      */
     public function compareSchemas(Schema $fromSchema, Schema $toSchema): SchemaDiff
     {
-        $diff             = new SchemaDiff();
-        $diff->fromSchema = $fromSchema;
+        $diff = new SchemaDiff();
 
         /** @var array<string,list<array{ForeignKeyConstraint,string}>> $foreignKeysToTable */
         $foreignKeysToTable = [];
