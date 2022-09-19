@@ -528,6 +528,8 @@ END;';
 
         $addColumnSQL = [];
 
+        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
+
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
@@ -541,15 +543,14 @@ END;';
             }
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $diff->getName($this)->getQuotedName($this),
+                $tableNameSQL,
                 $column->getQuotedName($this),
                 $comment,
             );
         }
 
         if (count($addColumnSQL) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
-                . ' ADD (' . implode(', ', $addColumnSQL) . ')';
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ADD (' . implode(', ', $addColumnSQL) . ')';
         }
 
         $modifyColumnSQL = [];
@@ -581,15 +582,14 @@ END;';
             }
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $diff->getName($this)->getQuotedName($this),
+                $tableNameSQL,
                 $newColumn->getQuotedName($this),
                 $newColumn->getComment(),
             );
         }
 
         if (count($modifyColumnSQL) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
-                . ' MODIFY (' . implode(', ', $modifyColumnSQL) . ')';
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY (' . implode(', ', $modifyColumnSQL) . ')';
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -599,8 +599,8 @@ END;';
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) .
-                ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this)
+                . ' TO ' . $column->getQuotedName($this);
         }
 
         $dropColumnSQL = [];
@@ -613,8 +613,7 @@ END;';
         }
 
         if (count($dropColumnSQL) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
-                . ' DROP (' . implode(', ', $dropColumnSQL) . ')';
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP (' . implode(', ', $dropColumnSQL) . ')';
         }
 
         $tableSql = [];

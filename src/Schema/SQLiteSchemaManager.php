@@ -354,10 +354,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
     private function getTableDiffForAlterForeignKey(Table $table): TableDiff
     {
-        $tableDiff            = new TableDiff($table->getName());
-        $tableDiff->fromTable = $table;
-
-        return $tableDiff;
+        return new TableDiff($table->getName(), [], [], [], [], [], [], $table);
     }
 
     private function parseColumnCollationFromSQL(string $column, string $sql): ?string

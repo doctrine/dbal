@@ -357,6 +357,10 @@ class SQLServerPlatform extends AbstractPlatform
         $columnSql   = [];
         $commentsSql = [];
 
+        $table = $diff->getOldTable() ?? $diff->getName($this);
+
+        $tableName = $table->getName();
+
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
@@ -379,7 +383,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             $commentsSql[] = $this->getCreateColumnCommentSQL(
-                $diff->name,
+                $tableName,
                 $column->getQuotedName($this),
                 $comment,
             );
@@ -412,33 +416,36 @@ class SQLServerPlatform extends AbstractPlatform
 
             if ($hasOldComment && $hasNewComment && $newComment !== $oldComment) {
                 $commentsSql[] = $this->getAlterColumnCommentSQL(
-                    $diff->name,
+                    $tableName,
                     $newColumn->getQuotedName($this),
                     $newComment,
                 );
             } elseif ($hasOldComment && ! $hasNewComment) {
-                $commentsSql[] = $this->getDropColumnCommentSQL($diff->name, $newColumn->getQuotedName($this));
+                $commentsSql[] = $this->getDropColumnCommentSQL(
+                    $tableName,
+                    $newColumn->getQuotedName($this),
+                );
             } elseif (! $hasOldComment && $hasNewComment) {
                 $commentsSql[] = $this->getCreateColumnCommentSQL(
-                    $diff->name,
+                    $tableName,
                     $newColumn->getQuotedName($this),
                     $newComment
                 );
             }
 
-            $columnNameSQL = $newColumn->getQuotedName($this);
+                $columnNameSQL = $newColumn->getQuotedName($this);
 
-            $oldDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $oldColumn->toArray());
-            $newDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $newColumn->toArray());
+                $oldDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $oldColumn->toArray());
+                $newDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $newColumn->toArray());
 
-            $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
-            $defaultChanged        = $columnDiff->hasDefaultChanged();
+                $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
+                $defaultChanged        = $columnDiff->hasDefaultChanged();
 
             if (! $declarationSQLChanged && ! $defaultChanged) {
                 continue;
             }
 
-            $requireDropDefaultConstraint = $this->alterColumnRequiresDropDefaultConstraint($columnDiff);
+                $requireDropDefaultConstraint = $this->alterColumnRequiresDropDefaultConstraint($columnDiff);
 
             if ($requireDropDefaultConstraint) {
                 $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($oldColumn);
@@ -449,14 +456,16 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             if (
-                $newColumn->getDefault() === null
-                || (! $requireDropDefaultConstraint && ! $defaultChanged)
+                    $newColumn->getDefault() === null
+                    || (! $requireDropDefaultConstraint && ! $defaultChanged)
             ) {
                 continue;
             }
 
-            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $newColumn);
+                $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
         }
+
+        $tableNameSQL = $table->getQuotedName($this);
 
         foreach ($diff->renamedColumns as $oldColumnName => $newColumn) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
@@ -467,7 +476,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $sql[] = sprintf(
                 "sp_rename '%s.%s', '%s', 'COLUMN'",
-                $diff->getName($this)->getQuotedName($this),
+                $tableNameSQL,
                 $oldColumnName->getQuotedName($this),
                 $newColumn->getQuotedName($this)
             );
@@ -480,7 +489,7 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($queryParts as $query) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
         }
 
         $sql = array_merge(

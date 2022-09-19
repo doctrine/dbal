@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 
@@ -388,7 +387,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' '
+                $sql[] = 'ALTER TABLE ' . ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this) . ' '
                     . implode(', ', $queryParts);
             }
 
@@ -407,8 +406,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
-        $sql   = [];
-        $table = $diff->getName($this)->getQuotedName($this);
+        $sql = [];
+
+        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
 
         foreach ($diff->changedIndexes as $changedIndex) {
             $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $changedIndex));
@@ -430,7 +430,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                     $indexClause = 'UNIQUE INDEX ' . $addIndex->getName();
                 }
 
-                $query  = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
+                $query  = 'ALTER TABLE ' . $tableNameSQL . ' DROP INDEX ' . $remIndex->getName() . ', ';
                 $query .= 'ADD ' . $indexClause;
                 $query .= ' (' . implode(', ', $addIndex->getQuotedColumns($this)) . ')';
 
@@ -457,21 +457,27 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index): array
     {
-        $sql = [];
-
-        if (! $index->isPrimary() || ! $diff->fromTable instanceof Table) {
-            return $sql;
+        if (! $index->isPrimary()) {
+            return [];
         }
 
-        $tableName = $diff->getName($this)->getQuotedName($this);
+        $table = $diff->getOldTable();
+
+        if ($table === null) {
+            return [];
+        }
+
+        $sql = [];
+
+        $tableNameSQL = $table->getQuotedName($this);
 
         // Dropping primary keys requires to unset autoincrement attribute on the particular column first.
         foreach ($index->getColumns() as $columnName) {
-            if (! $diff->fromTable->hasColumn($columnName)) {
+            if (! $table->hasColumn($columnName)) {
                 continue;
             }
 
-            $column = $diff->fromTable->getColumn($columnName);
+            $column = $table->getColumn($columnName);
 
             if (! $column->getAutoincrement()) {
                 continue;
@@ -479,7 +485,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
             $column->setAutoincrement(false);
 
-            $sql[] = 'ALTER TABLE ' . $tableName . ' MODIFY ' .
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
                 $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
 
             // original autoincrement information might be needed later on by other parts of the table alteration
@@ -498,17 +504,24 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff): array
     {
-        $sql   = [];
-        $table = $diff->getName($this)->getQuotedName($this);
+        $table = $diff->getOldTable();
+
+        if ($table === null) {
+            return [];
+        }
+
+        $sql = [];
+
+        $tableNameSQL = $table->getQuotedName($this);
 
         foreach ($diff->changedIndexes as $changedIndex) {
             // Changed primary key
-            if (! $changedIndex->isPrimary() || ! ($diff->fromTable instanceof Table)) {
+            if (! $changedIndex->isPrimary()) {
                 continue;
             }
 
-            foreach ($diff->fromTable->getPrimaryKeyColumns() as $columnName => $column) {
-                $column = $diff->fromTable->getColumn($columnName);
+            foreach ($table->getPrimaryKeyColumns() as $columnName => $column) {
+                $column = $table->getColumn($columnName);
 
                 // Check if an autoincrement column was dropped from the primary key.
                 if (! $column->getAutoincrement() || in_array($columnName, $changedIndex->getColumns(), true)) {
@@ -519,7 +532,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 // before we can drop and recreate the primary key.
                 $column->setAutoincrement(false);
 
-                $sql[] = 'ALTER TABLE ' . $table . ' MODIFY ' .
+                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
                     $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
 
                 // Restore the autoincrement attribute as it might be needed later on

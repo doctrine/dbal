@@ -225,13 +225,17 @@ class PostgreSQLPlatform extends AbstractPlatform
         $commentsSQL = [];
         $columnSql   = [];
 
+        $table = $diff->getOldTable() ?? $diff->getName($this);
+
+        $tableNameSQL = $table->getQuotedName($this);
+
         foreach ($diff->addedColumns as $newColumn) {
             if ($this->onSchemaAlterTableAddColumn($newColumn, $diff, $columnSql)) {
                 continue;
             }
 
             $query = 'ADD ' . $this->getColumnDeclarationSQL($newColumn->getQuotedName($this), $newColumn->toArray());
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
 
             $comment = $newColumn->getComment();
 
@@ -240,7 +244,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             }
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $diff->getName($this)->getQuotedName($this),
+                $tableNameSQL,
                 $newColumn->getQuotedName($this),
                 $comment,
             );
@@ -252,7 +256,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             }
 
             $query = 'DROP ' . $newColumn->getQuotedName($this);
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
         }
 
         foreach ($diff->changedColumns as $columnDiff) {
@@ -279,7 +283,7 @@ class PostgreSQLPlatform extends AbstractPlatform
 
                 // here was a server version check before, but DBAL API does not support this anymore.
                 $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
             if ($columnDiff->hasDefaultChanged()) {
@@ -288,12 +292,12 @@ class PostgreSQLPlatform extends AbstractPlatform
                     : ' SET' . $this->getDefaultValueDeclarationSQL($newColumn->toArray());
 
                 $query = 'ALTER ' . $oldColumnName . $defaultClause;
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
             if ($columnDiff->hasNotNullChanged()) {
                 $query = 'ALTER ' . $oldColumnName . ' ' . ($newColumn->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
             if ($columnDiff->hasAutoIncrementChanged()) {
@@ -303,8 +307,7 @@ class PostgreSQLPlatform extends AbstractPlatform
                     $query = 'DROP IDENTITY';
                 }
 
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
-                    . ' ALTER ' . $oldColumnName . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ALTER ' . $oldColumnName . ' ' . $query;
             }
 
             $newComment = $newColumn->getComment();
@@ -312,7 +315,7 @@ class PostgreSQLPlatform extends AbstractPlatform
 
             if ($columnDiff->hasCommentChanged() || $oldComment !== $newComment) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
-                    $diff->getName($this)->getQuotedName($this),
+                    $tableNameSQL,
                     $newColumn->getQuotedName($this),
                     $newComment,
                 );
@@ -324,7 +327,7 @@ class PostgreSQLPlatform extends AbstractPlatform
 
             $query = 'ALTER ' . $oldColumnName . ' TYPE '
                 . $newColumn->getType()->getSQLDeclaration($newColumn->toArray(), $this);
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -334,8 +337,8 @@ class PostgreSQLPlatform extends AbstractPlatform
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) .
-                ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this)
+                . ' TO ' . $column->getQuotedName($this);
         }
 
         $tableSql = [];

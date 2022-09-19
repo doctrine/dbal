@@ -754,6 +754,13 @@ The "unique" and "check" column properties have been deprecated. Use unique cons
 Relying on the default precision and scale of decimal columns provided by the DBAL is deprecated.
 When declaring decimal columns, specify the precision and scale explicitly.
 
+## Deprecated not passing `$fromColumn` to the `TableDiff` constructor.
+
+Not passing `$fromColumn` to the `TableDiff` constructor has been deprecated.
+
+The `TableDiff::$name` property and the `TableDiff::getName()` method have been deprecated as well. In order to obtain
+the name of the table that the diff describes, use `TableDiff::getOldTable()`.
+
 ## Deprecated renaming tables via `TableDiff` and `AbstractPlatform::alterTable()`.
 
 Renaming tables via setting the `$newName` property on a `TableDiff` and passing it to `AbstractPlatform::alterTable()`
