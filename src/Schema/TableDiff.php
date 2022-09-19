@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\Deprecations\Deprecation;
 
 /**
  * Table Diff.
  */
 class TableDiff
 {
-    /** @deprecated Rename tables via {@link AbstractSchemaManager::renameTable()} instead. */
-    public ?string $newName = null;
-
     /**
      * Columns that are only renamed from key to column instance name.
      *
@@ -80,24 +76,5 @@ class TableDiff
         return new Identifier(
             $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name,
         );
-    }
-
-    /**
-     * @deprecated Rename tables via {@link AbstractSchemaManager::renameTable()} instead.
-     */
-    public function getNewName(): ?Identifier
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5663',
-            '%s is deprecated. Rename tables via AbstractSchemaManager::renameTable() instead.',
-            __METHOD__,
-        );
-
-        if ($this->newName === null) {
-            return null;
-        }
-
-        return new Identifier($this->newName);
     }
 }

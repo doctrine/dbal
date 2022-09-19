@@ -44,15 +44,4 @@ class TableDiffTest extends TestCase
 
         self::assertEquals(new Identifier('foo'), $tableDiff->getName($this->platform));
     }
-
-    public function testReturnsNewName(): void
-    {
-        $tableDiff = new TableDiff('foo');
-
-        self::assertNull($tableDiff->getNewName());
-
-        $tableDiff->newName = 'bar';
-
-        self::assertEquals(new Identifier('bar'), $tableDiff->getNewName());
-    }
 }

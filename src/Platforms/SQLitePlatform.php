@@ -20,7 +20,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\IntegerType;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_combine;
 use function array_keys;
@@ -485,12 +484,9 @@ class SQLitePlatform extends AbstractPlatform
             );
         }
 
-        $sql       = [];
-        $tableName = $diff->getNewName();
+        $sql = [];
 
-        if ($tableName === null) {
-            $tableName = $diff->getName($this);
-        }
+        $tableName = $diff->getName($this);
 
         foreach ($this->getIndexesInAlteredTable($diff, $fromTable) as $index) {
             if ($index->isPrimary()) {
@@ -689,22 +685,6 @@ class SQLitePlatform extends AbstractPlatform
             );
             $sql[] = $this->getDropTableSQL($dataTable->getQuotedName($this));
 
-            $newName = $diff->getNewName();
-
-            if ($newName !== null) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5663',
-                    'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
-                    __METHOD__,
-                );
-                $sql[] = sprintf(
-                    'ALTER TABLE %s RENAME TO %s',
-                    $newTable->getQuotedName($this),
-                    $newName->getQuotedName($this),
-                );
-            }
-
             $sql = array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff));
         }
 
@@ -816,21 +796,7 @@ class SQLitePlatform extends AbstractPlatform
                 . $this->getColumnDeclarationSQL($definition['name'], $definition);
         }
 
-        if (! $this->onSchemaAlterTable($diff, $tableSql)) {
-            if ($diff->newName !== null) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5663',
-                    'Generation of SQL that renames a table using %s is deprecated.'
-                        . ' Use getRenameTableSQL() instead.',
-                    __METHOD__,
-                );
-                $newTable = new Identifier($diff->newName);
-
-                $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' RENAME TO '
-                    . $newTable->getQuotedName($this);
-            }
-        }
+        $this->onSchemaAlterTable($diff, $tableSql);
 
         return array_merge($sql, $tableSql, $columnSql);
     }

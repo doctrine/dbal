@@ -318,7 +318,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
         $diff                           = new TableDiff('user');
         $diff->fromTable                = $table;
-        $diff->newName                  = 'client';
         $diff->renamedColumns['id']     = new Column('key', Type::getType('integer'), []);
         $diff->renamedColumns['post']   = new Column('comment', Type::getType('integer'), []);
         $diff->removedColumns['parent'] = new Column('comment', Type::getType('integer'), []);
@@ -337,9 +336,8 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
                 . ')',
             'INSERT INTO user ("key", article, comment) SELECT id, article, post FROM __temp__user',
             'DROP TABLE __temp__user',
-            'ALTER TABLE user RENAME TO client',
-            'CREATE INDEX IDX_8D93D64923A0E66 ON client (article)',
-            'CREATE INDEX IDX_8D93D6495A8A6C8D ON client (comment)',
+            'CREATE INDEX IDX_8D93D64923A0E66 ON user (article)',
+            'CREATE INDEX IDX_8D93D6495A8A6C8D ON user (comment)',
         ];
 
         self::assertEquals($sql, $this->platform->getAlterTableSQL($diff));
@@ -542,9 +540,8 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             'CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE)',
             'INSERT INTO "foo" (war, fk, fk2, fk3, bar) SELECT id, fk, fk2, fk3, bar FROM __temp__foo',
             'DROP TABLE __temp__foo',
-            'ALTER TABLE "foo" RENAME TO "table"',
-            'CREATE INDEX IDX_8C736521A81E660E ON "table" (fk)',
-            'CREATE INDEX IDX_8C736521FDC58D6C ON "table" (fk2)',
+            'CREATE INDEX IDX_8C736521A81E660E ON "foo" (fk)',
+            'CREATE INDEX IDX_8C736521FDC58D6C ON "foo" (fk2)',
         ];
     }
 

@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function array_unique;
@@ -311,17 +310,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     {
         $columnSql  = [];
         $queryParts = [];
-        $newName    = $diff->getNewName();
-
-        if ($newName !== null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5663',
-                'Generation of SQL that renames a table using %s is deprecated. Use getRenameTableSQL() instead.',
-                __METHOD__,
-            );
-            $queryParts[] = 'RENAME TO ' . $newName->getQuotedName($this);
-        }
 
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {

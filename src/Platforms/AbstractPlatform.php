@@ -1422,14 +1422,9 @@ abstract class AbstractPlatform
     /** @return string[] */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
-        $sql     = [];
-        $newName = $diff->getNewName();
+        $sql = [];
 
-        if ($newName !== null) {
-            $tableName = $newName->getQuotedName($this);
-        } else {
-            $tableName = $diff->getName($this)->getQuotedName($this);
-        }
+        $tableName = $diff->getName($this)->getQuotedName($this);
 
         foreach ($diff->addedForeignKeys as $foreignKey) {
             $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);

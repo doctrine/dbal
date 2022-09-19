@@ -430,6 +430,10 @@ the name of the object as a separate parameter. The name of the passed index or 
 The `AbstractPlatform::canEmulateSchemas()` method and the schema emulation implemented in the SQLite platform
 have been removed.
 
+## BC BREAK: removed support for renaming tables via `TableDiff` and `AbstractPlatform::alterTable()`.
+
+The `TableDiff::$newName` property and the `TableDiff::getNewName()` method have been removed.
+
 ## BC BREAK: removed `SchemaDiff` reference to the original schema.
 
 The `SchemaDiff` class no longer accepts or exposes a reference to the original schema.
@@ -645,7 +649,6 @@ Table columns are no longer indexed by column name. Use the `name` attribute of 
 - Method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableViewDefinition()` no longer optionally returns false. It will always return a `Doctrine\DBAL\Schema\View` instance.
 - Method `Doctrine\DBAL\Schema\Comparator::diffTable()` now optionally returns null instead of false.
 - Property `Doctrine\DBAL\Schema\Table::$_primaryKeyName` is now optionally null instead of false.
-- Property `Doctrine\DBAL\Schema\TableDiff::$newName` is now optionally null instead of false.
 - Method `Doctrine\DBAL\Schema\AbstractSchemaManager::tablesExist()` no longer accepts a string. Use `Doctrine\DBAL\Schema\AbstractSchemaManager::tableExists()` instead.
 - Method `Doctrine\DBAL\Schema\OracleSchemaManager::createDatabase()` no longer accepts `null` for `$database` argument.
 

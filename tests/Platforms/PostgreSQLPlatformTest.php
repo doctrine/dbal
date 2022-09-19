@@ -646,10 +646,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE "foo" DROP baz',
             'ALTER TABLE "foo" ALTER bar DROP NOT NULL',
             'ALTER TABLE "foo" RENAME COLUMN id TO war',
-            'ALTER TABLE "foo" RENAME TO "table"',
-            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE ' .
+            'ALTER TABLE "foo" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE ' .
             'INITIALLY IMMEDIATE',
-            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE ' .
+            'ALTER TABLE "foo" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE ' .
             'INITIALLY IMMEDIATE',
         ];
     }

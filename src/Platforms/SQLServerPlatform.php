@@ -17,7 +17,6 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -484,24 +483,10 @@ class SQLServerPlatform extends AbstractPlatform
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
         }
 
-        $sql = array_merge($sql, $commentsSql);
-
-        $newName = $diff->getNewName();
-
-        if ($newName !== null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5663',
-                'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
-                __METHOD__,
-            );
-
-            $sql = array_merge($sql, $this->getRenameTableSQL($diff->name, $newName->getName()));
-        }
-
         $sql = array_merge(
             $this->getPreAlterTableIndexForeignKeySQL($diff),
             $sql,
+            $commentsSql,
             $this->getPostAlterTableIndexForeignKeySQL($diff),
         );
 
