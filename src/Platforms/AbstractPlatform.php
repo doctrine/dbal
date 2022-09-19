@@ -1286,12 +1286,9 @@ abstract class AbstractPlatform
      */
     abstract public function getAlterTableSQL(TableDiff $diff): array;
 
-    /** @return list<string> */
-    public function getRenameTableSQL(string $oldName, string $newName): array
+    public function getRenameTableSQL(string $oldName, string $newName): string
     {
-        return [
-            sprintf('ALTER TABLE %s RENAME TO %s', $oldName, $newName),
-        ];
+        return sprintf('ALTER TABLE %s RENAME TO %s', $oldName, $newName);
     }
 
     /** @param mixed[] $columnSql */

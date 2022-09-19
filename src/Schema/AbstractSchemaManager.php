@@ -633,7 +633,9 @@ abstract class AbstractSchemaManager
      */
     public function renameTable(string $name, string $newName): void
     {
-        $this->executeStatements($this->platform->getRenameTableSQL($name, $newName));
+        $this->connection->executeStatement(
+            $this->platform->getRenameTableSQL($name, $newName)
+        );
     }
 
     /**

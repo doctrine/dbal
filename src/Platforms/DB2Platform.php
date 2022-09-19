@@ -357,14 +357,9 @@ class DB2Platform extends AbstractPlatform
         return array_merge($sql, $tableSql, $columnSql);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getRenameTableSQL(string $oldName, string $newName): array
+    public function getRenameTableSQL(string $oldName, string $newName): string
     {
-        return [
-            sprintf('RENAME TABLE %s TO %s', $oldName, $newName),
-        ];
+        return sprintf('RENAME TABLE %s TO %s', $oldName, $newName);
     }
 
     /**
