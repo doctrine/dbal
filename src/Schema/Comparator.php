@@ -27,7 +27,7 @@ use function strtolower;
  */
 class Comparator
 {
-    private ?AbstractPlatform $platform = null;
+    private ?AbstractPlatform $platform;
 
     /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(?AbstractPlatform $platform = null)
@@ -264,9 +264,8 @@ class Comparator
      */
     public function diffTable(Table $fromTable, Table $toTable)
     {
-        $changes                     = 0;
-        $tableDifferences            = new TableDiff($fromTable->getName());
-        $tableDifferences->fromTable = $fromTable;
+        $changes          = 0;
+        $tableDifferences = new TableDiff($fromTable->getName(), [], [], [], [], [], [], $fromTable);
 
         $fromTableColumns = $fromTable->getColumns();
         $toTableColumns   = $toTable->getColumns();

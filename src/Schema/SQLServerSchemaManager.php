@@ -318,12 +318,14 @@ SQL,
     public function alterTable(TableDiff $tableDiff)
     {
         if (count($tableDiff->removedColumns) > 0) {
+            $tableName = ($tableDiff->getOldTable() ?? $tableDiff->getName($this->_platform))->getName();
+
             foreach ($tableDiff->removedColumns as $col) {
-                foreach ($this->getColumnConstraints($tableDiff->name, $col->getName()) as $constraint) {
+                foreach ($this->getColumnConstraints($tableName, $col->getName()) as $constraint) {
                     $this->_conn->executeStatement(
                         sprintf(
                             'ALTER TABLE %s DROP CONSTRAINT %s',
-                            $tableDiff->name,
+                            $tableName,
                             $constraint,
                         ),
                     );

@@ -10,7 +10,11 @@ use Doctrine\Deprecations\Deprecation;
  */
 class TableDiff
 {
-    /** @var string */
+    /**
+     * @deprecated Use {@see getOldTable()} instead.
+     *
+     * @var string
+     */
     public $name;
 
     /**
@@ -97,7 +101,11 @@ class TableDiff
      */
     public $removedForeignKeys = [];
 
-    /** @var Table|null */
+    /**
+     * @internal Use {@see getOldTable()} instead.
+     *
+     * @var Table|null
+     */
     public $fromTable;
 
     /**
@@ -131,9 +139,22 @@ class TableDiff
         $this->changedIndexes = $changedIndexes;
         $this->removedIndexes = $removedIndexes;
         $this->fromTable      = $fromTable;
+
+        if ($fromTable !== null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5678',
+                'Not passing the $fromColumn to %s is deprecated.',
+                __METHOD__,
+            );
+        }
+
+        $this->fromTable = $fromTable;
     }
 
     /**
+     * @deprecated Use {@see getOldTable()} instead.
+     *
      * @param AbstractPlatform $platform The platform to use for retrieving this table diff's name.
      *
      * @return Identifier
@@ -164,5 +185,10 @@ class TableDiff
         }
 
         return new Identifier($this->newName);
+    }
+
+    public function getOldTable(): ?Table
+    {
+        return $this->fromTable;
     }
 }

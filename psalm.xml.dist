@@ -427,6 +427,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\TableDiff::getNewName"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\TableDiff::getName"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
@@ -472,6 +476,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedProperty name="Doctrine\DBAL\Schema\TableDiff::$newName"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedProperty name="Doctrine\DBAL\Schema\TableDiff::$name"/>
             </errorLevel>
         </DeprecatedProperty>
         <DocblockTypeContradiction>

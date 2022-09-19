@@ -516,6 +516,10 @@ class SQLServerPlatform extends AbstractPlatform
         $columnSql   = [];
         $commentsSql = [];
 
+        $table = $diff->getOldTable() ?? $diff->getName($this);
+
+        $tableName = $table->getName();
+
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
@@ -526,9 +530,10 @@ class SQLServerPlatform extends AbstractPlatform
             $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnProperties);
 
             if (isset($columnProperties['default'])) {
-                $addColumnSql .= ' CONSTRAINT ' .
-                    $this->generateDefaultConstraintName($diff->name, $column->getQuotedName($this)) .
-                    $this->getDefaultValueDeclarationSQL($columnProperties);
+                $addColumnSql .= ' CONSTRAINT ' . $this->generateDefaultConstraintName(
+                    $tableName,
+                    $column->getQuotedName($this),
+                ) . $this->getDefaultValueDeclarationSQL($columnProperties);
             }
 
             $queryParts[] = $addColumnSql;
@@ -540,7 +545,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             $commentsSql[] = $this->getCreateColumnCommentSQL(
-                $diff->name,
+                $tableName,
                 $column->getQuotedName($this),
                 $comment,
             );
@@ -571,15 +576,18 @@ class SQLServerPlatform extends AbstractPlatform
 
                 if ($hasOldComment && $hasNewComment && $oldComment !== $newComment) {
                     $commentsSql[] = $this->getAlterColumnCommentSQL(
-                        $diff->name,
+                        $tableName,
                         $newColumn->getQuotedName($this),
                         $newComment,
                     );
                 } elseif ($hasOldComment && ! $hasNewComment) {
-                    $commentsSql[] = $this->getDropColumnCommentSQL($diff->name, $newColumn->getQuotedName($this));
+                    $commentsSql[] = $this->getDropColumnCommentSQL(
+                        $tableName,
+                        $newColumn->getQuotedName($this),
+                    );
                 } elseif (! $hasOldComment && $hasNewComment) {
                     $commentsSql[] = $this->getCreateColumnCommentSQL(
-                        $diff->name,
+                        $tableName,
                         $newColumn->getQuotedName($this),
                         $newComment,
                     );
@@ -602,10 +610,7 @@ class SQLServerPlatform extends AbstractPlatform
                     $oldColumnName = $columnDiff->oldColumnName;
                 }
 
-                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
-                    $diff->name,
-                    $oldColumnName,
-                );
+                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($tableName, $oldColumnName);
             }
 
             $columnProperties = $newColumn->toArray();
@@ -620,8 +625,10 @@ class SQLServerPlatform extends AbstractPlatform
                 continue;
             }
 
-            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $newColumn);
+            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
         }
+
+        $tableNameSQL = $table->getQuotedName($this);
 
         foreach ($diff->renamedColumns as $oldColumnName => $newColumn) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
@@ -630,8 +637,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = "sp_rename '" .
-                $diff->getName($this)->getQuotedName($this) . '.' . $oldColumnName->getQuotedName($this) .
+            $sql[] = "sp_rename '" . $tableNameSQL . '.' . $oldColumnName->getQuotedName($this) .
                 "', '" . $newColumn->getQuotedName($this) . "', 'COLUMN'";
 
             // Recreate default constraint with new column name if necessary (for future reference).
@@ -640,10 +646,10 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
-                $diff->name,
+                $tableName,
                 $oldColumnName->getQuotedName($this),
             );
-            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $newColumn);
+            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
         }
 
         $tableSql = [];
@@ -653,7 +659,7 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($queryParts as $query) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
         }
 
         $sql = array_merge($sql, $commentsSql);
@@ -668,7 +674,7 @@ class SQLServerPlatform extends AbstractPlatform
                 __METHOD__,
             );
 
-            $sql = array_merge($sql, $this->getRenameTableSQL($diff->name, $newName->getName()));
+            $sql = array_merge($sql, $this->getRenameTableSQL($tableName, $newName->getName()));
         }
 
         $sql = array_merge(
