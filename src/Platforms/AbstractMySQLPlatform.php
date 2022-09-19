@@ -697,7 +697,7 @@ SQL
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' '
+                $sql[] = 'ALTER TABLE ' . ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this) . ' '
                     . implode(', ', $queryParts);
             }
 
@@ -716,8 +716,9 @@ SQL
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $sql   = [];
-        $table = $diff->getName($this)->getQuotedName($this);
+        $sql = [];
+
+        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
 
         foreach ($diff->changedIndexes as $changedIndex) {
             $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $changedIndex));
@@ -739,7 +740,7 @@ SQL
                     $indexClause = 'UNIQUE INDEX ' . $addIndex->getName();
                 }
 
-                $query  = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
+                $query  = 'ALTER TABLE ' . $tableNameSQL . ' DROP INDEX ' . $remIndex->getName() . ', ';
                 $query .= 'ADD ' . $indexClause;
                 $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex) . ')';
 
@@ -753,8 +754,10 @@ SQL
 
         $engine = 'INNODB';
 
-        if ($diff->fromTable instanceof Table && $diff->fromTable->hasOption('engine')) {
-            $engine = strtoupper(trim($diff->fromTable->getOption('engine')));
+        $table = $diff->getOldTable();
+
+        if ($table !== null && $table->hasOption('engine')) {
+            $engine = strtoupper(trim($table->getOption('engine')));
         }
 
         // Suppress foreign key constraint propagation on non-supporting engines.
@@ -781,21 +784,27 @@ SQL
      */
     private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index): array
     {
-        $sql = [];
-
-        if (! $index->isPrimary() || ! $diff->fromTable instanceof Table) {
-            return $sql;
+        if (! $index->isPrimary()) {
+            return [];
         }
 
-        $tableName = $diff->getName($this)->getQuotedName($this);
+        $table = $diff->getOldTable();
+
+        if ($table === null) {
+            return [];
+        }
+
+        $sql = [];
+
+        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
 
         // Dropping primary keys requires to unset autoincrement attribute on the particular column first.
         foreach ($index->getColumns() as $columnName) {
-            if (! $diff->fromTable->hasColumn($columnName)) {
+            if (! $table->hasColumn($columnName)) {
                 continue;
             }
 
-            $column = $diff->fromTable->getColumn($columnName);
+            $column = $table->getColumn($columnName);
 
             if ($column->getAutoincrement() !== true) {
                 continue;
@@ -803,7 +812,7 @@ SQL
 
             $column->setAutoincrement(false);
 
-            $sql[] = 'ALTER TABLE ' . $tableName . ' MODIFY ' .
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
                 $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
 
             // original autoincrement information might be needed later on by other parts of the table alteration
@@ -822,16 +831,23 @@ SQL
      */
     private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff): array
     {
-        $sql   = [];
-        $table = $diff->getName($this)->getQuotedName($this);
+        $table = $diff->getOldTable();
+
+        if ($table === null) {
+            return [];
+        }
+
+        $sql = [];
+
+        $tableNameSQL = $table->getQuotedName($this);
 
         foreach ($diff->changedIndexes as $changedIndex) {
             // Changed primary key
-            if (! $changedIndex->isPrimary() || ! ($diff->fromTable instanceof Table)) {
+            if (! $changedIndex->isPrimary()) {
                 continue;
             }
 
-            foreach ($diff->fromTable->getPrimaryKeyColumns() as $columnName => $column) {
+            foreach ($table->getPrimaryKeyColumns() as $columnName => $column) {
                 // Check if an autoincrement column was dropped from the primary key.
                 if (! $column->getAutoincrement() || in_array($columnName, $changedIndex->getColumns(), true)) {
                     continue;
@@ -841,7 +857,7 @@ SQL
                 // before we can drop and recreate the primary key.
                 $column->setAutoincrement(false);
 
-                $sql[] = 'ALTER TABLE ' . $table . ' MODIFY ' .
+                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
                     $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
 
                 // Restore the autoincrement attribute as it might be needed later on
@@ -860,15 +876,16 @@ SQL
      */
     protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
     {
-        $sql       = [];
-        $tableName = $diff->getName($this)->getQuotedName($this);
+        $sql = [];
+
+        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
 
         foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
             if (in_array($foreignKey, $diff->changedForeignKeys, true)) {
                 continue;
             }
 
-            $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableName);
+            $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableNameSQL);
         }
 
         return $sql;
@@ -886,14 +903,20 @@ SQL
      */
     private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff): array
     {
-        if (empty($diff->renamedIndexes) || ! $diff->fromTable instanceof Table) {
+        if (empty($diff->renamedIndexes)) {
+            return [];
+        }
+
+        $table = $diff->getOldTable();
+
+        if ($table === null) {
             return [];
         }
 
         $foreignKeys = [];
         /** @var ForeignKeyConstraint[] $remainingForeignKeys */
         $remainingForeignKeys = array_diff_key(
-            $diff->fromTable->getForeignKeys(),
+            $table->getForeignKeys(),
             $diff->removedForeignKeys,
         );
 
@@ -932,9 +955,9 @@ SQL
         $newName = $diff->getNewName();
 
         if ($newName !== false) {
-            $tableName = $newName->getQuotedName($this);
+            $tableNameSQL = $newName->getQuotedName($this);
         } else {
-            $tableName = $diff->getName($this)->getQuotedName($this);
+            $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
         }
 
         foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
@@ -942,7 +965,7 @@ SQL
                 continue;
             }
 
-            $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
+            $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
         }
 
         return $sql;

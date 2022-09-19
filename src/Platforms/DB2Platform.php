@@ -558,6 +558,8 @@ class DB2Platform extends AbstractPlatform
         $columnSql   = [];
         $commentsSQL = [];
 
+        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
+
         $queryParts = [];
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
@@ -585,7 +587,7 @@ class DB2Platform extends AbstractPlatform
             }
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $diff->getName($this)->getQuotedName($this),
+                $tableNameSQL,
                 $column->getQuotedName($this),
                 $comment,
             );
@@ -606,13 +608,18 @@ class DB2Platform extends AbstractPlatform
 
             if ($columnDiff->hasCommentChanged()) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
-                    $diff->getName($this)->getQuotedName($this),
+                    $tableNameSQL,
                     $columnDiff->getNewColumn()->getQuotedName($this),
                     $this->getColumnComment($columnDiff->getNewColumn()),
                 );
             }
 
-            $this->gatherAlterColumnSQL($diff->getName($this), $columnDiff, $sql, $queryParts);
+            $this->gatherAlterColumnSQL(
+                $tableNameSQL,
+                $columnDiff,
+                $sql,
+                $queryParts,
+            );
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -630,12 +637,12 @@ class DB2Platform extends AbstractPlatform
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(' ', $queryParts);
+                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . implode(' ', $queryParts);
             }
 
             // Some table alteration operations require a table reorganization.
             if (! empty($diff->removedColumns) || ! empty($diff->changedColumns)) {
-                $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $diff->getName($this)->getQuotedName($this) . "')";
+                $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $tableNameSQL . "')";
             }
 
             $sql = array_merge($sql, $commentsSQL);
@@ -652,7 +659,7 @@ class DB2Platform extends AbstractPlatform
 
                 $sql[] = sprintf(
                     'RENAME TABLE %s TO %s',
-                    $diff->getName($this)->getQuotedName($this),
+                    $tableNameSQL,
                     $newName->getQuotedName($this),
                 );
             }
@@ -680,13 +687,13 @@ class DB2Platform extends AbstractPlatform
     /**
      * Gathers the table alteration SQL for a given column diff.
      *
-     * @param Identifier $table      The table to gather the SQL for.
+     * @param string     $table      The table to gather the SQL for.
      * @param ColumnDiff $columnDiff The column diff to evaluate.
      * @param string[]   $sql        The sequence of table alteration statements to fill.
      * @param mixed[]    $queryParts The sequence of column alteration clauses to fill.
      */
     private function gatherAlterColumnSQL(
-        Identifier $table,
+        string $table,
         ColumnDiff $columnDiff,
         array &$sql,
         array &$queryParts
@@ -708,7 +715,7 @@ class DB2Platform extends AbstractPlatform
         // so we need to trigger a complete ALTER TABLE statement
         // for each ALTER COLUMN clause.
         foreach ($alterColumnClauses as $alterColumnClause) {
-            $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' ' . $alterColumnClause;
+            $sql[] = 'ALTER TABLE ' . $table . ' ' . $alterColumnClause;
         }
     }
 
@@ -763,8 +770,9 @@ class DB2Platform extends AbstractPlatform
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $sql   = [];
-        $table = $diff->getName($this)->getQuotedName($this);
+        $sql = [];
+
+        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
             foreach ($diff->addedIndexes as $addKey => $addIndex) {
@@ -773,14 +781,14 @@ class DB2Platform extends AbstractPlatform
                 }
 
                 if ($remIndex->isPrimary()) {
-                    $sql[] = 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
+                    $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP PRIMARY KEY';
                 } elseif ($remIndex->isUnique()) {
-                    $sql[] = 'ALTER TABLE ' . $table . ' DROP UNIQUE ' . $remIndex->getQuotedName($this);
+                    $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP UNIQUE ' . $remIndex->getQuotedName($this);
                 } else {
-                    $sql[] = $this->getDropIndexSQL($remIndex, $table);
+                    $sql[] = $this->getDropIndexSQL($remIndex, $tableNameSQL);
                 }
 
-                $sql[] = $this->getCreateIndexSQL($addIndex, $table);
+                $sql[] = $this->getCreateIndexSQL($addIndex, $tableNameSQL);
 
                 unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
 

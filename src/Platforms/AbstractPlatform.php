@@ -2719,7 +2719,7 @@ abstract class AbstractPlatform
     /** @return string[] */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $tableName = $diff->getName($this)->getQuotedName($this);
+        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
 
         $sql = [];
         if ($this->supportsForeignKeyConstraints()) {
@@ -2728,20 +2728,20 @@ abstract class AbstractPlatform
                     $foreignKey = $foreignKey->getQuotedName($this);
                 }
 
-                $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
+                $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableNameSQL);
             }
 
             foreach ($diff->changedForeignKeys as $foreignKey) {
-                $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableName);
+                $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableNameSQL);
             }
         }
 
         foreach ($diff->removedIndexes as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableName);
+            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableNameSQL);
         }
 
         foreach ($diff->changedIndexes as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableName);
+            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableNameSQL);
         }
 
         return $sql;
@@ -2754,34 +2754,34 @@ abstract class AbstractPlatform
         $newName = $diff->getNewName();
 
         if ($newName !== false) {
-            $tableName = $newName->getQuotedName($this);
+            $tableNameSQL = $newName->getQuotedName($this);
         } else {
-            $tableName = $diff->getName($this)->getQuotedName($this);
+            $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
         }
 
         if ($this->supportsForeignKeyConstraints()) {
             foreach ($diff->addedForeignKeys as $foreignKey) {
-                $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
+                $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
             }
 
             foreach ($diff->changedForeignKeys as $foreignKey) {
-                $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
+                $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
             }
         }
 
         foreach ($diff->addedIndexes as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $tableName);
+            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
         foreach ($diff->changedIndexes as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $tableName);
+            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
         foreach ($diff->renamedIndexes as $oldIndexName => $index) {
             $oldIndexName = new Identifier($oldIndexName);
             $sql          = array_merge(
                 $sql,
-                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName),
+                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableNameSQL),
             );
         }
 
