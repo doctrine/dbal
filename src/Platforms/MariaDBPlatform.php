@@ -35,7 +35,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql       = [];
-        $tableName = $diff->getName($this)->getQuotedName($this);
+        $tableName = $diff->getOldTable()->getQuotedName($this);
 
         foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
             if (in_array($foreignKey, $diff->changedForeignKeys, true)) {
@@ -64,7 +64,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     {
         $sql = [];
 
-        $tableName = $diff->getName($this)->getQuotedName($this);
+        $tableName = $diff->getOldTable()->getQuotedName($this);
 
         foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
             if (in_array($foreignKey, $diff->changedForeignKeys, true)) {
@@ -89,14 +89,14 @@ class MariaDBPlatform extends AbstractMySQLPlatform
      */
     private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff): array
     {
-        if ($diff->fromTable === null || count($diff->renamedIndexes) === 0) {
+        if (count($diff->renamedIndexes) === 0) {
             return [];
         }
 
         $foreignKeys = [];
 
         $remainingForeignKeys = array_diff_key(
-            $diff->fromTable->getForeignKeys(),
+            $diff->getOldTable()->getForeignKeys(),
             $diff->removedForeignKeys,
         );
 

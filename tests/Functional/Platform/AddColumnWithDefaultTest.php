@@ -24,8 +24,7 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
 
         $this->connection->executeStatement("INSERT INTO add_default_test (original_field) VALUES ('one')");
 
-        $tableDiff                      = new TableDiff('add_default_test');
-        $tableDiff->fromTable           = $table;
+        $tableDiff                      = new TableDiff($table);
         $tableDiff->addedColumns['foo'] = new Column('new_field', Type::getType('string'), [
             'length' => 8,
             'default' => 'DEFAULT',

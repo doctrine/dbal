@@ -528,7 +528,7 @@ END;';
 
         $addColumnSQL = [];
 
-        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {

@@ -265,7 +265,7 @@ class DB2Platform extends AbstractPlatform
         $columnSql   = [];
         $commentsSQL = [];
 
-        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
         $queryParts = [];
         foreach ($diff->addedColumns as $column) {
@@ -457,7 +457,7 @@ class DB2Platform extends AbstractPlatform
     {
         $sql = [];
 
-        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
             foreach ($diff->addedIndexes as $addKey => $addIndex) {

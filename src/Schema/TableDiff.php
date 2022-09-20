@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\Deprecations\Deprecation;
-
 /**
  * Table Diff.
  */
@@ -60,47 +57,18 @@ class TableDiff
      * @param array<string, Index>      $removedIndexes
      */
     public function __construct(
-        /**
-         * @deprecated Use {@see getOldTable()} instead.
-         */
-        public string $name,
+        private Table $oldTable,
         public array $addedColumns = [],
         public array $changedColumns = [],
         public array $removedColumns = [],
         public array $addedIndexes = [],
         public array $changedIndexes = [],
         public array $removedIndexes = [],
-        /**
-         * @internal Use {@see getOldTable()} instead.
-         */
-        public ?Table $fromTable = null,
     ) {
-        if ($fromTable === null) {
-            return;
-        }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5678',
-            'Not passing the $fromColumn to %s is deprecated.',
-            __METHOD__,
-        );
     }
 
-    /**
-     * @deprecated Use {@see getOldTable()} instead.
-     *
-     * @param AbstractPlatform $platform The platform to use for retrieving this table diff's name.
-     */
-    public function getName(AbstractPlatform $platform): Identifier
+    public function getOldTable(): Table
     {
-        return new Identifier(
-            $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name,
-        );
-    }
-
-    public function getOldTable(): ?Table
-    {
-        return $this->fromTable;
+        return $this->oldTable;
     }
 }

@@ -1393,7 +1393,7 @@ abstract class AbstractPlatform
     /** @return string[] */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
-        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
         $sql = [];
 
@@ -1421,7 +1421,7 @@ abstract class AbstractPlatform
     {
         $sql = [];
 
-        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
         foreach ($diff->addedForeignKeys as $foreignKey) {
             $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);

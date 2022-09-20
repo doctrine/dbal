@@ -178,7 +178,7 @@ class Comparator
     public function diffTable(Table $fromTable, Table $toTable): ?TableDiff
     {
         $changes          = 0;
-        $tableDifferences = new TableDiff($fromTable->getName(), [], [], [], [], [], [], $fromTable);
+        $tableDifferences = new TableDiff($fromTable, [], [], [], [], [], []);
 
         $fromTableColumns = $fromTable->getColumns();
         $toTableColumns   = $toTable->getColumns();

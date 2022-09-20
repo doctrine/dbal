@@ -357,7 +357,7 @@ class SQLServerPlatform extends AbstractPlatform
         $columnSql   = [];
         $commentsSql = [];
 
-        $table = $diff->getOldTable() ?? $diff->getName($this);
+        $table = $diff->getOldTable();
 
         $tableName = $table->getName();
 

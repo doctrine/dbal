@@ -430,6 +430,10 @@ the name of the object as a separate parameter. The name of the passed index or 
 The `AbstractPlatform::canEmulateSchemas()` method and the schema emulation implemented in the SQLite platform
 have been removed.
 
+## BC BREAK: removed `TableDiff::$name` name `TableDiff::getName()`.
+
+The `TableDiff::$name` property and `TableDiff::getName()` method have been removed.
+
 ## BC BREAK: removed support for renaming tables via `TableDiff` and `AbstractPlatform::alterTable()`.
 
 The `TableDiff::$newName` property and the `TableDiff::getNewName()` method have been removed.
