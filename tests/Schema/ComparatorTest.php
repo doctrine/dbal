@@ -106,7 +106,7 @@ abstract class ComparatorTest extends TestCase
         $column1 = new Column('foo', Type::getType('integer'), ['autoincrement' => true]);
         $column2 = new Column('foo', Type::getType('integer'), ['autoincrement' => false]);
 
-        $diff = new ColumnDiff($column1, $column2);
+        $diff = new ColumnDiff($column2, $column1);
 
         self::assertTrue($diff->hasAutoIncrementChanged());
     }
@@ -187,7 +187,7 @@ abstract class ComparatorTest extends TestCase
         $column1 = new Column('id', Type::getType(Types::STRING));
         $column2 = new Column('id', Type::getType(Types::INTEGER));
 
-        $diff12 = new ColumnDiff($column1, $column2);
+        $diff12 = new ColumnDiff($column2, $column1);
         self::assertTrue($diff12->hasTypeChanged());
 
         $diff11 = new ColumnDiff($column1, $column1);
@@ -204,7 +204,7 @@ abstract class ComparatorTest extends TestCase
         $column1 = new Column('id', $type1);
         $column2 = new Column('id', $type2);
 
-        $diff = new ColumnDiff($column1, $column2);
+        $diff = new ColumnDiff($column2, $column1);
         self::assertFalse($diff->hasTypeChanged());
     }
 
@@ -221,7 +221,7 @@ abstract class ComparatorTest extends TestCase
         $column1 = new Column('id', $integerType);
         $column2 = new Column('id', $overriddenStringType);
 
-        $diff = new ColumnDiff($column1, $column2);
+        $diff = new ColumnDiff($column2, $column1);
         self::assertFalse($diff->hasTypeChanged());
     }
 
@@ -951,8 +951,8 @@ abstract class ComparatorTest extends TestCase
         $tableDiff = $expected->changedTables['foo'] = new TableDiff($tableFoo);
 
         $tableDiff->changedColumns['id'] = new ColumnDiff(
-            $table->getColumn('id'),
             $tableFoo->getColumn('id'),
+            $table->getColumn('id'),
         );
 
         self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
@@ -974,8 +974,8 @@ abstract class ComparatorTest extends TestCase
         $tableDiff = $expected->changedTables['foo'] = new TableDiff($tableFoo);
 
         $tableDiff->changedColumns['id'] = new ColumnDiff(
-            $table->getColumn('id'),
             $tableFoo->getColumn('id'),
+            $table->getColumn('id'),
         );
 
         self::assertEquals($expected, $this->comparator->compareSchemas($oldSchema, $newSchema));
@@ -1041,8 +1041,8 @@ abstract class ComparatorTest extends TestCase
         $column1 = new Column('foo', Type::getType('integer'), ['comment' => $comment1]);
         $column2 = new Column('foo', Type::getType('integer'), ['comment' => $comment2]);
 
-        $diff1 = new ColumnDiff($column1, $column2);
-        $diff2 = new ColumnDiff($column2, $column1);
+        $diff1 = new ColumnDiff($column2, $column1);
+        $diff2 = new ColumnDiff($column1, $column2);
 
         self::assertSame(! $equals, $diff1->hasCommentChanged());
         self::assertSame(! $equals, $diff2->hasCommentChanged());

@@ -213,8 +213,8 @@ class Comparator
             }
 
             $tableDifferences->changedColumns[$column->getName()] = new ColumnDiff(
-                $toColumn,
                 $column,
+                $toColumn,
             );
 
             $changes++;

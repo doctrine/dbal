@@ -12,23 +12,23 @@ class ColumnDiff
     /**
      * @internal The diff can be only instantiated by a {@see Comparator}.
      */
-    public function __construct(public Column $column, public Column $fromColumn)
+    public function __construct(private readonly Column $oldColumn, private readonly Column $newColumn)
     {
     }
 
     public function getOldColumn(): Column
     {
-        return $this->fromColumn;
+        return $this->oldColumn;
     }
 
     public function getNewColumn(): Column
     {
-        return $this->column;
+        return $this->newColumn;
     }
 
     public function hasTypeChanged(): bool
     {
-        return $this->column->getType()::class !== $this->fromColumn->getType()::class;
+        return $this->newColumn->getType()::class !== $this->oldColumn->getType()::class;
     }
 
     public function hasLengthChanged(): bool
@@ -75,8 +75,8 @@ class ColumnDiff
 
     public function hasDefaultChanged(): bool
     {
-        $oldDefault = $this->fromColumn->getDefault();
-        $newDefault = $this->column->getDefault();
+        $oldDefault = $this->oldColumn->getDefault();
+        $newDefault = $this->newColumn->getDefault();
 
         // Null values need to be checked additionally as they tell whether to create or drop a default value.
         // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
@@ -103,6 +103,6 @@ class ColumnDiff
 
     private function hasPropertyChanged(callable $property): bool
     {
-        return $property($this->column) !== $property($this->fromColumn);
+        return $property($this->newColumn) !== $property($this->oldColumn);
     }
 }
