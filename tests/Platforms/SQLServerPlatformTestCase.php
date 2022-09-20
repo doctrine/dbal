@@ -642,7 +642,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
     public function testAlterTableWithSchemaColumnComments(): void
     {
-        $tableDiff                        = new TableDiff('testschema.mytable');
+        $table = new Table('testschema.mytable');
+
+        $tableDiff                        = new TableDiff($table);
         $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['comment' => 'A comment']);
 
         $expectedSql = [
@@ -656,7 +658,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
     public function testAlterTableWithSchemaDropColumnComments(): void
     {
-        $tableDiff                          = new TableDiff('testschema.mytable');
+        $table = new Table('testschema.mytable');
+
+        $tableDiff                          = new TableDiff($table);
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
             new Column('quota', Type::getType('integer'), []),
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
@@ -672,7 +676,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
     public function testAlterTableWithSchemaUpdateColumnComments(): void
     {
-        $tableDiff                          = new TableDiff('testschema.mytable');
+        $table = new Table('testschema.mytable');
+
+        $tableDiff                          = new TableDiff($table);
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
             new Column('quota', Type::getType('integer'), ['comment' => 'B comment']),
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
@@ -756,8 +762,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         ]);
         $table->setPrimaryKey(['id']);
 
-        $tableDiff            = new TableDiff('mytable');
-        $tableDiff->fromTable = $table;
+        $tableDiff = new TableDiff($table);
 
         $tableDiff->addedColumns['added_comment_none']
             = new Column('added_comment_none', Type::getType('integer'));
@@ -1026,8 +1031,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('col_int', 'smallint', ['default' => 666]);
         $table->addColumn('col_string', 'string', ['default' => 'foo']);
 
-        $tableDiff                            = new TableDiff($tableName);
-        $tableDiff->fromTable                 = $table;
+        $tableDiff                            = new TableDiff($table);
         $tableDiff->changedColumns['col_int'] = new ColumnDiff(
             new Column('col_int', Type::getType('integer'), ['default' => 666]),
             new Column('col_int', Type::getType('smallint'), ['default' => 666]),
@@ -1186,7 +1190,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             // Unquoted identifiers non-reserved keywords.
             [
                 new TableDiff(
-                    'mytable',
+                    new Table('mytable'),
                     [
                         'addcolumn' => new Column('addcolumn', Type::getType('string'), [
                             'length' => 255,
@@ -1224,7 +1228,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             // Quoted identifiers non-reserved keywords.
             [
                 new TableDiff(
-                    '`mytable`',
+                    new Table('`mytable`'),
                     [
                         'addcolumn' => new Column('`addcolumn`', Type::getType('string'), [
                             'length' => 255,
@@ -1262,7 +1266,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             // Unquoted identifiers reserved keywords.
             [
                 new TableDiff(
-                    'table',
+                    new Table('`mytable`'),
                     [
                         'add' => new Column('add', Type::getType('string'), [
                             'length' => 255,
@@ -1300,7 +1304,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
             // Quoted identifiers reserved keywords.
             [
                 new TableDiff(
-                    '`table`',
+                    new Table('`table`'),
                     [
                         'add' => new Column('`add`', Type::getType('string'), [
                             'length' => 255,
@@ -1576,7 +1580,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
 
     public function testAlterTableWithSchemaSameColumnComments(): void
     {
-        $tableDiff                          = new TableDiff('testschema.mytable');
+        $table = new Table('testschema.mytable');
+
+        $tableDiff                          = new TableDiff($table);
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => true]),
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => false]),

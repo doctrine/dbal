@@ -182,12 +182,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         $index  = new Index('idx', ['col'], false);
         $unique = new Index('uniq', ['col'], true);
+        $table  = new Table('test');
 
-        $diff = new TableDiff('test', [], [], [], ['uniq' => $unique], [], ['idx' => $index]);
+        $diff = new TableDiff($table, [], [], [], ['uniq' => $unique], [], ['idx' => $index]);
         $sql  = $this->platform->getAlterTableSQL($diff);
         self::assertEquals(['ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)'], $sql);
 
-        $diff = new TableDiff('test', [], [], [], ['idx' => $index], [], ['unique' => $unique]);
+        $diff = new TableDiff($table, [], [], [], ['idx' => $index], [], ['unique' => $unique]);
         $sql  = $this->platform->getAlterTableSQL($diff);
         self::assertEquals(['ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)'], $sql);
     }

@@ -225,7 +225,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         $commentsSQL = [];
         $columnSql   = [];
 
-        $table = $diff->getOldTable() ?? $diff->getName($this);
+        $table = $diff->getOldTable();
 
         $tableNameSQL = $table->getQuotedName($this);
 

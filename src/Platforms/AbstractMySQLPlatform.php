@@ -387,7 +387,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this) . ' '
+                $sql[] = 'ALTER TABLE ' . $diff->getOldTable()->getQuotedName($this) . ' '
                     . implode(', ', $queryParts);
             }
 
@@ -408,7 +408,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     {
         $sql = [];
 
-        $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
         foreach ($diff->changedIndexes as $changedIndex) {
             $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $changedIndex));
@@ -463,10 +463,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         $table = $diff->getOldTable();
 
-        if ($table === null) {
-            return [];
-        }
-
         $sql = [];
 
         $tableNameSQL = $table->getQuotedName($this);
@@ -505,10 +501,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff): array
     {
         $table = $diff->getOldTable();
-
-        if ($table === null) {
-            return [];
-        }
 
         $sql = [];
 

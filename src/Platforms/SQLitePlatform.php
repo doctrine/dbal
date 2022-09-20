@@ -478,22 +478,14 @@ class SQLitePlatform extends AbstractPlatform
     {
         $table = $diff->getOldTable();
 
-        if ($table === null) {
-            throw new Exception(
-                'Sqlite platform requires for alter table the table diff with reference to original table schema.',
-            );
-        }
-
         $sql = [];
-
-        $tableName = $diff->getName($this);
 
         foreach ($this->getIndexesInAlteredTable($diff, $table) as $index) {
             if ($index->isPrimary()) {
                 continue;
             }
 
-            $sql[] = $this->getCreateIndexSQL($index, $tableName->getQuotedName($this));
+            $sql[] = $this->getCreateIndexSQL($index, $table->getQuotedName($this));
         }
 
         return $sql;
@@ -575,12 +567,6 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         $table = $diff->getOldTable();
-
-        if ($table === null) {
-            throw new Exception(
-                'Sqlite platform requires for alter table the table diff with reference to original table schema.',
-            );
-        }
 
         $columns        = [];
         $oldColumnNames = [];
@@ -776,7 +762,7 @@ class SQLitePlatform extends AbstractPlatform
             return false;
         }
 
-        $table = $diff->getOldTable() ?? $diff->getName($this);
+        $table = $diff->getOldTable();
 
         $sql       = [];
         $tableSql  = [];

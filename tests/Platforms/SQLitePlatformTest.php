@@ -220,7 +220,8 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testAlterTableAddColumns(): void
     {
-        $diff = new TableDiff('user');
+        $table = new Table('user');
+        $diff  = new TableDiff($table);
 
         $diff->addedColumns['foo']   = new Column('foo', Type::getType('string'));
         $diff->addedColumns['count'] = new Column('count', Type::getType('integer'), [
@@ -236,40 +237,16 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expected, $this->platform->getAlterTableSQL($diff));
     }
 
-    /** @dataProvider complexDiffProvider */
-    public function testAlterTableAddComplexColumns(TableDiff $diff): void
-    {
-        $this->expectException(Exception::class);
-
-        $this->platform->getAlterTableSQL($diff);
-    }
-
     public function testRenameNonExistingColumn(): void
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
 
-        $tableDiff                          = new TableDiff('test');
-        $tableDiff->fromTable               = $table;
+        $tableDiff                          = new TableDiff($table);
         $tableDiff->renamedColumns['value'] = new Column('data', Type::getType('string'));
 
         $this->expectException(Exception::class);
         $this->platform->getAlterTableSQL($tableDiff);
-    }
-
-    /** @return mixed[][] */
-    public static function complexDiffProvider(): iterable
-    {
-        $date                       = new TableDiff('user');
-        $date->addedColumns['time'] = new Column('time', Type::getType('date'), ['default' => 'CURRENT_DATE']);
-
-        $id                     = new TableDiff('user');
-        $id->addedColumns['id'] = new Column('id', Type::getType('integer'), ['autoincrement' => true]);
-
-        return [
-            'date column with default value' => [$date],
-            'id column with auto increment'  => [$id],
-        ];
     }
 
     public function testCreateTableWithDeferredForeignKeys(): void
@@ -316,8 +293,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addForeignKeyConstraint('user', ['parent'], ['id'], ['deferrable' => true, 'deferred' => true]);
         $table->addIndex(['article', 'post'], 'index1');
 
-        $diff                           = new TableDiff('user');
-        $diff->fromTable                = $table;
+        $diff                           = new TableDiff($table);
         $diff->renamedColumns['id']     = new Column('key', Type::getType('integer'), []);
         $diff->renamedColumns['post']   = new Column('comment', Type::getType('integer'), []);
         $diff->removedColumns['parent'] = new Column('comment', Type::getType('integer'), []);
