@@ -62,26 +62,17 @@ abstract class AbstractConnectionMiddleware implements ServerInfoAwareConnection
         return $this->wrappedConnection->lastInsertId($name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         return $this->wrappedConnection->beginTransaction();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function commit()
+    public function commit(): bool
     {
         return $this->wrappedConnection->commit();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rollBack()
+    public function rollBack(): bool
     {
         return $this->wrappedConnection->rollBack();
     }

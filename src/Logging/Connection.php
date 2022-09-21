@@ -50,30 +50,21 @@ final class Connection extends AbstractConnectionMiddleware
         return parent::exec($sql);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         $this->logger->debug('Beginning transaction');
 
         return parent::beginTransaction();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function commit()
+    public function commit(): bool
     {
         $this->logger->debug('Committing transaction');
 
         return parent::commit();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function rollBack()
+    public function rollBack(): bool
     {
         $this->logger->debug('Rolling back transaction');
 
