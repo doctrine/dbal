@@ -501,7 +501,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ?string $expectedSQLClause,
     ): void {
         $tableDiff                        = new TableDiff(new Table('foo'));
-        $tableDiff->changedColumns['bar'] = new ColumnDiff($newColumn, $oldColumn);
+        $tableDiff->changedColumns['bar'] = new ColumnDiff($oldColumn, $newColumn);
 
         $expectedSQL = [];
 

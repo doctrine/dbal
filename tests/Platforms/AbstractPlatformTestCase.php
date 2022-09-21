@@ -317,8 +317,8 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->addedColumns['added']     = new Column('added', Type::getType('integer'), []);
         $tableDiff->removedColumns['removed'] = new Column('removed', Type::getType('integer'), []);
         $tableDiff->changedColumns['changed'] = new ColumnDiff(
-            new Column('changed2', Type::getType('string'), ['length' => 255]),
             $table->getColumn('changed'),
+            new Column('changed2', Type::getType('string'), ['length' => 255]),
         );
         $tableDiff->renamedColumns['renamed'] = new Column('renamed2', Type::getType('integer'));
 
@@ -562,12 +562,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $tableDiff                           = new TableDiff($table);
         $tableDiff->changedColumns['select'] = new ColumnDiff(
+            $table->getColumn('select'),
             new Column(
                 'select',
                 Type::getType('string'),
                 ['length' => 255],
             ),
-            $table->getColumn('select'),
         );
 
         self::assertStringContainsString(
@@ -1080,8 +1080,8 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff                        = new TableDiff($table);
         $tableDiff->addedColumns['bloo']  = new Column('bloo', Type::getType('integer'));
         $tableDiff->changedColumns['bar'] = new ColumnDiff(
-            new Column('bar', Type::getType('integer'), ['notnull' => false]),
             $table->getColumn('bar'),
+            new Column('bar', Type::getType('integer'), ['notnull' => false]),
         );
         $tableDiff->renamedColumns['id']  = new Column('war', Type::getType('integer'));
         $tableDiff->removedColumns['baz'] = new Column('baz', Type::getType('integer'));
@@ -1106,12 +1106,12 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff = new TableDiff($table);
 
         $tableDiff->changedColumns['name'] = new ColumnDiff(
+            $table->getColumn('name'),
             new Column(
                 'name',
                 Type::getType('string'),
                 ['fixed' => true, 'length' => 2],
             ),
-            $table->getColumn('name'),
         );
 
         $sql = $this->platform->getAlterTableSQL($tableDiff);
