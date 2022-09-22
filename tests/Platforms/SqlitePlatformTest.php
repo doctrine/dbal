@@ -420,7 +420,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $diff->newName                  = 'client';
         $diff->renamedColumns['id']     = new Column('key', Type::getType('integer'), []);
         $diff->renamedColumns['post']   = new Column('comment', Type::getType('integer'), []);
-        $diff->removedColumns['parent'] = new Column('comment', Type::getType('integer'), []);
+        $diff->removedColumns['parent'] = new Column('parent', Type::getType('integer'), []);
         $diff->removedIndexes['index1'] = $table->getIndex('index1');
 
         $sql = [
