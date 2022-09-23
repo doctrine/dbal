@@ -20,9 +20,10 @@ The following database vendors are currently supported:
 - SQLite
 
 The Doctrine DBAL can be used independently of the
-[Doctrine Object-Relational Mapper (ORM)](https://www.doctrine-project.org/projects/orm.html).
-In order to use the DBAL all you need is
-the class loader provided by [Composer](https://getcomposer.org/), to be able to autoload the classes:
+`Doctrine Object-Relational Mapper (ORM) <https://www.doctrine-project.org/projects/orm.html>`_.
+In order to use the DBAL all you need is the class loader provided by
+`Composer <https://getcomposer.org/>`_, to be able to autoload the
+classes:
 
 .. code-block:: php
 
