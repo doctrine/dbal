@@ -1336,27 +1336,10 @@ class Connection
 
         $connection = $this->getWrappedConnection();
 
-        $logger = $this->_config->getSQLLogger();
-
         if ($this->transactionNestingLevel === 1) {
-            if ($logger !== null) {
-                $logger->startQuery('"COMMIT"');
-            }
-
-            $result = $connection->commit();
-
-            if ($logger !== null) {
-                $logger->stopQuery();
-            }
+            $result = $this->doCommit($connection);
         } elseif ($this->nestTransactionsWithSavepoints) {
-            if ($logger !== null) {
-                $logger->startQuery('"RELEASE SAVEPOINT"');
-            }
-
             $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
-            if ($logger !== null) {
-                $logger->stopQuery();
-            }
         }
 
         --$this->transactionNestingLevel;
@@ -1368,6 +1351,28 @@ class Connection
         }
 
         $this->beginTransaction();
+
+        return $result;
+    }
+
+    /**
+     * @return bool
+     *
+     * @throws DriverException
+     */
+    private function doCommit(DriverConnection $connection)
+    {
+        $logger = $this->_config->getSQLLogger();
+
+        if ($logger !== null) {
+            $logger->startQuery('"COMMIT"');
+        }
+
+        $result = $connection->commit();
+
+        if ($logger !== null) {
+            $logger->stopQuery();
+        }
 
         return $result;
     }
@@ -1475,6 +1480,8 @@ class Connection
      */
     public function releaseSavepoint($savepoint)
     {
+        $logger = $this->_config->getSQLLogger();
+
         $platform = $this->getDatabasePlatform();
 
         if (! $platform->supportsSavepoints()) {
@@ -1482,10 +1489,24 @@ class Connection
         }
 
         if (! $platform->supportsReleaseSavepoints()) {
+            if ($logger !== null) {
+                $logger->stopQuery();
+            }
+
             return;
         }
 
+        if ($logger !== null) {
+            $logger->startQuery('"RELEASE SAVEPOINT"');
+        }
+
         $this->executeStatement($platform->releaseSavePoint($savepoint));
+
+        if ($logger === null) {
+            return;
+        }
+
+        $logger->stopQuery();
     }
 
     /**
