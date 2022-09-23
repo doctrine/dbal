@@ -28,7 +28,7 @@ classes:
 .. code-block:: php
 
     <?php
-    
+
     require_once 'vendor/autoload.php';
 
 Now you are able to load classes that are in the
@@ -36,4 +36,3 @@ Now you are able to load classes that are in the
 ``/path/to/doctrine/Doctrine/DBAL/DriverManager.php`` which we will
 use later in this documentation to configure our first Doctrine
 DBAL connection.
-
