@@ -15,6 +15,7 @@ use Doctrine\DBAL\Event\TransactionBeginEventArgs;
 use Doctrine\DBAL\Event\TransactionCommitEventArgs;
 use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Exception\ConnectionLost;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -1840,6 +1841,11 @@ class Connection
 
         if ($exception instanceof ConnectionLost) {
             $this->close();
+        }
+
+        if ($exception instanceof DeadlockException) {
+            //Reset transaction nesting level since deadlocks always rollback.
+            $this->transactionNestingLevel = 0;
         }
 
         return $exception;
