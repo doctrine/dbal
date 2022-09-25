@@ -3,107 +3,79 @@
 namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\MySQL;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\DBAL\Exception\DeadlockException;
-use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
-use ReflectionObject;
-use Throwable;
 
 use function pcntl_fork;
 use function sleep;
 
-class DeadlockTest extends AbstractDriverTest
+class DeadlockTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        if (TestUtil::isDriverOneOf('pdo_mysql')) {
+        if (TestUtil::isDriverOneOf('pdo_mysql', 'mysqli')) {
+            $this->prepareDatabase();
+
             return;
         }
 
         self::markTestSkipped('This test requires the pdo_mysql driver.');
     }
 
+    private function prepareDatabase(): void
+    {
+        $table = new Table('test1');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->setPrimaryKey(['id']);
+        $this->dropAndCreateTable($table);
+
+        $table = new Table('test2');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->setPrimaryKey(['id']);
+        $this->dropAndCreateTable($table);
+
+        $this->connection->executeStatement('INSERT INTO `test1` VALUES()');
+        $this->connection->executeStatement('INSERT INTO `test2` VALUES()');
+    }
+
     public function testNestedTransactionsDeadlockExceptionHandling(): void
     {
-        $firstConnection = new Connection($this->connection->getParams(), $this->driver);
+        $firstConnection = new Connection($this->connection->getParams(), $this->connection->getDriver());
         $firstConnection->setNestTransactionsWithSavepoints(true);
-        $secondConnection = new Connection($this->connection->getParams(), $this->driver);
+        $secondConnection = new Connection($this->connection->getParams(), $this->connection->getDriver());
         $secondConnection->setNestTransactionsWithSavepoints(true);
 
-        $this->assertNotSame($firstConnection, $secondConnection);
+        try {
+            $firstConnection->beginTransaction();
+            $firstConnection->beginTransaction();
+            $firstConnection->executeStatement('DELETE FROM `test1`; SELECT SLEEP(2)');
 
-        $this->prepareDatabase($firstConnection);
+            $pid = pcntl_fork();
+            if (! $pid) {
+                $secondConnection->beginTransaction();
+                $secondConnection->beginTransaction();
+                $secondConnection->executeStatement('DELETE FROM `test2`');
+                $secondConnection->executeStatement('DELETE FROM `test1`');
+                $secondConnection->commit();
+                $secondConnection->commit();
 
-        $executeQueries = static function (Connection $conn, int $thread): void {
-            $conn->beginTransaction();
-            $conn->beginTransaction();
-            if ($thread === 1) {
-                $conn->executeQuery('DELETE FROM `test1`');
-                sleep(2);
-                $conn->executeQuery('DELETE FROM `test2`');
-            } else {
-                $conn->executeQuery('DELETE FROM `test2`');
-                $conn->executeQuery('DELETE FROM `test1`');
+                return;
             }
 
-            $conn->commit();
-            $conn->commit();
-        };
-
-        $pid = pcntl_fork();
-        if (! $pid) {
-            //child process
-            $executeQueries($secondConnection, 2);
+            sleep(2); //sleep to make sure that the other process is in table lock state.
+            $firstConnection->executeStatement('DELETE FROM `test2`;');
+            $firstConnection->commit();
+            $firstConnection->commit();
+        } catch (DeadlockException $ex) {
+            self::assertFalse($firstConnection->isTransactionActive());
 
             return;
         }
 
-        try {
-            $executeQueries($firstConnection, 1);
-        } catch (Throwable $ex) {
-            $this->assertInstanceOf(DeadlockException::class, $ex);
-            $reflectionObject = new ReflectionObject($firstConnection);
-
-            $transactionNestingLevel = $reflectionObject->getProperty('transactionNestingLevel');
-            $transactionNestingLevel->setAccessible(true);
-
-            $this->assertEquals(0, $transactionNestingLevel->getValue($firstConnection));
-
-            return;
-        }
-
-        $this->fail('No deadlock exception in first thread');
-    }
-
-    private function prepareDatabase(Connection $connection): void
-    {
-        $connection->executeStatement(
-            'CREATE TABLE IF NOT EXISTS `test1`
-                (
-                    `id` INT(11) NOT NULL AUTO_INCREMENT,
-                    PRIMARY KEY (`id`)
-                ) ENGINE = InnoDB
-                  DEFAULT CHARSET = `latin1`;',
-        );
-        $connection->executeStatement('INSERT INTO `test1` VALUES()');
-
-        $connection->executeStatement(
-            'CREATE TABLE IF NOT EXISTS `test2`
-                (
-                    `id` INT(11) NOT NULL AUTO_INCREMENT,
-                    PRIMARY KEY (`id`)
-                ) ENGINE = InnoDB
-                  DEFAULT CHARSET = `latin1`;',
-        );
-        $connection->executeQuery('INSERT INTO `test2` VALUES()');
-    }
-
-    protected function createDriver(): DriverInterface
-    {
-        return new Driver();
+        $this->fail('Expected deadlock exception did not happen.');
     }
 }
