@@ -24,8 +24,8 @@ class DeadlockTest extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $this->dropAndCreateTable($table);
 
-        $this->connection->executeStatement('INSERT INTO `test1` VALUES(1)');
-        $this->connection->executeStatement('INSERT INTO `test2` VALUES(1)');
+        $this->connection->executeStatement('INSERT INTO test1 VALUES(1)');
+        $this->connection->executeStatement('INSERT INTO test2 VALUES(1)');
     }
 
     public function testNestedTransactionsDeadlockExceptionHandling(): void
@@ -35,11 +35,11 @@ class DeadlockTest extends FunctionalTestCase
         try {
             $this->connection->beginTransaction();
             $this->connection->beginTransaction();
-            $this->connection->executeStatement('DELETE FROM `test1`;');
+            $this->connection->executeStatement('DELETE FROM test1');
 
             $this->forceTableLockState();
 
-            $this->connection->executeStatement('DELETE FROM `test2`;');
+            $this->connection->executeStatement('DELETE FROM test2');
             $this->connection->commit();
             $this->connection->commit();
         } catch (DeadlockException $ex) {
