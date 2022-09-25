@@ -16,6 +16,10 @@ class DeadlockTest extends FunctionalTestCase
     {
         parent::setUp();
 
+        if (TestUtil::isDriverOneOf('sqlite')) {
+            $this->markTestSkipped();
+        }
+
         $table = new Table('test1');
         $table->addColumn('id', 'integer');
         $this->dropAndCreateTable($table);
