@@ -12,6 +12,7 @@ use function pcntl_fork;
 use function sleep;
 use function sprintf;
 
+/** @require extension pcntl */
 class DeadlockTest extends FunctionalTestCase
 {
     protected function setUp(): void
