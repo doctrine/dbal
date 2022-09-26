@@ -70,8 +70,8 @@ class DeadlockTest extends FunctionalTestCase
 
         $connection = TestUtil::getConnection();
         $connection->beginTransaction();
-        $connection->executeStatement('DELETE FROM `test2`');
-        $connection->executeStatement('DELETE FROM `test1`');
+        $connection->executeStatement('DELETE FROM test2');
+        $connection->executeStatement('DELETE FROM test1');
         $connection->commit();
     }
 
