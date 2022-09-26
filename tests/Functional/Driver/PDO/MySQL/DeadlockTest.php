@@ -18,7 +18,7 @@ class DeadlockTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $supportedDrivers = ['pdo_mysql', 'mysqli', 'mssql'];
+        $supportedDrivers = ['pdo_mysql', 'mysqli', 'pdo_pgsql'];
         if (! TestUtil::isDriverOneOf(...$supportedDrivers)) {
             self::markTestSkipped(sprintf('This supports one of %s drivers', implode(', ', $supportedDrivers)));
         }
