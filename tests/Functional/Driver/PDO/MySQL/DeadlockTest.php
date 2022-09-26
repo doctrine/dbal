@@ -7,8 +7,10 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
+use function implode;
 use function pcntl_fork;
 use function sleep;
+use function sprintf;
 
 class DeadlockTest extends FunctionalTestCase
 {
@@ -16,8 +18,9 @@ class DeadlockTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        if (TestUtil::isDriverOneOf('sqlite')) {
-            $this->markTestSkipped();
+        $supportedDrivers = ['pdo_mysql', 'mysqli', 'mssql'];
+        if (! TestUtil::isDriverOneOf(...$supportedDrivers)) {
+            self::markTestSkipped(sprintf('This supports one of %s drivers', implode(', ', $supportedDrivers)));
         }
 
         $table = new Table('test1');
