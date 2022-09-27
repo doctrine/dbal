@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated driver name aliases.
+
+Relying on driver name aliases in connection parameters has been deprecated. Use the actual driver names instead.
+
 ## Deprecated "unique" and "check" column properties.
 
 The "unique" and "check" column properties have been deprecated. Use unique constraints to define unique columns.
