@@ -11,7 +11,6 @@ use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -35,19 +34,6 @@ class DriverManagerTest extends TestCase
         $this->expectException(Exception::class);
 
         DriverManager::getConnection(['driver' => 'invalid_driver']);
-    }
-
-    /** @requires extension pdo_sqlite */
-    public function testCustomPlatform(): void
-    {
-        $platform = $this->createMock(AbstractPlatform::class);
-        $options  = [
-            'url' => 'sqlite::memory:',
-            'platform' => $platform,
-        ];
-
-        $conn = DriverManager::getConnection($options);
-        self::assertSame($platform, $conn->getDatabasePlatform());
     }
 
     /** @requires extension pdo_sqlite */
