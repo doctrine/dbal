@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated the "default_dbname" parameter of the wrapper `Connection`.
+
+The "default_dbname" parameter of the wrapper `Connection` has been deprecated. Use "dbname" instead.
+
 ## Deprecated the "platform" parameter of the wrapper `Connection`.
 
 The "platform" parameter of the wrapper `Connection` has been deprecated. Use a driver middleware that would instantiate

@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Driver\PDO\PgSQL;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
+use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
 
@@ -73,6 +74,12 @@ final class Driver extends AbstractPostgreSQLDriver
         if (isset($params['dbname'])) {
             $dsn .= 'dbname=' . $params['dbname'] . ';';
         } elseif (isset($params['default_dbname'])) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5705',
+                'The "default_dbname" connection parameter is deprecated. Use "dbname" instead.',
+            );
+
             $dsn .= 'dbname=' . $params['default_dbname'] . ';';
         } else {
             // Used for temporary connections to allow operations like dropping the database currently connected to.
