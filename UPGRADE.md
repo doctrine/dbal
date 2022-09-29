@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated the "platform" parameter of the wrapper `Connection`.
+
+The "platform" parameter of the wrapper `Connection` has been deprecated. Use a driver middleware that would instantiate
+the platform instead.
+
 ## Deprecated driver name aliases.
 
 Relying on driver name aliases in connection parameters has been deprecated. Use the actual driver names instead.
