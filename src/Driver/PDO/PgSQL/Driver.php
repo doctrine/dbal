@@ -82,9 +82,17 @@ final class Driver extends AbstractPostgreSQLDriver
 
             $dsn .= 'dbname=' . $params['default_dbname'] . ';';
         } else {
+            if (isset($params['user']) && $params['user'] !== 'postgres') {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/5705',
+                    'Relying on the DBAL connecting to the "postgres" database by default is deprecated.'
+                        . ' Unless you want to have the server determine the default database for the connection,'
+                        . ' specify the database name explicitly.',
+                );
+            }
+
             // Used for temporary connections to allow operations like dropping the database currently connected to.
-            // Connecting without an explicit database does not work, therefore "postgres" database is used
-            // as it is mostly present in every server setup.
             $dsn .= 'dbname=postgres;';
         }
 

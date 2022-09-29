@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated default PostgreSQL connection database.
+
+Relying on the DBAL connecting to the "postgres" database by default is deprecated. Unless you want to have the server
+determine the default database for the connection, specify the database name explicitly.
+
 ## Deprecated the "default_dbname" parameter of the wrapper `Connection`.
 
 The "default_dbname" parameter of the wrapper `Connection` has been deprecated. Use "dbname" instead.
