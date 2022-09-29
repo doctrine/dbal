@@ -43,7 +43,7 @@ class DriverManagerTest extends TestCase
         $wrapperClass = $wrapper::class;
 
         $options = [
-            'url' => 'sqlite::memory:',
+            'url' => 'pdo-sqlite::memory:',
             'wrapperClass' => $wrapperClass,
         ];
 
@@ -163,7 +163,7 @@ class DriverManagerTest extends TestCase
 
         return [
             'simple URL' => [
-                'mysql://foo:bar@localhost/baz',
+                'pdo-mysql://foo:bar@localhost/baz',
                 [
                     'user'     => 'foo',
                     'password' => 'bar',
@@ -173,7 +173,7 @@ class DriverManagerTest extends TestCase
                 ],
             ],
             'simple URL with port' => [
-                'mysql://foo:bar@localhost:11211/baz',
+                'pdo-mysql://foo:bar@localhost:11211/baz',
                 [
                     'user'     => 'foo',
                     'password' => 'bar',
@@ -184,42 +184,42 @@ class DriverManagerTest extends TestCase
                 ],
             ],
             'sqlite relative URL with host' => [
-                'sqlite://localhost/foo/dbname.sqlite',
+                'pdo-sqlite://localhost/foo/dbname.sqlite',
                 [
                     'path'   => 'foo/dbname.sqlite',
                     'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite absolute URL with host' => [
-                'sqlite://localhost//tmp/dbname.sqlite',
+                'pdo-sqlite://localhost//tmp/dbname.sqlite',
                 [
                     'path'   => '/tmp/dbname.sqlite',
                     'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite relative URL without host' => [
-                'sqlite:///foo/dbname.sqlite',
+                'pdo-sqlite:///foo/dbname.sqlite',
                 [
                     'path'   => 'foo/dbname.sqlite',
                     'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite absolute URL without host' => [
-                'sqlite:////tmp/dbname.sqlite',
+                'pdo-sqlite:////tmp/dbname.sqlite',
                 [
                     'path'   => '/tmp/dbname.sqlite',
                     'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite memory' => [
-                'sqlite:///:memory:',
+                'pdo-sqlite:///:memory:',
                 [
                     'memory' => true,
                     'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite memory with host' => [
-                'sqlite://localhost/:memory:',
+                'pdo-sqlite://localhost/:memory:',
                 [
                     'memory' => true,
                     'driver' => PDO\SQLite\Driver::class,
@@ -227,7 +227,7 @@ class DriverManagerTest extends TestCase
             ],
             'params parsed from URL override individual params' => [
                 [
-                    'url'      => 'mysql://foo:bar@localhost/baz',
+                    'url'      => 'pdo-mysql://foo:bar@localhost/baz',
                     'password' => 'lulz',
                 ],
                 [
@@ -240,7 +240,7 @@ class DriverManagerTest extends TestCase
             ],
             'params not parsed from URL but individual params are preserved' => [
                 [
-                    'url'  => 'mysql://foo:bar@localhost/baz',
+                    'url'  => 'pdo-mysql://foo:bar@localhost/baz',
                     'port' => 1234,
                 ],
                 [
@@ -253,7 +253,7 @@ class DriverManagerTest extends TestCase
                 ],
             ],
             'query params from URL are used as extra params' => [
-                'mysql://foo:bar@localhost/dbname?charset=UTF-8',
+                'pdo-mysql://foo:bar@localhost/dbname?charset=UTF-8',
                 ['charset' => 'UTF-8'],
             ],
             'simple URL with fallthrough scheme not defined in map' => [
@@ -281,7 +281,7 @@ class DriverManagerTest extends TestCase
                 ],
             ],
             'simple URL with percent encoding' => [
-                'mysql://foo%3A:bar%2F@localhost/baz+baz%40',
+                'pdo-mysql://foo%3A:bar%2F@localhost/baz+baz%40',
                 [
                     'user'     => 'foo:',
                     'password' => 'bar/',
@@ -291,7 +291,7 @@ class DriverManagerTest extends TestCase
                 ],
             ],
             'simple URL with percent sign in password' => [
-                'mysql://foo:bar%25bar@localhost/baz',
+                'pdo-mysql://foo:bar%25bar@localhost/baz',
                 [
                     'user'     => 'foo',
                     'password' => 'bar%bar',
@@ -348,7 +348,7 @@ class DriverManagerTest extends TestCase
             ],
             'URL with default driver' => [
                 [
-                    'url'    => 'mysql://foo:bar@localhost/baz',
+                    'url'    => 'pdo-mysql://foo:bar@localhost/baz',
                     'driver' => 'sqlite',
                 ],
                 [
@@ -361,7 +361,7 @@ class DriverManagerTest extends TestCase
             ],
             'URL with default custom driver' => [
                 [
-                    'url'         => 'mysql://foo:bar@localhost/baz',
+                    'url'         => 'pdo-mysql://foo:bar@localhost/baz',
                     'driverClass' => $driverClass,
                 ],
                 [
@@ -374,7 +374,7 @@ class DriverManagerTest extends TestCase
             ],
             'URL with default driver and default custom driver' => [
                 [
-                    'url'         => 'mysql://foo:bar@localhost/baz',
+                    'url'         => 'pdo-mysql://foo:bar@localhost/baz',
                     'driver'      => 'sqlite',
                     'driverClass' => $driverClass,
                 ],

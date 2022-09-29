@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed support for driver name aliases.
+
+Driver name aliases are no longer supported.
+
 ## BC BREAK: removed support for the "platform" parameter of the wrapper `Connection`.
 
 The support for the "platform" parameter of the wrapper `Connection` has been removed.

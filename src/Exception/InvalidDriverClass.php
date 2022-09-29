@@ -16,7 +16,7 @@ final class InvalidDriverClass extends Exception
     {
         return new self(
             sprintf(
-                'The given "driverClass" %s has to implement the %s interface.',
+                'The given driver class %s has to implement the %s interface.',
                 $driverClass,
                 Driver::class,
             ),
