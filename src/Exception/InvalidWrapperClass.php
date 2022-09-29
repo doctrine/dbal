@@ -16,7 +16,7 @@ final class InvalidWrapperClass extends Exception
     {
         return new self(
             sprintf(
-                'The given "wrapperClass" %s has to be a subtype of %s.',
+                'The given wrapper class %s has to be a subtype of %s.',
                 $wrapperClass,
                 Connection::class,
             ),
