@@ -14,7 +14,6 @@ use Doctrine\DBAL\Exception\DriverRequired;
 use Doctrine\DBAL\Exception\InvalidDriverClass;
 use Doctrine\DBAL\Exception\InvalidWrapperClass;
 use Doctrine\DBAL\Exception\UnknownDriver;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_keys;
 use function array_merge;
@@ -92,25 +91,6 @@ final class DriverManager
         'pdo_sqlsrv' => PDO\SQLSrv\Driver::class,
         'mysqli'     => Mysqli\Driver::class,
         'sqlsrv'     => SQLSrv\Driver::class,
-    ];
-
-    /**
-     * List of URL schemes from a database URL and their mappings to driver.
-     *
-     * @deprecated Use actual driver names instead.
-     *
-     * @var string[]
-     */
-    private static array $driverSchemeAliases = [
-        'db2'        => 'ibm_db2',
-        'mssql'      => 'pdo_sqlsrv',
-        'mysql'      => 'pdo_mysql',
-        'mysql2'     => 'pdo_mysql', // Amazon RDS, for some weird reason
-        'postgres'   => 'pdo_pgsql',
-        'postgresql' => 'pdo_pgsql',
-        'pgsql'      => 'pdo_pgsql',
-        'sqlite'     => 'pdo_sqlite',
-        'sqlite3'    => 'pdo_sqlite',
     ];
 
     /**
@@ -298,8 +278,8 @@ final class DriverManager
             return $params;
         }
 
-        // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
-        $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $params['url']);
+        // Patch the URL without a host to make it valid before parsing
+        $url = preg_replace('#^pdo-sqlite:///#', 'pdo-sqlite://localhost/', $params['url']);
         $url = parse_url($url);
 
         if ($url === false) {
@@ -455,27 +435,7 @@ final class DriverManager
             unset($params['driverClass']);
 
             // URL schemes must not contain underscores, but dashes are ok
-            $driver = str_replace('-', '_', $scheme);
-
-            // If the driver is an alias (e.g. "postgres"), map it to the actual name ("pdo-pgsql").
-            // Otherwise, let checkParams decide later if the driver exists.
-            if (isset(self::$driverSchemeAliases[$driver])) {
-                $actualDriver = self::$driverSchemeAliases[$driver];
-
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/5697',
-                    'Relying on driver name aliases is deprecated. Use %s instead of %s.',
-                    str_replace('_', '-', $actualDriver),
-                    $driver,
-                );
-
-                $driver = $actualDriver;
-            }
-
-            // The requested driver from the URL scheme takes precedence over the
-            // default driver from the connection parameters.
-            $params['driver'] = $driver;
+            $params['driver'] = str_replace('-', '_', $scheme);
 
             return $params;
         }
