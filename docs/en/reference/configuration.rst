@@ -49,25 +49,13 @@ The path after the authority part represents the name of the
 database, sans the leading slash. Any query parameters are used as
 additional connection parameters.
 
-The scheme names representing the drivers are either the regular
-driver names (see below) with any underscores in their name replaced
-with a hyphen (to make them legal in URL scheme names), or one of the
-following simplified driver names that serve as aliases:
+The scheme names representing the drivers are the driver names
+with any underscores in their name replaced with a hyphen
+(to make them legal in URL scheme names).
 
--  ``db2``: alias for ``ibm_db2``
--  ``mssql``: alias for ``pdo_sqlsrv``
--  ``mysql``/``mysql2``: alias for ``pdo_mysql``
--  ``pgsql``/``postgres``/``postgresql``: alias for ``pdo_pgsql``
--  ``sqlite``/``sqlite3``: alias for ``pdo_sqlite``
-
-For example, to connect to a "foo" MySQL DB using the ``pdo_mysql``
+For example, to connect to a "foo" MySQL database using the ``pdo_mysql``
 driver on localhost port 4486 with the "charset" option set to ``utf8mb4``,
 you would use the following URL::
-
-    mysql://localhost:4486/foo?charset=utf8mb4
-
-This is identical to the following connection string using the
-full driver name::
 
     pdo-mysql://localhost:4486/foo?charset=utf8mb4
 
@@ -79,28 +67,28 @@ URL is obviously irrelevant and thus can be omitted. The path part
 of the URL is, like for all other drivers, stripped of its leading
 slash, resulting in a relative file name for the database::
 
-    sqlite:///somedb.sqlite
+    pdo-sqlite:///somedb.sqlite
 
 This would access ``somedb.sqlite`` in the current working directory
 and is identical to the following::
 
-    sqlite://ignored:ignored@ignored:1234/somedb.sqlite
+    pdo-sqlite://ignored:ignored@ignored:1234/somedb.sqlite
 
 To specify an absolute file path, e.g. ``/usr/local/var/db.sqlite``,
 simply use that as the database name, which results in two leading
 slashes for the path part of the URL, and four slashes in total after
 the URL scheme name and its following colon::
 
-    sqlite:////usr/local/var/db.sqlite
+    pdo-sqlite:////usr/local/var/db.sqlite
 
 Which is, again, identical to supplying ignored user/pass/authority::
 
-    sqlite://notused:inthis@case//usr/local/var/db.sqlite
+    pdo-sqlite://notused:inthis@case//usr/local/var/db.sqlite
 
 To connect to an in-memory SQLite instance, use ``:memory:`` as the
 database name::
 
-    sqlite:///:memory:
+    pdo-sqlite:///:memory:
 
 .. note::
 
@@ -290,45 +278,15 @@ Automatic platform version detection
 
 Doctrine ships with different database platform implementations for some vendors
 to support version specific features, dialect and behaviour.
-As of Doctrine DBAL 2.5 the appropriate platform implementation for the underlying
-database server version can be detected at runtime automatically for nearly all drivers.
-Before 2.5 you had to configure Doctrine to use a certain platform implementation
-explicitly with the ``platform`` connection parameter (see section below).
-Otherwise Doctrine always used a default platform implementation. For example if
-your application was backed by a SQL Server 2012 database, Doctrine would still use
-the SQL Server 2008 platform implementation as it is the default, unless you told
-Doctrine explicitly to use the SQL Server 2012 implementation.
 
-The following drivers support automatic database platform detection out of the box
-without any extra configuration required:
+The drivers will automatically detect the platform version and instantiate
+the corresponding platform class.
 
--  ``pdo_mysql``
--  ``mysqli``
--  ``pdo_pgsql``
--  ``pdo_sqlsrv``
--  ``sqlsrv``
-
-Some drivers cannot provide the version of the underlying database server without
-having to query for it explicitly.
-
-If you still want to tell Doctrine which database server version you are using in
-order to choose the appropriate platform implementation, you can pass the
-``serverVersion`` option with a vendor specific version string that matches the
-database server version you are using.
-You can also pass this option if you want to disable automatic database platform
-detection for a driver that natively supports it and choose the platform version
-implementation explicitly.
+You can also pass the ``serverVersion`` option if you want to disable automatic
+database platform detection and choose the platform version implementation explicitly.
 
 If you are running a MariaDB database, you should prefix the ``serverVersion``
 with ``mariadb-`` (ex: ``mariadb-10.2.12``).
-
-Custom Platform
-~~~~~~~~~~~~~~~
-
-Each built-in driver uses a default implementation of
-``Doctrine\DBAL\Platforms\AbstractPlatform``. If you wish to use a
-customized or custom implementation, you can pass a precreated
-instance in the ``platform`` option.
 
 Custom Driver Options
 ~~~~~~~~~~~~~~~~~~~~~

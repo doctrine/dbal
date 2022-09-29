@@ -140,6 +140,13 @@ class Connection implements ServerVersionProvider
                 throw InvalidPlatformType::new($params['platform']);
             }
 
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5699',
+                'The "platform" connection parameter is deprecated.'
+                    . ' Use a driver middleware that would instantiate the platform instead.',
+            );
+
             $this->platform = $params['platform'];
             $this->platform->setEventManager($this->_eventManager);
         }
