@@ -25,7 +25,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
-use stdClass;
 
 /**
  * @requires extension pdo_mysql
@@ -711,103 +710,6 @@ class ConnectionTest extends TestCase
         $driver = $this->createMock(Driver::class);
 
         (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
-    }
-
-    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
-    {
-        $cacheItemMock = $this->createMock(CacheItemInterface::class);
-        $cacheItemMock->method('isHit')->willReturn(true);
-        $cacheItemMock->method('get')->willReturn(['realKey' => []]);
-
-        $resultCacheMock = $this->createMock(CacheItemPoolInterface::class);
-
-        $resultCacheMock
-            ->expects(self::atLeastOnce())
-            ->method('getItem')
-            ->with('cacheKey')
-            ->willReturn($cacheItemMock);
-
-        $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
-
-        $queryCacheProfileMock
-            ->method('getResultCache')
-            ->willReturn($resultCacheMock);
-
-        $query = 'SELECT 1';
-
-        $connectionParams = $this->params;
-
-        $queryCacheProfileMock
-            ->expects(self::once())
-            ->method('generateCacheKeys')
-            ->with($query, [], [], $connectionParams)
-            ->willReturn(['cacheKey', 'realKey']);
-
-        $connectionParams['platform'] = $this->createMock(AbstractPlatform::class);
-
-        $driver = $this->createMock(Driver::class);
-
-        (new Connection($connectionParams, $driver))->executeCacheQuery($query, [], [], $queryCacheProfileMock);
-    }
-
-    /** @psalm-suppress InvalidArgument */
-    public function testThrowsExceptionWhenInValidPlatformSpecified(): void
-    {
-        $connectionParams             = $this->params;
-        $connectionParams['platform'] = new stdClass();
-
-        $driver = $this->createMock(Driver::class);
-
-        $this->expectException(Exception::class);
-
-        new Connection($connectionParams, $driver);
-    }
-
-    public function testExecuteCacheQueryStripsPlatformFromConnectionParamsBeforeGeneratingCacheKeys(): void
-    {
-        $driver = $this->createMock(Driver::class);
-
-        $platform = $this->createMock(AbstractPlatform::class);
-
-        $queryCacheProfile = $this->createMock(QueryCacheProfile::class);
-
-        $resultCache = $this->createMock(CacheItemPoolInterface::class);
-
-        $queryCacheProfile
-            ->method('getResultCache')
-            ->willReturn($resultCache);
-
-        $cacheItemMock = $this->createMock(CacheItemInterface::class);
-        $cacheItemMock->method('isHit')->willReturn(true);
-        $cacheItemMock->method('get')->willReturn(['realKey' => []]);
-
-        $resultCache
-            ->expects(self::atLeastOnce())
-            ->method('getItem')
-            ->with('cacheKey')
-            ->willReturn($cacheItemMock);
-
-        $query = 'SELECT 1';
-
-        $params = [
-            'dbname' => 'foo',
-            'platform' => $platform,
-        ];
-
-        $paramsWithoutPlatform = $params;
-        unset($paramsWithoutPlatform['platform']);
-
-        $queryCacheProfile
-            ->expects(self::once())
-            ->method('generateCacheKeys')
-            ->with($query, [], [], $paramsWithoutPlatform)
-            ->willReturn(['cacheKey', 'realKey']);
-
-        $connection = new Connection($params, $driver);
-
-        self::assertSame($params, $connection->getParams());
-
-        $connection->executeCacheQuery($query, [], [], $queryCacheProfile);
     }
 }
 

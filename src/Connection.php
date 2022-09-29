@@ -20,7 +20,6 @@ use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DriverException;
-use Doctrine\DBAL\Exception\InvalidPlatformType;
 use Doctrine\DBAL\Exception\NoActiveTransaction;
 use Doctrine\DBAL\Exception\SavepointsNotSupported;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -134,25 +133,8 @@ class Connection implements ServerVersionProvider
     ) {
         $this->_config       = $config ?? new Configuration();
         $this->_eventManager = $eventManager ?? new EventManager();
-
-        if (isset($params['platform'])) {
-            if (! $params['platform'] instanceof Platforms\AbstractPlatform) {
-                throw InvalidPlatformType::new($params['platform']);
-            }
-
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5699',
-                'The "platform" connection parameter is deprecated.'
-                    . ' Use a driver middleware that would instantiate the platform instead.',
-            );
-
-            $this->platform = $params['platform'];
-            $this->platform->setEventManager($this->_eventManager);
-        }
-
-        $this->params     = $params;
-        $this->autoCommit = $this->_config->getAutoCommit();
+        $this->params        = $params;
+        $this->autoCommit    = $this->_config->getAutoCommit();
     }
 
     /**
@@ -880,10 +862,7 @@ class Connection implements ServerVersionProvider
             throw NoResultDriverConfigured::new();
         }
 
-        $connectionParams = $this->params;
-        unset($connectionParams['platform']);
-
-        [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $connectionParams);
+        [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $this->params);
 
         $item = $resultCache->getItem($cacheKey);
 
