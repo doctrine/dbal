@@ -31,7 +31,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diff = $this->schemaManager->createComparator()
             ->diffTable(
                 $this->schemaManager->introspectTable('sqlsrv_drop_column'),
-                $newTable
+                $newTable,
             );
         self::assertNotNull($diff);
 
@@ -115,7 +115,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diff = $this->schemaManager->createComparator()
             ->diffTable(
                 $this->schemaManager->introspectTable('sqlsrv_default_constraints'),
-                $newTable
+                $newTable,
             );
         self::assertNotNull($diff);
 

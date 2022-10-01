@@ -429,7 +429,7 @@ class SQLServerPlatform extends AbstractPlatform
                 $commentsSql[] = $this->getCreateColumnCommentSQL(
                     $tableName,
                     $newColumn->getQuotedName($this),
-                    $newComment
+                    $newComment,
                 );
             }
 
@@ -478,7 +478,7 @@ class SQLServerPlatform extends AbstractPlatform
                 "sp_rename '%s.%s', '%s', 'COLUMN'",
                 $tableNameSQL,
                 $oldColumnName->getQuotedName($this),
-                $newColumn->getQuotedName($this)
+                $newColumn->getQuotedName($this),
             );
         }
 
@@ -507,7 +507,7 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf(
             'sp_rename %s, %s',
             $this->quoteStringLiteral($oldName),
-            $this->quoteStringLiteral($newName)
+            $this->quoteStringLiteral($newName),
         );
     }
 

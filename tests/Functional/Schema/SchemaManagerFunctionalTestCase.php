@@ -853,7 +853,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diff = $this->schemaManager->createComparator()
             ->diffTable(
                 $this->schemaManager->introspectTable('column_def_change_type'),
-                $newTable
+                $newTable,
             );
         self::assertNotNull($diff);
 
@@ -998,7 +998,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diff = $this->schemaManager->createComparator()
             ->diffTable(
                 $this->schemaManager->introspectTable('col_def_lifecycle'),
-                $newTable
+                $newTable,
             );
         self::assertNotNull($diff);
 
