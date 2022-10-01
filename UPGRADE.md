@@ -757,6 +757,21 @@ The following methods have been removed.
 
 # Upgrade to 3.5
 
+## Deprecated fallback connection used to determine the database platform.
+
+Relying on a fallback connection used to determine the database platform while connecting to a non-existing database
+has been deprecated. Either use an existing database name in connection parameters or omit the database name
+if the platform and the server configuration allow that.
+
+## Deprecated default PostgreSQL connection database.
+
+Relying on the DBAL connecting to the "postgres" database by default is deprecated. Unless you want to have the server
+determine the default database for the connection, specify the database name explicitly.
+
+## Deprecated the "default_dbname" parameter of the wrapper `Connection`.
+
+The "default_dbname" parameter of the wrapper `Connection` has been deprecated. Use "dbname" instead.
+
 ## Deprecated the "platform" parameter of the wrapper `Connection`.
 
 The "platform" parameter of the wrapper `Connection` has been deprecated. Use a driver middleware that would instantiate

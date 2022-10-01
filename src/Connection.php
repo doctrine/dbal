@@ -282,6 +282,15 @@ class Connection implements ServerVersionProvider
                 throw $e;
             }
 
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5707',
+                'Relying on a fallback connection used to determine the database platform while connecting'
+                    . ' to a non-existing database is deprecated. Either use an existing database name in'
+                    . ' connection parameters or omit the database name if the platform'
+                    . ' and the server configuration allow that.',
+            );
+
             // The database to connect to might not yet exist.
             // Retry detection without database name connection parameter.
             $params = $this->params;
