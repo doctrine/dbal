@@ -203,8 +203,6 @@ pdo_pgsql
 -  ``dbname`` (string): Name of the database/schema to connect to.
 -  ``charset`` (string): The charset used when connecting to the
    database.
--  ``default_dbname`` (string): Override the default database (postgres)
-   to connect to.
 -  ``sslmode`` (string): Determines whether or with what priority
    a SSL TCP/IP connection will be negotiated with the server.
    See the list of available modes:
