@@ -6,9 +6,7 @@ namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\Exception;
 
-/**
- * @psalm-immutable
- */
+/** @psalm-immutable */
 final class ColumnScaleRequired extends Exception
 {
     public static function new(): self
