@@ -1710,6 +1710,43 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $schemaManager->createSchemaObjects($schema);
     }
 
+    public function testChangeIndexWithForeignKeys(): void
+    {
+        $this->dropTableIfExists('child');
+        $this->dropTableIfExists('parent');
+
+        $schema = new Schema();
+
+        $parent = $schema->createTable('parent');
+        $parent->addColumn('id', 'integer');
+        $parent->setPrimaryKey(['id']);
+
+        $child = $schema->createTable('child');
+        $child->addColumn('id', 'integer');
+        $child->addColumn('parent_id', 'integer');
+        $child->addIndex(['parent_id'], 'idx_1');
+        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id']);
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createSchemaObjects($schema);
+
+        $child->dropIndex('idx_1');
+        $child->addIndex(['parent_id'], 'idx_2');
+
+        $diff = $schemaManager->createComparator()->diffTable(
+            $schemaManager->introspectTable('child'),
+            $child,
+        );
+        self::assertNotFalse($diff);
+
+        $schemaManager->alterTable($diff);
+
+        $child = $schemaManager->introspectTable('child');
+
+        self::assertFalse($child->hasIndex('idx_1'));
+        self::assertTrue($child->hasIndex('idx_2'));
+    }
+
     /** @param list<Table> $tables */
     protected function findTableByName(array $tables, string $name): ?Table
     {
