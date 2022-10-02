@@ -1747,6 +1747,33 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($child->hasIndex('idx_2'));
     }
 
+    public function testSwitchPrimaryKeyOrder(): void
+    {
+        $prototype = new Table('test_switch_pk_order');
+        $prototype->addColumn('foo_id', 'integer');
+        $prototype->addColumn('bar_id', 'integer');
+
+        $table = clone $prototype;
+        $table->setPrimaryKey(['foo_id', 'bar_id']);
+        $this->dropAndCreateTable($table);
+
+        $table = clone $prototype;
+        $table->setPrimaryKey(['bar_id', 'foo_id']);
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $diff = $schemaManager->createComparator()->diffTable(
+            $schemaManager->introspectTable('test_switch_pk_order'),
+            $table,
+        );
+        self::assertNotFalse($diff);
+
+        $table      = $schemaManager->introspectTable('test_switch_pk_order');
+        $primaryKey = $table->getPrimaryKey();
+        self::assertNotNull($primaryKey);
+        self::assertSame(['foo_id', 'bar_id'], $primaryKey->getColumns());
+    }
+
     /** @param list<Table> $tables */
     protected function findTableByName(array $tables, string $name): ?Table
     {
