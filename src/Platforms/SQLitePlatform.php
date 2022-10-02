@@ -19,7 +19,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
-use Doctrine\DBAL\Types\IntegerType;
 
 use function array_combine;
 use function array_keys;
@@ -723,30 +722,6 @@ class SQLitePlatform extends AbstractPlatform
      */
     private function getSimpleAlterTableSQL(TableDiff $diff): array|false
     {
-        // Suppress changes on integer type autoincrement columns.
-        foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
-            $newColumn = $columnDiff->getNewColumn();
-
-            if (! $newColumn->getAutoincrement() || ! $newColumn->getType() instanceof IntegerType) {
-                continue;
-            }
-
-            if (! $columnDiff->hasTypeChanged() && $columnDiff->hasUnsignedChanged()) {
-                unset($diff->changedColumns[$oldColumnName]);
-
-                continue;
-            }
-
-            $fromColumnType = $columnDiff->getOldColumn()
-                ->getType();
-
-            if (! ($fromColumnType instanceof Types\SmallIntType) && ! ($fromColumnType instanceof Types\BigIntType)) {
-                continue;
-            }
-
-            unset($diff->changedColumns[$oldColumnName]);
-        }
-
         if (
             ! empty($diff->renamedColumns)
             || ! empty($diff->addedForeignKeys)
