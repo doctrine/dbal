@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed fallback connection used to determine the database platform.
+
+When determining the database platform, if an attempt to connect using the provided configuration fails,
+the wrapper connection will no longer fall back to a configuration without the database name.
+
 ## BC BREAK: removed support for driver name aliases.
 
 Driver name aliases are no longer supported.

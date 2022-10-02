@@ -259,54 +259,10 @@ class Connection implements ServerVersionProvider
      */
     public function getServerVersion(): string
     {
-        $connection = $this->getServerVersionConnection();
-
         try {
-            return $connection->getServerVersion();
+            return $this->connect()->getServerVersion();
         } catch (Driver\Exception $e) {
             throw $this->convertException($e);
-        }
-    }
-
-    /**
-     * Returns the driver-level connection for server version detection.
-     *
-     * @throws Exception
-     */
-    private function getServerVersionConnection(): DriverConnection
-    {
-        try {
-            return $this->connect();
-        } catch (Exception $e) {
-            if (! isset($this->params['dbname'])) {
-                throw $e;
-            }
-
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5707',
-                'Relying on a fallback connection used to determine the database platform while connecting'
-                    . ' to a non-existing database is deprecated. Either use an existing database name in'
-                    . ' connection parameters or omit the database name if the platform'
-                    . ' and the server configuration allow that.',
-            );
-
-            // The database to connect to might not yet exist.
-            // Retry detection without database name connection parameter.
-            $params = $this->params;
-
-            unset($this->params['dbname']);
-
-            try {
-                return $this->connect();
-            } catch (Exception) {
-                // Either the platform does not support database-less connections
-                // or something else went wrong.
-                throw $e;
-            } finally {
-                $this->close();
-                $this->params = $params;
-            }
         }
     }
 
