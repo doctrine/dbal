@@ -1771,7 +1771,29 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table      = $schemaManager->introspectTable('test_switch_pk_order');
         $primaryKey = $table->getPrimaryKey();
         self::assertNotNull($primaryKey);
-        self::assertSame(['foo_id', 'bar_id'], $primaryKey->getColumns());
+        self::assertSame(['foo_id', 'bar_id'], array_map('strtolower', $primaryKey->getColumns()));
+    }
+
+    public function testDropColumnWithDefault(): void
+    {
+        $table = new Table('drop_column_with_default');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('todrop', 'decimal', ['default' => 10.2]);
+
+        $this->dropAndCreateTable($table);
+
+        $table->dropColumn('todrop');
+
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable(
+                $this->schemaManager->introspectTable('drop_column_with_default'),
+                $table,
+            );
+        self::assertNotFalse($diff);
+        $this->schemaManager->alterTable($diff);
+
+        $columns = $this->schemaManager->listTableColumns('drop_column_with_default');
+        self::assertCount(1, $columns);
     }
 
     /** @param list<Table> $tables */
