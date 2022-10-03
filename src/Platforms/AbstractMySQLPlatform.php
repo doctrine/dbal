@@ -903,7 +903,7 @@ SQL
      */
     private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff): array
     {
-        if (empty($diff->renamedIndexes)) {
+        if (count($diff->renamedIndexes) === 0) {
             return [];
         }
 

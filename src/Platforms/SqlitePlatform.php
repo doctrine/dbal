@@ -25,6 +25,7 @@ use function array_merge;
 use function array_search;
 use function array_unique;
 use function array_values;
+use function count;
 use function implode;
 use function is_numeric;
 use function sprintf;
@@ -1202,16 +1203,16 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         if (
-            ! empty($diff->renamedColumns)
-            || ! empty($diff->addedForeignKeys)
-            || ! empty($diff->addedIndexes)
-            || ! empty($diff->changedColumns)
-            || ! empty($diff->changedForeignKeys)
-            || ! empty($diff->changedIndexes)
-            || ! empty($diff->removedColumns)
-            || ! empty($diff->removedForeignKeys)
-            || ! empty($diff->removedIndexes)
-            || ! empty($diff->renamedIndexes)
+            count($diff->renamedColumns) > 0
+            || count($diff->addedForeignKeys) > 0
+            || count($diff->addedIndexes) > 0
+            || count($diff->changedColumns) > 0
+            || count($diff->changedForeignKeys) > 0
+            || count($diff->changedIndexes) > 0
+            || count($diff->removedColumns) > 0
+            || count($diff->removedForeignKeys) > 0
+            || count($diff->removedIndexes) > 0
+            || count($diff->renamedIndexes) > 0
         ) {
             return false;
         }
