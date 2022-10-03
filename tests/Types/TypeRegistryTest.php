@@ -81,7 +81,7 @@ class TypeRegistryTest extends TestCase
         self::assertSame($newType, $this->registry->get('some'));
     }
 
-    public function testRegisterWithAlradyRegisteredName(): void
+    public function testRegisterWithAlreadyRegisteredName(): void
     {
         $this->registry->register('some', new TextType());
 

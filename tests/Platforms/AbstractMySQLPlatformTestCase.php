@@ -18,7 +18,7 @@ use function array_shift;
 /** @extends AbstractPlatformTestCase<MySQLPlatform> */
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
-    public function testModifyLimitQueryWitoutLimit(): void
+    public function testModifyLimitQueryWithoutLimit(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT n FROM Foo', null, 10);
         self::assertEquals('SELECT n FROM Foo LIMIT 18446744073709551615 OFFSET 10', $sql);
