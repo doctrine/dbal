@@ -247,20 +247,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    public function testChangeIndexWithForeignKeys(): void
-    {
-        $index  = new Index('idx', ['col'], false);
-        $unique = new Index('uniq', ['col'], true);
-
-        $diff = new TableDiff('test', [], [], [], [$unique], [], [$index]);
-        $sql  = $this->platform->getAlterTableSQL($diff);
-        self::assertEquals(['ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)'], $sql);
-
-        $diff = new TableDiff('test', [], [], [], [$index], [], [$unique]);
-        $sql  = $this->platform->getAlterTableSQL($diff);
-        self::assertEquals(['ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)'], $sql);
-    }
-
     /** @return string[] */
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {

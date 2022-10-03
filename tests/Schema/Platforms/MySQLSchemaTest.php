@@ -19,31 +19,6 @@ class MySQLSchemaTest extends TestCase
         $this->platform = new MySQLPlatform();
     }
 
-    /** @dataProvider comparatorProvider */
-    public function testSwitchPrimaryKeyOrder(Comparator $comparator): void
-    {
-        $tableOld = new Table('test');
-        $tableOld->addColumn('foo_id', 'integer');
-        $tableOld->addColumn('bar_id', 'integer');
-        $tableNew = clone $tableOld;
-
-        $tableOld->setPrimaryKey(['foo_id', 'bar_id']);
-        $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
-
-        $diff = $comparator->diffTable($tableOld, $tableNew);
-        self::assertNotFalse($diff);
-
-        $sql = $this->platform->getAlterTableSQL($diff);
-
-        self::assertEquals(
-            [
-                'DROP INDEX `primary` ON test',
-                'ALTER TABLE test ADD PRIMARY KEY (bar_id, foo_id)',
-            ],
-            $sql,
-        );
-    }
-
     public function testGenerateForeignKeySQL(): void
     {
         $tableOld = new Table('test');
