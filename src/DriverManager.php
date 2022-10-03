@@ -35,7 +35,6 @@ use function substr;
  * @psalm-type OverrideParams = array{
  *     charset?: string,
  *     dbname?: string,
- *     default_dbname?: string,
  *     driver?: key-of<self::DRIVER_MAP>,
  *     driverClass?: class-string<Driver>,
  *     driverOptions?: array<mixed>,
@@ -51,7 +50,6 @@ use function substr;
  *     charset?: string,
  *     dbname?: string,
  *     defaultTableOptions?: array<string, mixed>,
- *     default_dbname?: string,
  *     driver?: key-of<self::DRIVER_MAP>,
  *     driverClass?: class-string<Driver>,
  *     driverOptions?: array<mixed>,
@@ -137,7 +135,6 @@ final class DriverManager
      * @psalm-param array{
      *     charset?: string,
      *     dbname?: string,
-     *     default_dbname?: string,
      *     driver?: key-of<self::DRIVER_MAP>,
      *     driverClass?: class-string<Driver>,
      *     driverOptions?: array<mixed>,

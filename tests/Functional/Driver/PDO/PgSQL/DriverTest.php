@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\PgSQL;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
@@ -26,53 +25,6 @@ class DriverTest extends AbstractDriverTest
         }
 
         self::markTestSkipped('This test requires the pdo_pgsql driver.');
-    }
-
-    /** @dataProvider getDatabaseParameter */
-    public function testDatabaseParameters(
-        ?string $databaseName,
-        ?string $defaultDatabaseName,
-        ?string $expectedDatabaseName,
-    ): void {
-        $params = $this->connection->getParams();
-
-        if ($databaseName !== null) {
-            $params['dbname'] = $databaseName;
-        } else {
-            unset($params['dbname']);
-        }
-
-        if ($defaultDatabaseName !== null) {
-            $params['default_dbname'] = $defaultDatabaseName;
-        }
-
-        $connection = new Connection(
-            $params,
-            $this->connection->getDriver(),
-            $this->connection->getConfiguration(),
-            $this->connection->getEventManager(),
-        );
-
-        self::assertSame(
-            $expectedDatabaseName,
-            $connection->getDatabase(),
-        );
-    }
-
-    /** @return mixed[][] */
-    public static function getDatabaseParameter(): iterable
-    {
-        $params            = TestUtil::getConnectionParams();
-        $realDatabaseName  = $params['dbname'] ?? '';
-        $dummyDatabaseName = $realDatabaseName . 'a';
-
-        return [
-            // dbname, default_dbname, expected
-            [$realDatabaseName, null, $realDatabaseName],
-            [$realDatabaseName, $dummyDatabaseName, $realDatabaseName],
-            [null, $realDatabaseName, $realDatabaseName],
-            [null, null, static::getDatabaseNameForConnectionWithoutDatabaseNameParameter()],
-        ];
     }
 
     public function testConnectsWithApplicationNameParameter(): void
