@@ -44,8 +44,8 @@ class IndexTest extends TestCase
         $idx2 = $this->createIndex(true, false);
         $idx3 = $this->createIndex();
 
-        self::assertTrue($idx1->isFullfilledBy($idx2));
-        self::assertFalse($idx1->isFullfilledBy($idx3));
+        self::assertTrue($idx1->isFulfilledBy($idx2));
+        self::assertFalse($idx1->isFulfilledBy($idx3));
     }
 
     public function testFulfilledByPrimary(): void
@@ -54,8 +54,8 @@ class IndexTest extends TestCase
         $idx2 = $this->createIndex(true, true);
         $idx3 = $this->createIndex(true, false);
 
-        self::assertTrue($idx1->isFullfilledBy($idx2));
-        self::assertFalse($idx1->isFullfilledBy($idx3));
+        self::assertTrue($idx1->isFulfilledBy($idx2));
+        self::assertFalse($idx1->isFulfilledBy($idx3));
     }
 
     public function testFulfilledByIndex(): void
@@ -65,9 +65,9 @@ class IndexTest extends TestCase
         $pri  = $this->createIndex(true, true);
         $uniq = $this->createIndex(true);
 
-        self::assertTrue($idx1->isFullfilledBy($idx2));
-        self::assertTrue($idx1->isFullfilledBy($pri));
-        self::assertTrue($idx1->isFullfilledBy($uniq));
+        self::assertTrue($idx1->isFulfilledBy($idx2));
+        self::assertTrue($idx1->isFulfilledBy($pri));
+        self::assertTrue($idx1->isFulfilledBy($uniq));
     }
 
     public function testFulfilledWithPartial(): void
@@ -76,13 +76,13 @@ class IndexTest extends TestCase
         $partial = new Index('partial', ['col1', 'col2'], true, false, [], ['where' => 'col1 IS NULL']);
         $another = new Index('another', ['col1', 'col2'], true, false, [], ['where' => 'col1 IS NULL']);
 
-        self::assertFalse($partial->isFullfilledBy($without));
-        self::assertFalse($without->isFullfilledBy($partial));
+        self::assertFalse($partial->isFulfilledBy($without));
+        self::assertFalse($without->isFulfilledBy($partial));
 
-        self::assertTrue($partial->isFullfilledBy($partial));
+        self::assertTrue($partial->isFulfilledBy($partial));
 
-        self::assertTrue($partial->isFullfilledBy($another));
-        self::assertTrue($another->isFullfilledBy($partial));
+        self::assertTrue($partial->isFulfilledBy($another));
+        self::assertTrue($another->isFulfilledBy($partial));
     }
 
     public function testOverrulesWithPartial(): void
@@ -112,8 +112,8 @@ class IndexTest extends TestCase
         $index1 = new Index('index1', $columns, false, false, [], ['lengths' => $lengths1]);
         $index2 = new Index('index2', $columns, false, false, [], ['lengths' => $lengths2]);
 
-        self::assertSame($expected, $index1->isFullfilledBy($index2));
-        self::assertSame($expected, $index2->isFullfilledBy($index1));
+        self::assertSame($expected, $index1->isFulfilledBy($index2));
+        self::assertSame($expected, $index2->isFulfilledBy($index1));
     }
 
     /** @return mixed[][] */
