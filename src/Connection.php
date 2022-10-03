@@ -259,11 +259,7 @@ class Connection implements ServerVersionProvider
      */
     public function getServerVersion(): string
     {
-        try {
-            return $this->connect()->getServerVersion();
-        } catch (Driver\Exception $e) {
-            throw $this->convertException($e);
-        }
+        return $this->connect()->getServerVersion();
     }
 
     /**

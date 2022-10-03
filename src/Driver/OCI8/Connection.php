@@ -39,10 +39,7 @@ final class Connection implements ConnectionInterface
     public function getServerVersion(): string
     {
         $version = oci_server_version($this->connection);
-
-        if ($version === false) {
-            throw Error::new($this->connection);
-        }
+        assert($version !== false);
 
         $result = preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches);
         assert($result === 1);
