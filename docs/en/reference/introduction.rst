@@ -20,14 +20,15 @@ The following database vendors are currently supported:
 - SQLite
 
 The Doctrine DBAL can be used independently of the
-[Doctrine Object-Relational Mapper (ORM)](https://www.doctrine-project.org/projects/orm.html).
-In order to use the DBAL all you need is
-the class loader provided by [Composer](https://getcomposer.org/), to be able to autoload the classes:
+`Doctrine Object-Relational Mapper (ORM) <https://www.doctrine-project.org/projects/orm.html>`_.
+In order to use the DBAL all you need is the class loader provided by
+`Composer <https://getcomposer.org/>`_, to be able to autoload the
+classes:
 
 .. code-block:: php
 
     <?php
-    
+
     require_once 'vendor/autoload.php';
 
 Now you are able to load classes that are in the
@@ -35,4 +36,3 @@ Now you are able to load classes that are in the
 ``/path/to/doctrine/Doctrine/DBAL/DriverManager.php`` which we will
 use later in this documentation to configure our first Doctrine
 DBAL connection.
-
