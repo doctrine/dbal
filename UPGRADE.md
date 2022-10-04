@@ -15,6 +15,7 @@ has been deprecated. Either use an existing database name in connection paramete
 if the platform and the server configuration allow that.
 
 ## Deprecated misspelled isFullfilledBy() method
+
 This method's name was spelled incorrectly. Use `isFulfilledBy` instead.
 
 ## Deprecated default PostgreSQL connection database.
