@@ -644,8 +644,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff                        = new TableDiff($table);
-        $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['comment' => 'A comment']);
+        $tableDiff = new TableDiff($table, [
+            new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
+        ], [], [], [], [], [], [], [], [], [], []);
 
         $expectedSql = [
             'ALTER TABLE testschema.mytable ADD quota INT NOT NULL',
@@ -660,11 +661,11 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff                          = new TableDiff($table);
-        $tableDiff->changedColumns['quota'] = new ColumnDiff(
+        $tableDiff = new TableDiff($table, [], [new ColumnDiff(
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
             new Column('quota', Type::getType('integer'), []),
-        );
+        ),
+        ], [], [], [], [], [], [], [], [], []);
 
         $expectedSql = [
             "EXEC sp_dropextendedproperty N'MS_Description'"
@@ -678,11 +679,11 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff                          = new TableDiff($table);
-        $tableDiff->changedColumns['quota'] = new ColumnDiff(
+        $tableDiff = new TableDiff($table, [], [new ColumnDiff(
             new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
             new Column('quota', Type::getType('integer'), ['comment' => 'B comment']),
-        );
+        ),
+        ], [], [], [], [], [], [], [], [], []);
 
         $expectedSql = ["EXEC sp_updateextendedproperty N'MS_Description', N'B comment', "
                 . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota",
@@ -762,95 +763,78 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         ]);
         $table->setPrimaryKey(['id']);
 
-        $tableDiff = new TableDiff($table);
-
-        $tableDiff->addedColumns['added_comment_none']
-            = new Column('added_comment_none', Type::getType('integer'));
-
-        $tableDiff->addedColumns['added_comment_empty_string']
-            = new Column('added_comment_empty_string', Type::getType('integer'), ['comment' => '']);
-
-        $tableDiff->addedColumns['added_comment_string_0']
-            = new Column('added_comment_string_0', Type::getType('integer'), ['comment' => '0']);
-
-        $tableDiff->addedColumns['added_comment']
-            = new Column('added_comment', Type::getType('integer'), ['comment' => 'Doctrine']);
-
-        $tableDiff->addedColumns['`added_comment_quoted`']
-            = new Column('`added_comment_quoted`', Type::getType('integer'), ['comment' => 'rulez']);
-
-        $tableDiff->addedColumns['select']
-            = new Column('select', Type::getType('integer'), ['comment' => '666']);
-
-        $tableDiff->addedColumns['added_commented_type']
-            = new Column('added_commented_type', Type::getType('json'));
-
-        $tableDiff->addedColumns['added_commented_type_with_comment']
-            = new Column('added_commented_type_with_comment', Type::getType('json'), ['comment' => '666']);
-
-        $tableDiff->addedColumns['added_comment_with_string_literal_char']
-            = new Column('added_comment_with_string_literal_char', Type::getType('string'), [
+        $tableDiff = new TableDiff($table, [
+            new Column('added_comment_none', Type::getType('integer')),
+            new Column('added_comment_empty_string', Type::getType('integer'), ['comment' => '']),
+            new Column('added_comment_string_0', Type::getType('integer'), ['comment' => '0']),
+            new Column('added_comment', Type::getType('integer'), ['comment' => 'Doctrine']),
+            new Column('`added_comment_quoted`', Type::getType('integer'), ['comment' => 'rulez']),
+            new Column('select', Type::getType('integer'), ['comment' => '666']),
+            new Column('added_commented_type', Type::getType('json')),
+            new Column('added_commented_type_with_comment', Type::getType('json'), ['comment' => '666']),
+            new Column('added_comment_with_string_literal_char', Type::getType('string'), [
                 'length' => 255,
                 'comment' => "''",
-            ]);
-
-        // Add comment to non-commented column.
-        $tableDiff->changedColumns['id'] = new ColumnDiff(
-            new Column('id', Type::getType('integer'), ['autoincrement' => true]),
-            new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
-        );
-
-        // Change type to custom type from empty string commented column.
-        $tableDiff->changedColumns['comment_empty_string'] = new ColumnDiff(
-            new Column('comment_empty_string', Type::getType('integer'), ['comment' => '']),
-            new Column('comment_empty_string', Type::getType('json')),
-        );
-
-        // Change comment to empty comment from zero-string commented column.
-        $tableDiff->changedColumns['comment_string_0'] = new ColumnDiff(
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => '0']),
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => '']),
-        );
-
-        // Remove comment from regular commented column.
-        $tableDiff->changedColumns['comment'] = new ColumnDiff(
-            new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
-            new Column('comment', Type::getType('integer')),
-        );
-
-        // Change comment and change type to custom type from regular commented column.
-        $tableDiff->changedColumns['`comment_quoted`'] = new ColumnDiff(
-            new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
-            new Column('`comment_quoted`', Type::getType('json'), ['comment' => 'Doctrine JSON.']),
-        );
-
-        // Remove comment and change type to custom type from regular commented column.
-        $tableDiff->changedColumns['create'] = new ColumnDiff(
-            new Column(
-                'create',
-                Type::getType('integer'),
-                ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!'],
+            ]),
+        ], [
+            // Add comment to non-commented column.
+            new ColumnDiff(
+                new Column('id', Type::getType('integer'), ['autoincrement' => true]),
+                new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
             ),
-            new Column('create', Type::getType('json')),
-        );
 
-        // Add comment and change custom type to regular type from non-commented column.
-        $tableDiff->changedColumns['commented_type'] = new ColumnDiff(
-            new Column('commented_type', Type::getType('json')),
-            new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
-        );
+            // Change type to custom type from empty string commented column.
+            new ColumnDiff(
+                new Column('comment_empty_string', Type::getType('integer'), ['comment' => '']),
+                new Column('comment_empty_string', Type::getType('json')),
+            ),
 
-        // Remove comment from commented custom type column.
-        $tableDiff->changedColumns['commented_type_with_comment'] = new ColumnDiff(
-            new Column('commented_type_with_comment', Type::getType('json'), ['comment' => 'Doctrine JSON type.']),
-            new Column('commented_type_with_comment', Type::getType('json')),
-        );
+            // Change comment to empty comment from zero-string commented column.
+            new ColumnDiff(
+                new Column('comment_string_0', Type::getType('integer'), ['comment' => '0']),
+                new Column('comment_string_0', Type::getType('integer'), ['comment' => '']),
+            ),
 
-        // Change comment from comment with string literal char column.
-        $tableDiff->changedColumns['comment_with_string_literal_char'] = new ColumnDiff(
-            new Column('comment_with_string_literal_char', Type::getType('json'), ['comment' => "O'Reilly"]),
-            new Column('comment_with_string_literal_char', Type::getType('string'), ['comment' => "'"]),
-        );
+            // Remove comment from regular commented column.
+            new ColumnDiff(
+                new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
+                new Column('comment', Type::getType('integer')),
+            ),
+
+            // Change comment and change type to custom type from regular commented column.
+            new ColumnDiff(
+                new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
+                new Column('`comment_quoted`', Type::getType('json'), ['comment' => 'Doctrine JSON.']),
+            ),
+
+            // Remove comment and change type to custom type from regular commented column.
+            new ColumnDiff(
+                new Column(
+                    'create',
+                    Type::getType('integer'),
+                    ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!'],
+                ),
+                new Column('create', Type::getType('json')),
+            ),
+
+            // Add comment and change custom type to regular type from non-commented column.
+            new ColumnDiff(
+                new Column('commented_type', Type::getType('json')),
+                new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
+            ),
+
+            // Remove comment from commented custom type column.
+            new ColumnDiff(
+                new Column('commented_type_with_comment', Type::getType('json'), ['comment' => 'Doctrine JSON type.']),
+                new Column('commented_type_with_comment', Type::getType('json')),
+            ),
+
+            // Change comment from comment with string literal char column.
+            new ColumnDiff(
+                new Column('comment_with_string_literal_char', Type::getType('json'), ['comment' => "O'Reilly"]),
+                new Column('comment_with_string_literal_char', Type::getType('string'), ['comment' => "'"]),
+            ),
+        ], [], [], [], [], [], [], [], [], []);
 
         self::assertEquals(
             [
@@ -1031,20 +1015,20 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('col_int', 'smallint', ['default' => 666]);
         $table->addColumn('col_string', 'string', ['default' => 'foo']);
 
-        $tableDiff                            = new TableDiff($table);
-        $tableDiff->changedColumns['col_int'] = new ColumnDiff(
-            new Column('col_int', Type::getType('smallint'), ['default' => 666]),
-            new Column('col_int', Type::getType('integer'), ['default' => 666]),
-        );
-
-        $tableDiff->changedColumns['col_string'] = new ColumnDiff(
-            new Column('col_string', Type::getType('string'), ['default' => 'foo']),
-            new Column('col_string', Type::getType('string'), [
-                'length' => 255,
-                'fixed' => true,
-                'default' => 'foo',
-            ]),
-        );
+        $tableDiff = new TableDiff($table, [], [
+            new ColumnDiff(
+                new Column('col_int', Type::getType('smallint'), ['default' => 666]),
+                new Column('col_int', Type::getType('integer'), ['default' => 666]),
+            ),
+            new ColumnDiff(
+                new Column('col_string', Type::getType('string'), ['default' => 'foo']),
+                new Column('col_string', Type::getType('string'), [
+                    'length' => 255,
+                    'fixed' => true,
+                    'default' => 'foo',
+                ]),
+            ),
+        ], [], [], [], [], [], [], [], [], []);
 
         self::assertSame(
             [
@@ -1192,13 +1176,13 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                 new TableDiff(
                     new Table('mytable'),
                     [
-                        'addcolumn' => new Column('addcolumn', Type::getType('string'), [
+                        new Column('addcolumn', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
                     ],
                     [
-                        'mycolumn' => new ColumnDiff(
+                        new ColumnDiff(
                             new Column('mycolumn', Type::getType('string'), [
                                 'length' => 255,
                                 'default' => 'foo',
@@ -1210,11 +1194,19 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                         ),
                     ],
                     [
-                        'removecolumn' => new Column('removecolumn', Type::getType('string'), [
+                        new Column('removecolumn', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
                     ],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
                 ),
                 [
                     'ALTER TABLE mytable ADD addcolumn NVARCHAR(255) NOT NULL ' .
@@ -1230,13 +1222,13 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                 new TableDiff(
                     new Table('`mytable`'),
                     [
-                        'addcolumn' => new Column('`addcolumn`', Type::getType('string'), [
+                        new Column('`addcolumn`', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
                     ],
                     [
-                        'mycolumn' => new ColumnDiff(
+                        new ColumnDiff(
                             new Column('`mycolumn`', Type::getType('string'), [
                                 'length' => 255,
                                 'default' => 'foo',
@@ -1248,11 +1240,19 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                         ),
                     ],
                     [
-                        'removecolumn' => new Column('`removecolumn`', Type::getType('string'), [
+                        new Column('`removecolumn`', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
                     ],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
                 ),
                 [
                     'ALTER TABLE [mytable] ADD [addcolumn] NVARCHAR(255) NOT NULL ' .
@@ -1268,13 +1268,13 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                 new TableDiff(
                     new Table('`mytable`'),
                     [
-                        'add' => new Column('add', Type::getType('string'), [
+                        new Column('add', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
                     ],
                     [
-                        'select' => new ColumnDiff(
+                        new ColumnDiff(
                             new Column('select', Type::getType('string'), [
                                 'length' => 255,
                                 'default' => 'foo',
@@ -1286,11 +1286,19 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                         ),
                     ],
                     [
-                        'drop' => new Column('drop', Type::getType('string'), [
+                        new Column('drop', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
                     ],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
                 ),
                 [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL ' .
@@ -1306,13 +1314,13 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                 new TableDiff(
                     new Table('`table`'),
                     [
-                        'add' => new Column('`add`', Type::getType('string'), [
+                        new Column('`add`', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
                     ],
                     [
-                        'select' => new ColumnDiff(
+                        new ColumnDiff(
                             new Column('`select`', Type::getType('string'), [
                                 'length' => 255,
                                 'default' => 'foo',
@@ -1324,11 +1332,19 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
                         ),
                     ],
                     [
-                        'drop' => new Column('`drop`', Type::getType('string'), [
+                        new Column('`drop`', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
                     ],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
                 ),
                 [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL ' .
@@ -1582,11 +1598,12 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff                          = new TableDiff($table);
-        $tableDiff->changedColumns['quota'] = new ColumnDiff(
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => false]),
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => true]),
-        );
+        $tableDiff = new TableDiff($table, [], [
+            new ColumnDiff(
+                new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => false]),
+                new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => true]),
+            ),
+        ], [], [], [], [], [], [], [], [], []);
 
         $expectedSql = ['ALTER TABLE testschema.mytable ALTER COLUMN quota INT NOT NULL'];
 

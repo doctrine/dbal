@@ -37,8 +37,10 @@ class MariaDBPlatform extends AbstractMySQLPlatform
         $sql       = [];
         $tableName = $diff->getOldTable()->getQuotedName($this);
 
+        $modifiedForeignKeys = $diff->getModifiedForeignKeys();
+
         foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
-            if (in_array($foreignKey, $diff->changedForeignKeys, true)) {
+            if (in_array($foreignKey, $modifiedForeignKeys, true)) {
                 continue;
             }
 
@@ -66,8 +68,10 @@ class MariaDBPlatform extends AbstractMySQLPlatform
 
         $tableName = $diff->getOldTable()->getQuotedName($this);
 
+        $modifiedForeignKeys = $diff->getModifiedForeignKeys();
+
         foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
-            if (in_array($foreignKey, $diff->changedForeignKeys, true)) {
+            if (in_array($foreignKey, $modifiedForeignKeys, true)) {
                 continue;
             }
 
@@ -89,7 +93,9 @@ class MariaDBPlatform extends AbstractMySQLPlatform
      */
     private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff): array
     {
-        if (count($diff->renamedIndexes) === 0) {
+        $renamedIndexes = $diff->getRenamedIndexes();
+
+        if (count($renamedIndexes) === 0) {
             return [];
         }
 
@@ -97,11 +103,11 @@ class MariaDBPlatform extends AbstractMySQLPlatform
 
         $remainingForeignKeys = array_diff_key(
             $diff->getOldTable()->getForeignKeys(),
-            $diff->removedForeignKeys,
+            $diff->getDroppedForeignKeys(),
         );
 
         foreach ($remainingForeignKeys as $foreignKey) {
-            foreach ($diff->renamedIndexes as $index) {
+            foreach ($renamedIndexes as $index) {
                 if ($foreignKey->intersectsIndexColumns($index)) {
                     $foreignKeys[] = $foreignKey;
 
