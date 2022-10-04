@@ -974,7 +974,7 @@ class QueryBuilder
      *         ->from('counters', 'c')
      *         ->where('c.id = ?');
      *
-     *     // You can optionally programatically build and/or expressions
+     *     // You can optionally programmatically build and/or expressions
      *     $qb = $conn->createQueryBuilder();
      *
      *     $or = $qb->expr()->orx();

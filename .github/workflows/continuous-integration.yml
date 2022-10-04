@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
         with:
           fetch-depth: 2
 
@@ -66,7 +66,7 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
         with:
           composer-options: "--ignore-platform-req=php+"
           dependency-versions: "${{ matrix.dependencies }}"
@@ -79,7 +79,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/sqlite.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v2"
+        uses: "actions/upload-artifact@v3"
         with:
           name: "phpunit-sqlite-${{ matrix.deps }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -116,7 +116,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
         with:
           fetch-depth: 2
 
@@ -129,7 +129,7 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -137,7 +137,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/oci8.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v2"
+        uses: "actions/upload-artifact@v3"
         with:
           name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -174,7 +174,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
         with:
           fetch-depth: 2
 
@@ -187,7 +187,7 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -195,7 +195,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v2"
+        uses: "actions/upload-artifact@v3"
         with:
           name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -233,7 +233,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
         with:
           fetch-depth: 2
 
@@ -245,7 +245,7 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -253,7 +253,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_pgsql.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v2"
+        uses: "actions/upload-artifact@v3"
         with:
           name: "${{ github.job }}-${{ matrix.postgres-version }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -310,7 +310,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
         with:
           fetch-depth: 2
 
@@ -323,7 +323,7 @@ jobs:
           extensions: "${{ matrix.extension }}"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -331,7 +331,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v2"
+        uses: "actions/upload-artifact@v3"
         with:
           name: "${{ github.job }}-${{ matrix.mariadb-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -396,7 +396,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
         with:
           fetch-depth: 2
 
@@ -409,7 +409,7 @@ jobs:
           extensions: "${{ matrix.extension }}"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -421,7 +421,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v2"
+        uses: "actions/upload-artifact@v3"
         with:
           name: "${{ github.job }}-${{ matrix.mysql-version }}-${{ matrix.extension }}-${{ matrix.config-file-suffix }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -466,7 +466,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
         with:
           fetch-depth: 2
 
@@ -480,7 +480,7 @@ jobs:
           extensions: "${{ matrix.extension }}-5.10.0beta1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -488,7 +488,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v2"
+        uses: "actions/upload-artifact@v3"
         with:
           name: "${{ github.job }}-${{ matrix.extension }}-${{ matrix.php-version }}-${{ matrix.collation }}.coverage"
           path: "coverage.xml"
@@ -524,7 +524,7 @@ jobs:
         run: "docker exec ${{ job.services.ibm_db2.id }} su - db2inst1 -c 'db2 CONNECT TO doctrine && db2 CREATE USER TEMPORARY TABLESPACE doctrine_tbsp PAGESIZE 4 K'"
 
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
         with:
           fetch-depth: 2
 
@@ -539,13 +539,13 @@ jobs:
         run: "ci/github/ext/install-ibm_db2.sh ${{ matrix.php-version }}"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v2"
+        uses: "actions/upload-artifact@v3"
         with:
           name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -561,7 +561,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
@@ -572,7 +572,7 @@ jobs:
         run: "composer config minimum-stability dev"
 
       - name: "Install development dependencies with Composer"
-        uses: "ramsey/composer-install@v1"
+        uses: "ramsey/composer-install@v2"
         with:
           composer-options: "--prefer-dist"
 
@@ -594,12 +594,12 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
         with:
           fetch-depth: 2
 
       - name: "Download coverage files"
-        uses: "actions/download-artifact@v2"
+        uses: "actions/download-artifact@v3"
         with:
           path: "reports"
 
@@ -608,6 +608,6 @@ jobs:
         working-directory: reports
 
       - name: "Upload to Codecov"
-        uses: "codecov/codecov-action@v1"
+        uses: "codecov/codecov-action@v3"
         with:
           directory: reports
