@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 class AddColumnWithDefaultTest extends FunctionalTestCase
@@ -24,13 +21,17 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
 
         $this->connection->executeStatement("INSERT INTO add_default_test (original_field) VALUES ('one')");
 
-        $tableDiff                      = new TableDiff($table);
-        $tableDiff->addedColumns['foo'] = new Column('new_field', Type::getType('string'), [
+        $table->addColumn('new_field', Types::STRING, [
             'length' => 8,
             'default' => 'DEFAULT',
         ]);
 
-        $schemaManager->alterTable($tableDiff);
+        $diff = $schemaManager->createComparator()->diffTable(
+            $schemaManager->introspectTable('add_default_test'),
+            $table,
+        );
+        self::assertNotNull($diff);
+        $schemaManager->alterTable($diff);
 
         $query  = 'SELECT original_field, new_field FROM add_default_test';
         $result = $this->connection->fetchNumeric($query);

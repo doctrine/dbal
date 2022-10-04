@@ -1397,19 +1397,19 @@ abstract class AbstractPlatform
 
         $sql = [];
 
-        foreach ($diff->removedForeignKeys as $foreignKey) {
+        foreach ($diff->getDroppedForeignKeys() as $foreignKey) {
             $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableNameSQL);
         }
 
-        foreach ($diff->changedForeignKeys as $foreignKey) {
+        foreach ($diff->getModifiedForeignKeys() as $foreignKey) {
             $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableNameSQL);
         }
 
-        foreach ($diff->removedIndexes as $index) {
+        foreach ($diff->getDroppedIndexes() as $index) {
             $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableNameSQL);
         }
 
-        foreach ($diff->changedIndexes as $index) {
+        foreach ($diff->getModifiedIndexes() as $index) {
             $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableNameSQL);
         }
 
@@ -1423,23 +1423,23 @@ abstract class AbstractPlatform
 
         $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
-        foreach ($diff->addedForeignKeys as $foreignKey) {
+        foreach ($diff->getAddedForeignKeys() as $foreignKey) {
             $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
         }
 
-        foreach ($diff->changedForeignKeys as $foreignKey) {
+        foreach ($diff->getModifiedForeignKeys() as $foreignKey) {
             $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
         }
 
-        foreach ($diff->addedIndexes as $index) {
+        foreach ($diff->getAddedIndexes() as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
-        foreach ($diff->changedIndexes as $index) {
+        foreach ($diff->getModifiedIndexes() as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 
-        foreach ($diff->renamedIndexes as $oldIndexName => $index) {
+        foreach ($diff->getRenamedIndexes() as $oldIndexName => $index) {
             $oldIndexName = new Identifier($oldIndexName);
             $sql          = array_merge(
                 $sql,

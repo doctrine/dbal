@@ -26,6 +26,7 @@ use function array_merge;
 use function array_search;
 use function array_unique;
 use function array_values;
+use function count;
 use function implode;
 use function sprintf;
 use function str_replace;
@@ -578,12 +579,12 @@ class SQLitePlatform extends AbstractPlatform
             $oldColumnNames[$columnName] = $newColumnNames[$columnName] = $column->getQuotedName($this);
         }
 
-        foreach ($diff->removedColumns as $columnName => $column) {
+        foreach ($diff->getDroppedColumns() as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
-            $columnName = strtolower($columnName);
+            $columnName = strtolower($column->getName());
             if (! isset($columns[$columnName])) {
                 continue;
             }
@@ -595,7 +596,7 @@ class SQLitePlatform extends AbstractPlatform
             );
         }
 
-        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
@@ -616,12 +617,12 @@ class SQLitePlatform extends AbstractPlatform
             $newColumnNames[$oldColumnName] = $column->getQuotedName($this);
         }
 
-        foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
+        foreach ($diff->getModifiedColumns() as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
 
-            $oldColumnName = strtolower($oldColumnName);
+            $oldColumnName = strtolower($columnDiff->getOldColumn()->getName());
             $newColumn     = $columnDiff->getNewColumn();
 
             $columns = $this->replaceColumn(
@@ -638,12 +639,12 @@ class SQLitePlatform extends AbstractPlatform
             $newColumnNames[$oldColumnName] = $newColumn->getQuotedName($this);
         }
 
-        foreach ($diff->addedColumns as $columnName => $column) {
+        foreach ($diff->getAddedColumns() as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
-            $columns[strtolower($columnName)] = $column;
+            $columns[strtolower($column->getName())] = $column;
         }
 
         $sql      = [];
@@ -723,16 +724,16 @@ class SQLitePlatform extends AbstractPlatform
     private function getSimpleAlterTableSQL(TableDiff $diff): array|false
     {
         if (
-            ! empty($diff->renamedColumns)
-            || ! empty($diff->addedForeignKeys)
-            || ! empty($diff->addedIndexes)
-            || ! empty($diff->changedColumns)
-            || ! empty($diff->changedForeignKeys)
-            || ! empty($diff->changedIndexes)
-            || ! empty($diff->removedColumns)
-            || ! empty($diff->removedForeignKeys)
-            || ! empty($diff->removedIndexes)
-            || ! empty($diff->renamedIndexes)
+            count($diff->getModifiedColumns()) > 0
+            || count($diff->getDroppedColumns()) > 0
+            || count($diff->getRenamedColumns()) > 0
+            || count($diff->getAddedIndexes()) > 0
+            || count($diff->getModifiedIndexes()) > 0
+            || count($diff->getDroppedIndexes()) > 0
+            || count($diff->getRenamedIndexes()) > 0
+            || count($diff->getAddedForeignKeys()) > 0
+            || count($diff->getModifiedForeignKeys()) > 0
+            || count($diff->getDroppedForeignKeys()) > 0
         ) {
             return false;
         }
@@ -743,7 +744,7 @@ class SQLitePlatform extends AbstractPlatform
         $tableSql  = [];
         $columnSql = [];
 
-        foreach ($diff->addedColumns as $column) {
+        foreach ($diff->getAddedColumns() as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -785,8 +786,8 @@ class SQLitePlatform extends AbstractPlatform
             $columns[strtolower($columnName)] = $columnName;
         }
 
-        foreach ($diff->removedColumns as $columnName => $column) {
-            $columnName = strtolower($columnName);
+        foreach ($diff->getDroppedColumns() as $column) {
+            $columnName = strtolower($column->getName());
             if (! isset($columns[$columnName])) {
                 continue;
             }
@@ -794,19 +795,20 @@ class SQLitePlatform extends AbstractPlatform
             unset($columns[$columnName]);
         }
 
-        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
             $columnName                          = $column->getName();
             $columns[strtolower($oldColumnName)] = $columnName;
             $columns[strtolower($columnName)]    = $columnName;
         }
 
-        foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
+        foreach ($diff->getModifiedColumns() as $columnDiff) {
+            $oldColumnName                       = $columnDiff->getOldColumn()->getName();
             $newColumnName                       = $columnDiff->getNewColumn()->getName();
             $columns[strtolower($oldColumnName)] = $newColumnName;
             $columns[strtolower($newColumnName)] = $newColumnName;
         }
 
-        foreach ($diff->addedColumns as $column) {
+        foreach ($diff->getAddedColumns() as $column) {
             $columnName                       = $column->getName();
             $columns[strtolower($columnName)] = $columnName;
         }
@@ -821,7 +823,7 @@ class SQLitePlatform extends AbstractPlatform
         $columnNames = $this->getColumnNamesInAlteredTable($diff, $fromTable);
 
         foreach ($indexes as $key => $index) {
-            foreach ($diff->renamedIndexes as $oldIndexName => $renamedIndex) {
+            foreach ($diff->getRenamedIndexes() as $oldIndexName => $renamedIndex) {
                 if (strtolower($key) !== strtolower($oldIndexName)) {
                     continue;
                 }
@@ -859,7 +861,7 @@ class SQLitePlatform extends AbstractPlatform
             );
         }
 
-        foreach ($diff->removedIndexes as $index) {
+        foreach ($diff->getDroppedIndexes() as $index) {
             $indexName = $index->getName();
 
             if ($indexName === '') {
@@ -869,7 +871,13 @@ class SQLitePlatform extends AbstractPlatform
             unset($indexes[strtolower($indexName)]);
         }
 
-        foreach (array_merge($diff->changedIndexes, $diff->addedIndexes, $diff->renamedIndexes) as $index) {
+        foreach (
+            array_merge(
+                $diff->getModifiedIndexes(),
+                $diff->getAddedIndexes(),
+                $diff->getRenamedIndexes(),
+            ) as $index
+        ) {
             $indexName = $index->getName();
 
             if ($indexName !== '') {
@@ -919,7 +927,7 @@ class SQLitePlatform extends AbstractPlatform
             );
         }
 
-        foreach ($diff->removedForeignKeys as $constraint) {
+        foreach ($diff->getDroppedForeignKeys() as $constraint) {
             $constraintName = $constraint->getName();
 
             if ($constraintName === '') {
@@ -929,7 +937,7 @@ class SQLitePlatform extends AbstractPlatform
             unset($foreignKeys[strtolower($constraintName)]);
         }
 
-        foreach (array_merge($diff->changedForeignKeys, $diff->addedForeignKeys) as $constraint) {
+        foreach (array_merge($diff->getModifiedForeignKeys(), $diff->getAddedForeignKeys()) as $constraint) {
             $constraintName = $constraint->getName();
 
             if ($constraintName !== '') {

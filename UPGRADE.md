@@ -828,6 +828,25 @@ The following `Comparator` methods have been marked as internal:
 
 The `diffColumn()` method has been deprecated. Use `diffTable()` instead.
 
+## Marked `TableDiff` public properties as internal.
+
+The public properties of the `TableDiff` class have been marked as internal. Use the following corresponding methods
+instead:
+
+| Property               | Method                     |
+|------------------------|----------------------------|
+| `$addedColumns`        | `getAddedColumns()`        |
+| `$changedColumns`      | `getModifiedColumns()`     |
+| `$removedColumns`      | `getDroppedColumns()`      |
+| `$renamedColumns`      | `getRenamedColumns()`      |
+| `$addedIndexes`        | `getAddedIndexes()`        |
+| `$changedIndexes`      | `getModifiedIndexes()`     |
+| `$removedIndexes`      | `getDroppedIndexes()`      |
+| `$renamedIndexes`      | `getRenamedIndexes()`      |
+| `$addedForeignKeys`    | `getAddedForeignKeys()`    |
+| `$changedForeignKeys`  | `getModifiedForeignKeys()` |
+| `$removedForeignKeys`  | `getDroppedForeignKeys()`  |
+
 ## Marked `ColumnDiff` public properties as internal.
 
 The `$fromColumn` and `$column` properties of the `ColumnDiff` class have been marked as internal. Use the

@@ -530,7 +530,7 @@ END;';
 
         $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
-        foreach ($diff->addedColumns as $column) {
+        foreach ($diff->getAddedColumns() as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -554,7 +554,7 @@ END;';
         }
 
         $modifyColumnSQL = [];
-        foreach ($diff->changedColumns as $columnDiff) {
+        foreach ($diff->getModifiedColumns() as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -592,7 +592,7 @@ END;';
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY (' . implode(', ', $modifyColumnSQL) . ')';
         }
 
-        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
@@ -604,7 +604,7 @@ END;';
         }
 
         $dropColumnSQL = [];
-        foreach ($diff->removedColumns as $column) {
+        foreach ($diff->getDroppedColumns() as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }

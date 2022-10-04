@@ -17,30 +17,6 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         return $platform instanceof SQLServerPlatform;
     }
 
-    public function testDropColumnConstraints(): void
-    {
-        $oldTable = new Table('sqlsrv_drop_column');
-        $oldTable->addColumn('id', 'integer');
-        $oldTable->addColumn('todrop', 'integer', ['default' => 10]);
-
-        $newTable = clone $oldTable;
-        $newTable->dropColumn('todrop');
-
-        $this->schemaManager->createTable($oldTable);
-
-        $diff = $this->schemaManager->createComparator()
-            ->diffTable(
-                $this->schemaManager->introspectTable('sqlsrv_drop_column'),
-                $newTable,
-            );
-        self::assertNotNull($diff);
-
-        $this->schemaManager->alterTable($diff);
-
-        $columns = $this->schemaManager->listTableColumns('sqlsrv_drop_column');
-        self::assertCount(1, $columns);
-    }
-
     public function testColumnCollation(): void
     {
         $table  = new Table($tableName = 'test_collation');

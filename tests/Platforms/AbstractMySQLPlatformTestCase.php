@@ -11,9 +11,7 @@ use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Schema\Comparator;
-use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 
 use function array_shift;
@@ -176,21 +174,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL(['version' => false]));
         self::assertEquals('TIMESTAMP', $this->platform->getDateTimeTypeDeclarationSQL(['version' => true]));
         self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL([]));
-    }
-
-    public function testChangeIndexWithForeignKeys(): void
-    {
-        $index  = new Index('idx', ['col'], false);
-        $unique = new Index('uniq', ['col'], true);
-        $table  = new Table('test');
-
-        $diff = new TableDiff($table, [], [], [], ['uniq' => $unique], [], ['idx' => $index]);
-        $sql  = $this->platform->getAlterTableSQL($diff);
-        self::assertEquals(['ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)'], $sql);
-
-        $diff = new TableDiff($table, [], [], [], ['idx' => $index], [], ['unique' => $unique]);
-        $sql  = $this->platform->getAlterTableSQL($diff);
-        self::assertEquals(['ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)'], $sql);
     }
 
     /** @return string[] */

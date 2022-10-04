@@ -268,7 +268,7 @@ class DB2Platform extends AbstractPlatform
         $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
         $queryParts = [];
-        foreach ($diff->addedColumns as $column) {
+        foreach ($diff->getAddedColumns() as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -300,7 +300,7 @@ class DB2Platform extends AbstractPlatform
             );
         }
 
-        foreach ($diff->removedColumns as $column) {
+        foreach ($diff->getDroppedColumns() as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -308,7 +308,7 @@ class DB2Platform extends AbstractPlatform
             $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->changedColumns as $columnDiff) {
+        foreach ($diff->getModifiedColumns() as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -330,7 +330,7 @@ class DB2Platform extends AbstractPlatform
             );
         }
 
-        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
@@ -349,7 +349,7 @@ class DB2Platform extends AbstractPlatform
             }
 
             // Some table alteration operations require a table reorganization.
-            if (! empty($diff->removedColumns) || ! empty($diff->changedColumns)) {
+            if (count($diff->getDroppedColumns()) > 0 || count($diff->getModifiedColumns()) > 0) {
                 $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $tableNameSQL . "')";
             }
 
@@ -459,31 +459,30 @@ class DB2Platform extends AbstractPlatform
 
         $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
 
-        foreach ($diff->removedIndexes as $remKey => $remIndex) {
-            foreach ($diff->addedIndexes as $addKey => $addIndex) {
-                if ($remIndex->getColumns() !== $addIndex->getColumns()) {
+        foreach ($diff->getDroppedIndexes() as $droppedIndex) {
+            foreach ($diff->getAddedIndexes() as $addedIndex) {
+                if ($droppedIndex->getColumns() !== $addedIndex->getColumns()) {
                     continue;
                 }
 
-                if ($remIndex->isPrimary()) {
+                if ($droppedIndex->isPrimary()) {
                     $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP PRIMARY KEY';
-                } elseif ($remIndex->isUnique()) {
-                    $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP UNIQUE ' . $remIndex->getQuotedName($this);
+                } elseif ($droppedIndex->isUnique()) {
+                    $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP UNIQUE ' . $droppedIndex->getQuotedName($this);
                 } else {
-                    $sql[] = $this->getDropIndexSQL($remIndex->getQuotedName($this), $tableNameSQL);
+                    $sql[] = $this->getDropIndexSQL($droppedIndex->getQuotedName($this), $tableNameSQL);
                 }
 
-                $sql[] = $this->getCreateIndexSQL($addIndex, $tableNameSQL);
+                $sql[] = $this->getCreateIndexSQL($addedIndex, $tableNameSQL);
 
-                unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
+                $diff->unsetAddedIndex($addedIndex);
+                $diff->unsetDroppedIndex($droppedIndex);
 
                 break;
             }
         }
 
-        $sql = array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
-
-        return $sql;
+        return array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
     }
 
     /**

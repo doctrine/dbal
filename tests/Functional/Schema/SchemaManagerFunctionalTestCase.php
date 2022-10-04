@@ -1338,6 +1338,92 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $schemaManager->createSchemaObjects($schema);
     }
 
+    public function testChangeIndexWithForeignKeys(): void
+    {
+        $this->dropTableIfExists('child');
+        $this->dropTableIfExists('parent');
+
+        $schema = new Schema();
+
+        $parent = $schema->createTable('parent');
+        $parent->addColumn('id', 'integer');
+        $parent->setPrimaryKey(['id']);
+
+        $child = $schema->createTable('child');
+        $child->addColumn('id', 'integer');
+        $child->addColumn('parent_id', 'integer');
+        $child->addIndex(['parent_id'], 'idx_1');
+        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id']);
+
+        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager->createSchemaObjects($schema);
+
+        $child->dropIndex('idx_1');
+        $child->addIndex(['parent_id'], 'idx_2');
+
+        $diff = $schemaManager->createComparator()->diffTable(
+            $schemaManager->introspectTable('child'),
+            $child,
+        );
+        self::assertNotNull($diff);
+
+        $schemaManager->alterTable($diff);
+
+        $child = $schemaManager->introspectTable('child');
+
+        self::assertFalse($child->hasIndex('idx_1'));
+        self::assertTrue($child->hasIndex('idx_2'));
+    }
+
+    public function testSwitchPrimaryKeyOrder(): void
+    {
+        $prototype = new Table('test_switch_pk_order');
+        $prototype->addColumn('foo_id', 'integer');
+        $prototype->addColumn('bar_id', 'integer');
+
+        $table = clone $prototype;
+        $table->setPrimaryKey(['foo_id', 'bar_id']);
+        $this->dropAndCreateTable($table);
+
+        $table = clone $prototype;
+        $table->setPrimaryKey(['bar_id', 'foo_id']);
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $diff = $schemaManager->createComparator()->diffTable(
+            $schemaManager->introspectTable('test_switch_pk_order'),
+            $table,
+        );
+        self::assertNotNull($diff);
+
+        $table      = $schemaManager->introspectTable('test_switch_pk_order');
+        $primaryKey = $table->getPrimaryKey();
+        self::assertNotNull($primaryKey);
+        self::assertSame(['foo_id', 'bar_id'], array_map('strtolower', $primaryKey->getColumns()));
+    }
+
+    public function testDropColumnWithDefault(): void
+    {
+        $table = new Table('drop_column_with_default');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('todrop', 'integer', ['default' => 10]);
+
+        $this->dropAndCreateTable($table);
+
+        $table->dropColumn('todrop');
+
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable(
+                $this->schemaManager->introspectTable('drop_column_with_default'),
+                $table,
+            );
+        self::assertNotNull($diff);
+        $this->schemaManager->alterTable($diff);
+
+        $columns = $this->schemaManager->listTableColumns('drop_column_with_default');
+        self::assertCount(1, $columns);
+    }
+
     /** @param list<Table> $tables */
     protected function findTableByName(array $tables, string $name): ?Table
     {
