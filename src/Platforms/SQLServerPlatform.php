@@ -520,7 +520,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         $tableName = $table->getName();
 
-        foreach ($diff->addedColumns as $column) {
+        foreach ($diff->getAddedColumns() as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -551,7 +551,7 @@ class SQLServerPlatform extends AbstractPlatform
             );
         }
 
-        foreach ($diff->removedColumns as $column) {
+        foreach ($diff->getDroppedColumns() as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -559,7 +559,7 @@ class SQLServerPlatform extends AbstractPlatform
             $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->changedColumns as $columnDiff) {
+        foreach ($diff->getModifiedColumns() as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -630,7 +630,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         $tableNameSQL = $table->getQuotedName($this);
 
-        foreach ($diff->renamedColumns as $oldColumnName => $newColumn) {
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $newColumn) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
                 continue;
             }

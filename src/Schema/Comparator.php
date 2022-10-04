@@ -167,15 +167,15 @@ class Comparator
                     continue;
                 }
 
-                foreach ($diff->changedTables[$localTableName]->removedForeignKeys as $key => $removedForeignKey) {
-                    assert($removedForeignKey instanceof ForeignKeyConstraint);
+                foreach ($diff->changedTables[$localTableName]->getDroppedForeignKeys() as $droppedForeignKey) {
+                    assert($droppedForeignKey instanceof ForeignKeyConstraint);
 
                     // We check if the key is from the removed table if not we skip.
-                    if ($tableName !== strtolower($removedForeignKey->getForeignTableName())) {
+                    if ($tableName !== strtolower($droppedForeignKey->getForeignTableName())) {
                         continue;
                     }
 
-                    unset($diff->changedTables[$localTableName]->removedForeignKeys[$key]);
+                    $diff->changedTables[$localTableName]->unsetDroppedForeignKey($droppedForeignKey);
                 }
             }
         }
@@ -264,8 +264,17 @@ class Comparator
      */
     public function diffTable(Table $fromTable, Table $toTable)
     {
-        $changes          = 0;
-        $tableDifferences = new TableDiff($fromTable->getName(), [], [], [], [], [], [], $fromTable);
+        $hasChanges = false;
+
+        $addedColumns        = [];
+        $modifiedColumns     = [];
+        $droppedColumns      = [];
+        $addedIndexes        = [];
+        $modifiedIndexes     = [];
+        $droppedIndexes      = [];
+        $addedForeignKeys    = [];
+        $modifiedForeignKeys = [];
+        $droppedForeignKeys  = [];
 
         $fromTableColumns = $fromTable->getColumns();
         $toTableColumns   = $toTable->getColumns();
@@ -276,16 +285,18 @@ class Comparator
                 continue;
             }
 
-            $tableDifferences->addedColumns[$columnName] = $column;
-            $changes++;
+            $addedColumns[$columnName] = $column;
+
+            $hasChanges = true;
         }
 
         /* See if there are any removed columns in "to" table */
         foreach ($fromTableColumns as $columnName => $column) {
             // See if column is removed in "to" table.
             if (! $toTable->hasColumn($columnName)) {
-                $tableDifferences->removedColumns[$columnName] = $column;
-                $changes++;
+                $droppedColumns[$columnName] = $column;
+
+                $hasChanges = true;
                 continue;
             }
 
@@ -302,17 +313,17 @@ class Comparator
                 continue;
             }
 
-            $tableDifferences->changedColumns[$column->getName()] = new ColumnDiff(
+            $modifiedColumns[$column->getName()] = new ColumnDiff(
                 $column->getName(),
                 $toColumn,
                 $changedProperties,
                 $column,
             );
 
-            $changes++;
+            $hasChanges = true;
         }
 
-        $this->detectColumnRenamings($tableDifferences);
+        $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
 
         $fromTableIndexes = $fromTable->getIndexes();
         $toTableIndexes   = $toTable->getIndexes();
@@ -323,8 +334,9 @@ class Comparator
                 continue;
             }
 
-            $tableDifferences->addedIndexes[$indexName] = $index;
-            $changes++;
+            $addedIndexes[$indexName] = $index;
+
+            $hasChanges = true;
         }
 
         /* See if there are any removed indexes in "to" table */
@@ -334,8 +346,9 @@ class Comparator
                 ($index->isPrimary() && ! $toTable->hasPrimaryKey()) ||
                 ! $index->isPrimary() && ! $toTable->hasIndex($indexName)
             ) {
-                $tableDifferences->removedIndexes[$indexName] = $index;
-                $changes++;
+                $droppedIndexes[$indexName] = $index;
+
+                $hasChanges = true;
                 continue;
             }
 
@@ -347,11 +360,12 @@ class Comparator
                 continue;
             }
 
-            $tableDifferences->changedIndexes[$indexName] = $toTableIndex;
-            $changes++;
+            $modifiedIndexes[$indexName] = $toTableIndex;
+
+            $hasChanges = true;
         }
 
-        $this->detectIndexRenamings($tableDifferences);
+        $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
 
         $fromForeignKeys = $fromTable->getForeignKeys();
         $toForeignKeys   = $toTable->getForeignKeys();
@@ -362,8 +376,9 @@ class Comparator
                     unset($fromForeignKeys[$fromKey], $toForeignKeys[$toKey]);
                 } else {
                     if (strtolower($fromConstraint->getName()) === strtolower($toConstraint->getName())) {
-                        $tableDifferences->changedForeignKeys[] = $toConstraint;
-                        $changes++;
+                        $modifiedForeignKeys[] = $toConstraint;
+
+                        $hasChanges = true;
                         unset($fromForeignKeys[$fromKey], $toForeignKeys[$toKey]);
                     }
                 }
@@ -371,99 +386,140 @@ class Comparator
         }
 
         foreach ($fromForeignKeys as $fromConstraint) {
-            $tableDifferences->removedForeignKeys[] = $fromConstraint;
-            $changes++;
+            $droppedForeignKeys[] = $fromConstraint;
+
+            $hasChanges = true;
         }
 
         foreach ($toForeignKeys as $toConstraint) {
-            $tableDifferences->addedForeignKeys[] = $toConstraint;
-            $changes++;
+            $addedForeignKeys[] = $toConstraint;
+
+            $hasChanges = true;
         }
 
-        return $changes > 0 ? $tableDifferences : false;
+        if (! $hasChanges) {
+            return false;
+        }
+
+        return new TableDiff(
+            $toTable->getName(),
+            $addedColumns,
+            $modifiedColumns,
+            $droppedColumns,
+            $addedIndexes,
+            $modifiedIndexes,
+            $droppedIndexes,
+            $fromTable,
+            $addedForeignKeys,
+            $modifiedForeignKeys,
+            $droppedForeignKeys,
+            $renamedColumns,
+            $renamedIndexes,
+        );
     }
 
     /**
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
+     *
+     * @param array<string,Column> $addedColumns
+     * @param array<string,Column> $removedColumns
+     *
+     * @return array<string,Column>
+     *
+     * @throws Exception
      */
-    private function detectColumnRenamings(TableDiff $tableDifferences): void
+    private function detectRenamedColumns(array &$addedColumns, array &$removedColumns): array
     {
-        $renameCandidates = [];
-        foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
-            foreach ($tableDifferences->removedColumns as $removedColumn) {
+        $candidatesByName = [];
+
+        foreach ($addedColumns as $addedColumnName => $addedColumn) {
+            foreach ($removedColumns as $removedColumn) {
                 if (! $this->columnsEqual($addedColumn, $removedColumn)) {
                     continue;
                 }
 
-                $renameCandidates[$addedColumn->getName()][] = [$removedColumn, $addedColumn, $addedColumnName];
+                $candidatesByName[$addedColumn->getName()][] = [$removedColumn, $addedColumn, $addedColumnName];
             }
         }
 
-        foreach ($renameCandidates as $candidateColumns) {
-            if (count($candidateColumns) !== 1) {
+        $renamedColumns = [];
+
+        foreach ($candidatesByName as $candidates) {
+            if (count($candidates) !== 1) {
                 continue;
             }
 
-            [$removedColumn, $addedColumn] = $candidateColumns[0];
+            [$removedColumn, $addedColumn] = $candidates[0];
             $removedColumnName             = $removedColumn->getName();
             $addedColumnName               = strtolower($addedColumn->getName());
 
-            if (isset($tableDifferences->renamedColumns[$removedColumnName])) {
+            if (isset($renamedColumns[$removedColumnName])) {
                 continue;
             }
 
-            $tableDifferences->renamedColumns[$removedColumnName] = $addedColumn;
+            $renamedColumns[$removedColumnName] = $addedColumn;
             unset(
-                $tableDifferences->addedColumns[$addedColumnName],
-                $tableDifferences->removedColumns[strtolower($removedColumnName)],
+                $addedColumns[$addedColumnName],
+                $removedColumns[strtolower($removedColumnName)],
             );
         }
+
+        return $renamedColumns;
     }
 
     /**
      * Try to find indexes that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
+     *
+     * @param array<string,Index> $addedIndexes
+     * @param array<string,Index> $removedIndexes
+     *
+     * @return array<string,Index>
      */
-    private function detectIndexRenamings(TableDiff $tableDifferences): void
+    private function detectRenamedIndexes(array &$addedIndexes, array &$removedIndexes): array
     {
-        $renameCandidates = [];
+        $candidatesByName = [];
 
         // Gather possible rename candidates by comparing each added and removed index based on semantics.
-        foreach ($tableDifferences->addedIndexes as $addedIndexName => $addedIndex) {
-            foreach ($tableDifferences->removedIndexes as $removedIndex) {
+        foreach ($addedIndexes as $addedIndexName => $addedIndex) {
+            foreach ($removedIndexes as $removedIndex) {
                 if ($this->diffIndex($addedIndex, $removedIndex)) {
                     continue;
                 }
 
-                $renameCandidates[$addedIndex->getName()][] = [$removedIndex, $addedIndex, $addedIndexName];
+                $candidatesByName[$addedIndex->getName()][] = [$removedIndex, $addedIndex, $addedIndexName];
             }
         }
 
-        foreach ($renameCandidates as $candidateIndexes) {
+        $renamedIndexes = [];
+
+        foreach ($candidatesByName as $candidates) {
             // If the current rename candidate contains exactly one semantically equal index,
             // we can safely rename it.
-            // Otherwise it is unclear if a rename action is really intended,
+            // Otherwise, it is unclear if a rename action is really intended,
             // therefore we let those ambiguous indexes be added/dropped.
-            if (count($candidateIndexes) !== 1) {
+            if (count($candidates) !== 1) {
                 continue;
             }
 
-            [$removedIndex, $addedIndex] = $candidateIndexes[0];
+            [$removedIndex, $addedIndex] = $candidates[0];
 
             $removedIndexName = strtolower($removedIndex->getName());
             $addedIndexName   = strtolower($addedIndex->getName());
 
-            if (isset($tableDifferences->renamedIndexes[$removedIndexName])) {
+            if (isset($renamedIndexes[$removedIndexName])) {
                 continue;
             }
 
-            $tableDifferences->renamedIndexes[$removedIndexName] = $addedIndex;
+            $renamedIndexes[$removedIndexName] = $addedIndex;
             unset(
-                $tableDifferences->addedIndexes[$addedIndexName],
-                $tableDifferences->removedIndexes[$removedIndexName],
+                $addedIndexes[$addedIndexName],
+                $removedIndexes[$removedIndexName],
             );
         }
+
+        return $renamedIndexes;
     }
 
     /**
