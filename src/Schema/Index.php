@@ -188,6 +188,8 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Keeping misspelled function name for backwards compatibility
      *
+     * @deprecated Use {@see isFulfilledBy()} instead.
+     *
      * @return bool
      */
     public function isFullfilledBy(Index $other)

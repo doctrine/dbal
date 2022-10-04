@@ -14,6 +14,10 @@ Relying on a fallback connection used to determine the database platform while c
 has been deprecated. Either use an existing database name in connection parameters or omit the database name
 if the platform and the server configuration allow that.
 
+## Deprecated misspelled isFullfilledBy() method
+
+This method's name was spelled incorrectly. Use `isFulfilledBy` instead.
+
 ## Deprecated default PostgreSQL connection database.
 
 Relying on the DBAL connecting to the "postgres" database by default is deprecated. Unless you want to have the server
