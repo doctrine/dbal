@@ -474,6 +474,6 @@ class Comparator
      */
     protected function diffIndex(Index $index1, Index $index2): bool
     {
-        return ! ($index1->isFullfilledBy($index2) && $index2->isFullfilledBy($index1));
+        return ! ($index1->isFulfilledBy($index2) && $index2->isFulfilledBy($index1));
     }
 }

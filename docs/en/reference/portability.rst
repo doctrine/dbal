@@ -63,7 +63,7 @@ Using the following code block in your initialization will:
 
 This sort of portability handling is pretty expensive because all the result
 rows and columns have to be looped inside PHP before being returned to you.
-This is why by default Doctrine ORM does not use this compability wrapper but
+This is why by default Doctrine ORM does not use this compatibility wrapper but
 implements another approach to handle assoc-key casing and ignores the other
 two issues.
 
