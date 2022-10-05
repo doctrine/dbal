@@ -244,8 +244,6 @@ abstract class AbstractPlatform
     /**
      * @param int|null $length The length of the column in characters
      *                         or NULL if the length should be omitted.
-     *
-     * @throws ColumnLengthRequired
      */
     protected function getCharTypeDeclarationSQLSnippet(?int $length): string
     {
