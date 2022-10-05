@@ -708,7 +708,7 @@ class Table extends AbstractAsset
         $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, true, false);
 
         foreach ($this->_indexes as $existingIndex) {
-            if ($indexCandidate->isFullfilledBy($existingIndex)) {
+            if ($indexCandidate->isFulfilledBy($existingIndex)) {
                 return $this;
             }
         }
@@ -745,7 +745,7 @@ class Table extends AbstractAsset
         $indexCandidate = $this->_createIndex($constraint->getLocalColumns(), $indexName, false, false);
 
         foreach ($this->_indexes as $existingIndex) {
-            if ($indexCandidate->isFullfilledBy($existingIndex)) {
+            if ($indexCandidate->isFulfilledBy($existingIndex)) {
                 return $this;
             }
         }
