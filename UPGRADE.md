@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed misspelled isFullfilledBy() method
+
+This method's name was spelled incorrectly. Use `isFulfilledBy` instead.
+
 ## BC BREAK: removed default PostgreSQL connection database.
 
 When connecting to a PostgreSQL server, the driver will no longer connect to the "postgres" database by default.

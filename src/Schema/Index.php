@@ -162,17 +162,6 @@ class Index extends AbstractAsset
 
     /**
      * Checks if the other index already fulfills all the indexing and constraint needs of the current one.
-     * Keeping misspelled function name for backwards compatibility
-     *
-     * @deprecated Use {@see isFulfilledBy()} instead.
-     */
-    public function isFullfilledBy(Index $other): bool
-    {
-        return $this->isFulfilledBy($other);
-    }
-
-    /**
-     * Checks if the other index already fulfills all the indexing and constraint needs of the current one.
      */
     public function isFulfilledBy(Index $other): bool
     {
