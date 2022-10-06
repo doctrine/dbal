@@ -643,24 +643,16 @@ abstract class AbstractSchemaManager
      * the native DBMS data definition to a portable Doctrine definition
      */
 
-    /**
-     * @param array<string, string> $database
-     *
-     * @throws Exception
-     */
+    /** @param array<string, string> $database */
     protected function _getPortableDatabaseDefinition(array $database): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * @param array<string, mixed> $sequence
-     *
-     * @throws Exception
-     */
+    /** @param array<string, mixed> $sequence */
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
-        throw NotSupported::new('Sequences');
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

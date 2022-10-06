@@ -390,8 +390,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the regular expression operator.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getRegexpExpression(): string
     {
@@ -1050,8 +1048,6 @@ abstract class AbstractPlatform
      * Returns the SQL to create inline comment on a column.
      *
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getInlineColumnCommentSQL(string $comment): string
     {
@@ -1117,8 +1113,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create a sequence on this platform.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getCreateSequenceSQL(Sequence $sequence): string
     {
@@ -1127,8 +1121,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to change a sequence on this platform.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getAlterSequenceSQL(Sequence $sequence): string
     {
@@ -1137,8 +1129,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL snippet to drop an existing sequence.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDropSequenceSQL(string $name): string
     {
@@ -1203,8 +1193,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create a named schema.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getCreateSchemaSQL(string $schemaName): string
     {
@@ -1226,8 +1214,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL snippet to drop a schema.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDropSchemaSQL(string $schemaName): string
     {
@@ -1972,21 +1958,13 @@ abstract class AbstractPlatform
         };
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     *
-     * @throws Exception If not supported on this platform.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListDatabasesSQL(): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     *
-     * @throws Exception If not supported on this platform.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListSequencesSQL(string $database): string
     {
         throw NotSupported::new(__METHOD__);
@@ -2009,7 +1987,6 @@ abstract class AbstractPlatform
         return 'DROP VIEW ' . $name;
     }
 
-    /** @throws Exception If not supported on this platform. */
     public function getSequenceNextValSQL(string $sequence): string
     {
         throw NotSupported::new(__METHOD__);
