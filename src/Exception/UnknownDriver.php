@@ -10,7 +10,7 @@ use function implode;
 use function sprintf;
 
 /** @psalm-immutable */
-final class UnknownDriver extends Exception
+final class UnknownDriver extends \Exception implements Exception
 {
     /** @param string[] $knownDrivers */
     public static function new(string $unknownDriverName, array $knownDrivers): self

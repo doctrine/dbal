@@ -13,7 +13,7 @@ use function sprintf;
  *
  * @psalm-immutable
  */
-final class NoKeyValue extends Exception
+final class NoKeyValue extends \Exception implements Exception
 {
     public static function fromColumnCount(int $columnCount): self
     {

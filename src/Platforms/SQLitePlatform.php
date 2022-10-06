@@ -543,17 +543,17 @@ class SQLitePlatform extends AbstractPlatform
 
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
-        throw new Exception('Sqlite platform does not support alter primary key.');
+        throw NotSupported::new(__METHOD__);
     }
 
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $table): string
     {
-        throw new Exception('Sqlite platform does not support alter foreign key.');
+        throw NotSupported::new(__METHOD__);
     }
 
     public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
-        throw new Exception('Sqlite platform does not support alter foreign key.');
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

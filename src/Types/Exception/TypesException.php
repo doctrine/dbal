@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types\Exception;
 
-interface TypesException
+use Doctrine\DBAL\Exception;
+
+interface TypesException extends Exception
 {
 }

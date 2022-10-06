@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types\Exception;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
+use Exception;
 
 use function get_debug_type;
 use function spl_object_hash;

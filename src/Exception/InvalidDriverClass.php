@@ -10,7 +10,7 @@ use Doctrine\DBAL\Exception;
 use function sprintf;
 
 /** @psalm-immutable */
-final class InvalidDriverClass extends Exception
+final class InvalidDriverClass extends \Exception implements Exception
 {
     public static function new(string $driverClass): self
     {

@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: The base exception class has been converted to an interface
+
+The Doctrine\DBAL\Exception class is now an interface.
+
 ## BC BREAK: removed misspelled isFullfilledBy() method
 
 This method's name was spelled incorrectly. Use `isFulfilledBy` instead.

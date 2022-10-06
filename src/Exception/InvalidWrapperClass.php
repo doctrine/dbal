@@ -10,7 +10,7 @@ use Doctrine\DBAL\Exception;
 use function sprintf;
 
 /** @psalm-immutable */
-final class InvalidWrapperClass extends Exception
+final class InvalidWrapperClass extends \Exception implements Exception
 {
     public static function new(string $wrapperClass): self
     {

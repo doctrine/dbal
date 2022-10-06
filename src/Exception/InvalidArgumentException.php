@@ -11,6 +11,6 @@ use Doctrine\DBAL\Exception;
  *
  * @psalm-immutable
  */
-class InvalidArgumentException extends Exception
+class InvalidArgumentException extends \InvalidArgumentException implements Exception
 {
 }

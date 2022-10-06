@@ -516,14 +516,14 @@ class Table extends AbstractAsset
      *
      * @return array<string, Column>
      *
-     * @throws Exception
+     * @throws SchemaException
      */
     public function getPrimaryKeyColumns(): array
     {
         $primaryKey = $this->getPrimaryKey();
 
         if ($primaryKey === null) {
-            throw new Exception(sprintf('Table "%s" has no primary key.', $this->getName()));
+            throw new SchemaException(sprintf('Table "%s" has no primary key.', $this->getName()));
         }
 
         return $this->filterColumns($primaryKey->getColumns());
