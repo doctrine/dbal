@@ -11,6 +11,6 @@ use Doctrine\DBAL\Exception;
  *
  * @psalm-immutable
  */
-class ConversionException extends Exception
+class ConversionException extends \Exception implements Exception
 {
 }

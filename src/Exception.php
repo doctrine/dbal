@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
+use Throwable;
+
 /** @psalm-immutable */
-class Exception extends \Exception
+interface Exception extends Throwable
 {
 }

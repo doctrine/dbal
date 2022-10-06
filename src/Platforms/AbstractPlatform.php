@@ -16,6 +16,7 @@ use Doctrine\DBAL\Event\SchemaCreateTableEventArgs;
 use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Exception\InvalidColumnType;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
@@ -40,7 +41,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use InvalidArgumentException;
 use UnexpectedValueException;
 
 use function addcslashes;
@@ -364,7 +364,7 @@ abstract class AbstractPlatform
         $dbType = strtolower($dbType);
 
         if (! isset($this->doctrineTypeMapping[$dbType])) {
-            throw new Exception(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Unknown database type "%s" requested, %s may not support it.',
                 $dbType,
                 static::class,
@@ -2235,7 +2235,7 @@ abstract class AbstractPlatform
     final public function modifyLimitQuery(string $query, ?int $limit, int $offset = 0): string
     {
         if ($offset < 0) {
-            throw new Exception(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Offset must be a positive integer or zero, %d given.',
                 $offset,
             ));

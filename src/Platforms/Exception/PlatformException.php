@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms\Exception;
 
-interface PlatformException
+use Doctrine\DBAL\Exception;
+
+interface PlatformException extends Exception
 {
 }

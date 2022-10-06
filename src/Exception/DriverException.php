@@ -15,7 +15,7 @@ use function assert;
  *
  * @psalm-immutable
  */
-class DriverException extends Exception implements Driver\Exception
+class DriverException extends \Exception implements Exception, Driver\Exception
 {
     /**
      * @internal

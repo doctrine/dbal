@@ -9,7 +9,7 @@ use Doctrine\DBAL\Exception;
 use function sprintf;
 
 /** @psalm-immutable */
-final class DriverRequired extends Exception
+final class DriverRequired extends \Exception implements Exception
 {
     /** @param string|null $url The URL that was provided in the connection parameters (if any). */
     public static function new(?string $url = null): self

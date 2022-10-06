@@ -11,6 +11,7 @@ use Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Exception\DriverRequired;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\InvalidDriverClass;
 use Doctrine\DBAL\Exception\InvalidWrapperClass;
 use Doctrine\DBAL\Exception\UnknownDriver;
@@ -280,7 +281,7 @@ final class DriverManager
         $url = parse_url($url);
 
         if ($url === false) {
-            throw new Exception('Malformed parameter "url".');
+            throw new InvalidArgumentException('Malformed parameter "url".');
         }
 
         foreach ($url as $param => $value) {
