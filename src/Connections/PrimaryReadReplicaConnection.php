@@ -98,9 +98,6 @@ class PrimaryReadReplicaConnection extends Connection
      * @param array<string, mixed> $params
      * @psalm-param Params $params
      * @phpstan-param array<string,mixed> $params
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
      */
     public function __construct(
         array $params,

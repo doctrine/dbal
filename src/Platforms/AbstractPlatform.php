@@ -1127,8 +1127,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create an index on a table on this platform.
-     *
-     * @throws InvalidArgumentException
      */
     public function getCreateIndexSQL(Index $index, string $table): string
     {
@@ -1648,8 +1646,6 @@ abstract class AbstractPlatform
      * @param UniqueConstraint $constraint The unique constraint definition.
      *
      * @return string DBMS specific SQL code portion needed to set a constraint.
-     *
-     * @throws InvalidArgumentException
      */
     public function getUniqueConstraintDeclarationSQL(UniqueConstraint $constraint): string
     {
@@ -1695,8 +1691,6 @@ abstract class AbstractPlatform
      * @param Index $index The index definition.
      *
      * @return string DBMS specific SQL code portion needed to set an index.
-     *
-     * @throws InvalidArgumentException
      */
     public function getIndexDeclarationSQL(Index $index): string
     {
@@ -1763,8 +1757,6 @@ abstract class AbstractPlatform
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      *
      * @param string $action The foreign key referential action.
-     *
-     * @throws InvalidArgumentException If unknown referential action given.
      */
     public function getForeignKeyReferentialActionSQL(string $action): string
     {
@@ -1783,8 +1775,6 @@ abstract class AbstractPlatform
     /**
      * Obtains DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      * of a column declaration to be used in statements like CREATE TABLE.
-     *
-     * @throws InvalidArgumentException
      */
     public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {
