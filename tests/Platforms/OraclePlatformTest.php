@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -325,7 +325,7 @@ SQL
 
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
-        $this->expectException(ColumnLengthRequired::class);
+        $this->expectException(InvalidColumnDeclaration::class);
 
         parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
@@ -337,7 +337,7 @@ SQL
 
     public function testGetFixedLengthBinaryTypeDeclarationSQLNoLength(): void
     {
-        $this->expectException(ColumnLengthRequired::class);
+        $this->expectException(InvalidColumnDeclaration::class);
 
         parent::testGetFixedLengthBinaryTypeDeclarationSQLNoLength();
     }
@@ -349,7 +349,7 @@ SQL
 
     public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength(): void
     {
-        $this->expectException(ColumnLengthRequired::class);
+        $this->expectException(InvalidColumnDeclaration::class);
 
         parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }

@@ -7,8 +7,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Exception\ColumnPrecisionRequired;
-use Doctrine\DBAL\Exception\ColumnScaleRequired;
+use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -609,7 +608,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         self::assertSame(
             $this->getExpectedVariableLengthStringTypeDeclarationSQLNoLength(),
-            $this->platform->getStringTypeDeclarationSQL([]),
+            $this->platform->getStringTypeDeclarationSQL(['name' => 'email']),
         );
     }
 
@@ -635,7 +634,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         self::assertSame(
             $this->getExpectedFixedLengthBinaryTypeDeclarationSQLNoLength(),
-            $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]),
+            $this->platform->getBinaryTypeDeclarationSQL(['name' => 'checksum', 'fixed' => true]),
         );
     }
 
@@ -664,7 +663,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         self::assertSame(
             $this->getExpectedVariableLengthBinaryTypeDeclarationSQLNoLength(),
-            $this->platform->getBinaryTypeDeclarationSQL([]),
+            $this->platform->getBinaryTypeDeclarationSQL(['name' => 'attachment']),
         );
     }
 
@@ -688,14 +687,14 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetDecimalTypeDeclarationSQLNoPrecision(): void
     {
-        $this->expectException(ColumnPrecisionRequired::class);
-        $this->platform->getDecimalTypeDeclarationSQL(['scale' => 2]);
+        $this->expectException(InvalidColumnDeclaration::class);
+        $this->platform->getDecimalTypeDeclarationSQL(['name' => 'price', 'scale' => 2]);
     }
 
     public function testGetDecimalTypeDeclarationSQLNoScale(): void
     {
-        $this->expectException(ColumnScaleRequired::class);
-        $this->platform->getDecimalTypeDeclarationSQL(['precision' => 10]);
+        $this->expectException(InvalidColumnDeclaration::class);
+        $this->platform->getDecimalTypeDeclarationSQL(['name' => 'price', 'precision' => 10]);
     }
 
     public function testReturnsJsonTypeDeclarationSQL(): void

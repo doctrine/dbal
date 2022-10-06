@@ -2,16 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\DBAL\Exception;
+namespace Doctrine\DBAL\Exception\InvalidColumnType;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidColumnType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use function get_debug_type;
 use function sprintf;
 
-/** @psalm-immutable */
-final class ColumnLengthRequired extends Exception
+/**
+ * @internal
+ *
+ * @psalm-immutable
+ */
+final class ColumnLengthRequired extends InvalidColumnType
 {
     /**
      * @param AbstractPlatform $platform The target platform

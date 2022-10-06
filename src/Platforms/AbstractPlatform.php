@@ -16,9 +16,11 @@ use Doctrine\DBAL\Event\SchemaCreateTableEventArgs;
 use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Exception\ColumnLengthRequired;
-use Doctrine\DBAL\Exception\ColumnPrecisionRequired;
-use Doctrine\DBAL\Exception\ColumnScaleRequired;
+use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
+use Doctrine\DBAL\Exception\InvalidColumnType;
+use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
+use Doctrine\DBAL\Exception\InvalidColumnType\ColumnPrecisionRequired;
+use Doctrine\DBAL\Exception\InvalidColumnType\ColumnScaleRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
@@ -179,14 +181,18 @@ abstract class AbstractPlatform
      *
      * @param array<string, mixed> $column The column definition.
      *
-     * @throws ColumnLengthRequired
+     * @throws InvalidColumnDeclaration
      */
     public function getStringTypeDeclarationSQL(array $column): string
     {
         $length = $column['length'] ?? null;
 
         if (empty($column['fixed'])) {
-            return $this->getVarcharTypeDeclarationSQLSnippet($length);
+            try {
+                return $this->getVarcharTypeDeclarationSQLSnippet($length);
+            } catch (InvalidColumnType $e) {
+                throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
+            }
         }
 
         return $this->getCharTypeDeclarationSQLSnippet($length);
@@ -197,17 +203,21 @@ abstract class AbstractPlatform
      *
      * @param array<string, mixed> $column The column definition.
      *
-     * @throws ColumnLengthRequired
+     * @throws InvalidColumnDeclaration
      */
     public function getBinaryTypeDeclarationSQL(array $column): string
     {
         $length = $column['length'] ?? null;
 
-        if (empty($column['fixed'])) {
-            return $this->getVarbinaryTypeDeclarationSQLSnippet($length);
-        }
+        try {
+            if (empty($column['fixed'])) {
+                return $this->getVarbinaryTypeDeclarationSQLSnippet($length);
+            }
 
-        return $this->getBinaryTypeDeclarationSQLSnippet($length);
+            return $this->getBinaryTypeDeclarationSQLSnippet($length);
+        } catch (InvalidColumnType $e) {
+            throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
+        }
     }
 
     /**
@@ -244,8 +254,6 @@ abstract class AbstractPlatform
     /**
      * @param int|null $length The length of the column in characters
      *                         or NULL if the length should be omitted.
-     *
-     * @throws ColumnLengthRequired
      */
     protected function getCharTypeDeclarationSQLSnippet(?int $length): string
     {
@@ -1563,17 +1571,20 @@ abstract class AbstractPlatform
      *
      * @param mixed[] $column
      *
-     * @throws ColumnPrecisionRequired
-     * @throws ColumnScaleRequired
+     * @throws InvalidColumnDeclaration
      */
     public function getDecimalTypeDeclarationSQL(array $column): string
     {
         if (! isset($column['precision'])) {
-            throw ColumnPrecisionRequired::new();
+            $e = ColumnPrecisionRequired::new();
+        } elseif (! isset($column['scale'])) {
+            $e = ColumnScaleRequired::new();
+        } else {
+            $e = null;
         }
 
-        if (! isset($column['scale'])) {
-            throw ColumnScaleRequired::new();
+        if ($e !== null) {
+            throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
         }
 
         return 'NUMERIC(' . $column['precision'] . ', ' . $column['scale'] . ')';
