@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\Exception;
-
 use function implode;
 use function sprintf;
 
 /** @psalm-immutable */
-final class UnknownDriver extends \Exception implements Exception
+final class UnknownDriver extends InvalidArgumentException
 {
     /** @param string[] $knownDrivers */
     public static function new(string $unknownDriverName, array $knownDrivers): self

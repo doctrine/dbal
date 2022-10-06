@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
 /** @psalm-immutable */
-final class InvalidDriverClass extends \Exception implements Exception
+final class InvalidDriverClass extends InvalidArgumentException
 {
     public static function new(string $driverClass): self
     {
