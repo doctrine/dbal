@@ -168,8 +168,6 @@ abstract class AbstractPlatform
      * store characters in the ASCII character set
      *
      * @param array<string, mixed> $column The column definition.
-     *
-     * @throws ColumnLengthRequired
      */
     public function getAsciiStringTypeDeclarationSQL(array $column): string
     {
@@ -180,8 +178,6 @@ abstract class AbstractPlatform
      * Returns the SQL snippet used to declare a string column type.
      *
      * @param array<string, mixed> $column The column definition.
-     *
-     * @throws InvalidColumnDeclaration
      */
     public function getStringTypeDeclarationSQL(array $column): string
     {
@@ -202,8 +198,6 @@ abstract class AbstractPlatform
      * Returns the SQL snippet used to declare a binary string column type.
      *
      * @param array<string, mixed> $column The column definition.
-     *
-     * @throws InvalidColumnDeclaration
      */
     public function getBinaryTypeDeclarationSQL(array $column): string
     {
@@ -227,8 +221,6 @@ abstract class AbstractPlatform
      * special datatypes when the underlying databases support this datatype.
      *
      * @param array<string, mixed> $column The column definition.
-     *
-     * @throws Exception
      */
     public function getGuidTypeDeclarationSQL(array $column): string
     {
@@ -269,8 +261,6 @@ abstract class AbstractPlatform
     /**
      * @param int|null $length The length of the column in characters
      *                         or NULL if the length should be omitted.
-     *
-     * @throws ColumnLengthRequired
      */
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length): string
     {
@@ -286,8 +276,6 @@ abstract class AbstractPlatform
      *
      * @param int|null $length The length of the column in bytes
      *                         or NULL if the length should be omitted.
-     *
-     * @throws ColumnLengthRequired
      */
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string
     {
@@ -305,8 +293,6 @@ abstract class AbstractPlatform
      *
      * @param int|null $length The length of the column in bytes
      *                         or NULL if the length should be omitted.
-     *
-     * @throws ColumnLengthRequired
      */
     protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length): string
     {
@@ -1556,8 +1542,6 @@ abstract class AbstractPlatform
      * Returns the SQL snippet that declares a floating point column of arbitrary precision.
      *
      * @param mixed[] $column
-     *
-     * @throws InvalidColumnDeclaration
      */
     public function getDecimalTypeDeclarationSQL(array $column): string
     {

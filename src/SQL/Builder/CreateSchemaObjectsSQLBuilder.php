@@ -36,8 +36,6 @@ final class CreateSchemaObjectsSQLBuilder
      * @param list<string> $namespaces
      *
      * @return list<string>
-     *
-     * @throws Exception
      */
     private function buildNamespaceStatements(array $namespaces): array
     {
@@ -68,8 +66,6 @@ final class CreateSchemaObjectsSQLBuilder
      * @param list<Sequence> $sequences
      *
      * @return list<string>
-     *
-     * @throws Exception
      */
     private function buildSequenceStatements(array $sequences): array
     {
