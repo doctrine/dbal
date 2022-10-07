@@ -15,7 +15,6 @@ final class UniqueConstraintDoesNotExist extends SchemaException
     {
         return new self(
             sprintf('There exists no unique constraint with the name "%s" on table "%s".', $constraintName, $table),
-            self::CONSTRAINT_DOESNT_EXIST,
         );
     }
 }

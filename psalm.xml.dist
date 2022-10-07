@@ -32,14 +32,6 @@
                 <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
-        <DeprecatedConstant>
-            <errorLevel type="suppress">
-            <!--
-                    TODO: remove in 4.0.0
-                -->
-                <directory name="src/Schema/Exception"/>
-            </errorLevel>
-        </DeprecatedConstant>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!--

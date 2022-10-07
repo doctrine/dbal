@@ -8,6 +8,23 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `SchemaException` error code constants
+
+The following `SchemaException` class constants have been removed:
+
+- `TABLE_DOESNT_EXIST`,
+- `TABLE_ALREADY_EXISTS`,
+- `COLUMN_DOESNT_EXIST`,
+- `COLUMN_ALREADY_EXISTS`,
+- `INDEX_DOESNT_EXIST`,
+- `INDEX_ALREADY_EXISTS`,
+- `SEQUENCE_DOENST_EXIST`,
+- `SEQUENCE_ALREADY_EXISTS`,
+- `INDEX_INVALID_NAME`,
+- `FOREIGNKEY_DOESNT_EXIST`,
+- `CONSTRAINT_DOESNT_EXIST`,
+- `NAMESPACE_ALREADY_EXISTS`.
+
 ## BC BREAK: The base exception class has been converted to an interface
 
 The Doctrine\DBAL\Exception class is now an interface.
