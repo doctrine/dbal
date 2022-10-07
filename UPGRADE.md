@@ -778,6 +778,25 @@ The following methods have been removed.
 
 # Upgrade to 3.5
 
+## Deprecated `SchemaException` error codes.
+
+Relying on the error code of `SchemaException` is deprecated. In order to handle a specific type of exception,
+catch the corresponding exception class instead.
+
+| Error Code                  | Class                          |
+|-----------------------------|--------------------------------|
+| `TABLE_DOESNT_EXIST`        | `TableDoesNotExist`            |
+| `TABLE_ALREADY_EXISTS`      | `TableAlreadyExists`           |
+| `COLUMN_DOESNT_EXIST`       | `ColumnDoesNotExist`           |
+| `COLUMN_ALREADY_EXISTS`     | `ColumnAlreadyExists`          |
+| `INDEX_DOESNT_EXIST`        | `IndexDoesNotExist`            |
+| `INDEX_ALREADY_EXISTS`      | `IndexAlreadyExists`           |
+| `SEQUENCE_DOENST_EXIST`     | `SequenceDoesNotExist`         |
+| `SEQUENCE_ALREADY_EXISTS`   | `SequenceAlreadyExists`        |
+| `FOREIGNKEY_DOESNT_EXIST`   | `ForeignKeyDoesNotExist`       |
+| `CONSTRAINT_DOESNT_EXIST`   | `UniqueConstraintDoesNotExist` |
+| `NAMESPACE_ALREADY_EXISTS`  | `NamespaceAlreadyExists`       |
+
 ## Deprecated fallback connection used to determine the database platform.
 
 Relying on a fallback connection used to determine the database platform while connecting to a non-existing database
