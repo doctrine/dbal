@@ -33,9 +33,9 @@ The following `SchemaException` class constants have been removed:
 - `CONSTRAINT_DOESNT_EXIST`,
 - `NAMESPACE_ALREADY_EXISTS`.
 
-## BC BREAK: The base exception class has been converted to an interface
+## BC BREAK: Exception classes have been converted to interfaces
 
-The Doctrine\DBAL\Exception class is now an interface.
+The `Doctrine\DBAL\Exception` and the `Doctrine\DBAL\Schema\SchemaException` classes are now interfaces.
 
 ## BC BREAK: removed misspelled isFullfilledBy() method
 

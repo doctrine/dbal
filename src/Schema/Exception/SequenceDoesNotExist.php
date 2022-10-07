@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Exception;
 
 use Doctrine\DBAL\Schema\SchemaException;
+use LogicException;
 
 use function sprintf;
 
 /** @psalm-immutable */
-final class SequenceDoesNotExist extends SchemaException
+final class SequenceDoesNotExist extends LogicException implements SchemaException
 {
     public static function new(string $sequenceName): self
     {

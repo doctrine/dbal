@@ -63,8 +63,6 @@ class Schema extends AbstractAsset
      * @param array<Table>    $tables
      * @param array<Sequence> $sequences
      * @param array<string>   $namespaces
-     *
-     * @throws SchemaException
      */
     public function __construct(
         array $tables = [],
@@ -95,7 +93,6 @@ class Schema extends AbstractAsset
         }
     }
 
-    /** @throws SchemaException */
     protected function _addTable(Table $table): void
     {
         $namespaceName = $table->getNamespaceName();
@@ -117,7 +114,6 @@ class Schema extends AbstractAsset
         $table->setSchemaConfig($this->_schemaConfig);
     }
 
-    /** @throws SchemaException */
     protected function _addSequence(Sequence $sequence): void
     {
         $namespaceName = $sequence->getNamespaceName();
@@ -158,7 +154,6 @@ class Schema extends AbstractAsset
         return array_values($this->_tables);
     }
 
-    /** @throws SchemaException */
     public function getTable(string $name): Table
     {
         $name = $this->getFullQualifiedAssetName($name);
@@ -238,7 +233,6 @@ class Schema extends AbstractAsset
         return isset($this->_sequences[$name]);
     }
 
-    /** @throws SchemaException */
     public function getSequence(string $name): Sequence
     {
         $name = $this->getFullQualifiedAssetName($name);
@@ -259,8 +253,6 @@ class Schema extends AbstractAsset
      * Creates a new namespace.
      *
      * @return $this
-     *
-     * @throws SchemaException
      */
     public function createNamespace(string $name): self
     {
@@ -277,8 +269,6 @@ class Schema extends AbstractAsset
 
     /**
      * Creates a new table.
-     *
-     * @throws SchemaException
      */
     public function createTable(string $name): Table
     {
@@ -296,8 +286,6 @@ class Schema extends AbstractAsset
      * Renames a table.
      *
      * @return $this
-     *
-     * @throws SchemaException
      */
     public function renameTable(string $oldName, string $newName): self
     {
@@ -314,8 +302,6 @@ class Schema extends AbstractAsset
      * Drops a table from the schema.
      *
      * @return $this
-     *
-     * @throws SchemaException
      */
     public function dropTable(string $name): self
     {
@@ -328,8 +314,6 @@ class Schema extends AbstractAsset
 
     /**
      * Creates a new sequence.
-     *
-     * @throws SchemaException
      */
     public function createSequence(string $name, int $allocationSize = 1, int $initialValue = 1): Sequence
     {
