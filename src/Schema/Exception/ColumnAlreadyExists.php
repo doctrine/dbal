@@ -13,9 +13,6 @@ final class ColumnAlreadyExists extends SchemaException
 {
     public static function new(string $tableName, string $columnName): self
     {
-        return new self(
-            sprintf('The column "%s" on table "%s" already exists.', $columnName, $tableName),
-            self::COLUMN_ALREADY_EXISTS,
-        );
+        return new self(sprintf('The column "%s" on table "%s" already exists.', $columnName, $tableName));
     }
 }

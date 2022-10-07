@@ -13,9 +13,6 @@ final class TableDoesNotExist extends SchemaException
 {
     public static function new(string $tableName): self
     {
-        return new self(
-            sprintf('There is no table with name "%s" in the schema.', $tableName),
-            self::TABLE_DOESNT_EXIST,
-        );
+        return new self(sprintf('There is no table with name "%s" in the schema.', $tableName));
     }
 }

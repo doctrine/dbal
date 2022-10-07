@@ -13,9 +13,6 @@ final class SequenceAlreadyExists extends SchemaException
 {
     public static function new(string $sequenceName): self
     {
-        return new self(
-            sprintf('The sequence "%s" already exists.', $sequenceName),
-            self::SEQUENCE_ALREADY_EXISTS,
-        );
+        return new self(sprintf('The sequence "%s" already exists.', $sequenceName));
     }
 }

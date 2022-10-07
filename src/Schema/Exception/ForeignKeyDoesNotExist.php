@@ -15,7 +15,6 @@ final class ForeignKeyDoesNotExist extends SchemaException
     {
         return new self(
             sprintf('There exists no foreign key with the name "%s" on table "%s".', $foreignKeyName, $table),
-            self::FOREIGNKEY_DOESNT_EXIST,
         );
     }
 }
