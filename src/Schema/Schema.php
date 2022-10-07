@@ -366,8 +366,6 @@ class Schema extends AbstractAsset
      * Return an array of necessary SQL queries to drop the schema on the given platform.
      *
      * @return list<string>
-     *
-     * @throws Exception
      */
     public function toDropSql(AbstractPlatform $platform): array
     {

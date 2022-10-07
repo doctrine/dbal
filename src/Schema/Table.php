@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\ColumnAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
@@ -59,7 +58,6 @@ class Table extends AbstractAsset
      * @param array<string, mixed>        $options
      *
      * @throws SchemaException
-     * @throws Exception
      */
     public function __construct(
         string $name,
