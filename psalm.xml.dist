@@ -116,6 +116,10 @@
                 -->
                 <file name="src/Query/QueryBuilder.php"/>
                 <file name="tests/Query/QueryBuilderTest.php"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <directory name="src/Schema/Exception"/>
             </errorLevel>
         </DeprecatedConstant>
         <DeprecatedInterface>
