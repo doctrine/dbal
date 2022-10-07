@@ -469,7 +469,7 @@ class TableTest extends TestCase
         // Table should only contain both the primary key table index and the unique one, even though it was overruled
         self::assertCount(2, $indexes);
 
-        self::assertTrue($table->hasPrimaryKey());
+        self::assertNotNull($table->getPrimaryKey());
         self::assertTrue($table->hasIndex('idx_unique'));
     }
 
@@ -561,12 +561,12 @@ class TableTest extends TestCase
     {
         $table = new Table('test');
 
-        self::assertFalse($table->hasPrimaryKey());
+        self::assertNull($table->getPrimaryKey());
 
         $table->addColumn('foo', 'integer');
         $table->setPrimaryKey(['foo']);
 
-        self::assertTrue($table->hasPrimaryKey());
+        self::assertNotNull($table->getPrimaryKey());
     }
 
     public function testAddIndexWithQuotedColumns(): void
@@ -614,10 +614,10 @@ class TableTest extends TestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        self::assertTrue($table->hasPrimaryKey());
+        self::assertNotNull($table->getPrimaryKey());
 
         $table->dropPrimaryKey();
-        self::assertFalse($table->hasPrimaryKey());
+        self::assertNull($table->getPrimaryKey());
     }
 
     public function testRenameIndex(): void
@@ -636,7 +636,7 @@ class TableTest extends TestCase
         self::assertSame($table, $table->renameIndex('idx', 'idx_new'));
         self::assertSame($table, $table->renameIndex('uniq', 'uniq_new'));
 
-        self::assertTrue($table->hasPrimaryKey());
+        self::assertNotNull($table->getPrimaryKey());
         self::assertTrue($table->hasIndex('pk_new'));
         self::assertTrue($table->hasIndex('idx_new'));
         self::assertTrue($table->hasIndex('uniq_new'));
@@ -658,7 +658,7 @@ class TableTest extends TestCase
         self::assertSame($table, $table->renameIndex('idx_new', null));
         self::assertSame($table, $table->renameIndex('uniq_new', null));
 
-        self::assertTrue($table->hasPrimaryKey());
+        self::assertNotNull($table->getPrimaryKey());
         self::assertTrue($table->hasIndex('primary'));
         self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
         self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
@@ -683,7 +683,7 @@ class TableTest extends TestCase
         self::assertSame($table, $table->renameIndex('IDX_D87F7E0C8C736521', 'idx_D87F7E0C8C736521'));
         self::assertSame($table, $table->renameIndex('UNIQ_D87F7E0C76FF8CAA78240498', 'uniq_D87F7E0C76FF8CAA78240498'));
 
-        self::assertTrue($table->hasPrimaryKey());
+        self::assertNotNull($table->getPrimaryKey());
         self::assertTrue($table->hasIndex('primary'));
         self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
         self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));

@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed `Table` methods
+
+The following `Table` methods have been removed:
+
+- `getForeignKeyColumns()`,
+- `getPrimaryKeyColumns()`,
+- `hasPrimaryKey()`.
+
 ## BC BREAK: removed `SchemaException` error code constants
 
 The following `SchemaException` class constants have been removed:

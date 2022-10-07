@@ -119,7 +119,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertTrue($onlinePrimaryTable->hasColumn('"Id"'));
         self::assertSame('"Id"', $onlinePrimaryTable->getColumn('"Id"')->getQuotedName($platform));
-        self::assertTrue($onlinePrimaryTable->hasPrimaryKey());
 
         $onlinePrimaryTablePrimaryKey = $onlinePrimaryTable->getPrimaryKey();
         self::assertNotNull($onlinePrimaryTablePrimaryKey);
@@ -156,7 +155,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // Foreign table assertions
         self::assertTrue($onlineForeignTable->hasColumn('id'));
         self::assertSame('ID', $onlineForeignTable->getColumn('id')->getQuotedName($platform));
-        self::assertTrue($onlineForeignTable->hasPrimaryKey());
 
         $onlineForeignTablePrimaryKey = $onlineForeignTable->getPrimaryKey();
         self::assertNotNull($onlineForeignTablePrimaryKey);

@@ -56,9 +56,10 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
 
         self::assertTrue($validationTable->hasColumn('new_id'));
         self::assertTrue($validationTable->getColumn('new_id')->getAutoincrement());
-        self::assertTrue($validationTable->hasPrimaryKey());
-        self::assertCount(1, $validationTable->getPrimaryKeyColumns());
-        self::assertArrayHasKey('new_id', $validationTable->getPrimaryKeyColumns());
+
+        $primaryKey = $validationTable->getPrimaryKey();
+        self::assertNotNull($primaryKey);
+        self::assertSame(['new_id'], $primaryKey->getColumns());
     }
 
     private function getPlatform(): AbstractPlatform
