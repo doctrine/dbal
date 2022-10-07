@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
 /** @psalm-immutable */
-final class InvalidWrapperClass extends \Exception implements Exception
+final class InvalidWrapperClass extends InvalidArgumentException
 {
     public static function new(string $wrapperClass): self
     {

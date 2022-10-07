@@ -158,8 +158,6 @@ final class DriverManager
      *
      * @psalm-return ($params is array{wrapperClass:mixed} ? T : Connection)
      *
-     * @throws Exception
-     *
      * @template T of Connection
      */
     public static function getConnection(
@@ -216,8 +214,6 @@ final class DriverManager
      * @param array<string,mixed> $params
      * @psalm-param Params $params
      * @phpstan-param array<string,mixed> $params
-     *
-     * @throws Exception
      */
     private static function createDriver(array $params): Driver
     {
@@ -267,8 +263,6 @@ final class DriverManager
      *                 URL extracted into indidivual parameter parts.
      * @psalm-return Params
      * @phpstan-return array<string,mixed>
-     *
-     * @throws Exception
      */
     private static function parseDatabaseUrl(array $params): array
     {
@@ -422,8 +416,6 @@ final class DriverManager
      * @param mixed[]     $params The connection parameters to resolve.
      *
      * @return mixed[] The resolved connection parameters.
-     *
-     * @throws Exception If parsing failed or resolution is not possible.
      */
     private static function parseDatabaseUrlScheme(?string $scheme, array $params): array
     {

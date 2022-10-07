@@ -292,8 +292,6 @@ class SQLServerPlatform extends AbstractPlatform
      * Returns the SQL snippet for declaring a default constraint.
      *
      * @param mixed[] $column Column definition.
-     *
-     * @throws InvalidArgumentException
      */
     protected function getDefaultConstraintDeclarationSQL(array $column): string
     {

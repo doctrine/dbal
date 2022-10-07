@@ -90,8 +90,6 @@ abstract class Type
      *
      * @param array<string, mixed> $column   The column definition
      * @param AbstractPlatform     $platform The currently used database platform.
-     *
-     * @throws Exception
      */
     abstract public function getSQLDeclaration(array $column, AbstractPlatform $platform): string;
 

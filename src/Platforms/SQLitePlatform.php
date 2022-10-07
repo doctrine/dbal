@@ -39,13 +39,11 @@ use function trim;
  */
 class SQLitePlatform extends AbstractPlatform
 {
-    /** @throws NotSupported */
     public function getCreateDatabaseSQL(string $name): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    /** @throws NotSupported */
     public function getDropDatabaseSQL(string $name): string
     {
         throw NotSupported::new(__METHOD__);

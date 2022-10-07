@@ -168,8 +168,6 @@ abstract class AbstractPlatform
      * store characters in the ASCII character set
      *
      * @param array<string, mixed> $column The column definition.
-     *
-     * @throws ColumnLengthRequired
      */
     public function getAsciiStringTypeDeclarationSQL(array $column): string
     {
@@ -180,8 +178,6 @@ abstract class AbstractPlatform
      * Returns the SQL snippet used to declare a string column type.
      *
      * @param array<string, mixed> $column The column definition.
-     *
-     * @throws InvalidColumnDeclaration
      */
     public function getStringTypeDeclarationSQL(array $column): string
     {
@@ -202,8 +198,6 @@ abstract class AbstractPlatform
      * Returns the SQL snippet used to declare a binary string column type.
      *
      * @param array<string, mixed> $column The column definition.
-     *
-     * @throws InvalidColumnDeclaration
      */
     public function getBinaryTypeDeclarationSQL(array $column): string
     {
@@ -227,8 +221,6 @@ abstract class AbstractPlatform
      * special datatypes when the underlying databases support this datatype.
      *
      * @param array<string, mixed> $column The column definition.
-     *
-     * @throws Exception
      */
     public function getGuidTypeDeclarationSQL(array $column): string
     {
@@ -269,8 +261,6 @@ abstract class AbstractPlatform
     /**
      * @param int|null $length The length of the column in characters
      *                         or NULL if the length should be omitted.
-     *
-     * @throws ColumnLengthRequired
      */
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length): string
     {
@@ -286,8 +276,6 @@ abstract class AbstractPlatform
      *
      * @param int|null $length The length of the column in bytes
      *                         or NULL if the length should be omitted.
-     *
-     * @throws ColumnLengthRequired
      */
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string
     {
@@ -305,8 +293,6 @@ abstract class AbstractPlatform
      *
      * @param int|null $length The length of the column in bytes
      *                         or NULL if the length should be omitted.
-     *
-     * @throws ColumnLengthRequired
      */
     protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length): string
     {
@@ -390,8 +376,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the regular expression operator.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getRegexpExpression(): string
     {
@@ -1050,8 +1034,6 @@ abstract class AbstractPlatform
      * Returns the SQL to create inline comment on a column.
      *
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getInlineColumnCommentSQL(string $comment): string
     {
@@ -1117,8 +1099,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create a sequence on this platform.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getCreateSequenceSQL(Sequence $sequence): string
     {
@@ -1127,8 +1107,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to change a sequence on this platform.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getAlterSequenceSQL(Sequence $sequence): string
     {
@@ -1137,8 +1115,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL snippet to drop an existing sequence.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDropSequenceSQL(string $name): string
     {
@@ -1151,8 +1127,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create an index on a table on this platform.
-     *
-     * @throws InvalidArgumentException
      */
     public function getCreateIndexSQL(Index $index, string $table): string
     {
@@ -1203,8 +1177,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create a named schema.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getCreateSchemaSQL(string $schemaName): string
     {
@@ -1226,8 +1198,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL snippet to drop a schema.
-     *
-     * @throws Exception If not supported on this platform.
      */
     public function getDropSchemaSQL(string $schemaName): string
     {
@@ -1570,8 +1540,6 @@ abstract class AbstractPlatform
      * Returns the SQL snippet that declares a floating point column of arbitrary precision.
      *
      * @param mixed[] $column
-     *
-     * @throws InvalidColumnDeclaration
      */
     public function getDecimalTypeDeclarationSQL(array $column): string
     {
@@ -1678,8 +1646,6 @@ abstract class AbstractPlatform
      * @param UniqueConstraint $constraint The unique constraint definition.
      *
      * @return string DBMS specific SQL code portion needed to set a constraint.
-     *
-     * @throws InvalidArgumentException
      */
     public function getUniqueConstraintDeclarationSQL(UniqueConstraint $constraint): string
     {
@@ -1725,8 +1691,6 @@ abstract class AbstractPlatform
      * @param Index $index The index definition.
      *
      * @return string DBMS specific SQL code portion needed to set an index.
-     *
-     * @throws InvalidArgumentException
      */
     public function getIndexDeclarationSQL(Index $index): string
     {
@@ -1793,8 +1757,6 @@ abstract class AbstractPlatform
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      *
      * @param string $action The foreign key referential action.
-     *
-     * @throws InvalidArgumentException If unknown referential action given.
      */
     public function getForeignKeyReferentialActionSQL(string $action): string
     {
@@ -1813,8 +1775,6 @@ abstract class AbstractPlatform
     /**
      * Obtains DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      * of a column declaration to be used in statements like CREATE TABLE.
-     *
-     * @throws InvalidArgumentException
      */
     public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {
@@ -1972,21 +1932,13 @@ abstract class AbstractPlatform
         };
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     *
-     * @throws Exception If not supported on this platform.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListDatabasesSQL(): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
-    /**
-     * @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy.
-     *
-     * @throws Exception If not supported on this platform.
-     */
+    /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListSequencesSQL(string $database): string
     {
         throw NotSupported::new(__METHOD__);
@@ -2009,7 +1961,6 @@ abstract class AbstractPlatform
         return 'DROP VIEW ' . $name;
     }
 
-    /** @throws Exception If not supported on this platform. */
     public function getSequenceNextValSQL(string $sequence): string
     {
         throw NotSupported::new(__METHOD__);
