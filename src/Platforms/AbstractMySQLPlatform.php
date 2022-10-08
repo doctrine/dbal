@@ -866,6 +866,26 @@ SQL
             return [];
         }
 
+        $primaryKey = $table->getPrimaryKey();
+
+        if ($primaryKey === null) {
+            return [];
+        }
+
+        $primaryKeyColumns = [];
+
+        foreach ($primaryKey->getColumns() as $columnName) {
+            if (! $table->hasColumn($columnName)) {
+                continue;
+            }
+
+            $primaryKeyColumns[] = $table->getColumn($columnName);
+        }
+
+        if (count($primaryKeyColumns) === 0) {
+            return [];
+        }
+
         $sql = [];
 
         $tableNameSQL = $table->getQuotedName($this);
@@ -876,9 +896,9 @@ SQL
                 continue;
             }
 
-            foreach ($table->getPrimaryKeyColumns() as $columnName => $column) {
+            foreach ($primaryKeyColumns as $column) {
                 // Check if an autoincrement column was dropped from the primary key.
-                if (! $column->getAutoincrement() || in_array($columnName, $changedIndex->getColumns(), true)) {
+                if (! $column->getAutoincrement() || in_array($column->getName(), $changedIndex->getColumns(), true)) {
                     continue;
                 }
 

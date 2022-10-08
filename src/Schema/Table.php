@@ -683,7 +683,7 @@ class Table extends AbstractAsset
      */
     public function getColumns()
     {
-        $primaryKeyColumns = $this->hasPrimaryKey() ? $this->getPrimaryKeyColumns() : [];
+        $primaryKeyColumns = $this->getPrimaryKey() !== null ? $this->getPrimaryKeyColumns() : [];
         $foreignKeyColumns = $this->getForeignKeyColumns();
         $remainderColumns  = $this->filterColumns(
             array_merge(array_keys($primaryKeyColumns), array_keys($foreignKeyColumns)),
@@ -696,10 +696,19 @@ class Table extends AbstractAsset
     /**
      * Returns the foreign key columns
      *
+     * @deprecated Use {@see getForeignKey()} and {@see ForeignKeyConstraint::getLocalColumns()} instead.
+     *
      * @return Column[]
      */
     public function getForeignKeyColumns()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5731',
+            '%s is deprecated. Use getForeignKey() and ForeignKeyConstraint::getLocalColumns() instead.',
+            __METHOD__,
+        );
+
         $foreignKeyColumns = [];
 
         foreach ($this->getForeignKeys() as $foreignKey) {
@@ -774,12 +783,21 @@ class Table extends AbstractAsset
     /**
      * Returns the primary key columns.
      *
+     * @deprecated Use {@see getPrimaryKey()} and {@see Index::getColumns()} instead.
+     *
      * @return Column[]
      *
      * @throws Exception
      */
     public function getPrimaryKeyColumns()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5731',
+            '%s is deprecated. Use getPrimaryKey() and Index::getColumns() instead.',
+            __METHOD__,
+        );
+
         $primaryKey = $this->getPrimaryKey();
 
         if ($primaryKey === null) {
@@ -792,10 +810,19 @@ class Table extends AbstractAsset
     /**
      * Returns whether this table has a primary key.
      *
+     * @deprecated Use {@see getPrimaryKey()} instead.
+     *
      * @return bool
      */
     public function hasPrimaryKey()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5731',
+            '%s is deprecated. Use getPrimaryKey() instead.',
+            __METHOD__,
+        );
+
         return $this->_primaryKeyName !== null && $this->hasIndex($this->_primaryKeyName);
     }
 

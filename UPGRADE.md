@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated `Table` methods.
+
+The `hasPrimaryKey()` method has been deprecated. Use `getPrimaryKey()` and check if the return value is not null.
+The `getPrimaryKeyColumns()` method has been deprecated. Use `getPrimaryKey()` and `Index::getColumns()` instead.
+The `getForeignKeyColumns()` method has been deprecated. Use `getForeignKey()`
+and `ForeignKeyConstraint::getLocalColumns()` instead.
+
 ## Deprecated `SchemaException` error codes.
 
 Relying on the error code of `SchemaException` is deprecated. In order to handle a specific type of exception,
