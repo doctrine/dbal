@@ -530,6 +530,26 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     {
         $table = $diff->getOldTable();
 
+        $primaryKey = $table->getPrimaryKey();
+
+        if ($primaryKey === null) {
+            return [];
+        }
+
+        $primaryKeyColumns = [];
+
+        foreach ($primaryKey->getColumns() as $columnName) {
+            if (! $table->hasColumn($columnName)) {
+                continue;
+            }
+
+            $primaryKeyColumns[] = $table->getColumn($columnName);
+        }
+
+        if (count($primaryKeyColumns) === 0) {
+            return [];
+        }
+
         $sql = [];
 
         $tableNameSQL = $table->getQuotedName($this);
@@ -540,11 +560,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 continue;
             }
 
-            foreach ($table->getPrimaryKeyColumns() as $columnName => $column) {
-                $column = $table->getColumn($columnName);
-
+            foreach ($primaryKeyColumns as $column) {
                 // Check if an autoincrement column was dropped from the primary key.
-                if (! $column->getAutoincrement() || in_array($columnName, $changedIndex->getColumns(), true)) {
+                if (! $column->getAutoincrement() || in_array($column->getName(), $changedIndex->getColumns(), true)) {
                     continue;
                 }
 
