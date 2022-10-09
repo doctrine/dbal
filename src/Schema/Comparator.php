@@ -24,8 +24,6 @@ class Comparator
 
     /**
      * Returns a SchemaDiff object containing the differences between the schemas $fromSchema and $toSchema.
-     *
-     * @throws SchemaException
      */
     public function compareSchemas(Schema $fromSchema, Schema $toSchema): SchemaDiff
     {

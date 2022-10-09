@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\ColumnAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
@@ -57,9 +56,6 @@ class Table extends AbstractAsset
      * @param array<UniqueConstraint>     $uniqueConstraints
      * @param array<ForeignKeyConstraint> $fkConstraints
      * @param array<string, mixed>        $options
-     *
-     * @throws SchemaException
-     * @throws Exception
      */
     public function __construct(
         string $name,
@@ -103,8 +99,6 @@ class Table extends AbstractAsset
      * Sets the Primary Key.
      *
      * @param array<int, string> $columnNames
-     *
-     * @throws SchemaException
      */
     public function setPrimaryKey(array $columnNames, ?string $indexName = null): self
     {
@@ -126,8 +120,6 @@ class Table extends AbstractAsset
      * @param array<int, string>   $columnNames
      * @param array<int, string>   $flags
      * @param array<string, mixed> $options
-     *
-     * @throws SchemaException
      */
     public function addUniqueConstraint(
         array $columnNames,
@@ -166,8 +158,6 @@ class Table extends AbstractAsset
 
     /**
      * Drops the primary key from this table.
-     *
-     * @throws SchemaException
      */
     public function dropPrimaryKey(): void
     {
@@ -181,8 +171,6 @@ class Table extends AbstractAsset
 
     /**
      * Drops an index from this table.
-     *
-     * @throws SchemaException If the index does not exist.
      */
     public function dropIndex(string $name): void
     {
@@ -198,8 +186,6 @@ class Table extends AbstractAsset
     /**
      * @param array<int, string>   $columnNames
      * @param array<string, mixed> $options
-     *
-     * @throws SchemaException
      */
     public function addUniqueIndex(array $columnNames, ?string $indexName = null, array $options = []): self
     {
@@ -216,11 +202,8 @@ class Table extends AbstractAsset
      * Renames an index.
      *
      * @param string      $oldName The name of the index to rename from.
-     * @param string|null $newName The name of the index to rename to.
-     *                                  If null is given, the index name will be auto-generated.
-     *
-     * @throws SchemaException If no index exists for the given current name
-     *                         or if an index with the given new name already exists on this table.
+     * @param string|null $newName The name of the index to rename to. If null is given, the index name
+     *                             will be auto-generated.
      */
     public function renameIndex(string $oldName, ?string $newName = null): self
     {
@@ -272,11 +255,7 @@ class Table extends AbstractAsset
         return false;
     }
 
-    /**
-     * @param array<string, mixed> $options
-     *
-     * @throws SchemaException
-     */
+    /** @param array<string, mixed> $options */
     public function addColumn(string $name, string $typeName, array $options = []): Column
     {
         $column = new Column($name, Type::getType($typeName), $options);
@@ -290,8 +269,6 @@ class Table extends AbstractAsset
      * Change Column Details.
      *
      * @param array<string, mixed> $options
-     *
-     * @throws SchemaException
      */
     public function changeColumn(string $name, array $options): self
     {
@@ -321,8 +298,6 @@ class Table extends AbstractAsset
      * @param array<int, string>   $localColumnNames
      * @param array<int, string>   $foreignColumnNames
      * @param array<string, mixed> $options
-     *
-     * @throws SchemaException
      */
     public function addForeignKeyConstraint(
         string $foreignTableName,
@@ -373,8 +348,6 @@ class Table extends AbstractAsset
 
     /**
      * Returns the foreign key constraint with the given name.
-     *
-     * @throws SchemaException If the foreign key does not exist.
      */
     public function getForeignKey(string $name): ForeignKeyConstraint
     {
@@ -389,8 +362,6 @@ class Table extends AbstractAsset
 
     /**
      * Removes the foreign key constraint with the given name.
-     *
-     * @throws SchemaException
      */
     public function removeForeignKey(string $name): void
     {
@@ -415,8 +386,6 @@ class Table extends AbstractAsset
 
     /**
      * Returns the unique constraint with the given name.
-     *
-     * @throws SchemaException If the unique constraint does not exist.
      */
     public function getUniqueConstraint(string $name): UniqueConstraint
     {
@@ -431,8 +400,6 @@ class Table extends AbstractAsset
 
     /**
      * Removes the unique constraint with the given name.
-     *
-     * @throws SchemaException If the unique constraint does not exist.
      */
     public function removeUniqueConstraint(string $name): void
     {
@@ -467,8 +434,6 @@ class Table extends AbstractAsset
 
     /**
      * Returns the Column with the given name.
-     *
-     * @throws SchemaException If the column does not exist.
      */
     public function getColumn(string $name): Column
     {
@@ -505,8 +470,6 @@ class Table extends AbstractAsset
 
     /**
      * Returns the Index with the given name.
-     *
-     * @throws SchemaException If the index does not exist.
      */
     public function getIndex(string $name): Index
     {
@@ -586,7 +549,6 @@ class Table extends AbstractAsset
             : 63;
     }
 
-    /** @throws SchemaException */
     protected function _addColumn(Column $column): void
     {
         $columnName = $column->getName();
@@ -601,8 +563,6 @@ class Table extends AbstractAsset
 
     /**
      * Adds an index to the table.
-     *
-     * @throws SchemaException
      */
     protected function _addIndex(Index $indexCandidate): self
     {
@@ -743,8 +703,6 @@ class Table extends AbstractAsset
      * @param array<string|int, string> $columns
      * @param array<int, string>        $flags
      * @param array<string, mixed>      $options
-     *
-     * @throws SchemaException
      */
     private function _createUniqueConstraint(
         array $columns,
@@ -775,8 +733,6 @@ class Table extends AbstractAsset
      * @param array<int, string>   $columns
      * @param array<int, string>   $flags
      * @param array<string, mixed> $options
-     *
-     * @throws SchemaException
      */
     private function _createIndex(
         array $columns,

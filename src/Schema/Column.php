@@ -44,8 +44,6 @@ class Column extends AbstractAsset
      * Creates a new Column.
      *
      * @param array<string, mixed> $options
-     *
-     * @throws SchemaException
      */
     public function __construct(string $name, Type $type, array $options = [])
     {
@@ -54,11 +52,7 @@ class Column extends AbstractAsset
         $this->setOptions($options);
     }
 
-    /**
-     * @param array<string, mixed> $options
-     *
-     * @throws SchemaException
-     */
+    /** @param array<string, mixed> $options */
     public function setOptions(array $options): self
     {
         foreach ($options as $name => $value) {
