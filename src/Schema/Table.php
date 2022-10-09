@@ -14,18 +14,13 @@ use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
-use function array_filter;
 use function array_merge;
 use function array_values;
 use function in_array;
 use function is_string;
 use function preg_match;
-use function sprintf;
 use function strtolower;
-
-use const ARRAY_FILTER_USE_KEY;
 
 /**
  * Object Representation of a table.
@@ -461,20 +456,6 @@ class Table extends AbstractAsset
     }
 
     /**
-     * Returns only columns that have specified names
-     *
-     * @param string[] $columnNames
-     *
-     * @return Column[]
-     */
-    private function filterColumns(array $columnNames, bool $reverse = false): array
-    {
-        return array_filter($this->_columns, static function (string $columnName) use ($columnNames, $reverse): bool {
-            return in_array($columnName, $columnNames, true) !== $reverse;
-        }, ARRAY_FILTER_USE_KEY);
-    }
-
-    /**
      * Returns whether this table has a Column with the given name.
      */
     public function hasColumn(string $name): bool
@@ -510,50 +491,6 @@ class Table extends AbstractAsset
         }
 
         return null;
-    }
-
-    /**
-     * Returns the primary key columns.
-     *
-     * @deprecated Use {@see getPrimaryKey()} and {@see Index::getColumns()} instead.
-     *
-     * @return array<string, Column>
-     *
-     * @throws SchemaException
-     */
-    public function getPrimaryKeyColumns(): array
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5731',
-            '%s is deprecated. Use getPrimaryKey() and Index::getColumns() instead.',
-            __METHOD__,
-        );
-
-        $primaryKey = $this->getPrimaryKey();
-
-        if ($primaryKey === null) {
-            throw new SchemaException(sprintf('Table "%s" has no primary key.', $this->getName()));
-        }
-
-        return $this->filterColumns($primaryKey->getColumns());
-    }
-
-    /**
-     * Returns whether this table has a primary key.
-     *
-     * @deprecated Use {@see getPrimaryKey()} instead.
-     */
-    public function hasPrimaryKey(): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5731',
-            '%s is deprecated. Use getPrimaryKey() instead.',
-            __METHOD__,
-        );
-
-        return $this->_primaryKeyName !== null && $this->hasIndex($this->_primaryKeyName);
     }
 
     /**

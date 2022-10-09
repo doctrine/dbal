@@ -45,12 +45,11 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $table      = $this->schemaManager->introspectTable('switch_primary_key_columns');
-        $primaryKey = $table->getPrimaryKeyColumns();
+        $table = $this->schemaManager->introspectTable('switch_primary_key_columns');
 
-        self::assertCount(2, $primaryKey);
-        self::assertArrayHasKey('bar_id', $primaryKey);
-        self::assertArrayHasKey('foo_id', $primaryKey);
+        $primaryKey = $table->getPrimaryKey();
+        self::assertNotNull($primaryKey);
+        self::assertSame(['bar_id', 'foo_id'], $primaryKey->getColumns());
     }
 
     public function testFulltextIndex(): void
@@ -127,7 +126,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = $this->schemaManager->introspectTable('alter_table_add_pk');
 
         self::assertFalse($table->hasIndex('idx_id'));
-        self::assertTrue($table->hasPrimaryKey());
+        self::assertNotNull($table->getPrimaryKey());
     }
 
     public function testDropPrimaryKeyWithAutoincrementColumn(): void
@@ -151,7 +150,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = $this->schemaManager->introspectTable('drop_primary_key');
 
-        self::assertFalse($table->hasPrimaryKey());
+        self::assertNull($table->getPrimaryKey());
         self::assertFalse($table->getColumn('id')->getAutoincrement());
     }
 
