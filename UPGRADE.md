@@ -8,6 +8,37 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated the `userDefinedFunctions` driver option for `pdo_sqlite`
+
+Instead of funneling custom functions through the `userDefinedFunctions` option, use `getNativeConnection()`
+to access the wrapped PDO connection and register your custom functions directly.
+
+### Before
+
+```php
+$connection = DriverManager::getConnection([
+    'driver' => 'pdo_sqlite',
+    'path' => '/path/to/file.db',
+    'driverOptions' => [
+        'userDefinedFunctions' => [
+            'my_function' => ['callback' => [SomeClass::class, 'someMethod'], 'numArgs' => 2],
+        ],
+    ]
+]);
+```
+
+### After
+
+```php
+$connection = DriverManager::getConnection([
+    'driver' => 'pdo_sqlite',
+    'path' => '/path/to/file.db',
+]);
+
+$connection->getNativeConnection()
+    ->sqliteCreateFunction('my_function', [SomeClass::class, 'someMethod'], 2);
+```
+
 ## Deprecated `Table` methods.
 
 The `hasPrimaryKey()` method has been deprecated. Use `getPrimaryKey()` and check if the return value is not null.
