@@ -209,6 +209,7 @@ class TestUtil
                 'password',
                 'host',
                 'dbname',
+                'memory',
                 'port',
                 'server',
                 'ssl_key',

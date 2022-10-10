@@ -204,6 +204,10 @@ EOF
             self::markTestSkipped('The driver does not support named statement parameters');
         }
 
+        if (TestUtil::isDriverOneOf('sqlite3')) {
+            self::markTestSkipped('SQLite3 does not report this error');
+        }
+
         $platform  = $this->connection->getDatabasePlatform();
         $statement = $this->connection->prepare($platform->getDummySelectSQL(':foo'));
 

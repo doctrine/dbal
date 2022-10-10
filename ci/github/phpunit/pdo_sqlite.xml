@@ -10,6 +10,10 @@
 >
     <php>
         <ini name="error_reporting" value="-1" />
+
+        <var name="db_driver" value="pdo_sqlite"/>
+        <var name="db_memory" value="true"/>
+        <var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\SQLiteSessionInit"/>
     </php>
 
     <testsuites>
