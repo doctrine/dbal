@@ -90,6 +90,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 SELECT name
 FROM   sys.schemas
 WHERE  name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')
+AND    name NOT IN(SELECT name FROM sys.database_principals WHERE type='R')
 SQL,
         );
     }
