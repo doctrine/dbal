@@ -79,7 +79,6 @@ parameters:
         -
             message: '~Parameter.*\$database of method.*expects string, string\|null given\.~'
             path: src/Schema/AbstractSchemaManager.php
-            count: 3
 
         # TODO: prevent unsafe usage of operator - with null
         -
