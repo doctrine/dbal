@@ -44,13 +44,21 @@ jobs:
           - "8.2"
         dependencies:
           - "highest"
+        extension:
+          - "pdo_sqlite"
         include:
           - os: "ubuntu-20.04"
             php-version: "7.4"
             dependencies: "lowest"
+            extension: "pdo_sqlite"
+          - os: "ubuntu-22.04"
+            php-version: "7.4"
+            dependencies: "highest"
+            extension: "sqlite3"
           - os: "ubuntu-22.04"
             php-version: "8.1"
             dependencies: "highest"
+            extension: "sqlite3"
 
     steps:
       - name: "Checkout"
@@ -74,14 +82,20 @@ jobs:
       - name: "Print SQLite version"
         run: >
           php -r 'printf("Testing with libsqlite version %s\n", (new PDO("sqlite::memory:"))->query("select sqlite_version()")->fetch()[0]);'
+        if: "${{ matrix.extension == 'pdo_sqlite' }}"
+
+      - name: "Print SQLite version"
+        run: >
+          php -r 'printf("Testing with libsqlite version %s\n", SQLite3::version()["versionString"]);'
+        if: "${{ matrix.extension == 'sqlite3' }}"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/sqlite.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v3"
         with:
-          name: "phpunit-sqlite-${{ matrix.deps }}-${{ matrix.php-version }}.coverage"
+          name: "phpunit-${{ matrix.extension }}-${{ matrix.deps }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
 
   phpunit-oci8:
@@ -551,7 +565,7 @@ jobs:
           path: "coverage.xml"
 
   development-deps:
-    name: "PHPUnit with SQLite and development dependencies"
+    name: "PHPUnit with PDO_SQLite and development dependencies"
     runs-on: "ubuntu-22.04"
 
     strategy:
@@ -577,7 +591,7 @@ jobs:
           composer-options: "--prefer-dist"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/sqlite.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml"
 
   upload_coverage:
     name: "Upload coverage to Codecov"

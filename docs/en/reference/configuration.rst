@@ -113,6 +113,7 @@ interfaces to use. It can be configured in one of three ways:
    -  ``mysqli``: A MySQL driver that uses the mysqli extension.
    -  ``pdo_sqlite``: An SQLite driver that uses the pdo_sqlite PDO
       extension.
+   -  ``sqlite3``: An SQLite driver that uses the sqlite3 extension.
    -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo_pgsql PDO
       extension.
    -  ``pdo_oci``: An Oracle driver that uses the pdo_oci PDO
@@ -154,6 +155,14 @@ pdo_sqlite
 -  ``memory`` (boolean): True if the SQLite database should be
    in-memory (non-persistent). Mutually exclusive with ``path``.
    ``path`` takes precedence.
+
+sqlite3
+^^^^^^^
+
+-  ``path`` (string): The filesystem path to the database file.
+   Mutually exclusive with ``memory``.
+-  ``memory`` (boolean): True if the SQLite database should be
+   in-memory (non-persistent). Mutually exclusive with ``path``.
 
 pdo_mysql
 ^^^^^^^^^
