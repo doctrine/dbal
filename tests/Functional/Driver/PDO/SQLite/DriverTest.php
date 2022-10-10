@@ -21,9 +21,9 @@ class DriverTest extends AbstractDriverTest
         self::markTestSkipped('This test requires the pdo_sqlite driver.');
     }
 
-    public function testReturnsDatabaseNameWithoutDatabaseNameParameter(): void
+    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter(): ?string
     {
-        self::markTestSkipped('SQLite does not support the concept of a database.');
+        return 'main';
     }
 
     protected function createDriver(): DriverInterface
