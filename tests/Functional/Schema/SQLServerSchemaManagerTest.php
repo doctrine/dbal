@@ -4,10 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 
 use function current;
@@ -59,55 +56,19 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('another default value', $columns['df_string_3']->getDefault());
         self::assertEquals(1, $columns['df_boolean']->getDefault());
 
-        $diff                                = new TableDiff(
-            'sqlsrv_default_constraints',
-            [],
-            [
-                'df_integer' => new ColumnDiff(
-                    'df_integer',
-                    new Column('df_integer', Type::getType('integer'), ['default' => 0]),
-                    ['default'],
-                    new Column('df_integer', Type::getType('integer'), ['default' => 666]),
-                ),
-                'df_string_2' => new ColumnDiff(
-                    'df_string_2',
-                    new Column('df_string_2', Type::getType('string')),
-                    ['default'],
-                    new Column('df_string_2', Type::getType('string'), ['default' => 'Doctrine rocks!!!']),
-                ),
-                'df_string_3' => new ColumnDiff(
-                    'df_string_3',
-                    new Column('df_string_3', Type::getType('string'), [
-                        'length' => 50,
-                        'default' => 'another default value',
-                    ]),
-                    ['length'],
-                    new Column('df_string_3', Type::getType('string'), [
-                        'length' => 50,
-                        'default' => 'another default value',
-                    ]),
-                ),
-                'df_boolean' => new ColumnDiff(
-                    'df_boolean',
-                    new Column('df_boolean', Type::getType('boolean'), ['default' => false]),
-                    ['default'],
-                    new Column('df_boolean', Type::getType('boolean'), ['default' => true]),
-                ),
-            ],
-            [
-                'df_string_1' => new Column('df_string_1', Type::getType('string')),
-            ],
-            [],
-            [],
-            [],
-            $table,
-        );
-        $diff->newName                       = 'sqlsrv_default_constraints';
-        $diff->renamedColumns['df_string_4'] = new Column(
-            'df_string_renamed',
-            Type::getType('string'),
-            ['default' => 'column to rename'],
-        );
+        $newTable = clone $table;
+        $newTable->changeColumn('df_integer', ['default' => 0]);
+        $newTable->changeColumn('df_string_2', ['default' => null]);
+        $newTable->changeColumn('df_string_3', ['length' => 50]);
+        $newTable->changeColumn('df_boolean', ['default' => false]);
+        $newTable->dropColumn('df_string_1');
+        $newTable->dropColumn('df_string_4');
+        $newTable->addColumn('df_string_renamed', 'string', ['default' => 'column to rename']);
+
+        $comparator = $this->schemaManager->createComparator();
+
+        $diff = $comparator->diffTable($table, $newTable);
+        self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
         $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
@@ -122,23 +83,12 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         /**
          * Test that column default constraints can still be referenced after table rename
          */
-        $diff = new TableDiff(
-            'sqlsrv_default_constraints',
-            [],
-            [
-                'df_integer' => new ColumnDiff(
-                    'df_integer',
-                    new Column('df_integer', Type::getType('integer'), ['default' => 666]),
-                    ['default'],
-                    new Column('df_integer', Type::getType('integer'), ['default' => 0]),
-                ),
-            ],
-            [],
-            [],
-            [],
-            [],
-            $table,
-        );
+        $table    = $newTable;
+        $newTable = clone $table;
+        $newTable->changeColumn('df_integer', ['default' => 666]);
+
+        $diff = $comparator->diffTable($table, $newTable);
+        self::assertNotFalse($diff);
 
         $this->schemaManager->alterTable($diff);
         $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
@@ -189,152 +139,65 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('Doctrine array type.', $columns['commented_type_with_comment']->getComment());
         self::assertEquals('Some comment', $columns['commented_req_change_column']->getComment());
 
-        $tableDiff            = new TableDiff('sqlsrv_column_comment');
-        $tableDiff->fromTable = $table;
-
-        $tableDiff->addedColumns['added_comment_none']
-            = new Column('added_comment_none', Type::getType('integer'));
-
-        $tableDiff->addedColumns['added_comment_null']
-            = new Column('added_comment_null', Type::getType('integer'), ['comment' => null]);
-
-        $tableDiff->addedColumns['added_comment_false']
-            = new Column('added_comment_false', Type::getType('integer'), ['comment' => false]);
-
-        $tableDiff->addedColumns['added_comment_empty_string']
-            = new Column('added_comment_empty_string', Type::getType('integer'), ['comment' => '']);
-
-        $tableDiff->addedColumns['added_comment_integer_0']
-            = new Column('added_comment_integer_0', Type::getType('integer'), ['comment' => 0]);
-
-        $tableDiff->addedColumns['added_comment_float_0']
-            = new Column('added_comment_float_0', Type::getType('integer'), ['comment' => 0.0]);
-
-        $tableDiff->addedColumns['added_comment_string_0']
-            = new Column('added_comment_string_0', Type::getType('integer'), ['comment' => '0']);
-
-        $tableDiff->addedColumns['added_comment']
-            = new Column('added_comment', Type::getType('integer'), ['comment' => 'Doctrine']);
-
-        $tableDiff->addedColumns['`added_comment_quoted`']
-            = new Column('`added_comment_quoted`', Type::getType('integer'), ['comment' => 'rulez']);
-
-        $tableDiff->addedColumns['select']
-            = new Column('select', Type::getType('integer'), ['comment' => '666']);
-
-        $tableDiff->addedColumns['added_commented_type']
-            = new Column('added_commented_type', Type::getType('object'));
-
-        $tableDiff->addedColumns['added_commented_type_with_comment']
-            = new Column('added_commented_type_with_comment', Type::getType('array'), ['comment' => '666']);
-
-        $tableDiff->renamedColumns['comment_float_0']
-            = new Column('comment_double_0', Type::getType('decimal'), ['comment' => 'Double for real!']);
+        $newTable = clone $table;
+        $newTable->addColumn('added_comment_none', 'integer');
+        $newTable->addColumn('added_comment_null', 'integer', ['comment' => null]);
+        $newTable->addColumn('added_comment_false', 'integer', ['comment' => false]);
+        $newTable->addColumn('added_comment_empty_string', 'integer', ['comment' => '']);
+        $newTable->addColumn('added_comment_integer_0', 'integer', ['comment' => 0]);
+        $newTable->addColumn('added_comment_float_0', 'integer', ['comment' => 0.0]);
+        $newTable->addColumn('added_comment_string_0', 'integer', ['comment' => '0']);
+        $newTable->addColumn('added_comment', 'integer', ['comment' => 'Doctrine']);
+        $newTable->addColumn('`added_comment_quoted`', 'integer', ['comment' => 'rulez']);
+        $newTable->addColumn('`select`', 'integer', ['comment' => '666']);
+        $newTable->addColumn('added_commented_type', 'object');
+        $newTable->addColumn('added_commented_type_with_comment', 'array', ['comment' => '666']);
+        $newTable->dropColumn('comment_float_0');
+        $newTable->addColumn('comment_double_0', 'decimal', ['comment' => '0']);
 
         // Add comment to non-commented column.
-        $tableDiff->changedColumns['id'] = new ColumnDiff(
-            'id',
-            new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
-            ['comment'],
-            new Column('id', Type::getType('integer'), ['autoincrement' => true]),
-        );
+        $newTable->changeColumn('id', ['comment' => 'primary']);
 
         // Remove comment from null-commented column.
-        $tableDiff->changedColumns['comment_null'] = new ColumnDiff(
-            'comment_null',
-            new Column('comment_null', Type::getType('string')),
-            ['type'],
-            new Column('comment_null', Type::getType('integer'), ['comment' => null]),
-        );
+        $newTable->changeColumn('comment_null', ['comment' => null]);
 
         // Add comment to false-commented column.
-        $tableDiff->changedColumns['comment_false'] = new ColumnDiff(
-            'comment_false',
-            new Column('comment_false', Type::getType('integer'), ['comment' => 'false']),
-            ['comment'],
-            new Column('comment_false', Type::getType('integer'), ['comment' => false]),
-        );
+        $newTable->changeColumn('comment_false', ['comment' => 'false']);
 
         // Change type to custom type from empty string commented column.
-        $tableDiff->changedColumns['comment_empty_string'] = new ColumnDiff(
-            'comment_empty_string',
-            new Column('comment_empty_string', Type::getType('object')),
-            ['type'],
-            new Column('comment_empty_string', Type::getType('integer'), ['comment' => '']),
-        );
+        $newTable->changeColumn('comment_empty_string', ['type' => Type::getType('object')]);
 
         // Change comment to false-comment from zero-string commented column.
-        $tableDiff->changedColumns['comment_string_0'] = new ColumnDiff(
-            'comment_string_0',
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => false]),
-            ['comment'],
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => '0']),
-        );
+        $newTable->changeColumn('comment_string_0', ['comment' => false]);
 
         // Remove comment from regular commented column.
-        $tableDiff->changedColumns['comment'] = new ColumnDiff(
-            'comment',
-            new Column('comment', Type::getType('integer')),
-            ['comment'],
-            new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
-        );
+        $newTable->changeColumn('comment', ['comment' => null]);
 
         // Change comment and change type to custom type from regular commented column.
-        $tableDiff->changedColumns['`comment_quoted`'] = new ColumnDiff(
-            '`comment_quoted`',
-            new Column('`comment_quoted`', Type::getType('array'), ['comment' => 'Doctrine array.']),
-            ['comment', 'type'],
-            new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
-        );
+        $newTable->changeColumn('`comment_quoted', [
+            'type' => Type::getType('array'),
+            'comment' => 'Doctrine array.',
+        ]);
 
         // Remove comment and change type to custom type from regular commented column.
-        $tableDiff->changedColumns['create'] = new ColumnDiff(
-            'create',
-            new Column('create', Type::getType('object')),
-            ['comment', 'type'],
-            new Column(
-                'create',
-                Type::getType('integer'),
-                ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!'],
-            ),
-        );
+        $newTable->changeColumn('`create', ['type' => Type::getType('object'), 'comment' => null]);
 
         // Add comment and change custom type to regular type from non-commented column.
-        $tableDiff->changedColumns['commented_type'] = new ColumnDiff(
-            'commented_type',
-            new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
-            ['comment', 'type'],
-            new Column('commented_type', Type::getType('object')),
-        );
+        $newTable->changeColumn('commented_type', ['type' => Type::getType('integer'), 'comment' => 'foo']);
 
         // Remove comment from commented custom type column.
-        $tableDiff->changedColumns['commented_type_with_comment'] = new ColumnDiff(
-            'commented_type_with_comment',
-            new Column('commented_type_with_comment', Type::getType('array')),
-            ['comment'],
-            new Column('commented_type_with_comment', Type::getType('array'), ['comment' => 'Doctrine array type.']),
-        );
+        $newTable->changeColumn('commented_type_with_comment', ['comment' => null]);
 
         // Change column requirements without changing comment.
-        $tableDiff->changedColumns['commented_req_change_column'] = new ColumnDiff(
-            'commented_req_change_column',
-            new Column(
-                'commented_req_change_column',
-                Type::getType('integer'),
-                ['comment' => 'Some comment', 'notnull' => true],
-            ),
-            ['notnull'],
-            new Column(
-                'commented_req_change_column',
-                Type::getType('integer'),
-                ['comment' => 'Some comment', 'notnull' => false],
-            ),
-        );
+        $newTable->changeColumn('commented_req_change_column', ['notnull' => true]);
 
-        $tableDiff->removedColumns['comment_integer_0']
-            = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
+        $newTable->dropColumn('comment_integer_0');
 
-        $this->schemaManager->alterTable($tableDiff);
+        $diff = $this->schemaManager->createComparator()
+            ->diffTable($table, $newTable);
+        self::assertNotFalse($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
         self::assertCount(24, $columns);
