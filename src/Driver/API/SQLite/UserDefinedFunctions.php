@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\API\SQLite;
 
-use function array_merge;
+use function sqrt;
 use function strpos;
 
 /**
@@ -14,29 +14,18 @@ use function strpos;
  */
 final class UserDefinedFunctions
 {
-    private const DEFAULT_FUNCTIONS = [
-        'sqrt' => ['callback' => 'sqrt', 'numArgs' => 1],
-        'mod'  => ['callback' => [self::class, 'mod'], 'numArgs' => 2],
-        'locate'  => ['callback' => [self::class, 'locate'], 'numArgs' => -1],
-    ];
-
-    /**
-     * @param callable(string, callable, int): bool                  $callback
-     * @param array<string, array{callback: callable, numArgs: int}> $additionalFunctions
-     */
-    public static function register(callable $callback, array $additionalFunctions = []): void
+    /** @param callable(string, callable, int): bool $callback */
+    public static function register(callable $callback): void
     {
-        $userDefinedFunctions = array_merge(self::DEFAULT_FUNCTIONS, $additionalFunctions);
-
-        foreach ($userDefinedFunctions as $function => $data) {
-            $callback($function, $data['callback'], $data['numArgs']);
-        }
+        $callback('sqrt', sqrt(...), 1);
+        $callback('mod', self::mod(...), 2);
+        $callback('locate', self::locate(...), -1);
     }
 
     /**
      * User-defined function that implements MOD().
      */
-    public static function mod(int $a, int $b): int
+    private static function mod(int $a, int $b): int
     {
         return $a % $b;
     }
@@ -44,7 +33,7 @@ final class UserDefinedFunctions
     /**
      * User-defined function that implements LOCATE().
      */
-    public static function locate(string $str, string $substr, int $offset = 0): int
+    private static function locate(string $str, string $substr, int $offset = 0): int
     {
         // SQL's LOCATE function works on 1-based positions, while PHP's strpos works on 0-based positions.
         // So we have to make them compatible if an offset is given.
@@ -59,5 +48,9 @@ final class UserDefinedFunctions
         }
 
         return 0;
+    }
+
+    private function __construct()
+    {
     }
 }

@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
-use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
 
@@ -19,36 +18,18 @@ final class Driver extends AbstractSQLiteDriver
      */
     public function connect(array $params): Connection
     {
-        $driverOptions        = $params['driverOptions'] ?? [];
-        $userDefinedFunctions = [];
-
-        if (isset($driverOptions['userDefinedFunctions'])) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5742',
-                'The SQLite-specific driver option "userDefinedFunctions" is deprecated.'
-                    . ' Register function directly on the native connection instead.',
-            );
-
-            $userDefinedFunctions = $driverOptions['userDefinedFunctions'];
-            unset($driverOptions['userDefinedFunctions']);
-        }
-
         try {
             $pdo = new PDO(
                 $this->constructPdoDsn($params),
                 $params['user'] ?? '',
                 $params['password'] ?? '',
-                $driverOptions,
+                $params['driverOptions'] ?? [],
             );
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
 
-        UserDefinedFunctions::register(
-            [$pdo, 'sqliteCreateFunction'],
-            $userDefinedFunctions,
-        );
+        UserDefinedFunctions::register($pdo->sqliteCreateFunction(...));
 
         return new Connection($pdo);
     }
