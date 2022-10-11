@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function array_values;
@@ -268,9 +269,24 @@ class Table extends AbstractAsset
     /**
      * Change Column Details.
      *
+     * @deprecated Use {@link modifyColumn()} instead.
+     *
      * @param array<string, mixed> $options
      */
     public function changeColumn(string $name, array $options): self
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5747',
+            '%s is deprecated. Use modifyColumn() instead.',
+            __METHOD__,
+        );
+
+        return $this->modifyColumn($name, $options);
+    }
+
+    /** @param array<string, mixed> $options */
+    public function modifyColumn(string $name, array $options): self
     {
         $column = $this->getColumn($name);
         $column->setOptions($options);

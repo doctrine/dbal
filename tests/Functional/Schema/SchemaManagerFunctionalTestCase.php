@@ -15,15 +15,12 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -580,7 +577,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testAlterTableScenario(): void
     {
-        $alterTable = $this->createTestTable('alter_table');
+        $this->createTestTable('alter_table');
         $this->createTestTable('alter_table_foreign');
 
         $table = $this->schemaManager->introspectTable('alter_table');
@@ -590,20 +587,28 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertCount(0, $table->getForeignKeys());
         self::assertCount(1, $table->getIndexes());
 
-        $tableDiff                         = new TableDiff($alterTable);
-        $tableDiff->addedColumns['foo']    = new Column('foo', Type::getType('integer'));
-        $tableDiff->removedColumns['test'] = $table->getColumn('test');
+        $newTable = clone $table;
+        $newTable->addColumn('foo', 'integer');
+        $newTable->dropColumn('test');
 
-        $this->schemaManager->alterTable($tableDiff);
+        $comparator = $this->schemaManager->createComparator();
+
+        $diff = $comparator->diffTable($table, $newTable);
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTable('alter_table');
         self::assertFalse($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foo'));
 
-        $tableDiff                          = new TableDiff($table);
-        $tableDiff->addedIndexes['foo_idx'] = new Index('foo_idx', ['foo']);
+        $newTable = clone $table;
+        $newTable->addIndex(['foo'], 'foo_idx');
 
-        $this->schemaManager->alterTable($tableDiff);
+        $diff = $comparator->diffTable($table, $newTable);
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTable('alter_table');
         self::assertCount(2, $table->getIndexes());
@@ -612,10 +617,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertFalse($table->getIndex('foo_idx')->isPrimary());
         self::assertFalse($table->getIndex('foo_idx')->isUnique());
 
-        $tableDiff                            = new TableDiff($table);
-        $tableDiff->changedIndexes['foo_idx'] = new Index('foo_idx', ['foo', 'foreign_key_test']);
+        $newTable = clone $table;
+        $newTable->dropIndex('foo_idx');
+        $newTable->addIndex(['foo', 'foreign_key_test'], 'foo_idx');
 
-        $this->schemaManager->alterTable($tableDiff);
+        $diff = $comparator->diffTable($table, $newTable);
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTable('alter_table');
         self::assertCount(2, $table->getIndexes());
@@ -625,10 +634,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             array_map('strtolower', $table->getIndex('foo_idx')->getColumns()),
         );
 
-        $tableDiff                            = new TableDiff($table);
-        $tableDiff->renamedIndexes['foo_idx'] = new Index('bar_idx', ['foo', 'foreign_key_test']);
+        $newTable = clone $table;
+        $newTable->dropIndex('foo_idx');
+        $newTable->addIndex(['foo', 'foreign_key_test'], 'bar_idx');
 
-        $this->schemaManager->alterTable($tableDiff);
+        $diff = $comparator->diffTable($table, $newTable);
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTable('alter_table');
         self::assertCount(2, $table->getIndexes());
@@ -641,19 +654,18 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertFalse($table->getIndex('bar_idx')->isPrimary());
         self::assertFalse($table->getIndex('bar_idx')->isUnique());
 
-        $tableDiff                            = new TableDiff($table);
-        $tableDiff->removedIndexes['bar_idx'] = new Index('bar_idx', ['foo', 'foreign_key_test']);
+        $newTable = clone $table;
+        $newTable->dropIndex('bar_idx');
+        $newTable->addForeignKeyConstraint('alter_table_foreign', ['foreign_key_test'], ['id']);
 
-        $tableDiff->addedForeignKeys[] = new ForeignKeyConstraint(
-            ['foreign_key_test'],
-            'alter_table_foreign',
-            ['id'],
-        );
+        $diff = $comparator->diffTable($table, $newTable);
+        self::assertNotNull($diff);
 
-        $this->schemaManager->alterTable($tableDiff);
+        $this->schemaManager->alterTable($diff);
+
         $table = $this->schemaManager->introspectTable('alter_table');
 
-        // dont check for index size here, some platforms automatically add indexes for foreign keys.
+        // don't check for index size here, some platforms automatically add indexes for foreign keys.
         self::assertFalse($table->hasIndex('bar_idx'));
 
         $fks = $table->getForeignKeys();

@@ -855,6 +855,7 @@ The `hasPrimaryKey()` method has been deprecated. Use `getPrimaryKey()` and chec
 The `getPrimaryKeyColumns()` method has been deprecated. Use `getPrimaryKey()` and `Index::getColumns()` instead.
 The `getForeignKeyColumns()` method has been deprecated. Use `getForeignKey()`
 and `ForeignKeyConstraint::getLocalColumns()` instead.
+The `changeColumn()` method has been deprecated. Use `modifyColumn()` instead.
 
 ## Deprecated `SchemaException` error codes.
 
