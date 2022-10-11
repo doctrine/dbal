@@ -8,6 +8,21 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC Break: Removed the `userDefinedFunctions` driver option for `pdo_sqlite`
+
+To register a custom function, use `getNativeConnection()` to access the
+wrapped PDO connection and register your custom function directly.
+
+```php
+$connection = DriverManager::getConnection([
+    'driver' => 'pdo_sqlite',
+    'path' => '/path/to/file.db',
+]);
+
+$connection->getNativeConnection()
+    ->sqliteCreateFunction('my_function', MyClass::myMethod(...), 2);
+```
+
 ## BC BREAK: Removed `Table` methods
 
 The following `Table` methods have been removed:

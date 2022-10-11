@@ -41,7 +41,7 @@ final class Driver extends AbstractSQLiteDriver
 
         $connection->enableExceptions(true);
 
-        UserDefinedFunctions::register([$connection, 'createFunction']);
+        UserDefinedFunctions::register($connection->createFunction(...));
 
         return new Connection($connection);
     }
