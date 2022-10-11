@@ -349,6 +349,8 @@ class Table extends AbstractAsset
     /**
      * Change Column Details.
      *
+     * @deprecated Use {@link modifyColumn()} instead.
+     *
      * @param string  $name
      * @param mixed[] $options
      *
@@ -357,6 +359,26 @@ class Table extends AbstractAsset
      * @throws SchemaException
      */
     public function changeColumn($name, array $options)
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5747',
+            '%s is deprecated. Use modifyColumn() instead.',
+            __METHOD__,
+        );
+
+        return $this->modifyColumn($name, $options);
+    }
+
+    /**
+     * @param string  $name
+     * @param mixed[] $options
+     *
+     * @return self
+     *
+     * @throws SchemaException
+     */
+    public function modifyColumn($name, array $options)
     {
         $column = $this->getColumn($name);
         $column->setOptions($options);

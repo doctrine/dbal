@@ -438,6 +438,7 @@
                 <!--
                     TODO: remove in 4.0.0
                 -->
+                <referencedMethod name="Doctrine\DBAL\Schema\Table::changeColumn"/>
                 <referencedMethod name="Doctrine\DBAL\Schema\Table::getForeignKeyColumns"/>
                 <referencedMethod name="Doctrine\DBAL\Schema\Table::getPrimaryKeyColumns"/>
                 <referencedMethod name="Doctrine\DBAL\Schema\Table::hasPrimaryKey"/>
