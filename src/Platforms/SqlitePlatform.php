@@ -123,11 +123,13 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
-        if ($startPos === false) {
-            return 'LOCATE(' . $str . ', ' . $substr . ')';
+        if ($startPos === false || $startPos === 1 || $startPos === '1') {
+            return 'INSTR(' . $str . ', ' . $substr . ')';
         }
 
-        return 'LOCATE(' . $str . ', ' . $substr . ', ' . $startPos . ')';
+        return 'CASE WHEN INSTR(SUBSTR(' . $str . ', ' . $startPos . '), ' . $substr
+            . ') > 0 THEN INSTR(SUBSTR(' . $str . ', ' . $startPos . '), ' . $substr . ') + ' . $startPos
+            . ' - 1 ELSE 0 END';
     }
 
     /**
