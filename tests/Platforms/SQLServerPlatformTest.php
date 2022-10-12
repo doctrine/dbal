@@ -18,7 +18,7 @@ use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
 
 /** @extends AbstractPlatformTestCase<SQLServerPlatform> */
-class SQLServerPlatformTestCase extends AbstractPlatformTestCase
+class SQLServerPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
     {
@@ -57,7 +57,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
 
         self::assertEquals(
-            '(column1 + column2 + column3)',
+            'CONCAT(column1, column2, column3)',
             $this->platform->getConcatExpression('column1', 'column2', 'column3'),
         );
     }
@@ -636,6 +636,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         return [
             'CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, '
                 . 'foo NVARCHAR(255) NOT NULL, [bar] NVARCHAR(255) NOT NULL)',
+            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D79164E3 ON [quoted] ([create], foo, [bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD'
                 . ' FOREIGN KEY ([create], foo, [bar]) REFERENCES [foreign] ([create], bar, [foo-bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD'
@@ -1559,6 +1560,11 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ["EXEC sp_rename N'mytable.idx_foo', N'idx_foo_renamed', N'INDEX'"];
+    }
+
+    protected function getLimitOffsetCastToIntExpectedQuery(): string
+    {
+        return 'SELECT * FROM user ORDER BY (SELECT 0) OFFSET 2 ROWS FETCH NEXT 1 ROWS ONLY';
     }
 
     public function testModifyLimitQueryWithTopNSubQueryWithOrderBy(): void
