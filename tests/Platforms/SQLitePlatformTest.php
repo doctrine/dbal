@@ -221,13 +221,14 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     public function testAlterTableAddColumns(): void
     {
         $table = new Table('user');
-        $diff  = new TableDiff($table);
 
-        $diff->addedColumns['foo']   = new Column('foo', Type::getType('string'));
-        $diff->addedColumns['count'] = new Column('count', Type::getType('integer'), [
-            'notnull' => false,
-            'default' => 1,
-        ]);
+        $diff = new TableDiff($table, [
+            new Column('foo', Type::getType('string')),
+            new Column('count', Type::getType('integer'), [
+                'notnull' => false,
+                'default' => 1,
+            ]),
+        ], [], [], [], [], [], [], [], [], [], []);
 
         $expected = [
             'ALTER TABLE user ADD COLUMN foo VARCHAR NOT NULL',
@@ -242,8 +243,9 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table = new Table('test');
         $table->addColumn('id', 'integer');
 
-        $tableDiff                          = new TableDiff($table);
-        $tableDiff->renamedColumns['value'] = new Column('data', Type::getType('string'));
+        $tableDiff = new TableDiff($table, [], [], [], [
+            'value' => new Column('data', Type::getType('string')),
+        ], [], [], [], [], [], [], []);
 
         $this->expectException(Exception::class);
         $this->platform->getAlterTableSQL($tableDiff);
@@ -293,11 +295,14 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addForeignKeyConstraint('user', ['parent'], ['id'], ['deferrable' => true, 'deferred' => true]);
         $table->addIndex(['article', 'post'], 'index1');
 
-        $diff                           = new TableDiff($table);
-        $diff->renamedColumns['id']     = new Column('key', Type::getType('integer'), []);
-        $diff->renamedColumns['post']   = new Column('comment', Type::getType('integer'), []);
-        $diff->removedColumns['parent'] = new Column('parent', Type::getType('integer'), []);
-        $diff->removedIndexes['index1'] = $table->getIndex('index1');
+        $diff = new TableDiff($table, [], [], [
+            new Column('parent', Type::getType('integer'), []),
+        ], [
+            'id' => new Column('key', Type::getType('integer'), []),
+            'post' => new Column('comment', Type::getType('integer'), []),
+        ], [], [], [
+            $table->getIndex('index1'),
+        ], [], [], [], []);
 
         $sql = [
             'CREATE TEMPORARY TABLE __temp__user AS SELECT id, article, post FROM user',

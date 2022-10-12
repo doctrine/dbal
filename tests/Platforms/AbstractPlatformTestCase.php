@@ -312,14 +312,18 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('changed', 'integer');
         $table->addColumn('renamed', 'integer');
 
-        $tableDiff                            = new TableDiff($table);
-        $tableDiff->addedColumns['added']     = new Column('added', Type::getType('integer'), []);
-        $tableDiff->removedColumns['removed'] = new Column('removed', Type::getType('integer'), []);
-        $tableDiff->changedColumns['changed'] = new ColumnDiff(
-            $table->getColumn('changed'),
-            new Column('changed2', Type::getType('string'), ['length' => 255]),
-        );
-        $tableDiff->renamedColumns['renamed'] = new Column('renamed2', Type::getType('integer'));
+        $tableDiff = new TableDiff($table, [
+            new Column('added', Type::getType('integer')),
+        ], [
+            new ColumnDiff(
+                $table->getColumn('changed'),
+                new Column('changed2', Type::getType('string'), ['length' => 255]),
+            ),
+        ], [
+            new Column('removed', Type::getType('integer')),
+        ], [
+            'renamed' => new Column('renamed2', Type::getType('integer')),
+        ], [], [], [], [], [], [], []);
 
         $this->platform->getAlterTableSQL($tableDiff);
     }
@@ -559,15 +563,16 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table = new Table('mytable');
         $table->addColumn('select', 'integer');
 
-        $tableDiff                           = new TableDiff($table);
-        $tableDiff->changedColumns['select'] = new ColumnDiff(
-            $table->getColumn('select'),
-            new Column(
-                'select',
-                Type::getType('string'),
-                ['length' => 255],
+        $tableDiff = new TableDiff($table, [], [
+            new ColumnDiff(
+                $table->getColumn('select'),
+                new Column(
+                    'select',
+                    Type::getType('string'),
+                    ['length' => 255],
+                ),
             ),
-        );
+        ], [], [], [], [], [], [], [], [], []);
 
         self::assertStringContainsString(
             $this->platform->quoteIdentifier('select'),
@@ -717,10 +722,9 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $tableDiff                 = new TableDiff($table);
-        $tableDiff->renamedIndexes = [
+        $tableDiff = new TableDiff($table, [], [], [], [], [], [], [], [
             'idx_foo' => new Index('idx_bar', ['id']),
-        ];
+        ], [], [], []);
 
         self::assertSame(
             $this->getAlterTableRenameIndexSQL(),
@@ -743,11 +747,10 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $tableDiff                 = new TableDiff($table);
-        $tableDiff->renamedIndexes = [
+        $tableDiff = new TableDiff($table, [], [], [], [], [], [], [], [
             'create' => new Index('select', ['id']),
-            '`foo`'  => new Index('`bar`', ['id']),
-        ];
+            '`foo`' => new Index('`bar`', ['id']),
+        ], [], [], []);
 
         self::assertSame(
             $this->getQuotedAlterTableRenameIndexSQL(),
@@ -873,10 +876,9 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $tableDiff                 = new TableDiff($table);
-        $tableDiff->renamedIndexes = [
+        $tableDiff = new TableDiff($table, [], [], [], [], [], [], [], [
             'idx_foo' => new Index('idx_bar', ['id']),
-        ];
+        ], [], [], []);
 
         self::assertSame(
             $this->getAlterTableRenameIndexInSchemaSQL(),
@@ -899,11 +901,10 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $tableDiff                 = new TableDiff($table);
-        $tableDiff->renamedIndexes = [
+        $tableDiff = new TableDiff($table, [], [], [], [], [], [], [], [
             'create' => new Index('select', ['id']),
-            '`foo`'  => new Index('`bar`', ['id']),
-        ];
+            '`foo`' => new Index('`bar`', ['id']),
+        ], [], [], []);
 
         self::assertSame(
             $this->getQuotedAlterTableRenameIndexInSchemaSQL(),
@@ -1051,12 +1052,13 @@ abstract class AbstractPlatformTestCase extends TestCase
             ['notnull' => true, 'default' => 666, 'comment' => 'rename test'],
         );
 
-        $tableDiff                        = new TableDiff($table);
-        $tableDiff->renamedColumns['bar'] = new Column(
-            'baz',
-            Type::getType('integer'),
-            ['notnull' => true, 'default' => 666, 'comment' => 'rename test'],
-        );
+        $tableDiff = new TableDiff($table, [], [], [], [
+            'bar' => new Column('baz', Type::getType('integer'), [
+                'notnull' => true,
+                'default' => 666,
+                'comment' => 'rename test',
+            ]),
+        ], [], [], [], [], [], [], []);
 
         self::assertSame($this->getAlterTableRenameColumnSQL(), $this->platform->getAlterTableSQL($tableDiff));
     }
@@ -1076,17 +1078,24 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table->addForeignKeyConstraint('fk_table', ['fk'], ['id'], [], 'fk1');
         $table->addForeignKeyConstraint('fk_table', ['fk2'], ['id'], [], 'fk2');
 
-        $tableDiff                        = new TableDiff($table);
-        $tableDiff->addedColumns['bloo']  = new Column('bloo', Type::getType('integer'));
-        $tableDiff->changedColumns['bar'] = new ColumnDiff(
-            $table->getColumn('bar'),
-            new Column('bar', Type::getType('integer'), ['notnull' => false]),
-        );
-        $tableDiff->renamedColumns['id']  = new Column('war', Type::getType('integer'));
-        $tableDiff->removedColumns['baz'] = new Column('baz', Type::getType('integer'));
-        $tableDiff->addedForeignKeys[]    = new ForeignKeyConstraint(['fk3'], 'fk_table', ['id'], 'fk_add');
-        $tableDiff->changedForeignKeys[]  = new ForeignKeyConstraint(['fk2'], 'fk_table2', ['id'], 'fk2');
-        $tableDiff->removedForeignKeys[]  = new ForeignKeyConstraint(['fk'], 'fk_table', ['id'], 'fk1');
+        $tableDiff = new TableDiff($table, [
+            new Column('bloo', Type::getType('integer')),
+        ], [
+            new ColumnDiff(
+                $table->getColumn('bar'),
+                new Column('bar', Type::getType('integer'), ['notnull' => false]),
+            ),
+        ], [
+            new Column('baz', Type::getType('integer')),
+        ], [
+            'id' => new Column('war', Type::getType('integer')),
+        ], [], [], [], [], [
+            new ForeignKeyConstraint(['fk3'], 'fk_table', ['id'], 'fk_add'),
+        ], [
+            new ForeignKeyConstraint(['fk2'], 'fk_table2', ['id'], 'fk2'),
+        ], [
+            new ForeignKeyConstraint(['fk'], 'fk_table', ['id'], 'fk1'),
+        ]);
 
         self::assertSame(
             $this->getQuotesTableIdentifiersInAlterTableSQL(),
@@ -1102,16 +1111,16 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table = new Table('mytable');
         $table->addColumn('name', 'string', ['length' => 2]);
 
-        $tableDiff = new TableDiff($table);
-
-        $tableDiff->changedColumns['name'] = new ColumnDiff(
-            $table->getColumn('name'),
-            new Column(
-                'name',
-                Type::getType('string'),
-                ['fixed' => true, 'length' => 2],
+        $tableDiff = new TableDiff($table, [], [
+            new ColumnDiff(
+                $table->getColumn('name'),
+                new Column(
+                    'name',
+                    Type::getType('string'),
+                    ['fixed' => true, 'length' => 2],
+                ),
             ),
-        );
+        ], [], [], [], [], [], [], [], [], []);
 
         $sql = $this->platform->getAlterTableSQL($tableDiff);
 
@@ -1138,8 +1147,9 @@ abstract class AbstractPlatformTestCase extends TestCase
         $primaryTable->addForeignKeyConstraint($foreignTable->getName(), ['foo'], ['id'], [], 'fk_foo');
         $primaryTable->addForeignKeyConstraint($foreignTable->getName(), ['bar'], ['id'], [], 'fk_bar');
 
-        $tableDiff                            = new TableDiff($primaryTable);
-        $tableDiff->renamedIndexes['idx_foo'] = new Index('idx_foo_renamed', ['foo']);
+        $tableDiff = new TableDiff($primaryTable, [], [], [], [], [], [], [], [
+            'idx_foo' => new Index('idx_foo_renamed', ['foo']),
+        ], [], [], []);
 
         self::assertSame(
             $this->getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(),

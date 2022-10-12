@@ -398,14 +398,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 $diff->getAddedColumns(),
                 $diff->getModifiedColumns(),
                 $diff->getDroppedColumns(),
+                $diff->getRenamedColumns(),
                 array_values($addedIndexes),
                 array_values($modifiedIndexes),
                 $diff->getDroppedIndexes(),
+                $diff->getRenamedIndexes(),
                 $diff->getAddedForeignKeys(),
                 $diff->getModifiedForeignKeys(),
                 $diff->getDroppedForeignKeys(),
-                $diff->getRenamedColumns(),
-                $diff->getRenamedIndexes(),
             );
         }
 

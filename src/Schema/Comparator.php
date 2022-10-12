@@ -221,10 +221,7 @@ class Comparator
                 continue;
             }
 
-            $modifiedColumns[$column->getName()] = new ColumnDiff(
-                $column,
-                $toColumn,
-            );
+            $modifiedColumns[] = new ColumnDiff($column, $toColumn);
 
             $hasChanges = true;
         }
@@ -266,7 +263,7 @@ class Comparator
                 continue;
             }
 
-            $modifiedIndexes[$indexName] = $toTableIndex;
+            $modifiedIndexes[] = $toTableIndex;
 
             $hasChanges = true;
         }
@@ -312,14 +309,14 @@ class Comparator
             $addedColumns,
             $modifiedColumns,
             $droppedColumns,
+            $renamedColumns,
             $addedIndexes,
             $modifiedIndexes,
             $droppedIndexes,
+            $renamedIndexes,
             $addedForeignKeys,
             $modifiedForeignKeys,
             $droppedForeignKeys,
-            $renamedColumns,
-            $renamedIndexes,
         );
     }
 

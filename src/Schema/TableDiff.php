@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use function array_filter;
-use function array_values;
 
 /**
  * Table Diff.
@@ -17,42 +16,31 @@ class TableDiff
      *
      * @internal The diff can be only instantiated by a {@see Comparator}.
      *
-     * @param array<Column>              $addedColumns
-     * @param array<ColumnDiff>          $changedColumns
-     * @param array<Column>              $removedColumns
-     * @param array<Index>               $addedIndexes
-     * @param array<Index>               $changedIndexes
-     * @param array<Index>               $removedIndexes
-     * @param list<ForeignKeyConstraint> $addedForeignKeys
-     * @param list<ForeignKeyConstraint> $changedForeignKeys
-     * @param list<ForeignKeyConstraint> $removedForeignKeys
-     * @param array<string, Column>      $renamedColumns
-     * @param array<string, Index>       $renamedIndexes
+     * @param array<ForeignKeyConstraint> $droppedForeignKeys
+     * @param array<Column>               $addedColumns
+     * @param array<ColumnDiff>           $modifiedColumns
+     * @param array<Column>               $droppedColumns
+     * @param array<string, Column>       $renamedColumns
+     * @param array<Index>                $addedIndexes
+     * @param array<Index>                $modifiedIndexes
+     * @param array<Index>                $droppedIndexes
+     * @param array<string, Index>        $renamedIndexes
+     * @param array<ForeignKeyConstraint> $addedForeignKeys
+     * @param array<ForeignKeyConstraint> $modifiedForeignKeys
      */
     public function __construct(
-        private Table $oldTable,
-        /** @internal Use {@see getAddedColumns()} instead. */
-        public array $addedColumns = [],
-        /** @internal Use {@see getModifiedColumns()} instead. */
-        public array $changedColumns = [],
-        /** @internal Use {@see getDroppedColumns()} instead. */
-        public array $removedColumns = [],
-        /** @internal Use {@see getAddedIndexes()} instead. */
-        public array $addedIndexes = [],
-        /** @internal Use {@see getModifiedIndexes()} instead. */
-        public array $changedIndexes = [],
-        /** @internal Use {@see getDroppedIndexes()} instead. */
-        public array $removedIndexes = [],
-        /** @internal Use {@see getAddedForeignKeys()} instead. */
-        public array $addedForeignKeys = [],
-        /** @internal Use {@see getModifiedForeignKeys()} instead. */
-        public array $changedForeignKeys = [],
-        /** @internal Use {@see getDroppedForeignKeys()} instead. */
-        public array $removedForeignKeys = [],
-        /** @internal Use {@see getRenamedColumns()} instead. */
-        public array $renamedColumns = [],
-        /** @internal Use {@see getRenamedIndexes()} instead. */
-        public array $renamedIndexes = [],
+        private readonly Table $oldTable,
+        private readonly array $addedColumns,
+        private readonly array $modifiedColumns,
+        private readonly array $droppedColumns,
+        private readonly array $renamedColumns,
+        private array $addedIndexes,
+        private readonly array $modifiedIndexes,
+        private array $droppedIndexes,
+        private readonly array $renamedIndexes,
+        private readonly array $addedForeignKeys,
+        private readonly array $modifiedForeignKeys,
+        private array $droppedForeignKeys,
     ) {
     }
 
@@ -61,22 +49,22 @@ class TableDiff
         return $this->oldTable;
     }
 
-    /** @return list<Column> */
+    /** @return array<Column> */
     public function getAddedColumns(): array
     {
-        return array_values($this->addedColumns);
+        return $this->addedColumns;
     }
 
-    /** @return list<ColumnDiff> */
+    /** @return array<ColumnDiff> */
     public function getModifiedColumns(): array
     {
-        return array_values($this->changedColumns);
+        return $this->modifiedColumns;
     }
 
-    /** @return list<Column> */
+    /** @return array<Column> */
     public function getDroppedColumns(): array
     {
-        return array_values($this->removedColumns);
+        return $this->droppedColumns;
     }
 
     /** @return array<string,Column> */
@@ -85,10 +73,10 @@ class TableDiff
         return $this->renamedColumns;
     }
 
-    /** @return list<Index> */
+    /** @return array<Index> */
     public function getAddedIndexes(): array
     {
-        return array_values($this->addedIndexes);
+        return $this->addedIndexes;
     }
 
     /**
@@ -108,13 +96,13 @@ class TableDiff
     /** @return array<Index> */
     public function getModifiedIndexes(): array
     {
-        return array_values($this->changedIndexes);
+        return $this->modifiedIndexes;
     }
 
-    /** @return list<Index> */
+    /** @return array<Index> */
     public function getDroppedIndexes(): array
     {
-        return array_values($this->removedIndexes);
+        return $this->droppedIndexes;
     }
 
     /**
@@ -123,10 +111,10 @@ class TableDiff
      */
     public function unsetDroppedIndex(Index $index): void
     {
-        $this->removedIndexes = array_filter(
-            $this->removedIndexes,
-            static function (Index $removedIndex) use ($index): bool {
-                return $removedIndex !== $index;
+        $this->droppedIndexes = array_filter(
+            $this->droppedIndexes,
+            static function (Index $droppedIndex) use ($index): bool {
+                return $droppedIndex !== $index;
             },
         );
     }
@@ -137,34 +125,32 @@ class TableDiff
         return $this->renamedIndexes;
     }
 
-    /** @return list<ForeignKeyConstraint> */
+    /** @return array<ForeignKeyConstraint> */
     public function getAddedForeignKeys(): array
     {
         return $this->addedForeignKeys;
     }
 
-    /** @return list<ForeignKeyConstraint> */
+    /** @return array<ForeignKeyConstraint> */
     public function getModifiedForeignKeys(): array
     {
-        return $this->changedForeignKeys;
+        return $this->modifiedForeignKeys;
     }
 
-    /** @return list<ForeignKeyConstraint> */
+    /** @return array<ForeignKeyConstraint> */
     public function getDroppedForeignKeys(): array
     {
-        return $this->removedForeignKeys;
+        return $this->droppedForeignKeys;
     }
 
     /** @internal This method exists only for compatibility with the current implementation of the schema comparator. */
     public function unsetDroppedForeignKey(ForeignKeyConstraint $foreignKey): void
     {
-        $this->removedForeignKeys = array_values(
-            array_filter(
-                $this->removedForeignKeys,
-                static function (ForeignKeyConstraint $removedForeignKey) use ($foreignKey): bool {
-                    return $removedForeignKey !== $foreignKey;
-                },
-            ),
+        $this->droppedForeignKeys = array_filter(
+            $this->droppedForeignKeys,
+            static function (ForeignKeyConstraint $droppedForeignKey) use ($foreignKey): bool {
+                return $droppedForeignKey !== $foreignKey;
+            },
         );
     }
 }
