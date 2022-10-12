@@ -570,39 +570,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableRenameColumnSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable RENAME COLUMN unquoted1 TO unquoted',
-            'ALTER TABLE mytable RENAME COLUMN unquoted2 TO "where"',
-            'ALTER TABLE mytable RENAME COLUMN unquoted3 TO "foo"',
-            'ALTER TABLE mytable RENAME COLUMN "create" TO reserved_keyword',
-            'ALTER TABLE mytable RENAME COLUMN "table" TO "from"',
-            'ALTER TABLE mytable RENAME COLUMN "select" TO "bar"',
-            'ALTER TABLE mytable RENAME COLUMN quoted1 TO quoted',
-            'ALTER TABLE mytable RENAME COLUMN quoted2 TO "and"',
-            'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableChangeColumnLengthSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable ALTER unquoted1 TYPE VARCHAR(255)',
-            'ALTER TABLE mytable ALTER unquoted2 TYPE VARCHAR(255)',
-            'ALTER TABLE mytable ALTER unquoted3 TYPE VARCHAR(255)',
-            'ALTER TABLE mytable ALTER "create" TYPE VARCHAR(255)',
-            'ALTER TABLE mytable ALTER "table" TYPE VARCHAR(255)',
-            'ALTER TABLE mytable ALTER "select" TYPE VARCHAR(255)',
-        ];
-    }
-
-    /**
      * {@inheritDoc}
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
@@ -624,14 +591,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('UUID', $this->platform->getGuidTypeDeclarationSQL([]));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAlterTableRenameColumnSQL(): array
-    {
-        return ['ALTER TABLE foo RENAME COLUMN bar TO baz'];
     }
 
     /**

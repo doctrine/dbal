@@ -406,32 +406,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableRenameColumnSQL(): array
-    {
-        return ['ALTER TABLE mytable ' .
-            'RENAME COLUMN unquoted1 TO unquoted ' .
-            'RENAME COLUMN unquoted2 TO "where" ' .
-            'RENAME COLUMN unquoted3 TO "foo" ' .
-            'RENAME COLUMN "create" TO reserved_keyword ' .
-            'RENAME COLUMN "table" TO "from" ' .
-            'RENAME COLUMN "select" TO "bar" ' .
-            'RENAME COLUMN quoted1 TO quoted ' .
-            'RENAME COLUMN quoted2 TO "and" ' .
-            'RENAME COLUMN quoted3 TO "baz"',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableChangeColumnLengthSQL(): array
-    {
-        self::markTestIncomplete('Not implemented yet');
-    }
-
-    /**
      * {@inheritDoc}
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
@@ -453,14 +427,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAlterTableRenameColumnSQL(): array
-    {
-        return ['ALTER TABLE foo RENAME COLUMN bar TO baz'];
     }
 
     /**

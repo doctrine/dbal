@@ -769,107 +769,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         ];
     }
 
-    public function testQuotesAlterTableRenameColumn(): void
-    {
-        $fromTable = new Table('mytable');
-
-        $fromTable->addColumn('unquoted1', 'integer', ['comment' => 'Unquoted 1']);
-        $fromTable->addColumn('unquoted2', 'integer', ['comment' => 'Unquoted 2']);
-        $fromTable->addColumn('unquoted3', 'integer', ['comment' => 'Unquoted 3']);
-
-        $fromTable->addColumn('create', 'integer', ['comment' => 'Reserved keyword 1']);
-        $fromTable->addColumn('table', 'integer', ['comment' => 'Reserved keyword 2']);
-        $fromTable->addColumn('select', 'integer', ['comment' => 'Reserved keyword 3']);
-
-        $fromTable->addColumn('`quoted1`', 'integer', ['comment' => 'Quoted 1']);
-        $fromTable->addColumn('`quoted2`', 'integer', ['comment' => 'Quoted 2']);
-        $fromTable->addColumn('`quoted3`', 'integer', ['comment' => 'Quoted 3']);
-
-        $toTable = new Table('mytable');
-
-        // unquoted -> unquoted
-        $toTable->addColumn('unquoted', 'integer', ['comment' => 'Unquoted 1']);
-
-        // unquoted -> reserved keyword
-        $toTable->addColumn('where', 'integer', ['comment' => 'Unquoted 2']);
-
-        // unquoted -> quoted
-        $toTable->addColumn('`foo`', 'integer', ['comment' => 'Unquoted 3']);
-
-        // reserved keyword -> unquoted
-        $toTable->addColumn('reserved_keyword', 'integer', ['comment' => 'Reserved keyword 1']);
-
-        // reserved keyword -> reserved keyword
-        $toTable->addColumn('from', 'integer', ['comment' => 'Reserved keyword 2']);
-
-        // reserved keyword -> quoted
-        $toTable->addColumn('`bar`', 'integer', ['comment' => 'Reserved keyword 3']);
-
-        // quoted -> unquoted
-        $toTable->addColumn('quoted', 'integer', ['comment' => 'Quoted 1']);
-
-        // quoted -> reserved keyword
-        $toTable->addColumn('and', 'integer', ['comment' => 'Quoted 2']);
-
-        // quoted -> quoted
-        $toTable->addColumn('`baz`', 'integer', ['comment' => 'Quoted 3']);
-
-        $diff = $this->createComparator()
-            ->diffTable($fromTable, $toTable);
-        self::assertNotNull($diff);
-
-        self::assertEquals(
-            $this->getQuotedAlterTableRenameColumnSQL(),
-            $this->platform->getAlterTableSQL($diff),
-        );
-    }
-
-    /**
-     * Returns SQL statements for {@link testQuotesAlterTableRenameColumn}.
-     *
-     * @return string[]
-     */
-    abstract protected function getQuotedAlterTableRenameColumnSQL(): array;
-
-    public function testQuotesAlterTableChangeColumnLength(): void
-    {
-        $fromTable = new Table('mytable');
-
-        $fromTable->addColumn('unquoted1', 'string', ['comment' => 'Unquoted 1', 'length' => 10]);
-        $fromTable->addColumn('unquoted2', 'string', ['comment' => 'Unquoted 2', 'length' => 10]);
-        $fromTable->addColumn('unquoted3', 'string', ['comment' => 'Unquoted 3', 'length' => 10]);
-
-        $fromTable->addColumn('create', 'string', ['comment' => 'Reserved keyword 1', 'length' => 10]);
-        $fromTable->addColumn('table', 'string', ['comment' => 'Reserved keyword 2', 'length' => 10]);
-        $fromTable->addColumn('select', 'string', ['comment' => 'Reserved keyword 3', 'length' => 10]);
-
-        $toTable = new Table('mytable');
-
-        $toTable->addColumn('unquoted1', 'string', ['comment' => 'Unquoted 1', 'length' => 255]);
-        $toTable->addColumn('unquoted2', 'string', ['comment' => 'Unquoted 2', 'length' => 255]);
-        $toTable->addColumn('unquoted3', 'string', ['comment' => 'Unquoted 3', 'length' => 255]);
-
-        $toTable->addColumn('create', 'string', ['comment' => 'Reserved keyword 1', 'length' => 255]);
-        $toTable->addColumn('table', 'string', ['comment' => 'Reserved keyword 2', 'length' => 255]);
-        $toTable->addColumn('select', 'string', ['comment' => 'Reserved keyword 3', 'length' => 255]);
-
-        $diff = $this->createComparator()
-            ->diffTable($fromTable, $toTable);
-        self::assertNotNull($diff);
-
-        self::assertEquals(
-            $this->getQuotedAlterTableChangeColumnLengthSQL(),
-            $this->platform->getAlterTableSQL($diff),
-        );
-    }
-
-    /**
-     * Returns SQL statements for {@link testQuotesAlterTableChangeColumnLength}.
-     *
-     * @return string[]
-     */
-    abstract protected function getQuotedAlterTableChangeColumnLengthSQL(): array;
-
     public function testAlterTableRenameIndexInSchema(): void
     {
         $table = new Table('myschema.mytable');
@@ -1042,29 +941,6 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $this->platform->getGuidTypeDeclarationSQL([]);
     }
-
-    public function testGeneratesAlterTableRenameColumnSQL(): void
-    {
-        $table = new Table('foo');
-        $table->addColumn(
-            'bar',
-            'integer',
-            ['notnull' => true, 'default' => 666, 'comment' => 'rename test'],
-        );
-
-        $tableDiff = new TableDiff($table, [], [], [], [
-            'bar' => new Column('baz', Type::getType('integer'), [
-                'notnull' => true,
-                'default' => 666,
-                'comment' => 'rename test',
-            ]),
-        ], [], [], [], [], [], [], []);
-
-        self::assertSame($this->getAlterTableRenameColumnSQL(), $this->platform->getAlterTableSQL($tableDiff));
-    }
-
-    /** @return string[] */
-    abstract public function getAlterTableRenameColumnSQL(): array;
 
     public function testAlterStringToFixedString(): void
     {

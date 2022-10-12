@@ -418,32 +418,6 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableRenameColumnSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable RENAME COLUMN unquoted1 TO unquoted',
-            'ALTER TABLE mytable RENAME COLUMN unquoted2 TO "where"',
-            'ALTER TABLE mytable RENAME COLUMN unquoted3 TO "foo"',
-            'ALTER TABLE mytable RENAME COLUMN "create" TO reserved_keyword',
-            'ALTER TABLE mytable RENAME COLUMN "table" TO "from"',
-            'ALTER TABLE mytable RENAME COLUMN "select" TO "bar"',
-            'ALTER TABLE mytable RENAME COLUMN quoted1 TO quoted',
-            'ALTER TABLE mytable RENAME COLUMN quoted2 TO "and"',
-            'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableChangeColumnLengthSQL(): array
-    {
-        self::markTestIncomplete('Not implemented yet');
-    }
-
-    /**
      * {@inheritDoc}
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
@@ -465,14 +439,6 @@ SQL
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAlterTableRenameColumnSQL(): array
-    {
-        return ['ALTER TABLE foo RENAME COLUMN bar TO baz'];
     }
 
     /**
