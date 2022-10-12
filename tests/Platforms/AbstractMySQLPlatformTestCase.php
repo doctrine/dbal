@@ -546,65 +546,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertNull($this->createComparator()->diffTable($table, $diffTable));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableRenameColumnSQL(): array
-    {
-        return ['ALTER TABLE mytable ' .
-            "CHANGE unquoted1 unquoted INT NOT NULL COMMENT 'Unquoted 1', " .
-            "CHANGE unquoted2 `where` INT NOT NULL COMMENT 'Unquoted 2', " .
-            "CHANGE unquoted3 `foo` INT NOT NULL COMMENT 'Unquoted 3', " .
-            "CHANGE `create` reserved_keyword INT NOT NULL COMMENT 'Reserved keyword 1', " .
-            "CHANGE `table` `from` INT NOT NULL COMMENT 'Reserved keyword 2', " .
-            "CHANGE `select` `bar` INT NOT NULL COMMENT 'Reserved keyword 3', " .
-            "CHANGE quoted1 quoted INT NOT NULL COMMENT 'Quoted 1', " .
-            "CHANGE quoted2 `and` INT NOT NULL COMMENT 'Quoted 2', " .
-            "CHANGE quoted3 `baz` INT NOT NULL COMMENT 'Quoted 3'",
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableChangeColumnLengthSQL(): array
-    {
-        return ['ALTER TABLE mytable ' .
-            "CHANGE unquoted1 unquoted1 VARCHAR(255) NOT NULL COMMENT 'Unquoted 1', " .
-            "CHANGE unquoted2 unquoted2 VARCHAR(255) NOT NULL COMMENT 'Unquoted 2', " .
-            "CHANGE unquoted3 unquoted3 VARCHAR(255) NOT NULL COMMENT 'Unquoted 3', " .
-            "CHANGE `create` `create` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 1', " .
-            "CHANGE `table` `table` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 2', " .
-            "CHANGE `select` `select` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 3'",
-        ];
-    }
-
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAlterTableRenameColumnSQL(): array
-    {
-        return ["ALTER TABLE foo CHANGE bar baz INT DEFAULT 666 NOT NULL COMMENT 'rename test'"];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE `foo` DROP FOREIGN KEY fk1',
-            'ALTER TABLE `foo` DROP FOREIGN KEY fk2',
-            'ALTER TABLE `foo` ADD bloo INT NOT NULL, DROP baz, CHANGE bar bar INT DEFAULT NULL, ' .
-            'CHANGE id war INT NOT NULL',
-            'ALTER TABLE `foo` ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE `foo` ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        ];
     }
 
     /**

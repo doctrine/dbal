@@ -54,6 +54,11 @@ class SQLitePlatform extends AbstractPlatform
         return 'REGEXP';
     }
 
+    public function getModExpression(string $dividend, string $divisor): string
+    {
+        return $dividend . ' % ' . $divisor;
+    }
+
     public function getTrimExpression(
         string $str,
         TrimMode $mode = TrimMode::UNSPECIFIED,

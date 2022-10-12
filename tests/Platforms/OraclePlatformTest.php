@@ -418,32 +418,6 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableRenameColumnSQL(): array
-    {
-        return [
-            'ALTER TABLE mytable RENAME COLUMN unquoted1 TO unquoted',
-            'ALTER TABLE mytable RENAME COLUMN unquoted2 TO "where"',
-            'ALTER TABLE mytable RENAME COLUMN unquoted3 TO "foo"',
-            'ALTER TABLE mytable RENAME COLUMN "create" TO reserved_keyword',
-            'ALTER TABLE mytable RENAME COLUMN "table" TO "from"',
-            'ALTER TABLE mytable RENAME COLUMN "select" TO "bar"',
-            'ALTER TABLE mytable RENAME COLUMN quoted1 TO quoted',
-            'ALTER TABLE mytable RENAME COLUMN quoted2 TO "and"',
-            'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotedAlterTableChangeColumnLengthSQL(): array
-    {
-        self::markTestIncomplete('Not implemented yet');
-    }
-
-    /**
      * {@inheritDoc}
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
@@ -465,14 +439,6 @@ SQL
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAlterTableRenameColumnSQL(): array
-    {
-        return ['ALTER TABLE foo RENAME COLUMN bar TO baz'];
     }
 
     /**
@@ -513,23 +479,6 @@ SQL
                     'ALTER TABLE "TABLE" DROP CONSTRAINT TABLE_AI_PK',
                 ],
             ],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE "foo" DROP CONSTRAINT fk1',
-            'ALTER TABLE "foo" DROP CONSTRAINT fk2',
-            'ALTER TABLE "foo" ADD (bloo NUMBER(10) NOT NULL)',
-            'ALTER TABLE "foo" MODIFY (bar NUMBER(10) DEFAULT NULL NULL)',
-            'ALTER TABLE "foo" RENAME COLUMN id TO war',
-            'ALTER TABLE "foo" DROP (baz)',
-            'ALTER TABLE "foo" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE "foo" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
         ];
     }
 
