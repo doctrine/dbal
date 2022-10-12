@@ -14,6 +14,11 @@ Relying on the availability of the `LOCATE()` on SQLite deprecated. SQLite does 
 but the function `INSTR()` can be a drop-in replacement in most situations. Use
 `AbstractPlatform::getLocateExpression()` if you need a portable solution.
 
+## Deprecated `SchemaDiff::$orphanedForeignKeys`
+
+Relying on the schema diff tracking foreign keys referencing the tables that have been dropped is deprecated.
+Before dropping a table referenced by foreign keys, drop the foreign keys first.
+
 ## Deprecated the `userDefinedFunctions` driver option for `pdo_sqlite`
 
 Instead of funneling custom functions through the `userDefinedFunctions` option, use `getNativeConnection()`

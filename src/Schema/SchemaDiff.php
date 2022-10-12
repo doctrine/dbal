@@ -65,7 +65,11 @@ class SchemaDiff
     /** @var Sequence[] */
     public $removedSequences = [];
 
-    /** @var ForeignKeyConstraint[] */
+    /**
+     * @deprecated
+     *
+     * @var ForeignKeyConstraint[]
+     */
     public $orphanedForeignKeys = [];
 
     /**
