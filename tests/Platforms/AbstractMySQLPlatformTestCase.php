@@ -52,18 +52,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getGenerateAlterTableSql(): array
-    {
-        return [
-            'ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, '
-                . "CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, "
-                . 'CHANGE bloo bloo TINYINT(1) DEFAULT 0 NOT NULL',
-        ];
-    }
-
     public function testGeneratesSqlSnippets(): void
     {
         self::assertEquals('RLIKE', $this->platform->getRegexpExpression());
@@ -799,21 +787,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function getAlterTableRenameColumnSQL(): array
     {
         return ["ALTER TABLE foo CHANGE bar baz INT DEFAULT 666 NOT NULL COMMENT 'rename test'"];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE `foo` DROP FOREIGN KEY fk1',
-            'ALTER TABLE `foo` DROP FOREIGN KEY fk2',
-            'ALTER TABLE `foo` RENAME TO `table`, ADD bloo INT NOT NULL, DROP baz, CHANGE bar bar INT DEFAULT NULL, ' .
-            'CHANGE id war INT NOT NULL',
-            'ALTER TABLE `table` ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE `table` ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        ];
     }
 
     /**

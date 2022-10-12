@@ -18,7 +18,7 @@ use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
 
 /** @extends AbstractPlatformTestCase<SQLServerPlatform> */
-class SQLServerPlatformTestCase extends AbstractPlatformTestCase
+class SQLServerPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
     {
@@ -42,29 +42,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getGenerateAlterTableSql(): array
-    {
-        return [
-            'ALTER TABLE mytable ADD quota INT',
-            'ALTER TABLE mytable DROP COLUMN foo',
-            'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) NOT NULL',
-            "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_78240498 DEFAULT 'def' FOR baz",
-            'ALTER TABLE mytable ALTER COLUMN bloo BIT NOT NULL',
-            'ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_CECED971 DEFAULT 0 FOR bloo',
-            "sp_rename 'mytable', 'userlist'",
-            "DECLARE @sql NVARCHAR(MAX) = N''; " .
-            "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
-            "+ REPLACE(dc.name, '6B2BD609', 'E2B58069') + ''', ''OBJECT'';' " .
-            'FROM sys.default_constraints dc ' .
-            'JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
-            "WHERE tbl.name = 'userlist';" .
-            'EXEC sp_executesql @sql',
-        ];
-    }
-
     public function testDoesNotSupportRegexp(): void
     {
         $this->expectException(Exception::class);
@@ -80,7 +57,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
 
         self::assertEquals(
-            '(column1 + column2 + column3)',
+            'CONCAT(column1, column2, column3)',
             $this->platform->getConcatExpression('column1', 'column2', 'column3'),
         );
     }
@@ -659,6 +636,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         return [
             'CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, '
                 . 'foo NVARCHAR(255) NOT NULL, [bar] NVARCHAR(255) NOT NULL)',
+            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D79164E3 ON [quoted] ([create], foo, [bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD'
                 . ' FOREIGN KEY ([create], foo, [bar]) REFERENCES [foreign] ([create], bar, [foo-bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD'
@@ -1529,29 +1507,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE [foo] DROP CONSTRAINT fk1',
-            'ALTER TABLE [foo] DROP CONSTRAINT fk2',
-            "sp_rename '[foo].id', 'war', 'COLUMN'",
-            'ALTER TABLE [foo] ADD bloo INT NOT NULL',
-            'ALTER TABLE [foo] DROP COLUMN baz',
-            'ALTER TABLE [foo] ALTER COLUMN bar INT',
-            "sp_rename '[foo]', 'table'",
-            "DECLARE @sql NVARCHAR(MAX) = N''; " .
-            "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', " .
-            "N''' + REPLACE(dc.name, '8C736521', 'F6298F46') + ''', ''OBJECT'';' " .
-            'FROM sys.default_constraints dc JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
-            "WHERE tbl.name = 'table';EXEC sp_executesql @sql",
-            'ALTER TABLE [table] ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE [table] ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function getCommentOnColumnSQL(): array
     {
         return [
@@ -1605,6 +1560,11 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ["EXEC sp_rename N'mytable.idx_foo', N'idx_foo_renamed', N'INDEX'"];
+    }
+
+    protected function getLimitOffsetCastToIntExpectedQuery(): string
+    {
+        return 'SELECT * FROM user ORDER BY (SELECT 0) OFFSET 2 ROWS FETCH NEXT 1 ROWS ONLY';
     }
 
     public function testModifyLimitQueryWithTopNSubQueryWithOrderBy(): void

@@ -20,26 +20,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return new DB2Platform();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getGenerateAlterTableSql(): array
-    {
-        return [
-            'ALTER TABLE mytable ALTER COLUMN baz SET DATA TYPE VARCHAR(255)',
-            'ALTER TABLE mytable ALTER COLUMN baz SET NOT NULL',
-            "ALTER TABLE mytable ALTER COLUMN baz SET DEFAULT 'def'",
-            'ALTER TABLE mytable ALTER COLUMN bloo SET DATA TYPE SMALLINT',
-            'ALTER TABLE mytable ALTER COLUMN bloo SET NOT NULL',
-            'ALTER TABLE mytable ALTER COLUMN bloo SET DEFAULT 0',
-            'ALTER TABLE mytable ' .
-            'ADD COLUMN quota INTEGER DEFAULT NULL ' .
-            'DROP COLUMN foo',
-            "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
-            'RENAME TABLE mytable TO userlist',
-        ];
-    }
-
     protected function getGenerateForeignKeySql(): string
     {
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
@@ -543,26 +523,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getAlterTableRenameColumnSQL(): array
     {
         return ['ALTER TABLE foo RENAME COLUMN bar TO baz'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
-            'ALTER TABLE "foo" DROP FOREIGN KEY fk2',
-            'ALTER TABLE "foo" ' .
-            'ADD COLUMN bloo INTEGER NOT NULL WITH DEFAULT ' .
-            'DROP COLUMN baz ' .
-            'ALTER COLUMN bar DROP NOT NULL ' .
-            'RENAME COLUMN id TO war',
-            'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE "foo"\')',
-            'RENAME TABLE "foo" TO "table"',
-            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        ];
     }
 
     /**
