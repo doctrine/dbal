@@ -42,24 +42,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getGenerateAlterTableSql(): array
-    {
-        return [
-            'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
-            'ALTER TABLE mytable DROP foo',
-            'ALTER TABLE mytable ALTER bar TYPE VARCHAR(255)',
-            "ALTER TABLE mytable ALTER bar SET DEFAULT 'def'",
-            'ALTER TABLE mytable ALTER bar SET NOT NULL',
-            'ALTER TABLE mytable ALTER bloo TYPE BOOLEAN',
-            'ALTER TABLE mytable ALTER bloo SET DEFAULT false',
-            'ALTER TABLE mytable ALTER bloo SET NOT NULL',
-            'ALTER TABLE mytable RENAME TO userlist',
-        ];
-    }
-
     public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
@@ -815,26 +797,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function getAlterTableRenameColumnSQL(): array
     {
         return ['ALTER TABLE foo RENAME COLUMN bar TO baz'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE "foo" DROP CONSTRAINT fk1',
-            'ALTER TABLE "foo" DROP CONSTRAINT fk2',
-            'ALTER TABLE "foo" ADD bloo INT NOT NULL',
-            'ALTER TABLE "foo" DROP baz',
-            'ALTER TABLE "foo" ALTER bar DROP NOT NULL',
-            'ALTER TABLE "foo" RENAME COLUMN id TO war',
-            'ALTER TABLE "foo" RENAME TO "table"',
-            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE ' .
-            'INITIALLY IMMEDIATE',
-            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE ' .
-            'INITIALLY IMMEDIATE',
-        ];
     }
 
     /**
