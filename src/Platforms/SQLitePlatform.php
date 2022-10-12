@@ -86,11 +86,16 @@ class SQLitePlatform extends AbstractPlatform
 
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
-        if ($start === null) {
-            return sprintf('LOCATE(%s, %s)', $string, $substring);
+        if ($start === null || $start === '1') {
+            return sprintf('INSTR(%s, %s)', $string, $substring);
         }
 
-        return sprintf('LOCATE(%s, %s, %s)', $string, $substring, $start);
+        return sprintf(
+            'CASE WHEN INSTR(SUBSTR(%1$s, %3$s), %2$s) > 0 THEN INSTR(SUBSTR(%1$s, %3$s), %2$s) + %3$s - 1 ELSE 0 END',
+            $string,
+            $substring,
+            $start,
+        );
     }
 
     protected function getDateArithmeticIntervalExpression(

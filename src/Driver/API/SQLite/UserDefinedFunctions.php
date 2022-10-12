@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\API\SQLite;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Deprecations\Deprecation;
+
 use function sqrt;
 use function strpos;
 
@@ -35,6 +38,14 @@ final class UserDefinedFunctions
      */
     private static function locate(string $str, string $substr, int $offset = 0): int
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5749',
+            'Relying on DBAL\'s emulated LOCATE() function is deprecated. '
+                . 'Use INSTR() or %s::getLocateExpression() instead.',
+            AbstractPlatform::class,
+        );
+
         // SQL's LOCATE function works on 1-based positions, while PHP's strpos works on 0-based positions.
         // So we have to make them compatible if an offset is given.
         if ($offset > 0) {
