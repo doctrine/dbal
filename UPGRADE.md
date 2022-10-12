@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed `SchemaDiff::$orphanedForeignKeys`
+
+The functionality of automatically dropping the foreign keys referencing the tables being dropped has been removed.
+
 ## BC Break: Removed registration of user defined functions for SQLite
 
 DBAL does not register functions for SQLite anymore. The following functions
@@ -570,9 +574,6 @@ Reference from `ForeignKeyConstraint` to its local (referencing) `Table` is remo
 - `setLocalTable()`,
 - `getLocalTable()`,
 - `getLocalTableName()`.
-
-The type of `SchemaDiff::$orphanedForeignKeys` has changed from list of foreign keys (`list<ForeignKeyConstraint>`)
-to map of referencing tables to their list of foreign keys (`array<string,list<ForeignKeyConstraint>>`).
 
 ## BC BREAK: Removed redundant `AbstractPlatform` methods.
 

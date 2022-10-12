@@ -619,44 +619,6 @@ abstract class ComparatorTest extends TestCase
         self::assertCount(0, $diff->newSequences);
     }
 
-    /**
-     * You can get multiple drops for a FK when a table referenced by a foreign
-     * key is deleted, as this FK is referenced twice, once on the orphanedForeignKeys
-     * array because of the dropped table, and once on changedTables array. We
-     * now check that the key is present once.
-     */
-    public function testAvoidMultipleDropForeignKey(): void
-    {
-        $oldSchema = new Schema();
-
-        $tableA = $oldSchema->createTable('table_a');
-        $tableA->addColumn('id', 'integer');
-
-        $tableB = $oldSchema->createTable('table_b');
-        $tableB->addColumn('id', 'integer');
-
-        $tableC = $oldSchema->createTable('table_c');
-        $tableC->addColumn('id', 'integer');
-        $tableC->addColumn('table_a_id', 'integer');
-        $tableC->addColumn('table_b_id', 'integer');
-
-        $tableC->addForeignKeyConstraint($tableA->getName(), ['table_a_id'], ['id']);
-        $tableC->addForeignKeyConstraint($tableB->getName(), ['table_b_id'], ['id']);
-
-        $newSchema = new Schema();
-
-        $tableB = $newSchema->createTable('table_b');
-        $tableB->addColumn('id', 'integer');
-
-        $tableC = $newSchema->createTable('table_c');
-        $tableC->addColumn('id', 'integer');
-
-        $schemaDiff = $this->comparator->compareSchemas($oldSchema, $newSchema);
-
-        self::assertCount(1, $schemaDiff->changedTables['table_c']->getDroppedForeignKeys());
-        self::assertCount(1, $schemaDiff->orphanedForeignKeys);
-    }
-
     public function assertSchemaTableChangeCount(
         SchemaDiff $diff,
         int $newTableCount = 0,
@@ -790,8 +752,6 @@ abstract class ComparatorTest extends TestCase
         $schemaDiff = $this->comparator->compareSchemas($fromSchema, $toSchema);
 
         self::assertArrayHasKey('table2', $schemaDiff->changedTables);
-        self::assertCount(1, $schemaDiff->orphanedForeignKeys);
-        self::assertEquals('fk_table2_table1', $schemaDiff->orphanedForeignKeys['table1'][0]->getName());
 
         $tableDiff = $schemaDiff->changedTables['table2'];
 
@@ -835,25 +795,6 @@ abstract class ComparatorTest extends TestCase
                 ->changedTables,
             'Schema diff is empty, since only `columnDefinition` changed from `null` (not detected) to a defined one',
         );
-    }
-
-    public function testNoOrphanedForeignKeyIfReferencingTableIsDropped(): void
-    {
-        $schema1 = new Schema();
-
-        $parent = $schema1->createTable('parent');
-        $parent->addColumn('id', 'integer');
-
-        $child = $schema1->createTable('child');
-        $child->addColumn('id', 'integer');
-        $child->addColumn('parent_id', 'integer');
-        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id']);
-
-        $schema2 = new Schema();
-
-        $diff = $this->comparator->compareSchemas($schema1, $schema2);
-
-        self::assertEmpty($diff->orphanedForeignKeys);
     }
 
     /**
