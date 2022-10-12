@@ -510,25 +510,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'CREATE TEMPORARY TABLE __temp__foo AS SELECT id, fk, fk2, fk3, bar FROM "foo"',
-            'DROP TABLE "foo"',
-            'CREATE TABLE "foo" (war INTEGER NOT NULL, fk INTEGER NOT NULL, fk2 INTEGER NOT NULL, ' .
-            'fk3 INTEGER NOT NULL, bar INTEGER DEFAULT NULL, bloo INTEGER NOT NULL, ' .
-            'CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
-            'CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE)',
-            'INSERT INTO "foo" (war, fk, fk2, fk3, bar) SELECT id, fk, fk2, fk3, bar FROM __temp__foo',
-            'DROP TABLE __temp__foo',
-            'CREATE INDEX IDX_8C736521A81E660E ON "foo" (fk)',
-            'CREATE INDEX IDX_8C736521FDC58D6C ON "foo" (fk2)',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function getCommentOnColumnSQL(): array
     {
         return [

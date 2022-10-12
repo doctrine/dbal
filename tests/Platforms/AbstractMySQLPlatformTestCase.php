@@ -595,21 +595,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE `foo` DROP FOREIGN KEY fk1',
-            'ALTER TABLE `foo` DROP FOREIGN KEY fk2',
-            'ALTER TABLE `foo` ADD bloo INT NOT NULL, DROP baz, CHANGE bar bar INT DEFAULT NULL, ' .
-            'CHANGE id war INT NOT NULL',
-            'ALTER TABLE `foo` ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE `foo` ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function getCommentOnColumnSQL(): array
     {
         return [

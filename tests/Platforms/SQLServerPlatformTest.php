@@ -21,7 +21,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
 /** @extends AbstractPlatformTestCase<SQLServerPlatform> */
-class SQLServerPlatformTestCase extends AbstractPlatformTestCase
+class SQLServerPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform(): AbstractPlatform
     {
@@ -63,7 +63,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('CONVERT(time, GETDATE())', $this->platform->getCurrentTimeSQL());
         self::assertEquals('CURRENT_TIMESTAMP', $this->platform->getCurrentTimestampSQL());
         self::assertEquals(
-            '(column1 + column2 + column3)',
+            'CONCAT(column1, column2, column3)',
             $this->platform->getConcatExpression('column1', 'column2', 'column3'),
         );
     }
@@ -609,6 +609,7 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         return [
             'CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, '
                 . 'foo NVARCHAR(255) NOT NULL, [bar] NVARCHAR(255) NOT NULL)',
+            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D79164E3 ON [quoted] ([create], foo, [bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD'
                 . ' FOREIGN KEY ([create], foo, [bar]) REFERENCES [foreign] ([create], bar, [foo-bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD'
@@ -1378,23 +1379,6 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE [foo] DROP CONSTRAINT fk1',
-            'ALTER TABLE [foo] DROP CONSTRAINT fk2',
-            "sp_rename '[foo].id', 'war', 'COLUMN'",
-            'ALTER TABLE [foo] ADD bloo INT NOT NULL',
-            'ALTER TABLE [foo] DROP COLUMN baz',
-            'ALTER TABLE [foo] ALTER COLUMN bar INT',
-            'ALTER TABLE [foo] ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE [foo] ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function getCommentOnColumnSQL(): array
     {
         return [
@@ -1448,6 +1432,11 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ["EXEC sp_rename N'mytable.idx_foo', N'idx_foo_renamed', N'INDEX'"];
+    }
+
+    protected function getLimitOffsetCastToIntExpectedQuery(): string
+    {
+        return 'SELECT * FROM user ORDER BY (SELECT 0) OFFSET 2 ROWS FETCH NEXT 1 ROWS ONLY';
     }
 
     public function testModifyLimitQueryWithTopNSubQueryWithOrderBy(): void

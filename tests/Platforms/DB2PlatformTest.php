@@ -466,25 +466,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
-            'ALTER TABLE "foo" DROP FOREIGN KEY fk2',
-            'ALTER TABLE "foo" ' .
-            'ADD COLUMN bloo INTEGER NOT NULL WITH DEFAULT ' .
-            'DROP COLUMN baz ' .
-            'ALTER COLUMN bar DROP NOT NULL ' .
-            'RENAME COLUMN id TO war',
-            'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE "foo"\')',
-            'ALTER TABLE "foo" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
-            'ALTER TABLE "foo" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function getCommentOnColumnSQL(): array
     {
         return [

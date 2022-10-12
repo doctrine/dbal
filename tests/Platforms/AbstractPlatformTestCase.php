@@ -1066,46 +1066,6 @@ abstract class AbstractPlatformTestCase extends TestCase
     /** @return string[] */
     abstract public function getAlterTableRenameColumnSQL(): array;
 
-    public function testQuotesTableIdentifiersInAlterTableSQL(): void
-    {
-        $table = new Table('"foo"');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('fk', 'integer');
-        $table->addColumn('fk2', 'integer');
-        $table->addColumn('fk3', 'integer');
-        $table->addColumn('bar', 'integer');
-        $table->addColumn('baz', 'integer');
-        $table->addForeignKeyConstraint('fk_table', ['fk'], ['id'], [], 'fk1');
-        $table->addForeignKeyConstraint('fk_table', ['fk2'], ['id'], [], 'fk2');
-
-        $tableDiff = new TableDiff($table, [
-            new Column('bloo', Type::getType('integer')),
-        ], [
-            new ColumnDiff(
-                $table->getColumn('bar'),
-                new Column('bar', Type::getType('integer'), ['notnull' => false]),
-            ),
-        ], [
-            new Column('baz', Type::getType('integer')),
-        ], [
-            'id' => new Column('war', Type::getType('integer')),
-        ], [], [], [], [], [
-            new ForeignKeyConstraint(['fk3'], 'fk_table', ['id'], 'fk_add'),
-        ], [
-            new ForeignKeyConstraint(['fk2'], 'fk_table2', ['id'], 'fk2'),
-        ], [
-            new ForeignKeyConstraint(['fk'], 'fk_table', ['id'], 'fk1'),
-        ]);
-
-        self::assertSame(
-            $this->getQuotesTableIdentifiersInAlterTableSQL(),
-            $this->platform->getAlterTableSQL($tableDiff),
-        );
-    }
-
-    /** @return string[] */
-    abstract protected function getQuotesTableIdentifiersInAlterTableSQL(): array;
-
     public function testAlterStringToFixedString(): void
     {
         $table = new Table('mytable');

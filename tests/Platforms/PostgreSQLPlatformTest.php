@@ -637,25 +637,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
-    {
-        return [
-            'ALTER TABLE "foo" DROP CONSTRAINT fk1',
-            'ALTER TABLE "foo" DROP CONSTRAINT fk2',
-            'ALTER TABLE "foo" ADD bloo INT NOT NULL',
-            'ALTER TABLE "foo" DROP baz',
-            'ALTER TABLE "foo" ALTER bar DROP NOT NULL',
-            'ALTER TABLE "foo" RENAME COLUMN id TO war',
-            'ALTER TABLE "foo" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE ' .
-            'INITIALLY IMMEDIATE',
-            'ALTER TABLE "foo" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE ' .
-            'INITIALLY IMMEDIATE',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function getCommentOnColumnSQL(): array
     {
         return [
