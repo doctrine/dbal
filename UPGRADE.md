@@ -139,6 +139,22 @@ The following `Comparator` methods have been marked as internal:
 
 The `diffColumn()` method has been deprecated. Use `diffTable()` instead.
 
+## Marked `SchemaDiff` public properties as internal.
+
+The public properties of the `SchemaDiff` class have been marked as internal. Use the following corresponding methods
+instead:
+
+| Property             | Method                  |
+|----------------------|-------------------------|
+| `$newNamespaces`     | `getCreatedSchemas()`   |
+| `$removedNamespaces` | `getDroppedSchemas()`   |
+| `$newTables`         | `getCreatedTables()`    |
+| `$changedTables`     | `getAlteredTables()`    |
+| `$removedTables`     | `getDroppedTables()`    |
+| `$newSequences`      | `getCreatedSequences()` |
+| `$changedSequences`  | `getAlteredSequence()`  |
+| `$removedSequences`  | `getDroppedSequences()` |
+
 ## Marked `TableDiff` public properties as internal.
 
 The public properties of the `TableDiff` class have been marked as internal. Use the following corresponding methods
