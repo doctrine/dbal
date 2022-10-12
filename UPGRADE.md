@@ -8,6 +8,12 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated the emulation of the `LOCATE()` function for SQLite
+
+Relying on the availability of the `LOCATE()` on SQLite deprecated. SQLite does not provide that function natively,
+but the function `INSTR()` can be a drop-in replacement in most situations. Use
+`AbstractPlatform::getLocateExpression()` if you need a portable solution.
+
 ## Deprecated the `userDefinedFunctions` driver option for `pdo_sqlite`
 
 Instead of funneling custom functions through the `userDefinedFunctions` option, use `getNativeConnection()`
