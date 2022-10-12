@@ -84,6 +84,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getModExpression($expression1, $expression2)
+    {
+        return $expression1 . ' % ' . $expression2;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getTrimExpression($str, $mode = TrimMode::UNSPECIFIED, $char = false)
     {
         $trimChar = $char !== false ? ', ' . $char : '';
