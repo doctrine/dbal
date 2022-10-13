@@ -605,6 +605,14 @@ SQL
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
+        return array_merge(...$this->getAlterTableSQLInPhases($diff));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAlterTableSQLInPhases(TableDiff $diff)
+    {
         $columnSql  = [];
         $queryParts = [];
         $newName    = $diff->getNewName();
@@ -675,23 +683,26 @@ SQL
             }
         }
 
-        $sql      = [];
+        $sql1     = [];
+        $sql2     = [];
+        $sql3     = [];
         $tableSql = [];
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' '
+                $sql2[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' '
                     . implode(', ', $queryParts);
             }
 
-            $sql = array_merge(
-                $this->getPreAlterTableIndexForeignKeySQL($diff),
-                $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff),
-            );
+            $sql1 = $this->getPreAlterTableIndexForeignKeySQL($diff);
+            $sql3 = $this->getPostAlterTableIndexForeignKeySQL($diff);
         }
 
-        return array_merge($sql, $tableSql, $columnSql);
+        return [
+            $sql1,
+            array_merge($sql2, $tableSql, $columnSql),
+            $sql3,
+        ];
     }
 
     /**

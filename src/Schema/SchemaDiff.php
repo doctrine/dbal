@@ -144,10 +144,14 @@ class SchemaDiff
             $sql = array_merge($sql, $platform->getDropTablesSQL($this->removedTables));
         }
 
+        $phases = [];
+
         foreach ($this->changedTables as $tableDiff) {
-            $sql = array_merge($sql, $platform->getAlterTableSQL($tableDiff));
+            foreach ($platform->getAlterTableSQLInPhases($tableDiff) as $phaseId => $phaseSql) {
+                $phases[$phaseId] = array_merge($phases[$phaseId] ?? [], $phaseSql);
+            }
         }
 
-        return $sql;
+        return array_merge($sql, ...$phases);
     }
 }

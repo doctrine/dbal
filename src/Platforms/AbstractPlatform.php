@@ -2593,6 +2593,24 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Gets the SQL statements for altering an existing table.
+     *
+     * For systems with foreign key constraints, we may need to:
+     * 1) drop all foreign keys
+     * 2) alter all tables/columns
+     * 3) create all foreign keys
+     *
+     * @return string[][]
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    public function getAlterTableSQLInPhases(TableDiff $diff)
+    {
+        // Default behaviour is only one phase
+        return [$this->getAlterTableSQL($diff)];
+    }
+
+    /**
      * @param mixed[] $columnSql
      *
      * @return bool
