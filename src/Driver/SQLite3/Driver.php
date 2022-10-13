@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\SQLite3;
 
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
-use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use SQLite3;
 
 final class Driver extends AbstractSQLiteDriver
@@ -40,8 +39,6 @@ final class Driver extends AbstractSQLiteDriver
         }
 
         $connection->enableExceptions(true);
-
-        UserDefinedFunctions::register($connection->createFunction(...));
 
         return new Connection($connection);
     }

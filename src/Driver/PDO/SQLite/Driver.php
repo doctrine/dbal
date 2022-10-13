@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDO\SQLite;
 
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
-use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use PDO;
@@ -28,8 +27,6 @@ final class Driver extends AbstractSQLiteDriver
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
-
-        UserDefinedFunctions::register($pdo->sqliteCreateFunction(...));
 
         return new Connection($pdo);
     }

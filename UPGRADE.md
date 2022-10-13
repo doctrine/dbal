@@ -8,20 +8,34 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
-## BC Break: Removed the `userDefinedFunctions` driver option for `pdo_sqlite`
+## BC Break: Removed registration of user defined functions for SQLite
 
-To register a custom function, use `getNativeConnection()` to access the
-wrapped PDO connection and register your custom function directly.
+DBAL does not register functions for SQLite anymore. The following functions
+which were previously provided by DBAL have been removed:
 
-```php
-$connection = DriverManager::getConnection([
-    'driver' => 'pdo_sqlite',
-    'path' => '/path/to/file.db',
-]);
+* `locate()`: SQLite provides the function `instr()` that behaves similarly.
+  Use `AbstractPlatform::getLocateExpression()` if you need a portable solution.
+* `mod()`: SQLite provides a `%` operator for modulo calculations.
+  Use `AbstractPlatform::getModExpression()` if you need a portable solution.
+  Since version 3.35.0 SQLite also provides a `mod()` function if math
+  functions have been enabled.
+* `sqrt()`: Upgrade to SQLite 3.35.0 and compile SQLite with math functions to
+  get a native `sqrt()` function. If you need a `sqrt()` implementation for an
+  earlier release of SQLite, you can polyfill it.
 
-$connection->getNativeConnection()
-    ->sqliteCreateFunction('my_function', MyClass::myMethod(...), 2);
-```
+  ```php
+  // pdo_sqlite driver
+  $connection->getNativeConnection()
+      ->sqliteCreateFunction('sqrt', \sqrt(...), 1);
+
+  // sqlite3 driver
+  $connection->getNativeConnection()
+      ->createFunction('sqrt', \sqrt(...), 1);
+  ```
+
+The `userDefinedFunctions` driver option has also been removed. If you want
+to register your own functions, do so by calling `sqliteCreateFunction()`
+or `createFunction()` on the PDO or SQLite3 connection.
 
 ## BC BREAK: Removed `Table` methods
 
