@@ -13,9 +13,7 @@ use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 use function array_change_key_case;
 use function date;
@@ -26,8 +24,6 @@ use const CASE_LOWER;
 
 class DataAccessTest extends FunctionalTestCase
 {
-    use VerifyDeprecations;
-
     protected function setUp(): void
     {
         $table = new Table('fetch_table');
@@ -696,45 +692,6 @@ class DataAccessTest extends FunctionalTestCase
             'locate10' => 1,
             'locate11' => 2,
         ], $row);
-    }
-
-    public function testSqliteLocateEmulation(): void
-    {
-        if (! TestUtil::isDriverOneOf('pdo_sqlite', 'sqlite3')) {
-            self::markTestSkipped('test is for SQLite only');
-        }
-
-        $sql = <<< 'SQL'
-            SELECT
-                LOCATE(test_string, 'oo') AS locate1,
-                LOCATE(test_string, 'foo') AS locate2,
-                LOCATE(test_string, 'bar') AS locate3,
-                LOCATE(test_string, test_string) AS locate4,
-                LOCATE('foo', test_string) AS locate5,
-                LOCATE('barfoobaz', test_string) AS locate6,
-                LOCATE('bar', test_string) AS locate7,
-                LOCATE(test_string, 'oo', 2) AS locate8,
-                LOCATE(test_string, 'oo', 3) AS locate9,
-                LOCATE(test_string, 'foo', 1) AS locate10,
-                LOCATE(test_string, 'oo', 1 + 1) AS locate11
-            FROM fetch_table
-            SQL;
-
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5749');
-
-        self::assertEquals([
-            'locate1' => 2,
-            'locate2' => 1,
-            'locate3' => 0,
-            'locate4' => 1,
-            'locate5' => 1,
-            'locate6' => 4,
-            'locate7' => 0,
-            'locate8' => 2,
-            'locate9' => 0,
-            'locate10' => 1,
-            'locate11' => 2,
-        ], $this->connection->fetchAssociative($sql));
     }
 
     /** @dataProvider substringExpressionProvider */
