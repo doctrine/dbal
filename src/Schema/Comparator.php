@@ -88,8 +88,16 @@ class Comparator
         Schema $fromSchema,
         Schema $toSchema
     ) {
-        $diff             = new SchemaDiff();
-        $diff->fromSchema = $fromSchema;
+        $createdSchemas   = [];
+        $droppedSchemas   = [];
+        $createdTables    = [];
+        $alteredTables    = [];
+        $droppedTables    = [];
+        $createdSequences = [];
+        $alteredSequences = [];
+        $droppedSequences = [];
+
+        $orphanedForeignKeys = [];
 
         $foreignKeysToTable = [];
 
@@ -98,7 +106,7 @@ class Comparator
                 continue;
             }
 
-            $diff->newNamespaces[$namespace] = $namespace;
+            $createdSchemas[$namespace] = $namespace;
         }
 
         foreach ($fromSchema->getNamespaces() as $namespace) {
@@ -106,13 +114,13 @@ class Comparator
                 continue;
             }
 
-            $diff->removedNamespaces[$namespace] = $namespace;
+            $droppedSchemas[$namespace] = $namespace;
         }
 
         foreach ($toSchema->getTables() as $table) {
             $tableName = $table->getShortestName($toSchema->getName());
             if (! $fromSchema->hasTable($tableName)) {
-                $diff->newTables[$tableName] = $toSchema->getTable($tableName);
+                $createdTables[$tableName] = $toSchema->getTable($tableName);
             } else {
                 $tableDifferences = $this->diffTable(
                     $fromSchema->getTable($tableName),
@@ -120,7 +128,7 @@ class Comparator
                 );
 
                 if ($tableDifferences !== false) {
-                    $diff->changedTables[$tableName] = $tableDifferences;
+                    $alteredTables[$tableName] = $tableDifferences;
                 }
             }
         }
@@ -131,7 +139,7 @@ class Comparator
 
             $table = $fromSchema->getTable($tableName);
             if (! $toSchema->hasTable($tableName)) {
-                $diff->removedTables[$tableName] = $table;
+                $droppedTables[$tableName] = $table;
             }
 
             // also remember all foreign keys that point to a specific table
@@ -145,17 +153,17 @@ class Comparator
             }
         }
 
-        foreach ($diff->removedTables as $tableName => $table) {
+        foreach ($droppedTables as $tableName => $table) {
             if (! isset($foreignKeysToTable[$tableName])) {
                 continue;
             }
 
             foreach ($foreignKeysToTable[$tableName] as $foreignKey) {
-                if (isset($diff->removedTables[strtolower($foreignKey->getLocalTableName())])) {
+                if (isset($droppedTables[strtolower($foreignKey->getLocalTableName())])) {
                     continue;
                 }
 
-                $diff->orphanedForeignKeys[] = $foreignKey;
+                $orphanedForeignKeys[] = $foreignKey;
             }
 
             // deleting duplicated foreign keys present on both on the orphanedForeignKey
@@ -163,11 +171,11 @@ class Comparator
             foreach ($foreignKeysToTable[$tableName] as $foreignKey) {
                 // strtolower the table name to make if compatible with getShortestName
                 $localTableName = strtolower($foreignKey->getLocalTableName());
-                if (! isset($diff->changedTables[$localTableName])) {
+                if (! isset($alteredTables[$localTableName])) {
                     continue;
                 }
 
-                foreach ($diff->changedTables[$localTableName]->getDroppedForeignKeys() as $droppedForeignKey) {
+                foreach ($alteredTables[$localTableName]->getDroppedForeignKeys() as $droppedForeignKey) {
                     assert($droppedForeignKey instanceof ForeignKeyConstraint);
 
                     // We check if the key is from the removed table if not we skip.
@@ -175,7 +183,7 @@ class Comparator
                         continue;
                     }
 
-                    $diff->changedTables[$localTableName]->unsetDroppedForeignKey($droppedForeignKey);
+                    $alteredTables[$localTableName]->unsetDroppedForeignKey($droppedForeignKey);
                 }
             }
         }
@@ -184,11 +192,11 @@ class Comparator
             $sequenceName = $sequence->getShortestName($toSchema->getName());
             if (! $fromSchema->hasSequence($sequenceName)) {
                 if (! $this->isAutoIncrementSequenceInSchema($fromSchema, $sequence)) {
-                    $diff->newSequences[] = $sequence;
+                    $createdSequences[] = $sequence;
                 }
             } else {
                 if ($this->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
-                    $diff->changedSequences[] = $toSchema->getSequence($sequenceName);
+                    $alteredSequences[] = $toSchema->getSequence($sequenceName);
                 }
             }
         }
@@ -204,8 +212,22 @@ class Comparator
                 continue;
             }
 
-            $diff->removedSequences[] = $sequence;
+            $droppedSequences[] = $sequence;
         }
+
+        $diff = new SchemaDiff(
+            $createdTables,
+            $alteredTables,
+            $droppedTables,
+            $fromSchema,
+            $createdSchemas,
+            $droppedSchemas,
+            $createdSequences,
+            $alteredSequences,
+            $droppedSequences,
+        );
+
+        $diff->orphanedForeignKeys = $orphanedForeignKeys;
 
         return $diff;
     }

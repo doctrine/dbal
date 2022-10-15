@@ -14,6 +14,11 @@ Relying on the availability of the `LOCATE()` on SQLite deprecated. SQLite does 
 but the function `INSTR()` can be a drop-in replacement in most situations. Use
 `AbstractPlatform::getLocateExpression()` if you need a portable solution.
 
+## Deprecated `SchemaDiff::$orphanedForeignKeys`
+
+Relying on the schema diff tracking foreign keys referencing the tables that have been dropped is deprecated.
+Before dropping a table referenced by foreign keys, drop the foreign keys first.
+
 ## Deprecated the `userDefinedFunctions` driver option for `pdo_sqlite`
 
 Instead of funneling custom functions through the `userDefinedFunctions` option, use `getNativeConnection()`
@@ -133,6 +138,22 @@ The following `Comparator` methods have been marked as internal:
 - `diffIndex()`.
 
 The `diffColumn()` method has been deprecated. Use `diffTable()` instead.
+
+## Marked `SchemaDiff` public properties as internal.
+
+The public properties of the `SchemaDiff` class have been marked as internal. Use the following corresponding methods
+instead:
+
+| Property             | Method                  |
+|----------------------|-------------------------|
+| `$newNamespaces`     | `getCreatedSchemas()`   |
+| `$removedNamespaces` | `getDroppedSchemas()`   |
+| `$newTables`         | `getCreatedTables()`    |
+| `$changedTables`     | `getAlteredTables()`    |
+| `$removedTables`     | `getDroppedTables()`    |
+| `$newSequences`      | `getCreatedSequences()` |
+| `$changedSequences`  | `getAlteredSequence()`  |
+| `$removedSequences`  | `getDroppedSequences()` |
 
 ## Marked `TableDiff` public properties as internal.
 
