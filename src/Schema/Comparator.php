@@ -41,7 +41,7 @@ class Comparator
                 continue;
             }
 
-            $createdSchemas[$namespace] = $namespace;
+            $createdSchemas[] = $namespace;
         }
 
         foreach ($fromSchema->getNamespaces() as $namespace) {
@@ -49,13 +49,13 @@ class Comparator
                 continue;
             }
 
-            $droppedSchemas[$namespace] = $namespace;
+            $droppedSchemas[] = $namespace;
         }
 
         foreach ($toSchema->getTables() as $table) {
             $tableName = $table->getShortestName($toSchema->getName());
             if (! $fromSchema->hasTable($tableName)) {
-                $createdTables[$tableName] = $toSchema->getTable($tableName);
+                $createdTables[] = $toSchema->getTable($tableName);
             } else {
                 $tableDifferences = $this->diffTable(
                     $fromSchema->getTable($tableName),
@@ -63,7 +63,7 @@ class Comparator
                 );
 
                 if ($tableDifferences !== null) {
-                    $alteredTables[$tableName] = $tableDifferences;
+                    $alteredTables[] = $tableDifferences;
                 }
             }
         }
@@ -77,7 +77,7 @@ class Comparator
                 continue;
             }
 
-            $droppedTables[$tableName] = $table;
+            $droppedTables[] = $table;
         }
 
         foreach ($toSchema->getSequences() as $sequence) {
@@ -108,11 +108,11 @@ class Comparator
         }
 
         return new SchemaDiff(
+            $createdSchemas,
+            $droppedSchemas,
             $createdTables,
             $alteredTables,
             $droppedTables,
-            $createdSchemas,
-            $droppedSchemas,
             $createdSequences,
             $alteredSequences,
             $droppedSequences,
