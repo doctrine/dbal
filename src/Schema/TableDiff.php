@@ -40,7 +40,7 @@ class TableDiff
         private readonly array $renamedIndexes,
         private readonly array $addedForeignKeys,
         private readonly array $modifiedForeignKeys,
-        private array $droppedForeignKeys,
+        private readonly array $droppedForeignKeys,
     ) {
     }
 
@@ -141,16 +141,5 @@ class TableDiff
     public function getDroppedForeignKeys(): array
     {
         return $this->droppedForeignKeys;
-    }
-
-    /** @internal This method exists only for compatibility with the current implementation of the schema comparator. */
-    public function unsetDroppedForeignKey(ForeignKeyConstraint $foreignKey): void
-    {
-        $this->droppedForeignKeys = array_filter(
-            $this->droppedForeignKeys,
-            static function (ForeignKeyConstraint $droppedForeignKey) use ($foreignKey): bool {
-                return $droppedForeignKey !== $foreignKey;
-            },
-        );
     }
 }

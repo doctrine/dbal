@@ -36,14 +36,6 @@ class Comparator
         $alteredSequences = [];
         $droppedSequences = [];
 
-        $orphanedForeignKeys = [];
-
-        /** @var array<string,list<array{ForeignKeyConstraint,string}>> $foreignKeysToTable */
-        $foreignKeysToTable = [];
-
-        /** @var array<string,array<string,null>> $localTablesByForeignTable */
-        $localTablesByForeignTable = [];
-
         foreach ($toSchema->getNamespaces() as $namespace) {
             if ($fromSchema->hasNamespace($namespace)) {
                 continue;
@@ -81,48 +73,11 @@ class Comparator
             $tableName = $table->getShortestName($fromSchema->getName());
 
             $table = $fromSchema->getTable($tableName);
-            if (! $toSchema->hasTable($tableName)) {
-                $droppedTables[$tableName] = $table;
-            }
-
-            // also remember all foreign keys that point to a specific table
-            foreach ($table->getForeignKeys() as $foreignKey) {
-                $foreignTable = strtolower($foreignKey->getForeignTableName());
-
-                $foreignKeysToTable[$foreignTable][]                  = [$foreignKey, $table->getName()];
-                $localTablesByForeignTable[$foreignTable][$tableName] = null;
-            }
-        }
-
-        foreach ($droppedTables as $tableName => $table) {
-            if (! isset($foreignKeysToTable[$tableName])) {
+            if ($toSchema->hasTable($tableName)) {
                 continue;
             }
 
-            foreach ($foreignKeysToTable[$tableName] as [$foreignKey, $localTableName]) {
-                if (isset($droppedTables[strtolower($localTableName)])) {
-                    continue;
-                }
-
-                $orphanedForeignKeys[$tableName][] = $foreignKey;
-            }
-
-            // deleting duplicated foreign keys present on both on the orphanedForeignKey
-            // and the removedForeignKeys from changedTables
-            foreach ($localTablesByForeignTable[$tableName] as $localTableName => $_) {
-                if (! isset($alteredTables[$localTableName])) {
-                    continue;
-                }
-
-                foreach ($alteredTables[$localTableName]->getDroppedForeignKeys() as $droppedForeignKey) {
-                    // We check if the key is from the removed table if not we skip.
-                    if ($tableName !== strtolower($droppedForeignKey->getForeignTableName())) {
-                        continue;
-                    }
-
-                    $alteredTables[$localTableName]->unsetDroppedForeignKey($droppedForeignKey);
-                }
-            }
+            $droppedTables[$tableName] = $table;
         }
 
         foreach ($toSchema->getSequences() as $sequence) {
@@ -152,7 +107,7 @@ class Comparator
             $droppedSequences[] = $sequence;
         }
 
-        $diff = new SchemaDiff(
+        return new SchemaDiff(
             $createdTables,
             $alteredTables,
             $droppedTables,
@@ -162,10 +117,6 @@ class Comparator
             $alteredSequences,
             $droppedSequences,
         );
-
-        $diff->orphanedForeignKeys = $orphanedForeignKeys;
-
-        return $diff;
     }
 
     private function isAutoIncrementSequenceInSchema(Schema $schema, Sequence $sequence): bool

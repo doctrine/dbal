@@ -54,13 +54,6 @@ class SchemaDiff
     public array $removedSequences = [];
 
     /**
-     * @deprecated
-     *
-     * @var array<string,list<ForeignKeyConstraint>>
-     */
-    public array $orphanedForeignKeys = [];
-
-    /**
      * Constructs an SchemaDiff object.
      *
      * @internal The diff can be only instantiated by a {@see Comparator}.
@@ -172,17 +165,6 @@ class SchemaDiff
         if ($platform->supportsSchemas()) {
             foreach ($this->getCreatedSchemas() as $schema) {
                 $sql[] = $platform->getCreateSchemaSQL($schema);
-            }
-        }
-
-        if ($saveMode === false) {
-            foreach ($this->orphanedForeignKeys as $localTableName => $tableOrphanedForeignKey) {
-                foreach ($tableOrphanedForeignKey as $orphanedForeignKey) {
-                    $sql[] = $platform->getDropForeignKeySQL(
-                        $orphanedForeignKey->getQuotedName($platform),
-                        $localTableName,
-                    );
-                }
             }
         }
 
