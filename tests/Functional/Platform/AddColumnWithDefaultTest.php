@@ -26,11 +26,11 @@ class AddColumnWithDefaultTest extends FunctionalTestCase
             'default' => 'DEFAULT',
         ]);
 
-        $diff = $schemaManager->createComparator()->diffTable(
+        $diff = $schemaManager->createComparator()->compareTables(
             $schemaManager->introspectTable('add_default_test'),
             $table,
         );
-        self::assertNotNull($diff);
+
         $schemaManager->alterTable($diff);
 
         $query  = 'SELECT original_field, new_field FROM add_default_test';

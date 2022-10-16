@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function assert;
@@ -25,6 +24,8 @@ class Comparator
 
     /**
      * Returns the differences between the schemas.
+     *
+     * @throws Exception
      */
     public function compareSchemas(Schema $oldSchema, Schema $newSchema): SchemaDiff
     {
@@ -58,13 +59,13 @@ class Comparator
             if (! $oldSchema->hasTable($newTableName)) {
                 $createdTables[] = $newSchema->getTable($newTableName);
             } else {
-                $tableDifferences = $this->diffTable(
+                $tableDiff = $this->compareTables(
                     $oldSchema->getTable($newTableName),
                     $newSchema->getTable($newTableName),
                 );
 
-                if ($tableDifferences !== null) {
-                    $alteredTables[] = $tableDifferences;
+                if (! $tableDiff->isEmpty()) {
+                    $alteredTables[] = $tableDiff;
                 }
             }
         }
@@ -138,33 +139,6 @@ class Comparator
         }
 
         return $sequence1->getInitialValue() !== $sequence2->getInitialValue();
-    }
-
-    /**
-     * Returns the difference between the tables.
-     *
-     * If there are no differences this method returns null.
-     *
-     * @deprecated Use {@see compareTables()} and, optionally, {@see TableDiff::isEmpty()} instead.
-     *
-     * @throws Exception
-     */
-    public function diffTable(Table $oldTable, Table $newTable): ?TableDiff
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5770',
-            '%s is deprecated. Use compareTables() instead.',
-            __METHOD__,
-        );
-
-        $diff = $this->compareTables($oldTable, $newTable);
-
-        if ($diff->isEmpty()) {
-            return null;
-        }
-
-        return $diff;
     }
 
     /**

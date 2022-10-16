@@ -10,7 +10,6 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -433,8 +432,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $oldTable->addForeignKeyConstraint('mytable', ['parent_id'], ['id']);
 
         $diff = $this->createComparator()
-            ->diffTable($oldTable, $newTable);
-        self::assertNotNull($diff);
+            ->compareTables($oldTable, $newTable);
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
@@ -499,8 +497,10 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
         // BLOB      -> VARBINARY
-        $diff = $comparator->diffTable($table1, $table2);
-        self::assertNull($diff);
+        self::assertTrue(
+            $comparator->compareTables($table1, $table2)
+                ->isEmpty(),
+        );
 
         $table2 = new Table('mytable');
         $table2->addColumn('column_varbinary', 'binary', ['length' => 42]);
@@ -510,8 +510,10 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         // VARBINARY -> VARBINARY with changed length
         // BINARY    -> BLOB
         // BLOB      -> BINARY
-        $diff = $comparator->diffTable($table1, $table2);
-        self::assertNull($diff);
+        self::assertTrue(
+            $comparator->compareTables($table1, $table2)
+                ->isEmpty(),
+        );
 
         $table2 = new Table('mytable');
         $table2->addColumn('column_varbinary', 'blob');
@@ -521,8 +523,10 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         // VARBINARY -> BLOB
         // BINARY    -> BINARY with changed length
         // BLOB      -> BLOB
-        $diff = $comparator->diffTable($table1, $table2);
-        self::assertNull($diff);
+        self::assertTrue(
+            $comparator->compareTables($table1, $table2)
+                ->isEmpty(),
+        );
     }
 
     /**
@@ -611,9 +615,8 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
 
         $tableDiff = $this->createComparator()
-            ->diffTable($table1, $table2);
+            ->compareTables($table1, $table2);
 
-        self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertSame(
             ['COMMENT ON COLUMN "foo"."bar" IS \'baz\''],
             $this->platform->getAlterTableSQL($tableDiff),

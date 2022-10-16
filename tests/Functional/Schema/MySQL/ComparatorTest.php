@@ -41,17 +41,17 @@ final class ComparatorTest extends FunctionalTestCase
         $table = $this->createLobTable($type, $length - 1);
         $this->setBlobLength($table, $length);
 
-        self::assertNull(ComparatorTestUtils::diffFromActualToDesiredTable(
+        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
             $this->schemaManager,
             $this->comparator,
             $table,
-        ));
+        )->isEmpty());
 
-        self::assertNull(ComparatorTestUtils::diffFromDesiredToActualTable(
+        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
             $this->schemaManager,
             $this->comparator,
             $table,
-        ));
+        )->isEmpty());
     }
 
     /** @dataProvider lobColumnProvider */
@@ -96,17 +96,17 @@ final class ComparatorTest extends FunctionalTestCase
         [$table, $column] = $this->createCollationTable();
         $column->setPlatformOption('collation', 'utf8mb4_general_ci');
 
-        self::assertNull(ComparatorTestUtils::diffFromActualToDesiredTable(
+        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
             $this->schemaManager,
             $this->comparator,
             $table,
-        ));
+        )->isEmpty());
 
-        self::assertNull(ComparatorTestUtils::diffFromDesiredToActualTable(
+        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
             $this->schemaManager,
             $this->comparator,
             $table,
-        ));
+        )->isEmpty());
     }
 
     public function testChangeColumnCharsetAndCollation(): void
@@ -142,17 +142,17 @@ final class ComparatorTest extends FunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        self::assertNull(ComparatorTestUtils::diffFromActualToDesiredTable(
+        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
             $this->schemaManager,
             $this->comparator,
             $table,
-        ));
+        )->isEmpty());
 
-        self::assertNull(ComparatorTestUtils::diffFromDesiredToActualTable(
+        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
             $this->schemaManager,
             $this->comparator,
             $table,
-        ));
+        )->isEmpty());
     }
 
     /** @return iterable<string,array{array<string,string>,array<string,string>}> */

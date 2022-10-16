@@ -30,9 +30,9 @@ class Comparator extends BaseComparator
         parent::__construct($platform);
     }
 
-    public function diffTable(Table $oldTable, Table $newTable): ?TableDiff
+    public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
-        return parent::diffTable(
+        return parent::compareTables(
             $this->normalizeTable($oldTable),
             $this->normalizeTable($newTable),
         );

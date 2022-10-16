@@ -197,8 +197,7 @@ SQL;
         $table2->addIndex(['name'], 'idx_name');
 
         $comparator = $schemaManager->createComparator();
-        $diff       = $comparator->diffTable($table1, $table2);
-        self::assertNotNull($diff);
+        $diff       = $comparator->compareTables($table1, $table2);
 
         $schemaManager->alterTable($diff);
 

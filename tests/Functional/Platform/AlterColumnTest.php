@@ -25,9 +25,8 @@ class AlterColumnTest extends FunctionalTestCase
 
         $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
-            ->diffTable($sm->introspectTable('test_alter'), $table);
+            ->compareTables($sm->introspectTable('test_alter'), $table);
 
-        self::assertNotNull($diff);
         $sm->alterTable($diff);
 
         $table   = $sm->introspectTable('test_alter');
