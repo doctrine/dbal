@@ -14,6 +14,13 @@ Relying on the availability of the `LOCATE()` on SQLite deprecated. SQLite does 
 but the function `INSTR()` can be a drop-in replacement in most situations. Use
 `AbstractPlatform::getLocateExpression()` if you need a portable solution.
 
+## Deprecated `SchemaDiff::toSql()` and `SchemaDiff::toSaveSql()`
+
+Using `SchemaDiff::toSql()` to generate SQL representing the diff has been deprecated.
+Use `AbstractPlatform::getAlterSchemaSQL()` instead.
+
+`SchemaDiff::toSaveSql()` has been deprecated without a replacement.
+
 ## Deprecated `SchemaDiff::$orphanedForeignKeys`
 
 Relying on the schema diff tracking foreign keys referencing the tables that have been dropped is deprecated.

@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 
@@ -187,16 +188,36 @@ class SchemaDiff
      *
      * This way it is ensured that assets are deleted which might not be relevant to the metadata schema at all.
      *
+     * @deprecated
+     *
      * @return list<string>
      */
     public function toSaveSql(AbstractPlatform $platform)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5766',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         return $this->_toSql($platform, true);
     }
 
-    /** @return list<string> */
+    /**
+     * @deprecated Use {@link AbstractPlatform::getAlterSchemaSQL()} instead.
+     *
+     * @return list<string>
+     */
     public function toSql(AbstractPlatform $platform)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5766',
+            '%s is deprecated. Use AbstractPlatform::getAlterSchemaSQL() instead.',
+            __METHOD__,
+        );
+
         return $this->_toSql($platform, false);
     }
 

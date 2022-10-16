@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -2281,6 +2282,16 @@ abstract class AbstractPlatform
     public function getCreateTemporaryTableSnippetSQL()
     {
         return 'CREATE TEMPORARY TABLE';
+    }
+
+    /**
+     * Generates SQL statements that can be used to apply the diff.
+     *
+     * @return list<string>
+     */
+    public function getAlterSchemaSQL(SchemaDiff $diff): array
+    {
+        return $diff->toSql($this);
     }
 
     /**
