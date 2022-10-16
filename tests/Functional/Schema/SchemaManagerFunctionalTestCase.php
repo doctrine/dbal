@@ -684,9 +684,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('Schema definition is not supported by this platform.');
         }
 
-        //create schema
-        $diff                              = new SchemaDiff();
-        $diff->newNamespaces['testschema'] = 'testschema';
+        $diff = new SchemaDiff(['testschema'], [], [], [], [], [], [], []);
 
         foreach ($diff->toSql($this->connection->getDatabasePlatform()) as $sql) {
             $this->connection->executeStatement($sql);
