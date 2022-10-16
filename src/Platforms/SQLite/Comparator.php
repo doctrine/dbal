@@ -24,15 +24,15 @@ class Comparator extends BaseComparator
         parent::__construct($platform);
     }
 
-    public function diffTable(Table $fromTable, Table $toTable): ?TableDiff
+    public function diffTable(Table $oldTable, Table $newTable): ?TableDiff
     {
-        $fromTable = clone $fromTable;
-        $toTable   = clone $toTable;
+        $oldTable = clone $oldTable;
+        $newTable = clone $newTable;
 
-        $this->normalizeColumns($fromTable);
-        $this->normalizeColumns($toTable);
+        $this->normalizeColumns($oldTable);
+        $this->normalizeColumns($newTable);
 
-        return parent::diffTable($fromTable, $toTable);
+        return parent::diffTable($oldTable, $newTable);
     }
 
     private function normalizeColumns(Table $table): void

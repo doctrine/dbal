@@ -634,30 +634,30 @@ abstract class ComparatorTest extends TestCase
 
     public function testComparesNamespaces(): void
     {
-        $fromSchema = $this->getMockBuilder(Schema::class)
+        $oldSchema = $this->getMockBuilder(Schema::class)
             ->onlyMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
-        $toSchema   = $this->getMockBuilder(Schema::class)
+        $newSchema = $this->getMockBuilder(Schema::class)
             ->onlyMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
 
-        $fromSchema->expects(self::once())
+        $oldSchema->expects(self::once())
             ->method('getNamespaces')
             ->willReturn(['foo', 'bar']);
 
-        $fromSchema->method('hasNamespace')
+        $oldSchema->method('hasNamespace')
             ->withConsecutive(['bar'], ['baz'])
             ->willReturnOnConsecutiveCalls(true, false);
 
-        $toSchema->expects(self::once())
+        $newSchema->expects(self::once())
             ->method('getNamespaces')
             ->willReturn(['bar', 'baz']);
 
-        $toSchema->method('hasNamespace')
+        $newSchema->method('hasNamespace')
             ->withConsecutive(['foo'], ['bar'])
             ->willReturnOnConsecutiveCalls(false, true);
 
-        $diff = $this->comparator->compareSchemas($fromSchema, $toSchema);
+        $diff = $this->comparator->compareSchemas($oldSchema, $newSchema);
 
         self::assertEquals(['baz'], $diff->getCreatedSchemas());
         self::assertEquals(['foo'], $diff->getDroppedSchemas());
@@ -698,7 +698,7 @@ abstract class ComparatorTest extends TestCase
 
     public function testForeignKeyRemovalWithRenamedLocalColumn(): void
     {
-        $fromSchema = new Schema([
+        $oldSchema = new Schema([
             'table1' => new Table(
                 'table1',
                 [
@@ -718,7 +718,7 @@ abstract class ComparatorTest extends TestCase
                 ],
             ),
         ]);
-        $toSchema   = new Schema([
+        $newSchema = new Schema([
             'table2' => new Table(
                 'table2',
                 [
@@ -739,7 +739,7 @@ abstract class ComparatorTest extends TestCase
             ),
         ]);
 
-        $schemaDiff = $this->comparator->compareSchemas($fromSchema, $toSchema);
+        $schemaDiff = $this->comparator->compareSchemas($oldSchema, $newSchema);
 
         $alteredTables = $schemaDiff->getAlteredTables();
         self::assertCount(1, $alteredTables);
@@ -751,7 +751,7 @@ abstract class ComparatorTest extends TestCase
 
     public function testWillNotProduceSchemaDiffOnTableWithAddedCustomSchemaDefinition(): void
     {
-        $fromSchema = new Schema(
+        $oldSchema = new Schema(
             [
                 new Table(
                     'a_table',
@@ -765,7 +765,7 @@ abstract class ComparatorTest extends TestCase
                 ),
             ],
         );
-        $toSchema   = new Schema(
+        $newSchema = new Schema(
             [
                 new Table(
                     'a_table',
@@ -780,7 +780,7 @@ abstract class ComparatorTest extends TestCase
         );
 
         self::assertEmpty(
-            $this->comparator->compareSchemas($fromSchema, $toSchema)
+            $this->comparator->compareSchemas($oldSchema, $newSchema)
                 ->getAlteredTables(),
             'Schema diff is empty, since only `columnDefinition` changed from `null` (not detected) to a defined one',
         );
