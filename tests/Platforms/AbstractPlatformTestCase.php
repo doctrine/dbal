@@ -1382,6 +1382,14 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertTrue($this->platform->isCommentedDoctrineType($type));
     }
 
+    public function testEmptyTableDiff(): void
+    {
+        $diff = new TableDiff('test');
+
+        self::assertTrue($diff->isEmpty());
+        self::assertSame([], $this->platform->getAlterTableSQL($diff));
+    }
+
     public function tearDown(): void
     {
         if (! isset($this->backedUpType)) {

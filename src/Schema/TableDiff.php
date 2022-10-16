@@ -7,6 +7,7 @@ use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_values;
+use function count;
 
 /**
  * Table Diff.
@@ -338,5 +339,23 @@ class TableDiff
                 return $removedForeignKey !== $foreignKey;
             },
         );
+    }
+
+    /**
+     * Returns whether the diff is empty (contains no changes).
+     */
+    public function isEmpty(): bool
+    {
+        return count($this->addedColumns) === 0
+            && count($this->changedColumns) === 0
+            && count($this->removedColumns) === 0
+            && count($this->renamedColumns) === 0
+            && count($this->addedIndexes) === 0
+            && count($this->changedIndexes) === 0
+            && count($this->removedIndexes) === 0
+            && count($this->renamedIndexes) === 0
+            && count($this->addedForeignKeys) === 0
+            && count($this->changedForeignKeys) === 0
+            && count($this->removedForeignKeys) === 0;
     }
 }

@@ -446,6 +446,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\SchemaDiff::toSql"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\Comparator::diffTable"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

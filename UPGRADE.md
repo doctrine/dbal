@@ -121,6 +121,36 @@ The "unique" and "check" column properties have been deprecated. Use unique cons
 Relying on the default precision and scale of decimal columns provided by the DBAL is deprecated.
 When declaring decimal columns, specify the precision and scale explicitly.
 
+## Deprecated `Comparator::diffTable()` method.
+
+The `Comparator::diffTable()` method has been deprecated in favor of `Comparator::compareTables()`
+and `TableDiff::isEmpty()`.
+
+Instead of having to check whether the diff is equal to the boolean `false`, you can optionally check
+if the returned table diff is empty.
+
+### Before
+
+```php
+$diff = $comparator->diffTable($oldTable, $newTable);
+
+// mandatory check
+if ($diff !== false) {
+    // we have a diff
+}
+```
+
+### After
+
+```php
+$diff = $comparator->compareTables($oldTable, $newTable);
+
+// optional check
+if (! $diff->isEmpty()) {
+    // we have a diff
+}
+```
+
 ## Deprecated not passing `$fromColumn` to the `TableDiff` constructor.
 
 Not passing `$fromColumn` to the `TableDiff` constructor has been deprecated.

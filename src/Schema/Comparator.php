@@ -280,14 +280,37 @@ class Comparator
      *
      * If there are no differences this method returns the boolean false.
      *
+     * @deprecated Use {@see compareTables()} and, optionally, {@see TableDiff::isEmpty()} instead.
+     *
      * @return TableDiff|false
      *
      * @throws Exception
      */
     public function diffTable(Table $fromTable, Table $toTable)
     {
-        $hasChanges = false;
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5770',
+            '%s is deprecated. Use compareTables() instead.',
+            __METHOD__,
+        );
 
+        $diff = $this->compareTables($fromTable, $toTable);
+
+        if ($diff->isEmpty()) {
+            return false;
+        }
+
+        return $diff;
+    }
+
+    /**
+     * Compares the tables and returns the difference between them.
+     *
+     * @throws Exception
+     */
+    public function compareTables(Table $fromTable, Table $toTable): TableDiff
+    {
         $addedColumns        = [];
         $modifiedColumns     = [];
         $droppedColumns      = [];
@@ -308,8 +331,6 @@ class Comparator
             }
 
             $addedColumns[$columnName] = $column;
-
-            $hasChanges = true;
         }
 
         /* See if there are any removed columns in "to" table */
@@ -318,7 +339,6 @@ class Comparator
             if (! $toTable->hasColumn($columnName)) {
                 $droppedColumns[$columnName] = $column;
 
-                $hasChanges = true;
                 continue;
             }
 
@@ -341,8 +361,6 @@ class Comparator
                 $changedProperties,
                 $column,
             );
-
-            $hasChanges = true;
         }
 
         $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
@@ -357,8 +375,6 @@ class Comparator
             }
 
             $addedIndexes[$indexName] = $index;
-
-            $hasChanges = true;
         }
 
         /* See if there are any removed indexes in "to" table */
@@ -370,7 +386,6 @@ class Comparator
             ) {
                 $droppedIndexes[$indexName] = $index;
 
-                $hasChanges = true;
                 continue;
             }
 
@@ -383,8 +398,6 @@ class Comparator
             }
 
             $modifiedIndexes[$indexName] = $toTableIndex;
-
-            $hasChanges = true;
         }
 
         $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
@@ -400,7 +413,6 @@ class Comparator
                     if (strtolower($fromConstraint->getName()) === strtolower($toConstraint->getName())) {
                         $modifiedForeignKeys[] = $toConstraint;
 
-                        $hasChanges = true;
                         unset($fromForeignKeys[$fromKey], $toForeignKeys[$toKey]);
                     }
                 }
@@ -409,18 +421,10 @@ class Comparator
 
         foreach ($fromForeignKeys as $fromConstraint) {
             $droppedForeignKeys[] = $fromConstraint;
-
-            $hasChanges = true;
         }
 
         foreach ($toForeignKeys as $toConstraint) {
             $addedForeignKeys[] = $toConstraint;
-
-            $hasChanges = true;
-        }
-
-        if (! $hasChanges) {
-            return false;
         }
 
         return new TableDiff(
@@ -598,7 +602,7 @@ class Comparator
      * If there are differences this method returns the changed properties as a
      * string array, otherwise an empty array gets returned.
      *
-     * @deprecated Use {@see diffTable()} instead.
+     * @deprecated Use {@see columnsEqual()} instead.
      *
      * @return string[]
      */
