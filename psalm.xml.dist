@@ -45,14 +45,6 @@
                 <referencedMethod name="Doctrine\DBAL\Schema\Table::changeColumn"/>
             </errorLevel>
         </DeprecatedMethod>
-        <DeprecatedProperty>
-            <errorLevel type="suppress">
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedProperty name="Doctrine\DBAL\Schema\SchemaDiff::$orphanedForeignKeys"/>
-            </errorLevel>
-        </DeprecatedProperty>
         <DocblockTypeContradiction>
             <errorLevel type="suppress">
                 <!--
