@@ -538,10 +538,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
 
         $diffTable = clone $table;
-        $diffTable->changeColumn('def_text', ['default' => null]);
-        $diffTable->changeColumn('def_text_null', ['default' => null]);
-        $diffTable->changeColumn('def_blob', ['default' => null]);
-        $diffTable->changeColumn('def_blob_null', ['default' => null]);
+        $diffTable->modifyColumn('def_text', ['default' => null]);
+        $diffTable->modifyColumn('def_text_null', ['default' => null]);
+        $diffTable->modifyColumn('def_blob', ['default' => null]);
+        $diffTable->modifyColumn('def_blob_null', ['default' => null]);
 
         self::assertNull($this->createComparator()->diffTable($table, $diffTable));
     }

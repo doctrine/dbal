@@ -1000,10 +1000,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $newTable = clone $oldTable;
 
-        $newTable->changeColumn('column1', ['default' => '']);
-        $newTable->changeColumn('column2', ['default' => null]);
-        $newTable->changeColumn('column3', ['default' => 'default2']);
-        $newTable->changeColumn('column4', ['default' => null]);
+        $newTable->modifyColumn('column1', ['default' => '']);
+        $newTable->modifyColumn('column2', ['default' => null]);
+        $newTable->modifyColumn('column3', ['default' => 'default2']);
+        $newTable->modifyColumn('column4', ['default' => null]);
 
         $diff = $this->schemaManager->createComparator()
             ->diffTable(
