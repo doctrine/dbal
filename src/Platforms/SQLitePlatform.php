@@ -785,11 +785,11 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** @return string[] */
-    private function getColumnNamesInAlteredTable(TableDiff $diff, Table $fromTable): array
+    private function getColumnNamesInAlteredTable(TableDiff $diff, Table $oldTable): array
     {
         $columns = [];
 
-        foreach ($fromTable->getColumns() as $column) {
+        foreach ($oldTable->getColumns() as $column) {
             $columnName                       = $column->getName();
             $columns[strtolower($columnName)] = $columnName;
         }
@@ -825,10 +825,10 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** @return Index[] */
-    private function getIndexesInAlteredTable(TableDiff $diff, Table $fromTable): array
+    private function getIndexesInAlteredTable(TableDiff $diff, Table $oldTable): array
     {
-        $indexes     = $fromTable->getIndexes();
-        $columnNames = $this->getColumnNamesInAlteredTable($diff, $fromTable);
+        $indexes     = $oldTable->getIndexes();
+        $columnNames = $this->getColumnNamesInAlteredTable($diff, $oldTable);
 
         foreach ($indexes as $key => $index) {
             foreach ($diff->getRenamedIndexes() as $oldIndexName => $renamedIndex) {
@@ -899,10 +899,10 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** @return ForeignKeyConstraint[] */
-    private function getForeignKeysInAlteredTable(TableDiff $diff, Table $fromTable): array
+    private function getForeignKeysInAlteredTable(TableDiff $diff, Table $oldTable): array
     {
-        $foreignKeys = $fromTable->getForeignKeys();
-        $columnNames = $this->getColumnNamesInAlteredTable($diff, $fromTable);
+        $foreignKeys = $oldTable->getForeignKeys();
+        $columnNames = $this->getColumnNamesInAlteredTable($diff, $oldTable);
 
         foreach ($foreignKeys as $key => $constraint) {
             $changed      = false;
@@ -959,11 +959,11 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /** @return Index[] */
-    private function getPrimaryIndexInAlteredTable(TableDiff $diff, Table $fromTable): array
+    private function getPrimaryIndexInAlteredTable(TableDiff $diff, Table $oldTable): array
     {
         $primaryIndex = [];
 
-        foreach ($this->getIndexesInAlteredTable($diff, $fromTable) as $index) {
+        foreach ($this->getIndexesInAlteredTable($diff, $oldTable) as $index) {
             if (! $index->isPrimary()) {
                 continue;
             }

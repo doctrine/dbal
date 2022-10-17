@@ -23,9 +23,9 @@ class Comparator
     }
 
     /**
-     * Returns a SchemaDiff object containing the differences between the schemas $fromSchema and $toSchema.
+     * Returns the differences between the schemas.
      */
-    public function compareSchemas(Schema $fromSchema, Schema $toSchema): SchemaDiff
+    public function compareSchemas(Schema $oldSchema, Schema $newSchema): SchemaDiff
     {
         $createdSchemas   = [];
         $droppedSchemas   = [];
@@ -36,30 +36,30 @@ class Comparator
         $alteredSequences = [];
         $droppedSequences = [];
 
-        foreach ($toSchema->getNamespaces() as $namespace) {
-            if ($fromSchema->hasNamespace($namespace)) {
+        foreach ($newSchema->getNamespaces() as $newNamespace) {
+            if ($oldSchema->hasNamespace($newNamespace)) {
                 continue;
             }
 
-            $createdSchemas[] = $namespace;
+            $createdSchemas[] = $newNamespace;
         }
 
-        foreach ($fromSchema->getNamespaces() as $namespace) {
-            if ($toSchema->hasNamespace($namespace)) {
+        foreach ($oldSchema->getNamespaces() as $oldNamespace) {
+            if ($newSchema->hasNamespace($oldNamespace)) {
                 continue;
             }
 
-            $droppedSchemas[] = $namespace;
+            $droppedSchemas[] = $oldNamespace;
         }
 
-        foreach ($toSchema->getTables() as $table) {
-            $tableName = $table->getShortestName($toSchema->getName());
-            if (! $fromSchema->hasTable($tableName)) {
-                $createdTables[] = $toSchema->getTable($tableName);
+        foreach ($newSchema->getTables() as $newTable) {
+            $newTableName = $newTable->getShortestName($newSchema->getName());
+            if (! $oldSchema->hasTable($newTableName)) {
+                $createdTables[] = $newSchema->getTable($newTableName);
             } else {
                 $tableDifferences = $this->diffTable(
-                    $fromSchema->getTable($tableName),
-                    $toSchema->getTable($tableName),
+                    $oldSchema->getTable($newTableName),
+                    $newSchema->getTable($newTableName),
                 );
 
                 if ($tableDifferences !== null) {
@@ -68,43 +68,43 @@ class Comparator
             }
         }
 
-        /* Check if there are tables removed */
-        foreach ($fromSchema->getTables() as $table) {
-            $tableName = $table->getShortestName($fromSchema->getName());
+        // Check if there are tables removed
+        foreach ($oldSchema->getTables() as $oldTable) {
+            $oldTableName = $oldTable->getShortestName($oldSchema->getName());
 
-            $table = $fromSchema->getTable($tableName);
-            if ($toSchema->hasTable($tableName)) {
+            $oldTable = $oldSchema->getTable($oldTableName);
+            if ($newSchema->hasTable($oldTableName)) {
                 continue;
             }
 
-            $droppedTables[] = $table;
+            $droppedTables[] = $oldTable;
         }
 
-        foreach ($toSchema->getSequences() as $sequence) {
-            $sequenceName = $sequence->getShortestName($toSchema->getName());
-            if (! $fromSchema->hasSequence($sequenceName)) {
-                if (! $this->isAutoIncrementSequenceInSchema($fromSchema, $sequence)) {
-                    $createdSequences[] = $sequence;
+        foreach ($newSchema->getSequences() as $newSequence) {
+            $newSequenceName = $newSequence->getShortestName($newSchema->getName());
+            if (! $oldSchema->hasSequence($newSequenceName)) {
+                if (! $this->isAutoIncrementSequenceInSchema($oldSchema, $newSequence)) {
+                    $createdSequences[] = $newSequence;
                 }
             } else {
-                if ($this->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
-                    $alteredSequences[] = $toSchema->getSequence($sequenceName);
+                if ($this->diffSequence($newSequence, $oldSchema->getSequence($newSequenceName))) {
+                    $alteredSequences[] = $newSchema->getSequence($newSequenceName);
                 }
             }
         }
 
-        foreach ($fromSchema->getSequences() as $sequence) {
-            if ($this->isAutoIncrementSequenceInSchema($toSchema, $sequence)) {
+        foreach ($oldSchema->getSequences() as $oldSequence) {
+            if ($this->isAutoIncrementSequenceInSchema($newSchema, $oldSequence)) {
                 continue;
             }
 
-            $sequenceName = $sequence->getShortestName($fromSchema->getName());
+            $oldSequenceName = $oldSequence->getShortestName($oldSchema->getName());
 
-            if ($toSchema->hasSequence($sequenceName)) {
+            if ($newSchema->hasSequence($oldSequenceName)) {
                 continue;
             }
 
-            $droppedSequences[] = $sequence;
+            $droppedSequences[] = $oldSequence;
         }
 
         return new SchemaDiff(
@@ -140,13 +140,13 @@ class Comparator
     }
 
     /**
-     * Returns the difference between the tables $fromTable and $toTable.
+     * Returns the difference between the tables.
      *
      * If there are no differences this method returns null.
      *
      * @throws Exception
      */
-    public function diffTable(Table $fromTable, Table $toTable): ?TableDiff
+    public function diffTable(Table $oldTable, Table $newTable): ?TableDiff
     {
         $hasChanges = false;
 
@@ -160,115 +160,115 @@ class Comparator
         $modifiedForeignKeys = [];
         $droppedForeignKeys  = [];
 
-        $fromTableColumns = $fromTable->getColumns();
-        $toTableColumns   = $toTable->getColumns();
+        $oldColumns = $oldTable->getColumns();
+        $newColumns = $newTable->getColumns();
 
-        /* See if all the columns in "from" table exist in "to" table */
-        foreach ($toTableColumns as $column) {
-            $columnName = strtolower($column->getName());
+        // See if all the columns in the old table exist in the new table
+        foreach ($newColumns as $newColumn) {
+            $newColumnName = strtolower($newColumn->getName());
 
-            if ($fromTable->hasColumn($columnName)) {
+            if ($oldTable->hasColumn($newColumnName)) {
                 continue;
             }
 
-            $addedColumns[$columnName] = $column;
+            $addedColumns[$newColumnName] = $newColumn;
 
             $hasChanges = true;
         }
 
-        /* See if there are any removed columns in "to" table */
-        foreach ($fromTableColumns as $column) {
-            $columnName = strtolower($column->getName());
+        // See if there are any removed columns in the new table
+        foreach ($oldColumns as $oldColumn) {
+            $oldColumnName = strtolower($oldColumn->getName());
 
-            // See if column is removed in "to" table.
-            if (! $toTable->hasColumn($columnName)) {
-                $droppedColumns[$columnName] = $column;
+            // See if column is removed in the new table.
+            if (! $newTable->hasColumn($oldColumnName)) {
+                $droppedColumns[$oldColumnName] = $oldColumn;
 
                 $hasChanges = true;
                 continue;
             }
 
-            $toColumn = $toTable->getColumn($columnName);
+            $newColumn = $newTable->getColumn($oldColumnName);
 
-            if ($this->columnsEqual($column, $toColumn)) {
+            if ($this->columnsEqual($oldColumn, $newColumn)) {
                 continue;
             }
 
-            $modifiedColumns[] = new ColumnDiff($column, $toColumn);
+            $modifiedColumns[] = new ColumnDiff($oldColumn, $newColumn);
 
             $hasChanges = true;
         }
 
         $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
 
-        $fromTableIndexes = $fromTable->getIndexes();
-        $toTableIndexes   = $toTable->getIndexes();
+        $oldIndexes = $oldTable->getIndexes();
+        $newIndexes = $newTable->getIndexes();
 
-        /* See if all the indexes in "from" table exist in "to" table */
-        foreach ($toTableIndexes as $indexName => $index) {
-            if (($index->isPrimary() && $fromTable->getPrimaryKey() !== null) || $fromTable->hasIndex($indexName)) {
+        // See if all the indexes from the old table exist in the new one
+        foreach ($newIndexes as $newIndexName => $newIndex) {
+            if (($newIndex->isPrimary() && $oldTable->getPrimaryKey() !== null) || $oldTable->hasIndex($newIndexName)) {
                 continue;
             }
 
-            $addedIndexes[$indexName] = $index;
+            $addedIndexes[$newIndexName] = $newIndex;
 
             $hasChanges = true;
         }
 
-        /* See if there are any removed indexes in "to" table */
-        foreach ($fromTableIndexes as $indexName => $index) {
-            // See if index is removed in "to" table.
+        // See if there are any removed indexes in the new table
+        foreach ($oldIndexes as $oldIndexName => $oldIndex) {
+            // See if the index is removed in the new table.
             if (
-                ($index->isPrimary() && $toTable->getPrimaryKey() === null) ||
-                ! $index->isPrimary() && ! $toTable->hasIndex($indexName)
+                ($oldIndex->isPrimary() && $newTable->getPrimaryKey() === null) ||
+                ! $oldIndex->isPrimary() && ! $newTable->hasIndex($oldIndexName)
             ) {
-                $droppedIndexes[$indexName] = $index;
+                $droppedIndexes[$oldIndexName] = $oldIndex;
 
                 $hasChanges = true;
                 continue;
             }
 
-            // See if index has changed in "to" table.
-            $toTableIndex = $index->isPrimary() ? $toTable->getPrimaryKey() : $toTable->getIndex($indexName);
-            assert($toTableIndex instanceof Index);
+            // See if index has changed in the new table.
+            $newIndex = $oldIndex->isPrimary() ? $newTable->getPrimaryKey() : $newTable->getIndex($oldIndexName);
+            assert($newIndex instanceof Index);
 
-            if (! $this->diffIndex($index, $toTableIndex)) {
+            if (! $this->diffIndex($oldIndex, $newIndex)) {
                 continue;
             }
 
-            $modifiedIndexes[] = $toTableIndex;
+            $modifiedIndexes[] = $newIndex;
 
             $hasChanges = true;
         }
 
         $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
 
-        $fromForeignKeys = $fromTable->getForeignKeys();
-        $toForeignKeys   = $toTable->getForeignKeys();
+        $oldForeignKeys = $oldTable->getForeignKeys();
+        $newForeignKeys = $newTable->getForeignKeys();
 
-        foreach ($fromForeignKeys as $fromKey => $fromConstraint) {
-            foreach ($toForeignKeys as $toKey => $toConstraint) {
-                if ($this->diffForeignKey($fromConstraint, $toConstraint) === false) {
-                    unset($fromForeignKeys[$fromKey], $toForeignKeys[$toKey]);
+        foreach ($oldForeignKeys as $oldKey => $oldForeignKey) {
+            foreach ($newForeignKeys as $newKey => $newForeignKey) {
+                if ($this->diffForeignKey($oldForeignKey, $newForeignKey) === false) {
+                    unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
                 } else {
-                    if (strtolower($fromConstraint->getName()) === strtolower($toConstraint->getName())) {
-                        $modifiedForeignKeys[] = $toConstraint;
+                    if (strtolower($oldForeignKey->getName()) === strtolower($newForeignKey->getName())) {
+                        $modifiedForeignKeys[] = $newForeignKey;
 
                         $hasChanges = true;
-                        unset($fromForeignKeys[$fromKey], $toForeignKeys[$toKey]);
+                        unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
                     }
                 }
             }
         }
 
-        foreach ($fromForeignKeys as $fromConstraint) {
-            $droppedForeignKeys[] = $fromConstraint;
+        foreach ($oldForeignKeys as $oldForeignKey) {
+            $droppedForeignKeys[] = $oldForeignKey;
 
             $hasChanges = true;
         }
 
-        foreach ($toForeignKeys as $toConstraint) {
-            $addedForeignKeys[] = $toConstraint;
+        foreach ($newForeignKeys as $newForeignKey) {
+            $addedForeignKeys[] = $newForeignKey;
 
             $hasChanges = true;
         }
@@ -278,7 +278,7 @@ class Comparator
         }
 
         return new TableDiff(
-            $fromTable,
+            $oldTable,
             $addedColumns,
             $modifiedColumns,
             $droppedColumns,

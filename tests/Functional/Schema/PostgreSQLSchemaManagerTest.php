@@ -431,19 +431,20 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /** @dataProvider autoIncrementTypeMigrations */
     public function testAlterTableAutoIncrementIntToBigInt(string $from, string $to, string $expected): void
     {
-        $tableFrom = new Table('autoinc_type_modification');
-        $column    = $tableFrom->addColumn('id', $from);
+        $table  = new Table('autoinc_type_modification');
+        $column = $table->addColumn('id', $from);
         $column->setAutoincrement(true);
-        $this->dropAndCreateTable($tableFrom);
-        $tableFrom = $this->schemaManager->introspectTable('autoinc_type_modification');
-        self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
+        $this->dropAndCreateTable($table);
 
-        $tableTo = new Table('autoinc_type_modification');
-        $column  = $tableTo->addColumn('id', $to);
+        $oldTable = $this->schemaManager->introspectTable('autoinc_type_modification');
+        self::assertTrue($oldTable->getColumn('id')->getAutoincrement());
+
+        $newTable = new Table('autoinc_type_modification');
+        $column   = $newTable->addColumn('id', $to);
         $column->setAutoincrement(true);
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable($tableFrom, $tableTo);
+            ->diffTable($oldTable, $newTable);
         self::assertNotNull($diff);
         self::assertSame(
             ['ALTER TABLE autoinc_type_modification ALTER id TYPE ' . $expected],

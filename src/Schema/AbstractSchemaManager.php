@@ -606,10 +606,10 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function migrateSchema(Schema $toSchema): void
+    public function migrateSchema(Schema $newSchema): void
     {
         $schemaDiff = $this->createComparator()
-            ->compareSchemas($this->introspectSchema(), $toSchema);
+            ->compareSchemas($this->introspectSchema(), $newSchema);
 
         $this->alterSchema($schemaDiff);
     }

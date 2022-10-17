@@ -259,12 +259,12 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $fromSchema = $schemaManager->introspectSchema();
-        $toSchema   = clone $fromSchema;
+        $oldSchema = $schemaManager->introspectSchema();
+        $newSchema = clone $oldSchema;
 
-        $toSchema->getTable('"tester"')->dropColumn('"name"');
+        $newSchema->getTable('"tester"')->dropColumn('"name"');
         $diff = $schemaManager->createComparator()
-            ->compareSchemas($fromSchema, $toSchema);
+            ->compareSchemas($oldSchema, $newSchema);
 
         $schemaManager->alterSchema($diff);
 
