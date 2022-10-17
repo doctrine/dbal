@@ -45,6 +45,7 @@ or `createFunction()` on the PDO or SQLite3 connection.
 
 The following `Table` methods have been removed:
 
+- `changeColumn()`,
 - `getForeignKeyColumns()`,
 - `getPrimaryKeyColumns()`,
 - `hasPrimaryKey()`.
