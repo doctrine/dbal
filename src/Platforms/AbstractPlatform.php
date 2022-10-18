@@ -1560,8 +1560,6 @@ abstract class AbstractPlatform
      *          a string that defines the complete column
      *
      * @return string DBMS specific SQL code portion that should be used to declare the column.
-     *
-     * @throws Exception
      */
     public function getColumnDeclarationSQL(string $name, array $column): string
     {
@@ -2401,8 +2399,6 @@ abstract class AbstractPlatform
 
     /**
      * Compares the definitions of the given columns in the context of this platform.
-     *
-     * @throws Exception
      */
     public function columnsEqual(Column $column1, Column $column2): bool
     {

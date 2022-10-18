@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use function array_map;
@@ -24,8 +23,6 @@ class Comparator
 
     /**
      * Returns the differences between the schemas.
-     *
-     * @throws Exception
      */
     public function compareSchemas(Schema $oldSchema, Schema $newSchema): SchemaDiff
     {
@@ -143,8 +140,6 @@ class Comparator
 
     /**
      * Compares the tables and returns the difference between them.
-     *
-     * @throws Exception
      */
     public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
@@ -280,8 +275,6 @@ class Comparator
      * @param array<string,Column> $removedColumns
      *
      * @return array<string,Column>
-     *
-     * @throws Exception
      */
     private function detectRenamedColumns(array &$addedColumns, array &$removedColumns): array
     {
@@ -405,8 +398,6 @@ class Comparator
 
     /**
      * Compares the definitions of the given columns
-     *
-     * @throws Exception
      */
     protected function columnsEqual(Column $column1, Column $column2): bool
     {
