@@ -339,8 +339,6 @@ abstract class AbstractPlatform
 
     /**
      * Gets the Doctrine type that is mapped for the given database column type.
-     *
-     * @throws Exception
      */
     public function getDoctrineTypeMapping(string $dbType): string
     {
@@ -835,8 +833,6 @@ abstract class AbstractPlatform
      * on this platform.
      *
      * @return list<string> The list of SQL statements.
-     *
-     * @throws Exception
      */
     public function getCreateTableSQL(Table $table): array
     {
@@ -847,19 +843,13 @@ abstract class AbstractPlatform
      * @internal
      *
      * @return list<string>
-     *
-     * @throws Exception
      */
     final protected function getCreateTableWithoutForeignKeysSQL(Table $table): array
     {
         return $this->buildCreateTableSQL($table, false);
     }
 
-    /**
-     * @return list<string>
-     *
-     * @throws Exception
-     */
+    /** @return list<string> */
     private function buildCreateTableSQL(Table $table, bool $createForeignKeys): array
     {
         if (count($table->getColumns()) === 0) {
@@ -958,8 +948,6 @@ abstract class AbstractPlatform
      * @param list<Table> $tables
      *
      * @return list<string>
-     *
-     * @throws Exception
      */
     public function getCreateTablesSQL(array $tables): array
     {
@@ -1102,8 +1090,6 @@ abstract class AbstractPlatform
      * Generates SQL statements that can be used to apply the diff.
      *
      * @return list<string>
-     *
-     * @throws Exception
      */
     public function getAlterSchemaSQL(SchemaDiff $diff): array
     {
@@ -2231,8 +2217,6 @@ abstract class AbstractPlatform
 
     /**
      * Adds an driver-specific LIMIT clause to the query.
-     *
-     * @throws Exception
      */
     final public function modifyLimitQuery(string $query, ?int $limit, int $offset = 0): string
     {
