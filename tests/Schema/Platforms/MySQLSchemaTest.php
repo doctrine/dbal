@@ -53,8 +53,7 @@ class MySQLSchemaTest extends TestCase
         $tableNew->setPrimaryKey(['id']);
 
         $diff = $this->createComparator()
-            ->diffTable($tableOld, $tableNew);
-        self::assertNotNull($diff);
+            ->compareTables($tableOld, $tableNew);
 
         $sql = $this->platform->getAlterTableSQL($diff);
 

@@ -39,9 +39,10 @@ class ComparatorTest extends FunctionalTestCase
 
         $onlineTable = $this->schemaManager->introspectTable('default_value');
 
-        self::assertNull(
+        self::assertTrue(
             $this->schemaManager->createComparator()
-                ->diffTable($table, $onlineTable),
+                ->compareTables($table, $onlineTable)
+                ->isEmpty(),
         );
     }
 

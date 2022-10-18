@@ -399,10 +399,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->dropAndCreateTable($offlineTable);
         $onlineTable = $this->schemaManager->introspectTable('list_table_columns');
 
-        $diff = $this->schemaManager->createComparator()
-            ->diffTable($onlineTable, $offlineTable);
-
-        self::assertNull($diff, 'No differences should be detected with the offline vs online schema.');
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($onlineTable, $offlineTable)
+                ->isEmpty(),
+        );
     }
 
     public function testListTableIndexes(): void
@@ -593,8 +594,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $comparator = $this->schemaManager->createComparator();
 
-        $diff = $comparator->diffTable($table, $newTable);
-        self::assertNotNull($diff);
+        $diff = $comparator->compareTables($table, $newTable);
 
         $this->schemaManager->alterTable($diff);
 
@@ -605,8 +605,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $newTable = clone $table;
         $newTable->addIndex(['foo'], 'foo_idx');
 
-        $diff = $comparator->diffTable($table, $newTable);
-        self::assertNotNull($diff);
+        $diff = $comparator->compareTables($table, $newTable);
 
         $this->schemaManager->alterTable($diff);
 
@@ -621,8 +620,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $newTable->dropIndex('foo_idx');
         $newTable->addIndex(['foo', 'foreign_key_test'], 'foo_idx');
 
-        $diff = $comparator->diffTable($table, $newTable);
-        self::assertNotNull($diff);
+        $diff = $comparator->compareTables($table, $newTable);
 
         $this->schemaManager->alterTable($diff);
 
@@ -638,8 +636,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $newTable->dropIndex('foo_idx');
         $newTable->addIndex(['foo', 'foreign_key_test'], 'bar_idx');
 
-        $diff = $comparator->diffTable($table, $newTable);
-        self::assertNotNull($diff);
+        $diff = $comparator->compareTables($table, $newTable);
 
         $this->schemaManager->alterTable($diff);
 
@@ -658,8 +655,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $newTable->dropIndex('bar_idx');
         $newTable->addForeignKeyConstraint('alter_table_foreign', ['foreign_key_test'], ['id']);
 
-        $diff = $comparator->diffTable($table, $newTable);
-        self::assertNotNull($diff);
+        $diff = $comparator->compareTables($table, $newTable);
 
         $this->schemaManager->alterTable($diff);
 
@@ -787,8 +783,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableFKNew->addForeignKeyConstraint('test_fk_base', ['rename_fk_id'], ['id']);
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable($tableFK, $tableFKNew);
-        self::assertNotNull($diff);
+            ->compareTables($tableFK, $tableFKNew);
 
         $this->schemaManager->alterTable($diff);
 
@@ -830,8 +825,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foreignTable2->renameIndex('rename_index_fk_idx', 'renamed_index_fk_idx');
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable($foreignTable, $foreignTable2);
-        self::assertNotNull($diff);
+            ->compareTables($foreignTable, $foreignTable2);
 
         $this->schemaManager->alterTable($diff);
 
@@ -863,11 +857,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             ->setFixed(true);
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable(
+            ->compareTables(
                 $this->schemaManager->introspectTable('column_def_change_type'),
                 $newTable,
             );
-        self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
 
@@ -1008,11 +1001,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $newTable->modifyColumn('column4', ['default' => null]);
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable(
+            ->compareTables(
                 $this->schemaManager->introspectTable('col_def_lifecycle'),
                 $newTable,
             );
-        self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
 
@@ -1373,11 +1365,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $child->dropIndex('idx_1');
         $child->addIndex(['parent_id'], 'idx_2');
 
-        $diff = $schemaManager->createComparator()->diffTable(
+        $diff = $schemaManager->createComparator()->compareTables(
             $schemaManager->introspectTable('child'),
             $child,
         );
-        self::assertNotNull($diff);
 
         $schemaManager->alterTable($diff);
 
@@ -1402,11 +1393,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $diff = $schemaManager->createComparator()->diffTable(
+        $diff = $schemaManager->createComparator()->compareTables(
             $schemaManager->introspectTable('test_switch_pk_order'),
             $table,
         );
-        self::assertNotNull($diff);
 
         $table      = $schemaManager->introspectTable('test_switch_pk_order');
         $primaryKey = $table->getPrimaryKey();
@@ -1425,11 +1415,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->dropColumn('todrop');
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable(
+            ->compareTables(
                 $this->schemaManager->introspectTable('drop_column_with_default'),
                 $table,
             );
-        self::assertNotNull($diff);
+
         $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns('drop_column_with_default');

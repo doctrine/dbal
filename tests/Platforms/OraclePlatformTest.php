@@ -375,9 +375,10 @@ SQL
         ]);
         $table2->addColumn('column_binary', 'binary', ['length' => 32]);
 
-        self::assertNull(
+        self::assertTrue(
             $this->createComparator()
-                ->diffTable($table1, $table2),
+                ->compareTables($table1, $table2)
+                ->isEmpty(),
         );
     }
 
@@ -500,9 +501,8 @@ SQL
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
 
         $tableDiff = $this->createComparator()
-            ->diffTable($table1, $table2);
+            ->compareTables($table1, $table2);
 
-        self::assertNotNull($tableDiff);
         self::assertSame(
             ['COMMENT ON COLUMN "foo"."bar" IS \'baz\''],
             $this->platform->getAlterTableSQL($tableDiff),

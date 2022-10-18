@@ -19,8 +19,8 @@ final class ComparatorTestUtils
         AbstractSchemaManager $schemaManager,
         Comparator $comparator,
         Table $desiredTable,
-    ): ?TableDiff {
-        return $comparator->diffTable(
+    ): TableDiff {
+        return $comparator->compareTables(
             $schemaManager->introspectTable($desiredTable->getName()),
             $desiredTable,
         );
@@ -31,8 +31,8 @@ final class ComparatorTestUtils
         AbstractSchemaManager $schemaManager,
         Comparator $comparator,
         Table $desiredTable,
-    ): ?TableDiff {
-        return $comparator->diffTable(
+    ): TableDiff {
+        return $comparator->compareTables(
             $desiredTable,
             $schemaManager->introspectTable($desiredTable->getName()),
         );
@@ -44,11 +44,17 @@ final class ComparatorTestUtils
 
         $diff = self::diffFromActualToDesiredTable($schemaManager, $comparator, $table);
 
-        TestCase::assertNotNull($diff);
+        TestCase::assertFalse($diff->isEmpty());
 
         $schemaManager->alterTable($diff);
 
-        TestCase::assertNull(self::diffFromActualToDesiredTable($schemaManager, $comparator, $table));
-        TestCase::assertNull(self::diffFromDesiredToActualTable($schemaManager, $comparator, $table));
+        TestCase::assertTrue(
+            self::diffFromActualToDesiredTable($schemaManager, $comparator, $table)
+                ->isEmpty(),
+        );
+        TestCase::assertTrue(
+            self::diffFromDesiredToActualTable($schemaManager, $comparator, $table)
+                ->isEmpty(),
+        );
     }
 }

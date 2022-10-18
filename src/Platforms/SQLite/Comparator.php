@@ -24,7 +24,7 @@ class Comparator extends BaseComparator
         parent::__construct($platform);
     }
 
-    public function diffTable(Table $oldTable, Table $newTable): ?TableDiff
+    public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
         $oldTable = clone $oldTable;
         $newTable = clone $newTable;
@@ -32,7 +32,7 @@ class Comparator extends BaseComparator
         $this->normalizeColumns($oldTable);
         $this->normalizeColumns($newTable);
 
-        return parent::diffTable($oldTable, $newTable);
+        return parent::compareTables($oldTable, $newTable);
     }
 
     private function normalizeColumns(Table $table): void

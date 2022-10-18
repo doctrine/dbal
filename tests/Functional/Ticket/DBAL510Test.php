@@ -30,9 +30,10 @@ class DBAL510Test extends FunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
         $onlineTable   = $schemaManager->introspectTable('dbal510tbl');
 
-        $diff = $schemaManager->createComparator()
-            ->diffTable($onlineTable, $table);
-
-        self::assertNull($diff);
+        self::assertTrue(
+            $schemaManager->createComparator()
+                ->compareTables($onlineTable, $table)
+                ->isEmpty(),
+        );
     }
 }

@@ -48,16 +48,16 @@ final class ComparatorTest extends FunctionalTestCase
 
         $column->setFixed(false);
 
-        self::assertNull(ComparatorTestUtils::diffFromActualToDesiredTable(
+        self::assertTrue(ComparatorTestUtils::diffFromActualToDesiredTable(
             $this->schemaManager,
             $this->comparator,
             $table,
-        ));
+        )->isEmpty());
 
-        self::assertNull(ComparatorTestUtils::diffFromDesiredToActualTable(
+        self::assertTrue(ComparatorTestUtils::diffFromDesiredToActualTable(
             $this->schemaManager,
             $this->comparator,
             $table,
-        ));
+        )->isEmpty());
     }
 }

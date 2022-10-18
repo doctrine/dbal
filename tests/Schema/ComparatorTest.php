@@ -171,8 +171,7 @@ abstract class ComparatorTest extends TestCase
         $tableB->addColumn('new_datecolumn1', 'datetime');
         $tableB->addColumn('new_datecolumn2', 'datetime');
 
-        $tableDiff = $this->comparator->diffTable($tableA, $tableB);
-        self::assertNotNull($tableDiff);
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
         $renamedColumns = $tableDiff->getRenamedColumns();
         self::assertCount(1, $renamedColumns);
@@ -229,9 +228,8 @@ abstract class ComparatorTest extends TestCase
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
-        $tableDiff = $this->comparator->diffTable($table1, $table2);
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
 
-        self::assertNotNull($tableDiff);
         self::assertCount(1, $tableDiff->getAddedForeignKeys());
     }
 
@@ -247,9 +245,8 @@ abstract class ComparatorTest extends TestCase
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
-        $tableDiff = $this->comparator->diffTable($table2, $table1);
+        $tableDiff = $this->comparator->compareTables($table2, $table1);
 
-        self::assertNotNull($tableDiff);
         self::assertCount(1, $tableDiff->getDroppedForeignKeys());
     }
 
@@ -266,9 +263,8 @@ abstract class ComparatorTest extends TestCase
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id'], ['onUpdate' => 'CASCADE']);
 
-        $tableDiff = $this->comparator->diffTable($table1, $table2);
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
 
-        self::assertNotNull($tableDiff);
         self::assertCount(1, $tableDiff->getModifiedForeignKeys());
     }
 
@@ -288,9 +284,8 @@ abstract class ComparatorTest extends TestCase
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign2->getName(), ['fk'], ['id']);
 
-        $tableDiff = $this->comparator->diffTable($table1, $table2);
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
 
-        self::assertNotNull($tableDiff);
         self::assertCount(1, $tableDiff->getModifiedForeignKeys());
     }
 
@@ -344,9 +339,9 @@ abstract class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('ID', 'integer');
 
-        $tableDiff = $this->comparator->diffTable($tableA, $tableB);
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
-        self::assertNull($tableDiff);
+        self::assertTrue($tableDiff->isEmpty());
     }
 
     public function testCompareIndexBasedOnPropertiesNotName(): void
@@ -363,7 +358,7 @@ abstract class ComparatorTest extends TestCase
             new TableDiff($tableA, [], [], [], [], [], [], [], [
                 'foo_bar_idx' => new Index('bar_foo_idx', ['id']),
             ], [], [], []),
-            $this->comparator->diffTable($tableA, $tableB),
+            $this->comparator->compareTables($tableA, $tableB),
         );
     }
 
@@ -377,9 +372,9 @@ abstract class ComparatorTest extends TestCase
         $tableB->addColumn('ID', 'integer');
         $tableB->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'bar_constraint');
 
-        $tableDiff = $this->comparator->diffTable($tableA, $tableB);
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
-        self::assertNull($tableDiff);
+        self::assertTrue($tableDiff->isEmpty());
     }
 
     public function testDetectRenameColumn(): void
@@ -390,8 +385,7 @@ abstract class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('bar', 'integer');
 
-        $tableDiff = $this->comparator->diffTable($tableA, $tableB);
-        self::assertNotNull($tableDiff);
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
         self::assertCount(0, $tableDiff->getAddedColumns());
         self::assertCount(0, $tableDiff->getDroppedColumns());
@@ -415,8 +409,7 @@ abstract class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('baz', 'integer');
 
-        $tableDiff = $this->comparator->diffTable($tableA, $tableB);
-        self::assertNotNull($tableDiff);
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
         self::assertEquals(['baz'], $this->getAssetNames($tableDiff->getAddedColumns()));
         self::assertEquals(['foo', 'bar'], $this->getAssetNames($tableDiff->getDroppedColumns()));
@@ -434,8 +427,7 @@ abstract class ComparatorTest extends TestCase
 
         $table2->addIndex(['foo'], 'idx_bar');
 
-        $tableDiff = $this->comparator->diffTable($table1, $table2);
-        self::assertNotNull($tableDiff);
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
 
         self::assertCount(0, $tableDiff->getAddedColumns());
         self::assertCount(0, $tableDiff->getDroppedIndexes());
@@ -462,8 +454,7 @@ abstract class ComparatorTest extends TestCase
 
         $table2->addIndex(['foo'], 'idx_baz');
 
-        $tableDiff = $this->comparator->diffTable($table1, $table2);
-        self::assertNotNull($tableDiff);
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
 
         self::assertEquals(['idx_baz'], $this->getAssetNames($tableDiff->getAddedIndexes()));
         self::assertEquals(['idx_foo', 'idx_bar'], $this->getAssetNames($tableDiff->getDroppedIndexes()));
@@ -478,9 +469,7 @@ abstract class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('id', 'integer', ['autoincrement' => true]);
 
-        $tableDiff = $this->comparator->diffTable($tableA, $tableB);
-
-        self::assertNotNull($tableDiff);
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
         $modifiedColumns = $tableDiff->getModifiedColumns();
         self::assertCount(1, $modifiedColumns);
@@ -502,9 +491,8 @@ abstract class ComparatorTest extends TestCase
         $newtable->addColumn('logged_in_at', 'datetime');
         $newtable->setPrimaryKey(['id']);
 
-        $tableDiff = $this->comparator->diffTable($table, $newtable);
+        $tableDiff = $this->comparator->compareTables($table, $newtable);
 
-        self::assertNotNull($tableDiff);
         self::assertEquals(['twitterId', 'displayName'], array_keys($tableDiff->getRenamedColumns()));
         self::assertEquals(['logged_in_at'], $this->getAssetNames($tableDiff->getAddedColumns()));
         self::assertCount(0, $tableDiff->getDroppedColumns());

@@ -24,8 +24,8 @@ class AlterDecimalColumnTest extends FunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
 
         $diff = $schemaManager->createComparator()
-            ->diffTable($schemaManager->introspectTable('decimal_table'), $table);
-        self::assertNotNull($diff);
+            ->compareTables($schemaManager->introspectTable('decimal_table'), $table);
+
         $schemaManager->alterTable($diff);
 
         $table  = $schemaManager->introspectTable('decimal_table');

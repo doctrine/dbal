@@ -93,8 +93,7 @@ class ColumnCommentTest extends FunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
 
         $diff = $schemaManager->createComparator()
-            ->diffTable($table1, $table2);
-        self::assertNotNull($diff);
+            ->compareTables($table1, $table2);
 
         $schemaManager->alterTable($diff);
 

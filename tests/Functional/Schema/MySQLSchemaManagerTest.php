@@ -40,8 +40,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable($tableFetched, $tableNew);
-        self::assertNotNull($diff);
+            ->compareTables($tableFetched, $tableNew);
 
         $this->schemaManager->alterTable($diff);
 
@@ -118,8 +117,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->setPrimaryKey(['id']);
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable($table, $diffTable);
-        self::assertNotNull($diff);
+            ->compareTables($table, $diffTable);
 
         $this->schemaManager->alterTable($diff);
 
@@ -143,8 +141,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->dropPrimaryKey();
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable($table, $diffTable);
-        self::assertNotNull($diff);
+            ->compareTables($table, $diffTable);
 
         $this->schemaManager->alterTable($diff);
 
@@ -179,9 +176,11 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
 
-        $diff = $this->schemaManager->createComparator()
-            ->diffTable($table, $onlineTable);
-        self::assertNull($diff);
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($table, $onlineTable)
+                ->isEmpty(),
+        );
     }
 
     public function testColumnCharset(): void
@@ -212,8 +211,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->getColumn('col_text')->setPlatformOption('charset', 'ascii');
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable($table, $diffTable);
-        self::assertNotNull($diff);
+            ->compareTables($table, $diffTable);
 
         $this->schemaManager->alterTable($diff);
 
@@ -235,8 +233,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->getColumn('col_string')->setPlatformOption('charset', 'ascii');
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable($table, $diffTable);
-        self::assertNotNull($diff);
+            ->compareTables($table, $diffTable);
+
         $this->schemaManager->alterTable($diff);
 
         self::assertEquals(
@@ -332,8 +330,11 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $onlineTable = $this->schemaManager->introspectTable('list_guid_table_column');
 
-        self::assertNull(
-            $this->schemaManager->createComparator()->diffTable($onlineTable, $offlineTable),
+        self::assertTrue(
+            $this->schemaManager
+                ->createComparator()
+                ->compareTables($onlineTable, $offlineTable)
+                ->isEmpty(),
             'No differences should be detected with the offline vs online schema.',
         );
     }
@@ -399,8 +400,12 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
 
-        $diff = $this->schemaManager->createComparator()->diffTable($table, $onlineTable);
-        self::assertNull($diff, 'Tables should be identical with column defaults.');
+        self::assertTrue(
+            $this->schemaManager
+                ->createComparator()
+                ->compareTables($table, $onlineTable)
+                ->isEmpty(),
+        );
     }
 
     public function testColumnDefaultsAreValid(): void
@@ -476,8 +481,12 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
         self::assertSame($currentTimeSql, $onlineTable->getColumn('col_time')->getDefault());
 
-        $diff = $this->schemaManager->createComparator()->diffTable($table, $onlineTable);
-        self::assertNull($diff, 'Tables should be identical with column defauts time and date.');
+        self::assertTrue(
+            $this->schemaManager
+                ->createComparator()
+                ->compareTables($table, $onlineTable)
+                ->isEmpty(),
+        );
     }
 
     public function testEnsureTableOptionsAreReflectedInMetadata(): void

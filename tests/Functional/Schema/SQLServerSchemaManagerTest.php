@@ -89,11 +89,10 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         ]);
 
         $diff = $this->schemaManager->createComparator()
-            ->diffTable(
+            ->compareTables(
                 $this->schemaManager->introspectTable('sqlsrv_default_constraints'),
                 $newTable,
             );
-        self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
         $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
