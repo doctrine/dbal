@@ -1102,10 +1102,48 @@ abstract class AbstractPlatform
      * Generates SQL statements that can be used to apply the diff.
      *
      * @return list<string>
+     *
+     * @throws Exception
      */
     public function getAlterSchemaSQL(SchemaDiff $diff): array
     {
-        return $diff->toSql($this);
+        $sql = [];
+
+        if ($this->supportsSchemas()) {
+            foreach ($diff->getCreatedSchemas() as $schema) {
+                $sql[] = $this->getCreateSchemaSQL($schema);
+            }
+        }
+
+        if ($this->supportsSequences()) {
+            foreach ($diff->getAlteredSequences() as $sequence) {
+                $sql[] = $this->getAlterSequenceSQL($sequence);
+            }
+
+            foreach ($diff->getDroppedSequences() as $sequence) {
+                $sql[] = $this->getDropSequenceSQL($sequence->getQuotedName($this));
+            }
+
+            foreach ($diff->getCreatedSequences() as $sequence) {
+                $sql[] = $this->getCreateSequenceSQL($sequence);
+            }
+        }
+
+        $sql = array_merge(
+            $sql,
+            $this->getCreateTablesSQL(
+                $diff->getCreatedTables(),
+            ),
+            $this->getDropTablesSQL(
+                $diff->getDroppedTables(),
+            ),
+        );
+
+        foreach ($diff->getAlteredTables() as $tableDiff) {
+            $sql = array_merge($sql, $this->getAlterTableSQL($tableDiff));
+        }
+
+        return $sql;
     }
 
     /**
