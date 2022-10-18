@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function assert;
@@ -144,12 +145,35 @@ class Comparator
      *
      * If there are no differences this method returns null.
      *
+     * @deprecated Use {@see compareTables()} and, optionally, {@see TableDiff::isEmpty()} instead.
+     *
      * @throws Exception
      */
     public function diffTable(Table $oldTable, Table $newTable): ?TableDiff
     {
-        $hasChanges = false;
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5770',
+            '%s is deprecated. Use compareTables() instead.',
+            __METHOD__,
+        );
 
+        $diff = $this->compareTables($oldTable, $newTable);
+
+        if ($diff->isEmpty()) {
+            return null;
+        }
+
+        return $diff;
+    }
+
+    /**
+     * Compares the tables and returns the difference between them.
+     *
+     * @throws Exception
+     */
+    public function compareTables(Table $oldTable, Table $newTable): TableDiff
+    {
         $addedColumns        = [];
         $modifiedColumns     = [];
         $droppedColumns      = [];
@@ -172,8 +196,6 @@ class Comparator
             }
 
             $addedColumns[$newColumnName] = $newColumn;
-
-            $hasChanges = true;
         }
 
         // See if there are any removed columns in the new table
@@ -184,7 +206,6 @@ class Comparator
             if (! $newTable->hasColumn($oldColumnName)) {
                 $droppedColumns[$oldColumnName] = $oldColumn;
 
-                $hasChanges = true;
                 continue;
             }
 
@@ -195,8 +216,6 @@ class Comparator
             }
 
             $modifiedColumns[] = new ColumnDiff($oldColumn, $newColumn);
-
-            $hasChanges = true;
         }
 
         $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
@@ -211,8 +230,6 @@ class Comparator
             }
 
             $addedIndexes[$newIndexName] = $newIndex;
-
-            $hasChanges = true;
         }
 
         // See if there are any removed indexes in the new table
@@ -224,7 +241,6 @@ class Comparator
             ) {
                 $droppedIndexes[$oldIndexName] = $oldIndex;
 
-                $hasChanges = true;
                 continue;
             }
 
@@ -237,8 +253,6 @@ class Comparator
             }
 
             $modifiedIndexes[] = $newIndex;
-
-            $hasChanges = true;
         }
 
         $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
@@ -254,7 +268,6 @@ class Comparator
                     if (strtolower($oldForeignKey->getName()) === strtolower($newForeignKey->getName())) {
                         $modifiedForeignKeys[] = $newForeignKey;
 
-                        $hasChanges = true;
                         unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
                     }
                 }
@@ -263,18 +276,10 @@ class Comparator
 
         foreach ($oldForeignKeys as $oldForeignKey) {
             $droppedForeignKeys[] = $oldForeignKey;
-
-            $hasChanges = true;
         }
 
         foreach ($newForeignKeys as $newForeignKey) {
             $addedForeignKeys[] = $newForeignKey;
-
-            $hasChanges = true;
-        }
-
-        if (! $hasChanges) {
-            return null;
         }
 
         return new TableDiff(

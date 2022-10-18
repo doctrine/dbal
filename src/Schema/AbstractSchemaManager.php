@@ -598,7 +598,7 @@ abstract class AbstractSchemaManager
      */
     public function alterSchema(SchemaDiff $schemaDiff): void
     {
-        $this->executeStatements($schemaDiff->toSql($this->platform));
+        $this->executeStatements($this->platform->getAlterSchemaSQL($schemaDiff));
     }
 
     /**

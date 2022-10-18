@@ -840,6 +840,13 @@ Relying on the availability of the `LOCATE()` on SQLite deprecated. SQLite does 
 but the function `INSTR()` can be a drop-in replacement in most situations. Use
 `AbstractPlatform::getLocateExpression()` if you need a portable solution.
 
+## Deprecated `SchemaDiff::toSql()` and `SchemaDiff::toSaveSql()`
+
+Using `SchemaDiff::toSql()` to generate SQL representing the diff has been deprecated.
+Use `AbstractPlatform::getAlterSchemaSQL()` instead.
+
+`SchemaDiff::toSaveSql()` has been deprecated without a replacement.
+
 ## Deprecated `SchemaDiff::$orphanedForeignKeys`
 
 Relying on the schema diff tracking foreign keys referencing the tables that have been dropped is deprecated.
@@ -939,6 +946,36 @@ The "unique" and "check" column properties have been deprecated. Use unique cons
 
 Relying on the default precision and scale of decimal columns provided by the DBAL is deprecated.
 When declaring decimal columns, specify the precision and scale explicitly.
+
+## Deprecated `Comparator::diffTable()` method.
+
+The `Comparator::diffTable()` method has been deprecated in favor of `Comparator::compareTables()`
+and `TableDiff::isEmpty()`.
+
+Instead of having to check whether the diff is equal to the boolean `false`, you can optionally check
+if the returned table diff is empty.
+
+### Before
+
+```php
+$diff = $comparator->diffTable($oldTable, $newTable);
+
+// mandatory check
+if ($diff !== false) {
+    // we have a diff
+}
+```
+
+### After
+
+```php
+$diff = $comparator->compareTables($oldTable, $newTable);
+
+// optional check
+if (! $diff->isEmpty()) {
+    // we have a diff
+}
+```
 
 ## Deprecated not passing `$fromColumn` to the `TableDiff` constructor.
 

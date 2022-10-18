@@ -5,15 +5,21 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Deprecations\Deprecation;
 
+use function array_filter;
 use function array_merge;
 use function array_values;
+use function count;
 
 /**
  * Differences between two schemas.
  */
 class SchemaDiff
 {
+    /** @var array<TableDiff> */
+    private readonly array $alteredTables;
+
     /**
      * Constructs an SchemaDiff object.
      *
@@ -32,12 +38,15 @@ class SchemaDiff
         private readonly array $createdSchemas,
         private readonly array $droppedSchemas,
         private readonly array $createdTables,
-        private readonly array $alteredTables,
+        array $alteredTables,
         private readonly array $droppedTables,
         private readonly array $createdSequences,
         private readonly array $alteredSequences,
         private readonly array $droppedSequences,
     ) {
+        $this->alteredTables = array_filter($alteredTables, static function (TableDiff $diff): bool {
+            return ! $diff->isEmpty();
+        });
     }
 
     /** @return array<string> */
@@ -89,6 +98,21 @@ class SchemaDiff
     }
 
     /**
+     * Returns whether the diff is empty (contains no changes).
+     */
+    public function isEmpty(): bool
+    {
+        return count($this->createdSchemas) === 0
+            && count($this->droppedSchemas) === 0
+            && count($this->createdTables) === 0
+            && count($this->alteredTables) === 0
+            && count($this->droppedTables) === 0
+            && count($this->createdSequences) === 0
+            && count($this->alteredSequences) === 0
+            && count($this->droppedSequences) === 0;
+    }
+
+    /**
      * The to save sql mode ensures that the following things don't happen:
      *
      * 1. Tables are deleted
@@ -97,16 +121,36 @@ class SchemaDiff
      *
      * This way it is ensured that assets are deleted which might not be relevant to the metadata schema at all.
      *
+     * @deprecated
+     *
      * @return list<string>
      */
     public function toSaveSql(AbstractPlatform $platform): array
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5766',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         return $this->_toSql($platform, true);
     }
 
-    /** @return list<string> */
+    /**
+     * @deprecated Use {@link AbstractPlatform::getAlterSchemaSQL()} instead.
+     *
+     * @return list<string>
+     */
     public function toSql(AbstractPlatform $platform): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5766',
+            '%s is deprecated. Use AbstractPlatform::getAlterSchemaSQL() instead.',
+            __METHOD__,
+        );
+
         return $this->_toSql($platform, false);
     }
 

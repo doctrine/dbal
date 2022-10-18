@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use function array_filter;
+use function count;
 
 /**
  * Table Diff.
@@ -141,5 +142,23 @@ class TableDiff
     public function getDroppedForeignKeys(): array
     {
         return $this->droppedForeignKeys;
+    }
+
+    /**
+     * Returns whether the diff is empty (contains no changes).
+     */
+    public function isEmpty(): bool
+    {
+        return count($this->addedColumns) === 0
+            && count($this->modifiedColumns) === 0
+            && count($this->droppedColumns) === 0
+            && count($this->renamedColumns) === 0
+            && count($this->addedIndexes) === 0
+            && count($this->modifiedIndexes) === 0
+            && count($this->droppedIndexes) === 0
+            && count($this->renamedIndexes) === 0
+            && count($this->addedForeignKeys) === 0
+            && count($this->modifiedForeignKeys) === 0
+            && count($this->droppedForeignKeys) === 0;
     }
 }

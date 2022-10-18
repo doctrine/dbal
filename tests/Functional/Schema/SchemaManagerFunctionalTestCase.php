@@ -680,13 +680,15 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testTableInNamespace(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsSchemas()) {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform->supportsSchemas()) {
             self::markTestSkipped('Schema definition is not supported by this platform.');
         }
 
         $diff = new SchemaDiff(['testschema'], [], [], [], [], [], [], []);
 
-        foreach ($diff->toSql($this->connection->getDatabasePlatform()) as $sql) {
+        foreach ($platform->getAlterSchemaSQL($diff) as $sql) {
             $this->connection->executeStatement($sql);
         }
 

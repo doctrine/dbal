@@ -32,6 +32,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -1098,6 +1099,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Generates SQL statements that can be used to apply the diff.
+     *
+     * @return list<string>
+     */
+    public function getAlterSchemaSQL(SchemaDiff $diff): array
+    {
+        return $diff->toSql($this);
+    }
+
+    /**
      * Returns the SQL to create a sequence on this platform.
      */
     public function getCreateSequenceSQL(Sequence $sequence): string
@@ -1134,7 +1145,11 @@ abstract class AbstractPlatform
         $columns = $index->getColumns();
 
         if (count($columns) === 0) {
-            throw new InvalidArgumentException('Incomplete definition. "columns" required.');
+            throw new InvalidArgumentException(sprintf(
+                'Incomplete or invalid index definition %s on table %s',
+                $name,
+                $table,
+            ));
         }
 
         if ($index->isPrimary()) {
