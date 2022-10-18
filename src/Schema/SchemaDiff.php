@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\Deprecations\Deprecation;
-
 use function array_filter;
-use function array_merge;
-use function array_values;
 use function count;
 
 /**
@@ -110,87 +105,5 @@ class SchemaDiff
             && count($this->createdSequences) === 0
             && count($this->alteredSequences) === 0
             && count($this->droppedSequences) === 0;
-    }
-
-    /**
-     * The to save sql mode ensures that the following things don't happen:
-     *
-     * 1. Tables are deleted
-     * 2. Sequences are deleted
-     * 3. Foreign Keys which reference tables that would otherwise be deleted.
-     *
-     * This way it is ensured that assets are deleted which might not be relevant to the metadata schema at all.
-     *
-     * @deprecated
-     *
-     * @return list<string>
-     */
-    public function toSaveSql(AbstractPlatform $platform): array
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5766',
-            '%s is deprecated.',
-            __METHOD__,
-        );
-
-        return $this->_toSql($platform, true);
-    }
-
-    /**
-     * @deprecated Use {@link AbstractPlatform::getAlterSchemaSQL()} instead.
-     *
-     * @return list<string>
-     */
-    public function toSql(AbstractPlatform $platform): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5766',
-            '%s is deprecated. Use AbstractPlatform::getAlterSchemaSQL() instead.',
-            __METHOD__,
-        );
-
-        return $this->_toSql($platform, false);
-    }
-
-    /** @return list<string> */
-    protected function _toSql(AbstractPlatform $platform, bool $saveMode = false): array
-    {
-        $sql = [];
-
-        if ($platform->supportsSchemas()) {
-            foreach ($this->getCreatedSchemas() as $schema) {
-                $sql[] = $platform->getCreateSchemaSQL($schema);
-            }
-        }
-
-        if ($platform->supportsSequences()) {
-            foreach ($this->getAlteredSequences() as $sequence) {
-                $sql[] = $platform->getAlterSequenceSQL($sequence);
-            }
-
-            if ($saveMode === false) {
-                foreach ($this->getDroppedSequences() as $sequence) {
-                    $sql[] = $platform->getDropSequenceSQL($sequence->getQuotedName($platform));
-                }
-            }
-
-            foreach ($this->getCreatedSequences() as $sequence) {
-                $sql[] = $platform->getCreateSequenceSQL($sequence);
-            }
-        }
-
-        $sql = array_merge($sql, $platform->getCreateTablesSQL(array_values($this->getCreatedTables())));
-
-        if ($saveMode === false) {
-            $sql = array_merge($sql, $platform->getDropTablesSQL(array_values($this->getDroppedTables())));
-        }
-
-        foreach ($this->getAlteredTables() as $tableDiff) {
-            $sql = array_merge($sql, $platform->getAlterTableSQL($tableDiff));
-        }
-
-        return $sql;
     }
 }
