@@ -2427,7 +2427,11 @@ abstract class AbstractPlatform
         $columns = $index->getColumns();
 
         if (count($columns) === 0) {
-            throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
+            throw new InvalidArgumentException(sprintf(
+                'Incomplete or invalid index definition %s on table %s',
+                $name,
+                $table,
+            ));
         }
 
         if ($index->isPrimary()) {
