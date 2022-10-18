@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
@@ -1380,6 +1381,22 @@ abstract class AbstractPlatformTestCase extends TestCase
         };
         Type::getTypeRegistry()->override(Types::STRING, $type);
         self::assertTrue($this->platform->isCommentedDoctrineType($type));
+    }
+
+    public function testEmptyTableDiff(): void
+    {
+        $diff = new TableDiff('test');
+
+        self::assertTrue($diff->isEmpty());
+        self::assertSame([], $this->platform->getAlterTableSQL($diff));
+    }
+
+    public function testEmptySchemaDiff(): void
+    {
+        $diff = new SchemaDiff();
+
+        self::assertTrue($diff->isEmpty());
+        self::assertSame([], $this->platform->getAlterSchemaSQL($diff));
     }
 
     public function tearDown(): void

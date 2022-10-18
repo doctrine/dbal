@@ -5,7 +5,9 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Deprecations\Deprecation;
 
+use function array_filter;
 use function array_merge;
+use function count;
 
 /**
  * Differences between two schemas.
@@ -120,8 +122,12 @@ class SchemaDiff
         $alteredSequences = [],
         $droppedSequences = []
     ) {
-        $this->newTables         = $newTables;
-        $this->changedTables     = $changedTables;
+        $this->newTables = $newTables;
+
+        $this->changedTables = array_filter($changedTables, static function (TableDiff $diff): bool {
+            return ! $diff->isEmpty();
+        });
+
         $this->removedTables     = $removedTables;
         $this->fromSchema        = $fromSchema;
         $this->newNamespaces     = $createdSchemas;
@@ -177,6 +183,21 @@ class SchemaDiff
     public function getDroppedSequences(): array
     {
         return $this->removedSequences;
+    }
+
+    /**
+     * Returns whether the diff is empty (contains no changes).
+     */
+    public function isEmpty(): bool
+    {
+        return count($this->newNamespaces) === 0
+            && count($this->removedNamespaces) === 0
+            && count($this->newTables) === 0
+            && count($this->changedTables) === 0
+            && count($this->removedTables) === 0
+            && count($this->newSequences) === 0
+            && count($this->changedSequences) === 0
+            && count($this->removedSequences) === 0;
     }
 
     /**
