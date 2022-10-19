@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\SQL\Builder;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
@@ -18,11 +17,7 @@ final class CreateSchemaObjectsSQLBuilder
     {
     }
 
-    /**
-     * @return list<string>
-     *
-     * @throws Exception
-     */
+    /** @return list<string> */
     public function buildSQL(Schema $schema): array
     {
         return array_merge(
@@ -54,8 +49,6 @@ final class CreateSchemaObjectsSQLBuilder
      * @param list<Table> $tables
      *
      * @return list<string>
-     *
-     * @throws Exception
      */
     private function buildTableStatements(array $tables): array
     {
