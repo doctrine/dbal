@@ -85,12 +85,12 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     public function listSchemaNames(): array
     {
+        // Exclude internal (<5) and backward compatibility existed schemas (>16383)
         return $this->_conn->fetchFirstColumn(
             <<<'SQL'
 SELECT name
 FROM   sys.schemas
-WHERE  name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')
-AND    name NOT IN(SELECT name FROM sys.database_principals WHERE type='R')
+WHERE  schema_id BETWEEN 5 AND 16383
 SQL,
         );
     }

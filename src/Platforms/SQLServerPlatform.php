@@ -1162,8 +1162,8 @@ class SQLServerPlatform extends AbstractPlatform
             'SQLServerPlatform::getListNamespacesSQL() is deprecated,'
                 . ' use SQLServerSchemaManager::listSchemaNames() instead.',
         );
-
-        return "SELECT name FROM sys.schemas WHERE name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys') AND name NOT IN(SELECT name FROM sys.database_principals WHERE type='R')";
+        // Exclude internal (<5) and backward compatibility existed schemas (>16383)
+        return "SELECT name FROM sys.schemas WHERE schema_id BETWEEN 5 AND 16383";
     }
 
     /**
