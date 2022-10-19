@@ -15,6 +15,8 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DecimalType;
+use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
@@ -193,6 +195,32 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertCount(1, $relatedFks);
         $relatedFk = array_pop($relatedFks);
         self::assertEquals('nested.schemarelated', $relatedFk->getForeignTableName());
+    }
+
+    public function testListSameTableNameColumnsWithDifferentSchema(): void
+    {
+        $this->connection->executeStatement('CREATE SCHEMA another');
+        $table = new Table('table');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'text');
+        $this->schemaManager->createTable($table);
+
+        $anotherSchemaTable = new Table('another.table');
+        $anotherSchemaTable->addColumn('id', 'text');
+        $anotherSchemaTable->addColumn('email', 'text');
+        $this->schemaManager->createTable($anotherSchemaTable);
+
+        $table = $this->schemaManager->listTableDetails('table');
+        $this->assertCount(2, $table->getColumns());
+        $this->assertTrue($table->hasColumn('id'));
+        $this->assertInstanceOf(IntegerType::class, $table->getColumn('id')->getType());
+        $this->assertTrue($table->hasColumn('name'));
+
+        $anotherSchemaTable = $this->schemaManager->listTableDetails('another.table');
+        $this->assertCount(2, $anotherSchemaTable->getColumns());
+        $this->assertTrue($anotherSchemaTable->hasColumn('id'));
+        $this->assertInstanceOf(TextType::class, $anotherSchemaTable->getColumn('id')->getType());
+        $this->assertTrue($anotherSchemaTable->hasColumn('email'));
     }
 
     public function testReturnQuotedAssets(): void
