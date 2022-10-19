@@ -25,6 +25,7 @@ use function array_pop;
 use function array_unshift;
 use function assert;
 use function count;
+use function sprintf;
 use function strtolower;
 
 class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -372,6 +373,36 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         self::assertFalse($foundTable, 'View "list_tables_excludes_views_test_view" must not be found in table list');
+    }
+
+    public function testListTablesIncludePartitionedTables(): void
+    {
+        $tableName            = 'test_table';
+        $tableNamePartitioned = 'test_table_partitioned';
+        $this->createTestTable($tableName);
+
+        $this
+            ->connection
+            ->executeQuery(
+                <<<SQL
+                    CREATE TABLE $tableNamePartitioned (LIKE $tableName INCLUDING ALL)
+                    PARTITION BY RANGE (id)
+                    SQL,
+            );
+
+        $tables = $this->schemaManager->listTables();
+
+        $foundTable = false;
+        foreach ($tables as $table) {
+            self::assertInstanceOf(Table::class, $table, 'No Table instance was found in tables array.');
+            if (strtolower($table->getName()) !== $tableNamePartitioned) {
+                continue;
+            }
+
+            $foundTable = true;
+        }
+
+        self::assertTrue($foundTable, sprintf('View "%s" must be found in table list', $tableNamePartitioned));
     }
 
     public function testPartialIndexes(): void

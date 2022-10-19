@@ -655,7 +655,7 @@ SQL;
 
         $conditions = array_merge([
             'a.attnum > 0',
-            "c.relkind = 'r'",
+            "c.relkind IN ('r', 'p')",
             'd.refobjid IS NULL',
         ], $this->buildQueryConditions($tableName));
 
