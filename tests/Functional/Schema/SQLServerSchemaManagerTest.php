@@ -404,4 +404,31 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('colB', $columns[0]);
         self::assertEquals('colA', $columns[1]);
     }
+
+    public function testListSchemaNames(): void
+    {
+        //Schemas db_* with schema_id>=16384 are backward compatible schemas:
+        //https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/ownership-and-user-schema-separation?view=sql-server-ver16#built-in-schemas-for-backward-compatibility
+        //and should't be listed because creating DDL object is not possible on such schemas
+        //Te same page contains information about schemas: dbo, guest, sys, INFORMATION_SCHEMA
+        //they are system fixed and can't be dropped or re-created so listing them for SchemaDiff doesn't make sense
+        $schemas = $this->schemaManager->listSchemaNames();
+
+        self::assertThat($schemas, self::logicalAnd(
+            self::assertNotContains('dbo',$schemas),                //schema_id=1
+            self::assertNotContains('guest',$schemas),              //schema_id=2
+            self::assertNotContains('INFORMATION_SCHEMA',$schemas), //schema_id=3
+            self::assertNotContains('sys',$schemas),                //schema_id=4
+
+            self::assertNotContains('db_owner',$schemas),           //schema_id=16384
+            self::assertNotContains('db_accessadmin',$schemas),     //schema_id=16385
+            self::assertNotContains('db_securityadmin',$schemas),   //schema_id=16386
+            self::assertNotContains('db_ddladmin',$schemas),        //schema_id=16387
+            self::assertNotContains('db_backupoperator',$schemas),  //schema_id=16389
+            self::assertNotContains('db_datareader',$schemas),      //schema_id=16390
+            self::assertNotContains('db_datawriter',$schemas),      //schema_id=16391
+            self::assertNotContains('db_denydatareader',$schemas),  //schema_id=16392
+            self::assertNotContains('db_denydatawriter',$schemas),  //schema_id=16393
+        ));
+    }
 }
