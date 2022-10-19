@@ -1847,4 +1847,9 @@ class SQLServerPlatformTestCase extends AbstractPlatformTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->platform->getDropIndexSQL('foo');
     }
+
+    public function testListNamespacesSQL(): void
+    {
+        self::assertEquals('SELECT name FROM sys.schemas WHERE schema_id BETWEEN 5 AND 16383', $this->platform->getListNamespacesSQL());
+    }
 }
