@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
-use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
-use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_intersect;
@@ -669,35 +665,9 @@ abstract class AbstractSchemaManager
      */
     protected function _getPortableTableColumnList(string $table, string $database, array $tableColumns): array
     {
-        $eventManager = $this->platform->getEventManager();
-
         $list = [];
         foreach ($tableColumns as $tableColumn) {
-            $column           = null;
-            $defaultPrevented = false;
-
-            if ($eventManager !== null && $eventManager->hasListeners(Events::onSchemaColumnDefinition)) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/issues/5784',
-                    'Subscribing to %s events is deprecated. Use a custom schema manager instead.',
-                    Events::onSchemaColumnDefinition,
-                );
-
-                $eventArgs = new SchemaColumnDefinitionEventArgs($tableColumn, $table, $database, $this->connection);
-                $eventManager->dispatchEvent(Events::onSchemaColumnDefinition, $eventArgs);
-
-                $defaultPrevented = $eventArgs->isDefaultPrevented();
-                $column           = $eventArgs->getColumn();
-            }
-
-            if (! $defaultPrevented) {
-                $column = $this->_getPortableTableColumnDefinition($tableColumn);
-            }
-
-            if ($column === null) {
-                continue;
-            }
+            $column = $this->_getPortableTableColumnDefinition($tableColumn);
 
             $name        = strtolower($column->getQuotedName($this->platform));
             $list[$name] = $column;
@@ -758,44 +728,16 @@ abstract class AbstractSchemaManager
             $result[$keyName]['options']['lengths'][] = $tableIndex['length'] ?? null;
         }
 
-        $eventManager = $this->platform->getEventManager();
-
         $indexes = [];
         foreach ($result as $indexKey => $data) {
-            $index            = null;
-            $defaultPrevented = false;
-
-            if ($eventManager !== null && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/issues/5784',
-                    'Subscribing to %s events is deprecated. Use a custom schema manager instead.',
-                    Events::onSchemaColumnDefinition,
-                );
-
-                $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->connection);
-                $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
-
-                $defaultPrevented = $eventArgs->isDefaultPrevented();
-                $index            = $eventArgs->getIndex();
-            }
-
-            if (! $defaultPrevented) {
-                $index = new Index(
-                    $data['name'],
-                    $data['columns'],
-                    $data['unique'],
-                    $data['primary'],
-                    $data['flags'],
-                    $data['options'],
-                );
-            }
-
-            if ($index === null) {
-                continue;
-            }
-
-            $indexes[$indexKey] = $index;
+            $indexes[$indexKey] = new Index(
+                $data['name'],
+                $data['columns'],
+                $data['unique'],
+                $data['primary'],
+                $data['flags'],
+                $data['options'],
+            );
         }
 
         return $indexes;

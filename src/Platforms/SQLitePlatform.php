@@ -588,10 +588,6 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
-            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
             $columnName = strtolower($column->getName());
             if (! isset($columns[$columnName])) {
                 continue;
@@ -605,10 +601,6 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
-                continue;
-            }
-
             $oldColumnName = strtolower($oldColumnName);
 
             $columns = $this->replaceColumn(
@@ -626,10 +618,6 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->getModifiedColumns() as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
-                continue;
-            }
-
             $oldColumnName = strtolower($columnDiff->getOldColumn()->getName());
             $newColumn     = $columnDiff->getNewColumn();
 
@@ -648,54 +636,43 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->getAddedColumns() as $column) {
-            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
             $columns[strtolower($column->getName())] = $column;
         }
 
-        $sql      = [];
-        $tableSql = [];
+        $dataTable = new Table('__temp__' . $table->getName());
 
-        if (! $this->onSchemaAlterTable($diff, $tableSql)) {
-            $dataTable = new Table('__temp__' . $table->getName());
+        $newTable = new Table(
+            $table->getQuotedName($this),
+            $columns,
+            $this->getPrimaryIndexInAlteredTable($diff, $table),
+            [],
+            $this->getForeignKeysInAlteredTable($diff, $table),
+            $table->getOptions(),
+        );
 
-            $newTable = new Table(
-                $table->getQuotedName($this),
-                $columns,
-                $this->getPrimaryIndexInAlteredTable($diff, $table),
-                [],
-                $this->getForeignKeysInAlteredTable($diff, $table),
-                $table->getOptions(),
-            );
+        $newTable->addOption('alter', true);
 
-            $newTable->addOption('alter', true);
+        $sql = $this->getPreAlterTableIndexForeignKeySQL($diff);
 
-            $sql = $this->getPreAlterTableIndexForeignKeySQL($diff);
+        $sql[] = sprintf(
+            'CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s',
+            $dataTable->getQuotedName($this),
+            implode(', ', $oldColumnNames),
+            $table->getQuotedName($this),
+        );
+        $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
 
-            $sql[] = sprintf(
-                'CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s',
-                $dataTable->getQuotedName($this),
-                implode(', ', $oldColumnNames),
-                $table->getQuotedName($this),
-            );
-            $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
+        $sql   = array_merge($sql, $this->getCreateTableSQL($newTable));
+        $sql[] = sprintf(
+            'INSERT INTO %s (%s) SELECT %s FROM %s',
+            $newTable->getQuotedName($this),
+            implode(', ', $newColumnNames),
+            implode(', ', $oldColumnNames),
+            $dataTable->getQuotedName($this),
+        );
+        $sql[] = $this->getDropTableSQL($dataTable->getQuotedName($this));
 
-            $sql   = array_merge($sql, $this->getCreateTableSQL($newTable));
-            $sql[] = sprintf(
-                'INSERT INTO %s (%s) SELECT %s FROM %s',
-                $newTable->getQuotedName($this),
-                implode(', ', $newColumnNames),
-                implode(', ', $oldColumnNames),
-                $dataTable->getQuotedName($this),
-            );
-            $sql[] = $this->getDropTableSQL($dataTable->getQuotedName($this));
-
-            $sql = array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff));
-        }
-
-        return array_merge($sql, $tableSql, $columnSql);
+        return array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff), $columnSql);
     }
 
     /**
@@ -749,14 +726,9 @@ class SQLitePlatform extends AbstractPlatform
         $table = $diff->getOldTable();
 
         $sql       = [];
-        $tableSql  = [];
         $columnSql = [];
 
         foreach ($diff->getAddedColumns() as $column) {
-            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
             $definition = array_merge([
                 'unique' => null,
                 'autoincrement' => null,
@@ -779,9 +751,7 @@ class SQLitePlatform extends AbstractPlatform
                 . $this->getColumnDeclarationSQL($definition['name'], $definition);
         }
 
-        $this->onSchemaAlterTable($diff, $tableSql);
-
-        return array_merge($sql, $tableSql, $columnSql);
+        return array_merge($sql, $columnSql);
     }
 
     /** @return string[] */

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
-use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -344,46 +342,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertInstanceOf(StringType::class, $columns['column_char']->getType());
         self::assertTrue($columns['column_char']->getFixed());
         self::assertSame(2, $columns['column_char']->getLength());
-    }
-
-    public function testListTableColumnsDispatchEvent(): void
-    {
-        $table = $this->createListTableColumns();
-
-        $this->dropAndCreateTable($table);
-
-        $listenerMock = $this->createMock(ListTableColumnsDispatchEventListener::class);
-        $listenerMock
-            ->expects(self::exactly(7))
-            ->method('onSchemaColumnDefinition');
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener([Events::onSchemaColumnDefinition], $listenerMock);
-
-        $this->connection->getDatabasePlatform()->setEventManager($eventManager);
-
-        $this->schemaManager->listTableColumns('list_table_columns');
-    }
-
-    public function testListTableIndexesDispatchEvent(): void
-    {
-        $table = $this->getTestTable('list_table_indexes_test');
-        $table->addUniqueIndex(['test'], 'test_index_name');
-        $table->addIndex(['id', 'test'], 'test_composite_idx');
-
-        $this->dropAndCreateTable($table);
-
-        $listenerMock = $this->createMock(ListTableIndexesDispatchEventListener::class);
-        $listenerMock
-            ->expects(self::exactly(3))
-            ->method('onSchemaIndexDefinition');
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener([Events::onSchemaIndexDefinition], $listenerMock);
-
-        $this->connection->getDatabasePlatform()->setEventManager($eventManager);
-
-        $this->schemaManager->listTableIndexes('list_table_indexes_test');
     }
 
     public function testDiffListTableColumns(): void

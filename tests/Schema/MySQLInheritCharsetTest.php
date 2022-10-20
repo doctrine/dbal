@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
-use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
@@ -67,13 +66,11 @@ class MySQLInheritCharsetTest extends TestCase
      */
     private function getTableOptionsForOverride(array $params = []): array
     {
-        $eventManager = new EventManager();
-
         $driverMock = $this->createMock(Driver::class);
 
         $platform = new MySQLPlatform();
         $params   = array_merge(['platform' => $platform], $params);
-        $conn     = new Connection($params, $driverMock, new Configuration(), $eventManager);
+        $conn     = new Connection($params, $driverMock, new Configuration());
         $manager  = new MySQLSchemaManager($conn, $platform);
 
         $schemaConfig = $manager->createSchemaConfig();

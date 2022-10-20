@@ -50,7 +50,6 @@ class DriverTest extends AbstractDriverTest
             $params,
             $this->connection->getDriver(),
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager(),
         );
 
         $connection->fetchOne('SELECT 1');
@@ -72,7 +71,6 @@ class DriverTest extends AbstractDriverTest
             $params,
             $this->connection->getDriver(),
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager(),
         );
 
         $connection->fetchOne('SELECT 1');

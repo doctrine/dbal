@@ -360,10 +360,6 @@ class SQLServerPlatform extends AbstractPlatform
         $tableName = $table->getName();
 
         foreach ($diff->getAddedColumns() as $column) {
-            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
             $columnProperties = $column->toArray();
 
             $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnProperties);
@@ -388,10 +384,6 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
-            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
             if ($column->getDefault() !== null) {
                 $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($column);
             }
@@ -400,10 +392,6 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($diff->getModifiedColumns() as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
-                continue;
-            }
-
             $newColumn     = $columnDiff->getNewColumn();
             $newComment    = $newColumn->getComment();
             $hasNewComment = $newComment !== '';
@@ -466,10 +454,6 @@ class SQLServerPlatform extends AbstractPlatform
         $tableNameSQL = $table->getQuotedName($this);
 
         foreach ($diff->getRenamedColumns() as $oldColumnName => $newColumn) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
-                continue;
-            }
-
             $oldColumnName = new Identifier($oldColumnName);
 
             $sql[] = sprintf(
@@ -480,24 +464,17 @@ class SQLServerPlatform extends AbstractPlatform
             );
         }
 
-        $tableSql = [];
-
-        if ($this->onSchemaAlterTable($diff, $tableSql)) {
-            return array_merge($tableSql, $columnSql);
-        }
-
         foreach ($queryParts as $query) {
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
         }
 
-        $sql = array_merge(
+        return array_merge(
             $this->getPreAlterTableIndexForeignKeySQL($diff),
             $sql,
             $commentsSql,
             $this->getPostAlterTableIndexForeignKeySQL($diff),
+            $columnSql,
         );
-
-        return array_merge($sql, $tableSql, $columnSql);
     }
 
     public function getRenameTableSQL(string $oldName, string $newName): string

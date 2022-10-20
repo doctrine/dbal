@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Connections;
 
-use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Event\ConnectionEventArgs;
-use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Statement;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_rand;
@@ -100,12 +96,8 @@ class PrimaryReadReplicaConnection extends Connection
      * @psalm-param Params $params
      * @phpstan-param array<string,mixed> $params
      */
-    public function __construct(
-        array $params,
-        Driver $driver,
-        ?Configuration $config = null,
-        ?EventManager $eventManager = null,
-    ) {
+    public function __construct(array $params, Driver $driver, ?Configuration $config = null)
+    {
         if (! isset($params['replica'], $params['primary'])) {
             throw new InvalidArgumentException('primary or replica configuration missing');
         }
@@ -124,7 +116,7 @@ class PrimaryReadReplicaConnection extends Connection
 
         $this->keepReplica = ! empty($params['keepReplica']);
 
-        parent::__construct($params, $driver, $config, $eventManager);
+        parent::__construct($params, $driver, $config);
     }
 
     /**
@@ -189,18 +181,6 @@ class PrimaryReadReplicaConnection extends Connection
             }
         } else {
             $this->connections['replica'] = $this->_conn = $this->connectTo($connectionName);
-        }
-
-        if ($this->_eventManager->hasListeners(Events::postConnect)) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/5784',
-                'Subscribing to %s events is deprecated. Implement a middleware instead.',
-                Events::postConnect,
-            );
-
-            $eventArgs = new ConnectionEventArgs($this);
-            $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 
         return $this->_conn;

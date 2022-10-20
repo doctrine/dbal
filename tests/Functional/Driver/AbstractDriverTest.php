@@ -39,7 +39,6 @@ abstract class AbstractDriverTest extends FunctionalTestCase
             $params,
             $this->connection->getDriver(),
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager(),
         );
 
         self::assertSame(

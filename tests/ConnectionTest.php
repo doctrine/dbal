@@ -4,18 +4,12 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests;
 
-use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
-use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Event\TransactionBeginEventArgs;
-use Doctrine\DBAL\Event\TransactionCommitEventArgs;
-use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
-use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -102,147 +96,6 @@ class ConnectionTest extends TestCase
     public function testGetDriver(): void
     {
         self::assertInstanceOf(Driver\PDO\MySQL\Driver::class, $this->connection->getDriver());
-    }
-
-    public function testConnectDispatchEvent(): void
-    {
-        $listenerMock = $this->createMock(ConnectDispatchEventListener::class);
-        $listenerMock->expects(self::once())->method('postConnect');
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener([Events::postConnect], $listenerMock);
-
-        $driverMock = $this->createMock(Driver::class);
-        $driverMock->expects(self::once())
-                   ->method('connect');
-
-        $conn = new Connection([], $driverMock, new Configuration(), $eventManager);
-        $conn->executeQuery('SELECT 1');
-    }
-
-    public function testTransactionBeginDispatchEvent(): void
-    {
-        $eventManager = new EventManager();
-        $driverMock   = $this->createMock(Driver::class);
-        $conn         = new Connection([], $driverMock, new Configuration(), $eventManager);
-        $listenerMock = $this->createMock(TransactionBeginDispatchEventListener::class);
-        $listenerMock
-            ->expects(self::exactly(1))
-            ->method('onTransactionBegin')
-            ->with(
-                self::callback(
-                    static function (TransactionBeginEventArgs $eventArgs) use ($conn): bool {
-                        return $eventArgs->getConnection() === $conn;
-                    },
-                ),
-            );
-        $eventManager->addEventListener([Events::onTransactionBegin], $listenerMock);
-
-        $conn->beginTransaction();
-    }
-
-    public function testTransactionCommitDispatchEvent(): void
-    {
-        $eventManager = new EventManager();
-        $driverMock   = $this->createMock(Driver::class);
-        $conn         = new Connection([], $driverMock, new Configuration(), $eventManager);
-        $listenerMock = $this->createMock(TransactionCommitDispatchEventListener::class);
-        $listenerMock
-            ->expects(self::exactly(1))
-            ->method('onTransactionCommit')
-            ->with(
-                self::callback(
-                    static function (TransactionCommitEventArgs $eventArgs) use ($conn): bool {
-                        return $eventArgs->getConnection() === $conn;
-                    },
-                ),
-            );
-        $eventManager->addEventListener([Events::onTransactionCommit], $listenerMock);
-
-        $conn->beginTransaction();
-        $conn->commit();
-    }
-
-    public function testTransactionCommitEventCalledAfterRollBack(): void
-    {
-        $eventManager = new EventManager();
-        $platform     = $this->createStub(AbstractPlatform::class);
-        $platform
-            ->method('supportsSavepoints')
-            ->willReturn(true);
-
-        $driverMock = $this->createMock(Driver::class);
-        $driverMock
-            ->method('getDatabasePlatform')
-            ->willReturn($platform);
-
-        $conn = new Connection([], $driverMock, new Configuration(), $eventManager);
-
-        $rollBackListenerMock = $this->createMock(TransactionRollBackDispatchEventListener::class);
-        $rollBackListenerMock
-            ->expects(self::exactly(1))
-            ->method('onTransactionRollBack')
-            ->with(
-                self::callback(
-                    static function (TransactionRollBackEventArgs $eventArgs) use ($conn): bool {
-                        return $eventArgs->getConnection() === $conn;
-                    },
-                ),
-            );
-        $eventManager->addEventListener([Events::onTransactionRollBack], $rollBackListenerMock);
-
-        $commitListenerMock = $this->createMock(TransactionCommitDispatchEventListener::class);
-        $commitListenerMock->expects(self::exactly(1))->method('onTransactionCommit');
-        $eventManager->addEventListener([Events::onTransactionCommit], $commitListenerMock);
-
-        $conn->beginTransaction();
-        $conn->beginTransaction();
-        $conn->rollBack();
-        try {
-            $conn->commit();
-        } catch (ConnectionException) {
-        }
-    }
-
-    public function testTransactionRollBackDispatchEvent(): void
-    {
-        $eventManager = new EventManager();
-        $driverMock   = $this->createMock(Driver::class);
-        $conn         = new Connection([], $driverMock, new Configuration(), $eventManager);
-        $listenerMock = $this->createMock(TransactionRollBackDispatchEventListener::class);
-        $listenerMock
-            ->expects(self::exactly(1))
-            ->method('onTransactionRollBack')
-            ->with(
-                self::callback(
-                    static function (TransactionRollBackEventArgs $eventArgs) use ($conn): bool {
-                        return $eventArgs->getConnection() === $conn;
-                    },
-                ),
-            );
-
-        $eventManager->addEventListener([Events::onTransactionRollBack], $listenerMock);
-
-        $conn->beginTransaction();
-        $conn->rollBack();
-    }
-
-    public function testEventManagerPassedToPlatform(): void
-    {
-        $eventManager = new EventManager();
-
-        $platform = $this->createMock(AbstractPlatform::class);
-        $platform->expects(self::once())
-            ->method('setEventManager')
-            ->with($eventManager);
-
-        $driver = $this->createMock(Driver::class);
-        $driver->expects(self::any())
-            ->method('getDatabasePlatform')
-            ->willReturn($platform);
-
-        $connection = new Connection($this->params, $driver, null, $eventManager);
-        $connection->getDatabasePlatform();
     }
 
     /**
@@ -711,24 +564,4 @@ class ConnectionTest extends TestCase
 
         (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
     }
-}
-
-interface ConnectDispatchEventListener
-{
-    public function postConnect(): void;
-}
-
-interface TransactionBeginDispatchEventListener
-{
-    public function onTransactionBegin(): void;
-}
-
-interface TransactionCommitDispatchEventListener
-{
-    public function onTransactionCommit(): void;
-}
-
-interface TransactionRollBackDispatchEventListener
-{
-    public function onTransactionRollBack(): void;
 }

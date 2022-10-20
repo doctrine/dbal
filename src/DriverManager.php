@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
-use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\OCI8;
@@ -133,8 +132,7 @@ final class DriverManager
      * <b>driverClass</b>:
      * The driver class to use.
      *
-     * @param Configuration|null $config       The configuration to use.
-     * @param EventManager|null  $eventManager The event manager to use.
+     * @param Configuration|null $config The configuration to use.
      * @psalm-param array{
      *     charset?: string,
      *     dbname?: string,
@@ -162,15 +160,10 @@ final class DriverManager
      *
      * @template T of Connection
      */
-    public static function getConnection(
-        array $params,
-        ?Configuration $config = null,
-        ?EventManager $eventManager = null,
-    ): Connection {
-        // create default config and event manager, if not set
-        $config       ??= new Configuration();
-        $eventManager ??= new EventManager();
-        $params         = self::parseDatabaseUrl($params);
+    public static function getConnection(array $params, ?Configuration $config = null): Connection
+    {
+        $config ??= new Configuration();
+        $params   = self::parseDatabaseUrl($params);
 
         // URL support for PrimaryReplicaConnection
         if (isset($params['primary'])) {
@@ -199,7 +192,7 @@ final class DriverManager
             $wrapperClass = $params['wrapperClass'];
         }
 
-        return new $wrapperClass($params, $driver, $config, $eventManager);
+        return new $wrapperClass($params, $driver, $config);
     }
 
     /**
