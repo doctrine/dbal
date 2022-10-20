@@ -293,6 +293,8 @@ Bind parameters using `Statement::bindParam()` or `Statement::bindValue()` inste
 1. The `QueryBuilder::getState()` method has been deprecated as the builder state is an internal concern.
 2. Relying on the type of the query being built by using `QueryBuilder::getType()` has been deprecated.
    If necessary, track the type of the query being built outside of the builder.
+3. The `QueryBuilder::getConnection()` method has been deprecated. Use the connection used to instantiate the builder
+   instead.
 
 The following `QueryBuilder` constants related to the above methods have been deprecated:
 

@@ -186,10 +186,19 @@ class QueryBuilder
     /**
      * Gets the associated DBAL Connection for this query builder.
      *
+     * @deprecated Use the connection used to instantiate the builder instead.
+     *
      * @return Connection
      */
     public function getConnection()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5780',
+            '%s is deprecated. Use the connection used to instantiate the builder instead.',
+            __METHOD__,
+        );
+
         return $this->connection;
     }
 

@@ -450,6 +450,10 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\Comparator::diffTable"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::getConnection"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
