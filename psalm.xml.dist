@@ -111,6 +111,9 @@
                 <referencedClass name="Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs"/>
                 <referencedClass name="Doctrine\DBAL\Event\SchemaCreateTableEventArgs"/>
                 <referencedClass name="Doctrine\DBAL\Event\SchemaDropTableEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs"/>
             </errorLevel>
         </DeprecatedClass>
         <DeprecatedConstant>
@@ -135,6 +138,7 @@
                     TODO: remove in 4.0.0
                 -->
                 <file name="src/Platforms/AbstractPlatform.php"/>
+                <file name="src/Schema/AbstractSchemaManager.php"/>
                 <file name="tests/Functional/Schema/SchemaManagerFunctionalTestCase.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
             </errorLevel>

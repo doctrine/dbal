@@ -8,6 +8,14 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated extension via schema definition events
+
+Subscription to the following events has been deprecated:
+- `onSchemaColumnDefinition`,
+- `onSchemaIndexDefinition`.
+
+Use a custom schema manager instead.
+
 ## Deprecated extension via schema manipulation events
 
 Subscription to the following events has been deprecated:

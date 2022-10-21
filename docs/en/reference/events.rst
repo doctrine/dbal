@@ -64,60 +64,6 @@ methods must be named like the events itself.
 
 The following events are available.
 
-OnSchemaColumnDefinition Event
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-``Doctrine\DBAL\Events::onSchemaColumnDefinition`` is triggered on a schema update and is
-executed for every existing column definition of the database before changes are applied.
-An instance of ``Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs`` is injected as argument
-for event listeners.
-
-.. code-block:: php
-
-    <?php
-    class MyEventListener
-    {
-        public function onSchemaColumnDefinition(SchemaColumnDefinitionEventArgs $event)
-        {
-            // Your EventListener code
-        }
-    }
-
-    $evm = new EventManager();
-    $evm->addEventListener(Events::onSchemaColumnDefinition, new MyEventListener());
-
-    $conn = DriverManager::getConnection($connectionParams, null, $evm);
-
-It allows you to access the table column definitions of the current database, table name, Platform and
-``Doctrine\DBAL\Connection`` instance. Columns, that are about to be added, are not listed.
-
-OnSchemaIndexDefinition Event
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-``Doctrine\DBAL\Events::onSchemaIndexDefinition`` is triggered on a schema update and is
-executed for every existing index definition of the database before changes are applied.
-An instance of ``Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs`` is injected as argument
-for event listeners.
-
-.. code-block:: php
-
-    <?php
-    class MyEventListener
-    {
-        public function onSchemaIndexDefinition(SchemaIndexDefinitionEventArgs $event)
-        {
-            // Your EventListener code
-        }
-    }
-
-    $evm = new EventManager();
-    $evm->addEventListener(Events::onSchemaIndexDefinition, new MyEventListener());
-
-    $conn = DriverManager::getConnection($connectionParams, null, $evm);
-
-It allows you to access the table index definitions of the current database, table name, Platform and
-``Doctrine\DBAL\Connection`` instance. Indexes, that are about to be added, are not listed.
-
 OnTransactionBegin Event
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -44,9 +44,13 @@ final class Events
     /** @deprecated */
     public const onSchemaAlterTableRenameColumn = 'onSchemaAlterTableRenameColumn';
 
+    /** @deprecated */
     public const onSchemaColumnDefinition = 'onSchemaColumnDefinition';
-    public const onSchemaIndexDefinition  = 'onSchemaIndexDefinition';
-    public const onTransactionBegin       = 'onTransactionBegin';
-    public const onTransactionCommit      = 'onTransactionCommit';
-    public const onTransactionRollBack    = 'onTransactionRollBack';
+
+    /** @deprecated */
+    public const onSchemaIndexDefinition = 'onSchemaIndexDefinition';
+
+    public const onTransactionBegin    = 'onTransactionBegin';
+    public const onTransactionCommit   = 'onTransactionCommit';
+    public const onTransactionRollBack = 'onTransactionRollBack';
 }

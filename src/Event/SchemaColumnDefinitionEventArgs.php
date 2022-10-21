@@ -7,6 +7,8 @@ use Doctrine\DBAL\Schema\Column;
 
 /**
  * Event Arguments used when the portable column definition is generated inside {@see AbstractPlatform}.
+ *
+ * @deprecated
  */
 class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
 {
