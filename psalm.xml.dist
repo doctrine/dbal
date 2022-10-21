@@ -100,6 +100,17 @@
                 -->
                 <referencedClass name="Doctrine\DBAL\Types\ArrayType"/>
                 <referencedClass name="Doctrine\DBAL\Types\ObjectType"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaAlterTableEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaCreateTableEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\SchemaDropTableEventArgs"/>
             </errorLevel>
         </DeprecatedClass>
         <DeprecatedConstant>
@@ -120,6 +131,12 @@
                     TODO: remove in 4.0.0
                 -->
                 <directory name="src/Schema/Exception"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <file name="src/Platforms/AbstractPlatform.php"/>
+                <file name="tests/Functional/Schema/SchemaManagerFunctionalTestCase.php"/>
+                <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
             </errorLevel>
         </DeprecatedConstant>
         <DeprecatedInterface>
