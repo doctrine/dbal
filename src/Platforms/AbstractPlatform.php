@@ -89,7 +89,11 @@ abstract class AbstractPlatform
      */
     protected $doctrineTypeComments;
 
-    /** @var EventManager|null */
+    /**
+     * @deprecated
+     *
+     * @var EventManager|null
+     */
     protected $_eventManager;
 
     /**
@@ -102,20 +106,38 @@ abstract class AbstractPlatform
     /**
      * Sets the EventManager used by the Platform.
      *
+     * @deprecated
+     *
      * @return void
      */
     public function setEventManager(EventManager $eventManager)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         $this->_eventManager = $eventManager;
     }
 
     /**
      * Gets the EventManager used by the Platform.
      *
+     * @deprecated
+     *
      * @return EventManager|null
      */
     public function getEventManager()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         return $this->_eventManager;
     }
 

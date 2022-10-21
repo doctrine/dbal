@@ -6,6 +6,8 @@ namespace Doctrine\DBAL;
  * Container for all DBAL events.
  *
  * This class cannot be instantiated.
+ *
+ * @deprecated
  */
 final class Events
 {

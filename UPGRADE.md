@@ -8,6 +8,17 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated extension via Doctrine Event Manager
+
+Extension of the library behavior via Doctrine Event Manager has been deprecated.
+
+The following methods and properties have been deprecated:
+- `AbstractPlatform::$_eventManager`,
+- `AbstractPlatform::getEventManager()`,
+- `AbstractPlatform::setEventManager()`,
+- `Connection::$_eventManager`,
+- `Connection::getEventManager()`.
+
 ## Deprecated extension via connection events
 
 Subscription to the `postConnect` event has been deprecated. Use one of the following replacements for the standard

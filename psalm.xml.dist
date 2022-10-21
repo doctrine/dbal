@@ -122,6 +122,7 @@
                 <referencedClass name="Doctrine\DBAL\Event\Listeners\OracleSessionInit"/>
                 <referencedClass name="Doctrine\DBAL\Event\Listeners\SQLSessionInit"/>
                 <referencedClass name="Doctrine\DBAL\Event\Listeners\SQLiteSessionInit"/>
+                <referencedClass name="Doctrine\DBAL\Events"/>
             </errorLevel>
         </DeprecatedClass>
         <DeprecatedConstant>
@@ -491,6 +492,11 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::getConnection"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Connection::getEventManager"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::setEventManager"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
@@ -544,6 +550,11 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedProperty name="Doctrine\DBAL\Schema\SchemaDiff::$orphanedForeignKeys"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedProperty name="Doctrine\DBAL\Connection::$_eventManager"/>
+                <referencedProperty name="Doctrine\DBAL\Platforms\AbstractPlatform::$_eventManager"/>
             </errorLevel>
         </DeprecatedProperty>
         <DocblockTypeContradiction>
