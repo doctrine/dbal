@@ -13,6 +13,8 @@ use function is_array;
 
 /**
  * Event Arguments used when SQL queries for adding table columns are generated inside {@see AbstractPlatform}.
+ *
+ * @deprecated
  */
 class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
 {

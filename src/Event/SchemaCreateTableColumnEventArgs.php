@@ -12,6 +12,8 @@ use function is_array;
 
 /**
  * Event Arguments used when SQL queries for creating table columns are generated inside {@see AbstractPlatform}.
+ *
+ * @deprecated
  */
 class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 {

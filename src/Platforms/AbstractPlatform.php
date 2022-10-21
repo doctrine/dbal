@@ -1813,6 +1813,13 @@ abstract class AbstractPlatform
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated.',
+                Events::onSchemaDropTable,
+            );
+
             $eventArgs = new SchemaDropTableEventArgs($tableArg, $this);
             $this->_eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
 
@@ -2077,6 +2084,13 @@ abstract class AbstractPlatform
                 $this->_eventManager !== null
                 && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)
             ) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/issues/5784',
+                    'Subscribing to %s events is deprecated.',
+                    Events::onSchemaCreateTableColumn,
+                );
+
                 $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
 
                 $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
@@ -2098,6 +2112,13 @@ abstract class AbstractPlatform
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated.',
+                Events::onSchemaCreateTable,
+            );
+
             $eventArgs = new SchemaCreateTableEventArgs($table, $columns, $options, $this);
 
             $this->_eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
@@ -2630,6 +2651,13 @@ abstract class AbstractPlatform
             return false;
         }
 
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTableAddColumn,
+        );
+
         $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
 
@@ -2653,6 +2681,13 @@ abstract class AbstractPlatform
             return false;
         }
 
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTableRemoveColumn,
+        );
+
         $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
 
@@ -2675,6 +2710,13 @@ abstract class AbstractPlatform
         if (! $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
             return false;
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTableChangeColumn,
+        );
 
         $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
@@ -2700,6 +2742,13 @@ abstract class AbstractPlatform
             return false;
         }
 
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTableRenameColumn,
+        );
+
         $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
 
@@ -2722,6 +2771,13 @@ abstract class AbstractPlatform
         if (! $this->_eventManager->hasListeners(Events::onSchemaAlterTable)) {
             return false;
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTable,
+        );
 
         $eventArgs = new SchemaAlterTableEventArgs($diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTable, $eventArgs);

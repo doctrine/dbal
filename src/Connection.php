@@ -1328,7 +1328,18 @@ class Connection
             );
         }
 
-        $this->getEventManager()->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
+        $eventManager = $this->getEventManager();
+
+        if ($eventManager->hasListeners(Events::onTransactionBegin)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated.',
+                Events::onTransactionBegin,
+            );
+
+            $eventManager->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
+        }
 
         return true;
     }
@@ -1360,7 +1371,18 @@ class Connection
 
         --$this->transactionNestingLevel;
 
-        $this->getEventManager()->dispatchEvent(Events::onTransactionCommit, new TransactionCommitEventArgs($this));
+        $eventManager = $this->getEventManager();
+
+        if ($eventManager->hasListeners(Events::onTransactionCommit)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated.',
+                Events::onTransactionCommit,
+            );
+
+            $eventManager->dispatchEvent(Events::onTransactionCommit, new TransactionCommitEventArgs($this));
+        }
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
             return $result;
@@ -1460,7 +1482,18 @@ class Connection
             --$this->transactionNestingLevel;
         }
 
-        $this->getEventManager()->dispatchEvent(Events::onTransactionRollBack, new TransactionRollBackEventArgs($this));
+        $eventManager = $this->getEventManager();
+
+        if ($eventManager->hasListeners(Events::onTransactionRollBack)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated.',
+                Events::onTransactionRollBack,
+            );
+
+            $eventManager->dispatchEvent(Events::onTransactionRollBack, new TransactionRollBackEventArgs($this));
+        }
 
         return true;
     }

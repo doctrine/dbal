@@ -8,6 +8,8 @@ use InvalidArgumentException;
 
 /**
  * Event Arguments used when the SQL query for dropping tables are generated inside {@see AbstractPlatform}.
+ *
+ * @deprecated
  */
 class SchemaDropTableEventArgs extends SchemaEventArgs
 {

@@ -1390,6 +1390,13 @@ abstract class AbstractSchemaManager
             $defaultPrevented = false;
 
             if ($eventManager !== null && $eventManager->hasListeners(Events::onSchemaColumnDefinition)) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/issues/5784',
+                    'Subscribing to %s events is deprecated. Use a custom schema manager instead.',
+                    Events::onSchemaColumnDefinition,
+                );
+
                 $eventArgs = new SchemaColumnDefinitionEventArgs($tableColumn, $table, $database, $this->_conn);
                 $eventManager->dispatchEvent(Events::onSchemaColumnDefinition, $eventArgs);
 
@@ -1475,6 +1482,13 @@ abstract class AbstractSchemaManager
             $defaultPrevented = false;
 
             if ($eventManager !== null && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/issues/5784',
+                    'Subscribing to %s events is deprecated. Use a custom schema manager instead.',
+                    Events::onSchemaColumnDefinition,
+                );
+
                 $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->_conn);
                 $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
 
