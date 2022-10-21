@@ -50,7 +50,12 @@ final class Events
     /** @deprecated */
     public const onSchemaIndexDefinition = 'onSchemaIndexDefinition';
 
-    public const onTransactionBegin    = 'onTransactionBegin';
-    public const onTransactionCommit   = 'onTransactionCommit';
+    /** @deprecated */
+    public const onTransactionBegin = 'onTransactionBegin';
+
+    /** @deprecated */
+    public const onTransactionCommit = 'onTransactionCommit';
+
+    /** @deprecated */
     public const onTransactionRollBack = 'onTransactionRollBack';
 }

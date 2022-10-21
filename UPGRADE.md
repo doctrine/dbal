@@ -8,6 +8,19 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated extension via transaction events
+
+Subscription to the following events has been deprecated:
+- `onTransactionBegin`,
+- `onTransactionCommit`,
+- `onTransactionRollBack`.
+
+The upgrade path will depend on the use case:
+1. If you need to extend the behavior of only the actual top-level transactions (not the ones emulated via savepoints),
+   implement a driver middleware.
+2. If you need to extend the behavior of the top-level and nested transactions, either implement a driver middleware
+   or implement a custom wrapper connection.
+
 ## Deprecated extension via schema definition events
 
 Subscription to the following events has been deprecated:
