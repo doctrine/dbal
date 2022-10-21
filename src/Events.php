@@ -18,6 +18,7 @@ final class Events
     {
     }
 
+    /** @deprecated */
     public const postConnect = 'postConnect';
 
     /** @deprecated */

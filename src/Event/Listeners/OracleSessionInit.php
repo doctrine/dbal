@@ -23,6 +23,8 @@ use const CASE_UPPER;
  * NLS_DATE_FORMAT="YYYY-MM-DD HH24:MI:SS"
  * NLS_TIMESTAMP_FORMAT="YYYY-MM-DD HH24:MI:SS"
  * NLS_TIMESTAMP_TZ_FORMAT="YYYY-MM-DD HH24:MI:SS TZH:TZM"
+ *
+ * @deprecated Use {@see \Doctrine\DBAL\Driver\OCI8\Middleware\InitializeSession} instead.
  */
 class OracleSessionInit implements EventSubscriber
 {

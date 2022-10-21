@@ -13,6 +13,7 @@ use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Statement;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_rand;
@@ -199,6 +200,13 @@ class PrimaryReadReplicaConnection extends Connection
         }
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated. Implement a middleware instead.',
+                Events::postConnect,
+            );
+
             $eventArgs = new ConnectionEventArgs($this);
             $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }

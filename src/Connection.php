@@ -340,6 +340,13 @@ class Connection
         }
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated. Implement a middleware instead.',
+                Events::postConnect,
+            );
+
             $eventArgs = new Event\ConnectionEventArgs($this);
             $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }

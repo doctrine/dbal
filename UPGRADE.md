@@ -8,6 +8,16 @@ awareness about deprecated code.
 
 # Upgrade to 3.5
 
+## Deprecated extension via connection events
+
+Subscription to the `postConnect` event has been deprecated. Use one of the following replacements for the standard
+event listeners or implement a custom middleware instead.
+
+The following `postConnect` event listeners have been deprecated:
+1. `OracleSessionInit`. Use `Doctrine\DBAL\Driver\OCI8\Middleware\InitializeSession`.
+2. `SQLiteSessionInit`. Use `Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys`.
+3. `SQLSessionInit`. Implement a custom middleware.
+
 ## Deprecated extension via transaction events
 
 Subscription to the following events has been deprecated:

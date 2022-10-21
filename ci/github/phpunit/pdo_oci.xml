@@ -17,7 +17,6 @@
         <var name="db_password" value="oracle"/>
         <var name="db_dbname" value="XE"/>
         <var name="db_charset" value="AL32UTF8" />
-        <var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit"/>
 
         <var name="tmpdb_driver" value="pdo_oci"/>
         <var name="tmpdb_host" value="localhost"/>
