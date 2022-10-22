@@ -13,6 +13,8 @@ use function array_values;
 
 /**
  * Event Arguments used when SQL queries for creating table columns are generated inside {@see AbstractPlatform}.
+ *
+ * @deprecated
  */
 class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 {

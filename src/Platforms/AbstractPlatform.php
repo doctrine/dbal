@@ -42,6 +42,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function addcslashes;
@@ -86,6 +87,7 @@ abstract class AbstractPlatform
     /** @var string[]|null */
     protected ?array $doctrineTypeMapping = null;
 
+    /** @deprecated */
     protected ?EventManager $_eventManager = null;
 
     /**
@@ -95,17 +97,35 @@ abstract class AbstractPlatform
 
     /**
      * Sets the EventManager used by the Platform.
+     *
+     * @deprecated
      */
     public function setEventManager(EventManager $eventManager): void
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         $this->_eventManager = $eventManager;
     }
 
     /**
      * Gets the EventManager used by the Platform.
+     *
+     * @deprecated
      */
     public function getEventManager(): ?EventManager
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         return $this->_eventManager;
     }
 
@@ -767,6 +787,13 @@ abstract class AbstractPlatform
     public function getDropTableSQL(string $table): string
     {
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated.',
+                Events::onSchemaDropTable,
+            );
+
             $eventArgs = new SchemaDropTableEventArgs($table, $this);
             $this->_eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
 
@@ -893,6 +920,13 @@ abstract class AbstractPlatform
                 $this->_eventManager !== null
                 && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)
             ) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/issues/5784',
+                    'Subscribing to %s events is deprecated.',
+                    Events::onSchemaCreateTableColumn,
+                );
+
                 $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
 
                 $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
@@ -914,6 +948,13 @@ abstract class AbstractPlatform
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated.',
+                Events::onSchemaCreateTable,
+            );
+
             $eventArgs = new SchemaCreateTableEventArgs($table, $columns, $options, $this);
 
             $this->_eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
@@ -1319,6 +1360,13 @@ abstract class AbstractPlatform
             return false;
         }
 
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTableAddColumn,
+        );
+
         $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
 
@@ -1338,6 +1386,13 @@ abstract class AbstractPlatform
             return false;
         }
 
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTableRemoveColumn,
+        );
+
         $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
 
@@ -1356,6 +1411,13 @@ abstract class AbstractPlatform
         if (! $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
             return false;
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTableChangeColumn,
+        );
 
         $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
@@ -1380,6 +1442,13 @@ abstract class AbstractPlatform
             return false;
         }
 
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTableRenameColumn,
+        );
+
         $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
 
@@ -1398,6 +1467,13 @@ abstract class AbstractPlatform
         if (! $this->_eventManager->hasListeners(Events::onSchemaAlterTable)) {
             return false;
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onSchemaAlterTable,
+        );
 
         $eventArgs = new SchemaAlterTableEventArgs($diff, $this);
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTable, $eventArgs);

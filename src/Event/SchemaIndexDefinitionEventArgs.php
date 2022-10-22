@@ -9,6 +9,8 @@ use Doctrine\DBAL\Schema\Index;
 
 /**
  * Event Arguments used when the portable index definition is generated inside {@see AbstractSchemaManager}.
+ *
+ * @deprecated
  */
 class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
 {

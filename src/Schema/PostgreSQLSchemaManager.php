@@ -546,22 +546,20 @@ SQL;
     private function buildQueryConditions(?string $tableName): array
     {
         $conditions = [];
-        $schemaName = null;
 
         if ($tableName !== null) {
             if (str_contains($tableName, '.')) {
                 [$schemaName, $tableName] = explode('.', $tableName);
+                $conditions[]             = 'n.nspname = ' . $this->platform->quoteStringLiteral($schemaName);
+            } else {
+                $conditions[] = 'n.nspname = ANY(current_schemas(false))';
             }
 
             $identifier   = new Identifier($tableName);
             $conditions[] = 'c.relname = ' . $this->platform->quoteStringLiteral($identifier->getName());
         }
 
-        if ($schemaName !== null) {
-            $conditions[] = 'n.nspname = ' . $this->platform->quoteStringLiteral($schemaName);
-        } else {
-            $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
-        }
+        $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";
 
         return $conditions;
     }

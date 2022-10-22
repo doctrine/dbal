@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_intersect;
@@ -676,6 +677,13 @@ abstract class AbstractSchemaManager
             $defaultPrevented = false;
 
             if ($eventManager !== null && $eventManager->hasListeners(Events::onSchemaColumnDefinition)) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/issues/5784',
+                    'Subscribing to %s events is deprecated. Use a custom schema manager instead.',
+                    Events::onSchemaColumnDefinition,
+                );
+
                 $eventArgs = new SchemaColumnDefinitionEventArgs($tableColumn, $table, $database, $this->connection);
                 $eventManager->dispatchEvent(Events::onSchemaColumnDefinition, $eventArgs);
 
@@ -758,6 +766,13 @@ abstract class AbstractSchemaManager
             $defaultPrevented = false;
 
             if ($eventManager !== null && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/issues/5784',
+                    'Subscribing to %s events is deprecated. Use a custom schema manager instead.',
+                    Events::onSchemaColumnDefinition,
+                );
+
                 $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->connection);
                 $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
 

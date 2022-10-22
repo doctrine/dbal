@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests;
 
-use Doctrine\Common\EventSubscriber;
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys;
 use Doctrine\DBAL\Driver\Mysqli;
+use Doctrine\DBAL\Driver\OCI8\Middleware\InitializeSession;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Event\Listeners\SQLiteSessionInit;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
@@ -20,14 +21,11 @@ use PHPUnit\Framework\Assert;
 use function array_keys;
 use function array_map;
 use function array_values;
-use function explode;
 use function extension_loaded;
 use function file_exists;
 use function implode;
 use function in_array;
 use function is_string;
-use function is_subclass_of;
-use function sprintf;
 use function str_starts_with;
 use function strlen;
 use function substr;
@@ -69,13 +67,10 @@ class TestUtil
 
         $params = self::getConnectionParams();
 
-        $connection = DriverManager::getConnection($params);
-
-        if (isset($params['event_subscribers'])) {
-            self::addDbEventSubscribers($connection, explode(',', $params['event_subscribers']));
-        }
-
-        return $connection;
+        return DriverManager::getConnection(
+            $params,
+            self::createConfiguration($params['driver']),
+        );
     }
 
     /** @return mixed[] */
@@ -150,28 +145,27 @@ class TestUtil
         }
 
         return [
-            'driver'            => 'pdo_sqlite',
-            'memory'            => true,
-            'event_subscribers' => SQLiteSessionInit::class,
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
         ];
     }
 
-    /** @param list<string> $subscribers */
-    private static function addDbEventSubscribers(Connection $connection, array $subscribers): void
+    private static function createConfiguration(string $driver): Configuration
     {
-        $evm = $connection->getEventManager();
+        $configuration = new Configuration();
 
-        foreach ($subscribers as $subscriber) {
-            if (! is_subclass_of($subscriber, EventSubscriber::class)) {
-                throw new InvalidArgumentException(sprintf(
-                    '"%s" is not a valid event subscriber. It must be a class that implements "%s".',
-                    $subscriber,
-                    EventSubscriber::class,
-                ));
-            }
-
-            $evm->addEventSubscriber(new $subscriber());
+        switch ($driver) {
+            case 'pdo_oci':
+            case 'oci8':
+                $configuration->setMiddlewares([new InitializeSession()]);
+                break;
+            case 'pdo_sqlite':
+            case 'sqlite3':
+                $configuration->setMiddlewares([new EnableForeignKeys()]);
+                break;
         }
+
+        return $configuration;
     }
 
     /** @return mixed[] */
@@ -220,7 +214,6 @@ class TestUtil
                 'unix_socket',
                 'path',
                 'charset',
-                'event_subscribers',
             ] as $parameter
         ) {
             if (! isset($configuration[$prefix . $parameter])) {

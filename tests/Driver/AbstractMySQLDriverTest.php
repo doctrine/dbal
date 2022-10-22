@@ -48,9 +48,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
     public static function platformVersionProvider(): array
     {
         return [
-            ['5.7', MySQLPlatform::class],
-            ['8', MySQL80Platform::class],
-            ['8.0', MySQL80Platform::class],
+            ['5.7.0', MySQLPlatform::class],
             ['8.0.11', MySQL80Platform::class],
             ['5.5.40-MariaDB-1~wheezy', MariaDBPlatform::class],
             ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],

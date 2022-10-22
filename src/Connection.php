@@ -73,6 +73,7 @@ class Connection implements ServerVersionProvider
 
     protected Configuration $_config;
 
+    /** @deprecated */
     protected EventManager $_eventManager;
 
     /**
@@ -186,9 +187,18 @@ class Connection implements ServerVersionProvider
 
     /**
      * Gets the EventManager used by the Connection.
+     *
+     * @deprecated
      */
     public function getEventManager(): EventManager
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         return $this->_eventManager;
     }
 
@@ -243,6 +253,13 @@ class Connection implements ServerVersionProvider
         }
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated. Implement a middleware instead.',
+                Events::postConnect,
+            );
+
             $eventArgs = new Event\ConnectionEventArgs($this);
             $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
@@ -1010,7 +1027,20 @@ class Connection implements ServerVersionProvider
             $this->createSavepoint($this->_getNestedTransactionSavePointName());
         }
 
-        $this->getEventManager()->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
+        $eventManager = $this->getEventManager();
+
+        if (! $eventManager->hasListeners(Events::onTransactionBegin)) {
+            return;
+        }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onTransactionBegin,
+        );
+
+        $eventManager->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
     }
 
     /** @throws Exception */
@@ -1038,7 +1068,18 @@ class Connection implements ServerVersionProvider
 
         --$this->transactionNestingLevel;
 
-        $this->getEventManager()->dispatchEvent(Events::onTransactionCommit, new TransactionCommitEventArgs($this));
+        $eventManager = $this->getEventManager();
+
+        if ($eventManager->hasListeners(Events::onTransactionCommit)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated.',
+                Events::onTransactionCommit,
+            );
+
+            $eventManager->dispatchEvent(Events::onTransactionCommit, new TransactionCommitEventArgs($this));
+        }
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
             return;
@@ -1095,7 +1136,20 @@ class Connection implements ServerVersionProvider
             --$this->transactionNestingLevel;
         }
 
-        $this->getEventManager()->dispatchEvent(Events::onTransactionRollBack, new TransactionRollBackEventArgs($this));
+        $eventManager = $this->getEventManager();
+
+        if (! $eventManager->hasListeners(Events::onTransactionRollBack)) {
+            return;
+        }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            'Subscribing to %s events is deprecated.',
+            Events::onTransactionRollBack,
+        );
+
+        $eventManager->dispatchEvent(Events::onTransactionRollBack, new TransactionRollBackEventArgs($this));
     }
 
     /**

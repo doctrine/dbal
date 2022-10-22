@@ -8,6 +8,8 @@ use Doctrine\Common\EventArgs;
 
 /**
  * Base class for schema related events.
+ *
+ * @deprecated
  */
 class SchemaEventArgs extends EventArgs
 {

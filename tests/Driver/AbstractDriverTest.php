@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connection\StaticServerVersionProvider;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -35,14 +34,6 @@ abstract class AbstractDriverTest extends TestCase
         );
 
         self::assertSame($expectedClass, $platform::class);
-    }
-
-    public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
-    {
-        $this->expectException(Exception::class);
-        $this->driver->getDatabasePlatform(
-            new StaticServerVersionProvider('foo'),
-        );
     }
 
     public function testReturnsExceptionConverter(): void

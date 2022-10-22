@@ -833,6 +833,67 @@ The following methods have been removed.
 
 # Upgrade to 3.5
 
+## Deprecated extension via Doctrine Event Manager
+
+Extension of the library behavior via Doctrine Event Manager has been deprecated.
+
+The following methods and properties have been deprecated:
+- `AbstractPlatform::$_eventManager`,
+- `AbstractPlatform::getEventManager()`,
+- `AbstractPlatform::setEventManager()`,
+- `Connection::$_eventManager`,
+- `Connection::getEventManager()`.
+
+## Deprecated extension via connection events
+
+Subscription to the `postConnect` event has been deprecated. Use one of the following replacements for the standard
+event listeners or implement a custom middleware instead.
+
+The following `postConnect` event listeners have been deprecated:
+1. `OracleSessionInit`. Use `Doctrine\DBAL\Driver\OCI8\Middleware\InitializeSession`.
+2. `SQLiteSessionInit`. Use `Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys`.
+3. `SQLSessionInit`. Implement a custom middleware.
+
+## Deprecated extension via transaction events
+
+Subscription to the following events has been deprecated:
+- `onTransactionBegin`,
+- `onTransactionCommit`,
+- `onTransactionRollBack`.
+
+The upgrade path will depend on the use case:
+1. If you need to extend the behavior of only the actual top-level transactions (not the ones emulated via savepoints),
+   implement a driver middleware.
+2. If you need to extend the behavior of the top-level and nested transactions, either implement a driver middleware
+   or implement a custom wrapper connection.
+
+## Deprecated extension via schema definition events
+
+Subscription to the following events has been deprecated:
+- `onSchemaColumnDefinition`,
+- `onSchemaIndexDefinition`.
+
+Use a custom schema manager instead.
+
+## Deprecated extension via schema manipulation events
+
+Subscription to the following events has been deprecated:
+- `onSchemaCreateTable`,
+- `onSchemaCreateTableColumn`,
+- `onSchemaDropTable`,
+- `onSchemaAlterTable`,
+- `onSchemaAlterTableAddColumn`,
+- `onSchemaAlterTableRemoveColumn`,
+- `onSchemaAlterTableChangeColumn`,
+- `onSchemaAlterTableRenameColumn`.
+
+The upgrade path will depend on the use case:
+1. If you are using the events to modify the behavior of the platform, you should extend the platform class
+   and implement the corresponding logic in the sub-class.
+2. If you are using the events to modify the arguments processed by the platform (e.g. modify the table definition
+   before the platform generates the `CREATE TABLE` DDL), you should do the needed modifications before calling
+   the corresponding platform or schema manager method.
+
 ## Deprecated the emulation of the `LOCATE()` function for SQLite
 
 Relying on the availability of the `LOCATE()` on SQLite deprecated. SQLite does not provide that function natively,
@@ -1118,6 +1179,8 @@ Bind parameters using `Statement::bindParam()` or `Statement::bindValue()` inste
 1. The `QueryBuilder::getState()` method has been deprecated as the builder state is an internal concern.
 2. Relying on the type of the query being built by using `QueryBuilder::getType()` has been deprecated.
    If necessary, track the type of the query being built outside of the builder.
+3. The `QueryBuilder::getConnection()` method has been deprecated. Use the connection used to instantiate the builder
+   instead.
 
 The following `QueryBuilder` constants related to the above methods have been deprecated:
 

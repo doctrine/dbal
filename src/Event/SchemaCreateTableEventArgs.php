@@ -12,6 +12,8 @@ use function array_values;
 
 /**
  * Event Arguments used when SQL queries for creating tables are generated inside {@see AbstractPlatform}.
+ *
+ * @deprecated
  */
 class SchemaCreateTableEventArgs extends SchemaEventArgs
 {
