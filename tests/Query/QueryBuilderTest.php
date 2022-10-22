@@ -474,12 +474,6 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }
 
-    public function testGetConnection(): void
-    {
-        $qb = new QueryBuilder($this->conn);
-        self::assertSame($this->conn, $qb->getConnection());
-    }
-
     /** @dataProvider maxResultsProvider */
     public function testSetMaxResults(?int $maxResults): void
     {
