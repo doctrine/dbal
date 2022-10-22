@@ -430,7 +430,8 @@ The following `QueryBuilder` methods have been removed:
 
 1. `execute()`,
 2. `getState()`,
-3. `getType()`.
+3. `getType()`,
+4. `getConnection()`.
 
 The following `QueryBuilder` constants have been removed:
 
