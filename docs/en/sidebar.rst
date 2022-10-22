@@ -11,7 +11,6 @@
     reference/types
     reference/schema-manager
     reference/schema-representation
-    reference/events
     reference/security
     reference/supporting-other-databases
     reference/portability

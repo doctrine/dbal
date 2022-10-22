@@ -118,6 +118,11 @@
                 <referencedClass name="Doctrine\DBAL\Event\TransactionBeginEventArgs"/>
                 <referencedClass name="Doctrine\DBAL\Event\TransactionCommitEventArgs"/>
                 <referencedClass name="Doctrine\DBAL\Event\TransactionRollBackEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\ConnectionEventArgs"/>
+                <referencedClass name="Doctrine\DBAL\Event\Listeners\OracleSessionInit"/>
+                <referencedClass name="Doctrine\DBAL\Event\Listeners\SQLSessionInit"/>
+                <referencedClass name="Doctrine\DBAL\Event\Listeners\SQLiteSessionInit"/>
+                <referencedClass name="Doctrine\DBAL\Events"/>
             </errorLevel>
         </DeprecatedClass>
         <DeprecatedConstant>
@@ -142,9 +147,15 @@
                     TODO: remove in 4.0.0
                 -->
                 <file name="src/Connection.php"/>
+                <file name="src/Connections/PrimaryReadReplicaConnection.php"/>
+                <file name="src/Event/Listeners/OracleSessionInit.php"/>
+                <file name="src/Event/Listeners/SQLSessionInit.php"/>
+                <file name="src/Event/Listeners/SQLiteSessionInit.php"/>
                 <file name="src/Platforms/AbstractPlatform.php"/>
                 <file name="src/Schema/AbstractSchemaManager.php"/>
                 <file name="tests/ConnectionTest.php"/>
+                <file name="tests/Events/OracleSessionInitTest.php"/>
+                <file name="tests/Events/SQLSessionInitTest.php"/>
                 <file name="tests/Functional/Schema/SchemaManagerFunctionalTestCase.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
             </errorLevel>
@@ -481,6 +492,11 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::getConnection"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Connection::getEventManager"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::setEventManager"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
@@ -534,6 +550,11 @@
                     TODO: remove in 4.0.0
                 -->
                 <referencedProperty name="Doctrine\DBAL\Schema\SchemaDiff::$orphanedForeignKeys"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedProperty name="Doctrine\DBAL\Connection::$_eventManager"/>
+                <referencedProperty name="Doctrine\DBAL\Platforms\AbstractPlatform::$_eventManager"/>
             </errorLevel>
         </DeprecatedProperty>
         <DocblockTypeContradiction>

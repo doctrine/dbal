@@ -80,7 +80,11 @@ class Connection
     /** @var Configuration */
     protected $_config;
 
-    /** @var EventManager */
+    /**
+     * @deprecated
+     *
+     * @var EventManager
+     */
     protected $_eventManager;
 
     /**
@@ -256,10 +260,19 @@ class Connection
     /**
      * Gets the EventManager used by the Connection.
      *
+     * @deprecated
+     *
      * @return EventManager
      */
     public function getEventManager()
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/issues/5784',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         return $this->_eventManager;
     }
 
@@ -340,6 +353,13 @@ class Connection
         }
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5784',
+                'Subscribing to %s events is deprecated. Implement a middleware instead.',
+                Events::postConnect,
+            );
+
             $eventArgs = new Event\ConnectionEventArgs($this);
             $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
