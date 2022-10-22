@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
-use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -234,98 +232,6 @@ abstract class AbstractPlatformTestCase extends TestCase
             'foo MEDIUMINT(6) UNSIGNED',
             $this->platform->getColumnDeclarationSQL('foo', ['columnDefinition' => 'MEDIUMINT(6) UNSIGNED']),
         );
-    }
-
-    public function testGetCreateTableSqlDispatchEvent(): void
-    {
-        $listenerMock = $this->createMock(GetCreateTableSqlDispatchEventListener::class);
-        $listenerMock
-            ->expects(self::once())
-            ->method('onSchemaCreateTable');
-        $listenerMock
-            ->expects(self::exactly(2))
-            ->method('onSchemaCreateTableColumn');
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener([
-            Events::onSchemaCreateTable,
-            Events::onSchemaCreateTableColumn,
-        ], $listenerMock);
-
-        $this->platform->setEventManager($eventManager);
-
-        $table = new Table('test');
-        $table->addColumn('foo', 'string', ['notnull' => false, 'length' => 255]);
-        $table->addColumn('bar', 'string', ['notnull' => false, 'length' => 255]);
-
-        $this->platform->getCreateTableSQL($table);
-    }
-
-    public function testGetDropTableSqlDispatchEvent(): void
-    {
-        $listenerMock = $this->createMock(GetDropTableSqlDispatchEventListener::class);
-        $listenerMock
-            ->expects(self::once())
-            ->method('onSchemaDropTable');
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener([Events::onSchemaDropTable], $listenerMock);
-
-        $this->platform->setEventManager($eventManager);
-
-        $this->platform->getDropTableSQL('TABLE');
-    }
-
-    public function testGetAlterTableSqlDispatchEvent(): void
-    {
-        $listenerMock = $this->createMock(GetAlterTableSqlDispatchEventListener::class);
-        $listenerMock
-            ->expects(self::once())
-            ->method('onSchemaAlterTable');
-        $listenerMock
-            ->expects(self::once())
-            ->method('onSchemaAlterTableAddColumn');
-        $listenerMock
-            ->expects(self::once())
-            ->method('onSchemaAlterTableRemoveColumn');
-        $listenerMock
-            ->expects(self::once())
-            ->method('onSchemaAlterTableChangeColumn');
-        $listenerMock
-            ->expects(self::once())
-            ->method('onSchemaAlterTableRenameColumn');
-
-        $eventManager = new EventManager();
-        $events       = [
-            Events::onSchemaAlterTable,
-            Events::onSchemaAlterTableAddColumn,
-            Events::onSchemaAlterTableRemoveColumn,
-            Events::onSchemaAlterTableChangeColumn,
-            Events::onSchemaAlterTableRenameColumn,
-        ];
-        $eventManager->addEventListener($events, $listenerMock);
-
-        $this->platform->setEventManager($eventManager);
-
-        $table = new Table('mytable');
-        $table->addColumn('removed', 'integer');
-        $table->addColumn('changed', 'integer');
-        $table->addColumn('renamed', 'integer');
-
-        $tableDiff = new TableDiff($table, [
-            new Column('added', Type::getType('integer')),
-        ], [
-            new ColumnDiff(
-                $table->getColumn('changed'),
-                new Column('changed2', Type::getType('string'), ['length' => 255]),
-            ),
-        ], [
-            new Column('removed', Type::getType('integer')),
-        ], [
-            'renamed' => new Column('renamed2', Type::getType('integer')),
-        ], [], [], [], [], [], [], []);
-
-        $this->platform->getAlterTableSQL($tableDiff);
     }
 
     public function testGetDefaultValueDeclarationSQL(): void

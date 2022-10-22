@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL;
 
 use Closure;
-use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\Exception\NoResultDriverConfigured;
@@ -14,9 +13,6 @@ use Doctrine\DBAL\Connection\StaticServerVersionProvider;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\Event\TransactionBeginEventArgs;
-use Doctrine\DBAL\Event\TransactionCommitEventArgs;
-use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DriverException;
@@ -43,7 +39,7 @@ use function key;
 use function sprintf;
 
 /**
- * A database abstraction-level connection that implements features like events, transaction isolation levels,
+ * A database abstraction-level connection that implements features like transaction isolation levels,
  * configuration, emulated transaction nesting, lazy connecting and more.
  *
  * @psalm-import-type Params from DriverManager
@@ -72,9 +68,6 @@ class Connection implements ServerVersionProvider
     protected ?DriverConnection $_conn = null;
 
     protected Configuration $_config;
-
-    /** @deprecated */
-    protected EventManager $_eventManager;
 
     /**
      * The current auto-commit mode of this connection.
@@ -117,10 +110,9 @@ class Connection implements ServerVersionProvider
      *
      * @internal The connection can be only instantiated by the driver manager.
      *
-     * @param array<string, mixed> $params       The connection parameters.
-     * @param Driver               $driver       The driver to use.
-     * @param Configuration|null   $config       The configuration, optional.
-     * @param EventManager|null    $eventManager The event manager, optional.
+     * @param array<string, mixed> $params The connection parameters.
+     * @param Driver               $driver The driver to use.
+     * @param Configuration|null   $config The configuration, optional.
      * @psalm-param Params $params
      * @phpstan-param array<string,mixed> $params
      */
@@ -128,12 +120,10 @@ class Connection implements ServerVersionProvider
         array $params,
         protected Driver $driver,
         ?Configuration $config = null,
-        ?EventManager $eventManager = null,
     ) {
-        $this->_config       = $config ?? new Configuration();
-        $this->_eventManager = $eventManager ?? new EventManager();
-        $this->params        = $params;
-        $this->autoCommit    = $this->_config->getAutoCommit();
+        $this->_config    = $config ?? new Configuration();
+        $this->params     = $params;
+        $this->autoCommit = $this->_config->getAutoCommit();
     }
 
     /**
@@ -186,23 +176,6 @@ class Connection implements ServerVersionProvider
     }
 
     /**
-     * Gets the EventManager used by the Connection.
-     *
-     * @deprecated
-     */
-    public function getEventManager(): EventManager
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/5784',
-            '%s is deprecated.',
-            __METHOD__,
-        );
-
-        return $this->_eventManager;
-    }
-
-    /**
      * Gets the DatabasePlatform for the connection.
      *
      * @throws Exception
@@ -217,7 +190,6 @@ class Connection implements ServerVersionProvider
             }
 
             $this->platform = $this->driver->getDatabasePlatform($versionProvider);
-            $this->platform->setEventManager($this->_eventManager);
         }
 
         return $this->platform;
@@ -250,18 +222,6 @@ class Connection implements ServerVersionProvider
 
         if ($this->autoCommit === false) {
             $this->beginTransaction();
-        }
-
-        if ($this->_eventManager->hasListeners(Events::postConnect)) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/5784',
-                'Subscribing to %s events is deprecated. Implement a middleware instead.',
-                Events::postConnect,
-            );
-
-            $eventArgs = new Event\ConnectionEventArgs($this);
-            $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 
         return $connection;
@@ -1026,21 +986,6 @@ class Connection implements ServerVersionProvider
         } else {
             $this->createSavepoint($this->_getNestedTransactionSavePointName());
         }
-
-        $eventManager = $this->getEventManager();
-
-        if (! $eventManager->hasListeners(Events::onTransactionBegin)) {
-            return;
-        }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/5784',
-            'Subscribing to %s events is deprecated.',
-            Events::onTransactionBegin,
-        );
-
-        $eventManager->dispatchEvent(Events::onTransactionBegin, new TransactionBeginEventArgs($this));
     }
 
     /** @throws Exception */
@@ -1067,19 +1012,6 @@ class Connection implements ServerVersionProvider
         }
 
         --$this->transactionNestingLevel;
-
-        $eventManager = $this->getEventManager();
-
-        if ($eventManager->hasListeners(Events::onTransactionCommit)) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/5784',
-                'Subscribing to %s events is deprecated.',
-                Events::onTransactionCommit,
-            );
-
-            $eventManager->dispatchEvent(Events::onTransactionCommit, new TransactionCommitEventArgs($this));
-        }
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
             return;
@@ -1135,21 +1067,6 @@ class Connection implements ServerVersionProvider
             $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
             --$this->transactionNestingLevel;
         }
-
-        $eventManager = $this->getEventManager();
-
-        if (! $eventManager->hasListeners(Events::onTransactionRollBack)) {
-            return;
-        }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/5784',
-            'Subscribing to %s events is deprecated.',
-            Events::onTransactionRollBack,
-        );
-
-        $eventManager->dispatchEvent(Events::onTransactionRollBack, new TransactionRollBackEventArgs($this));
     }
 
     /**

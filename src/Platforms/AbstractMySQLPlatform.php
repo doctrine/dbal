@@ -313,10 +313,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $queryParts = [];
 
         foreach ($diff->getAddedColumns() as $column) {
-            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
             $columnProperties = array_merge($column->toArray(), [
                 'comment' => $column->getComment(),
             ]);
@@ -328,18 +324,10 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
-            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
             $queryParts[] =  'DROP ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->getModifiedColumns() as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
-                continue;
-            }
-
             $newColumn = $columnDiff->getNewColumn();
 
             $newColumnProperties = array_merge($newColumn->toArray(), [
@@ -353,10 +341,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         }
 
         foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
-                continue;
-            }
-
             $oldColumnName = new Identifier($oldColumnName);
 
             $columnProperties = array_merge($column->toArray(), [
@@ -412,18 +396,16 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $sql      = [];
         $tableSql = [];
 
-        if (! $this->onSchemaAlterTable($diff, $tableSql)) {
-            if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getOldTable()->getQuotedName($this) . ' '
-                    . implode(', ', $queryParts);
-            }
-
-            $sql = array_merge(
-                $this->getPreAlterTableIndexForeignKeySQL($diff),
-                $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff),
-            );
+        if (count($queryParts) > 0) {
+            $sql[] = 'ALTER TABLE ' . $diff->getOldTable()->getQuotedName($this) . ' '
+                . implode(', ', $queryParts);
         }
+
+        $sql = array_merge(
+            $this->getPreAlterTableIndexForeignKeySQL($diff),
+            $sql,
+            $this->getPostAlterTableIndexForeignKeySQL($diff),
+        );
 
         return array_merge($sql, $tableSql, $columnSql);
     }

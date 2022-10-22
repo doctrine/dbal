@@ -29,7 +29,6 @@ class ConnectionTest extends FunctionalTestCase
         $connection = DriverManager::getConnection(
             $params,
             $this->connection->getConfiguration(),
-            $this->connection->getEventManager(),
         );
 
         self::assertEquals(

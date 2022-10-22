@@ -230,10 +230,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         $tableNameSQL = $table->getQuotedName($this);
 
         foreach ($diff->getAddedColumns() as $addedColumn) {
-            if ($this->onSchemaAlterTableAddColumn($addedColumn, $diff, $columnSql)) {
-                continue;
-            }
-
             $query = 'ADD ' . $this->getColumnDeclarationSQL(
                 $addedColumn->getQuotedName($this),
                 $addedColumn->toArray(),
@@ -255,19 +251,11 @@ class PostgreSQLPlatform extends AbstractPlatform
         }
 
         foreach ($diff->getDroppedColumns() as $droppedColumn) {
-            if ($this->onSchemaAlterTableRemoveColumn($droppedColumn, $diff, $columnSql)) {
-                continue;
-            }
-
             $query = 'DROP ' . $droppedColumn->getQuotedName($this);
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
         }
 
         foreach ($diff->getModifiedColumns() as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
-                continue;
-            }
-
             $oldColumn = $columnDiff->getOldColumn();
             $newColumn = $columnDiff->getNewColumn();
 
@@ -335,28 +323,19 @@ class PostgreSQLPlatform extends AbstractPlatform
         }
 
         foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
-                continue;
-            }
-
             $oldColumnName = new Identifier($oldColumnName);
 
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this)
                 . ' TO ' . $column->getQuotedName($this);
         }
 
-        $tableSql = [];
-
-        if (! $this->onSchemaAlterTable($diff, $tableSql)) {
-            $sql = array_merge(
-                $this->getPreAlterTableIndexForeignKeySQL($diff),
-                $sql,
-                $commentsSQL,
-                $this->getPostAlterTableIndexForeignKeySQL($diff),
-            );
-        }
-
-        return array_merge($sql, $tableSql, $columnSql);
+        return array_merge(
+            $this->getPreAlterTableIndexForeignKeySQL($diff),
+            $sql,
+            $commentsSQL,
+            $this->getPostAlterTableIndexForeignKeySQL($diff),
+            $columnSql,
+        );
     }
 
     /**

@@ -263,10 +263,6 @@ class DB2Platform extends AbstractPlatform
 
         $queryParts = [];
         foreach ($diff->getAddedColumns() as $column) {
-            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
             $columnDef = $column->toArray();
             $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
@@ -295,18 +291,10 @@ class DB2Platform extends AbstractPlatform
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
-            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
             $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->getModifiedColumns() as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
-                continue;
-            }
-
             if ($columnDiff->hasCommentChanged()) {
                 $newColumn     = $columnDiff->getNewColumn();
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
@@ -325,37 +313,29 @@ class DB2Platform extends AbstractPlatform
         }
 
         foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
-                continue;
-            }
-
             $oldColumnName = new Identifier($oldColumnName);
 
             $queryParts[] =  'RENAME COLUMN ' . $oldColumnName->getQuotedName($this) .
                 ' TO ' . $column->getQuotedName($this);
         }
 
-        $tableSql = [];
-
-        if (! $this->onSchemaAlterTable($diff, $tableSql)) {
-            if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . implode(' ', $queryParts);
-            }
-
-            // Some table alteration operations require a table reorganization.
-            if (count($diff->getDroppedColumns()) > 0 || count($diff->getModifiedColumns()) > 0) {
-                $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $tableNameSQL . "')";
-            }
-
-            $sql = array_merge(
-                $this->getPreAlterTableIndexForeignKeySQL($diff),
-                $sql,
-                $commentsSQL,
-                $this->getPostAlterTableIndexForeignKeySQL($diff),
-            );
+        if (count($queryParts) > 0) {
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . implode(' ', $queryParts);
         }
 
-        return array_merge($sql, $tableSql, $columnSql);
+        // Some table alteration operations require a table reorganization.
+        if (count($diff->getDroppedColumns()) > 0 || count($diff->getModifiedColumns()) > 0) {
+            $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $tableNameSQL . "')";
+        }
+
+        $sql = array_merge(
+            $this->getPreAlterTableIndexForeignKeySQL($diff),
+            $sql,
+            $commentsSQL,
+            $this->getPostAlterTableIndexForeignKeySQL($diff),
+        );
+
+        return array_merge($sql, $columnSql);
     }
 
     public function getRenameTableSQL(string $oldName, string $newName): string
