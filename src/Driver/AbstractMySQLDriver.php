@@ -69,7 +69,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
         $mariadb = stripos($versionString, 'MariaDB') !== false;
         if ($mariadb) {
             $matches = [];
-            if (preg_match('/MariaDB-(.*)/i', $versionString, $matches)) {
+            if (preg_match('/^MariaDB-(.*)$/i', $versionString, $matches)) {
                 return $matches[1];
             }
         }
