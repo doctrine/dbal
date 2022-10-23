@@ -67,20 +67,16 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
     private function getMariaDbMysqlVersionNumber(string $versionString): string
     {
         $mariadb = stripos($versionString, 'MariaDB') !== false;
-        if ($mariadb) {
+        if (false !== $mariadb) {
             $matches = [];
-            if (preg_match('/^MariaDB-(.*)$/i', $versionString, $matches)) {
+            if (preg_match('/MariaDB-(\d+.\d+.\d+)/i', $versionString, $matches)) {
                 return $matches[1];
             }
         }
         
-        if (substr($versionString, 0, 6) === '5.5.5-') {
-            return substr($versionString, 6);
-        }
-
         return $versionString;
     }
-
+    
     /**
      * {@inheritdoc}
      *
