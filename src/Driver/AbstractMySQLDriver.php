@@ -73,6 +73,10 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
                 return $matches[1];
             }
         }
+
+        if (substr($versionString, 0, 6) === '5.5.5-') {
+            return substr($versionString, 6);
+        }
         
         return $versionString;
     }

@@ -60,6 +60,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             ['5.5.5-10.2.8-MariaDB-1~xenial', MariaDb1027Platform::class],
             ['5.5.5-10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
             ['10.2.8-MariaDB-1~lenny-log', MariaDb1027Platform::class],
+            ['mariadb-10.9.3', MariaDb1027Platform::class],
         ];
     }
 }
