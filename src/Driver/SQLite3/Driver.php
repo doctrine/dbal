@@ -18,7 +18,7 @@ final class Driver extends AbstractSQLiteDriver
         if (isset($params['path'])) {
             if ($isMemory) {
                 throw new Exception(
-                    'Invalid connection settings: specifying both parameters "path" and "memory" ambiguous.',
+                    'Invalid connection settings: specifying both parameters "path" and "memory" is ambiguous.',
                 );
             }
 
