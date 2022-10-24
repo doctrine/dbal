@@ -8,6 +8,27 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Disallowed partial version numbers in ``serverVersion``
+
+The ``serverVersion`` connection parameter must consist of 3 numbers:
+
+```diff
+-'serverVersion' => '8.0'
++'serverVersion' => '8.0.31'
+```
+
+## Removed `mariadb-` prefix hack
+
+Previously, it was necessary to prefix the `serverVersion` parameter with
+`mariadb-` when using MariaDB. Doing so is now considered invalid, and you
+should prefer using the version as returned by `SELECT VERSION();`
+
+```diff
+-'serverVersion' => 'mariadb-10.9.3'
++'serverVersion' => '10.9.3-MariaDB-1'
+```
+
+
 ## Removed `SchemaDiff::$orphanedForeignKeys`
 
 The functionality of automatically dropping the foreign keys referencing the tables being dropped has been removed.
