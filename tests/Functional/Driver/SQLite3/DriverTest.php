@@ -63,7 +63,7 @@ class DriverTest extends AbstractDriverTest
         $this->expectException(DriverException::class);
         $this->expectExceptionMessage(
             'An exception occurred in the driver: '
-                . 'Invalid connection settings: specifying both parameters "path" and "memory" ambiguous.',
+                . 'Invalid connection settings: specifying both parameters "path" and "memory" is ambiguous.',
         );
 
         $connection = new Connection(
