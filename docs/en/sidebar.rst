@@ -18,5 +18,5 @@
     reference/known-vendor-issues
     reference/testing
 
-    explanation/dc2type-comments.rst
+    explanation/dc2type-comments
     explanation/implicit-indexes
