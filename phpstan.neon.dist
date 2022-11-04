@@ -52,11 +52,6 @@ parameters:
             paths:
                 - src/Driver/OCI8/Result.php
 
-        -
-            message: '~Method Doctrine\\DBAL\\DriverManager::createDriver\(\) should return Doctrine\\DBAL\\Driver but returns object\.~'
-            paths:
-                - src/DriverManager.php
-
         # TODO: remove in 4.0.0
         -
             message: '~^Parameter #2 \$table of class Doctrine\\DBAL\\Event\\SchemaIndexDefinitionEventArgs constructor expects string, string\|null given\.$~'
@@ -98,6 +93,12 @@ parameters:
                 - src/Driver/Mysqli/Exception/ConnectionFailed.php
                 - src/Driver/Mysqli/Exception/InvalidCharset.php
                 - src/Driver/Mysqli/Exception/StatementError.php
+
+        # TODO: Turn this bool cast into a strict type check in 4.0.0
+        -
+            message: '~^Casting to bool something that''s already bool\.$~'
+            paths:
+                - src/Connections/PrimaryReadReplicaConnection.php
 
         # Type check for legacy implementations of the Connection interface
         # TODO: remove in 4.0.0
