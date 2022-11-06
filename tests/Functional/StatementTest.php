@@ -2,10 +2,8 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -284,62 +282,6 @@ EOF
         $stmt->bindValue(1, 'apple');
 
         self::assertEquals([5, 6], $stmt->executeQuery()->fetchNumeric());
-    }
-
-    /**
-     * @param mixed $expected
-     *
-     * @dataProvider emptyFetchProvider
-     */
-    public function testFetchFromExecutedStatementWithFreedResult(callable $fetch, $expected): void
-    {
-        $this->connection->insert('stmt_test', ['id' => 1]);
-
-        $stmt   = $this->connection->prepare('SELECT id FROM stmt_test');
-        $result = $stmt->execute();
-        $result->free();
-
-        try {
-            // some drivers will trigger a PHP error here which, if not suppressed,
-            // would be converted to a PHPUnit exception prior to DBAL throwing its own one
-            $value = @$fetch($result);
-        } catch (Exception $e) {
-            // The drivers that enforce the command sequencing internally will throw an exception
-            $this->expectNotToPerformAssertions();
-
-            return;
-        }
-
-        // Other drivers will silently return an empty result
-        self::assertSame($expected, $value);
-    }
-
-    /** @return mixed[][] */
-    public static function emptyFetchProvider(): iterable
-    {
-        return [
-            'fetch' => [
-                /** @return mixed */
-                static function (Result $result) {
-                    return $result->fetchAssociative();
-                },
-                false,
-            ],
-            /** @return mixed|false */
-            'fetch-column' => [
-                static function (Result $result) {
-                    return $result->fetchOne();
-                },
-                false,
-            ],
-            /** @return mixed[] */
-            'fetch-all' => [
-                static function (Result $result): array {
-                    return $result->fetchAllAssociative();
-                },
-                [],
-            ],
-        ];
     }
 
     public function testFetchInColumnMode(): void
