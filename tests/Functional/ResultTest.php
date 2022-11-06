@@ -9,60 +9,69 @@ use Doctrine\DBAL\Tests\TestUtil;
 
 class ResultTest extends FunctionalTestCase
 {
-    /** @dataProvider methodProvider */
-    public function testExceptionHandling(callable $method): void
+    /**
+     * @param mixed $expected
+     *
+     * @dataProvider methodProvider
+     */
+    public function testExceptionHandling(callable $method, $expected): void
     {
-        if (! TestUtil::isDriverOneOf('mysqli', 'ibm_db2')) {
-            self::markTestSkipped('This test works only with the mysqli and ibm_db2 drivers.');
-        }
-
         $result = $this->connection->executeQuery(
             $this->connection->getDatabasePlatform()
                 ->getDummySelectSQL(),
         );
         $result->free();
 
-        $this->expectException(Exception::class);
-        $method($result);
+        try {
+            // some drivers will trigger a PHP error here which, if not suppressed,
+            // would be converted to a PHPUnit exception prior to DBAL throwing its own one
+            $value = @$method($result);
+        } catch (Exception $e) {
+            // The drivers that enforce the command sequencing internally will throw an exception
+            $this->expectNotToPerformAssertions();
+
+            return;
+        }
+
+        self::assertFalse(
+            TestUtil::isDriverOneOf('mysqli', 'ibm_db2'),
+            'We expect mysqli and ibm_db2 drivers to throw an exception.',
+        );
+        // Other drivers will silently return an empty result
+        self::assertSame($expected, $value);
     }
 
-    /** @return iterable<string,array{callable(Result):void}> */
+    /** @return iterable<string, array{callable(Result):mixed, mixed}> */
     public static function methodProvider(): iterable
     {
         yield 'fetchNumeric' => [
-            static function (Result $result): void {
-                $result->fetchNumeric();
-            },
+            static fn (Result $result) => $result->fetchNumeric(),
+            false,
         ];
 
         yield 'fetchAssociative' => [
-            static function (Result $result): void {
-                $result->fetchAssociative();
-            },
+            static fn (Result $result) => $result->fetchAssociative(),
+            false,
         ];
 
         yield 'fetchOne' => [
-            static function (Result $result): void {
-                $result->fetchOne();
-            },
+            static fn (Result $result) => $result->fetchOne(),
+            false,
         ];
 
         yield 'fetchAllNumeric' => [
-            static function (Result $result): void {
-                $result->fetchAllNumeric();
-            },
+            static fn (Result $result): array => $result->fetchAllNumeric(),
+            [],
         ];
 
         yield 'fetchAllAssociative' => [
-            static function (Result $result): void {
-                $result->fetchAllAssociative();
-            },
+            static fn (Result $result): array => $result->fetchAllAssociative(),
+            [],
         ];
 
         yield 'fetchFirstColumn' => [
-            static function (Result $result): void {
-                $result->fetchFirstColumn();
-            },
+            static fn (Result $result): array => $result->fetchFirstColumn(),
+            [],
         ];
     }
 }
