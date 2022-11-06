@@ -18,6 +18,7 @@ use Doctrine\DBAL\Exception\UnknownDriver;
 
 use function array_keys;
 use function array_merge;
+use function assert;
 use function class_implements;
 use function in_array;
 use function is_string;
@@ -68,6 +69,7 @@ use function substr;
  *     serverVersion?: string,
  *     sharding?: array<string,mixed>,
  *     slaves?: array<OverrideParams>,
+ *     url?: string,
  *     user?: string,
  *     wrapperClass?: class-string<Connection>,
  *     unix_socket?: string,
@@ -208,7 +210,6 @@ final class DriverManager
     /**
      * @param array<string,mixed> $params
      * @psalm-param Params $params
-     * @phpstan-param array<string,mixed> $params
      */
     private static function createDriver(array $params): Driver
     {
@@ -252,12 +253,10 @@ final class DriverManager
      *
      * @param mixed[] $params The list of parameters.
      * @psalm-param Params $params
-     * @phpstan-param array<string,mixed> $params
      *
      * @return mixed[] A modified list of parameters with info from a database
      *                 URL extracted into indidivual parameter parts.
      * @psalm-return Params
-     * @phpstan-return array<string,mixed>
      */
     private static function parseDatabaseUrl(array $params): array
     {
@@ -267,6 +266,8 @@ final class DriverManager
 
         // Patch the URL without a host to make it valid before parsing
         $url = preg_replace('#^pdo-sqlite:///#', 'pdo-sqlite://localhost/', $params['url']);
+        assert($url !== null);
+
         $url = parse_url($url);
 
         if ($url === false) {

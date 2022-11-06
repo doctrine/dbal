@@ -271,15 +271,16 @@ jobs:
           - "10.2"
           - "10.5"
           - "10.7"
+          - "10.9"
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - php-version: "8.2"
-            mariadb-version: "10.7"
+            mariadb-version: "10.9"
             extension: "mysqli"
           - php-version: "8.2"
-            mariadb-version: "10.7"
+            mariadb-version: "10.9"
             extension: "pdo_mysql"
 
     services:

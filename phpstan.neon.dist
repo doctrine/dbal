@@ -8,11 +8,6 @@ parameters:
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1158
-        -
-            message: '~^Strict comparison using === between string and null will always evaluate to false\.$~'
-            path: %currentWorkingDirectory%/src/Driver/IBMDB2/Connection.php
-
         # https://github.com/phpstan/phpstan-strict-rules/issues/103
         -
             message: '~^Construct empty\(\) is not allowed. Use more strict comparison\.~'
@@ -46,11 +41,6 @@ parameters:
             paths:
                 - src/Driver/OCI8/Result.php
 
-        -
-            message: '~Method Doctrine\\DBAL\\DriverManager::createDriver\(\) should return Doctrine\\DBAL\\Driver but returns object\.~'
-            paths:
-                - src/DriverManager.php
-
         # https://github.com/phpstan/phpstan/issues/4679
         -
             message: '~^Cannot call method writeTemporary\(\) on OCILob\|null\.$~'
@@ -62,11 +52,6 @@ parameters:
             paths:
                 - src/Driver/Mysqli/Result.php
 
-        # The schema manager isn't initialized if the test is skipped
-        -
-            message: '~Strict comparison using === between Doctrine\\DBAL\\Schema\\AbstractSchemaManager and null will always evaluate to false\.~'
-            path: tests/Functional/Schema/SchemaManagerFunctionalTestCase.php
-
         # Removing the (int) cast will make Psalm unhappy.
         -
             message: '~^Casting to int something that''s already int\.$~'
@@ -77,9 +62,6 @@ parameters:
                 - src/Driver/Mysqli/Exception/StatementError.php
 
         # We're testing with invalid input.
-        -
-            message: '~^Parameter #2 \$lockMode of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:appendLockHint\(\) expects 0\|1\|2\|4, 128 given\.$~'
-            path: tests/Platforms/AbstractPlatformTestCase.php
         -
             message: '~^Unable to resolve the template type T in call to method static method Doctrine\\DBAL\\DriverManager::getConnection\(\)~'
             path: tests/DriverManagerTest.php
@@ -98,19 +80,6 @@ parameters:
             message: '~^Offset string does not exist on array{.+}\.$~'
             paths:
                 - tests/DriverManagerTest.php
-
-        # It is not clear how to address these errors (it should be an intersection type)
-        -
-            message: '~array{url: ''sqlite::memory:'', wrapperClass: class-string<Doctrine\\DBAL\\Connection>\|class-string<PHPUnit\\Framework\\MockObject\\MockObject>} given\.$~'
-            path: tests/DriverManagerTest.php
-        -
-            message: '~class-string<Doctrine\\DBAL\\Connection>&class-string<PHPUnit\\Framework\\MockObject\\MockObject> given\.$~'
-            path: tests/DriverManagerTest.php
-
-        # It is not clear how to address this error (one of the types is a sub-type of the other)
-        -
-            message: '~^Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) .* will always evaluate to false\.$~'
-            path: tests/ConnectionTest.php
 
         # There is no way to make this assertion in the code,
         # and the API doesn't support parametrization of returned column types.

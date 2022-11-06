@@ -114,7 +114,6 @@ class Connection implements ServerVersionProvider
      * @param Driver               $driver The driver to use.
      * @param Configuration|null   $config The configuration, optional.
      * @psalm-param Params $params
-     * @phpstan-param array<string,mixed> $params
      */
     public function __construct(
         array $params,

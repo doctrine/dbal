@@ -110,6 +110,7 @@ class QueryCacheProfileTest extends TestCase
         self::assertArrayHasKey('connectionParams', $params);
 
         foreach ($this->connectionParams as $param) {
+            self::assertIsString($params['connectionParams']);
             self::assertStringNotContainsString($param, $params['connectionParams']);
         }
     }
