@@ -12,6 +12,7 @@ use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\InvalidFieldNameException;
+use Doctrine\DBAL\Exception\LockWaitTimeoutException;
 use Doctrine\DBAL\Exception\NonUniqueFieldNameException;
 use Doctrine\DBAL\Exception\NotNullConstraintViolationException;
 use Doctrine\DBAL\Exception\SchemaDoesNotExist;
@@ -33,6 +34,9 @@ final class ExceptionConverter implements ExceptionConverterInterface
             case '40001':
             case '40P01':
                 return new DeadlockException($exception, $query);
+
+            case '55P03':
+                return new LockWaitTimeoutException($exception, $query);
 
             case '0A000':
                 // Foreign key constraint violations during a TRUNCATE operation
