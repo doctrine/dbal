@@ -8,6 +8,27 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Disallowed partial version numbers in ``serverVersion``
+
+The ``serverVersion`` connection parameter must consist of 3 numbers:
+
+```diff
+-'serverVersion' => '8.0'
++'serverVersion' => '8.0.31'
+```
+
+## Removed `mariadb-` prefix hack
+
+Previously, it was necessary to prefix the `serverVersion` parameter with
+`mariadb-` when using MariaDB. Doing so is now considered invalid, and you
+should prefer using the version as returned by `SELECT VERSION();`
+
+```diff
+-'serverVersion' => 'mariadb-10.9.3'
++'serverVersion' => '10.9.3-MariaDB-1'
+```
+
+
 ## Removed `SchemaDiff::$orphanedForeignKeys`
 
 The functionality of automatically dropping the foreign keys referencing the tables being dropped has been removed.
@@ -385,7 +406,7 @@ The `Type::canRequireSQLConversion()` method has been removed.
 The wrapper-level `Connection::getWrappedConnection()` method has been removed. The `Connection::connect()` method
 has been made `protected` and now must return the underlying driver-level connection.
 
-## BC BREAK: Added `getNativeConnection()` to driver connections and removed old accessors 
+## BC BREAK: Added `getNativeConnection()` to driver connections and removed old accessors
 
 Driver and middleware connections must implement `getNativeConnection()` now. This new method replaces several accessors
 that have been removed:
@@ -671,7 +692,7 @@ To add or replace a keyword list, use `ReservedWordsCommand::setKeywordList()`.
 
 ## Removed `AbstractPlatform::getReservedKeywordsClass()`
 
-Instead of implementing `AbstractPlatform::getReservedKeywordsClass()`, platforms must implement `AbstractPlatform::createReservedKeywordsList()`. The latter has been made abstract. 
+Instead of implementing `AbstractPlatform::getReservedKeywordsClass()`, platforms must implement `AbstractPlatform::createReservedKeywordsList()`. The latter has been made abstract.
 
 ## `PostgreSQLSchemaManager` methods have been made protected.
 
@@ -719,7 +740,7 @@ The `CompositeExpression` class is now immutable.
 
 - When generating schema DDL, DBAL no longer provides the default length for string and binary columns. The application may need to provide the column length if required by the target platform.
 - The `\DBAL\Platforms\AbstractPlatform::getVarcharTypeDeclarationSQL()` method has been renamed to `::getStringTypeDeclarationSQL()`.
-- The following `AbstractPlatform` methods have been removed as no longer relevant: `::getCharMaxLength()`, `::getVarcharMaxLength()`, `::getVarcharDefaultLength()`, `::getBinaryMaxLength()`, `::getBinaryDefaultLength()`. 
+- The following `AbstractPlatform` methods have been removed as no longer relevant: `::getCharMaxLength()`, `::getVarcharMaxLength()`, `::getVarcharDefaultLength()`, `::getBinaryMaxLength()`, `::getBinaryDefaultLength()`.
 
 ## BC BREAK: Changes in `Doctrine\DBAL\Event\SchemaCreateTableEventArgs`
 
@@ -1780,7 +1801,7 @@ deprecated in order to provide a more consistent API.
 
 ## Deprecated `Comparator::compare($fromSchema, $toSchema)`
 
-The usage of `Comparator::compare($fromSchema, $toSchema)` is deprecated and 
+The usage of `Comparator::compare($fromSchema, $toSchema)` is deprecated and
 replaced by `Comparator::compareSchemas($fromSchema, $toSchema)` in order to
 clarify the purpose of the method.
 

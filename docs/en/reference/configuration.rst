@@ -292,9 +292,6 @@ the corresponding platform class.
 You can also pass the ``serverVersion`` option if you want to disable automatic
 database platform detection and choose the platform version implementation explicitly.
 
-If you are running a MariaDB database, you should prefix the ``serverVersion``
-with ``mariadb-`` (ex: ``mariadb-10.2.12``).
-
 Custom Driver Options
 ~~~~~~~~~~~~~~~~~~~~~
 
