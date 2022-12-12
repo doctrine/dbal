@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     errorLevel="2"
-    phpVersion="8.1"
+    phpVersion="8.2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -641,6 +641,12 @@
                 <file name="src/Schema/PostgreSQLSchemaManager.php"/>
             </errorLevel>
         </NullableReturnStatement>
+        <PossiblyInvalidArrayOffset>
+            <errorLevel type="suppress">
+                <!-- $array[key($array)] is safe. -->
+                <file name="src/Query/QueryBuilder.php"/>
+            </errorLevel>
+        </PossiblyInvalidArrayOffset>
         <PossiblyNullArgument>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3488 -->
