@@ -105,7 +105,7 @@ class TableDiff
      *
      * @internal Use {@see getAddedForeignKeys()} instead.
      *
-     * @var ForeignKeyConstraint[]
+     * @var list<ForeignKeyConstraint>
      */
     public $addedForeignKeys = [];
 
@@ -114,7 +114,7 @@ class TableDiff
      *
      * @internal Use {@see getModifiedForeignKeys()} instead.
      *
-     * @var ForeignKeyConstraint[]
+     * @var list<ForeignKeyConstraint>
      */
     public $changedForeignKeys = [];
 
@@ -123,7 +123,7 @@ class TableDiff
      *
      * @internal Use {@see getDroppedForeignKeys()} instead.
      *
-     * @var (ForeignKeyConstraint|string)[]
+     * @var list<ForeignKeyConstraint|string>
      */
     public $removedForeignKeys = [];
 
@@ -333,12 +333,10 @@ class TableDiff
      */
     public function unsetDroppedForeignKey($foreignKey): void
     {
-        $this->removedForeignKeys = array_filter(
+        $this->removedForeignKeys = array_values(array_filter(
             $this->removedForeignKeys,
-            static function ($removedForeignKey) use ($foreignKey): bool {
-                return $removedForeignKey !== $foreignKey;
-            },
-        );
+            static fn ($removedForeignKey): bool => $removedForeignKey !== $foreignKey,
+        ));
     }
 
     /**

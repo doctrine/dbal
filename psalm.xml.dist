@@ -5,6 +5,8 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    findUnusedBaselineEntry="false"
+    findUnusedCode="false"
 >
     <projectFiles>
         <directory name="src" />
@@ -608,6 +610,16 @@
                 <!-- We're testing with invalid input here. -->
                 <file name="tests/Functional/LegacyAPITest.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
+
+                <!-- See https://bugs.php.net/bug.php?id=77591 -->
+                <referencedFunction name="db2_autocommit"/>
+
+                <!-- See https://github.com/doctrine/dbal/pull/3498 -->
+                <file name="tests/Functional/DataAccessTest.php"/>
+                <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
+                <file name="tests/Platforms/DB2PlatformTest.php"/>
+                <file name="tests/Platforms/OraclePlatformTest.php"/>
+                <file name="tests/Platforms/SqlitePlatformTest.php"/>
             </errorLevel>
         </InvalidArgument>
         <InvalidDocblock>
@@ -628,6 +640,12 @@
                 <file name="src/Driver/PDO/Exception.php"/>
             </errorLevel>
         </InvalidPropertyAssignmentValue>
+        <LessSpecificReturnStatement>
+            <errorLevel type="suppress">
+                <!-- Psalm does not understand the polymorphism of the PDO::fetch() and fetchAll() methods -->
+                <file name="src/Driver/PDO/Result.php"/>
+            </errorLevel>
+        </LessSpecificReturnStatement>
         <MissingConstructor>
             <errorLevel type="suppress">
                 <!--
@@ -637,6 +655,12 @@
                 <file name="src/Schema/SchemaConfig.php"/>
             </errorLevel>
         </MissingConstructor>
+        <MoreSpecificReturnType>
+            <errorLevel type="suppress">
+                <!-- Psalm does not understand the polymorphism of the PDO::fetch() and fetchAll() methods -->
+                <file name="src/Driver/PDO/Result.php"/>
+            </errorLevel>
+        </MoreSpecificReturnType>
         <NullableReturnStatement>
             <errorLevel type="suppress">
                 <!--
@@ -812,6 +836,7 @@
                     This issue should be fixed in 4.0
                 -->
                 <file name="src/Connection.php"/>
+                <file name="src/Driver/Mysqli/Result.php"/>
                 <file name="src/Statement.php"/>
                 <file name="src/Query/QueryBuilder.php"/>
             </errorLevel>
@@ -824,6 +849,7 @@
                     This issue should be fixed in 4.0
                 -->
                 <file name="src/Connection.php"/>
+                <file name="src/Driver/Mysqli/Result.php"/>
                 <file name="src/Statement.php"/>
                 <file name="src/Query/QueryBuilder.php"/>
             </errorLevel>
@@ -839,10 +865,26 @@
 
                 <!-- See https://github.com/doctrine/dbal/pull/3574 -->
                 <file name="tests/Query/Expression/ExpressionBuilderTest.php"/>
-
-                <!-- See https://bugs.php.net/bug.php?id=77591 -->
-                <referencedFunction name="db2_autocommit"/>
             </errorLevel>
         </InvalidScalarArgument>
+        <MethodSignatureMustProvideReturnType>
+            <errorLevel type="suppress">
+                <!-- https://github.com/vimeo/psalm/issues/8557 -->
+                <file name="src/Query/Expression/CompositeExpression.php"/>
+                <file name="src/Query/QueryBuilder.php"/>
+            </errorLevel>
+        </MethodSignatureMustProvideReturnType>
+        <NoValue>
+            <errorLevel type="suppress">
+                <!-- We're checking for invalid input. -->
+                <file name="src/Platforms/AbstractPlatform.php"/>
+                <file name="src/Platforms/SQLServerPlatform.php"/>
+            </errorLevel>
+        </NoValue>
+        <UnsupportedReferenceUsage>
+            <errorLevel type="suppress">
+                <file name="src/Driver/SQLSrv/Statement.php"/>
+            </errorLevel>
+        </UnsupportedReferenceUsage>
     </issueHandlers>
 </psalm>

@@ -52,9 +52,26 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
      */
     private function createPrimaryReadReplicaConnectionParams(bool $keepReplica = false): array
     {
-        $params                 = $this->connection->getParams();
-        $params['primary']      = $params;
-        $params['replica']      = [$params, $params];
+        $params         = $this->connection->getParams();
+        $overrideParams = $params;
+
+        // Unset all fields that don't belong on a primary/replica definition.
+        unset(
+            $overrideParams['defaultTableOptions'],
+            $overrideParams['keepSlave'],
+            $overrideParams['keepReplica'],
+            $overrideParams['master'],
+            $overrideParams['memory'],
+            $overrideParams['primary'],
+            $overrideParams['replica'],
+            $overrideParams['serverVersion'],
+            $overrideParams['sharding'],
+            $overrideParams['slaves'],
+            $overrideParams['wrapperClass'],
+        );
+
+        $params['primary']      = $overrideParams;
+        $params['replica']      = [$overrideParams, $overrideParams];
         $params['keepReplica']  = $keepReplica;
         $params['wrapperClass'] = PrimaryReadReplicaConnection::class;
 

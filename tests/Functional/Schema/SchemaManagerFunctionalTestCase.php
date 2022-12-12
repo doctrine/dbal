@@ -774,8 +774,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         //create schema
-        $diff                  = new SchemaDiff();
-        $diff->newNamespaces[] = 'testschema';
+        $diff                              = new SchemaDiff();
+        $diff->newNamespaces['testschema'] = 'testschema';
 
         foreach ($platform->getAlterSchemaSQL($diff) as $sql) {
             $this->connection->executeStatement($sql);

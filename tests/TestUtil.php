@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
+use LogicException;
 use PHPUnit\Framework\Assert;
 
 use function array_keys;
@@ -30,6 +31,8 @@ use function unlink;
 
 /**
  * TestUtil is a class with static utility methods used during tests.
+ *
+ * @psalm-import-type Params from DriverManager
  */
 class TestUtil
 {
@@ -66,11 +69,11 @@ class TestUtil
 
         return DriverManager::getConnection(
             $params,
-            self::createConfiguration($params['driver']),
+            self::createConfiguration($params['driver'] ?? null),
         );
     }
 
-    /** @return mixed[] */
+    /** @psalm-return Params */
     public static function getConnectionParams(): array
     {
         if (self::hasRequiredConnectionParams()) {
@@ -110,9 +113,13 @@ class TestUtil
             $testConn->close();
         } else {
             if (! $platform instanceof OraclePlatform) {
-                $dbname = $testConnParams['dbname'];
+                $dbname = $testConnParams['dbname'] ?? null;
             } else {
-                $dbname = $testConnParams['user'];
+                $dbname = $testConnParams['user'] ?? null;
+            }
+
+            if (! $dbname) {
+                throw new LogicException('Cannot inialize test database: Missing database name');
             }
 
             $sm = $privConn->getSchemaManager();
@@ -128,7 +135,7 @@ class TestUtil
         $privConn->close();
     }
 
-    /** @return mixed[] */
+    /** @psalm-return Params */
     private static function getFallbackConnectionParams(): array
     {
         if (! extension_loaded('pdo_sqlite')) {
@@ -141,7 +148,7 @@ class TestUtil
         ];
     }
 
-    private static function createConfiguration(string $driver): Configuration
+    private static function createConfiguration(?string $driver): Configuration
     {
         $configuration = new Configuration();
 
@@ -174,7 +181,7 @@ class TestUtil
         return $parameters;
     }
 
-    /** @return mixed[] */
+    /** @psalm-return Params */
     private static function getTestConnectionParameters(): array
     {
         return self::mapConnectionParameters($GLOBALS, 'db_');
@@ -184,6 +191,7 @@ class TestUtil
      * @param array<string,mixed> $configuration
      *
      * @return array<string,mixed>
+     * @psalm-return Params
      */
     private static function mapConnectionParameters(array $configuration, string $prefix): array
     {
@@ -198,7 +206,6 @@ class TestUtil
                 'dbname',
                 'memory',
                 'port',
-                'server',
                 'ssl_key',
                 'ssl_cert',
                 'ssl_ca',
@@ -234,7 +241,7 @@ class TestUtil
 
     public static function isDriverOneOf(string ...$names): bool
     {
-        return in_array(self::getConnectionParams()['driver'], $names, true);
+        return in_array(self::getConnectionParams()['driver'] ?? null, $names, true);
     }
 
     /**

@@ -37,8 +37,6 @@ class ConnectionTest extends TestCase
 {
     use VerifyDeprecations;
 
-    private Connection $connection;
-
     private const CONNECTION_PARAMS = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
@@ -46,6 +44,8 @@ class ConnectionTest extends TestCase
         'password' => 'password',
         'port' => 1234,
     ];
+
+    private Connection $connection;
 
     protected function setUp(): void
     {

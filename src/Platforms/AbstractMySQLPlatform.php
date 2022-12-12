@@ -1418,7 +1418,7 @@ SQL
     }
 
     /**
-     * @param list<T> $assets
+     * @param array<T> $assets
      *
      * @return array<string,T>
      *

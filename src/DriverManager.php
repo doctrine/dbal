@@ -64,10 +64,15 @@ use function is_a;
  *     serverVersion?: string,
  *     sharding?: array<string,mixed>,
  *     slaves?: array<OverrideParams>,
+ *     ssl_ca?: string,
+ *     ssl_capath?: string,
+ *     ssl_cert?: string,
+ *     ssl_cipher?: string,
+ *     ssl_key?: string,
+ *     unix_socket?: string,
  *     url?: string,
  *     user?: string,
  *     wrapperClass?: class-string<Connection>,
- *     unix_socket?: string,
  * }
  */
 final class DriverManager

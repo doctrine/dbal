@@ -32,7 +32,7 @@ final class LengthExpressionTest extends FunctionalTestCase
         self::assertEquals($expected, $this->connection->fetchOne($query, [$value]));
     }
 
-    /** @return iterable<string,array{string,int}> */
+    /** @return iterable<string, array{string, int, bool}> */
     public static function expressionProvider(): iterable
     {
         yield '1-byte' => ['Hello, world!', 13, false];

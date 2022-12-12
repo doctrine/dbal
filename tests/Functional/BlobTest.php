@@ -60,10 +60,7 @@ class BlobTest extends FunctionalTestCase
         ]);
 
         self::assertEquals(1, $ret);
-
-        [$clobValue, $blobValue] = $this->fetchRow();
-        self::assertNull($clobValue);
-        self::assertNull($blobValue);
+        self::assertSame([null, null], $this->fetchRow());
     }
 
     public function testInsertProcessesStream(): void

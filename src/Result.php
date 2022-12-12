@@ -117,9 +117,11 @@ class Result
     {
         $this->ensureHasKeyValue();
 
-        $data = [];
+        /** @var list<array{mixed, mixed}> $allRows */
+        $allRows = $this->fetchAllNumeric();
 
-        foreach ($this->fetchAllNumeric() as [$key, $value]) {
+        $data = [];
+        foreach ($allRows as [$key, $value]) {
             $data[$key] = $value;
         }
 
@@ -192,7 +194,10 @@ class Result
     {
         $this->ensureHasKeyValue();
 
-        foreach ($this->iterateNumeric() as [$key, $value]) {
+        /** @var Traversable<mixed, array{array-key, mixed}> $iterator */
+        $iterator = $this->iterateNumeric();
+
+        foreach ($iterator as [$key, $value]) {
             yield $key => $value;
         }
     }

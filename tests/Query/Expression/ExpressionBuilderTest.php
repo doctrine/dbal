@@ -227,7 +227,7 @@ class ExpressionBuilderTest extends TestCase
 
     public function testIn(): void
     {
-        self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', [1, 3, 4, 7]));
+        self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', ['1', '3', '4', '7']));
     }
 
     public function testInWithPlaceholder(): void
@@ -237,7 +237,7 @@ class ExpressionBuilderTest extends TestCase
 
     public function testNotIn(): void
     {
-        self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', [1, 3, 4, 7]));
+        self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', ['1', '3', '4', '7']));
     }
 
     public function testNotInWithPlaceholder(): void

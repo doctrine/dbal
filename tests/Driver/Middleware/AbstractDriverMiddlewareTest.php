@@ -17,10 +17,13 @@ final class AbstractDriverMiddlewareTest extends TestCase
         $driver     = $this->createMock(Driver::class);
         $driver->expects(self::once())
             ->method('connect')
-            ->with(['foo' => 'bar'])
+            ->with(['user' => 'my_user', 'password' => 's3cr3t'])
             ->willReturn($connection);
 
-        self::assertSame($connection, $this->createMiddleware($driver)->connect(['foo' => 'bar']));
+        self::assertSame(
+            $connection,
+            $this->createMiddleware($driver)->connect(['user' => 'my_user', 'password' => 's3cr3t']),
+        );
     }
 
     public function testCreateDatabasePlatformForVersion(): void

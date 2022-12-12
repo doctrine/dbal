@@ -33,7 +33,7 @@ class MiddlewareTest extends TestCase
     public function testConnectAndDisconnect(): void
     {
         $this->driver->connect([
-            'username' => 'admin',
+            'user' => 'admin',
             'password' => 'Passw0rd!',
             'url' => 'mysql://user:secret@localhost/mydb',
         ]);
@@ -42,7 +42,7 @@ class MiddlewareTest extends TestCase
             'message' => 'Connecting with parameters {params}',
             'context' => [
                 'params' => [
-                    'username' => 'admin',
+                    'user' => 'admin',
                     'password' => '<redacted>',
                     'url' => '<redacted>',
                 ],

@@ -29,7 +29,7 @@ class SchemaDiff
      *
      * @internal Use {@link getCreatedSchemas()} instead.
      *
-     * @var string[]
+     * @var array<string, string>
      */
     public $newNamespaces = [];
 
@@ -38,7 +38,7 @@ class SchemaDiff
      *
      * @internal Use {@link getDroppedSchemas()} instead.
      *
-     * @var string[]
+     * @var array<string, string>
      */
     public $removedNamespaces = [];
 
@@ -47,7 +47,7 @@ class SchemaDiff
      *
      * @internal Use {@link getCreatedTables()} instead.
      *
-     * @var Table[]
+     * @var array<string, Table>
      */
     public $newTables = [];
 
@@ -56,7 +56,7 @@ class SchemaDiff
      *
      * @internal Use {@link getAlteredTables()} instead.
      *
-     * @var TableDiff[]
+     * @var array<string, TableDiff>
      */
     public $changedTables = [];
 
@@ -65,28 +65,28 @@ class SchemaDiff
      *
      * @internal Use {@link getDroppedTables()} instead.
      *
-     * @var Table[]
+     * @var array<string, Table>
      */
     public $removedTables = [];
 
     /**
      * @internal Use {@link getCreatedSequences()} instead.
      *
-     * @var Sequence[]
+     * @var list<Sequence>
      */
     public $newSequences = [];
 
     /**
      * @internal Use {@link getAlteredSequences()} instead.
      *
-     * @var Sequence[]
+     * @var list<Sequence>
      */
     public $changedSequences = [];
 
     /**
      * @internal Use {@link getDroppedSequences()} instead.
      *
-     * @var Sequence[]
+     * @var list<Sequence>
      */
     public $removedSequences = [];
 
@@ -102,14 +102,14 @@ class SchemaDiff
      *
      * @internal The diff can be only instantiated by a {@see Comparator}.
      *
-     * @param Table[]         $newTables
-     * @param TableDiff[]     $changedTables
-     * @param Table[]         $removedTables
-     * @param array<string>   $createdSchemas
-     * @param array<string>   $droppedSchemas
-     * @param array<Sequence> $createdSequences
-     * @param array<Sequence> $alteredSequences
-     * @param array<Sequence> $droppedSequences
+     * @param array<string, Table>     $newTables
+     * @param array<string, TableDiff> $changedTables
+     * @param array<string, Table>     $removedTables
+     * @param array<string, string>    $createdSchemas
+     * @param array<string, string>    $droppedSchemas
+     * @param list<Sequence>           $createdSequences
+     * @param list<Sequence>           $alteredSequences
+     * @param list<Sequence>           $droppedSequences
      */
     public function __construct(
         $newTables = [],
@@ -137,49 +137,49 @@ class SchemaDiff
         $this->removedSequences  = $droppedSequences;
     }
 
-    /** @return array<string> */
+    /** @return array<string, string> */
     public function getCreatedSchemas(): array
     {
         return $this->newNamespaces;
     }
 
-    /** @return array<string> */
+    /** @return array<string, string> */
     public function getDroppedSchemas(): array
     {
         return $this->removedNamespaces;
     }
 
-    /** @return array<Table> */
+    /** @return array<string, Table> */
     public function getCreatedTables(): array
     {
         return $this->newTables;
     }
 
-    /** @return array<TableDiff> */
+    /** @return array<string, TableDiff> */
     public function getAlteredTables(): array
     {
         return $this->changedTables;
     }
 
-    /** @return array<Table> */
+    /** @return array<string, Table> */
     public function getDroppedTables(): array
     {
         return $this->removedTables;
     }
 
-    /** @return array<Sequence> */
+    /** @return list<Sequence> */
     public function getCreatedSequences(): array
     {
         return $this->newSequences;
     }
 
-    /** @return array<Sequence> */
+    /** @return list<Sequence> */
     public function getAlteredSequences(): array
     {
         return $this->changedSequences;
     }
 
-    /** @return array<Sequence> */
+    /** @return list<Sequence> */
     public function getDroppedSequences(): array
     {
         return $this->removedSequences;
