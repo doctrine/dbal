@@ -48,6 +48,7 @@ class ReservedWordsCommand extends Command
         );
 
         parent::__construct();
+
         $this->connectionProvider = $connectionProvider;
 
         $this->keywordLists = [
