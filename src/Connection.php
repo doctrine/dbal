@@ -721,11 +721,12 @@ class Connection
     public function update($table, array $data, array $criteria, array $types = [])
     {
         $columns = $values = $conditions = $set = [];
+        $keywords = $this->getDatabasePlatform()->getReservedKeywordsList();
 
         foreach ($data as $columnName => $value) {
             $columns[] = $columnName;
             $values[]  = $value;
-            $set[]     = $columnName . ' = ?';
+            $set[]     = $keywords->isKeyword($columnName) ? $this->quoteIdentifier($columnName) : $columnName . ' = ?';
         }
 
         $this->addCriteriaCondition($criteria, $columns, $values, $conditions);
@@ -759,12 +760,13 @@ class Connection
             return $this->executeStatement('INSERT INTO ' . $table . ' () VALUES ()');
         }
 
+        $keywords = $this->getDatabasePlatform()->getReservedKeywordsList();
         $columns = [];
         $values  = [];
         $set     = [];
 
         foreach ($data as $columnName => $value) {
-            $columns[] = $columnName;
+            $columns[] = $keywords->isKeyword($columnName) ? $this->quoteIdentifier($columnName) : $columnName;
             $values[]  = $value;
             $set[]     = '?';
         }
