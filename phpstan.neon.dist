@@ -138,6 +138,10 @@ parameters:
             message: '~^Method Doctrine\\DBAL\\Schema\\PostgreSQLSchemaManager::fetchTableOptionsByTable\(\) should return array<string, array<string, mixed>> but returns array<int\|string, array<string, mixed>>\.$~'
             paths:
                 - src/Schema/PostgreSQLSchemaManager.php
+        # https://github.com/doctrine/dbal/pull/5835#discussion_r1056213914
+        -
+            message: "#^Method Doctrine\\\\DBAL\\\\Driver\\\\PDO\\\\Statement\\:\\:convertParamType\\(\\) never returns 4|6|1073741824|2147483648|536870912 so it can be removed from the return type\\.$#"
+            path: src/Driver/PDO/Statement.php
 
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

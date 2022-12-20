@@ -144,6 +144,8 @@ final class Statement implements StatementInterface
      *
      * @param int $type Parameter type
      *
+     * @return PDO::PARAM_*
+     *
      * @throws ExceptionInterface
      */
     private function convertParamType(int $type): int

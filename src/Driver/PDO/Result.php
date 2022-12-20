@@ -91,6 +91,8 @@ final class Result implements ResultInterface
     }
 
     /**
+     * @param PDO::FETCH_* $mode
+     *
      * @return mixed|false
      *
      * @throws Exception

@@ -32,8 +32,8 @@ interface Connection
      * The usage of this method is discouraged. Use prepared statements
      * or {@see AbstractPlatform::quoteStringLiteral()} instead.
      *
-     * @param mixed $value
-     * @param int   $type
+     * @param mixed            $value
+     * @param ParameterType::* $type
      *
      * @return mixed
      */

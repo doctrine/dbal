@@ -23,7 +23,7 @@ final class UserDefinedFunctions
     ];
 
     /**
-     * @param callable(string, callable, int): bool                  $callback
+     * @param callable(string, callable, int=, int=): bool           $callback
      * @param array<string, array{callback: callable, numArgs: int}> $additionalFunctions
      */
     public static function register(callable $callback, array $additionalFunctions = []): void

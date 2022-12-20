@@ -12,6 +12,8 @@ use PDOException;
 use PDOStatement;
 
 use function assert;
+use function in_array;
+use function sprintf;
 
 final class Connection implements ServerInfoAwareConnection
 {
@@ -80,6 +82,10 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function quote($value, $type = ParameterType::STRING)
     {
+        if (in_array($type, [ParameterType::ASCII, ParameterType::BINARY], true)) {
+            throw new PDOException(sprintf('Unknown parameter type, %d given.', $type));
+        }
+
         return $this->connection->quote($value, $type);
     }
 
