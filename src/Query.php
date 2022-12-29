@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Types\Type;
-
 /**
  * An SQL query together with its bound parameters.
  *
  * @psalm-immutable
+ * @psalm-import-type WrapperParameterType from Connection
  */
 final class Query
 {
     /**
-     * @param array<mixed>                         $params
-     * @param array<int|string|ParameterType|Type> $types
+     * @param array<mixed> $params
+     * @psalm-param array<WrapperParameterType> $types
      *
      * @psalm-suppress ImpurePropertyAssignment
      */
@@ -37,7 +36,7 @@ final class Query
         return $this->params;
     }
 
-    /** @return array<int|string|ParameterType|Type> */
+    /** @psalm-return array<WrapperParameterType> */
     public function getTypes(): array
     {
         return $this->types;

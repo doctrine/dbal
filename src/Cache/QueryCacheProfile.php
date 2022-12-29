@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Cache;
 
 use Doctrine\DBAL\Cache\Exception\NoCacheKey;
-use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Connection;
 use Psr\Cache\CacheItemPoolInterface;
 
 use function hash;
@@ -17,6 +16,8 @@ use function sha1;
  * Query Cache Profile handles the data relevant for query caching.
  *
  * It is a value object, setter methods return NEW instances.
+ *
+ * @psalm-import-type WrapperParameterType from Connection
  */
 class QueryCacheProfile
 {
@@ -50,9 +51,9 @@ class QueryCacheProfile
     /**
      * Generates the real cache key from query, params, types and connection parameters.
      *
-     * @param list<mixed>|array<string, mixed>                                                       $params
-     * @param array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type> $types
-     * @param array<string, mixed>                                                                   $connectionParams
+     * @param list<mixed>|array<string, mixed> $params
+     * @param array<string, mixed>             $connectionParams
+     * @psalm-param array<int, WrapperParameterType>|array<string, WrapperParameterType> $types
      *
      * @return array{string, string}
      */

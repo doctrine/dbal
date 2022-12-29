@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Removed `Connection::PARAM_*_ARRAY` constants
+
+Use the enum `ArrayParameterType` instead.
+
 ## Disallowed partial version numbers in ``serverVersion``
 
 The ``serverVersion`` connection parameter must consist of 3 numbers:

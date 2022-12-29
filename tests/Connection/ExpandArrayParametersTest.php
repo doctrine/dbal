@@ -7,15 +7,26 @@ namespace Doctrine\DBAL\Tests\Connection;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingNamedParameter;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingPositionalParameter;
 use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ExpandArrayParameters;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 
+/** @psalm-import-type WrapperParameterTypeArray from Connection */
 class ExpandArrayParametersTest extends TestCase
 {
-    /** @return mixed[][] */
+    /**
+     * @psalm-return iterable<array{
+     *                   string,
+     *                   array<string, mixed>|array<int, mixed>,
+     *                   WrapperParameterTypeArray,
+     *                   string,
+     *                   array<string, mixed>|array<int, mixed>,
+     *                   array<string, string|Type|ParameterType>|array<int, string|Type|ParameterType>,
+     *               }>
+     */
     public static function dataExpandListParameters(): iterable
     {
         return [
@@ -316,10 +327,10 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                     $params
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $types
-     * @param list<mixed>                                                $expectedParams
-     * @param array<int,Type|int|string>                                 $expectedTypes
+     * @param array<int, mixed>|array<string, mixed>                                         $params
+     * @param array<int, mixed>|array<string, mixed>                                         $expectedParams
+     * @param array<int, string|Type|ParameterType>|array<string, string|Type|ParameterType> $expectedTypes
+     * @psalm-param WrapperParameterTypeArray $types
      *
      * @dataProvider dataExpandListParameters
      */
@@ -338,7 +349,13 @@ class ExpandArrayParametersTest extends TestCase
         self::assertEquals($expectedTypes, $types, 'Types dont match');
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return list<array{
+     *             string,
+     *             array<string, mixed>,
+     *             array<string, ArrayParameterType>
+     *         }>
+     */
     public static function missingNamedParameterProvider(): iterable
     {
         return [
@@ -366,8 +383,8 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                     $params
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $types
+     * @param array<string, mixed>              $params
+     * @param array<string, ArrayParameterType> $types
      *
      * @dataProvider missingNamedParameterProvider
      */
@@ -379,7 +396,7 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed> $params
+     * @param list<mixed> $params
      *
      * @dataProvider missingPositionalParameterProvider
      */
@@ -390,7 +407,7 @@ class ExpandArrayParametersTest extends TestCase
         $this->expandArrayParameters($query, $params, []);
     }
 
-    /** @return mixed[][] */
+    /** @return iterable<string, array{string, list<mixed>}> */
     public static function missingPositionalParameterProvider(): iterable
     {
         return [
@@ -406,10 +423,10 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                     $params
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $types
+     * @param array<int, mixed>|array<string, mixed> $params
+     * @psalm-param WrapperParameterTypeArray $types
      *
-     * @return array{string, list<mixed>, array<int,string|ParameterType|Type>}
+     * @return array{string, list<mixed>, array<string|ParameterType|Type>}
      */
     private function expandArrayParameters(string $sql, array $params, array $types): array
     {

@@ -14,9 +14,9 @@ use function array_fill;
 use function array_key_exists;
 use function count;
 use function implode;
-use function is_int;
 use function substr;
 
+/** @psalm-import-type WrapperParameterTypeArray from Connection */
 final class ExpandArrayParameters implements Visitor
 {
     private int $originalParameterIndex = 0;
@@ -31,11 +31,13 @@ final class ExpandArrayParameters implements Visitor
     private array $convertedTypes = [];
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                                               $parameters
-     * @param array<int,int|string|ParameterType|Type>|array<string,int|string|ParameterType|Type> $types
+     * @param array<int, mixed>|array<string, mixed> $parameters
+     * @psalm-param WrapperParameterTypeArray $types
      */
-    public function __construct(private readonly array $parameters, private readonly array $types)
-    {
+    public function __construct(
+        private readonly array $parameters,
+        private readonly array $types,
+    ) {
     }
 
     public function acceptPositionalParameter(string $sql): void
@@ -90,7 +92,7 @@ final class ExpandArrayParameters implements Visitor
 
         $type = $this->types[$key];
 
-        if (! is_int($type)) {
+        if (! $type instanceof ArrayParameterType) {
             $this->appendTypedParameter([$value], $type);
 
             return;
@@ -102,8 +104,7 @@ final class ExpandArrayParameters implements Visitor
             return;
         }
 
-        /** @psalm-suppress ArgumentTypeCoercion */
-        $this->appendTypedParameter($value, ArrayParameterType::toElementParameterType($type)); // @phpstan-ignore-line
+        $this->appendTypedParameter($value, ArrayParameterType::toElementParameterType($type));
     }
 
     /** @return array<int,string|ParameterType|Type> */

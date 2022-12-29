@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Query;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
@@ -15,7 +16,6 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_key_exists;
 use function array_keys;
@@ -35,6 +35,8 @@ use function substr;
  * The query builder does no validation whatsoever if certain features even work with the
  * underlying database vendor. Limit queries and joins are NOT applied to UPDATE and DELETE statements
  * even if some vendors such as MySQL support it.
+ *
+ * @psalm-import-type WrapperParameterTypeArray from Connection
  */
 class QueryBuilder
 {
@@ -48,12 +50,12 @@ class QueryBuilder
      *
      * @var list<mixed>|array<string, mixed>
      */
-    private $params = [];
+    private array $params = [];
 
     /**
      * The parameter type map of this query.
      *
-     * @var array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type>
+     * @psalm-var WrapperParameterTypeArray
      */
     private array $types = [];
 
@@ -345,16 +347,14 @@ class QueryBuilder
      *         ->setParameter('user_id', 1);
      * </code>
      *
-     * @param int|string                $key   Parameter position or name
-     * @param mixed                     $value Parameter value
-     * @param string|ParameterType|Type $type  Parameter type
+     * @param int|string $key Parameter position or name
      *
      * @return $this This QueryBuilder instance.
      */
     public function setParameter(
         int|string $key,
         mixed $value,
-        string|ParameterType|Type $type = ParameterType::STRING,
+        string|ParameterType|Type|ArrayParameterType $type = ParameterType::STRING,
     ): self {
         $this->params[$key] = $value;
         $this->types[$key]  = $type;
@@ -376,8 +376,8 @@ class QueryBuilder
      *         ));
      * </code>
      *
-     * @param list<mixed>|array<string, mixed>                                                       $params
-     * @param array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type> $types
+     * @param list<mixed>|array<string, mixed> $params
+     * @psalm-param WrapperParameterTypeArray $types
      *
      * @return $this This QueryBuilder instance.
      */
@@ -414,7 +414,7 @@ class QueryBuilder
     /**
      * Gets all defined query parameter types for the query being constructed indexed by parameter index or name.
      *
-     * @return array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type>
+     * @psalm-return WrapperParameterTypeArray
      */
     public function getParameterTypes(): array
     {
@@ -425,10 +425,8 @@ class QueryBuilder
      * Gets a (previously set) query parameter type of the query being constructed.
      *
      * @param int|string $key The key of the bound parameter type
-     *
-     * @return int|string|ParameterType|Type The value of the bound parameter type
      */
-    public function getParameterType(int|string $key): int|string|ParameterType|Type
+    public function getParameterType(int|string $key): string|ParameterType|Type|ArrayParameterType
     {
         return $this->types[$key] ?? ParameterType::STRING;
     }
@@ -1311,7 +1309,7 @@ class QueryBuilder
      */
     public function createNamedParameter(
         mixed $value,
-        string|ParameterType|Type $type = ParameterType::STRING,
+        string|ParameterType|Type|ArrayParameterType $type = ParameterType::STRING,
         ?string $placeHolder = null,
     ): string {
         if ($placeHolder === null) {
@@ -1343,7 +1341,7 @@ class QueryBuilder
      */
     public function createPositionalParameter(
         mixed $value,
-        string|ParameterType|Type $type = ParameterType::STRING,
+        string|ParameterType|Type|ArrayParameterType $type = ParameterType::STRING,
     ): string {
         $this->setParameter($this->boundCounter, $value, $type);
         $this->boundCounter++;

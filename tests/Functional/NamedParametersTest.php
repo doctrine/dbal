@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -14,9 +15,17 @@ use function array_change_key_case;
 
 use const CASE_LOWER;
 
+/** @psalm-import-type WrapperParameterType from Connection */
 class NamedParametersTest extends FunctionalTestCase
 {
-    /** @return iterable<int, array<int, mixed>> */
+    /**
+     * @psalm-return iterable<int, array{
+     *                   string,
+     *                   array<string, mixed>,
+     *                   array<string, WrapperParameterType>,
+     *                   list<array<string, mixed>>,
+     *               }>
+     */
     public static function ticketProvider(): iterable
     {
         return [
@@ -200,9 +209,9 @@ class NamedParametersTest extends FunctionalTestCase
     }
 
     /**
-     * @param mixed[] $params
-     * @param int[]   $types
-     * @param int[]   $expected
+     * @param array<string, mixed>       $params
+     * @param list<array<string, mixed>> $expected
+     * @psalm-param array<string, WrapperParameterType> $types
      *
      * @dataProvider ticketProvider
      */
