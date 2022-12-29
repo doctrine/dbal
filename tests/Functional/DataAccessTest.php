@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional;
 
 use DateTime;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
@@ -306,7 +306,7 @@ class DataAccessTest extends FunctionalTestCase
         $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_int IN (?)',
             [[100, 101, 102, 103, 104]],
-            [Connection::PARAM_INT_ARRAY],
+            [ArrayParameterType::INTEGER],
         );
 
         $data = $result->fetchAllNumeric();
@@ -316,7 +316,7 @@ class DataAccessTest extends FunctionalTestCase
         $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_string IN (?)',
             [['foo100', 'foo101', 'foo102', 'foo103', 'foo104']],
-            [Connection::PARAM_STR_ARRAY],
+            [ArrayParameterType::STRING],
         );
 
         $data = $result->fetchAllNumeric();
