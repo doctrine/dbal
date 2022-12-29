@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Query;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
@@ -796,6 +797,33 @@ class QueryBuilderTest extends TestCase
         self::assertSame([
             'name'     => ParameterType::STRING,
             'isActive' => ParameterType::BOOLEAN,
+        ], $qb->getParameterTypes());
+    }
+
+    public function testArrayParameters(): void
+    {
+        self::markTestSkipped('FIXME');
+
+        $qb = new QueryBuilder($this->conn); // @phpstan-ignore-line
+
+        $qb->select('*')->from('users');
+
+        self::assertSame([], $qb->getParameterTypes());
+
+        $qb->where('id IN (:ids)');
+        /** @psalm-suppress InvalidArgument */
+        $qb->setParameter('ids', [1, 2, 3], ArrayParameterType::INTEGER);
+
+        $qb->andWhere('name IN (:names)');
+        /** @psalm-suppress InvalidArgument */
+        $qb->setParameter('names', ['john', 'jane'], ArrayParameterType::STRING);
+
+        self::assertSame(ArrayParameterType::INTEGER, $qb->getParameterType('ids'));
+        self::assertSame(ArrayParameterType::STRING, $qb->getParameterType('names'));
+
+        self::assertSame([
+            'ids'   => ArrayParameterType::INTEGER,
+            'names' => ArrayParameterType::STRING,
         ], $qb->getParameterTypes());
     }
 

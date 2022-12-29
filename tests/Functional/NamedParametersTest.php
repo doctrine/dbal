@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -28,7 +28,7 @@ class NamedParametersTest extends FunctionalTestCase
                 ],
                 [
                     'foo' => ParameterType::INTEGER,
-                    'bar' => Connection::PARAM_INT_ARRAY,
+                    'bar' => ArrayParameterType::INTEGER,
                 ],
                 [
                     ['id' => 1, 'foo' => 1, 'bar' => 1],
@@ -44,7 +44,7 @@ class NamedParametersTest extends FunctionalTestCase
                     'bar' => [1, 2, 3],
                 ],
                 [
-                    'bar' => Connection::PARAM_INT_ARRAY,
+                    'bar' => ArrayParameterType::INTEGER,
                     'foo' => ParameterType::INTEGER,
                 ],
                 [
@@ -61,7 +61,7 @@ class NamedParametersTest extends FunctionalTestCase
                     'bar' => [1, 2, 3],
                 ],
                 [
-                    'bar' => Connection::PARAM_INT_ARRAY,
+                    'bar' => ArrayParameterType::INTEGER,
                     'foo' => ParameterType::INTEGER,
                 ],
                 [
@@ -78,7 +78,7 @@ class NamedParametersTest extends FunctionalTestCase
                     'bar' => ['1', '2', '3'],
                 ],
                 [
-                    'bar' => Connection::PARAM_STR_ARRAY,
+                    'bar' => ArrayParameterType::STRING,
                     'foo' => ParameterType::INTEGER,
                 ],
                 [
@@ -95,8 +95,8 @@ class NamedParametersTest extends FunctionalTestCase
                     'bar' => [1, 2, 3, 4],
                 ],
                 [
-                    'bar' => Connection::PARAM_STR_ARRAY,
-                    'foo' => Connection::PARAM_INT_ARRAY,
+                    'bar' => ArrayParameterType::STRING,
+                    'foo' => ArrayParameterType::INTEGER,
                 ],
                 [
                     ['id' => 1, 'foo' => 1, 'bar' => 1],
@@ -138,7 +138,7 @@ class NamedParametersTest extends FunctionalTestCase
                     'arg' => [1, 2],
                 ],
                 [
-                    'arg' => Connection::PARAM_INT_ARRAY,
+                    'arg' => ArrayParameterType::INTEGER,
                 ],
                 [
                     ['id' => 3, 'foo' => 1, 'bar' => 3],

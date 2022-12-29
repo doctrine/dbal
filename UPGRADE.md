@@ -853,6 +853,13 @@ The following methods have been removed.
 | `QueryCacheProfile` | `setResultCacheDriver()` | `setResultCache()` |
 | `QueryCacheProfile` | `getResultCacheDriver()` | `getResultCache()` |
 
+# Upgrade to 3.6
+
+## Deprecated `Connection::PARAM_*_ARRAY` constants
+
+Use the corresponding constants on `ArrayParameterType` instead. Please be aware that
+`ArrayParameterType` will be a native enum type in DBAL 4.
+
 # Upgrade to 3.5
 
 ## Deprecated extension via Doctrine Event Manager

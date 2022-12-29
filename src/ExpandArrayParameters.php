@@ -102,12 +102,8 @@ final class ExpandArrayParameters implements Visitor
             return;
         }
 
-        $this->appendTypedParameter($value, match ($type) {
-            Connection::PARAM_INT_ARRAY => ParameterType::INTEGER,
-            Connection::PARAM_STR_ARRAY => ParameterType::STRING,
-            Connection::PARAM_ASCII_STR_ARRAY => ParameterType::ASCII,
-            default => throw InvalidParameterType::new($type),
-        });
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $this->appendTypedParameter($value, ArrayParameterType::toElementParameterType($type)); // @phpstan-ignore-line
     }
 
     /** @return array<int,string|ParameterType|Type> */

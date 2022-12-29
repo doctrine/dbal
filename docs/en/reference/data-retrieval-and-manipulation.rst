@@ -250,8 +250,8 @@ statement possible natively in the binding type system.
 The parsing necessarily comes with a performance overhead, but only if you really use a list of parameters.
 There are two special binding types that describe a list of integers or strings:
 
--   ``\Doctrine\DBAL\Connection::PARAM_INT_ARRAY``
--   ``\Doctrine\DBAL\Connection::PARAM_STR_ARRAY``
+-   ``\Doctrine\DBAL\ArrayParameterType::INTEGER``
+-   ``\Doctrine\DBAL\ArrayParameterType::STRING``
 
 Using one of these constants as a type you can activate the SQLParser inside Doctrine that rewrites
 the SQL and flattens the specified values into the set of parameters. Consider our previous example:
@@ -261,7 +261,7 @@ the SQL and flattens the specified values into the set of parameters. Consider o
     <?php
     $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?)',
         [[1, 2, 3, 4, 5, 6]],
-        [\Doctrine\DBAL\Connection::PARAM_INT_ARRAY]
+        [\Doctrine\DBAL\ArrayParameterType::INTEGER]
     );
 
 The SQL statement passed to ``Connection#executeQuery`` is not the one actually passed to the
@@ -271,7 +271,7 @@ be specified as well:
 .. code-block:: php
 
     <?php
-    // Same SQL WITHOUT usage of Doctrine\DBAL\Connection::PARAM_INT_ARRAY
+    // Same SQL WITHOUT usage of Doctrine\DBAL\ArrayParameterType::INTEGER
     $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?, ?, ?, ?, ?, ?)',
         [1, 2, 3, 4, 5, 6],
         [
