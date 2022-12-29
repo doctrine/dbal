@@ -6,6 +6,13 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 3.6
+
+## Deprecated `Connection::PARAM_*_ARRAY` constants
+
+Use the corresponding constants on `ArrayParameterType` instead. Please be aware that
+`ArrayParameterType` will be a native enum type in DBAL 4.
+
 # Upgrade to 3.5
 
 ## Deprecated extension via Doctrine Event Manager

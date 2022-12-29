@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Query;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
@@ -912,6 +913,29 @@ class QueryBuilderTest extends TestCase
         self::assertSame([
             'name'     => ParameterType::STRING,
             'isActive' => ParameterType::BOOLEAN,
+        ], $qb->getParameterTypes());
+    }
+
+    public function testArrayParameters(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('*')->from('users');
+
+        self::assertSame([], $qb->getParameterTypes());
+
+        $qb->where('id IN (:ids)');
+        $qb->setParameter('ids', [1, 2, 3], ArrayParameterType::INTEGER);
+
+        $qb->andWhere('name IN (:names)');
+        $qb->setParameter('names', ['john', 'jane'], ArrayParameterType::STRING);
+
+        self::assertSame(ArrayParameterType::INTEGER, $qb->getParameterType('ids'));
+        self::assertSame(ArrayParameterType::STRING, $qb->getParameterType('names'));
+
+        self::assertSame([
+            'ids'   => ArrayParameterType::INTEGER,
+            'names' => ArrayParameterType::STRING,
         ], $qb->getParameterTypes());
     }
 

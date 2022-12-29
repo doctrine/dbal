@@ -50,25 +50,24 @@ class Connection
 {
     /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.
+     *
+     * @deprecated Use {@see ArrayParameterType::INTEGER} instead.
      */
-    public const PARAM_INT_ARRAY = ParameterType::INTEGER + self::ARRAY_PARAM_OFFSET;
+    public const PARAM_INT_ARRAY = ArrayParameterType::INTEGER;
 
     /**
      * Represents an array of strings to be expanded by Doctrine SQL parsing.
+     *
+     * @deprecated Use {@see ArrayParameterType::STRING} instead.
      */
-    public const PARAM_STR_ARRAY = ParameterType::STRING + self::ARRAY_PARAM_OFFSET;
+    public const PARAM_STR_ARRAY = ArrayParameterType::STRING;
 
     /**
      * Represents an array of ascii strings to be expanded by Doctrine SQL parsing.
-     */
-    public const PARAM_ASCII_STR_ARRAY = ParameterType::ASCII + self::ARRAY_PARAM_OFFSET;
-
-    /**
-     * Offset by which PARAM_* constants are detected as arrays of the param type.
      *
-     * @internal Should be used only within the wrapper layer.
+     * @deprecated Use {@see ArrayParameterType::ASCII} instead.
      */
-    public const ARRAY_PARAM_OFFSET = 100;
+    public const PARAM_ASCII_STR_ARRAY = ArrayParameterType::ASCII;
 
     /**
      * The wrapped driver connection.
@@ -1888,9 +1887,9 @@ class Connection
 
         foreach ($types as $type) {
             if (
-                $type === self::PARAM_INT_ARRAY
-                || $type === self::PARAM_STR_ARRAY
-                || $type === self::PARAM_ASCII_STR_ARRAY
+                $type === ArrayParameterType::INTEGER
+                || $type === ArrayParameterType::STRING
+                || $type === ArrayParameterType::ASCII
             ) {
                 return true;
             }

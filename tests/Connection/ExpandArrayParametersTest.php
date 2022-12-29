@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Tests\Connection;
 
 use Doctrine\DBAL\ArrayParameters\Exception\MissingNamedParameter;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingPositionalParameter;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ExpandArrayParameters;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\SQL\Parser;
@@ -20,7 +20,7 @@ class ExpandArrayParametersTest extends TestCase
             'Positional: Very simple with one needle' => [
                 'SELECT * FROM Foo WHERE foo IN (?)',
                 [[1, 2, 3]],
-                [Connection::PARAM_INT_ARRAY],
+                [ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
                 [1, 2, 3],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
@@ -28,7 +28,7 @@ class ExpandArrayParametersTest extends TestCase
             'Positional: One non-list before d one after list-needle' => [
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?)',
                 ['string', [1, 2, 3]],
-                [ParameterType::STRING, Connection::PARAM_INT_ARRAY],
+                [ParameterType::STRING, ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?)',
                 ['string', 1, 2, 3],
                 [ParameterType::STRING, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
@@ -36,7 +36,7 @@ class ExpandArrayParametersTest extends TestCase
             'Positional: One non-list after list-needle' => [
                 'SELECT * FROM Foo WHERE bar IN (?) AND baz = ?',
                 [[1, 2, 3], 'foo'],
-                [Connection::PARAM_INT_ARRAY, ParameterType::STRING],
+                [ArrayParameterType::INTEGER, ParameterType::STRING],
                 'SELECT * FROM Foo WHERE bar IN (?, ?, ?) AND baz = ?',
                 [1, 2, 3, 'foo'],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::STRING],
@@ -44,7 +44,7 @@ class ExpandArrayParametersTest extends TestCase
             'Positional: One non-list before and one after list-needle' => [
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?) AND baz = ?',
                 [1, [1, 2, 3], 4],
-                [ParameterType::INTEGER, Connection::PARAM_INT_ARRAY, ParameterType::INTEGER],
+                [ParameterType::INTEGER, ArrayParameterType::INTEGER, ParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?) AND baz = ?',
                 [1, 1, 2, 3, 4],
                 [
@@ -58,7 +58,7 @@ class ExpandArrayParametersTest extends TestCase
             'Positional: Two lists' => [
                 'SELECT * FROM Foo WHERE foo IN (?, ?)',
                 [[1, 2, 3], [4, 5]],
-                [Connection::PARAM_INT_ARRAY, Connection::PARAM_INT_ARRAY],
+                [ArrayParameterType::INTEGER, ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
                 [1, 2, 3, 4, 5],
                 [
@@ -72,7 +72,7 @@ class ExpandArrayParametersTest extends TestCase
             'Positional: Empty "integer" array (DDC-1978)' => [
                 'SELECT * FROM Foo WHERE foo IN (?)',
                 [[]],
-                [Connection::PARAM_INT_ARRAY],
+                [ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo IN (NULL)',
                 [],
                 [],
@@ -80,7 +80,7 @@ class ExpandArrayParametersTest extends TestCase
             'Positional: Empty "str" array (DDC-1978)' => [
                 'SELECT * FROM Foo WHERE foo IN (?)',
                 [[]],
-                [Connection::PARAM_STR_ARRAY],
+                [ArrayParameterType::STRING],
                 'SELECT * FROM Foo WHERE foo IN (NULL)',
                 [],
                 [],
@@ -97,10 +97,10 @@ class ExpandArrayParametersTest extends TestCase
                 'SELECT * FROM Foo WHERE foo IN (?) AND bar IN (?) AND baz = ? AND bax IN (?)',
                 [1 => ['bar1', 'bar2'], 2 => true, 0 => [1, 2, 3], ['bax1', 'bax2']],
                 [
-                    3 => Connection::PARAM_ASCII_STR_ARRAY,
+                    3 => ArrayParameterType::ASCII,
                     2 => ParameterType::BOOLEAN,
-                    1 => Connection::PARAM_STR_ARRAY,
-                    0 => Connection::PARAM_INT_ARRAY,
+                    1 => ArrayParameterType::STRING,
+                    0 => ArrayParameterType::INTEGER,
                 ],
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND bar IN (?, ?) AND baz = ? AND bax IN (?, ?)',
                 [1, 2, 3, 'bar1', 'bar2', true, 'bax1', 'bax2'],
@@ -134,7 +134,7 @@ class ExpandArrayParametersTest extends TestCase
             'Named: Very simple with one needle' => [
                 'SELECT * FROM Foo WHERE foo IN (:foo)',
                 ['foo' => [1, 2, 3]],
-                ['foo' => Connection::PARAM_INT_ARRAY],
+                ['foo' => ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
                 [1, 2, 3],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
@@ -142,7 +142,7 @@ class ExpandArrayParametersTest extends TestCase
             'Named: One non-list before d one after list-needle' => [
                 'SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar)',
                 ['foo' => 'string', 'bar' => [1, 2, 3]],
-                ['foo' => ParameterType::STRING, 'bar' => Connection::PARAM_INT_ARRAY],
+                ['foo' => ParameterType::STRING, 'bar' => ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?)',
                 ['string', 1, 2, 3],
                 [ParameterType::STRING, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
@@ -150,7 +150,7 @@ class ExpandArrayParametersTest extends TestCase
             'Named: One non-list after list-needle' => [
                 'SELECT * FROM Foo WHERE bar IN (:bar) AND baz = :baz',
                 ['bar' => [1, 2, 3], 'baz' => 'foo'],
-                ['bar' => Connection::PARAM_INT_ARRAY, 'baz' => ParameterType::STRING],
+                ['bar' => ArrayParameterType::INTEGER, 'baz' => ParameterType::STRING],
                 'SELECT * FROM Foo WHERE bar IN (?, ?, ?) AND baz = ?',
                 [1, 2, 3, 'foo'],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::STRING],
@@ -159,7 +159,7 @@ class ExpandArrayParametersTest extends TestCase
                 'SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar) AND baz = :baz',
                 ['bar' => [1, 2, 3],'foo' => 1, 'baz' => 4],
                 [
-                    'bar' => Connection::PARAM_INT_ARRAY,
+                    'bar' => ArrayParameterType::INTEGER,
                     'foo' => ParameterType::INTEGER,
                     'baz' => ParameterType::INTEGER,
                 ],
@@ -176,7 +176,7 @@ class ExpandArrayParametersTest extends TestCase
             'Named: Two lists' => [
                 'SELECT * FROM Foo WHERE foo IN (:a, :b)',
                 ['b' => [4, 5],'a' => [1, 2, 3]],
-                ['a' => Connection::PARAM_INT_ARRAY, 'b' => Connection::PARAM_INT_ARRAY],
+                ['a' => ArrayParameterType::INTEGER, 'b' => ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
                 [1, 2, 3, 4, 5],
                 [
@@ -198,7 +198,7 @@ class ExpandArrayParametersTest extends TestCase
             'Named: With the same name arg' => [
                 'SELECT * FROM Foo WHERE foo IN (:arg) AND NOT bar IN (:arg)',
                 ['arg' => [1, 2, 3]],
-                ['arg' => Connection::PARAM_INT_ARRAY],
+                ['arg' => ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND NOT bar IN (?, ?, ?)',
                 [1, 2, 3, 1, 2, 3],
                 [
@@ -221,7 +221,7 @@ class ExpandArrayParametersTest extends TestCase
             'Named: Empty "integer" array (DDC-1978)' => [
                 'SELECT * FROM Foo WHERE foo IN (:foo)',
                 ['foo' => []],
-                ['foo' => Connection::PARAM_INT_ARRAY],
+                ['foo' => ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo IN (NULL)',
                 [],
                 [],
@@ -229,7 +229,7 @@ class ExpandArrayParametersTest extends TestCase
             'Named: Two empty "str" array (DDC-1978)' => [
                 'SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)',
                 ['foo' => [], 'bar' => []],
-                ['foo' => Connection::PARAM_STR_ARRAY, 'bar' => Connection::PARAM_STR_ARRAY],
+                ['foo' => ArrayParameterType::STRING, 'bar' => ArrayParameterType::STRING],
                 'SELECT * FROM Foo WHERE foo IN (NULL) OR bar IN (NULL)',
                 [],
                 [],
@@ -237,7 +237,7 @@ class ExpandArrayParametersTest extends TestCase
             [
                 'SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)',
                 ['foo' => [], 'bar' => []],
-                ['foo' => Connection::PARAM_ASCII_STR_ARRAY, 'bar' => Connection::PARAM_ASCII_STR_ARRAY],
+                ['foo' => ArrayParameterType::ASCII, 'bar' => ArrayParameterType::ASCII],
                 'SELECT * FROM Foo WHERE foo IN (NULL) OR bar IN (NULL)',
                 [],
                 [],
@@ -245,7 +245,7 @@ class ExpandArrayParametersTest extends TestCase
             [
                 'SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar OR baz = :baz',
                 ['foo' => [1, 2], 'bar' => 'bar', 'baz' => 'baz'],
-                ['foo' => Connection::PARAM_INT_ARRAY, 'baz' => 'string'],
+                ['foo' => ArrayParameterType::INTEGER, 'baz' => 'string'],
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ? OR baz = ?',
                 [1, 2, 'bar', 'baz'],
                 [
@@ -257,7 +257,7 @@ class ExpandArrayParametersTest extends TestCase
             [
                 'SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar',
                 ['foo' => [1, 2], 'bar' => 'bar'],
-                ['foo' => Connection::PARAM_INT_ARRAY],
+                ['foo' => ArrayParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ?',
                 [1, 2, 'bar'],
                 [ParameterType::INTEGER, ParameterType::INTEGER],
@@ -305,7 +305,7 @@ class ExpandArrayParametersTest extends TestCase
             [
                 'SELECT NULL FROM dummy WHERE ? IN (?)',
                 ['foo', ['bar', 'baz']],
-                [1 => Connection::PARAM_STR_ARRAY],
+                [1 => ArrayParameterType::STRING],
                 'SELECT NULL FROM dummy WHERE ? IN (?, ?)',
                 ['foo', 'bar', 'baz'],
                 [1 => ParameterType::STRING, ParameterType::STRING],
@@ -353,12 +353,12 @@ class ExpandArrayParametersTest extends TestCase
             [
                 'SELECT * FROM foo WHERE bar = :param',
                 [],
-                ['bar' => Connection::PARAM_INT_ARRAY],
+                ['bar' => ArrayParameterType::INTEGER],
             ],
             [
                 'SELECT * FROM foo WHERE bar = :param',
                 ['bar' => 'value'],
-                ['bar' => Connection::PARAM_INT_ARRAY],
+                ['bar' => ArrayParameterType::INTEGER],
             ],
         ];
     }
