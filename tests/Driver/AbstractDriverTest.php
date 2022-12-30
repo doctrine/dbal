@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
@@ -19,6 +20,8 @@ use function sprintf;
 /** @template P of AbstractPlatform */
 abstract class AbstractDriverTest extends TestCase
 {
+    use VerifyDeprecations;
+
     /**
      * The driver mock under test.
      */
@@ -29,37 +32,57 @@ abstract class AbstractDriverTest extends TestCase
         $this->driver = $this->createDriver();
     }
 
-    public function testCreatesDatabasePlatformForVersion(): void
+    public function testVersionAwarePlatformCreationIsTested(): void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
             self::markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
-        $data = $this->getDatabasePlatformsForVersions();
-
         self::assertNotEmpty(
-            $data,
+            static::getDatabasePlatformsForVersions(),
             sprintf(
                 'No test data found for test %s. You have to return test data from %s.',
                 static::class . '::' . __FUNCTION__,
                 static::class . '::getDatabasePlatformsForVersions',
             ),
         );
+    }
 
-        foreach ($data as $item) {
-            $generatedVersion = get_class($this->driver->createDatabasePlatformForVersion($item[0]));
-
-            self::assertSame(
-                $item[1],
-                $generatedVersion,
-                sprintf(
-                    'Expected platform for version "%s" should be "%s", "%s" given',
-                    $item[0],
-                    $item[1],
-                    $generatedVersion,
-                ),
-            );
+    /**
+     * @param class-string<AbstractPlatform> $expectedPlatformClass
+     *
+     * @dataProvider getDatabasePlatformsForVersions
+     */
+    public function testCreatesDatabasePlatformForVersion(
+        string $version,
+        string $expectedPlatformClass,
+        ?string $deprecation = null,
+        ?bool $expectDeprecation = null
+    ): void {
+        if (! $this->driver instanceof VersionAwarePlatformDriver) {
+            self::markTestSkipped('This test is only intended for version aware platform drivers.');
         }
+
+        if ($deprecation !== null) {
+            if ($expectDeprecation ?? true) {
+                $this->expectDeprecationWithIdentifier($deprecation);
+            } else {
+                $this->expectNoDeprecationWithIdentifier($deprecation);
+            }
+        }
+
+        $actualPlatform = $this->driver->createDatabasePlatformForVersion($version);
+
+        self::assertInstanceOf(
+            $expectedPlatformClass,
+            $actualPlatform,
+            sprintf(
+                'Expected platform for version "%s" should be "%s", "%s" given',
+                $version,
+                $expectedPlatformClass,
+                get_class($actualPlatform),
+            ),
+        );
     }
 
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
@@ -131,8 +154,8 @@ abstract class AbstractDriverTest extends TestCase
         return $this->createMock(Connection::class);
     }
 
-    /** @return array<int, array<int, string>> */
-    protected function getDatabasePlatformsForVersions(): array
+    /** @return iterable<array{0: string, 1: class-string<AbstractPlatform>, 2?: string, 3?: bool}> */
+    public function getDatabasePlatformsForVersions(): iterable
     {
         return [];
     }
