@@ -36,7 +36,7 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected function getDatabasePlatformsForVersions(): array
+    public function getDatabasePlatformsForVersions(): array
     {
         return [
             ['12', SQLServer2012Platform::class],

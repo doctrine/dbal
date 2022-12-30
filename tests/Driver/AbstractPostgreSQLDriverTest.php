@@ -43,7 +43,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected function getDatabasePlatformsForVersions(): array
+    public function getDatabasePlatformsForVersions(): array
     {
         return [
             ['9.4', PostgreSQL94Platform::class],

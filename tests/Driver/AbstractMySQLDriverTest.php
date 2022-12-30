@@ -44,26 +44,42 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected function getDatabasePlatformsForVersions(): array
+    public function getDatabasePlatformsForVersions(): array
     {
         return [
-            ['5.6.9', MySQLPlatform::class],
-            ['5.7', MySQL57Platform::class],
-            ['5.7.0', MySQLPlatform::class],
-            ['5.7.8', MySQLPlatform::class],
-            ['5.7.9', MySQL57Platform::class],
-            ['5.7.10', MySQL57Platform::class],
-            ['8', MySQL80Platform::class],
-            ['8.0', MySQL80Platform::class],
-            ['8.0.11', MySQL80Platform::class],
+            ['5.6.9', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['5.7', MySQL57Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
+            ['5.7.0', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['5.7.8', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['5.7.9', MySQL57Platform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['5.7.10', MySQL57Platform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['8', MySQL80Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
+            ['8.0', MySQL80Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
+            ['8.0.11', MySQL80Platform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
             ['6', MySQL57Platform::class],
-            ['10.0.15-MariaDB-1~wheezy', MySQLPlatform::class],
-            ['5.5.5-10.1.25-MariaDB', MySQLPlatform::class],
-            ['10.1.2a-MariaDB-a1~lenny-log', MySQLPlatform::class],
-            ['5.5.40-MariaDB-1~wheezy', MySQLPlatform::class],
-            ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
-            ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
-            ['10.2.8-MariaDB-1~lenny-log', MariaDb1027Platform::class],
+            ['10.0.15-MariaDB-1~wheezy', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['5.5.5-10.1.25-MariaDB', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['10.1.2a-MariaDB-a1~lenny-log', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['5.5.40-MariaDB-1~wheezy', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            [
+                '5.5.5-MariaDB-10.2.8+maria~xenial-log',
+                MariaDb1027Platform::class,
+                'https://github.com/doctrine/dbal/pull/5779',
+                false,
+            ],
+            [
+                '10.2.8-MariaDB-10.2.8+maria~xenial-log',
+                MariaDb1027Platform::class,
+                'https://github.com/doctrine/dbal/pull/5779',
+                false,
+            ],
+            [
+                '10.2.8-MariaDB-1~lenny-log',
+                MariaDb1027Platform::class,
+                'https://github.com/doctrine/dbal/pull/5779',
+                false,
+            ],
+            ['mariadb-10.9.3',MariaDb1027Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
         ];
     }
 }
