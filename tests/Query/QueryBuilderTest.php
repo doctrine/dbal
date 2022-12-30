@@ -12,11 +12,11 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
 use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/** @psalm-import-type WrapperParameterTypeArray from Connection */
 class QueryBuilderTest extends TestCase
 {
     /** @var Connection&MockObject */
@@ -802,20 +802,16 @@ class QueryBuilderTest extends TestCase
 
     public function testArrayParameters(): void
     {
-        self::markTestSkipped('FIXME');
-
-        $qb = new QueryBuilder($this->conn); // @phpstan-ignore-line
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('*')->from('users');
 
         self::assertSame([], $qb->getParameterTypes());
 
         $qb->where('id IN (:ids)');
-        /** @psalm-suppress InvalidArgument */
         $qb->setParameter('ids', [1, 2, 3], ArrayParameterType::INTEGER);
 
         $qb->andWhere('name IN (:names)');
-        /** @psalm-suppress InvalidArgument */
         $qb->setParameter('names', ['john', 'jane'], ArrayParameterType::STRING);
 
         self::assertSame(ArrayParameterType::INTEGER, $qb->getParameterType('ids'));
@@ -844,8 +840,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                           $parameters
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
+     * @param list<mixed>|array<string, mixed> $parameters
+     * @psalm-param WrapperParameterTypeArray $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -879,8 +875,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                           $parameters
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
+     * @param list<mixed>|array<string, mixed> $parameters
+     * @psalm-param WrapperParameterTypeArray $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -914,8 +910,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                           $parameters
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
+     * @param list<mixed>|array<string, mixed> $parameters
+     * @param WrapperParameterTypeArray        $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -949,8 +945,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                           $parameters
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
+     * @param list<mixed>|array<string, mixed> $parameters
+     * @psalm-param WrapperParameterTypeArray $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -995,8 +991,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                           $parameters
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
+     * @param list<mixed>|array<string, mixed> $parameters
+     * @psalm-param WrapperParameterTypeArray $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1041,8 +1037,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                           $parameters
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
+     * @param list<mixed>|array<string, mixed> $parameters
+     * @psalm-param WrapperParameterTypeArray $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1087,8 +1083,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                           $parameters
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
+     * @param list<mixed>|array<string, mixed> $parameters
+     * @psalm-param WrapperParameterTypeArray $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1137,8 +1133,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                           $parameters
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
+     * @param list<mixed>|array<string, mixed> $parameters
+     * @psalm-param WrapperParameterTypeArray $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1183,14 +1179,14 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<
+     * @psalm-return iterable<
      *     string,
      *     array{
      *          string,
      *          string,
      *          string,
      *          list<mixed>|array<string, mixed>,
-     *          array<int, int|string|Type>|array<string, int|string|Type>,
+     *          WrapperParameterTypeArray,
      *          string
      *  }>
      */
@@ -1234,8 +1230,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                                                       $params
-     * @param array<int, int|string|ParameterType|Type>|array<string, int|string|ParameterType|Type> $types
+     * @param list<mixed>|array<string, mixed> $params
+     * @psalm-param WrapperParameterTypeArray $types
      *
      * @dataProvider fetchProvider
      */
@@ -1268,8 +1264,8 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|array<string, mixed>                           $parameters
-     * @param array<int, int|string|Type>|array<string, int|string|Type> $parameterTypes
+     * @param list<mixed>|array<string, mixed> $parameters
+     * @psalm-param WrapperParameterTypeArray $parameterTypes
      *
      * @dataProvider fetchProvider
      */

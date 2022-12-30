@@ -4,41 +4,30 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\ArrayParameters\Exception\InvalidParameterType;
-
-final class ArrayParameterType
+enum ArrayParameterType
 {
     /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.
      */
-    public const INTEGER = 101;
+    case INTEGER;
 
     /**
      * Represents an array of strings to be expanded by Doctrine SQL parsing.
      */
-    public const STRING = 102;
+    case STRING;
 
     /**
      * Represents an array of ascii strings to be expanded by Doctrine SQL parsing.
      */
-    public const ASCII = 117;
+    case ASCII;
 
-    /**
-     * @internal
-     *
-     * @psalm-param self::INTEGER|self::STRING|self::ASCII $type
-     */
-    public static function toElementParameterType(int $type): ParameterType
+    /** @internal */
+    public static function toElementParameterType(self $type): ParameterType
     {
         return match ($type) {
             self::INTEGER => ParameterType::INTEGER,
             self::STRING => ParameterType::STRING,
             self::ASCII => ParameterType::ASCII,
-            default => throw InvalidParameterType::new($type),
         };
-    }
-
-    private function __construct()
-    {
     }
 }
