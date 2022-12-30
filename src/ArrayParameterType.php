@@ -7,22 +7,17 @@ final class ArrayParameterType
     /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.
      */
-    public const INTEGER = ParameterType::INTEGER + self::ARRAY_PARAM_OFFSET;
+    public const INTEGER = ParameterType::INTEGER + Connection::ARRAY_PARAM_OFFSET;
 
     /**
      * Represents an array of strings to be expanded by Doctrine SQL parsing.
      */
-    public const STRING = ParameterType::STRING + self::ARRAY_PARAM_OFFSET;
+    public const STRING = ParameterType::STRING + Connection::ARRAY_PARAM_OFFSET;
 
     /**
      * Represents an array of ascii strings to be expanded by Doctrine SQL parsing.
      */
-    public const ASCII = ParameterType::ASCII + self::ARRAY_PARAM_OFFSET;
-
-    /**
-     * Offset by which PARAM_* constants are detected as arrays of the param type.
-     */
-    private const ARRAY_PARAM_OFFSET = 100;
+    public const ASCII = ParameterType::ASCII + Connection::ARRAY_PARAM_OFFSET;
 
     /**
      * @internal
@@ -33,7 +28,7 @@ final class ArrayParameterType
      */
     public static function toElementParameterType(int $type): int
     {
-        return $type - self::ARRAY_PARAM_OFFSET;
+        return $type - Connection::ARRAY_PARAM_OFFSET;
     }
 
     private function __construct()

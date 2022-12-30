@@ -70,6 +70,13 @@ class Connection
     public const PARAM_ASCII_STR_ARRAY = ArrayParameterType::ASCII;
 
     /**
+     * Offset by which PARAM_* constants are detected as arrays of the param type.
+     *
+     * @internal Should be used only within the wrapper layer.
+     */
+    public const ARRAY_PARAM_OFFSET = 100;
+
+    /**
      * The wrapped driver connection.
      *
      * @var \Doctrine\DBAL\Driver\Connection|null
