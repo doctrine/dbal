@@ -10,6 +10,8 @@ use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Tools\DsnParser;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -21,6 +23,8 @@ use function is_array;
 
 class DriverManagerTest extends TestCase
 {
+    use VerifyDeprecations;
+
     public function testCheckParams(): void
     {
         $this->expectException(Exception::class);
@@ -147,9 +151,43 @@ class DriverManagerTest extends TestCase
      *
      * @dataProvider databaseUrls
      */
-    public function testDatabaseUrl($url, $expected): void
+    public function testDatabaseUrlDeprecated($url, $expected): void
     {
         $options = is_array($url) ? $url : ['url' => $url];
+
+        if ($expected === false) {
+            $this->expectException(Exception::class);
+        }
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5843');
+        $conn = DriverManager::getConnection($options);
+
+        $params = $conn->getParams();
+        foreach ($expected as $key => $value) {
+            if (in_array($key, ['driver', 'driverClass'], true)) {
+                self::assertInstanceOf($value, $conn->getDriver());
+            } else {
+                self::assertEquals($value, $params[$key]);
+            }
+        }
+    }
+
+    /**
+     * @param mixed $url
+     * @param mixed $expected
+     *
+     * @dataProvider databaseUrls
+     */
+    public function testDatabaseUrl($url, $expected): void
+    {
+        if (is_array($url)) {
+            ['url' => $url] = $options = $url;
+        } else {
+            $options = [];
+        }
+
+        $parser  = new DsnParser(['mysql' => 'pdo_mysql', 'sqlite' => 'pdo_sqlite']);
+        $options = array_merge($options, $parser->parse($url));
 
         if ($expected === false) {
             $this->expectException(Exception::class);
