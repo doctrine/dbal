@@ -859,6 +859,28 @@ The following methods have been removed.
 
 # Upgrade to 3.6
 
+## Deprecated the `url` connection parameter
+
+DBAL ships with a new and configurable DSN parser that can be used to parse a
+database URL into connection parameters understood by `DriverManager`.
+
+### Before
+
+```php
+$connection = DriverManager::getConnection(
+    ['url' => 'mysql://my-user:t0ps3cr3t@my-host/my-database']
+);
+```
+
+### After
+
+```php
+$dsnParser  = new DsnParser(['mysql' => 'pdo_mysql']);
+$connection = DriverManager::getConnection(
+    $dsnParser->parse('mysql://my-user:t0ps3cr3t@my-host/my-database')
+);
+```
+
 ## Deprecated `Connection::PARAM_*_ARRAY` constants
 
 Use the corresponding constants on `ArrayParameterType` instead. Please be aware that

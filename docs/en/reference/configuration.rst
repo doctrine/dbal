@@ -10,6 +10,8 @@ You can get a DBAL Connection through the
 .. code-block:: php
 
     <?php
+    use Doctrine\DBAL\DriverManager;
+
     //..
     $connectionParams = [
         'dbname' => 'mydb',
@@ -18,18 +20,23 @@ You can get a DBAL Connection through the
         'host' => 'localhost',
         'driver' => 'pdo_mysql',
     ];
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
+    $conn = DriverManager::getConnection($connectionParams);
 
-Or, using the simpler URL form:
+Alternatively, if you store your connection settings as a connection URL (DSN),
+you can parse the URL to extract connection parameters for ``DriverManager``:
 
 .. code-block:: php
 
     <?php
+    use Doctrine\DBAL\DriverManager;
+    use Doctrine\DBAL\Tools\DsnParser;
+
     //..
-    $connectionParams = [
-        'url' => 'mysql://user:secret@localhost/mydb',
-    ];
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
+    $dsnParser = new DsnParser();
+    $connectionParams = $dsnParser
+        ->parse('mysqli://user:secret@localhost/mydb');
+
+    $conn = DriverManager::getConnection($connectionParams);
 
 The ``DriverManager`` returns an instance of
 ``Doctrine\DBAL\Connection`` which is a wrapper around the
@@ -42,7 +49,7 @@ Connecting using a URL
 ~~~~~~~~~~~~~~~~~~~~~~
 
 The easiest way to specify commonly used connection parameters is
-using a database URL. The scheme is used to specify a driver, the
+using a database URL or DSN. The scheme is used to specify a driver, the
 user and password in the URL encode user and password for the
 connection, followed by the host and port parts (the "authority").
 The path after the authority part represents the name of the
@@ -90,14 +97,42 @@ database name::
 
     pdo-sqlite:///:memory:
 
-.. note::
+Using the DSN parser
+^^^^^^^^^^^^^^^^^^^^
 
-    Any information extracted from the URL overwrites existing values
-    for the parameter in question, but the rest of the information
-    is merged together. You could, for example, have a URL without
-    the ``charset`` setting in the query string, and then add a
-    ``charset`` connection parameter next to ``url``, to provide a
-    default value in case the URL doesn't contain a charset value.
+By default, the URL scheme of the parsed DSN has to match one of DBAL's driver
+names. However, it might be that you have to deal with connection strings where
+you don't have control over the used scheme, e.g. in a PaaS environment. In
+order to make the parser understand which driver to use e.g. for ``mysql://``
+DSNs, you can configure the parser with a mapping table:
+
+.. code-block:: php
+
+    <?php
+    use Doctrine\DBAL\Tools\DsnParser;
+
+    //..
+    $dsnParser = new DsnParser(['mysql' => 'mysqli', 'postgres' => 'pdo_pgsql']);
+    $connectionParams = $dsnParser
+        ->parse('mysql://user:secret@localhost/mydb');
+
+The DSN parser returns the connection params back to you so you can add or
+modify individual parameters before passing the params to the
+``DriverManager``. For example, you can add a database name if its missing in
+the DSN or hardcode one if the DSN is not allowed to configure the database
+name.
+
+.. code-block:: php
+
+    <?php
+    use Doctrine\DBAL\DriverManager;
+    use Doctrine\DBAL\Tools\DsnParser;
+
+    //..
+    $connectionParams = $dsnParser->parse($myDsn);
+    $connectionParams['dbname'] ??= 'default_db';
+
+    $conn = DriverManager::getConnection($connectionParams);
 
 Driver
 ~~~~~~
