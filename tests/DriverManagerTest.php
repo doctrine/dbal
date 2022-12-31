@@ -46,7 +46,8 @@ class DriverManagerTest extends TestCase
     {
         $platform = $this->createMock(AbstractPlatform::class);
         $options  = [
-            'url' => 'sqlite::memory:',
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
             'platform' => $platform,
         ];
 
@@ -61,7 +62,8 @@ class DriverManagerTest extends TestCase
         $wrapperClass = get_class($wrapper);
 
         $options = [
-            'url' => 'sqlite::memory:',
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
             'wrapperClass' => $wrapperClass,
         ];
 
@@ -78,7 +80,8 @@ class DriverManagerTest extends TestCase
         $this->expectException(Exception::class);
 
         $options = [
-            'url' => 'sqlite::memory:',
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
             'wrapperClass' => stdClass::class,
         ];
 
