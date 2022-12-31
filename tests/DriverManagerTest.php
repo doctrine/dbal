@@ -21,6 +21,7 @@ use function get_class;
 use function in_array;
 use function is_array;
 
+/** @psalm-import-type Params from DriverManager */
 class DriverManagerTest extends TestCase
 {
     use VerifyDeprecations;
@@ -113,6 +114,7 @@ class DriverManagerTest extends TestCase
             'wrapperClass' => PrimaryReadReplicaConnection::class,
         ];
 
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5843');
         $conn = DriverManager::getConnection($options);
 
         $params = $conn->getParams();
@@ -146,8 +148,8 @@ class DriverManagerTest extends TestCase
     }
 
     /**
-     * @param mixed $url
-     * @param mixed $expected
+     * @param array<string, mixed>|false $expected
+     * @psalm-param Params|string $url
      *
      * @dataProvider databaseUrls
      */
@@ -162,6 +164,8 @@ class DriverManagerTest extends TestCase
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5843');
         $conn = DriverManager::getConnection($options);
 
+        self::assertNotFalse($expected);
+
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {
             if (in_array($key, ['driver', 'driverClass'], true)) {
@@ -173,15 +177,22 @@ class DriverManagerTest extends TestCase
     }
 
     /**
-     * @param mixed $url
-     * @param mixed $expected
+     * @param array<string, mixed>|string $url
+     * @param array<string, mixed>|false  $expected
      *
      * @dataProvider databaseUrls
      */
     public function testDatabaseUrl($url, $expected): void
     {
         if (is_array($url)) {
+            if (isset($url['driverClass'])) {
+                self::markTestSkipped(
+                    'Legacy test case: Merging driverClass into the parsed parameters has to be done in userland now.',
+                );
+            }
+
             ['url' => $url] = $options = $url;
+            unset($options['url']);
         } else {
             $options = [];
         }
@@ -195,6 +206,8 @@ class DriverManagerTest extends TestCase
 
         $conn = DriverManager::getConnection($options);
 
+        self::assertNotFalse($expected);
+
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {
             if (in_array($key, ['driver', 'driverClass'], true)) {
@@ -205,7 +218,11 @@ class DriverManagerTest extends TestCase
         }
     }
 
-    /** @return array<string, list<mixed>> */
+    /** @psalm-return array<string, array{
+     *                    string|array<string, mixed>,
+     *                    array<string, mixed>|false,
+     *                }>
+     */
     public function databaseUrls(): iterable
     {
         $driver      = $this->createMock(Driver::class);
