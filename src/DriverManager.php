@@ -16,8 +16,8 @@ use function array_merge;
 use function assert;
 use function class_implements;
 use function in_array;
+use function is_a;
 use function is_string;
-use function is_subclass_of;
 use function parse_str;
 use function parse_url;
 use function preg_replace;
@@ -212,14 +212,9 @@ final class DriverManager
             $driver = $middleware->wrap($driver);
         }
 
-        $wrapperClass = Connection::class;
-        if (isset($params['wrapperClass'])) {
-            if (! is_subclass_of($params['wrapperClass'], $wrapperClass)) {
-                throw Exception::invalidWrapperClass($params['wrapperClass']);
-            }
-
-            /** @var class-string<Connection> $wrapperClass */
-            $wrapperClass = $params['wrapperClass'];
+        $wrapperClass = $params['wrapperClass'] ?? Connection::class;
+        if (! is_a($wrapperClass, Connection::class, true)) {
+            throw Exception::invalidWrapperClass($wrapperClass);
         }
 
         return new $wrapperClass($params, $driver, $config, $eventManager);
