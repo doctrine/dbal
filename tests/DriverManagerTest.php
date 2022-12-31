@@ -21,6 +21,7 @@ use function array_merge;
 use function in_array;
 use function is_array;
 
+/** @psalm-import-type Params from DriverManager */
 class DriverManagerTest extends TestCase
 {
     use VerifyDeprecations;
@@ -100,6 +101,7 @@ class DriverManagerTest extends TestCase
             'wrapperClass' => PrimaryReadReplicaConnection::class,
         ];
 
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5843');
         $conn = DriverManager::getConnection($options);
 
         $params = $conn->getParams();
@@ -134,6 +136,7 @@ class DriverManagerTest extends TestCase
 
     /**
      * @param array<string, mixed>|false $expected
+     * @psalm-param Params|string $url
      *
      * @dataProvider databaseUrls
      */
@@ -161,14 +164,22 @@ class DriverManagerTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>|false $expected
+     * @param array<string, mixed>|string $url
+     * @param array<string, mixed>|false  $expected
      *
      * @dataProvider databaseUrls
      */
     public function testDatabaseUrl(array|string $url, array|false $expected): void
     {
         if (is_array($url)) {
+            if (isset($url['driverClass'])) {
+                self::markTestSkipped(
+                    'Legacy test case: Merging driverClass into the parsed parameters has to be done in userland now.',
+                );
+            }
+
             ['url' => $url] = $options = $url;
+            unset($options['url']);
         } else {
             $options = [];
         }
@@ -194,7 +205,11 @@ class DriverManagerTest extends TestCase
         }
     }
 
-    /** @return array<string, list<mixed>> */
+    /** @psalm-return array<string, array{
+     *                    string|array<string, mixed>,
+     *                    array<string, mixed>|false,
+     *                }>
+     */
     public function databaseUrls(): iterable
     {
         $driver      = $this->createMock(Driver::class);
