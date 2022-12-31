@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
@@ -16,7 +15,6 @@ use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use function array_intersect_key;
 use function array_merge;
 use function in_array;
 use function is_array;
@@ -48,7 +46,8 @@ class DriverManagerTest extends TestCase
         $wrapperClass = $wrapper::class;
 
         $options = [
-            'url' => 'pdo-sqlite::memory:',
+            'driver' => 'sqlite3',
+            'memory' => true,
             'wrapperClass' => $wrapperClass,
         ];
 
@@ -90,79 +89,6 @@ class DriverManagerTest extends TestCase
         self::assertInstanceOf(PDO\MySQL\Driver::class, $conn->getDriver());
     }
 
-    public function testDatabaseUrlPrimaryReplica(): void
-    {
-        $options = [
-            'driver' => 'pdo_mysql',
-            'primary' => ['url' => 'mysql://foo:bar@localhost:11211/baz'],
-            'replica' => [
-                'replica1' => ['url' => 'mysql://foo:bar@localhost:11211/baz_replica'],
-            ],
-            'wrapperClass' => PrimaryReadReplicaConnection::class,
-        ];
-
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5843');
-        $conn = DriverManager::getConnection($options);
-
-        $params = $conn->getParams();
-        self::assertInstanceOf(PDO\MySQL\Driver::class, $conn->getDriver());
-
-        $expected = [
-            'user'     => 'foo',
-            'password' => 'bar',
-            'host'     => 'localhost',
-            'port'     => 11211,
-            'dbname'   => 'baz',
-            'driver'   => 'pdo_mysql',
-            'url'      => 'mysql://foo:bar@localhost:11211/baz',
-        ];
-
-        self::assertEquals(
-            [
-                'primary' => $expected,
-                'replica' => [
-                    'replica1' => array_merge(
-                        $expected,
-                        [
-                            'dbname' => 'baz_replica',
-                            'url'    => 'mysql://foo:bar@localhost:11211/baz_replica',
-                        ],
-                    ),
-                ],
-            ],
-            array_intersect_key($params, ['primary' => null, 'replica' => null]),
-        );
-    }
-
-    /**
-     * @param array<string, mixed>|false $expected
-     * @psalm-param Params|string $url
-     *
-     * @dataProvider databaseUrls
-     */
-    public function testDatabaseUrlDeprecated(array|string $url, array|false $expected): void
-    {
-        $options = is_array($url) ? $url : ['url' => $url];
-
-        if ($expected === false) {
-            $this->expectException(Exception::class);
-        }
-
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5843');
-        $conn = DriverManager::getConnection($options);
-
-        self::assertNotFalse($expected);
-
-        $params = $conn->getParams();
-        foreach ($expected as $key => $value) {
-            if (in_array($key, ['driver', 'driverClass'], true)) {
-                self::assertInstanceOf($value, $conn->getDriver());
-            } else {
-                self::assertEquals($value, $params[$key]);
-            }
-        }
-    }
-
     /**
      * @param array<string, mixed>|string $url
      * @param array<string, mixed>|false  $expected
@@ -172,12 +98,6 @@ class DriverManagerTest extends TestCase
     public function testDatabaseUrl(array|string $url, array|false $expected): void
     {
         if (is_array($url)) {
-            if (isset($url['driverClass'])) {
-                self::markTestSkipped(
-                    'Legacy test case: Merging driverClass into the parsed parameters has to be done in userland now.',
-                );
-            }
-
             ['url' => $url] = $options = $url;
             unset($options['url']);
         } else {
@@ -384,60 +304,6 @@ class DriverManagerTest extends TestCase
                     'host'        => 'localhost',
                     'dbname'      => 'baz',
                     'driverClass' => $driverClass,
-                ],
-            ],
-            'URL without scheme but driver and custom driver' => [
-                [
-                    'url'         => '//foo:bar@localhost/baz',
-                    'driver'      => 'pdo_mysql',
-                    'driverClass' => $driverClass,
-                ],
-                [
-                    'user'        => 'foo',
-                    'password'    => 'bar',
-                    'host'        => 'localhost',
-                    'dbname'      => 'baz',
-                    'driverClass' => $driverClass,
-                ],
-            ],
-            'URL with default driver' => [
-                [
-                    'url'    => 'pdo-mysql://foo:bar@localhost/baz',
-                    'driver' => 'sqlite',
-                ],
-                [
-                    'user'     => 'foo',
-                    'password' => 'bar',
-                    'host'     => 'localhost',
-                    'dbname'   => 'baz',
-                    'driver'   => PDO\MySQL\Driver::class,
-                ],
-            ],
-            'URL with default custom driver' => [
-                [
-                    'url'         => 'pdo-mysql://foo:bar@localhost/baz',
-                    'driverClass' => $driverClass,
-                ],
-                [
-                    'user'     => 'foo',
-                    'password' => 'bar',
-                    'host'     => 'localhost',
-                    'dbname'   => 'baz',
-                    'driver'   => PDO\MySQL\Driver::class,
-                ],
-            ],
-            'URL with default driver and default custom driver' => [
-                [
-                    'url'         => 'pdo-mysql://foo:bar@localhost/baz',
-                    'driver'      => 'sqlite',
-                    'driverClass' => $driverClass,
-                ],
-                [
-                    'user'     => 'foo',
-                    'password' => 'bar',
-                    'host'     => 'localhost',
-                    'dbname'   => 'baz',
-                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
         ];

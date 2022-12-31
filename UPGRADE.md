@@ -8,11 +8,33 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
-## Removed `Connection::PARAM_*_ARRAY` constants
+## BC BREAK: Removed the `url` connection parameter
+
+DBAL ships with a new and configurable DSN parser that can be used to parse a
+database URL into connection parameters understood by `DriverManager`.
+
+### Before
+
+```php
+$connection = DriverManager::getConnection(
+    ['url' => 'mysql://my-user:t0ps3cr3t@my-host/my-database']
+);
+```
+
+### After
+
+```php
+$dsnParser  = new DsnParser(['mysql' => 'pdo_mysql']);
+$connection = DriverManager::getConnection(
+    $dsnParser->parse('mysql://my-user:t0ps3cr3t@my-host/my-database')
+);
+```
+
+## BC BREAK: Removed `Connection::PARAM_*_ARRAY` constants
 
 Use the enum `ArrayParameterType` instead.
 
-## Disallowed partial version numbers in ``serverVersion``
+## BC BREAK: Disallowed partial version numbers in ``serverVersion``
 
 The ``serverVersion`` connection parameter must consist of 3 numbers:
 
@@ -21,7 +43,7 @@ The ``serverVersion`` connection parameter must consist of 3 numbers:
 +'serverVersion' => '8.0.31'
 ```
 
-## Removed `mariadb-` prefix hack
+## BC BREAK: Removed `mariadb-` prefix hack
 
 Previously, it was necessary to prefix the `serverVersion` parameter with
 `mariadb-` when using MariaDB. Doing so is now considered invalid, and you
@@ -33,11 +55,11 @@ should prefer using the version as returned by `SELECT VERSION();`
 ```
 
 
-## Removed `SchemaDiff::$orphanedForeignKeys`
+## BC BREAK: Removed `SchemaDiff::$orphanedForeignKeys`
 
 The functionality of automatically dropping the foreign keys referencing the tables being dropped has been removed.
 
-## BC Break: Removed registration of user defined functions for SQLite
+## BC BREAK: Removed registration of user defined functions for SQLite
 
 DBAL does not register functions for SQLite anymore. The following functions
 which were previously provided by DBAL have been removed:
