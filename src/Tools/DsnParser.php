@@ -22,8 +22,9 @@ use function substr;
 final class DsnParser
 {
     /** @param array<string, string> $schemeMapping An array used to map DSN schemes to DBAL drivers */
-    public function __construct(private array $schemeMapping = [])
-    {
+    public function __construct(
+        private readonly array $schemeMapping = [],
+    ) {
     }
 
     /**

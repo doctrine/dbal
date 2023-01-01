@@ -13,13 +13,9 @@ use Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Exception\DriverRequired;
 use Doctrine\DBAL\Exception\InvalidDriverClass;
 use Doctrine\DBAL\Exception\InvalidWrapperClass;
-use Doctrine\DBAL\Exception\MalformedDsnException;
 use Doctrine\DBAL\Exception\UnknownDriver;
-use Doctrine\DBAL\Tools\DsnParser;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_keys;
-use function array_merge;
 use function class_implements;
 use function in_array;
 use function is_subclass_of;
@@ -62,7 +58,6 @@ use function is_subclass_of;
  *     serverVersion?: string,
  *     sharding?: array<string,mixed>,
  *     slaves?: array<OverrideParams>,
- *     url?: string,
  *     user?: string,
  *     wrapperClass?: class-string<Connection>,
  *     unix_socket?: string,
@@ -158,20 +153,7 @@ final class DriverManager
     public static function getConnection(array $params, ?Configuration $config = null): Connection
     {
         $config ??= new Configuration();
-        $params   = self::parseDatabaseUrl($params);
-
-        // URL support for PrimaryReplicaConnection
-        if (isset($params['primary'])) {
-            $params['primary'] = self::parseDatabaseUrl($params['primary']);
-        }
-
-        if (isset($params['replica'])) {
-            foreach ($params['replica'] as $key => $replicaParams) {
-                $params['replica'][$key] = self::parseDatabaseUrl($replicaParams);
-            }
-        }
-
-        $driver = self::createDriver($params);
+        $driver   = self::createDriver($params);
 
         foreach ($config->getMiddlewares() as $middleware) {
             $driver = $middleware->wrap($driver);
@@ -227,54 +209,5 @@ final class DriverManager
         }
 
         throw DriverRequired::new();
-    }
-
-    /**
-     * Extracts parts from a database URL, if present, and returns an
-     * updated list of parameters.
-     *
-     * @param mixed[] $params The list of parameters.
-     * @psalm-param Params $params
-     *
-     * @return mixed[] A modified list of parameters with info from a database
-     *                 URL extracted into indidivual parameter parts.
-     * @psalm-return Params
-     */
-    private static function parseDatabaseUrl(array $params): array
-    {
-        if (! isset($params['url'])) {
-            return $params;
-        }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5843',
-            'The "url" connection parameter is deprecated. Please use %s to parse a database url before calling %s.',
-            DsnParser::class,
-            self::class,
-        );
-
-        $parser = new DsnParser();
-        try {
-            $parsedParams = $parser->parse($params['url']);
-        } catch (MalformedDsnException $e) {
-            throw new InvalidDriverClass('Malformed parameter "url".', 0, $e);
-        }
-
-        if (isset($parsedParams['driver'])) {
-            // The requested driver from the URL scheme takes precedence
-            // over the default custom driver from the connection parameters (if any).
-            unset($params['driverClass']);
-        }
-
-        $params = array_merge($params, $parsedParams);
-
-        // If a schemeless connection URL is given, we require a default driver or default custom driver
-        // as connection parameter.
-        if (! isset($params['driverClass']) && ! isset($params['driver'])) {
-            throw DriverRequired::new($params['url']);
-        }
-
-        return $params;
     }
 }
