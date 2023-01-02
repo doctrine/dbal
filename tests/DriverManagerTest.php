@@ -64,6 +64,18 @@ class DriverManagerTest extends TestCase
         self::assertInstanceOf($wrapperClass, $conn);
     }
 
+    /** @requires extension pdo_sqlite */
+    public function testDefaultWrapper(): void
+    {
+        $options = [
+            'url' => 'sqlite::memory:',
+            'wrapperClass' => Connection::class,
+        ];
+
+        $conn = DriverManager::getConnection($options);
+        self::assertSame(Connection::class, get_class($conn));
+    }
+
     /**
      * @requires extension pdo_sqlite
      * @psalm-suppress InvalidArgument
