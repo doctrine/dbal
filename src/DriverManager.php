@@ -222,6 +222,7 @@ final class DriverManager
      * Returns the list of supported drivers.
      *
      * @return string[]
+     * @psalm-return list<key-of<self::DRIVER_MAP>>
      */
     public static function getAvailableDrivers(): array
     {
