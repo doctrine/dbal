@@ -147,32 +147,9 @@ final class DriverManager
      *
      * @param Configuration|null $config       The configuration to use.
      * @param EventManager|null  $eventManager The event manager to use.
-     * @psalm-param array{
-     *     charset?: string,
-     *     dbname?: string,
-     *     default_dbname?: string,
-     *     driver?: key-of<self::DRIVER_MAP>,
-     *     driverClass?: class-string<Driver>,
-     *     driverOptions?: array<mixed>,
-     *     host?: string,
-     *     keepSlave?: bool,
-     *     keepReplica?: bool,
-     *     master?: OverrideParams,
-     *     memory?: bool,
-     *     password?: string,
-     *     path?: string,
-     *     pdo?: \PDO,
-     *     platform?: Platforms\AbstractPlatform,
-     *     port?: int,
-     *     primary?: OverrideParams,
-     *     replica?: array<OverrideParams>,
-     *     sharding?: array<string,mixed>,
-     *     slaves?: array<OverrideParams>,
-     *     user?: string,
-     *     wrapperClass?: class-string<T>,
-     * } $params
+     * @psalm-param Params $params
      *
-     * @psalm-return ($params is array{wrapperClass:mixed} ? T : Connection)
+     * @psalm-return ($params is array{wrapperClass: class-string<T>} ? T : Connection)
      *
      * @throws Exception
      *
