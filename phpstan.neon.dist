@@ -3,6 +3,7 @@ parameters:
     phpVersion: 80200
     paths:
         - src
+        - static-analysis
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false
