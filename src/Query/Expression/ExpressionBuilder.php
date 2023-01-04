@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
 
 use function func_get_arg;
@@ -311,8 +312,8 @@ class ExpressionBuilder
      * The usage of this method is discouraged. Use prepared statements
      * or {@see AbstractPlatform::quoteStringLiteral()} instead.
      *
-     * @param mixed    $input The parameter to be quoted.
-     * @param int|null $type  The type of the parameter.
+     * @param mixed                 $input The parameter to be quoted.
+     * @param ParameterType::*|null $type  The type of the parameter.
      *
      * @return string
      */

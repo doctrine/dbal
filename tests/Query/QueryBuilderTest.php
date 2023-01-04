@@ -15,6 +15,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/** @psalm-import-type ParameterTypeOfValue from ParameterType */
 class QueryBuilderTest extends TestCase
 {
     /** @var Connection&MockObject */
@@ -974,7 +975,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1009,7 +1010,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1044,7 +1045,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1079,7 +1080,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1125,7 +1126,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1171,7 +1172,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1217,7 +1218,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1267,7 +1268,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1364,7 +1365,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */
@@ -1398,7 +1399,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @param list<mixed>|array<string, mixed>                                     $parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $parameterTypes
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $parameterTypes
      *
      * @dataProvider fetchProvider
      */

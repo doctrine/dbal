@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Query;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
@@ -35,6 +36,9 @@ use function substr;
  * The query builder does no validation whatsoever if certain features even work with the
  * underlying database vendor. Limit queries and joins are NOT applied to UPDATE and DELETE statements
  * even if some vendors such as MySQL support it.
+ *
+ * @psalm-import-type ParameterTypeOfValue from ParameterType
+ * @psalm-import-type ArrayParameterTypeOfValue from ArrayParameterType
  */
 class QueryBuilder
 {
@@ -99,7 +103,7 @@ class QueryBuilder
     /**
      * The parameter type map of this query.
      *
-     * @var array<int, int|string|Type|null>|array<string, int|string|Type|null>
+     * @var array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue>
      */
     private array $paramTypes = [];
 
@@ -435,9 +439,9 @@ class QueryBuilder
      *         ->setParameter('user_id', 1);
      * </code>
      *
-     * @param int|string           $key   Parameter position or name
-     * @param mixed                $value Parameter value
-     * @param int|string|Type|null $type  Parameter type
+     * @param int|string                $key   Parameter position or name
+     * @param mixed                     $value Parameter value
+     * @param ArrayParameterTypeOfValue $type  Parameter type
      *
      * @return $this This QueryBuilder instance.
      */
@@ -474,7 +478,7 @@ class QueryBuilder
      * </code>
      *
      * @param list<mixed>|array<string, mixed>                                     $params Parameters to set
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1485,7 +1489,7 @@ class QueryBuilder
      * @link http://www.zetacomponents.org
      *
      * @param mixed                $value
-     * @param int|string|Type|null $type
+     * @param ParameterTypeOfValue $type
      * @param string               $placeHolder The name to bind with. The string must start with a colon ':'.
      *
      * @return string the placeholder name used.
@@ -1520,7 +1524,7 @@ class QueryBuilder
      * </code>
      *
      * @param mixed                $value
-     * @param int|string|Type|null $type
+     * @param ParameterTypeOfValue $type
      *
      * @return string
      */

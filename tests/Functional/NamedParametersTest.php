@@ -12,6 +12,7 @@ use function array_change_key_case;
 
 use const CASE_LOWER;
 
+/** @psalm-import-type ParameterTypeOfValue from ParameterType */
 class NamedParametersTest extends FunctionalTestCase
 {
     /** @return iterable<int, array<int, mixed>> */
@@ -198,9 +199,9 @@ class NamedParametersTest extends FunctionalTestCase
     }
 
     /**
-     * @param mixed[] $params
-     * @param int[]   $types
-     * @param int[]   $expected
+     * @param mixed[]                                                              $params
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types
+     * @param int[]                                                                $expected
      *
      * @dataProvider ticketProvider
      */

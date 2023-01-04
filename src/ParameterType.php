@@ -2,8 +2,12 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Types\Type;
+
 /**
  * Contains statement parameter types.
+ *
+ * @psalm-type ParameterTypeOfValue self::*|Type|string|null
  */
 final class ParameterType
 {

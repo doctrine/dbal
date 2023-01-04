@@ -2,6 +2,10 @@
 
 namespace Doctrine\DBAL;
 
+/**
+ * @psalm-import-type ParameterTypeOfValue from ParameterType
+ * @psalm-type ArrayParameterTypeOfValue self::*|ParameterTypeOfValue
+ */
 final class ArrayParameterType
 {
     /**

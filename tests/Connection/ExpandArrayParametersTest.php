@@ -11,6 +11,7 @@ use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 
+/** @psalm-import-type ArrayParameterTypeOfValue from ArrayParameterType */
 class ExpandArrayParametersTest extends TestCase
 {
     /** @return mixed[][] */
@@ -314,10 +315,10 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
-     * @param list<mixed>                                                          $expectedParams
-     * @param array<int,Type|int|string|null>                                      $expectedTypes
+     * @param array<int, mixed>|array<string, mixed>                                         $params
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types
+     * @param list<mixed>                                                                    $expectedParams
+     * @param array<int,Type|int|string|null>                                                $expectedTypes
      *
      * @dataProvider dataExpandListParameters
      */
@@ -364,8 +365,8 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param array<int, mixed>|array<string, mixed>                                         $params
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types
      *
      * @dataProvider missingNamedParameterProvider
      */
@@ -404,10 +405,10 @@ class ExpandArrayParametersTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param array<int, mixed>|array<string, mixed>                                         $params
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types
      *
-     * @return array{0: string, 1: list<mixed>, 2: array<int,Type|int|string|null>}
+     * @return array{0: string, 1: list<mixed>, 2: array<int, ArrayParameterTypeOfValue>}
      */
     private function expandArrayParameters(string $sql, array $params, array $types): array
     {

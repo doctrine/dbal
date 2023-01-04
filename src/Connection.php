@@ -45,6 +45,8 @@ use function sprintf;
  *
  * @psalm-import-type Params from DriverManager
  * @psalm-consistent-constructor
+ * @psalm-import-type ParameterTypeOfValue from ParameterType
+ * @psalm-import-type ArrayParameterTypeOfValue from ArrayParameterType
  */
 class Connection
 {
@@ -546,7 +548,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
@@ -563,7 +565,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return list<mixed>|false False is returned if no rows are found.
      *
@@ -580,7 +582,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return mixed|false False is returned if no rows are found.
      *
@@ -648,7 +650,7 @@ class Connection
      *
      * @param string                                                               $table    Table name
      * @param array<string, mixed>                                                 $criteria Deletion criteria
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types    Parameter types
      *
      * @return int|string The number of affected rows.
      *
@@ -718,7 +720,7 @@ class Connection
      * @param string                                                               $table    Table name
      * @param array<string, mixed>                                                 $data     Column-value pairs
      * @param array<string, mixed>                                                 $criteria Update criteria
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types    Parameter types
      *
      * @return int|string The number of affected rows.
      *
@@ -753,7 +755,7 @@ class Connection
      *
      * @param string                                                               $table Table name
      * @param array<string, mixed>                                                 $data  Column-value pairs
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types Parameter types
      *
      * @return int|string The number of affected rows.
      *
@@ -787,9 +789,9 @@ class Connection
      * Extract ordered type list from an ordered column list and type map.
      *
      * @param array<int, string>                                                   $columnList
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types
      *
-     * @return array<int, int|string|Type|null>|array<string, int|string|Type|null>
+     * @return array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue>
      */
     private function extractTypeValues(array $columnList, array $types): array
     {
@@ -826,7 +828,7 @@ class Connection
      * or {@see AbstractPlatform::quoteStringLiteral()} instead.
      *
      * @param mixed                $value
-     * @param int|string|Type|null $type
+     * @param ParameterTypeOfValue $type
      *
      * @return mixed
      */
@@ -844,7 +846,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return list<list<mixed>>
      *
@@ -858,9 +860,9 @@ class Connection
     /**
      * Prepares and executes an SQL query and returns the result as an array of associative arrays.
      *
-     * @param string                                                               $query  SQL query
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param string                                                                         $query  SQL query
+     * @param list<mixed>|array<string, mixed>                                               $params Query parameters
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types  Parameter types
      *
      * @return list<array<string,mixed>>
      *
@@ -877,7 +879,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return array<mixed,mixed>
      *
@@ -895,7 +897,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return array<mixed,array<string,mixed>>
      *
@@ -911,7 +913,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return list<mixed>
      *
@@ -927,7 +929,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return Traversable<int,list<mixed>>
      *
@@ -944,7 +946,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return Traversable<int,array<string,mixed>>
      *
@@ -961,7 +963,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return Traversable<mixed,mixed>
      *
@@ -977,9 +979,9 @@ class Connection
      * to the first column and the values being an associative array representing the rest of the columns
      * and their values.
      *
-     * @param string                                           $query  SQL query
-     * @param list<mixed>|array<string, mixed>                 $params Query parameters
-     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     * @param string                                                               $query  SQL query
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return Traversable<mixed,array<string,mixed>>
      *
@@ -995,7 +997,7 @@ class Connection
      *
      * @param string                                                               $query  SQL query
      * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @return Traversable<int,mixed>
      *
@@ -1032,9 +1034,9 @@ class Connection
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
-     * @param string                                                               $sql    SQL query
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param string                                                                         $sql    SQL query
+     * @param list<mixed>|array<string, mixed>                                               $params Query parameters
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types  Parameter types
      *
      * @throws Exception
      */
@@ -1083,9 +1085,9 @@ class Connection
     /**
      * Executes a caching query.
      *
-     * @param string                                                               $sql    SQL query
-     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param string                                                                         $sql    SQL query
+     * @param list<mixed>|array<string, mixed>                                               $params Query parameters
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types  Parameter types
      *
      * @throws CacheException
      * @throws Exception
@@ -1142,9 +1144,10 @@ class Connection
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string                                                               $sql    SQL statement
-     * @param list<mixed>|array<string, mixed>                                     $params Statement parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param string                                                                         $sql    SQL statement
+     * @param list<mixed>|array<string, mixed>                                               $params Statement
+     *                                                                                               parameters
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types  Parameter types
      *
      * @return int|string The number of affected rows.
      *
@@ -1750,7 +1753,7 @@ class Connection
      *
      * @param DriverStatement                                                      $stmt   Prepared statement
      * @param list<mixed>|array<string, mixed>                                     $params Statement parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types  Parameter types
      *
      * @throws Exception
      */
@@ -1809,9 +1812,9 @@ class Connection
      * Gets the binding type of a given type.
      *
      * @param mixed                $value The value to bind.
-     * @param int|string|Type|null $type  The type to bind (PDO or DBAL).
+     * @param ParameterTypeOfValue $type  The type to bind (PDO or DBAL).
      *
-     * @return array{mixed, int} [0] => the (escaped) value, [1] => the binding type.
+     * @return array{mixed, (ParameterType::*)} [0] => the (escaped) value, [1] => the binding type.
      *
      * @throws Exception
      */
@@ -1863,10 +1866,10 @@ class Connection
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param array<int, mixed>|array<string, mixed>                                         $params
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types
      *
-     * @return array{string, list<mixed>, array<int,Type|int|string|null>}
+     * @return array{string, list<mixed>, array<int,ParameterTypeOfValue>}
      */
     private function expandArrayParameters(string $sql, array $params, array $types): array
     {
@@ -1883,8 +1886,10 @@ class Connection
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                               $params
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     * @param array<int, mixed>|array<string, mixed>                                         $params
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types
+     *
+     * @psalm-assert-if-false array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue> $types
      */
     private function needsArrayParameterConversion(array $params, array $types): bool
     {
@@ -1924,8 +1929,8 @@ class Connection
      *
      * @deprecated This API is deprecated and will be removed after 2022
      *
-     * @param array<mixed>           $params The query parameters
-     * @param array<int|string|null> $types  The parameter types
+     * @param array<mixed>                $params The query parameters
+     * @param array<ParameterTypeOfValue> $types  The parameter types
      */
     public function executeUpdate(string $sql, array $params = [], array $types = []): int
     {

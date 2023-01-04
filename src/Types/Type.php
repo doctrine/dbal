@@ -185,7 +185,7 @@ abstract class Type
      *
      * This method should return one of the {@see ParameterType} constants.
      *
-     * @return int
+     * @return ParameterType::*
      */
     public function getBindingType()
     {

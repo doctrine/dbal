@@ -11,6 +11,8 @@ use function is_string;
 
 /**
  * A database abstraction-level statement that implements support for logging, DBAL mapping types, etc.
+ *
+ * @psalm-import-type ParameterTypeOfValue from ParameterType
  */
 class Statement
 {
@@ -31,7 +33,7 @@ class Statement
     /**
      * The parameter types.
      *
-     * @var int[]|string[]
+     * @var array<int, ParameterTypeOfValue>|array<string, ParameterTypeOfValue>
      */
     protected $types = [];
 
@@ -125,11 +127,11 @@ class Statement
      *
      * @deprecated Use {@see bindValue()} instead.
      *
-     * @param string|int $param    The name or position of the parameter.
-     * @param mixed      $variable The reference to the variable to bind.
-     * @param int        $type     The binding type.
-     * @param int|null   $length   Must be specified when using an OUT bind
-     *                             so that PHP allocates enough memory to hold the returned value.
+     * @param string|ParameterType::* $param    The name or position of the parameter.
+     * @param mixed                   $variable The reference to the variable to bind.
+     * @param ParameterType::*        $type     The binding type.
+     * @param int|null                $length   Must be specified when using an OUT bind
+     *                                          so that PHP allocates enough memory to hold the returned value.
      *
      * @return bool TRUE on success, FALSE on failure.
      *

@@ -5,7 +5,6 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingNamedParameter;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingPositionalParameter;
 use Doctrine\DBAL\SQL\Parser\Visitor;
-use Doctrine\DBAL\Types\Type;
 
 use function array_fill;
 use function array_key_exists;
@@ -13,12 +12,16 @@ use function count;
 use function implode;
 use function substr;
 
+/**
+ * @psalm-import-type ParameterTypeOfValue from ParameterType
+ * @psalm-import-type ArrayParameterTypeOfValue from ArrayParameterType
+ */
 final class ExpandArrayParameters implements Visitor
 {
     /** @var array<int,mixed>|array<string,mixed> */
     private array $originalParameters;
 
-    /** @var array<int,Type|int|string|null>|array<string,Type|int|string|null> */
+    /** @var array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> */
     private array $originalTypes;
 
     private int $originalParameterIndex = 0;
@@ -29,12 +32,12 @@ final class ExpandArrayParameters implements Visitor
     /** @var list<mixed> */
     private array $convertedParameters = [];
 
-    /** @var array<int,Type|int|string|null> */
+    /** @var array<int,ParameterTypeOfValue> */
     private array $convertedTypes = [];
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                             $parameters
-     * @param array<int,Type|int|string|null>|array<string,Type|int|string|null> $types
+     * @param array<int, mixed>|array<string, mixed>                                         $parameters
+     * @param array<int, ArrayParameterTypeOfValue>|array<string, ArrayParameterTypeOfValue> $types
      */
     public function __construct(array $parameters, array $types)
     {
@@ -116,7 +119,7 @@ final class ExpandArrayParameters implements Visitor
         $this->appendTypedParameter($value, ArrayParameterType::toElementParameterType($type));
     }
 
-    /** @return array<int,Type|int|string|null> */
+    /** @return array<int,ParameterTypeOfValue> */
     public function getTypes(): array
     {
         return $this->convertedTypes;
@@ -124,7 +127,7 @@ final class ExpandArrayParameters implements Visitor
 
     /**
      * @param list<mixed>          $values
-     * @param Type|int|string|null $type
+     * @param ParameterTypeOfValue $type
      */
     private function appendTypedParameter(array $values, $type): void
     {
