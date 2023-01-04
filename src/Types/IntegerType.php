@@ -28,6 +28,12 @@ class IntegerType extends Type implements PhpIntegerMappingType
 
     /**
      * {@inheritdoc}
+     *
+     * @param T $value
+     *
+     * @return (T is null ? null : int)
+     *
+     * @template T
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
