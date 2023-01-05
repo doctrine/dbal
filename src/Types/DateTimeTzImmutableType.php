@@ -21,6 +21,12 @@ class DateTimeTzImmutableType extends DateTimeTzType
 
     /**
      * {@inheritdoc}
+     *
+     * @psalm-param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
@@ -41,6 +47,12 @@ class DateTimeTzImmutableType extends DateTimeTzType
 
     /**
      * {@inheritdoc}
+     *
+     * @param T $value
+     *
+     * @return (T is null ? null : DateTimeImmutable)
+     *
+     * @template T
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {

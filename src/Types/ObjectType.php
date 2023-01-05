@@ -29,6 +29,10 @@ class ObjectType extends Type
 
     /**
      * {@inheritdoc}
+     *
+     * @param mixed $value
+     *
+     * @return string
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {

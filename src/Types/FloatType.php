@@ -24,6 +24,12 @@ class FloatType extends Type
 
     /**
      * {@inheritdoc}
+     *
+     * @param T $value
+     *
+     * @return (T is null ? null : float)
+     *
+     * @template T
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
