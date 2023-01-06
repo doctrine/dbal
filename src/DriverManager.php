@@ -175,6 +175,7 @@ final class DriverManager
      *     replica?: array<OverrideParams>,
      *     sharding?: array<string,mixed>,
      *     slaves?: array<OverrideParams>,
+     *     url?: string,
      *     user?: string,
      *     wrapperClass?: class-string<T>,
      * } $params
