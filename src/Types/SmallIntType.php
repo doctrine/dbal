@@ -20,6 +20,13 @@ class SmallIntType extends Type implements PhpIntegerMappingType
         return $platform->getSmallIntTypeDeclarationSQL($column);
     }
 
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : int)
+     *
+     * @template T
+     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?int
     {
         return $value === null ? null : (int) $value;

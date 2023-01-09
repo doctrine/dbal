@@ -1736,6 +1736,12 @@ abstract class AbstractPlatform
      * Some platforms have boolean literals that needs to be correctly converted
      *
      * The default conversion tries to convert value into bool "(bool)$item"
+     *
+     * @param T $item
+     *
+     * @return (T is null ? null : bool)
+     *
+     * @template T
      */
     public function convertFromBoolean(mixed $item): ?bool
     {

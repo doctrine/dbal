@@ -3,6 +3,7 @@ parameters:
     phpVersion: 80200
     paths:
         - src
+        - static-analysis
         - tests
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
@@ -70,11 +71,14 @@ parameters:
             message: '~array{driver: ''invalid_driver''} given\.$~'
             path: tests/DriverManagerTest.php
         -
-            message: '~array{url: ''sqlite::memory:'', wrapperClass: ''stdClass''} given\.$~'
+            message: '~array{driver: ''pdo_sqlite'', memory: true, wrapperClass: ''stdClass''} given\.$~'
             path: tests/DriverManagerTest.php
         -
             message: '~array{driverClass: ''stdClass''} given\.$~'
             path: tests/DriverManagerTest.php
+        -
+            message: '~^Call to static method PHPUnit\\Framework\\Assert\:\:assert(?:NotNull|Null|InstanceOf|IsFloat|IsInt)\(\) with .* will always evaluate to true\.$~'
+            path: tests/Types/
 
         # DriverManagerTest::testDatabaseUrl() should be refactored as it's too dynamic.
         -

@@ -20,6 +20,13 @@ use function date_create;
  */
 class VarDateTimeType extends DateTimeType
 {
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : DateTimeInterface)
+     *
+     * @template T
+     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeInterface
     {
         if ($value === null || $value instanceof DateTime) {

@@ -14,6 +14,13 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  */
 class DateImmutableType extends DateType
 {
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
+     */
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -31,6 +38,13 @@ class DateImmutableType extends DateType
         );
     }
 
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : DateTimeImmutable)
+     *
+     * @template T
+     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeImmutable
     {
         if ($value === null || $value instanceof DateTimeImmutable) {

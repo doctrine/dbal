@@ -16,6 +16,13 @@ class FloatType extends Type
         return $platform->getFloatDeclarationSQL($column);
     }
 
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : float)
+     *
+     * @template T
+     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?float
     {
         return $value === null ? null : (float) $value;

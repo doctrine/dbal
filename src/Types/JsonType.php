@@ -30,6 +30,13 @@ class JsonType extends Type
         return $platform->getJsonTypeDeclarationSQL($column);
     }
 
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
+     */
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {

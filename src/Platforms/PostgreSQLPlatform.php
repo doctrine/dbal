@@ -531,6 +531,13 @@ class PostgreSQLPlatform extends AbstractPlatform
         );
     }
 
+    /**
+     * @param T $item
+     *
+     * @return (T is null ? null : bool)
+     *
+     * @template T
+     */
     public function convertFromBoolean(mixed $item): ?bool
     {
         if (in_array($item, $this->booleanLiterals['false'], true)) {

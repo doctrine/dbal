@@ -25,6 +25,13 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
         return $platform->getDateTimeTypeDeclarationSQL($column);
     }
 
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
+     */
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -38,6 +45,13 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
         throw InvalidType::new($value, static::class, ['null', 'DateTime']);
     }
 
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : DateTimeInterface)
+     *
+     * @template T
+     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeInterface
     {
         if ($value === null || $value instanceof DateTimeInterface) {

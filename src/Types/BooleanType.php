@@ -25,6 +25,13 @@ class BooleanType extends Type
         return $platform->convertBooleansToDatabaseValue($value);
     }
 
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : bool)
+     *
+     * @template T
+     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?bool
     {
         return $platform->convertFromBoolean($value);

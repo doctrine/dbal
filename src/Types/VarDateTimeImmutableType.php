@@ -16,6 +16,13 @@ use function date_create_immutable;
  */
 class VarDateTimeImmutableType extends VarDateTimeType
 {
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
+     */
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
@@ -33,6 +40,13 @@ class VarDateTimeImmutableType extends VarDateTimeType
         );
     }
 
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : DateTimeImmutable)
+     *
+     * @template T
+     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeImmutable
     {
         if ($value === null || $value instanceof DateTimeImmutable) {

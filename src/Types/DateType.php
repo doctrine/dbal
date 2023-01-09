@@ -23,6 +23,13 @@ class DateType extends Type
         return $platform->getDateTypeDeclarationSQL($column);
     }
 
+    /**
+     * @psalm-param T $value
+     *
+     * @return (T is null ? null : string)
+     *
+     * @template T
+     */
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): mixed
     {
         if ($value === null) {
@@ -36,6 +43,13 @@ class DateType extends Type
         throw InvalidType::new($value, static::class, ['null', 'DateTime']);
     }
 
+    /**
+     * @param T $value
+     *
+     * @return (T is null ? null : DateTimeInterface)
+     *
+     * @template T
+     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeInterface
     {
         if ($value === null || $value instanceof DateTimeInterface) {

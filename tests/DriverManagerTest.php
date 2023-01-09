@@ -39,7 +39,7 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection(['driver' => 'invalid_driver']);
     }
 
-    /** @requires extension pdo_sqlite */
+    /** @requires extension sqlite3 */
     public function testCustomWrapper(): void
     {
         $wrapper      = $this->createMock(Connection::class);
@@ -55,6 +55,19 @@ class DriverManagerTest extends TestCase
         self::assertInstanceOf($wrapperClass, $conn);
     }
 
+    /** @requires extension pdo_sqlite */
+    public function testDefaultWrapper(): void
+    {
+        $options = [
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
+            'wrapperClass' => Connection::class,
+        ];
+
+        $conn = DriverManager::getConnection($options);
+        self::assertSame(Connection::class, $conn::class);
+    }
+
     /**
      * @requires extension pdo_sqlite
      * @psalm-suppress InvalidArgument
@@ -64,7 +77,8 @@ class DriverManagerTest extends TestCase
         $this->expectException(Exception::class);
 
         $options = [
-            'url' => 'sqlite::memory:',
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
             'wrapperClass' => stdClass::class,
         ];
 

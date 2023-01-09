@@ -18,7 +18,7 @@ use Doctrine\DBAL\Exception\UnknownDriver;
 use function array_keys;
 use function class_implements;
 use function in_array;
-use function is_subclass_of;
+use function is_a;
 
 /**
  * Factory for creating {@see Connection} instances.
@@ -123,30 +123,9 @@ final class DriverManager
      * The driver class to use.
      *
      * @param Configuration|null $config The configuration to use.
-     * @psalm-param array{
-     *     charset?: string,
-     *     dbname?: string,
-     *     driver?: key-of<self::DRIVER_MAP>,
-     *     driverClass?: class-string<Driver>,
-     *     driverOptions?: array<mixed>,
-     *     host?: string,
-     *     keepSlave?: bool,
-     *     keepReplica?: bool,
-     *     master?: OverrideParams,
-     *     memory?: bool,
-     *     password?: string,
-     *     path?: string,
-     *     pdo?: \PDO,
-     *     port?: int,
-     *     primary?: OverrideParams,
-     *     replica?: array<OverrideParams>,
-     *     sharding?: array<string,mixed>,
-     *     slaves?: array<OverrideParams>,
-     *     user?: string,
-     *     wrapperClass?: class-string<T>,
-     * } $params
+     * @psalm-param Params $params
      *
-     * @psalm-return ($params is array{wrapperClass:mixed} ? T : Connection)
+     * @psalm-return ($params is array{wrapperClass: class-string<T>} ? T : Connection)
      *
      * @template T of Connection
      */
@@ -159,14 +138,10 @@ final class DriverManager
             $driver = $middleware->wrap($driver);
         }
 
-        $wrapperClass = Connection::class;
-        if (isset($params['wrapperClass'])) {
-            if (! is_subclass_of($params['wrapperClass'], $wrapperClass)) {
-                throw InvalidWrapperClass::new($params['wrapperClass']);
-            }
-
-            /** @var class-string<Connection> $wrapperClass */
-            $wrapperClass = $params['wrapperClass'];
+        /** @var class-string<Connection> $wrapperClass */
+        $wrapperClass = $params['wrapperClass'] ?? Connection::class;
+        if (! is_a($wrapperClass, Connection::class, true)) {
+            throw InvalidWrapperClass::new($wrapperClass);
         }
 
         return new $wrapperClass($params, $driver, $config);
@@ -176,6 +151,7 @@ final class DriverManager
      * Returns the list of supported drivers.
      *
      * @return string[]
+     * @psalm-return list<key-of<self::DRIVER_MAP>>
      */
     public static function getAvailableDrivers(): array
     {

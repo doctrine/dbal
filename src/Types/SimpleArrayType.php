@@ -37,10 +37,8 @@ class SimpleArrayType extends Type
         return implode(',', $value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?array
+    /** @return list<string> */
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): array
     {
         if ($value === null) {
             return [];
