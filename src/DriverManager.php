@@ -42,6 +42,7 @@ use function substr;
  *     pdo?: \PDO,
  *     platform?: Platforms\AbstractPlatform,
  *     port?: int,
+ *     url?: string,
  *     user?: string,
  *     unix_socket?: string,
  * }
