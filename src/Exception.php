@@ -4,6 +4,7 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use SensitiveParameter;
 
 use function get_class;
 use function gettype;
@@ -61,8 +62,10 @@ class Exception extends \Exception
     }
 
     /** @param string|null $url The URL that was provided in the connection parameters (if any). */
-    public static function driverRequired(?string $url = null): self
-    {
+    public static function driverRequired(
+        #[SensitiveParameter]
+        ?string $url = null
+    ): self {
         if ($url !== null) {
             return new self(
                 sprintf(

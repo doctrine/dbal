@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use SensitiveParameter;
 
 /**
  * Driver interface.
@@ -23,7 +24,10 @@ interface Driver
      *
      * @throws Exception
      */
-    public function connect(array $params);
+    public function connect(
+        #[SensitiveParameter]
+        array $params
+    );
 
     /**
      * Gets the DatabasePlatform instance that provides all the metadata about

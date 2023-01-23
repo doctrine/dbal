@@ -25,6 +25,7 @@ use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
+use SensitiveParameter;
 use Throwable;
 use Traversable;
 
@@ -173,6 +174,7 @@ class Connection
      * @throws Exception
      */
     public function __construct(
+        #[SensitiveParameter]
         array $params,
         Driver $driver,
         ?Configuration $config = null,
@@ -1099,7 +1101,7 @@ class Connection
         }
 
         $connectionParams = $this->params;
-        unset($connectionParams['platform']);
+        unset($connectionParams['platform'], $connectionParams['password'], $connectionParams['url']);
 
         [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $connectionParams);
 
