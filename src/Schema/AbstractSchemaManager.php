@@ -136,11 +136,15 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function tablesExist(array $names): bool
+    public function tablesExist(array $names, bool $lowerCase = true): bool
     {
-        $names = array_map('strtolower', $names);
+        if ($lowerCase) {
+            $names      = array_map('strtolower', $names);
+            $tableNames = array_map('strtolower', $this->listTableNames());
+        } else
+            $tableNames = $this->listTableNames();
 
-        return count($names) === count(array_intersect($names, array_map('strtolower', $this->listTableNames())));
+        return count($names) === count(array_intersect($names, $tableNames));
     }
 
     public function tableExists(string $tableName): bool
