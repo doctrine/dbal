@@ -12,6 +12,8 @@ use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Tools\SchemaTool;
+use Fulfillment\WarehouseBundle\Entity\Location;
 
 class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -540,5 +542,21 @@ SQL;
         self::assertFalse($onlineTable->hasOption('autoincrement'));
         self::assertEquals('', $onlineTable->getOption('comment'));
         self::assertEquals([], $onlineTable->getOption('create_options'));
+    }
+
+    public function testSchemaDiffWithColumnDefinition(): void
+    {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS table_with_explicit_column_definition');
+
+        $this->connection->executeStatement('CREATE TABLE table_with_explicit_column_definition(col1 VARCHAR(255) CHARACTER SET utf8mb3 NOT NULL COLLATE `utf8mb3_unicode_ci`)');
+        $onlineTable = $this->schemaManager->introspectTable('table_with_explicit_column_definition');
+
+        $metadataTable = new Table('table_with_explicit_column_definition');
+        $metadataTable->addColumn('col1', 'string', ['length' => 255,  'columnDefinition' => 'VARCHAR(255) CHARACTER SET utf8mb3 NOT NULL COLLATE `utf8mb3_unicode_ci`']);
+
+        $comparator = $this->schemaManager->createComparator();
+        $tablesDiff = $comparator->compareTables($onlineTable, $metadataTable);
+
+        self::assertSame([], $this->connection->getDatabasePlatform()->getAlterTableSQL($tablesDiff));
     }
 }
