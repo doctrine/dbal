@@ -12,8 +12,6 @@ use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Tools\SchemaTool;
-use Fulfillment\WarehouseBundle\Entity\Location;
 
 class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
