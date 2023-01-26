@@ -61,7 +61,7 @@ final class Driver extends AbstractSQLiteDriver
     /**
      * Constructs the Sqlite PDO DSN.
      *
-     * @param mixed[] $params
+     * @param array<string, mixed> $params
      */
     private function constructPdoDsn(array $params): string
     {
