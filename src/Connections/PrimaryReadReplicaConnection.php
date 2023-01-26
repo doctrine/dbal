@@ -15,6 +15,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Statement;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
+use SensitiveParameter;
 
 use function array_rand;
 use function count;
@@ -263,8 +264,11 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @return mixed
      */
-    protected function chooseConnectionConfiguration($connectionName, $params)
-    {
+    protected function chooseConnectionConfiguration(
+        $connectionName,
+        #[SensitiveParameter]
+        $params
+    ) {
         if ($connectionName === 'primary') {
             return $params['primary'];
         }

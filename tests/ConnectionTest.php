@@ -36,18 +36,17 @@ class ConnectionTest extends TestCase
 
     private Connection $connection;
 
-    /** @var array{wrapperClass?: class-string<Connection>} */
-    protected array $params = [
+    private const CONNECTION_PARAMS = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
         'user' => 'root',
         'password' => 'password',
-        'port' => '1234',
+        'port' => 1234,
     ];
 
     protected function setUp(): void
     {
-        $this->connection = DriverManager::getConnection($this->params);
+        $this->connection = DriverManager::getConnection(self::CONNECTION_PARAMS);
     }
 
     /** @return Connection&MockObject */
@@ -267,7 +266,7 @@ class ConnectionTest extends TestCase
             ->method('getDatabasePlatform')
             ->willReturn($platform);
 
-        $connection = new Connection($this->params, $driver, null, $eventManager);
+        $connection = new Connection(self::CONNECTION_PARAMS, $driver, null, $eventManager);
         $connection->getDatabasePlatform();
     }
 
@@ -761,16 +760,20 @@ class ConnectionTest extends TestCase
             ->method('getResultCache')
             ->willReturn($resultCacheMock);
 
+        $expectedConnectionParams = self::CONNECTION_PARAMS;
+        unset($expectedConnectionParams['password']);
+
         // This is our main expectation
         $queryCacheProfileMock
             ->expects(self::once())
             ->method('generateCacheKeys')
-            ->with($query, $params, $types, $this->params)
+            ->with($query, $params, $types, $expectedConnectionParams)
             ->willReturn(['cacheKey', 'realKey']);
 
         $driver = $this->createMock(Driver::class);
 
-        (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
+        (new Connection(self::CONNECTION_PARAMS, $driver))
+            ->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
     }
 
     public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
@@ -795,12 +798,13 @@ class ConnectionTest extends TestCase
 
         $query = 'SELECT 1';
 
-        $connectionParams = $this->params;
+        $expectedConnectionParams = $connectionParams = self::CONNECTION_PARAMS;
+        unset($expectedConnectionParams['password']);
 
         $queryCacheProfileMock
             ->expects(self::once())
             ->method('generateCacheKeys')
-            ->with($query, [], [], $connectionParams)
+            ->with($query, [], [], $expectedConnectionParams)
             ->willReturn(['cacheKey', 'realKey']);
 
         $connectionParams['platform'] = $this->createMock(AbstractPlatform::class);
@@ -813,7 +817,7 @@ class ConnectionTest extends TestCase
     /** @psalm-suppress InvalidArgument */
     public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {
-        $connectionParams             = $this->params;
+        $connectionParams             = self::CONNECTION_PARAMS;
         $connectionParams['platform'] = new stdClass();
 
         $driver = $this->createMock(Driver::class);

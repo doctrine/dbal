@@ -101,6 +101,7 @@ parameters:
             message: '~^Casting to bool something that''s already bool\.$~'
             paths:
                 - src/Connections/PrimaryReadReplicaConnection.php
+                - src/Driver/SQLite3/Driver.php
 
         # Type check for legacy implementations of the Connection interface
         # TODO: remove in 4.0.0

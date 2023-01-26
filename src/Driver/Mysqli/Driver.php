@@ -8,10 +8,10 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\HostRequired;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Charset;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Options;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Secure;
+use Generator;
 use mysqli;
 use mysqli_sql_exception;
-
-use function count;
+use SensitiveParameter;
 
 final class Driver extends AbstractMySQLDriver
 {
@@ -20,8 +20,10 @@ final class Driver extends AbstractMySQLDriver
      *
      * @return Connection
      */
-    public function connect(array $params)
-    {
+    public function connect(
+        #[SensitiveParameter]
+        array $params
+    ) {
         if (! empty($params['persistent'])) {
             if (! isset($params['host'])) {
                 throw HostRequired::forPersistentConnection();
@@ -32,27 +34,9 @@ final class Driver extends AbstractMySQLDriver
             $host = $params['host'] ?? null;
         }
 
-        $flags = 0;
-
-        $preInitializers = $postInitializers = [];
-
-        if (isset($params['driverOptions'])) {
-            $driverOptions = $params['driverOptions'];
-
-            if (isset($driverOptions[Connection::OPTION_FLAGS])) {
-                $flags = $driverOptions[Connection::OPTION_FLAGS];
-                unset($driverOptions[Connection::OPTION_FLAGS]);
-            }
-
-            $preInitializers = $this->withOptions($preInitializers, $driverOptions);
-        }
-
-        $preInitializers  = $this->withSecure($preInitializers, $params);
-        $postInitializers = $this->withCharset($postInitializers, $params);
-
         $connection = new mysqli();
 
-        foreach ($preInitializers as $initializer) {
+        foreach ($this->compilePreInitializers($params) as $initializer) {
             $initializer->initialize($connection);
         }
 
@@ -64,7 +48,7 @@ final class Driver extends AbstractMySQLDriver
                 $params['dbname'] ?? null,
                 $params['port'] ?? null,
                 $params['unix_socket'] ?? null,
-                $flags,
+                $params['driverOptions'][Connection::OPTION_FLAGS] ?? 0,
             );
         } catch (mysqli_sql_exception $e) {
             throw ConnectionFailed::upcast($e);
@@ -74,7 +58,7 @@ final class Driver extends AbstractMySQLDriver
             throw ConnectionFailed::new($connection);
         }
 
-        foreach ($postInitializers as $initializer) {
+        foreach ($this->compilePostInitializers($params) as $initializer) {
             $initializer->initialize($connection);
         }
 
@@ -82,59 +66,52 @@ final class Driver extends AbstractMySQLDriver
     }
 
     /**
-     * @param list<Initializer> $initializers
-     * @param array<int,mixed>  $options
+     * @param array<string, mixed> $params
      *
-     * @return list<Initializer>
+     * @return Generator<int, Initializer>
      */
-    private function withOptions(array $initializers, array $options): array
-    {
-        if (count($options) !== 0) {
-            $initializers[] = new Options($options);
+    private function compilePreInitializers(
+        #[SensitiveParameter]
+        array $params
+    ): Generator {
+        unset($params['driverOptions'][Connection::OPTION_FLAGS]);
+
+        if (isset($params['driverOptions']) && $params['driverOptions'] !== []) {
+            yield new Options($params['driverOptions']);
         }
 
-        return $initializers;
-    }
-
-    /**
-     * @param list<Initializer>   $initializers
-     * @param array<string,mixed> $params
-     *
-     * @return list<Initializer>
-     */
-    private function withSecure(array $initializers, array $params): array
-    {
         if (
-            isset($params['ssl_key']) ||
-            isset($params['ssl_cert']) ||
-            isset($params['ssl_ca']) ||
-            isset($params['ssl_capath']) ||
-            isset($params['ssl_cipher'])
+            ! isset($params['ssl_key']) &&
+            ! isset($params['ssl_cert']) &&
+            ! isset($params['ssl_ca']) &&
+            ! isset($params['ssl_capath']) &&
+            ! isset($params['ssl_cipher'])
         ) {
-            $initializers[] = new Secure(
-                $params['ssl_key']    ?? '',
-                $params['ssl_cert']   ?? '',
-                $params['ssl_ca']     ?? '',
-                $params['ssl_capath'] ?? '',
-                $params['ssl_cipher'] ?? '',
-            );
+            return;
         }
 
-        return $initializers;
+        yield new Secure(
+            $params['ssl_key']    ?? '',
+            $params['ssl_cert']   ?? '',
+            $params['ssl_ca']     ?? '',
+            $params['ssl_capath'] ?? '',
+            $params['ssl_cipher'] ?? '',
+        );
     }
 
     /**
-     * @param list<Initializer>   $initializers
-     * @param array<string,mixed> $params
+     * @param array<string, mixed> $params
      *
-     * @return list<Initializer>
+     * @return Generator<int, Initializer>
      */
-    private function withCharset(array $initializers, array $params): array
-    {
-        if (isset($params['charset'])) {
-            $initializers[] = new Charset($params['charset']);
+    private function compilePostInitializers(
+        #[SensitiveParameter]
+        array $params
+    ): Generator {
+        if (! isset($params['charset'])) {
+            return;
         }
 
-        return $initializers;
+        yield new Charset($params['charset']);
     }
 }

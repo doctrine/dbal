@@ -9,6 +9,9 @@ use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\Deprecations\Deprecation;
 use PDO;
 use PDOException;
+use SensitiveParameter;
+
+use function array_intersect_key;
 
 final class Driver extends AbstractSQLiteDriver
 {
@@ -17,8 +20,10 @@ final class Driver extends AbstractSQLiteDriver
      *
      * @return Connection
      */
-    public function connect(array $params)
-    {
+    public function connect(
+        #[SensitiveParameter]
+        array $params
+    ) {
         $driverOptions        = $params['driverOptions'] ?? [];
         $userDefinedFunctions = [];
 
@@ -36,7 +41,7 @@ final class Driver extends AbstractSQLiteDriver
 
         try {
             $pdo = new PDO(
-                $this->constructPdoDsn($params),
+                $this->constructPdoDsn(array_intersect_key($params, ['path' => true, 'memory' => true])),
                 $params['user'] ?? '',
                 $params['password'] ?? '',
                 $driverOptions,
@@ -56,7 +61,7 @@ final class Driver extends AbstractSQLiteDriver
     /**
      * Constructs the Sqlite PDO DSN.
      *
-     * @param mixed[] $params
+     * @param array<string, mixed> $params
      */
     private function constructPdoDsn(array $params): string
     {
