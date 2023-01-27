@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\OCI8\Exception\ConnectionFailed;
+use SensitiveParameter;
 
 use function oci_connect;
 use function oci_pconnect;
@@ -20,8 +21,10 @@ final class Driver extends AbstractOracleDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params): Connection
-    {
+    public function connect(
+        #[SensitiveParameter]
+        array $params,
+    ): Connection {
         $username    = $params['user'] ?? '';
         $password    = $params['password'] ?? '';
         $charset     = $params['charset'] ?? '';

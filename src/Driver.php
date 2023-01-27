@@ -8,23 +8,30 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use SensitiveParameter;
 
 /**
  * Driver interface.
  * Interface that all DBAL drivers must implement.
+ *
+ * @psalm-import-type Params from DriverManager
  */
 interface Driver
 {
     /**
      * Attempts to create a connection with the database.
      *
-     * @param mixed[] $params All connection parameters.
+     * @param array<string, mixed> $params All connection parameters.
+     * @psalm-param Params $params All connection parameters.
      *
      * @return DriverConnection The database connection.
      *
      * @throws Exception
      */
-    public function connect(array $params): DriverConnection;
+    public function connect(
+        #[SensitiveParameter]
+        array $params,
+    ): DriverConnection;
 
     /**
      * Gets the DatabasePlatform instance that provides all the metadata about

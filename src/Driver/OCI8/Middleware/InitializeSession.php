@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use SensitiveParameter;
 
 final class InitializeSession implements Middleware
 {
@@ -17,8 +18,10 @@ final class InitializeSession implements Middleware
             /**
              * {@inheritDoc}
              */
-            public function connect(array $params): Connection
-            {
+            public function connect(
+                #[SensitiveParameter]
+                array $params,
+            ): Connection {
                 $connection = parent::connect($params);
 
                 $connection->exec(

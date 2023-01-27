@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
+use SensitiveParameter;
 
 abstract class AbstractDriverMiddleware implements Driver
 {
@@ -19,8 +20,10 @@ abstract class AbstractDriverMiddleware implements Driver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params): DriverConnection
-    {
+    public function connect(
+        #[SensitiveParameter]
+        array $params,
+    ): DriverConnection {
         return $this->wrappedDriver->connect($params);
     }
 

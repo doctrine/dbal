@@ -9,19 +9,25 @@ use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use PDO;
 use PDOException;
+use SensitiveParameter;
 
 final class Driver extends AbstractOracleDriver
 {
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params): Connection
-    {
+    public function connect(
+        #[SensitiveParameter]
+        array $params,
+    ): Connection {
         $driverOptions = $params['driverOptions'] ?? [];
 
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
+
+        $safeParams = $params;
+        unset($safeParams['password']);
 
         try {
             $pdo = new PDO(

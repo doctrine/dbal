@@ -13,8 +13,10 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Statement;
 use InvalidArgumentException;
+use SensitiveParameter;
 
 use function array_rand;
+use function assert;
 use function count;
 
 /**
@@ -57,6 +59,7 @@ use function count;
  * Instantiation through the DriverManager looks like:
  *
  * @psalm-import-type Params from DriverManager
+ * @psalm-import-type OverrideParams from DriverManager
  * @example
  *
  * $conn = DriverManager::getConnection(array(
@@ -215,6 +218,7 @@ class PrimaryReadReplicaConnection extends Connection
     protected function connectTo(string $connectionName): DriverConnection
     {
         $params = $this->getParams();
+        assert(isset($params['primary'], $params['replica']));
 
         $connectionParams = $this->chooseConnectionConfiguration($connectionName, $params);
 
@@ -227,11 +231,16 @@ class PrimaryReadReplicaConnection extends Connection
 
     /**
      * @param array<string, mixed> $params
+     * @psalm-param array{primary: OverrideParams, replica: array<OverrideParams>} $params
      *
      * @return array<string, mixed>
+     * @psalm-return OverrideParams
      */
-    protected function chooseConnectionConfiguration(string $connectionName, array $params): array
-    {
+    protected function chooseConnectionConfiguration(
+        string $connectionName,
+        #[SensitiveParameter]
+        array $params,
+    ): array {
         if ($connectionName === 'primary') {
             return $params['primary'];
         }

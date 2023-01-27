@@ -79,6 +79,9 @@ parameters:
         -
             message: '~^Call to static method PHPUnit\\Framework\\Assert\:\:assert(?:NotNull|Null|InstanceOf|IsFloat|IsInt)\(\) with .* will always evaluate to true\.$~'
             path: tests/Types/
+        -
+            message: '~^Parameter #1 \$driverOptions of method Doctrine\\DBAL\\Tests\\Functional\\Driver\\Mysqli\\ConnectionTest\:\:getConnection\(\) expects array<string, mixed>, .* given\.$~'
+            path: tests/Functional/Driver/Mysqli/ConnectionTest.php
 
         # DriverManagerTest::testDatabaseUrl() should be refactored as it's too dynamic.
         -

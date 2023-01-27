@@ -26,17 +26,16 @@ class Comparator extends BaseComparator
 
     public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
-        $oldTable = clone $oldTable;
-        $newTable = clone $newTable;
-
-        $this->normalizeColumns($oldTable);
-        $this->normalizeColumns($newTable);
-
-        return parent::compareTables($oldTable, $newTable);
+        return parent::compareTables(
+            $this->normalizeColumns($oldTable),
+            $this->normalizeColumns($newTable),
+        );
     }
 
-    private function normalizeColumns(Table $table): void
+    private function normalizeColumns(Table $table): Table
     {
+        $table = clone $table;
+
         foreach ($table->getColumns() as $column) {
             $options = $column->getPlatformOptions();
 
@@ -47,5 +46,7 @@ class Comparator extends BaseComparator
             unset($options['collation']);
             $column->setPlatformOptions($options);
         }
+
+        return $table;
     }
 }

@@ -91,6 +91,7 @@
         <InvalidArgument>
             <errorLevel type="suppress">
                 <!-- We're testing with invalid input here. -->
+                <file name="tests/Functional/Driver/Mysqli/ConnectionTest.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
             </errorLevel>
         </InvalidArgument>
@@ -218,6 +219,9 @@
 
                 <!-- See https://bugs.php.net/bug.php?id=77591 -->
                 <referencedFunction name="db2_autocommit"/>
+
+                <!-- We're testing invalid input. -->
+                <file name="tests/Functional/Driver/Mysqli/ConnectionTest.php"/>
             </errorLevel>
         </InvalidScalarArgument>
     </issueHandlers>

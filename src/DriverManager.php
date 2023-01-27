@@ -14,10 +14,9 @@ use Doctrine\DBAL\Exception\DriverRequired;
 use Doctrine\DBAL\Exception\InvalidDriverClass;
 use Doctrine\DBAL\Exception\InvalidWrapperClass;
 use Doctrine\DBAL\Exception\UnknownDriver;
+use SensitiveParameter;
 
 use function array_keys;
-use function class_implements;
-use function in_array;
 use function is_a;
 
 /**
@@ -34,6 +33,7 @@ use function is_a;
  *     path?: string,
  *     pdo?: \PDO,
  *     port?: int,
+ *     url?: string,
  *     user?: string,
  *     unix_socket?: string,
  * }
@@ -129,10 +129,13 @@ final class DriverManager
      *
      * @template T of Connection
      */
-    public static function getConnection(array $params, ?Configuration $config = null): Connection
-    {
+    public static function getConnection(
+        #[SensitiveParameter]
+        array $params,
+        ?Configuration $config = null,
+    ): Connection {
         $config ??= new Configuration();
-        $driver   = self::createDriver($params);
+        $driver   = self::createDriver($params['driver'] ?? null, $params['driverClass'] ?? null);
 
         foreach ($config->getMiddlewares() as $middleware) {
             $driver = $middleware->wrap($driver);
@@ -159,31 +162,25 @@ final class DriverManager
     }
 
     /**
-     * @param array<string,mixed> $params
-     * @psalm-param Params $params
+     * @param class-string<Driver>|null     $driverClass
+     * @param key-of<self::DRIVER_MAP>|null $driver
      */
-    private static function createDriver(array $params): Driver
+    private static function createDriver(?string $driver, ?string $driverClass): Driver
     {
-        if (isset($params['driverClass'])) {
-            $interfaces = class_implements($params['driverClass']);
-
-            if ($interfaces === false || ! in_array(Driver::class, $interfaces, true)) {
-                throw InvalidDriverClass::new($params['driverClass']);
+        if ($driverClass === null) {
+            if ($driver === null) {
+                throw DriverRequired::new();
             }
 
-            return new $params['driverClass']();
-        }
-
-        if (isset($params['driver'])) {
-            if (! isset(self::DRIVER_MAP[$params['driver']])) {
-                throw UnknownDriver::new($params['driver'], array_keys(self::DRIVER_MAP));
+            if (! isset(self::DRIVER_MAP[$driver])) {
+                throw UnknownDriver::new($driver, array_keys(self::DRIVER_MAP));
             }
 
-            $class = self::DRIVER_MAP[$params['driver']];
-
-            return new $class();
+            $driverClass = self::DRIVER_MAP[$driver];
+        } elseif (! is_a($driverClass, Driver::class, true)) {
+            throw InvalidDriverClass::new($driverClass);
         }
 
-        throw DriverRequired::new();
+        return new $driverClass();
     }
 }

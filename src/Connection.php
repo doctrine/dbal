@@ -26,6 +26,7 @@ use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
+use SensitiveParameter;
 use Throwable;
 use Traversable;
 
@@ -103,6 +104,7 @@ class Connection implements ServerVersionProvider
      * @psalm-param Params $params
      */
     public function __construct(
+        #[SensitiveParameter]
         array $params,
         protected Driver $driver,
         ?Configuration $config = null,
@@ -783,7 +785,10 @@ class Connection implements ServerVersionProvider
             throw NoResultDriverConfigured::new();
         }
 
-        [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $this->params);
+        $connectionParams = $this->params;
+        unset($connectionParams['password']);
+
+        [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $connectionParams);
 
         $item = $resultCache->getItem($cacheKey);
 

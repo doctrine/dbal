@@ -52,7 +52,7 @@ class ConnectionTest extends FunctionalTestCase
         );
     }
 
-    /** @param mixed[] $driverOptions */
+    /** @param array<string, mixed> $driverOptions */
     private function getConnection(array $driverOptions): Connection
     {
         $params = TestUtil::getConnectionParams();

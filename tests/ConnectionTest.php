@@ -28,12 +28,7 @@ class ConnectionTest extends TestCase
 {
     private Connection $connection;
 
-    /**
-     * @var array<string,mixed>
-     * @phpstan-var array<string,mixed>
-     * @psalm-var Params
-     */
-    protected array $params = [
+    private const CONNECTION_PARAMS = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
         'user' => 'root',
@@ -43,7 +38,7 @@ class ConnectionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->connection = DriverManager::getConnection($this->params);
+        $this->connection = DriverManager::getConnection(self::CONNECTION_PARAMS);
     }
 
     /** @return Connection&MockObject */
@@ -553,15 +548,19 @@ class ConnectionTest extends TestCase
             ->method('getResultCache')
             ->willReturn($resultCacheMock);
 
+        $expectedConnectionParams = self::CONNECTION_PARAMS;
+        unset($expectedConnectionParams['password']);
+
         // This is our main expectation
         $queryCacheProfileMock
             ->expects(self::once())
             ->method('generateCacheKeys')
-            ->with($query, $params, $types, $this->params)
+            ->with($query, $params, $types, $expectedConnectionParams)
             ->willReturn(['cacheKey', 'realKey']);
 
         $driver = $this->createMock(Driver::class);
 
-        (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
+        (new Connection(self::CONNECTION_PARAMS, $driver))
+            ->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
     }
 }

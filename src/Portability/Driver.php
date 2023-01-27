@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use PDO;
+use SensitiveParameter;
 
 use const CASE_LOWER;
 use const CASE_UPPER;
@@ -26,8 +27,10 @@ final class Driver extends AbstractDriverMiddleware
     /**
      * {@inheritDoc}
      */
-    public function connect(array $params): ConnectionInterface
-    {
+    public function connect(
+        #[SensitiveParameter]
+        array $params,
+    ): ConnectionInterface {
         $connection = parent::connect($params);
 
         $portability = (new OptimizeFlags())(

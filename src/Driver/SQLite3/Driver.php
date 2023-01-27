@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\SQLite3;
 
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
+use SensitiveParameter;
 use SQLite3;
 
 final class Driver extends AbstractSQLiteDriver
@@ -12,9 +13,11 @@ final class Driver extends AbstractSQLiteDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params): Connection
-    {
-        $isMemory = (bool) ($params['memory'] ?? false);
+    public function connect(
+        #[SensitiveParameter]
+        array $params,
+    ): Connection {
+        $isMemory = $params['memory'] ?? false;
 
         if (isset($params['path'])) {
             if ($isMemory) {
