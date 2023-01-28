@@ -356,7 +356,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $diffModified    = false;
 
         if (isset($addedIndexes['primary'])) {
-            $keyColumns   = array_unique(array_values($addedIndexes['primary']->getColumns()));
+            $keyColumns   = array_values(array_unique($addedIndexes['primary']->getColumns()));
             $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
             unset($addedIndexes['primary']);
             $diffModified = true;
@@ -366,7 +366,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             // Necessary in case the new primary key includes a new auto_increment column
             foreach ($modifiedIndexes['primary']->getColumns() as $columnName) {
                 if (isset($addedColumns[$columnName]) && $addedColumns[$columnName]->getAutoincrement()) {
-                    $keyColumns   = array_unique(array_values($modifiedIndexes['primary']->getColumns()));
+                    $keyColumns   = array_values(array_unique($modifiedIndexes['primary']->getColumns()));
                     $queryParts[] = 'DROP PRIMARY KEY';
                     $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
                     unset($modifiedIndexes['primary']);
