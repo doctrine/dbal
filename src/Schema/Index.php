@@ -71,7 +71,9 @@ class Index extends AbstractAsset
     }
 
     /**
-     * {@inheritdoc}
+     * Returns the names of the referencing table columns the constraint is associated with.
+     *
+     * @return list<string>
      */
     public function getColumns(): array
     {
@@ -79,7 +81,15 @@ class Index extends AbstractAsset
     }
 
     /**
-     * {@inheritdoc}
+     * Returns the quoted representation of the column names the constraint is associated with.
+     *
+     * But only if they were defined with one or a column name
+     * is a keyword reserved by the platform.
+     * Otherwise, the plain unquoted value as inserted is returned.
+     *
+     * @param AbstractPlatform $platform The platform to use for quotation.
+     *
+     * @return list<string>
      */
     public function getQuotedColumns(AbstractPlatform $platform): array
     {

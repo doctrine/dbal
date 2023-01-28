@@ -1533,17 +1533,7 @@ abstract class AbstractPlatform
             $chunks[] = 'CLUSTERED';
         }
 
-        $columnSQL = [];
-
-        foreach ($columns as $column => $definition) {
-            if (is_array($definition)) {
-                $columnSQL[] = $column;
-            } else {
-                $columnSQL[] = $definition;
-            }
-        }
-
-        $chunks[] = sprintf('(%s)', implode(', ', $columnSQL));
+        $chunks[] = sprintf('(%s)', implode(', ', $columns));
 
         return implode(' ', $chunks);
     }
