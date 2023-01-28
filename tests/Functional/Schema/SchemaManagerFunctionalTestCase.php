@@ -66,7 +66,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped(sprintf('Skipping since connected to %s', get_class($platform)));
         }
 
-        $this->schemaManager = $this->connection->getSchemaManager();
+        $this->schemaManager = $this->connection->createSchemaManager();
     }
 
     protected function tearDown(): void

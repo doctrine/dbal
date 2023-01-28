@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
 use PHPUnit\Framework\Assert;
 
 use function array_keys;
@@ -154,6 +155,8 @@ class TestUtil
                 $configuration->setMiddlewares([new EnableForeignKeys()]);
                 break;
         }
+
+        $configuration->setSchemaManagerFactory(new DefaultSchemaManagerFactory());
 
         return $configuration;
     }
