@@ -68,11 +68,11 @@ interface Result
      * some database drivers may return the number of rows returned by that query. However, this behaviour
      * is not guaranteed for all drivers and should not be relied on in portable applications.
      *
-     * @return int The number of rows.
+     * If the number of rows exceeds {@see PHP_INT_MAX}, it might be returned as string if the driver supports it.
      *
      * @throws Exception
      */
-    public function rowCount(): int;
+    public function rowCount(): int|string;
 
     /**
      * Returns the number of columns in the result

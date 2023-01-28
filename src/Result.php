@@ -216,8 +216,18 @@ class Result
         }
     }
 
-    /** @throws Exception */
-    public function rowCount(): int
+    /**
+     * Returns the number of rows affected by the DELETE, INSERT, or UPDATE statement that produced the result.
+     *
+     * If the statement executed a SELECT query or a similar platform-specific SQL (e.g. DESCRIBE, SHOW, etc.),
+     * some database drivers may return the number of rows returned by that query. However, this behaviour
+     * is not guaranteed for all drivers and should not be relied on in portable applications.
+     *
+     * If the number of rows exceeds {@see PHP_INT_MAX}, it might be returned as string if the driver supports it.
+     *
+     * @throws Exception
+     */
+    public function rowCount(): int|string
     {
         try {
             return $this->result->rowCount();
