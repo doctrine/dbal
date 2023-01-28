@@ -357,7 +357,7 @@ Every non-abstract schema manager class must implement them in order to satisfy 
 # BC Break: The number of affected rows is returned as `int|string`
 
 The signatures of the methods returning the number of affected rows changed as returning `int|string` instead of `int`.
-If the number is greater than `PHP_INT_MAX`, the number of affected rows will be returned as a `string`.
+If the number is greater than `PHP_INT_MAX`, the number of affected rows may be returned as a string if the driver supports it.
 
 # BC Break: Dropped support for `collate` option for MySQL
 
