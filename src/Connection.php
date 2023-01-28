@@ -80,7 +80,7 @@ class Connection
     /**
      * The wrapped driver connection.
      *
-     * @var \Doctrine\DBAL\Driver\Connection|null
+     * @var DriverConnection|null
      */
     protected $_conn;
 
@@ -336,6 +336,8 @@ class Connection
      *              the connection is already open.
      *
      * @throws Exception
+     *
+     * @psalm-assert !null $this->_conn
      */
     public function connect()
     {
@@ -1625,8 +1627,6 @@ class Connection
 
         $this->connect();
 
-        assert($this->_conn !== null);
-
         return $this->_conn;
     }
 
@@ -1635,7 +1635,6 @@ class Connection
     {
         $this->connect();
 
-        assert($this->_conn !== null);
         if (! method_exists($this->_conn, 'getNativeConnection')) {
             throw new LogicException(sprintf(
                 'The driver connection %s does not support accessing the native connection.',
