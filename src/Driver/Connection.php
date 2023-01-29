@@ -36,6 +36,8 @@ interface Connection extends ServerVersionProvider
 
     /**
      * Executes an SQL statement and return the number of affected rows.
+     * If the number of affected rows is greater than the maximum int value (PHP_INT_MAX),
+     * the number of affected rows may be returned as a string.
      *
      * @throws Exception
      */

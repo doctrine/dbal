@@ -21,7 +21,7 @@ final class Connection implements ConnectionInterface
         $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    public function exec(string $sql): int|string
+    public function exec(string $sql): int
     {
         try {
             $result = $this->connection->exec($sql);
