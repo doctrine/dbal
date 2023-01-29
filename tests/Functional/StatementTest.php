@@ -241,7 +241,7 @@ EOF
 
     public function testBindInvalidNamedParameter(): void
     {
-        if (TestUtil::isDriverOneOf('ibm_db2', 'mysqli', 'sqlsrv')) {
+        if (TestUtil::isDriverOneOf('ibm_db2', 'mysqli', 'pgsql', 'sqlsrv')) {
             self::markTestSkipped('The driver does not support named statement parameters');
         }
 

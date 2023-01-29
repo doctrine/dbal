@@ -224,13 +224,23 @@ jobs:
           - "7.4"
         postgres-version:
           - "9.4"
-          - "14"
           - "15"
+        extension:
+          - "pgsql"
+          - "pdo_pgsql"
         include:
           - php-version: "8.1"
             postgres-version: "15"
+            extension: "pgsql"
           - php-version: "8.2"
             postgres-version: "15"
+            extension: "pgsql"
+          - php-version: "8.1"
+            postgres-version: "15"
+            extension: "pdo_pgsql"
+          - php-version: "8.2"
+            postgres-version: "15"
+            extension: "pdo_pgsql"
 
     services:
       postgres:
@@ -254,6 +264,7 @@ jobs:
         uses: "shivammathur/setup-php@v2"
         with:
           php-version: "${{ matrix.php-version }}"
+          extensions: "pgsql pdo_pgsql"
           coverage: "pcov"
           ini-values: "zend.assertions=1"
 
@@ -263,12 +274,12 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_pgsql.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v3"
         with:
-          name: "${{ github.job }}-${{ matrix.postgres-version }}-${{ matrix.php-version }}.coverage"
+          name: "${{ github.job }}-${{ matrix.postgres-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
 
   phpunit-mariadb:
