@@ -80,7 +80,7 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function quote($value, $type = ParameterType::STRING)
     {
-        return $this->connection->quote($value, $type);
+        return $this->connection->quote($value, ParameterTypeMap::convertParamType($type));
     }
 
     /**
