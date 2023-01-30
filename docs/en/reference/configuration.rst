@@ -122,6 +122,7 @@ interfaces to use. It can be configured in one of three ways:
    -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo_sqlsrv PDO
    -  ``sqlsrv``: A Microsoft SQL Server driver that uses the sqlsrv PHP extension.
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
+   -  ``ibm_db2``: An IBM DB2 driver that uses the ibm_db2 PHP extension.
 
 -  ``driverClass``: Specifies a custom driver implementation if no
    'driver' is specified. This allows the use of custom drivers that
@@ -279,6 +280,18 @@ pdo_sqlsrv / sqlsrv
 -  ``host`` (string): Hostname of the database to connect to.
 -  ``port`` (integer): Port of the database to connect to.
 -  ``dbname`` (string): Name of the database/schema to connect to.
+
+ibm_db2
+^^^^^^^
+
+-  ``dbname`` (string): Name of the database/schema to connect to or a complete connection string in
+   the format "DATABASE=dbname;HOSTNAME=host;PORT=port;PROTOCOL=TCPIP;UID=user;PWD=password;".
+-  ``user`` (string): Username to use when connecting to the database.
+-  ``password`` (string): Password to use when connecting to the database.
+-  ``host`` (string): Hostname of the database to connect to.
+-  ``port`` (integer): Port of the database to connect to.
+-  ``persistent`` (boolean): Whether to establish a persistent connection.
+-  ``driverOptions`` (array): Any supported options found on `https://www.php.net/manual/en/function.db2-connect.php#refsect1-function.db2-connect-parameters`
 
 Automatic platform version detection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
