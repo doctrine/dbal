@@ -21,6 +21,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
+use Doctrine\DBAL\Schema\LegacySchemaManagerFactory;
+use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
@@ -160,6 +163,8 @@ class Connection
      */
     private bool $isRollbackOnly = false;
 
+    private SchemaManagerFactory $schemaManagerFactory;
+
     /**
      * Initializes a new instance of the Connection class.
      *
@@ -209,6 +214,21 @@ class Connection
         $this->_expr = $this->createExpressionBuilder();
 
         $this->autoCommit = $config->getAutoCommit();
+
+        $schemaManagerFactory = $config->getSchemaManagerFactory();
+        if ($schemaManagerFactory === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/5812',
+                'Not configuring a schema manager factory is deprecated.'
+                    . ' Use %s which is going to be the default in DBAL 4.',
+                DefaultSchemaManagerFactory::class,
+            );
+
+            $schemaManagerFactory = new LegacySchemaManagerFactory();
+        }
+
+        $this->schemaManagerFactory = $schemaManagerFactory;
     }
 
     /**
@@ -1653,10 +1673,7 @@ class Connection
      */
     public function createSchemaManager(): AbstractSchemaManager
     {
-        return $this->_driver->getSchemaManager(
-            $this,
-            $this->getDatabasePlatform(),
-        );
+        return $this->schemaManagerFactory->createSchemaManager($this);
     }
 
     /**

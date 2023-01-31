@@ -21,6 +21,9 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\SchemaManagerFactory;
+use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -50,7 +53,7 @@ class ConnectionTest extends TestCase
     }
 
     /** @return Connection&MockObject */
-    private function getExecuteStatementMockConnection()
+    private function getExecuteStatementMockConnection(): Connection
     {
         $driverMock = $this->createMock(Driver::class);
 
@@ -891,6 +894,29 @@ class ConnectionTest extends TestCase
         self::assertSame($params, $connection->getParams());
 
         $connection->executeCacheQuery($query, [], [], $queryCacheProfile);
+    }
+
+    public function testCustomSchemaManagerFactory(): void
+    {
+        $schemaManager = $this->createStub(AbstractSchemaManager::class);
+        $factory       = $this->createMock(SchemaManagerFactory::class);
+        $factory->expects(self::once())->method('createSchemaManager')->willReturn($schemaManager);
+
+        $configuration = new Configuration();
+        $configuration->setSchemaManagerFactory($factory);
+
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/5812');
+
+        $connection = DriverManager::getConnection(['driver' => 'sqlite3', 'memory' => true], $configuration);
+        self::assertSame($schemaManager, $connection->createSchemaManager());
+    }
+
+    public function testLegacySchemaManagerFactory(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/issues/5812');
+
+        $connection = DriverManager::getConnection(['driver' => 'sqlite3', 'memory' => true]);
+        self::assertInstanceOf(SqliteSchemaManager::class, $connection->createSchemaManager());
     }
 }
 

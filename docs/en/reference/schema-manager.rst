@@ -5,15 +5,15 @@ A Schema Manager instance helps you with the abstraction of the
 generation of SQL assets such as Tables, Sequences, Foreign Keys
 and Indexes.
 
-To retrieve the ``SchemaManager`` for your connection you can use
-the ``getSchemaManager()`` method:
+To create a schema manager for your connection you can use
+the ``createSchemaManager()`` method:
 
 .. code-block:: php
 
     <?php
-    $sm = $conn->getSchemaManager();
+    $sm = $conn->createSchemaManager();
 
-Now with the ``SchemaManager`` instance in ``$sm`` you can use the
+Now with the schema manager instance in ``$sm`` you can use the
 available methods to learn about your database schema:
 
 .. note::
@@ -36,7 +36,7 @@ Retrieve an array of databases on the configured connection:
     $databases = $sm->listDatabases();
 
 listSequences()
--------------------------------
+---------------
 
 Retrieve an array of ``Doctrine\DBAL\Schema\Sequence`` instances
 that exist for a database:
@@ -63,7 +63,7 @@ Now you can loop over the array inspecting each sequence object:
     }
 
 listTableColumns()
-----------------------------
+------------------
 
 Retrieve an array of ``Doctrine\DBAL\Schema\Column`` instances that
 exist for the given table:
@@ -102,7 +102,7 @@ schema for that table. For example we can add a new column:
     $table->addColumn('email_address', 'string');
 
 listTableForeignKeys()
---------------------------------
+----------------------
 
 Retrieve an array of ``Doctrine\DBAL\Schema\ForeignKeyConstraint``
 instances that exist for the given table:
@@ -123,7 +123,7 @@ object:
     }
 
 listTableIndexes()
-----------------------------
+------------------
 
 Retrieve an array of ``Doctrine\DBAL\Schema\Index`` instances that
 exist for the given table:
@@ -232,3 +232,50 @@ table:
       0 => 'DROP TABLE user'
     )
     */
+
+Overriding the schema manager
+-----------------------------
+
+All schema manager classes can be overridden, for instance if your application needs to modify SQL statements emitted
+by the schema manager or the comparator. If you want your own schema manager to be returned by
+``Connection::createSchemaManager()`` you need to configure a factory for it.
+
+.. code-block:: php
+
+    <?php
+    use Doctrine\DBAL\Configuration;
+    use Doctrine\DBAL\DriverManager;
+    use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+    use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
+    use Doctrine\DBAL\Schema\MySQLSchemaManager;
+    use Doctrine\DBAL\Schema\SchemaManagerFactory;
+
+    class MyCustomMySQLSchemaManager extends MySQLSchemaManager
+    {
+        // .. your custom logic.
+    }
+
+    final class MySchemaManagerFactory implements SchemaManagerFactory
+    {
+        private readonly SchemaManagerFactory $defaultFactory;
+
+        public function __construct()
+        {
+            $this->defaultFactory = new DefaultSchemaManagerFactory();
+        }
+
+        public function createSchemaManager(Connection $connection): AbstractSchemaManager
+        {
+            $platform = $connection->getDatabasePlatform();
+            if ($platform instanceof AbstractMySQLPlatform) {
+                return new MyCustomMySQLSchemaManager($connection, $platform);
+            }
+
+            return $this->defaultFactory->createSchemaManager($connection);
+        }
+    }
+
+    $configuration = new Configuration();
+    $configuration->setSchemaManagerFactory(new MySchemaManagerFactory());
+
+    $connection = DriverManager::getConnection([/* your connection parameters */], $configuration);

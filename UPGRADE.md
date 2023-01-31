@@ -8,6 +8,25 @@ awareness about deprecated code.
 
 # Upgrade to 3.6
 
+## Deprecated not setting a schema manager factory
+
+DBAL 4 will change the way the schema manager is created. To opt in to the new
+behavior, please configure the schema manager factory:
+
+```php
+$configuration = new Configuration();
+$configuration->setSchemaManagerFactory(new DefaultSchemaManagerFactory());
+
+$connection = DriverManager::getConnection(
+    [/* your parameters */],
+    $configuration,
+);
+```
+
+If you use a custom platform implementation, please make sure it implements
+the `createSchemaManager()`method . Otherwise, the connection will fail to
+create a schema manager.
+
 ## Deprecated the `url` connection parameter
 
 DBAL ships with a new and configurable DSN parser that can be used to parse a
