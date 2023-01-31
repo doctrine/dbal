@@ -17,6 +17,8 @@ use function is_resource;
 use function pg_escape_bytea;
 use function pg_escape_literal;
 use function pg_get_result;
+use function pg_last_error;
+use function pg_query;
 use function pg_result_error;
 use function pg_send_prepare;
 use function pg_version;
@@ -56,7 +58,10 @@ final class Connection implements ServerInfoAwareConnection
         assert($success);
 
         $result = @pg_get_result($this->connection);
-        assert($result !== false);
+
+        if ($result === false) {
+            throw new Exception(pg_last_error($this->connection));
+        }
 
         if ((bool) pg_result_error($result)) {
             throw Exception::fromResult($result);
@@ -67,7 +72,17 @@ final class Connection implements ServerInfoAwareConnection
 
     public function query(string $sql): Result
     {
-        return $this->prepare($sql)->execute();
+        $result = @pg_query($this->connection, $sql);
+
+        if ($result === false) {
+            throw new Exception(pg_last_error($this->connection));
+        }
+
+        if ((bool) pg_result_error($result)) {
+            throw Exception::fromResult($result);
+        }
+
+        return new Result($result);
     }
 
     /** {@inheritdoc} */
@@ -82,7 +97,7 @@ final class Connection implements ServerInfoAwareConnection
 
     public function exec(string $sql): int
     {
-        return $this->prepare($sql)->execute()->rowCount();
+        return $this->query($sql)->rowCount();
     }
 
     /** {@inheritdoc} */
@@ -101,28 +116,19 @@ final class Connection implements ServerInfoAwareConnection
         return $this->query('SELECT LASTVAL()')->fetchOne();
     }
 
-    /** @return true */
     public function beginTransaction(): bool
     {
-        $this->exec('BEGIN');
-
-        return true;
+        return (bool) @pg_query($this->connection, 'BEGIN');
     }
 
-    /** @return true */
     public function commit(): bool
     {
-        $this->exec('COMMIT');
-
-        return true;
+        return (bool) @pg_query($this->connection, 'COMMIT');
     }
 
-    /** @return true */
     public function rollBack(): bool
     {
-        $this->exec('ROLLBACK');
-
-        return true;
+        return (bool) @pg_query($this->connection, 'ROLLBACK');
     }
 
     public function getServerVersion(): string
