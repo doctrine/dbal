@@ -2,9 +2,9 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
+use Doctrine\DBAL\Driver\PDO\Exception as PDOException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use PDOException;
 
 use function sleep;
 
