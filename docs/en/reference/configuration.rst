@@ -151,6 +151,8 @@ interfaces to use. It can be configured in one of three ways:
    -  ``sqlite3``: An SQLite driver that uses the sqlite3 extension.
    -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo_pgsql PDO
       extension.
+   -  ``pgsql``: A PostgreSQL driver that uses the pgsql extension. This driver does support loading BLOBs from file
+      resources yet. It is still considered experimental. Use `pdo_pgsql` if you need a stable driver for Postgres.
    -  ``pdo_oci``: An Oracle driver that uses the pdo_oci PDO
       extension.
       **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
@@ -236,8 +238,8 @@ mysqli
 -  ``ssl_cipher`` (string): A list of allowable ciphers to use for SSL encryption.
 -  ``driverOptions`` Any supported flags for mysqli found on `http://www.php.net/manual/en/mysqli.real-connect.php`
 
-pdo_pgsql
-^^^^^^^^^
+pdo_pgsql / pgsql
+^^^^^^^^^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
