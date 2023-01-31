@@ -17,8 +17,10 @@ use function is_resource;
 use function pg_escape_bytea;
 use function pg_escape_literal;
 use function pg_get_result;
+use function pg_last_error;
 use function pg_result_error;
 use function pg_send_prepare;
+use function pg_send_query;
 use function pg_version;
 use function sprintf;
 use function uniqid;
@@ -67,7 +69,18 @@ final class Connection implements ServerInfoAwareConnection
 
     public function query(string $sql): Result
     {
-        return $this->prepare($sql)->execute();
+        if (@pg_send_query($this->connection, $sql) !== true) {
+            throw new Exception(pg_last_error($this->connection));
+        }
+
+        $result = @pg_get_result($this->connection);
+        assert($result !== false);
+
+        if ((bool) pg_result_error($result)) {
+            throw Exception::fromResult($result);
+        }
+
+        return new Result($result);
     }
 
     /** {@inheritdoc} */
@@ -82,7 +95,7 @@ final class Connection implements ServerInfoAwareConnection
 
     public function exec(string $sql): int
     {
-        return $this->prepare($sql)->execute()->rowCount();
+        return $this->query($sql)->rowCount();
     }
 
     /** {@inheritdoc} */
