@@ -655,6 +655,7 @@
                 <referencedFunction name="pg_field_type"/>
                 <referencedFunction name="pg_free_result"/>
                 <referencedFunction name="pg_get_result"/>
+                <referencedFunction name="pg_last_error"/>
                 <referencedFunction name="pg_num_fields"/>
                 <referencedFunction name="pg_result_error_field"/>
                 <referencedFunction name="pg_send_execute"/>

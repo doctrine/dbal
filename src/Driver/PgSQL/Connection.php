@@ -17,6 +17,7 @@ use function is_resource;
 use function pg_escape_bytea;
 use function pg_escape_literal;
 use function pg_get_result;
+use function pg_last_error;
 use function pg_result_error;
 use function pg_send_prepare;
 use function pg_version;
@@ -51,9 +52,9 @@ final class Connection implements ServerInfoAwareConnection
         $this->parser->parse($sql, $visitor);
 
         $statementName = uniqid('dbal', true);
-        $success       = (bool) pg_send_prepare($this->connection, $statementName, $visitor->getSQL());
-
-        assert($success);
+        if (@pg_send_prepare($this->connection, $statementName, $visitor->getSQL()) !== true) {
+            throw new Exception(pg_last_error($this->connection));
+        }
 
         $result = @pg_get_result($this->connection);
         assert($result !== false);

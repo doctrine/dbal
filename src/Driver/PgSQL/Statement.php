@@ -19,6 +19,7 @@ use function is_resource;
 use function ksort;
 use function pg_escape_bytea;
 use function pg_get_result;
+use function pg_last_error;
 use function pg_result_error;
 use function pg_send_execute;
 use function sprintf;
@@ -142,8 +143,9 @@ final class Statement implements StatementInterface
             }
         }
 
-        $success = (bool) pg_send_execute($this->connection, $this->name, $escapedParameters);
-        assert($success);
+        if (@pg_send_execute($this->connection, $this->name, $escapedParameters) !== true) {
+            throw new Exception(pg_last_error($this->connection));
+        }
 
         $result = @pg_get_result($this->connection);
         assert($result !== false);
