@@ -53,9 +53,9 @@ final class Connection implements ServerInfoAwareConnection
         $this->parser->parse($sql, $visitor);
 
         $statementName = uniqid('dbal', true);
-        $success       = (bool) pg_send_prepare($this->connection, $statementName, $visitor->getSQL());
-
-        assert($success);
+        if (@pg_send_prepare($this->connection, $statementName, $visitor->getSQL()) !== true) {
+            throw new Exception(pg_last_error($this->connection));
+        }
 
         $result = @pg_get_result($this->connection);
         assert($result !== false);
