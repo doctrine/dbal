@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\Middleware;
+use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Psr\Cache\CacheItemPoolInterface;
 
 /**
@@ -31,6 +32,8 @@ class Configuration
      * The default auto-commit mode for connections.
      */
     protected bool $autoCommit = true;
+
+    private ?SchemaManagerFactory $schemaManagerFactory = null;
 
     public function __construct()
     {
@@ -115,5 +118,18 @@ class Configuration
     public function getMiddlewares(): array
     {
         return $this->middlewares;
+    }
+
+    public function getSchemaManagerFactory(): ?SchemaManagerFactory
+    {
+        return $this->schemaManagerFactory;
+    }
+
+    /** @return $this */
+    public function setSchemaManagerFactory(SchemaManagerFactory $schemaManagerFactory): self
+    {
+        $this->schemaManagerFactory = $schemaManagerFactory;
+
+        return $this;
     }
 }

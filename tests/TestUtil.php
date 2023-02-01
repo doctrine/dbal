@@ -15,6 +15,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
 use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 
@@ -164,6 +165,8 @@ class TestUtil
                 $configuration->setMiddlewares([new EnableForeignKeys()]);
                 break;
         }
+
+        $configuration->setSchemaManagerFactory(new DefaultSchemaManagerFactory());
 
         return $configuration;
     }

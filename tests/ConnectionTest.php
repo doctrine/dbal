@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver;
@@ -14,6 +15,9 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\SchemaManagerFactory;
+use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -562,5 +566,24 @@ class ConnectionTest extends TestCase
 
         (new Connection(self::CONNECTION_PARAMS, $driver))
             ->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
+    }
+
+    public function testCustomSchemaManagerFactory(): void
+    {
+        $schemaManager = $this->createStub(AbstractSchemaManager::class);
+        $factory       = $this->createMock(SchemaManagerFactory::class);
+        $factory->expects(self::once())->method('createSchemaManager')->willReturn($schemaManager);
+
+        $configuration = new Configuration();
+        $configuration->setSchemaManagerFactory($factory);
+
+        $connection = DriverManager::getConnection(['driver' => 'sqlite3', 'memory' => true], $configuration);
+        self::assertSame($schemaManager, $connection->createSchemaManager());
+    }
+
+    public function testDefaultSchemaManagerFactory(): void
+    {
+        $connection = DriverManager::getConnection(['driver' => 'sqlite3', 'memory' => true]);
+        self::assertInstanceOf(SQLiteSchemaManager::class, $connection->createSchemaManager());
     }
 }

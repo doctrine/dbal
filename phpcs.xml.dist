@@ -53,6 +53,11 @@
         <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>
 
+    <rule ref="SlevomatCodingStandard.Classes.RequireConstructorPropertyPromotion.RequiredConstructorPropertyPromotion">
+        <!-- CPP breaks static analysis here. -->
+        <exclude-pattern>src/Driver/PgSQL/Result.php</exclude-pattern>
+    </rule>
+
     <rule ref="SlevomatCodingStandard.PHP.RequireExplicitAssertion.RequiredExplicitAssertion">
         <exclude-pattern>tests/*</exclude-pattern>
     </rule>

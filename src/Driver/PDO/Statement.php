@@ -20,10 +20,10 @@ final class Statement implements StatementInterface
 
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
-        $type = $this->convertParamType($type);
+        $pdoType = $this->convertParamType($type);
 
         try {
-            $this->stmt->bindValue($param, $value, $type);
+            $this->stmt->bindValue($param, $value, $pdoType);
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
@@ -40,8 +40,10 @@ final class Statement implements StatementInterface
         ParameterType $type,
         mixed $driverOptions,
     ): void {
+        $pdoType = $this->convertParamType($type);
+
         try {
-            $this->stmt->bindParam($param, $variable, $this->convertParamType($type), 0, $driverOptions);
+            $this->stmt->bindParam($param, $variable, $pdoType, 0, $driverOptions);
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
@@ -60,6 +62,8 @@ final class Statement implements StatementInterface
 
     /**
      * Converts DBAL parameter type to PDO parameter type
+     *
+     * @psalm-return PDO::PARAM_*
      */
     private function convertParamType(ParameterType $type): int
     {

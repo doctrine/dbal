@@ -78,7 +78,11 @@ final class Result implements ResultInterface
         $this->statement->closeCursor();
     }
 
-    /** @throws Exception */
+    /**
+     * @psalm-param PDO::FETCH_* $mode
+     *
+     * @throws Exception
+     */
     private function fetch(int $mode): mixed
     {
         try {
@@ -89,6 +93,8 @@ final class Result implements ResultInterface
     }
 
     /**
+     * @psalm-param PDO::FETCH_* $mode
+     *
      * @return list<mixed>
      *
      * @throws Exception

@@ -22,6 +22,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
+use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
@@ -93,6 +95,8 @@ class Connection implements ServerVersionProvider
      */
     private bool $isRollbackOnly = false;
 
+    private SchemaManagerFactory $schemaManagerFactory;
+
     /**
      * Initializes a new instance of the Connection class.
      *
@@ -112,6 +116,9 @@ class Connection implements ServerVersionProvider
         $this->_config    = $config ?? new Configuration();
         $this->params     = $params;
         $this->autoCommit = $this->_config->getAutoCommit();
+
+        $this->schemaManagerFactory = $this->_config->getSchemaManagerFactory()
+            ?? new DefaultSchemaManagerFactory();
     }
 
     /**
@@ -1137,8 +1144,7 @@ class Connection implements ServerVersionProvider
      */
     public function createSchemaManager(): AbstractSchemaManager
     {
-        return $this->getDatabasePlatform()
-            ->createSchemaManager($this);
+        return $this->schemaManagerFactory->createSchemaManager($this);
     }
 
     /**
