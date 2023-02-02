@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
+use BackedEnum;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 
@@ -75,6 +76,10 @@ class Statement
         mixed $value,
         string|ParameterType|Type $type = ParameterType::STRING,
     ): void {
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
+        }
+
         $this->params[$param] = $value;
         $this->types[$param]  = $type;
 
