@@ -148,6 +148,9 @@ parameters:
         - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapAssociativeRow\(\) expects array<string, string\|null>, array<int\|string, string\|null> given\.$~'
         - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapNumericRow\(\) expects array<int, string\|null>, array<int\|string, string\|null> given\.$~'
 
+        # Ignore isset() checks in destructors.
+        - '~^Property Doctrine\\DBAL\\Driver\\PgSQL\\Statement\:\:\$connection \(PgSql\\Connection\|resource\) in isset\(\) is not nullable\.$~'
+
         # On PHP 7.4, pg_fetch_all() might return false for empty result sets.
         -
             message: '~^Strict comparison using === between array<int, array> and false will always evaluate to false\.$~'
