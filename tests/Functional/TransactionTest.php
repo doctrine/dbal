@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
+use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PDOException;
@@ -30,6 +31,8 @@ class TransactionTest extends FunctionalTestCase
         try {
             self::assertFalse(@$this->connection->commit()); // we will ignore `MySQL server has gone away` warnings
         } catch (PDOException $e) {
+            self::assertInstanceOf(DriverException::class, $e);
+
             /* For PDO, we are using ERRMODE EXCEPTION, so this catch should be
              * necessary as the equivalent of the error control operator above.
              * This seems to be the case only since PHP 8 */
