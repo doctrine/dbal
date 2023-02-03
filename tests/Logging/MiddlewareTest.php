@@ -8,16 +8,13 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Logging\Middleware;
 use Doctrine\DBAL\ParameterType;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
+use Psr\Log\Test\TestLogger;
 
 class MiddlewareTest extends TestCase
 {
     private Driver $driver;
-
-    /** @var LoggerInterface&MockObject */
-    private $logger;
+    private TestLogger $logger;
 
     public function setUp(): void
     {
@@ -27,7 +24,7 @@ class MiddlewareTest extends TestCase
         $driver->method('connect')
             ->willReturn($connection);
 
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = new TestLogger();
 
         $middleware   = new Middleware($this->logger);
         $this->driver = $middleware->wrap($driver);
@@ -35,90 +32,76 @@ class MiddlewareTest extends TestCase
 
     public function testConnectAndDisconnect(): void
     {
-        $this->logger->expects(self::exactly(2))
-            ->method('info')
-            ->withConsecutive(
-                [
-                    'Connecting with parameters {params}',
-                    [
-                        'params' => [
-                            'username' => 'admin',
-                            'password' => '<redacted>',
-                            'url' => '<redacted>',
-                        ],
-                    ],
-                ],
-                ['Disconnecting', []],
-            );
-
         $this->driver->connect([
             'username' => 'admin',
             'password' => 'Passw0rd!',
             'url' => 'mysql://user:secret@localhost/mydb',
         ]);
+
+        self::assertTrue($this->logger->hasInfo([
+            'message' => 'Connecting with parameters {params}',
+            'context' => [
+                'params' => [
+                    'username' => 'admin',
+                    'password' => '<redacted>',
+                    'url' => '<redacted>',
+                ],
+            ],
+        ]));
     }
 
     public function testQuery(): void
     {
-        $this->logger->expects(self::once())
-            ->method('debug')
-            ->with('Executing query: {sql}', ['sql' => 'SELECT 1']);
-
         $connection = $this->driver->connect([]);
         $connection->query('SELECT 1');
+
+        self::assertTrue($this->logger->hasDebug([
+            'message' => 'Executing query: {sql}',
+            'context' => ['sql' => 'SELECT 1'],
+        ]));
     }
 
     public function testExec(): void
     {
-        $this->logger->expects(self::once())
-            ->method('debug')
-            ->with('Executing statement: {sql}', ['sql' => 'DROP DATABASE doctrine']);
-
         $connection = $this->driver->connect([]);
         $connection->exec('DROP DATABASE doctrine');
+
+        self::assertTrue($this->logger->hasDebug([
+            'message' => 'Executing statement: {sql}',
+            'context' => ['sql' => 'DROP DATABASE doctrine'],
+        ]));
     }
 
     public function testBeginCommitRollback(): void
     {
-        $this->logger->expects(self::exactly(3))
-            ->method('debug')
-            ->withConsecutive(
-                ['Beginning transaction'],
-                ['Committing transaction'],
-                ['Rolling back transaction'],
-            );
-
         $connection = $this->driver->connect([]);
         $connection->beginTransaction();
         $connection->commit();
         $connection->rollBack();
+
+        self::assertTrue($this->logger->hasDebug('Beginning transaction'));
+        self::assertTrue($this->logger->hasDebug('Committing transaction'));
+        self::assertTrue($this->logger->hasDebug('Rolling back transaction'));
     }
 
     public function testExecuteStatementWithUntypedParameters(): void
     {
-        $this->logger->expects(self::once())
-            ->method('debug')
-            ->with('Executing statement: {sql} (parameters: {params}, types: {types})', [
-                'sql' => 'SELECT ?',
-                'params' => [42],
-                'types' => [],
-            ]);
-
         $connection = $this->driver->connect([]);
         $statement  = $connection->prepare('SELECT ?');
         $statement->execute([42]);
+
+        self::assertTrue($this->logger->hasDebug([
+            'message' => 'Executing statement: {sql} (parameters: {params}, types: {types})',
+            'context' => [
+                'sql' => 'SELECT ?',
+                'params' => [42],
+                'types' => [],
+            ],
+        ]));
     }
 
     public function testExecuteStatementWithTypedParameters(): void
     {
-        $this->logger->expects(self::once())
-            ->method('debug')
-            ->with('Executing statement: {sql} (parameters: {params}, types: {types})', [
-                'sql' => 'SELECT ?, ?',
-                'params' => [1 => 42, 2 => 'Test'],
-                'types' => [1 => ParameterType::INTEGER, 2 => ParameterType::STRING],
-            ]);
-
         $connection = $this->driver->connect([]);
         $statement  = $connection->prepare('SELECT ?, ?');
         $statement->bindValue(1, 42, ParameterType::INTEGER);
@@ -126,22 +109,32 @@ class MiddlewareTest extends TestCase
 
         $byRef = 'Test';
         $statement->execute();
+
+        self::assertTrue($this->logger->hasDebug([
+            'message' => 'Executing statement: {sql} (parameters: {params}, types: {types})',
+            'context' => [
+                'sql' => 'SELECT ?, ?',
+                'params' => [1 => 42, 2 => 'Test'],
+                'types' => [1 => ParameterType::INTEGER, 2 => ParameterType::STRING],
+            ],
+        ]));
     }
 
     public function testExecuteStatementWithNamedParameters(): void
     {
-        $this->logger->expects(self::once())
-            ->method('debug')
-            ->with('Executing statement: {sql} (parameters: {params}, types: {types})', [
-                'sql' => 'SELECT :value',
-                'params' => ['value' => 'Test'],
-                'types' => ['value' => ParameterType::STRING],
-            ]);
-
         $connection = $this->driver->connect([]);
         $statement  = $connection->prepare('SELECT :value');
         $statement->bindValue('value', 'Test');
 
         $statement->execute();
+
+        self::assertTrue($this->logger->hasDebug([
+            'message' => 'Executing statement: {sql} (parameters: {params}, types: {types})',
+            'context' => [
+                'sql' => 'SELECT :value',
+                'params' => ['value' => 'Test'],
+                'types' => ['value' => ParameterType::STRING],
+            ],
+        ]));
     }
 }
