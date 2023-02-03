@@ -38,6 +38,9 @@
                     See https://github.com/doctrine/dbal/pull/4317
                 -->
                 <file name="tests/Functional/LegacyAPITest.php"/>
+
+                <!-- TODO for PHPUnit 10 -->
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::withConsecutive"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
@@ -121,6 +124,7 @@
                 <referencedFunction name="pg_affected_rows"/>
                 <referencedFunction name="pg_close"/>
                 <referencedFunction name="pg_escape_bytea"/>
+                <referencedFunction name="pg_escape_identifier"/>
                 <referencedFunction name="pg_escape_literal"/>
                 <referencedFunction name="pg_fetch_all"/>
                 <referencedFunction name="pg_fetch_all_columns"/>
@@ -132,6 +136,7 @@
                 <referencedFunction name="pg_get_result"/>
                 <referencedFunction name="pg_last_error"/>
                 <referencedFunction name="pg_num_fields"/>
+                <referencedFunction name="pg_query"/>
                 <referencedFunction name="pg_result_error_field"/>
                 <referencedFunction name="pg_send_execute"/>
                 <referencedFunction name="pg_send_prepare"/>
@@ -208,6 +213,10 @@
             <errorLevel type="suppress">
                 <!-- Running isset() checks on properties that should be initialized by setUp() is fine. -->
                 <directory name="tests"/>
+
+                <!-- Ignore isset() checks in destructors. -->
+                <file name="src/Driver/PgSQL/Connection.php"/>
+                <file name="src/Driver/PgSQL/Statement.php"/>
             </errorLevel>
         </RedundantPropertyInitializationCheck>
         <TypeDoesNotContainNull>

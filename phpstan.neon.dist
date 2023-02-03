@@ -101,6 +101,7 @@ parameters:
 
         # Ignore isset() checks in destructors.
         - '~^Property Doctrine\\DBAL\\Driver\\PgSQL\\Connection\:\:\$connection \(PgSql\\Connection\|resource\) in isset\(\) is not nullable\.$~'
+        - '~^Property Doctrine\\DBAL\\Driver\\PgSQL\\Statement\:\:\$connection \(PgSql\\Connection\|resource\) in isset\(\) is not nullable\.$~'
 
         # On PHP 7.4, pg_fetch_all() might return false for empty result sets.
         -

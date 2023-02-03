@@ -101,7 +101,11 @@ final class Connection implements ConnectionInterface
 
     public function beginTransaction(): void
     {
-        $this->connection->beginTransaction();
+        try {
+            $this->connection->beginTransaction();
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
     }
 
     public function commit(): void

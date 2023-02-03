@@ -16,8 +16,10 @@ use function is_object;
 use function is_resource;
 use function ksort;
 use function pg_escape_bytea;
+use function pg_escape_identifier;
 use function pg_get_result;
 use function pg_last_error;
+use function pg_query;
 use function pg_result_error;
 use function pg_send_execute;
 use function sprintf;
@@ -43,6 +45,18 @@ final class Statement implements StatementInterface
                 is_object($connection) ? $connection::class : gettype($connection),
             ));
         }
+    }
+
+    public function __destruct()
+    {
+        if (! isset($this->connection)) {
+            return;
+        }
+
+        @pg_query(
+            $this->connection,
+            'DEALLOCATE ' . pg_escape_identifier($this->connection, $this->name),
+        );
     }
 
     /** {@inheritdoc} */
