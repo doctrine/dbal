@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\ArrayParameters\Exception\InvalidParameterType;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingNamedParameter;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingPositionalParameter;
 use Doctrine\DBAL\SQL\Parser\Visitor;
@@ -80,7 +79,6 @@ final class ExpandArrayParameters implements Visitor
         return $this->convertedParameters;
     }
 
-    /** @throws InvalidParameterType */
     private function acceptParameter(int|string $key, mixed $value): void
     {
         if (! isset($this->types[$key])) {
