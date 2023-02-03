@@ -497,6 +497,9 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Connection::getEventManager"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::setEventManager"/>
+
+                <!-- TODO for PHPUnit 10 -->
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::withConsecutive"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
