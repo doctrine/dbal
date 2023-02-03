@@ -49,11 +49,6 @@ parameters:
             paths:
                 - src/Driver/OCI8/Statement.php
 
-        -
-            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int(:?<0, max>)?\|string\.~'
-            paths:
-                - src/Driver/Mysqli/Result.php
-
         # Removing the (int) cast will make Psalm unhappy.
         -
             message: '~^Casting to int something that''s already int\.$~'
