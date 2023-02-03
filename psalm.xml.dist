@@ -645,6 +645,7 @@
             <errorLevel type="suppress">
                 <!-- PgSql objects are represented as resources in PHP 7.4 -->
                 <referencedFunction name="pg_affected_rows"/>
+                <referencedFunction name="pg_close"/>
                 <referencedFunction name="pg_escape_bytea"/>
                 <referencedFunction name="pg_escape_identifier"/>
                 <referencedFunction name="pg_escape_literal"/>
@@ -752,6 +753,7 @@
                 <directory name="tests"/>
 
                 <!-- Ignore isset() checks in destructors. -->
+                <file name="src/Driver/PgSQL/Connection.php"/>
                 <file name="src/Driver/PgSQL/Statement.php"/>
             </errorLevel>
         </RedundantPropertyInitializationCheck>
