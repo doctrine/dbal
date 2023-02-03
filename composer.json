@@ -41,6 +41,7 @@
     },
     "require-dev": {
         "doctrine/coding-standard": "11.1.0",
+        "fig/log-test": "^1",
         "jetbrains/phpstorm-stubs": "2022.3",
         "phpstan/phpstan": "1.9.14",
         "phpstan/phpstan-strict-rules": "^1.4",
