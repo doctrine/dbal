@@ -91,23 +91,10 @@ parameters:
         # We don't need to declare the return type *that* fine-grained.
         - '~^Method Doctrine\\DBAL\\Driver\\PDO\\Statement\:\:convertParamType\(\) never returns \d+ so it can be removed from the return type\.$~'
 
-        # PgSql objects are represented as resources in PHP 7.4
-        - '~ expects PgSql\\Connection(:?\|(?:string|null))?, PgSql\\Connection\|resource given\.$~'
-        - '~ expects PgSql\\Result, PgSql\\Result\|resource given\.$~'
-
         # PHPStan does not understand the array shapes returned by pg_fetch_*() methods.
         - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapAssociativeRow\(\) expects array<string, string\|null>, array<int\|string, string\|null> given\.$~'
         - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapNumericRow\(\) expects array<int, string\|null>, array<int\|string, string\|null> given\.$~'
 
-        # Ignore isset() checks in destructors.
-        - '~^Property Doctrine\\DBAL\\Driver\\PgSQL\\Connection\:\:\$connection \(PgSql\\Connection\|resource\) in isset\(\) is not nullable\.$~'
-        - '~^Property Doctrine\\DBAL\\Driver\\PgSQL\\Statement\:\:\$connection \(PgSql\\Connection\|resource\) in isset\(\) is not nullable\.$~'
-
-        # On PHP 7.4, pg_fetch_all() might return false for empty result sets.
-        -
-            message: '~^Strict comparison using === between array<int, array> and false will always evaluate to false\.$~'
-            paths:
-                - src/Driver/PgSQL/Result.php
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

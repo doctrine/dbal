@@ -75,11 +75,11 @@ final class Driver extends AbstractPostgreSQLDriver
                 'password' => $params['password'] ?? null,
                 'sslmode' => $params['sslmode'] ?? null,
             ],
-            static fn ($value) => $value !== '' && $value !== null,
+            static fn (int|string|null $value) => $value !== '' && $value !== null,
         );
 
         return implode(' ', array_map(
-            static fn ($value, string $key) => sprintf("%s='%s'", $key, addslashes($value)),
+            static fn (int|string $value, string $key) => sprintf("%s='%s'", $key, addslashes((string) $value)),
             array_values($components),
             array_keys($components),
         ));

@@ -8,12 +8,8 @@ use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\SQL\Parser;
 use PgSql\Connection as PgSqlConnection;
-use TypeError;
 
 use function assert;
-use function gettype;
-use function is_object;
-use function is_resource;
 use function pg_close;
 use function pg_escape_literal;
 use function pg_get_result;
@@ -22,24 +18,14 @@ use function pg_result_error;
 use function pg_send_prepare;
 use function pg_send_query;
 use function pg_version;
-use function sprintf;
 use function uniqid;
 
 final class Connection implements ConnectionInterface
 {
-    private Parser $parser;
+    private readonly Parser $parser;
 
-    /** @param PgSqlConnection|resource $connection */
-    public function __construct(private mixed $connection)
+    public function __construct(private readonly PgSqlConnection $connection)
     {
-        if (! is_resource($connection) && ! $connection instanceof PgSqlConnection) {
-            throw new TypeError(sprintf(
-                'Expected connection to be a resource or an instance of %s, got %s.',
-                PgSqlConnection::class,
-                is_object($connection) ? $connection::class : gettype($connection),
-            ));
-        }
-
         $this->parser = new Parser(false);
     }
 
@@ -136,8 +122,7 @@ final class Connection implements ConnectionInterface
         return (string) pg_version($this->connection)['server'];
     }
 
-    /** @return PgSqlConnection|resource */
-    public function getNativeConnection()
+    public function getNativeConnection(): PgSqlConnection
     {
         return $this->connection;
     }
