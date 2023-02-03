@@ -143,7 +143,7 @@ final class Result implements ResultInterface
         return FetchUtils::fetchFirstColumn($this);
     }
 
-    public function rowCount(): int|string
+    public function rowCount(): int
     {
         if ($this->hasColumns) {
             return $this->statement->num_rows;

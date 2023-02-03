@@ -66,7 +66,7 @@ final class Connection implements ConnectionInterface
         return "'" . db2_escape_string($value) . "'";
     }
 
-    public function exec(string $sql): int|string
+    public function exec(string $sql): int
     {
         $stmt = @db2_exec($this->connection, $sql);
 

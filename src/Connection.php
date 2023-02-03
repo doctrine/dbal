@@ -378,11 +378,11 @@ class Connection implements ServerVersionProvider
      * @param array<string, mixed>                                                           $criteria
      * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
-     * @return int|string The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws Exception
      */
-    public function delete(string $table, array $criteria = [], array $types = []): int|string
+    public function delete(string $table, array $criteria = [], array $types = []): int
     {
         $columns = $values = $conditions = [];
 
@@ -445,11 +445,11 @@ class Connection implements ServerVersionProvider
      * @param array<string, mixed>                                                           $criteria
      * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
-     * @return int|string The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws Exception
      */
-    public function update(string $table, array $data, array $criteria = [], array $types = []): int|string
+    public function update(string $table, array $data, array $criteria = [], array $types = []): int
     {
         $columns = $values = $conditions = $set = [];
 
@@ -482,11 +482,11 @@ class Connection implements ServerVersionProvider
      * @param array<string, mixed>                                                           $data
      * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
-     * @return int|string The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws Exception
      */
-    public function insert(string $table, array $data, array $types = []): int|string
+    public function insert(string $table, array $data, array $types = []): int
     {
         if (count($data) === 0) {
             return $this->executeStatement('INSERT INTO ' . $table . ' () VALUES ()');
@@ -841,7 +841,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function executeStatement(string $sql, array $params = [], array $types = []): int|string
+    public function executeStatement(string $sql, array $params = [], array $types = []): int
     {
         $connection = $this->connect();
 
@@ -1373,7 +1373,7 @@ class Connection implements ServerVersionProvider
      *
      * @throws Exception
      */
-    public function executeUpdate(string $sql, array $params = [], array $types = []): int|string
+    public function executeUpdate(string $sql, array $params = [], array $types = []): int
     {
         return $this->executeStatement($sql, $params, $types);
     }
@@ -1393,7 +1393,7 @@ class Connection implements ServerVersionProvider
      *
      * @deprecated This API is deprecated and will be removed after 2022
      */
-    public function exec(string $sql): int|string
+    public function exec(string $sql): int
     {
         return $this->executeStatement($sql);
     }

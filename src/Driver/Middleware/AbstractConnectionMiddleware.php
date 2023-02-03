@@ -29,7 +29,7 @@ abstract class AbstractConnectionMiddleware implements Connection
         return $this->wrappedConnection->quote($value);
     }
 
-    public function exec(string $sql): int|string
+    public function exec(string $sql): int
     {
         return $this->wrappedConnection->exec($sql);
     }

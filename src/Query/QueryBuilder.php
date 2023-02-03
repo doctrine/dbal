@@ -303,11 +303,11 @@ class QueryBuilder
      *
      * Should be used for INSERT, UPDATE and DELETE
      *
-     * @return int|string The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws Exception
      */
-    public function executeStatement(): int|string
+    public function executeStatement(): int
     {
         return $this->connection->executeStatement($this->getSQL(), $this->params, $this->types);
     }

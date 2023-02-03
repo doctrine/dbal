@@ -122,11 +122,9 @@ class Statement
     /**
      * Executes the statement with the currently bound parameters and return affected rows.
      *
-     * If the number of rows exceeds {@see PHP_INT_MAX}, it might be returned as string if the driver supports it.
-     *
      * @throws Exception
      */
-    public function executeStatement(): int|string
+    public function executeStatement(): int
     {
         return $this->execute()->rowCount();
     }

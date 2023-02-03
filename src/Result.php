@@ -223,11 +223,9 @@ class Result
      * some database drivers may return the number of rows returned by that query. However, this behaviour
      * is not guaranteed for all drivers and should not be relied on in portable applications.
      *
-     * If the number of rows exceeds {@see PHP_INT_MAX}, it might be returned as string if the driver supports it.
-     *
      * @throws Exception
      */
-    public function rowCount(): int|string
+    public function rowCount(): int
     {
         try {
             return $this->result->rowCount();

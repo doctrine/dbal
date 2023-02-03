@@ -51,7 +51,7 @@ abstract class AbstractResultMiddleware implements Result
         return $this->wrappedResult->fetchFirstColumn();
     }
 
-    public function rowCount(): int|string
+    public function rowCount(): int
     {
         return $this->wrappedResult->rowCount();
     }
