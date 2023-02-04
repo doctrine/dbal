@@ -19,8 +19,7 @@ use const PGSQL_DIAG_SQLSTATE;
  */
 final class Exception extends AbstractException
 {
-    /** @param PgSqlResult|resource $result */
-    public static function fromResult($result): self
+    public static function fromResult(PgSqlResult $result): self
     {
         $sqlstate = pg_result_error_field($result, PGSQL_DIAG_SQLSTATE);
         if ($sqlstate === false) {
