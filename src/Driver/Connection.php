@@ -39,6 +39,8 @@ interface Connection extends ServerVersionProvider
      * If the number of affected rows is greater than the maximum int value (PHP_INT_MAX),
      * the number of affected rows may be returned as a string.
      *
+     * @return int|numeric-string
+     *
      * @throws Exception
      */
     public function exec(string $sql): int|string;

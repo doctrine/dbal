@@ -378,7 +378,7 @@ class Connection implements ServerVersionProvider
      * @param array<string, mixed>                                                           $criteria
      * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
-     * @return int|string The number of affected rows.
+     * @return int|numeric-string The number of affected rows.
      *
      * @throws Exception
      */
@@ -445,7 +445,7 @@ class Connection implements ServerVersionProvider
      * @param array<string, mixed>                                                           $criteria
      * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
-     * @return int|string The number of affected rows.
+     * @return int|numeric-string The number of affected rows.
      *
      * @throws Exception
      */
@@ -482,7 +482,7 @@ class Connection implements ServerVersionProvider
      * @param array<string, mixed>                                                           $data
      * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
-     * @return int|string The number of affected rows.
+     * @return int|numeric-string The number of affected rows.
      *
      * @throws Exception
      */
@@ -838,6 +838,8 @@ class Connection implements ServerVersionProvider
      *
      * @param list<mixed>|array<string, mixed> $params
      * @psalm-param WrapperParameterTypeArray $types
+     *
+     * @return int|numeric-string
      *
      * @throws Exception
      */
@@ -1369,6 +1371,8 @@ class Connection implements ServerVersionProvider
      * @param array<int, mixed>|array<string, mixed> $params
      * @psalm-param WrapperParameterTypeArray $types
      *
+     * @return int|numeric-string
+     *
      * @throws Exception
      */
     public function executeUpdate(string $sql, array $params = [], array $types = []): int|string
@@ -1390,6 +1394,8 @@ class Connection implements ServerVersionProvider
      * BC layer for a wide-spread use-case of old DBAL APIs
      *
      * @deprecated This API is deprecated and will be removed after 2022
+     *
+     * @return int|numeric-string
      */
     public function exec(string $sql): int|string
     {
