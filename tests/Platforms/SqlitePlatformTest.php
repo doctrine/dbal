@@ -31,7 +31,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
-            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
+            'CREATE UNIQUE INDEX test_UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
         ];
     }
 
@@ -241,12 +241,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql(): string
     {
-        return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
+        return 'CREATE INDEX mytable_my_idx ON mytable (user_name, last_login)';
     }
 
     public function getGenerateUniqueIndexSql(): string
     {
-        return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
+        return 'CREATE UNIQUE INDEX test_index_name ON test (test, test2)';
     }
 
     public function testGeneratesForeignKeyCreationSql(): void
@@ -376,9 +376,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
                 . ', CONSTRAINT FK_8D93D6493D8E604F FOREIGN KEY (parent)'
                 . ' REFERENCES user (id) DEFERRABLE INITIALLY DEFERRED'
                 . ')',
-            'CREATE INDEX IDX_8D93D64923A0E66 ON user (article)',
-            'CREATE INDEX IDX_8D93D6495A8A6C8D ON user (post)',
-            'CREATE INDEX IDX_8D93D6493D8E604F ON user (parent)',
+            'CREATE INDEX user_IDX_8D93D64923A0E66 ON user (article)',
+            'CREATE INDEX user_IDX_8D93D6495A8A6C8D ON user (post)',
+            'CREATE INDEX user_IDX_8D93D6493D8E604F ON user (parent)',
         ];
 
         self::assertEquals($sql, $this->platform->getCreateTableSQL($table));
@@ -419,8 +419,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'INSERT INTO user ("key", article, comment) SELECT id, article, post FROM __temp__user',
             'DROP TABLE __temp__user',
             'ALTER TABLE user RENAME TO client',
-            'CREATE INDEX IDX_8D93D64923A0E66 ON client (article)',
-            'CREATE INDEX IDX_8D93D6495A8A6C8D ON client (comment)',
+            'CREATE INDEX client_IDX_8D93D64923A0E66 ON client (article)',
+            'CREATE INDEX client_IDX_8D93D6495A8A6C8D ON client (comment)',
         ];
 
         self::assertEquals($sql, $this->platform->getAlterTableSQL($diff));
@@ -441,7 +441,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL)',
-            'CREATE INDEX IDX_22660D028FD6E0FB ON "quoted" ("create")',
+            'CREATE INDEX quoted_IDX_22660D028FD6E0FB ON "quoted" ("create")',
         ];
     }
 
@@ -452,7 +452,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         return [
             'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
-            'CREATE INDEX "key" ON test (column1)',
+            'CREATE INDEX "test_key" ON test (column1)',
         ];
     }
 
@@ -470,7 +470,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'REFERENCES foo ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
             'CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") ' .
             'REFERENCES "foo-bar" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE)',
-            'CREATE INDEX IDX_22660D028FD6E0FB8C736521D79164E3 ON "quoted" ("create", foo, "bar")',
+            'CREATE INDEX quoted_IDX_22660D028FD6E0FB8C736521D79164E3 ON "quoted" ("create", foo, "bar")',
         ];
     }
 
@@ -506,7 +506,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE mytable (id INTEGER NOT NULL, PRIMARY KEY(id))',
             'INSERT INTO mytable (id) SELECT id FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
-            'CREATE INDEX idx_bar ON mytable (id)',
+            'CREATE INDEX mytable_idx_bar ON mytable (id)',
         ];
     }
 
@@ -521,8 +521,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE "table" (id INTEGER NOT NULL, PRIMARY KEY(id))',
             'INSERT INTO "table" (id) SELECT id FROM __temp__table',
             'DROP TABLE __temp__table',
-            'CREATE INDEX "select" ON "table" (id)',
-            'CREATE INDEX "bar" ON "table" (id)',
+            'CREATE INDEX "table_select" ON "table" (id)',
+            'CREATE INDEX "table_bar" ON "table" (id)',
         ];
     }
 
@@ -686,8 +686,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
                 . ' NOT DEFERRABLE INITIALLY IMMEDIATE)',
             'INSERT INTO mytable (foo, bar, baz) SELECT foo, bar, baz FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
-            'CREATE INDEX idx_bar ON mytable (bar)',
-            'CREATE INDEX idx_foo_renamed ON mytable (foo)',
+            'CREATE INDEX mytable_idx_bar ON mytable (bar)',
+            'CREATE INDEX mytable_idx_foo_renamed ON mytable (foo)',
         ];
     }
 
@@ -762,5 +762,16 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             ],
             $this->platform->getCreateTableSQL($table),
         );
+    }
+
+    /** @return string[] */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
+    {
+        return [
+            'DROP INDEX "schema"."create"',
+            'CREATE INDEX "table_select" ON "schema"."table" (id)',
+            'DROP INDEX "schema"."foo"',
+            'CREATE INDEX "table_bar" ON "schema"."table" (id)',
+        ];
     }
 }

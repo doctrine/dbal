@@ -1482,7 +1482,7 @@ class SqlitePlatform extends AbstractPlatform
     {
         return new SqliteSchemaManager($connection, $this);
     }
-    
+
     /**
      * Namespaces index with the table name, as sqlite requires unique index names per database
      *
@@ -1490,9 +1490,23 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getCreateIndexSQL(Index $index, $table)
     {
-        if (!$index->isPrimary()) { // leave the primary index alone
-            $name = ($table instanceof Table ? $table->getName() : $table) . '_' . $index->getName();
-            $index = new Index($name, $index->getColumns(), $index->isUnique(), $index->isPrimary(), $index->getFlags(), $index->getOptions());
+        if (! $index->isPrimary()) { // leave the primary index alone
+            // check if the index name should be quoted below
+            $indexName  = new Identifier($index->getQuotedName($this));
+            $identifier = new Identifier($table instanceof Table ? $table->getName() : $table);
+            $name       = $identifier->getShortestName($identifier->getNamespaceName()) . '_' . $index->getName();
+            if ($indexName->isQuoted()) {
+                $name = $this->quoteIdentifier($name);
+            }
+
+            $index = new Index(
+                $name,
+                $index->getColumns(),
+                $index->isUnique(),
+                $index->isPrimary(),
+                $index->getFlags(),
+                $index->getOptions(),
+            );
         }
 
         return parent::getCreateIndexSQL($index, $table);
