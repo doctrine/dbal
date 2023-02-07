@@ -4,12 +4,20 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\PgSQL;
 
+use Doctrine\DBAL\Driver\PgSQL\Result;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
+use Error;
 use Generator;
+use PgSql\Connection as PgSqlConnection;
 
+use function assert;
 use function chr;
+use function pg_query;
+use function pg_result_status;
+
+use const PGSQL_TUPLES_OK;
 
 class ResultTest extends FunctionalTestCase
 {
@@ -208,5 +216,22 @@ class ResultTest extends FunctionalTestCase
             [4711],
             $this->connection->fetchFirstColumn('SELECT a.*, b.* FROM types_test a, types_test2 b'),
         );
+    }
+
+    public function testResultIsFreedOnDestruct(): void
+    {
+        $pgsqlConnection = $this->connection->getNativeConnection();
+        assert($pgsqlConnection instanceof PgSqlConnection);
+        $pgsqlResult = pg_query($pgsqlConnection, 'SELECT 1');
+        assert($pgsqlResult !== false);
+
+        self::assertSame(PGSQL_TUPLES_OK, pg_result_status($pgsqlResult));
+
+        new Result($pgsqlResult);
+
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('PostgreSQL result has already been closed');
+
+        pg_result_status($pgsqlResult);
     }
 }
