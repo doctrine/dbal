@@ -149,6 +149,10 @@ final class Result implements ResultInterface
             return $this->statement->num_rows;
         }
 
+        if (0 > $this->statement->affected_rows) {
+            throw StatementError::new($this->statement);
+        }
+
         return $this->statement->affected_rows;
     }
 
