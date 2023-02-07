@@ -269,7 +269,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
             $keyName           = $tableIndex['name'];
             $idx               = [];
-            $idx['key_name']   = $keyName;
+            $idx['key_name']   = $this->santitiseIndexName($keyName, $tableName);
             $idx['primary']    = false;
             $idx['non_unique'] = ! $tableIndex['unique'];
 
@@ -282,6 +282,24 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
+    }
+
+    /**
+     * @see SqlitePlatform::escapeIndexName
+     *
+     * @param string      $indexName
+     * @param string|null $tableName
+     *
+     * @return string
+     */
+    protected function santitiseIndexName($indexName, $tableName = null)
+    {
+        if (strpos($indexName, $tableName) === 0) {
+            // remove the tablename from the start of the index.
+            $indexName = str_replace($tableName . '_', '', $indexName);
+        }
+
+        return $indexName;
     }
 
     /**

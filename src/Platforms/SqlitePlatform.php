@@ -18,6 +18,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\Deprecations\Deprecation;
+use InvalidArgumentException;
 
 use function array_combine;
 use function array_keys;
@@ -28,11 +29,14 @@ use function array_values;
 use function count;
 use function implode;
 use function is_numeric;
+use function is_string;
 use function sprintf;
 use function sqrt;
 use function str_replace;
 use function strlen;
+use function strpos;
 use function strtolower;
+use function strtr;
 use function trim;
 
 /**
@@ -1491,13 +1495,12 @@ class SqlitePlatform extends AbstractPlatform
     public function getCreateIndexSQL(Index $index, $table)
     {
         if (! $index->isPrimary()) { // leave the primary index alone
-            // check if the index name should be quoted below
-            $indexName  = new Identifier($index->getQuotedName($this));
-            $identifier = new Identifier($table instanceof Table ? $table->getName() : $table);
-            $name       = $identifier->getShortestName($identifier->getNamespaceName()) . '_' . $index->getName();
-            if ($indexName->isQuoted()) {
-                $name = $this->quoteIdentifier($name);
-            }
+            $tableName = $table instanceof Table ? $table->getName() : $table;
+
+            $name = $this->escapeIndexName(
+                $index->getQuotedName($this),
+                $tableName,
+            );
 
             $index = new Index(
                 $name,
@@ -1510,5 +1513,62 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         return parent::getCreateIndexSQL($index, $table);
+    }
+
+    /**
+     * Returns the SQL to drop an index from a table.
+     *
+     * @param Index|string      $index
+     * @param Table|string|null $table
+     *
+     * @return string
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getDropIndexSQL($index, $table = null)
+    {
+        if ($table instanceof Table) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $table as an Table object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__,
+            );
+
+            $table = $table->getQuotedName($this);
+        } elseif (! is_string($table)) {
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.',
+            );
+        }
+
+        if ($index !== 'primary' && strpos($index, 'sqlite_') !== 0) {
+            if ($index instanceof Index) {
+                $index = $index->getQuotedName($this);
+            }
+
+            $index = $this->escapeIndexName($index, $table);
+        }
+
+        return parent::getDropIndexSQL($index, $table);
+    }
+
+    /**
+     * @param string $indexName
+     * @param string $tableName
+     *
+     * @return string
+     */
+    protected function escapeIndexName($indexName, $tableName)
+    {
+        $indexIdentifier = new Identifier($indexName);
+        $tableIdentifier = new Identifier($tableName);
+        $name            = strtr($tableIdentifier->getName() . '_' . $indexIdentifier->getName(), '.', '_');
+
+        if ($indexIdentifier->isQuoted()) {
+            $name = $this->quoteIdentifier($name);
+        }
+
+        return $name;
     }
 }
