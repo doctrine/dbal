@@ -878,8 +878,6 @@ class Connection implements ServerVersionProvider
      *
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
-     * @return int|string The last insert ID, as an integer or a numeric string.
-     *
      * @throws Exception
      */
     public function lastInsertId(): int|string
