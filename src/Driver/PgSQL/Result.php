@@ -51,6 +51,15 @@ final class Result implements ResultInterface
         $this->result = $result;
     }
 
+    public function __destruct()
+    {
+        if (! isset($this->result)) {
+            return;
+        }
+
+        $this->free();
+    }
+
     /** {@inheritdoc} */
     public function fetchNumeric()
     {
