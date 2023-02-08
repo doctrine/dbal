@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
+use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
@@ -13,8 +16,6 @@ class ResultTest extends FunctionalTestCase
     protected function setUp(): void
     {
         if (TestUtil::isDriverOneOf('mysqli')) {
-            $this->connection->executeQuery('CREATE TABLE my_table (my_col_1 INT NOT NULL);');
-
             return;
         }
 
@@ -26,18 +27,28 @@ class ResultTest extends FunctionalTestCase
         $this->connection->executeStatement('DROP TABLE IF EXISTS my_table;');
     }
 
-    public function testRowCount(): void
+    public function testFailingRowCount(): void
     {
-        // Unbuffered query is not producing -1 as "SELECT" statements use `Statement::$num_rows` instead of `Statement::$affected_rows`.
-        // $result = $this->connection->getNativeConnection()->query('SELECT 1 FROM my_table;', \MYSQLI_USE_RESULT);
+        // self::assertSame(0, $this->connection->getNativeConnection()->affected_rows);
 
-        $result = $this->connection->executeQuery('INSERT INTO my_table VALUES(7);');
+        // $result = $this->connection->executeQuery('INSERT INTO my_table VALUES(7);');
 
-        // Calling `mysqli::get_connection_stats()` after an "INSERT" statement is not producing -1. See https://bugs.php.net/bug.php?id=67348.
-        // $this->connection->getNativeConnection()->get_connection_stats();
+        // self::assertSame(1, $this->connection->getNativeConnection()->affected_rows);
+        // self::assertSame(1, $result->rowCount());
 
-        $result->fetchOne();
+        // try {
+        //     $result->fetchOne();
+        // } catch (DriverException $e) {
+        //     self::assertInstanceOf(StatementError::class, $e->getPrevious());
+        //     self::assertSame('Commands out of sync; you can\'t run this command now', $e->getPrevious()->getMessage());
+        // }
 
-        self::assertSame(-1, $result->rowCount());
+        $result = $this->connection->executeQuery('CREATE TABLE my_table (my_col_1 INT NOT NULL);');
+
+        self::assertSame(-1, $this->connection->getNativeConnection()->affected_rows);
+
+        $this->expectException(ConnectionError::class);
+
+        $result->rowCount();
     }
 }
