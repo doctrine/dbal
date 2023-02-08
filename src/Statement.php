@@ -124,6 +124,8 @@ class Statement
      *
      * If the number of rows exceeds {@see PHP_INT_MAX}, it might be returned as string if the driver supports it.
      *
+     * @return int|numeric-string
+     *
      * @throws Exception
      */
     public function executeStatement(): int|string

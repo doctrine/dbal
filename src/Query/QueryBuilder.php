@@ -303,7 +303,7 @@ class QueryBuilder
      *
      * Should be used for INSERT, UPDATE and DELETE
      *
-     * @return int|string The number of affected rows.
+     * @return int|numeric-string The number of affected rows.
      *
      * @throws Exception
      */
