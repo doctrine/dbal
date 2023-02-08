@@ -28,9 +28,13 @@ class ResultTest extends FunctionalTestCase
 
     public function testRowCount(): void
     {
+        // Unbuffered query is not producing -1 as "SELECT" statements use `Statement::$num_rows` instead of `Statement::$affected_rows`.
         // $result = $this->connection->getNativeConnection()->query('SELECT 1 FROM my_table;', \MYSQLI_USE_RESULT);
+
         $result = $this->connection->executeQuery('INSERT INTO my_table VALUES(7);');
-        $this->connection->getNativeConnection()->get_connection_stats();
+
+        // Calling `mysqli::get_connection_stats()` after an "INSERT" statement is not producing -1. See https://bugs.php.net/bug.php?id=67348.
+        // $this->connection->getNativeConnection()->get_connection_stats();
 
         self::assertSame(-1, $result->rowCount());
     }

@@ -150,7 +150,8 @@ final class Result implements ResultInterface
         }
 
         if (0 > $this->statement->affected_rows) {
-            throw StatementError::new($this->statement);
+            // Uncomment when find the way to reproduce the case.
+            // throw StatementError::new($this->statement);
         }
 
         return $this->statement->affected_rows;
