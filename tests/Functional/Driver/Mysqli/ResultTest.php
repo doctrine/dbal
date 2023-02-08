@@ -30,7 +30,7 @@ class ResultTest extends FunctionalTestCase
     {
         // $result = $this->connection->getNativeConnection()->query('SELECT 1 FROM my_table;', \MYSQLI_USE_RESULT);
         $result = $this->connection->executeQuery('INSERT INTO my_table VALUES(7);');
-        print_r($result);
+        $this->connection->getNativeConnection()->get_connection_stats();
 
         self::assertSame(-1, $result->rowCount());
     }
