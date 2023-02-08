@@ -27,22 +27,22 @@ class ResultTest extends FunctionalTestCase
         $this->connection->executeStatement('DROP TABLE IF EXISTS my_table;');
     }
 
-    public function testFailingRowCount(): void
+    public function testSuccessfulRowCountFromAffectedRows(): void
     {
-        // self::assertSame(0, $this->connection->getNativeConnection()->affected_rows);
+        self::assertSame(0, $this->connection->getNativeConnection()->affected_rows);
 
-        // $result = $this->connection->executeQuery('INSERT INTO my_table VALUES(7);');
+        $this->connection->executeQuery('CREATE TABLE my_table (my_col_1 INT NOT NULL);');
 
-        // self::assertSame(1, $this->connection->getNativeConnection()->affected_rows);
-        // self::assertSame(1, $result->rowCount());
+        // self::assertSame(-1, $this->connection->getNativeConnection()->affected_rows);
 
-        // try {
-        //     $result->fetchOne();
-        // } catch (DriverException $e) {
-        //     self::assertInstanceOf(StatementError::class, $e->getPrevious());
-        //     self::assertSame('Commands out of sync; you can\'t run this command now', $e->getPrevious()->getMessage());
-        // }
+        $result = $this->connection->executeQuery('INSERT INTO my_table VALUES(7);');
 
+        self::assertSame(1, $this->connection->getNativeConnection()->affected_rows);
+        self::assertSame(1, $result->rowCount());
+    }
+
+    public function testFailingRowCountFromAffectedRows(): void
+    {
         $result = $this->connection->executeQuery('CREATE TABLE my_table (my_col_1 INT NOT NULL);');
 
         self::assertSame(-1, $this->connection->getNativeConnection()->affected_rows);
