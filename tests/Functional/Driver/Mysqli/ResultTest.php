@@ -36,8 +36,7 @@ class ResultTest extends FunctionalTestCase
         // Calling `mysqli::get_connection_stats()` after an "INSERT" statement is not producing -1. See https://bugs.php.net/bug.php?id=67348.
         // $this->connection->getNativeConnection()->get_connection_stats();
 
-        // Calling `Connection::close()`.
-        $this->connection->close();
+        $result->fetchOne();
 
         self::assertSame(-1, $result->rowCount());
     }
