@@ -29,6 +29,9 @@ class ResultTest extends FunctionalTestCase
 
     public function testSuccessfulRowCountFromAffectedRows(): void
     {
+        var_dump($this->connection->getNativeConnection()->error);
+        var_dump($this->connection->getNativeConnection()->error_list);
+        var_dump($this->connection->getNativeConnection()->info);
         self::assertSame(0, $this->connection->getNativeConnection()->affected_rows);
 
         $this->connection->executeQuery('CREATE TABLE my_table (my_col_1 INT NOT NULL);');
