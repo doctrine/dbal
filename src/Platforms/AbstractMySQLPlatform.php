@@ -396,6 +396,18 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                ' ORDER BY ORDINAL_POSITION ASC';
     }
 
+    /**
+     * The SQL snippets required to elucidate a column type
+     *
+     * Returns an array of the form [column type SELECT snippet, additional JOIN statement snippet]
+     *
+     * @return array{string, string}
+     */
+    public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
+    {
+        return [$tableAlias . '.COLUMN_TYPE', ''];
+    }
+
     /** @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon. */
     public function getListTableMetadataSQL(string $table, ?string $database = null): string
     {
@@ -1390,7 +1402,7 @@ SQL
         return true;
     }
 
-    private function getDatabaseNameSQL(?string $databaseName): string
+    protected function getDatabaseNameSQL(?string $databaseName): string
     {
         if ($databaseName !== null) {
             return $this->quoteStringLiteral($databaseName);

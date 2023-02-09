@@ -10,7 +10,7 @@ use Doctrine\DBAL\Schema\TableDiff;
  *
  * Note: Should not be used with versions prior to 10.5.2.
  */
-class MariaDb1052Platform extends MariaDb1027Platform
+class MariaDb1052Platform extends MariaDb1043Platform
 {
     /**
      * {@inheritdoc}

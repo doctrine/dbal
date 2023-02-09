@@ -405,15 +405,17 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
+        [$columnTypeSQL, $joinCheckConstraintSQL] = $this->_platform->getColumnTypeSQLSnippets();
+
         $sql = 'SELECT';
 
         if ($tableName === null) {
             $sql .= ' c.TABLE_NAME,';
         }
 
-        $sql .= <<<'SQL'
+        $sql .= <<<SQL
        c.COLUMN_NAME        AS field,
-       c.COLUMN_TYPE        AS type,
+       $columnTypeSQL       AS type,
        c.IS_NULLABLE        AS `null`,
        c.COLUMN_KEY         AS `key`,
        c.COLUMN_DEFAULT     AS `default`,
@@ -424,6 +426,7 @@ SQL;
 FROM information_schema.COLUMNS c
     INNER JOIN information_schema.TABLES t
         ON t.TABLE_NAME = c.TABLE_NAME
+    $joinCheckConstraintSQL
 SQL;
 
         // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
