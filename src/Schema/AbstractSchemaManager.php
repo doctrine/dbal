@@ -309,7 +309,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function tablesExist($names)
+    public function tablesExist($names, $lowerCase = true)
     {
         if (is_string($names)) {
             Deprecation::trigger(
@@ -320,9 +320,13 @@ abstract class AbstractSchemaManager
             );
         }
 
-        $names = array_map('strtolower', (array) $names);
+        if ($lowerCase) {
+            $names      = array_map('strtolower', $names);
+            $tableNames = array_map('strtolower', $this->listTableNames());
+        } else
+            $tableNames = $this->listTableNames();
 
-        return count($names) === count(array_intersect($names, array_map('strtolower', $this->listTableNames())));
+        return count($names) === count(array_intersect($names, $tableNames));
     }
 
     /**
