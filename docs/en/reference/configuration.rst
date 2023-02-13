@@ -138,7 +138,7 @@ Driver
 ~~~~~~
 
 The driver specifies the actual implementations of the DBAL
-interfaces to use. It can be configured in one of three ways:
+interfaces to use. It can be configured in one of two ways:
 
 -  ``driver``: The built-in driver implementation to use. The
    following drivers are currently available:
