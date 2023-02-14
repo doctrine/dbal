@@ -320,9 +320,7 @@ abstract class AbstractSchemaManager
             );
         }
 
-        $tableNames = $this->listTableNames();
-
-        return count($names) === count(array_intersect($names, $tableNames));
+        return count($names) === count(array_intersect($names, $this->listTableNames()));
     }
 
     /**
