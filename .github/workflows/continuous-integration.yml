@@ -563,31 +563,21 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: "pcov"
-          ini-values: "zend.assertions=1, extension=ibm_db2.so, ibm_db2.instance_name=db2inst1"
+          ini-values: "zend.assertions=1, extension=${{ matrix.extension }}.so, ibm_db2.instance_name=db2inst1"
 
-      - name: "Install ibm_db2 extension"
-        run: "ci/github/ext/install-ibm_db2.sh ${{ matrix.php-version }}"
-        if: "${{ matrix.extension == 'ibm_db2' }}"
-
-      - name: "Install pdo_ibm extension"
-        run: "ci/github/ext/install-pdo_ibm.sh ${{ matrix.php-version }}"
-        if: "${{ matrix.extension == 'pdo_ibm' }}"
+      - name: "Install ${{ matrix.extension }} extension"
+        run: "ci/github/ext/install-${{ matrix.extension }}.sh ${{ matrix.php-version }}"
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v2"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
-        if: "${{ matrix.extension == 'ibm_db2' }}"
-
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_ibm.xml --coverage-clover=coverage.xml"
-        if: "${{ matrix.extension == 'pdo_ibm' }}"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v3"
         with:
-          name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
+          name: "${{ github.job }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
 
   development-deps:
