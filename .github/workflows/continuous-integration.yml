@@ -572,7 +572,7 @@ jobs:
         uses: "ramsey/composer-install@v2"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --debug -vvv"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v3"
