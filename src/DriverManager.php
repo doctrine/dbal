@@ -76,6 +76,7 @@ final class DriverManager
      * To add your own driver use the 'driverClass' parameter to {@see DriverManager::getConnection()}.
      */
     private const DRIVER_MAP = [
+        'pdo_ibm'            => PDO\IBMDB2\Driver::class,
         'pdo_mysql'          => PDO\MySQL\Driver::class,
         'pdo_sqlite'         => PDO\SQLite\Driver::class,
         'pdo_pgsql'          => PDO\PgSQL\Driver::class,
