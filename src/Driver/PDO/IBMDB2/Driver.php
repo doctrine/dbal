@@ -30,7 +30,7 @@ final class Driver extends AbstractDB2Driver
                 $dataSourceName,
                 $params['user'],
                 $params['password'],
-                $driverOptions,
+                // $driverOptions,
             );
         } catch (PDOException $exception) {
             throw Exception::new($exception);
