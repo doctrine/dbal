@@ -540,6 +540,8 @@ jobs:
           DB2INST1_PASSWORD: "Doctrine2018"
           LICENSE: "accept"
           DBNAME: "doctrine"
+          IBM_DB_HOME: /tmp/clidriver
+          LD_LIBRARY_PATH: /tmp/clidriver/lib
 
         options: "--privileged=true"
 
