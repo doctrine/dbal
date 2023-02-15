@@ -46,7 +46,8 @@ class PortabilityTest extends FunctionalTestCase
     }
 
     /**
-     * @param list<string> $expected
+     * @param 0|ColumnCase::LOWER|ColumnCase::UPPER $case
+     * @param list<string>                          $expected
      *
      * @dataProvider caseProvider
      */
@@ -61,7 +62,7 @@ class PortabilityTest extends FunctionalTestCase
         self::assertSame($expected, array_keys($row));
     }
 
-    /** @return iterable<string, array{int, list<string>}> */
+    /** @return iterable<string, array{(ColumnCase::LOWER|ColumnCase::UPPER), list<string>}> */
     public static function caseProvider(): iterable
     {
         yield 'lower' => [ColumnCase::LOWER, ['test_int', 'test_string', 'test_null']];
@@ -137,6 +138,7 @@ class PortabilityTest extends FunctionalTestCase
         self::assertNotNull($this->connection->getDatabase());
     }
 
+     /** @param 0|ColumnCase::LOWER|ColumnCase::UPPER $case */
     private function connectWithPortability(int $mode, int $case): void
     {
         // closing the default connection prior to 4.0.0 to prevent connection leak
