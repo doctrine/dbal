@@ -22,15 +22,19 @@ final class Driver extends AbstractDB2Driver
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
+        $user = $params['user'] ?? null;
+        $password = $params['password'] ?? null;
+        unset($params['user'], $params['password']);
+
         $dataSourceName = 'ibm:';
         $dataSourceName .= DataSourceName::fromConnectionParameters($params)->toString();
 
         try {
             $pdo = new PDO(
                 $dataSourceName,
-                $params['user'],
-                $params['password'],
-                // $driverOptions,
+                $user,
+                $password,
+                $driverOptions,
             );
         } catch (PDOException $exception) {
             throw Exception::new($exception);
