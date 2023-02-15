@@ -26,7 +26,7 @@ final class Driver extends AbstractDB2Driver
         $password = $params['password'] ?? null;
         unset($params['user'], $params['password']);
 
-        $dataSourceName = 'ibm:';
+        $dataSourceName = 'ibm:DRIVER={IBM DB2 ODBC DRIVER};';
         $dataSourceName .= DataSourceName::fromConnectionParameters($params)->toString();
 
         try {
