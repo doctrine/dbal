@@ -570,6 +570,9 @@ jobs:
       - name: "Install ${{ matrix.extension }} extension"
         run: "ci/github/ext/install-${{ matrix.extension }}.sh ${{ matrix.php-version }}"
 
+      - name: "Add Composer requirement for ${{ matrix.extension }} extension"
+        run: "composer require ext-${{ matrix.extension }}:* --dev --no-update"
+
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v2"
 
