@@ -12,8 +12,8 @@ on:
       - src/**
       - tests/**
   push:
-    branches: null
-      # - "*.x"
+    branches:
+      - "*.x"
     paths:
       - .github/workflows/continuous-integration.yml
       - ci/**
