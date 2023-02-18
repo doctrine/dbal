@@ -95,6 +95,34 @@ class TimeImmutableTypeTest extends TestCase
         self::assertSame('15:58:59', $date->format('H:i:s'));
     }
 
+    public function testConvertsTimeStringWithMicrosecondsToPHPValue(): void
+    {
+        $this->platform->expects(self::once())
+            ->method('getTimeFormatString')
+            ->willReturn('H:i:s.u');
+
+        $date = $this->type->convertToPHPValue('15:58:59.123456', $this->platform);
+
+        self::assertInstanceOf(DateTimeImmutable::class, $date);
+        self::assertSame('15:58:59.123456', $date->format('H:i:s.u'));
+    }
+
+    public function testConvertsTimeStringWithoutMicrosecondsToPHPValue(): void
+    {
+        $this->platform->expects(self::any())
+            ->method('getTimeFormatString')
+            ->willReturn('H:i:s.u');
+
+        $this->platform->expects(self::any())
+            ->method('getFallbackTimeFormatString')
+            ->willReturn('H:i:s');
+
+        $date = $this->type->convertToPHPValue('15:58:59', $this->platform);
+
+        self::assertInstanceOf(DateTimeImmutable::class, $date);
+        self::assertSame('15:58:59.000000', $date->format('H:i:s.u'));
+    }
+
     public function testResetDateFractionsWhenConvertingToPHPValue(): void
     {
         $this->platform->expects(self::any())

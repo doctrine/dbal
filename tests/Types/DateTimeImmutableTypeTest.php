@@ -107,6 +107,32 @@ class DateTimeImmutableTypeTest extends TestCase
         self::assertSame('2016-01-01 15:58:59', $date->format('Y-m-d H:i:s'));
     }
 
+    public function testConvertsDateTimeStringWithMicrosecondsFormatToPHPValue(): void
+    {
+        $this->platform->expects(self::any())
+            ->method('getDateTimeFormatString')
+            ->willReturn('Y-m-d H:i:s.u');
+
+        $date = $this->type->convertToPHPValue('2016-01-01 15:58:59.123456', $this->platform);
+
+        self::assertSame('2016-01-01 15:58:59.123456', $date->format('Y-m-d H:i:s.u'));
+    }
+
+    public function testConvertsDateTimeStringWithoutMicrosecondsToPHPValue(): void
+    {
+        $this->platform->expects(self::any())
+            ->method('getDateTimeFormatString')
+            ->willReturn('Y-m-d H:i:s.u');
+
+        $this->platform->expects(self::any())
+            ->method('getFallbackTimeFormatString')
+            ->willReturn('Y-m-d H:i:s');
+
+        $date = $this->type->convertToPHPValue('2016-01-01 15:58:59', $this->platform);
+
+        self::assertSame('2016-01-01 15:58:59.000000', $date->format('Y-m-d H:i:s.u'));
+    }
+
     public function testThrowsExceptionDuringConversionToPHPValueWithInvalidDateTimeString(): void
     {
         $this->platform->expects(self::atLeastOnce())
