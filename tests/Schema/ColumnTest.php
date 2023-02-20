@@ -152,4 +152,13 @@ class ColumnTest extends TestCase
         self::assertArrayHasKey('comment', $columnArray);
         self::assertEquals('foo', $columnArray['comment']);
     }
+
+    public function testNullable(): void
+    {
+        $column = new Column('foo', Type::getType('string'), ['nullable' => false]);
+        $this->assertTrue($column->getNotnull());
+
+        $column = new Column('foo', Type::getType('string'), ['nullable' => true]);
+        $this->assertFalse($column->getNotnull());
+    }
 }

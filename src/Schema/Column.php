@@ -83,6 +83,11 @@ class Column extends AbstractAsset
     public function setOptions(array $options)
     {
         foreach ($options as $name => $value) {
+            if ('nullable' === $name) {
+                $name = 'notnull';
+                $value = !$value;
+            }
+
             $method = 'set' . $name;
 
             if (! method_exists($this, $method)) {
