@@ -83,7 +83,7 @@ class Column extends AbstractAsset
     public function setOptions(array $options)
     {
         foreach ($options as $name => $value) {
-            if ('nullable' === $name) {
+            if ($name === 'nullable') {
                 $name = 'notnull';
                 $value = !$value;
             }
