@@ -1181,6 +1181,39 @@ class ComparatorTest extends TestCase
         self::assertEquals(['notnull', 'default', 'comment'], $this->comparator->diffColumn($column2, $column1));
     }
 
+    public function testCompareNullableColumns(): void
+    {
+        $column1 = new Column('foo', Type::getType('string'), ['notnull' => true]);
+        $column2 = new Column('foo', Type::getType('string'), ['notnull' => false]);
+
+        self::assertEquals(['notnull'], $this->comparator->diffColumn($column2, $column1));
+
+        $column1 = new Column('foo', Type::getType('string'), ['nullable' => true]);
+        $column2 = new Column('foo', Type::getType('string'), ['nullable' => false]);
+
+        self::assertEquals(['notnull'], $this->comparator->diffColumn($column2, $column1));
+
+        $column1 = new Column('foo', Type::getType('string'), ['notnull' => true]);
+        $column2 = new Column('foo', Type::getType('string'), ['nullable' => false]);
+
+        self::assertEquals([], $this->comparator->diffColumn($column2, $column1));
+
+        $column1 = new Column('foo', Type::getType('string'), ['notnull' => false]);
+        $column2 = new Column('foo', Type::getType('string'), ['nullable' => true]);
+
+        self::assertEquals([], $this->comparator->diffColumn($column2, $column1));
+
+        $column1 = new Column('foo', Type::getType('string'), ['notnull' => true]);
+        $column2 = new Column('foo', Type::getType('string'), ['nullable' => true]);
+
+        self::assertEquals(['notnull'], $this->comparator->diffColumn($column2, $column1));
+
+        $column1 = new Column('foo', Type::getType('string'), ['notnull' => false]);
+        $column2 = new Column('foo', Type::getType('string'), ['nullable' => false]);
+
+        self::assertEquals(['notnull'], $this->comparator->diffColumn($column2, $column1));
+    }
+
     /** @dataProvider getCompareColumnComments */
     public function testCompareColumnComments(?string $comment1, ?string $comment2, bool $equals): void
     {
