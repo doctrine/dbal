@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
+use function is_bool;
 use function is_numeric;
 use function method_exists;
 
@@ -83,9 +84,9 @@ class Column extends AbstractAsset
     public function setOptions(array $options)
     {
         foreach ($options as $name => $value) {
-            if ($name === 'nullable') {
-                $name = 'notnull';
-                $value = !$value;
+            if ($name === 'nullable' && is_bool($value)) {
+                $name  = 'notnull';
+                $value = ! $value;
             }
 
             $method = 'set' . $name;
