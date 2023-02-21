@@ -2,10 +2,12 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Schema\Exception\ContradictingColumnOption;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
+use function array_key_exists;
 use function array_merge;
 use function is_bool;
 use function is_numeric;
@@ -83,6 +85,14 @@ class Column extends AbstractAsset
      */
     public function setOptions(array $options)
     {
+        if (
+            array_key_exists('notnull', $options)
+            && array_key_exists('nullable', $options)
+            && $options['notnull'] === $options['nullable']
+        ) {
+            throw ContradictingColumnOption::new('notnull', 'nullable');
+        }
+
         foreach ($options as $name => $value) {
             if ($name === 'nullable' && is_bool($value)) {
                 $name  = 'notnull';

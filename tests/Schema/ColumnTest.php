@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\ContradictingColumnOption;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -160,5 +161,13 @@ class ColumnTest extends TestCase
 
         $column = new Column('foo', Type::getType('string'), ['nullable' => true]);
         $this->assertFalse($column->getNotnull());
+    }
+
+    public function testContradictingNullableOptions(): void
+    {
+        self::expectException(ContradictingColumnOption::class);
+        self::expectExceptionMessage('The "notnull" and "nullable" column options are contradicting.');
+
+        new Column('foo', $this->createMock(Type::class), ['notnull' => true, 'nullable' => true]);
     }
 }
