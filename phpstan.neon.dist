@@ -39,11 +39,6 @@ parameters:
             paths:
                 - src/Schema/Column.php
 
-        -
-            message: '~^Instanceof between Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList and Doctrine\\DBAL\\Platforms\\Keywords\\KeywordList will always evaluate to true\.~'
-            paths:
-                - src/Platforms/AbstractPlatform.php
-
         # TODO: remove this once the support for PHP 7 is dropped
         -
             message: '~^Strict comparison using !== between int and false will always evaluate to true\.$~'
@@ -83,25 +78,9 @@ parameters:
             path: src/Logging/DebugStack.php
 
         -
-            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int(:?<0, max>)?\|string\.~'
+            message: '~Method Doctrine\\DBAL\\Driver\\Mysqli\\Result::rowCount\(\) should return int but returns int(:?<\-?[0,1], max>)?\|string\.~'
             paths:
                 - src/Driver/Mysqli/Result.php
-
-        # Removing the (int) cast will make Psalm unhappy.
-        -
-            message: '~^Casting to int something that''s already int\.$~'
-            paths:
-                - src/Driver/Mysqli/Exception/ConnectionError.php
-                - src/Driver/Mysqli/Exception/ConnectionFailed.php
-                - src/Driver/Mysqli/Exception/InvalidCharset.php
-                - src/Driver/Mysqli/Exception/StatementError.php
-
-        # TODO: Turn this bool cast into a strict type check in 4.0.0
-        -
-            message: '~^Casting to bool something that''s already bool\.$~'
-            paths:
-                - src/Connections/PrimaryReadReplicaConnection.php
-                - src/Driver/SQLite3/Driver.php
 
         # Type check for legacy implementations of the Connection interface
         # TODO: remove in 4.0.0
