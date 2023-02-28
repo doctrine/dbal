@@ -309,7 +309,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function tablesExist($names, bool $lowercase = true): bool
+    public function tablesExist($names, bool $lowercase = true):
     {
         if (is_string($names)) {
             Deprecation::trigger(
