@@ -25,6 +25,7 @@ use function pg_query;
 use function pg_result_error;
 use function pg_send_execute;
 use function sprintf;
+use function stream_get_contents;
 
 final class Statement implements StatementInterface
 {
@@ -150,7 +151,10 @@ final class Statement implements StatementInterface
             switch ($this->parameterTypes[$parameter]) {
                 case ParameterType::BINARY:
                 case ParameterType::LARGE_OBJECT:
-                    $escapedParameters[] = $value === null ? null : pg_escape_bytea($this->connection, $value);
+                    $escapedParameters[] = $value === null ? null : pg_escape_bytea(
+                        $this->connection,
+                        is_resource($value) ? stream_get_contents($value) : $value,
+                    );
                     break;
                 default:
                     $escapedParameters[] = $value;

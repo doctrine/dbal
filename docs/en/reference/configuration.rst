@@ -151,8 +151,7 @@ interfaces to use. It can be configured in one of two ways:
    -  ``sqlite3``: An SQLite driver that uses the sqlite3 extension.
    -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo_pgsql PDO
       extension.
-   -  ``pgsql``: A PostgreSQL driver that uses the pgsql extension. This driver does support loading BLOBs from file
-      resources yet. It is still considered experimental. Use `pdo_pgsql` if you need a stable driver for Postgres.
+   -  ``pgsql``: A PostgreSQL driver that uses the pgsql extension.
    -  ``pdo_oci``: An Oracle driver that uses the pdo_oci PDO
       extension.
       **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
