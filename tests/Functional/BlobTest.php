@@ -16,11 +16,10 @@ class BlobTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (TestUtil::isDriverOneOf('pdo_oci', 'pgsql')) {
+        if (TestUtil::isDriverOneOf('pdo_oci')) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
-            // inserting BLOBs as streams with ext-pgsql is not implemented yet.
-            self::markTestSkipped("DBAL doesn't support storing LOBs represented as streams using PDO_OCI or PgSQL");
+            self::markTestSkipped("DBAL doesn't support storing LOBs represented as streams using PDO_OCI");
         }
 
         $table = new Table('blob_table');
