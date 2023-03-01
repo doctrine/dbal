@@ -166,28 +166,6 @@ class PostgreSQLPlatform extends AbstractPlatform
                 WHERE  view_definition IS NOT NULL';
     }
 
-    private function getTableWhereClause(string $table, string $classAlias = 'c', string $namespaceAlias = 'n'): string
-    {
-        $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
-        if (str_contains($table, '.')) {
-            [$schema, $table] = explode('.', $table);
-            $schema           = $this->quoteStringLiteral($schema);
-        } else {
-            $schema = 'ANY(current_schemas(false))';
-        }
-
-        $table = new Identifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        return $whereClause . sprintf(
-            '%s.relname = %s AND %s.nspname = %s',
-            $classAlias,
-            $table,
-            $namespaceAlias,
-            $schema,
-        );
-    }
-
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {

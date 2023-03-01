@@ -22,8 +22,6 @@ use InvalidArgumentException;
 use function array_merge;
 use function array_unique;
 use function array_values;
-use function crc32;
-use function dechex;
 use function explode;
 use function implode;
 use function is_array;
@@ -736,27 +734,6 @@ class SQLServerPlatform extends AbstractPlatform
                 WHERE type = 'V' ORDER BY name";
     }
 
-    /**
-     * Returns the where clause to filter schema and table name in a query.
-     *
-     * @param string $table        The full qualified name of the table.
-     * @param string $schemaColumn The name of the column to compare the schema to in the where clause.
-     * @param string $tableColumn  The name of the column to compare the table to in the where clause.
-     */
-    private function getTableWhereClause(string $table, string $schemaColumn, string $tableColumn): string
-    {
-        if (str_contains($table, '.')) {
-            [$schema, $table] = explode('.', $table);
-            $schema           = $this->quoteStringLiteral($schema);
-            $table            = $this->quoteStringLiteral($table);
-        } else {
-            $schema = 'SCHEMA_NAME()';
-            $table  = $this->quoteStringLiteral($table);
-        }
-
-        return sprintf('(%s = %s AND %s = %s)', $tableColumn, $table, $schemaColumn, $schema);
-    }
-
     public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null) {
@@ -1184,19 +1161,6 @@ class SQLServerPlatform extends AbstractPlatform
     protected function getLikeWildcardCharacters(): string
     {
         return parent::getLikeWildcardCharacters() . '[]^';
-    }
-
-    /**
-     * Returns a hash value for a given identifier.
-     *
-     * @param string $identifier Identifier to generate a hash value for.
-     */
-    private function generateIdentifierName(string $identifier): string
-    {
-        // Always generate name for unquoted identifiers to ensure consistency.
-        $identifier = new Identifier($identifier);
-
-        return strtoupper(dechex(crc32($identifier->getName())));
     }
 
     protected function getCommentOnTableSQL(string $tableName, string $comment): string
