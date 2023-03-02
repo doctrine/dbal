@@ -480,6 +480,7 @@ jobs:
       matrix:
         php-version:
           - "8.1"
+          - "8.2"
 
     services:
       ibm_db2:
@@ -511,7 +512,7 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
           coverage: "pcov"
-          ini-values: "zend.assertions=1,extension=ibm_db2.so, ibm_db2.instance_name=db2inst1"
+          ini-values: "zend.assertions=1, extension=ibm_db2.so, ibm_db2.instance_name=db2inst1"
 
       - name: "Install ibm_db2 extension"
         run: "ci/github/ext/install-ibm_db2.sh ${{ matrix.php-version }}"

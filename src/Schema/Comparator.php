@@ -407,7 +407,7 @@ class Comparator
     /**
      * Finds the difference between the indexes $index1 and $index2.
      *
-     * Compares $index1 with $index2 and returns $index2 if there are any
+     * Compares $index1 with $index2 and returns true if there are any
      * differences or false in case there are no differences.
      */
     protected function diffIndex(Index $index1, Index $index2): bool

@@ -10,6 +10,7 @@ use Doctrine\DBAL\ParameterType;
 use PgSql\Connection as PgSqlConnection;
 
 use function assert;
+use function is_resource;
 use function ksort;
 use function pg_escape_bytea;
 use function pg_escape_identifier;
@@ -18,6 +19,7 @@ use function pg_last_error;
 use function pg_query;
 use function pg_result_error;
 use function pg_send_execute;
+use function stream_get_contents;
 
 final class Statement implements StatementInterface
 {
@@ -68,7 +70,7 @@ final class Statement implements StatementInterface
             $escapedParameters[] = match ($this->parameterTypes[$parameter]) {
                 ParameterType::BINARY, ParameterType::LARGE_OBJECT => $value === null
                     ? null
-                    : pg_escape_bytea($this->connection, $value),
+                    : pg_escape_bytea($this->connection, is_resource($value) ? stream_get_contents($value) : $value),
                 default => $value,
             };
         }
