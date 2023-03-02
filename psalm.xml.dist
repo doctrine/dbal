@@ -51,6 +51,7 @@
                 -->
                 <referencedClass name="Doctrine\DBAL\Driver\ServerInfoAwareConnection"/>
                 <referencedClass name="Doctrine\DBAL\VersionAwarePlatformDriver"/>
+                <referencedClass name="Doctrine\DBAL\FetchMode"/>
                 <!--
                     TODO: remove in 4.0.0
                 -->
@@ -604,6 +605,7 @@
         <InvalidArgument>
             <errorLevel type="suppress">
                 <!-- We're testing with invalid input here. -->
+                <file name="tests/Functional/LegacyAPITest.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
             </errorLevel>
         </InvalidArgument>
@@ -748,6 +750,7 @@
                 
                 <!-- We're checking for invalid input. -->
                 <directory name="src/Driver/PgSQL"/>
+                <file name="src/Result.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
         <RedundantPropertyInitializationCheck>
