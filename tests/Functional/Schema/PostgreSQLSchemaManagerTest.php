@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
@@ -27,7 +28,9 @@ use function array_pop;
 use function array_unshift;
 use function assert;
 use function count;
+use function sprintf;
 use function strtolower;
+use function version_compare;
 
 class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -559,6 +562,69 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->alterTable($diff);
         $tableFinal = $this->schemaManager->introspectTable('autoinc_type_modification');
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
+    }
+
+    public function testListTableColumnsOidConflictWithNonTableObject(): void
+    {
+        $wrappedConnection = $this->connection->getWrappedConnection();
+        assert($wrappedConnection instanceof ServerInfoAwareConnection);
+        if (version_compare($wrappedConnection->getServerVersion(), '10.0', '<')) {
+            self::markTestSkipped('Manually setting the Oid is not supported in 9.4');
+        }
+
+        $table = 'test_list_table_columns_oid_conflicts';
+        $this->connection->executeStatement(sprintf('CREATE TABLE IF NOT EXISTS %s(id INT NOT NULL)', $table));
+        $beforeColumns = $this->schemaManager->listTableColumns($table);
+        $this->assertArrayHasKey('id', $beforeColumns);
+
+        $this->connection->executeStatement('CREATE EXTENSION IF NOT EXISTS pg_prewarm');
+        $originalTableOid = $this->connection->fetchOne(
+            'SELECT oid FROM pg_class WHERE pg_class.relname = ?',
+            [$table],
+        );
+
+        $getConflictingOidSql = <<<'SQL'
+SELECT objid
+FROM pg_depend
+JOIN pg_extension as ex on ex.oid = pg_depend.refobjid
+WHERE ex.extname = 'pg_prewarm'
+ORDER BY objid
+LIMIT 1
+SQL;
+        $conflictingOid       = $this->connection->fetchOne($getConflictingOidSql);
+
+        $this->connection->executeStatement(
+            'UPDATE pg_attribute SET attrelid = ? WHERE attrelid = ?',
+            [$conflictingOid, $originalTableOid],
+        );
+        $this->connection->executeStatement(
+            'UPDATE pg_description SET objoid = ? WHERE objoid = ?',
+            [$conflictingOid, $originalTableOid],
+        );
+        $this->connection->executeStatement(
+            'UPDATE pg_class SET oid = ? WHERE oid = ?',
+            [$conflictingOid, $originalTableOid],
+        );
+
+        $afterColumns = $this->schemaManager->listTableColumns($table);
+
+        // revert to the database to original state prior to asserting result
+        $this->connection->executeStatement(
+            'UPDATE pg_attribute SET attrelid = ? WHERE attrelid = ?',
+            [$originalTableOid, $conflictingOid],
+        );
+        $this->connection->executeStatement(
+            'UPDATE pg_description SET objoid = ? WHERE objoid = ?',
+            [$originalTableOid, $conflictingOid],
+        );
+        $this->connection->executeStatement(
+            'UPDATE pg_class SET oid = ? WHERE oid = ?',
+            [$originalTableOid, $conflictingOid],
+        );
+        $this->connection->executeStatement(sprintf('DROP TABLE IF EXISTS %s', $table));
+        $this->connection->executeStatement('DROP EXTENSION IF EXISTS pg_prewarm');
+
+        $this->assertArrayHasKey('id', $afterColumns);
     }
 
     /** @return iterable<mixed[]> */
