@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema\MySQL;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MariaDb1043Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
@@ -145,6 +146,24 @@ final class ComparatorTest extends FunctionalTestCase
             $this->comparator,
             $table,
         ));
+    }
+
+    public function testMariaDb1043NativeJsonUpgradeDetected(): void
+    {
+        if (! $this->platform instanceof MariaDb1043Platform) {
+            self::markTestSkipped();
+        }
+
+        $table = new Table('mariadb_json_upgrade');
+
+        $table->addColumn('json_col', 'json');
+        $this->dropAndCreateTable($table);
+
+        // Revert column to old LONGTEXT declaration
+        $sql = 'ALTER TABLE mariadb_json_upgrade CHANGE json_col json_col LONGTEXT NOT NULL COMMENT \'(DC2Type:json)\'';
+        $this->connection->executeStatement($sql);
+
+        ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
     /**
