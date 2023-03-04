@@ -555,15 +555,22 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: "Install IBM DB2 CLI driver"
+        working-directory: /tmp
+        run: |
+          wget https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli/linuxx64_odbc_cli.tar.gz
+          tar xf linuxx64_odbc_cli.tar.gz
+          rm linuxx64_odbc_cli.tar.gz
+
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
           php-version: "${{ matrix.php-version }}"
+          extensions: "ibm_db2"
           coverage: "pcov"
-          ini-values: "zend.assertions=1, extension=ibm_db2.so, ibm_db2.instance_name=db2inst1"
-
-      - name: "Install ibm_db2 extension"
-        run: "ci/github/ext/install-ibm_db2.sh ${{ matrix.php-version }}"
+          ini-values: "zend.assertions=1, ibm_db2.instance_name=db2inst1"
+        env:
+          IBM_DB2_CONFIGURE_OPTS: "--with-IBM_DB2=/tmp/clidriver"
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v2"
