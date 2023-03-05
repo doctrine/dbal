@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\API\MySQL;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb1052Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
@@ -79,7 +80,13 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
                 'https://github.com/doctrine/dbal/pull/5779',
                 false,
             ],
-            ['mariadb-10.9.3',MariaDb1027Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
+            ['mariadb-10.9.3',MariaDb1052Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
+            [
+                '10.5.2-MariaDB-1~lenny-log',
+                MariaDb1052Platform::class,
+                'https://github.com/doctrine/dbal/pull/5779',
+                false,
+            ],
         ];
     }
 }
