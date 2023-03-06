@@ -538,15 +538,17 @@ jobs:
           LICENSE: "accept"
           DBNAME: "doctrine"
 
-        options: "--privileged=true"
+        options: >-
+          --privileged=true
+          --health-cmd "su - db2inst1 -c \"grep -q 'Program db2icrt_local completed successfully.' ~db2inst1/sqllib/log/instance.log\""
+          --health-interval 20s
+          --health-timeout 10s
+          --health-retries 10
 
         ports:
           - "50000:50000"
 
     steps:
-      - name: "Perform healthcheck from the outside"
-        run: "docker logs -f ${{ job.services.ibm_db2.id }} | sed '/(*) Setup has completed./ q'"
-
       - name: "Create temporary tablespace"
         run: "docker exec ${{ job.services.ibm_db2.id }} su - db2inst1 -c 'db2 -t CONNECT TO doctrine; db2 -t CREATE USER TEMPORARY TABLESPACE doctrine_tbsp PAGESIZE 4 K;'"
 
