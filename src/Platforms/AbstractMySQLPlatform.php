@@ -207,6 +207,18 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * The SQL snippets required to elucidate a column type
+     *
+     * Returns an array of the form [column type SELECT snippet, additional JOIN statement snippet]
+     *
+     * @return array{string, string}
+     */
+    public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
+    {
+        return [$tableAlias . '.COLUMN_TYPE', ''];
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array

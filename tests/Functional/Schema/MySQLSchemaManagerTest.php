@@ -16,6 +16,8 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 
+use function array_keys;
+
 class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     public static function setUpBeforeClass(): void
@@ -530,6 +532,25 @@ SQL;
         self::assertFalse($onlineTable->hasOption('autoincrement'));
         self::assertEquals('', $onlineTable->getOption('comment'));
         self::assertEquals([], $onlineTable->getOption('create_options'));
+    }
+
+    public function testColumnIntrospection(): void
+    {
+        $table = new Table('test_column_introspection');
+
+        $doctrineTypes = array_keys(Type::getTypesMap());
+
+        foreach ($doctrineTypes as $type) {
+            $table->addColumn('col_' . $type, $type, ['length' => 8, 'precision' => 8, 'scale' => 2]);
+        }
+
+        $this->dropAndCreateTable($table);
+
+        $onlineTable = $this->schemaManager->introspectTable('test_column_introspection');
+
+        $diff = $this->schemaManager->createComparator()->compareTables($table, $onlineTable);
+
+        self::assertTrue($diff->isEmpty(), 'Tables should be identical.');
     }
 
     public function testListTableColumnsThrowsDatabaseRequired(): void
