@@ -1940,13 +1940,20 @@ class Connection
     /**
      * BC layer for a wide-spread use-case of old DBAL APIs
      *
-     * @deprecated This API is deprecated and will be removed after 2022
+     * @deprecated Use {@see executeStatement()} instead
      *
      * @param array<mixed>           $params The query parameters
      * @param array<int|string|null> $types  The parameter types
      */
     public function executeUpdate(string $sql, array $params = [], array $types = []): int
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4163',
+            '%s is deprecated, please use executeStatement() instead.',
+            __METHOD__,
+        );
+
         return $this->executeStatement($sql, $params, $types);
     }
 
