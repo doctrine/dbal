@@ -539,11 +539,11 @@ jobs:
           DBNAME: "doctrine"
 
         options: >-
-          --privileged=true
-          --health-cmd "su - db2inst1 -c \"grep -q 'Program db2icrt_local completed successfully.' ~db2inst1/sqllib/log/instance.log\""
+          --health-cmd "/database/config/db2inst1/sqllib/bin/db2 -t \"CONNECT TO ${DBNAME};\" >nul && /database/config/db2inst1/sqllib/bin/db2 -t \"SELECT 1 FROM sysibm.sysdummy1;\" >nul;"
           --health-interval 20s
           --health-timeout 10s
           --health-retries 10
+          --privileged
 
         ports:
           - "50000:50000"
