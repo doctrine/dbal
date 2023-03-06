@@ -8,6 +8,18 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Remove legacy execute and fetch methods.
+
+The following methods have been removed:
+
+* `Result::fetch()`
+* `Result::fetchAll()`
+* `Connection::exec()`
+* `Connection::executeUpdate()`
+* `Connection::query()`
+
+Additionally, the `FetchMode` class has been removed.
+
 ## BC BREAK: Removed the `url` connection parameter
 
 DBAL ships with a new and configurable DSN parser that can be used to parse a
