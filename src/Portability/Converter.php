@@ -12,8 +12,14 @@ use function array_reduce;
 use function is_string;
 use function rtrim;
 
+use const CASE_LOWER;
+use const CASE_UPPER;
+
 final class Converter
 {
+    public const CASE_LOWER = CASE_LOWER;
+    public const CASE_UPPER = CASE_UPPER;
+
     private readonly Closure $convertNumeric;
     private readonly Closure $convertAssociative;
     private readonly Closure $convertOne;
@@ -22,10 +28,12 @@ final class Converter
     private readonly Closure $convertFirstColumn;
 
     /**
-     * @param bool     $convertEmptyStringToNull Whether each empty string should be converted to NULL
-     * @param bool     $rightTrimString          Whether each string should right-trimmed
-     * @param int|null $case                     Convert the case of the column names
-     *                                           (one of {@see CASE_LOWER} and {@see CASE_UPPER})
+     * @param bool                                   $convertEmptyStringToNull Whether each empty string should
+     *                                                                         be converted to NULL
+     * @param bool                                   $rightTrimString          Whether each string should right-trimmed
+     * @param self::CASE_LOWER|self::CASE_UPPER|null $case                     Convert the case of the column names
+     *                                                                         (one of {@see self::CASE_LOWER} and
+     *                                                                         {@see self::CASE_UPPER})
      */
     public function __construct(bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case)
     {
@@ -168,8 +176,8 @@ final class Converter
     /**
      * Creates a function that will convert each array-row retrieved from the database
      *
-     * @param Closure|null $function The function that will convert each value
-     * @param int|null     $case     Column name case
+     * @param Closure|null                           $function The function that will convert each value
+     * @param self::CASE_LOWER|self::CASE_UPPER|null $case     Column name case
      *
      * @return Closure|null The resulting function or NULL if no conversion is needed
      */

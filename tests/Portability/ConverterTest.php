@@ -7,8 +7,6 @@ namespace Doctrine\DBAL\Tests\Portability;
 use Doctrine\DBAL\Portability\Converter;
 use PHPUnit\Framework\TestCase;
 
-use const CASE_LOWER;
-
 class ConverterTest extends TestCase
 {
     /**
@@ -67,8 +65,9 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * @param array<string,mixed>|false $row
-     * @param array<string,mixed>|false $expected
+     * @param array<string,mixed>|false                        $row
+     * @param Converter::CASE_LOWER|Converter::CASE_UPPER|null $case
+     * @param array<string,mixed>|false                        $expected
      *
      * @dataProvider convertAssociativeProvider
      */
@@ -142,7 +141,7 @@ class ConverterTest extends TestCase
             $row,
             false,
             false,
-            CASE_LOWER,
+            Converter::CASE_LOWER,
             [
                 'foo' => '',
                 'bar' => 'X ',
@@ -153,7 +152,7 @@ class ConverterTest extends TestCase
             $row,
             false,
             true,
-            CASE_LOWER,
+            Converter::CASE_LOWER,
             [
                 'foo' => '',
                 'bar' => 'X',
@@ -164,7 +163,7 @@ class ConverterTest extends TestCase
             $row,
             true,
             false,
-            CASE_LOWER,
+            Converter::CASE_LOWER,
             [
                 'foo' => null,
                 'bar' => 'X ',
@@ -175,7 +174,7 @@ class ConverterTest extends TestCase
             $row,
             true,
             true,
-            CASE_LOWER,
+            Converter::CASE_LOWER,
             [
                 'foo' => null,
                 'bar' => 'X',
@@ -281,8 +280,9 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * @param list<array<string,mixed>> $row
-     * @param list<array<string,mixed>> $expected
+     * @param list<array<string,mixed>>                        $row
+     * @param Converter::CASE_LOWER|Converter::CASE_UPPER|null $case
+     * @param list<array<string,mixed>>                        $expected
      *
      * @dataProvider convertAllAssociativeProvider
      */
@@ -386,7 +386,7 @@ class ConverterTest extends TestCase
             $data,
             false,
             false,
-            CASE_LOWER,
+            Converter::CASE_LOWER,
             [
                 [
                     'foo' => 'X ',
@@ -403,7 +403,7 @@ class ConverterTest extends TestCase
             $data,
             false,
             true,
-            CASE_LOWER,
+            Converter::CASE_LOWER,
             [
                 [
                     'foo' => 'X',
@@ -420,7 +420,7 @@ class ConverterTest extends TestCase
             $data,
             true,
             false,
-            CASE_LOWER,
+            Converter::CASE_LOWER,
             [
                 [
                     'foo' => 'X ',
@@ -437,7 +437,7 @@ class ConverterTest extends TestCase
             $data,
             true,
             true,
-            CASE_LOWER,
+            Converter::CASE_LOWER,
             [
                 [
                     'foo' => 'X',
@@ -504,6 +504,7 @@ class ConverterTest extends TestCase
         ];
     }
 
+    /** @param Converter::CASE_LOWER|Converter::CASE_UPPER|null $case */
     private function createConverter(bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case): Converter
     {
         return new Converter($convertEmptyStringToNull, $rightTrimString, $case);

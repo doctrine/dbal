@@ -448,6 +448,7 @@ SQL;
                 LEFT JOIN pg_depend d
                     ON d.objid = c.oid
                         AND d.deptype = 'e'
+                        AND d.classid = (SELECT oid FROM pg_class WHERE relname = 'pg_class')
 SQL;
 
         $conditions = array_merge([

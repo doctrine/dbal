@@ -18,7 +18,7 @@ class ConnectionTest extends TestCase
             ->method('getServerVersion')
             ->willReturn('1.2.3');
 
-        $connection = new Connection($driverConnection, new Converter(false, false, 0));
+        $connection = new Connection($driverConnection, new Converter(false, false, Converter::CASE_LOWER));
 
         self::assertSame('1.2.3', $connection->getServerVersion());
     }
@@ -32,7 +32,7 @@ class ConnectionTest extends TestCase
         $driverConnection->method('getNativeConnection')
             ->willReturn($nativeConnection);
 
-        $connection = new Connection($driverConnection, new Converter(false, false, 0));
+        $connection = new Connection($driverConnection, new Converter(false, false, Converter::CASE_LOWER));
 
         self::assertSame($nativeConnection, $connection->getNativeConnection());
     }

@@ -63,6 +63,10 @@ parameters:
             message: '~^Parameter #1 \$driverOptions of method Doctrine\\DBAL\\Tests\\Functional\\Driver\\Mysqli\\ConnectionTest\:\:getConnection\(\) expects array<string, mixed>, .* given\.$~'
             path: tests/Functional/Driver/Mysqli/ConnectionTest.php
 
+        -
+            message: '~^Parameter #1 \$mode of method Doctrine\\DBAL\\Result\:\:fetch(?:All)?\(\) expects 2\|3\|7, 1 given\.$~'
+            path: tests/Functional/LegacyAPITest.php
+
         # DriverManagerTest::testDatabaseUrl() should be refactored as it's too dynamic.
         -
             message: '~^Offset string does not exist on array{.+}\.$~'

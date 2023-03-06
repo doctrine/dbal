@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use LogicException;
 
 use function array_change_key_case;
@@ -16,6 +17,8 @@ use const CASE_LOWER;
 
 class LegacyAPITest extends FunctionalTestCase
 {
+    use VerifyDeprecations;
+
     protected function setUp(): void
     {
         $table = new Table('legacy_table');
@@ -41,7 +44,10 @@ class LegacyAPITest extends FunctionalTestCase
         $sql = 'SELECT test_int FROM legacy_table WHERE test_int = 1';
 
         $stmt = $this->connection->executeQuery($sql);
-        $row  = array_change_key_case($stmt->fetch(FetchMode::ASSOCIATIVE), CASE_LOWER);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4007');
+
+        $row = array_change_key_case($stmt->fetch(FetchMode::ASSOCIATIVE), CASE_LOWER);
         self::assertEquals(1, $row['test_int']);
     }
 
@@ -50,7 +56,10 @@ class LegacyAPITest extends FunctionalTestCase
         $sql = 'SELECT test_int FROM legacy_table WHERE test_int = 1';
 
         $stmt = $this->connection->executeQuery($sql);
-        $row  = $stmt->fetch(FetchMode::NUMERIC);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4007');
+
+        $row = $stmt->fetch(FetchMode::NUMERIC);
         self::assertEquals(1, $row[0]);
     }
 
@@ -59,7 +68,10 @@ class LegacyAPITest extends FunctionalTestCase
         $sql = 'SELECT test_int FROM legacy_table WHERE test_int = 1';
 
         $stmt = $this->connection->executeQuery($sql);
-        $row  = $stmt->fetch(FetchMode::COLUMN);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4007');
+
+        $row = $stmt->fetch(FetchMode::COLUMN);
         self::assertEquals(1, $row);
     }
 
@@ -91,6 +103,8 @@ class LegacyAPITest extends FunctionalTestCase
 
         $stmt = $this->connection->executeQuery($sql);
 
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4007');
+
         $rows = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
         $rows = array_map(static function (array $row): array {
             return array_change_key_case($row, CASE_LOWER);
@@ -104,6 +118,9 @@ class LegacyAPITest extends FunctionalTestCase
         $sql = 'SELECT test_int FROM legacy_table WHERE test_int = 1';
 
         $stmt = $this->connection->executeQuery($sql);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4007');
+
         $rows = $stmt->fetchAll(FetchMode::NUMERIC);
         self::assertEquals([[0 => 1]], $rows);
     }
@@ -113,6 +130,9 @@ class LegacyAPITest extends FunctionalTestCase
         $sql = 'SELECT test_int FROM legacy_table WHERE test_int = 1';
 
         $stmt = $this->connection->executeQuery($sql);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4007');
+
         $rows = $stmt->fetchAll(FetchMode::COLUMN);
         self::assertEquals([1], $rows);
     }
@@ -150,12 +170,17 @@ class LegacyAPITest extends FunctionalTestCase
         $sql = 'SELECT test_string FROM legacy_table';
 
         $stmt = $this->connection->executeQuery($sql);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4007');
+
         $rows = $stmt->fetchAll(FetchMode::COLUMN);
         self::assertEquals(['foo', 'bar'], $rows);
     }
 
     public function testQuery(): void
     {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4163');
+
         $stmt = $this->connection->query('SELECT test_string FROM legacy_table WHERE test_int = 1');
 
         self::assertEquals('foo', $stmt->fetchOne());
@@ -167,6 +192,8 @@ class LegacyAPITest extends FunctionalTestCase
             'test_int' => 2,
             'test_string' => 'bar',
         ]);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/4163');
 
         $count = $this->connection->exec('DELETE FROM legacy_table WHERE test_int > 1');
 
