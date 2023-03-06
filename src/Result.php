@@ -7,12 +7,9 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Exception\NoKeyValue;
-use Doctrine\Deprecations\Deprecation;
-use LogicException;
 use Traversable;
 
 use function array_shift;
-use function func_num_args;
 
 class Result
 {
@@ -262,81 +259,5 @@ class Result
         if ($columnCount < 2) {
             throw NoKeyValue::fromColumnCount($columnCount);
         }
-    }
-
-    /**
-     * BC layer for a wide-spread use-case of old DBAL APIs
-     *
-     * @deprecated Use {@see fetchNumeric()}, {@see fetchAssociative()} or {@see fetchOne()} instead.
-     *
-     * @psalm-param FetchMode::* $mode
-     *
-     * @throws Exception
-     */
-    public function fetch(int $mode = FetchMode::ASSOCIATIVE): mixed
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4007',
-            '%s is deprecated, please use fetchNumeric(), fetchAssociative() or fetchOne() instead.',
-            __METHOD__,
-        );
-
-        if (func_num_args() > 1) {
-            throw new LogicException('Only invocations with one argument are still supported by this legacy API.');
-        }
-
-        if ($mode === FetchMode::ASSOCIATIVE) {
-            return $this->fetchAssociative();
-        }
-
-        if ($mode === FetchMode::NUMERIC) {
-            return $this->fetchNumeric();
-        }
-
-        if ($mode === FetchMode::COLUMN) {
-            return $this->fetchOne();
-        }
-
-        throw new LogicException('Only fetch modes declared on Doctrine\DBAL\FetchMode are supported by legacy API.');
-    }
-
-    /**
-     * BC layer for a wide-spread use-case of old DBAL APIs
-     *
-     * @deprecated Use {@see fetchAllNumeric()}, {@see fetchAllAssociative()} or {@see fetchFirstColumn()} instead.
-     *
-     * @psalm-param FetchMode::* $mode
-     *
-     * @return list<mixed>
-     *
-     * @throws Exception
-     */
-    public function fetchAll(int $mode = FetchMode::ASSOCIATIVE): array
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/4007',
-            '%s is deprecated, please use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.',
-            __METHOD__,
-        );
-
-        if (func_num_args() > 1) {
-            throw new LogicException('Only invocations with one argument are still supported by this legacy API.');
-        }
-
-        if ($mode === FetchMode::ASSOCIATIVE) {
-            return $this->fetchAllAssociative();
-        }
-
-        if ($mode === FetchMode::NUMERIC) {
-            return $this->fetchAllNumeric();
-        }
-
-        if ($mode === FetchMode::COLUMN) {
-            return $this->fetchFirstColumn();
-        }
-
-        throw new LogicException('Only fetch modes declared on Doctrine\DBAL\FetchMode are supported by legacy API.');
     }
 }

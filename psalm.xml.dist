@@ -31,22 +31,8 @@
                 <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
-        <DeprecatedClass>
-            <errorLevel type="suppress">
-                <!--
-                    TODO: remove in 4.0.0
-                -->
-                <referencedClass name="Doctrine\DBAL\FetchMode"/>
-            </errorLevel>
-        </DeprecatedClass>
         <DeprecatedMethod>
             <errorLevel type="suppress">
-                <!--
-                    This suppression should be removed after 2022
-                    See https://github.com/doctrine/dbal/pull/4317
-                -->
-                <file name="tests/Functional/LegacyAPITest.php"/>
-
                 <!-- TODO for PHPUnit 10 -->
                 <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::withConsecutive"/>
             </errorLevel>
@@ -103,7 +89,6 @@
             <errorLevel type="suppress">
                 <!-- We're testing with invalid input here. -->
                 <file name="tests/Functional/Driver/Mysqli/ConnectionTest.php"/>
-                <file name="tests/Functional/LegacyAPITest.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
             </errorLevel>
         </InvalidArgument>
