@@ -568,8 +568,8 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $wrappedConnection = $this->connection->getWrappedConnection();
         assert($wrappedConnection instanceof ServerInfoAwareConnection);
-        if (version_compare($wrappedConnection->getServerVersion(), '10.0', '<')) {
-            self::markTestSkipped('Manually setting the Oid is not supported in 9.4');
+        if (version_compare($wrappedConnection->getServerVersion(), '12.0', '<')) {
+            self::markTestSkipped('Manually setting the Oid is not supported in Postgres 11 and earlier');
         }
 
         $table = 'test_list_table_columns_oid_conflicts';
