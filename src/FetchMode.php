@@ -4,6 +4,8 @@ namespace Doctrine\DBAL;
 
 /**
  * Legacy Class that keeps BC for using the legacy APIs fetch()/fetchAll().
+ *
+ * @deprecated Use the dedicated fetch*() methods for the desired fetch mode instead.
  */
 class FetchMode
 {
