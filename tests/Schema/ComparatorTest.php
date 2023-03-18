@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
@@ -1336,5 +1337,38 @@ class ComparatorTest extends TestCase
         $diff = $this->comparator->compareSchemas($schema1, $schema2);
 
         self::assertEmpty($diff->orphanedForeignKeys);
+    }
+
+    public function testDiffTextTypeValidChange(): void
+    {
+        $column1 = new Column('col1', Type::getType('text'));
+        $column1->setLength(65536);
+
+        $column2 = new Column('col2', Type::getType('text'));
+        $column2->setLength(16777216);
+
+        self::assertTrue($this->comparator->diffTextType($column1, $column2));
+    }
+
+    public function testDiffTextTypeInvalidType(): void
+    {
+        $column1 = new Column('col1', Type::getType('string'));
+        $column1->setLength(255);
+
+        $column2 = new Column('col2', Type::getType('text'));
+        $column2->setLength(16777216);
+
+        self::assertFalse($this->comparator->diffTextType($column1, $column2));
+    }
+
+    public function testDiffTextTypeNoChange(): void
+    {
+        $column1 = new Column('col1', Type::getType('text'));
+        $column1->setLength(65536);
+
+        $column2 = new Column('col2', Type::getType('text'));
+        $column2->setLength(65536);
+
+        self::assertFalse($this->comparator->diffTextType($column1, $column2));
     }
 }

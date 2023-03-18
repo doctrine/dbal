@@ -624,6 +624,12 @@ class Comparator
             $changedProperties[] = 'type';
         }
 
+        if (!in_array('type', $changedProperties, true) &&
+            $this->diffTextType($column1, $column2)
+        ) {
+            $changedProperties[] = 'type';
+        }
+
         foreach (['notnull', 'unsigned', 'autoincrement'] as $property) {
             if ($properties1[$property] === $properties2[$property]) {
                 continue;
@@ -697,6 +703,27 @@ class Comparator
         }
 
         return array_unique($changedProperties);
+    }
+
+    /**
+     * Compares text type columns for length changes
+     *
+     * If length is different, type needs to change.
+     *
+     * Possible types in MYSQL are: tinytext, text, mediumtext and longtext.
+     *
+     * @return bool
+     */
+    public function diffTextType(Column $column1, Column $column2)
+    {
+        if (!$column1->getType() instanceof Types\TextType || !$column2->getType() instanceof Types\TextType) {
+            return false;
+        }
+
+        $length1 = $column1->getLength();
+        $length2 = $column2->getLength();
+
+        return $length1 !== $length2;
     }
 
     /**
