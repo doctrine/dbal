@@ -17,6 +17,7 @@ use function array_unique;
 use function assert;
 use function count;
 use function get_class;
+use function in_array;
 use function sprintf;
 use function strtolower;
 
@@ -624,7 +625,8 @@ class Comparator
             $changedProperties[] = 'type';
         }
 
-        if (!in_array('type', $changedProperties, true) &&
+        if (
+            ! in_array('type', $changedProperties, true) &&
             $this->diffTextType($column1, $column2)
         ) {
             $changedProperties[] = 'type';
@@ -716,7 +718,7 @@ class Comparator
      */
     public function diffTextType(Column $column1, Column $column2)
     {
-        if (!$column1->getType() instanceof Types\TextType || !$column2->getType() instanceof Types\TextType) {
+        if (! $column1->getType() instanceof Types\TextType || ! $column2->getType() instanceof Types\TextType) {
             return false;
         }
 
