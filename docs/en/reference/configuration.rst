@@ -336,13 +336,71 @@ Doctrine ships with different database platform implementations for some vendors
 to support version specific features, dialect and behaviour.
 
 The drivers will automatically detect the platform version and instantiate
-the corresponding platform class.
+the corresponding platform class. However, this mechanism might cause the
+connection to be established prematurely.
 
 You can also pass the ``serverVersion`` option if you want to disable automatic
 database platform detection and choose the platform version implementation explicitly.
 
-If you are running a MariaDB database, you should prefix the ``serverVersion``
-with ``mariadb-`` (ex: ``mariadb-10.2.12``).
+Please specify the full server version as the database server would report it.
+This is especially important for MySQL and MariaDB where the full version
+string is taken into account when determining the platform.
+
+MySQL
+^^^^^
+
+Connect to your MySQL server and run the ``SELECT VERSION()`` query::
+
+    mysql> SELECT VERSION();
+    +-----------+
+    | VERSION() |
+    +-----------+
+    | 8.0.32    |
+    +-----------+
+    1 row in set (0.00 sec)
+
+In the example above, ``8.0.32`` is the correct value for ``serverVersion``.
+
+MariaDB
+^^^^^^^
+
+Connect to your MariaDB server and run the ``SELECT VERSION()`` query::
+
+    MariaDB [(none)]> SELECT VERSION();
+    +-----------------------------------------+
+    | VERSION()                               |
+    +-----------------------------------------+
+    | 10.11.2-MariaDB-1:10.11.2+maria~ubu2204 |
+    +-----------------------------------------+
+    1 row in set (0.001 sec)
+
+In the example above, ``10.11.2-MariaDB-1:10.11.2+maria~ubu2204`` is the
+correct value for ``serverVersion``.
+
+Postgres
+^^^^^^^^
+
+Connect to your Postgres server and run the ``SHOW server_version`` query::
+
+    postgres=# SHOW server_version;
+             server_version
+    --------------------------------
+     15.2 (Debian 15.2-1.pgdg110+1)
+    (1 row)
+
+In the example above, ``15.2 (Debian 15.2-1.pgdg110+1)`` is the correct value for
+``server Version``.
+
+Other Platforms
+^^^^^^^^^^^^^^^
+
+For other platforms, DBAL currently does not implement version-specific
+platform detection, so specifying the ``serverVersion`` parameter has no effect.
+
+However, you can still do so. You can use the string that the following
+expression returns::
+
+    $connection->getWrappedConnection()->getServerVersion();
 
 Custom Driver Options
 ~~~~~~~~~~~~~~~~~~~~~
