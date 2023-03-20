@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
+use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownAffectedRowsError;
 use mysqli;
 use mysqli_sql_exception;
 
@@ -52,6 +53,7 @@ final class Connection implements ConnectionInterface
         return "'" . $this->connection->escape_string($value) . "'";
     }
 
+    /** @return int<0, max>|numeric-string */
     public function exec(string $sql): int|string
     {
         try {
@@ -62,6 +64,10 @@ final class Connection implements ConnectionInterface
 
         if ($result === false) {
             throw ConnectionError::new($this->connection);
+        }
+
+        if (0 > $this->connection->affected_rows) {
+            throw UnknownAffectedRowsError::new($this->connection);
         }
 
         return $this->connection->affected_rows;

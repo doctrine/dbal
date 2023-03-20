@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
+use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownAffectedRowsError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use mysqli_sql_exception;
 use mysqli_stmt;
@@ -150,7 +151,7 @@ final class Result implements ResultInterface
         }
 
         if (0 > $this->statement->affected_rows) {
-            throw StatementError::new($this->statement);
+            throw UnknownAffectedRowsError::new($this->statement);
         }
 
         return $this->statement->affected_rows;
