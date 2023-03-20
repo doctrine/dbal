@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\Functional\Schema\MySQL\CustomType;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
@@ -541,4 +542,28 @@ SQL;
         self::assertEquals('', $onlineTable->getOption('comment'));
         self::assertEquals([], $onlineTable->getOption('create_options'));
     }
+
+    public function testSchemaDiffColumnWithDroppedDefaultNotReflectedInDiff(): void
+    {
+        $metadataTable = new Table('table_with_column_dropped_default');
+        $metadataTable->addColumn('col1', 'integer', ['notnull' => false, 'default' => null]);
+
+        $createSqls = $this->connection->getDatabasePlatform()->getCreateTableSQL($metadataTable);
+
+        self::assertSame(
+            ['CREATE TABLE table_with_column_dropped_default (col1 INT DEFAULT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
+            $createSqls
+        );
+
+        $this->connection->executeStatement($createSqls[0]);
+        $this->connection->executeStatement('ALTER TABLE table_with_column_dropped_default ALTER COLUMN col1 DROP DEFAULT');
+
+        $onlineTable = $this->schemaManager->introspectTable('table_with_column_dropped_default');
+
+        $comparator = $this->schemaManager->createComparator();
+        $tablesDiff = $comparator->compareTables($onlineTable, $metadataTable);
+
+        self::assertNotSame([], $this->connection->getDatabasePlatform()->getAlterTableSQL($tablesDiff)); // should add DEFAULT NULL
+    }
+
 }
