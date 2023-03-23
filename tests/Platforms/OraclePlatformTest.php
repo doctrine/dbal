@@ -931,4 +931,24 @@ SQL
         return 'SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 3)'
             . ' WHERE doctrine_rownum >= 3';
     }
+
+    public function testGetSubstringExpression(): void
+    {
+        self::assertSame(
+            "SUBSTR('foobar', 2)",
+            $this->platform->getSubstringExpression("'foobar'", 2),
+        );
+        self::assertSame(
+            "SUBSTR('foobar', 4, 6)",
+            $this->platform->getSubstringExpression("'foobar'", 4, 6),
+        );
+        self::assertSame(
+            "SUBSTR(pagination, 1, INSTR(pagination, '-') - 1)",
+            $this->platform->getSubstringExpression(
+                'pagination',
+                1,
+                $this->platform->getLocateExpression('pagination', "'-'") . ' - 1',
+            ),
+        );
+    }
 }

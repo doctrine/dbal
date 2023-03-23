@@ -59,11 +59,11 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getSubstringExpression($string, $start, $length = null)
     {
-        if ($length !== null) {
-            return sprintf('SUBSTR(%s, %d, %d)', $string, $start, $length);
+        if ($length === null) {
+            return 'SUBSTR(' . $string . ', ' . $start . ')';
         }
 
-        return sprintf('SUBSTR(%s, %d)', $string, $start);
+        return 'SUBSTR(' . $string . ', ' . $start . ', ' . $length . ')';
     }
 
     /**
