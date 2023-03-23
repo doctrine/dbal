@@ -1158,6 +1158,14 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getTimeFormatString()
+    {
+        return 'H:i:s';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:sO';

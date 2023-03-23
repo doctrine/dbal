@@ -353,6 +353,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getTimeFormatString()
+    {
+        return 'H:i:s';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function _getCommonIntegerTypeDeclarationSQL(array $column)
     {
         // sqlite autoincrement is only possible for the primary key

@@ -41,11 +41,11 @@ class VarDateTimeImmutableTypeTest extends TestCase
 
         $date->expects(self::once())
             ->method('format')
-            ->with('Y-m-d H:i:s')
-            ->willReturn('2016-01-01 15:58:59');
+            ->with('Y-m-d H:i:s.u')
+            ->willReturn('2016-01-01 15:58:59.000000');
 
         self::assertSame(
-            '2016-01-01 15:58:59',
+            '2016-01-01 15:58:59.000000',
             $this->type->convertToDatabaseValue($date, $this->platform),
         );
     }

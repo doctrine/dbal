@@ -4429,7 +4429,7 @@ abstract class AbstractPlatform
      */
     public function getDateTimeFormatString()
     {
-        return 'Y-m-d H:i:s';
+        return $this->getDateFormatString() . ' ' . $this->getTimeFormatString();
     }
 
     /**
@@ -4453,7 +4453,7 @@ abstract class AbstractPlatform
      */
     public function getDateTimeTzFormatString()
     {
-        return 'Y-m-d H:i:s';
+        return $this->getDateTimeFormatString();
     }
 
     /**
@@ -4488,7 +4488,7 @@ abstract class AbstractPlatform
      */
     public function getTimeFormatString()
     {
-        return 'H:i:s';
+        return 'H:i:s.u';
     }
 
     /**

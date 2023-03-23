@@ -315,6 +315,14 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getTimeFormatString()
+    {
+        return 'H:i:s';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDateTimeTypeDeclarationSQL(array $column)
     {
         if (isset($column['version']) && $column['version'] === true) {
