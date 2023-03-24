@@ -541,4 +541,27 @@ SQL;
         self::assertEquals('', $onlineTable->getOption('comment'));
         self::assertEquals([], $onlineTable->getOption('create_options'));
     }
+
+    public function testSchemaDiffIndexWithLengthEqualToColumnLength(): void
+    {
+        $metadataTable = new Table('table_with_index_length');
+        $metadataTable->addColumn('col1', 'string', ['length' => 20]);
+        $metadataTable->addIndex(['col1'], 'idx', [], ['lengths' => [20]]);
+
+        $createSqls = $this->connection->getDatabasePlatform()->getCreateTableSQL($metadataTable);
+
+        self::assertSame(
+            ['CREATE TABLE table_with_index_length (col1 VARCHAR(20) NOT NULL, INDEX idx (col1(20))) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
+            $createSqls
+        );
+
+        $this->connection->executeStatement($createSqls[0]);
+
+        $onlineTable = $this->schemaManager->introspectTable('table_with_index_length');
+
+        $comparator = $this->schemaManager->createComparator();
+        $tablesDiff = $comparator->compareTables($onlineTable, $metadataTable);
+
+        self::assertSame([], $this->connection->getDatabasePlatform()->getAlterTableSQL($tablesDiff));
+    }
 }
