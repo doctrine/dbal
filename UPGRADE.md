@@ -808,6 +808,8 @@ The default value of `$start` is now `null`, not `false`.
 
 The platform abstraction allows building arbitrary SQL expressions, so even if the arguments represent numeric literals, they should be passed as a string.
 
+Note that `OraclePlatform::getSubstringExpression()` will no longer automatically format the values of the `$start` and `$length` parameters as integers. The caller of the method is responsible for the validity of the SQL expressions.
+
 ## BC BREAK The type of `$char` in `AbstractPlatform::getTrimExpression()` changed from `string|false` to `?string`
 
 The default value of `$char` is now `null`, not `false`. Additionally, the method will throw an `InvalidArgumentException` in an invalid value of `$mode` is passed.
