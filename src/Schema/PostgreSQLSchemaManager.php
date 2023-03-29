@@ -478,6 +478,15 @@ SQL,
                 $fixed = true;
                 break;
 
+            case 'datetime':
+            case 'time':
+            case 'timetz':
+            case 'timestamp':
+            case 'timestamptz':
+                $columnHasScale = preg_match('/\w*time\w*\((\d+)\)?/', $tableColumn['complete_type'], $matches);
+                $scale          = $columnHasScale === 1 ? $matches[1] : Column::DATETIME_SCALE_NOT_SET;
+                break;
+
             case 'float':
             case 'float4':
             case 'float8':

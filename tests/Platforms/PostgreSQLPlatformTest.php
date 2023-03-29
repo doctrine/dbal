@@ -284,6 +284,36 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGeneratesTypeDeclarationForDatetimes(): void
+    {
+        self::assertEquals('TIMESTAMP(0) WITHOUT TIME ZONE', $this->platform->getDateTimeTypeDeclarationSQL([]));
+        self::assertEquals(
+            'TIMESTAMP(0) WITHOUT TIME ZONE',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '0']),
+        );
+        self::assertEquals(
+            'TIMESTAMP(6) WITHOUT TIME ZONE',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '6']),
+        );
+
+        self::assertEquals('TIMESTAMP(0) WITH TIME ZONE', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
+        self::assertEquals(
+            'TIMESTAMP(0) WITH TIME ZONE',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '0']),
+        );
+        self::assertEquals(
+            'TIMESTAMP(6) WITH TIME ZONE',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '6']),
+        );
+    }
+
+    public function testGeneratesTypeDeclarationForTimes(): void
+    {
+        self::assertEquals('TIME(0) WITHOUT TIME ZONE', $this->platform->getTimeTypeDeclarationSQL([]));
+        self::assertEquals('TIME(0) WITHOUT TIME ZONE', $this->platform->getTimeTypeDeclarationSQL(['scale' => '0']));
+        self::assertEquals('TIME(6) WITHOUT TIME ZONE', $this->platform->getTimeTypeDeclarationSQL(['scale' => '6']));
+    }
+
     public function getGenerateUniqueIndexSql(): string
     {
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
@@ -1068,5 +1098,15 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('jsonb'));
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('jsonb'));
+    }
+
+    public function testGetDateTimeTzFormatString(): void
+    {
+        self::assertEquals('Y-m-d H:i:s.uO', $this->platform->getDateTimeTzFormatString());
+    }
+
+    public function testGetFallbackDateTimeTzFormatString(): void
+    {
+        self::assertEquals('Y-m-d H:i:sO', $this->platform->getFallbackDateTimeTzFormatString());
     }
 }

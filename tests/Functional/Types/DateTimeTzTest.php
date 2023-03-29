@@ -74,7 +74,6 @@ final class DateTimeTzTest extends FunctionalTestCase
             $platform instanceof SqlitePlatform ||
             $platform instanceof DB2Platform ||
             $platform instanceof OraclePlatform ||
-            $platform instanceof PostgreSQLPlatform ||
             $platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped(sprintf("Platform %s doesn't support variable precision time", get_class($platform)));

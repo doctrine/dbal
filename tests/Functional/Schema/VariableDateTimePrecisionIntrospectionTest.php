@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -40,7 +39,6 @@ class VariableDateTimePrecisionIntrospectionTest extends FunctionalTestCase
             $this->platform instanceof SqlitePlatform ||
             $this->platform instanceof DB2Platform ||
             $this->platform instanceof OraclePlatform ||
-            $this->platform instanceof PostgreSQLPlatform ||
             $this->platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped(sprintf(

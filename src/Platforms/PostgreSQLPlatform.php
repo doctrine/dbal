@@ -1081,7 +1081,23 @@ SQL
      */
     public function getDateTimeTypeDeclarationSQL(array $column)
     {
-        return 'TIMESTAMP(0) WITHOUT TIME ZONE';
+        return $this->getDateTimeTypeDeclarationSQLFromSnippets($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTypeDeclarationSQLSnippet(array $column): string
+    {
+        return 'TIMESTAMP';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTypeSQLSuffix(array $column): string
+    {
+        return ' WITHOUT TIME ZONE';
     }
 
     /**
@@ -1089,7 +1105,15 @@ SQL
      */
     public function getDateTimeTzTypeDeclarationSQL(array $column)
     {
-        return 'TIMESTAMP(0) WITH TIME ZONE';
+        return $this->getDateTimeTzTypeDeclarationSQLFromSnippets($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTzTypeSQLSuffix(array $column): string
+    {
+        return ' WITH TIME ZONE';
     }
 
     /**
@@ -1105,7 +1129,23 @@ SQL
      */
     public function getTimeTypeDeclarationSQL(array $column)
     {
-        return 'TIME(0) WITHOUT TIME ZONE';
+        return $this->getTimeTypeDeclarationSQLFromSnippets($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getTimeTypeDeclarationSQLSnippet(array $column): string
+    {
+        return 'TIME';
+    }
+
+   /**
+    * {@inheritDoc}
+    */
+    protected function getTimeTypeSQLSuffix(array $column): string
+    {
+        return ' WITHOUT TIME ZONE';
     }
 
     /**
@@ -1158,15 +1198,12 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getTimeFormatString()
+    public function getDateTimeTzFormatString()
     {
-        return 'H:i:s';
+        return 'Y-m-d H:i:s.uO';
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateTimeTzFormatString()
+    public function getFallbackDateTimeTzFormatString(): string
     {
         return 'Y-m-d H:i:sO';
     }

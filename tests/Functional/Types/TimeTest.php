@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
@@ -51,7 +50,6 @@ final class TimeTest extends FunctionalTestCase
             $platform instanceof SqlitePlatform ||
             $platform instanceof DB2Platform ||
             $platform instanceof OraclePlatform ||
-            $platform instanceof PostgreSQLPlatform ||
             $platform instanceof SQLServerPlatform
         ) {
             self::markTestSkipped(sprintf(
