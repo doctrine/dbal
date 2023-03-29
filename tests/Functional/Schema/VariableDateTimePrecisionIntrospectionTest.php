@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
-use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -39,7 +38,6 @@ class VariableDateTimePrecisionIntrospectionTest extends FunctionalTestCase
 
         if (
             $this->platform instanceof SqlitePlatform ||
-            $this->platform instanceof AbstractMySQLPlatform ||
             $this->platform instanceof DB2Platform ||
             $this->platform instanceof OraclePlatform ||
             $this->platform instanceof PostgreSQLPlatform ||

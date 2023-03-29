@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
-use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
@@ -50,7 +49,6 @@ final class TimeTest extends FunctionalTestCase
 
         if (
             $platform instanceof SqlitePlatform ||
-            $platform instanceof AbstractMySQLPlatform ||
             $platform instanceof DB2Platform ||
             $platform instanceof OraclePlatform ||
             $platform instanceof PostgreSQLPlatform ||

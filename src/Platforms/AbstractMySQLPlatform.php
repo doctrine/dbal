@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\AbstractAsset;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -290,21 +291,29 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeFormatString()
+    public function getDateTimeTypeDeclarationSQL(array $column)
     {
-        return 'H:i:s';
+        return $this->getDateTimeTypeDeclarationSQLFromSnippets($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $column)
+    protected function getDateTimeTypeDeclarationSQLSnippet(array $column): string
     {
-        if (isset($column['version']) && $column['version'] === true) {
-            return 'TIMESTAMP';
+        return isset($column['version']) && $column['version'] === true ? 'TIMESTAMP' : 'DATETIME';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTypePrecisionSQLSnippet(array $column): string
+    {
+        if (empty($column['scale']) || (int) $column['scale'] === Column::DATETIME_SCALE_NOT_SET) {
+            return '';
         }
 
-        return 'DATETIME';
+        return '(' . $column['scale'] . ')';
     }
 
     /**
@@ -319,6 +328,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      * {@inheritDoc}
      */
     public function getTimeTypeDeclarationSQL(array $column)
+    {
+        return $this->getTimeTypeDeclarationSQLFromSnippets($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getTimeTypeDeclarationSQLSnippet(array $column): string
     {
         return 'TIME';
     }

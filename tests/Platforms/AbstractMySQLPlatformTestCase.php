@@ -200,6 +200,25 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL(['version' => false]));
         self::assertEquals('TIMESTAMP', $this->platform->getDateTimeTypeDeclarationSQL(['version' => true]));
         self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL([]));
+        self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '0']));
+        self::assertEquals(
+            'TIMESTAMP',
+            $this->platform->getDateTimeTypeDeclarationSQL(['version' => true, 'scale' => 0]),
+        );
+        self::assertEquals('DATETIME(6)', $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '6']));
+    }
+
+    public function testGetTimeTypeDeclarationSql(): void
+    {
+        self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL(['version' => false]));
+        self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL(['version' => true]));
+        self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL([]));
+        self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL(['scale' => '0']));
+        self::assertEquals(
+            'TIME',
+            $this->platform->getTimeTypeDeclarationSQL(['version' => true, 'scale' => 0]),
+        );
+        self::assertEquals('TIME(6)', $this->platform->getTimeTypeDeclarationSQL(['scale' => '6']));
     }
 
     /**

@@ -16,6 +16,7 @@ use function array_shift;
 use function assert;
 use function explode;
 use function implode;
+use function in_array;
 use function is_string;
 use function preg_match;
 use function strpos;
@@ -222,6 +223,12 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
                 break;
 
+            case 'datetime':
+            case 'time':
+            case 'timestamp':
+                $scale = $length === false ? Column::DATETIME_SCALE_NOT_SET : $length;
+                break;
+
             case 'tinytext':
                 $length = AbstractMySQLPlatform::LENGTH_LIMIT_TINYTEXT;
                 break;
@@ -280,6 +287,10 @@ class MySQLSchemaManager extends AbstractSchemaManager
         if ($scale !== null && $precision !== null) {
             $options['scale']     = (int) $scale;
             $options['precision'] = (int) $precision;
+        }
+
+        if (in_array($dbType, ['datetime', 'time', 'timestamp'], true)) {
+            $options['scale'] = (int) $scale;
         }
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
