@@ -3841,6 +3841,19 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Obtains DBMS specific SQL to be used to create date columns in statements
+     * like CREATE TABLE from declaration snippets.
+     *
+     * @param mixed[] $column
+     */
+    protected function getDateTimeTypeDeclarationSQLFromSnippets(array $column): string
+    {
+        return $this->getDateTimeTypeDeclarationSQLSnippet($column)
+             . $this->getDateTimeTypePrecisionSQLSnippet($column)
+             . $this->getDateTimeTypeSQLSuffix($column);
+    }
+
+    /**
      * Obtains DBMS specific SQL to be used to create datetime with timezone offset columns.
      *
      * @param mixed[] $column
@@ -3850,6 +3863,19 @@ abstract class AbstractPlatform
     public function getDateTimeTzTypeDeclarationSQL(array $column)
     {
         return $this->getDateTimeTypeDeclarationSQL($column);
+    }
+
+    /**
+     * Obtains DBMS specific SQL to be used to create datetime with timezone offset columns
+     * from declaration snippets.
+     *
+     * @param mixed[] $column
+     */
+    protected function getDateTimeTzTypeDeclarationSQLFromSnippets(array $column): string
+    {
+        return $this->getDateTimeTzTypeDeclarationSQLSnippet($column)
+             . $this->getDateTimeTzTypePrecisionSQLSnippet($column)
+             . $this->getDateTimeTzTypeSQLSuffix($column);
     }
 
     /**
@@ -3880,6 +3906,132 @@ abstract class AbstractPlatform
     public function getTimeTypeDeclarationSQL(array $column)
     {
         throw Exception::notSupported(__METHOD__);
+    }
+
+    /**
+     * Obtains DBMS specific SQL to be used to create time columns in statements
+     * like CREATE TABLE from declaration snippets.
+     *
+     * @param mixed[] $column
+     */
+    protected function getTimeTypeDeclarationSQLFromSnippets(array $column): string
+    {
+        return $this->getTimeTypeDeclarationSQLSnippet($column)
+             . $this->getTimeTypePrecisionSQLSnippet($column)
+             . $this->getTimeTypeSQLSuffix($column);
+    }
+
+    /**
+     * Obtains DBMS specific SQL declaration snippet to be used to create datetime columns in statements
+     * like CREATE TABLE.
+     *
+     * @param mixed[] $column
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    protected function getDateTimeTypeDeclarationSQLSnippet(array $column): string
+    {
+        throw Exception::notSupported(__METHOD__);
+    }
+
+    /**
+     * Obtains DBMS specific SQL declaration snippet to be used to create datetimetz columns in statements
+     * like CREATE TABLE.
+     *
+     * @param mixed[] $column
+     */
+    protected function getDateTimeTzTypeDeclarationSQLSnippet(array $column): string
+    {
+        return $this->getDateTimeTypeDeclarationSQLSnippet($column);
+    }
+
+    /**
+     * Obtains DBMS specific SQL declaration snippet to be used to create time columns in statements
+     * like CREATE TABLE.
+     *
+     * @param mixed[] $column
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    protected function getTimeTypeDeclarationSQLSnippet(array $column): string
+    {
+        throw Exception::notSupported(__METHOD__);
+    }
+
+    /**
+     * Obtains DBMS specific suffix to add to SQL declaration to create datetime columns in statements
+     * like CREATE TABLE, for example ' WITHOUT TIME ZONE'.
+     *
+     * Requires a leading space unless empty.
+     *
+     * @param mixed[] $column
+     */
+    protected function getDateTimeTypeSQLSuffix(array $column): string
+    {
+        return '';
+    }
+
+    /**
+     * Obtains DBMS specific suffix to add to SQL declaration to create datetimetz columns in statements
+     * like CREATE TABLE, for example ' WITH TIME ZONE'.
+     *
+     * Requires a leading space unless empty.
+     *
+     * @param mixed[] $column
+     */
+    protected function getDateTimeTzTypeSQLSuffix(array $column): string
+    {
+        return '';
+    }
+
+    /**
+     * Obtains DBMS specific suffix to add to SQL declaration to create time columns in statements
+     * like CREATE TABLE, for example ' WITHOUT TIME ZONE'.
+     *
+     * Requires a leading space unless empty.
+     *
+     * @param mixed[] $column
+     */
+    protected function getTimeTypeSQLSuffix(array $column): string
+    {
+        return '';
+    }
+
+    /**
+     * Obtains DBMS specific precision specifier to add to SQL declaration to create datetime columns in statements
+     * like CREATE TABLE.
+     *
+     * @param mixed[] $column
+     */
+    protected function getDateTimeTypePrecisionSQLSnippet(array $column): string
+    {
+        $scale = empty($column['scale']) || (int) $column['scale'] === Column::DATETIME_SCALE_NOT_SET
+                 ? '0'
+                 : $column['scale'];
+
+        return '(' . $scale . ')';
+    }
+
+    /**
+     * Obtains DBMS specific precision specifier to add to SQL declaration to create datetimetz columns in statements
+     * like CREATE TABLE.
+     *
+     * @param mixed[] $column
+     */
+    protected function getDateTimeTzTypePrecisionSQLSnippet(array $column): string
+    {
+        return $this->getDateTimeTypePrecisionSQLSnippet($column);
+    }
+
+    /**
+     * Obtains DBMS specific precision specifier to add to SQL declaration to create time columns in statements
+     * like CREATE TABLE.
+     *
+     * @param mixed[] $column
+     */
+    protected function getTimeTypePrecisionSQLSnippet(array $column): string
+    {
+        return $this->getDateTimeTypePrecisionSQLSnippet($column);
     }
 
     /**
@@ -4281,6 +4433,19 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Gets the format string, as accepted by the date() function, that describes the format of a stored datetime
+     * value of this platform excluding any microsecond specifier to use where conversion with
+     * getDateTimeFormatString() fails.
+     *
+     * Conversion will fail where the format string returned by getDateTimeFormatString() contains a
+     * microsecond specifier (.u) but the string to be converted has no decimal digits.
+     */
+    public function getFallbackDateTimeFormatString(): string
+    {
+        return $this->getDateFormatString() . ' ' . $this->getFallbackTimeFormatString();
+    }
+
+    /**
      * Gets the format string, as accepted by the date() function, that describes
      * the format of a stored datetime with timezone value of this platform.
      *
@@ -4289,6 +4454,19 @@ abstract class AbstractPlatform
     public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:s';
+    }
+
+    /**
+     * Gets the format string, as accepted by the date() function, that describes the format of a stored datetime
+     * with timezone value of this platform excluding any microsecond specifier to use where conversion with
+     * getDateTimeFormatString() fails.
+     *
+     * Conversion will fail where the format string returned by getDateTimeTzFormatString() contains a
+     * microsecond specifier (.u) but the string to be converted has no decimal digits.
+     */
+    public function getFallbackDateTimeTzFormatString(): string
+    {
+        return $this->getFallbackDateTimeFormatString();
     }
 
     /**
@@ -4309,6 +4487,19 @@ abstract class AbstractPlatform
      * @return string The format string.
      */
     public function getTimeFormatString()
+    {
+        return 'H:i:s';
+    }
+
+    /**
+     * Gets the format string, as accepted by the date() function, that describes the format of a stored time
+     * value of this platform excluding any microsecond specifier to use where conversion with
+     * getTimeFormatString() fails.
+     *
+     * Conversion will fail where the format string returned by getTimeFormatString() contains a
+     * microsecond specifier (.u) but the string to be converted has no decimal digits.
+     */
+    public function getFallbackTimeFormatString(): string
     {
         return 'H:i:s';
     }
