@@ -273,6 +273,65 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL($fullColumnDef));
     }
 
+    public function testGeneratesTypeDeclarationForDatetimes(): void
+    {
+        self::assertEquals('TIMESTAMP(0)', $this->platform->getDateTimeTypeDeclarationSQL([]));
+        self::assertEquals(
+            'TIMESTAMP(0)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '0']),
+        );
+        self::assertEquals(
+            'TIMESTAMP(6)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '6']),
+        );
+
+        self::assertEquals('TIMESTAMP(0)', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
+        self::assertEquals(
+            'TIMESTAMP(0)',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '0']),
+        );
+        self::assertEquals(
+            'TIMESTAMP(6)',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '6']),
+        );
+    }
+
+    public function testGeneratesTypeDeclarationForDatetimesWithVersion(): void
+    {
+        self::assertEquals(
+            'TIMESTAMP(0) WITH DEFAULT',
+            $this->platform->getDateTimeTypeDeclarationSQL(['version' => true]),
+        );
+        self::assertEquals(
+            'TIMESTAMP(0) WITH DEFAULT',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '0', 'version' => true]),
+        );
+        self::assertEquals(
+            'TIMESTAMP(6) WITH DEFAULT',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '6', 'version' => true]),
+        );
+
+        self::assertEquals(
+            'TIMESTAMP(0) WITH DEFAULT',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['version' => true]),
+        );
+        self::assertEquals(
+            'TIMESTAMP(0) WITH DEFAULT',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '0', 'version' => true]),
+        );
+        self::assertEquals(
+            'TIMESTAMP(6) WITH DEFAULT',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '6', 'version' => true]),
+        );
+    }
+
+    public function testGeneratesTypeDeclarationForTimes(): void
+    {
+        self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL([]));
+        self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL(['scale' => '0']));
+        self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL(['scale' => '6']));
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -692,5 +751,10 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return 'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM'
             . ' FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM >= 3 AND db22.DC_ROWNUM <= 3';
+    }
+
+    public function testGetTimeFormatString(): void
+    {
+        self::assertEquals('H:i:s', $this->platform->getTimeFormatString());
     }
 }

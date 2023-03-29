@@ -138,6 +138,10 @@ class DB2SchemaManager extends AbstractSchemaManager
                 $length = $tableColumn['length'];
                 break;
 
+            case 'timestamp':
+                $scale = $tableColumn['scale'];
+                break;
+
             case 'decimal':
             case 'double':
             case 'real':
@@ -160,6 +164,10 @@ class DB2SchemaManager extends AbstractSchemaManager
         if ($scale !== null && $precision !== null) {
             $options['scale']     = $scale;
             $options['precision'] = $precision;
+        }
+
+        if (strtolower($tableColumn['typename']) === 'timestamp') {
+            $options['scale'] = $scale;
         }
 
         return new Column($tableColumn['colname'], Type::getType($type), $options);

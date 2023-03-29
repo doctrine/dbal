@@ -315,21 +315,25 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeFormatString()
+    public function getDateTimeTypeDeclarationSQL(array $column)
     {
-        return 'H:i:s';
+        return $this->getDateTimeTypeDeclarationSQLFromSnippets($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $column)
+    protected function getDateTimeTypeDeclarationSQLSnippet(array $column): string
     {
-        if (isset($column['version']) && $column['version'] === true) {
-            return 'TIMESTAMP(0) WITH DEFAULT';
-        }
+        return 'TIMESTAMP';
+    }
 
-        return 'TIMESTAMP(0)';
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTypeSQLSuffix(array $column): string
+    {
+        return isset($column['version']) && $column['version'] === true ? ' WITH DEFAULT' : '';
     }
 
     /**
@@ -342,10 +346,40 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * TIME does not support precision greater than one second on DB2
      */
     public function getTimeTypeDeclarationSQL(array $column)
     {
         return 'TIME';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Gets the format string, as accepted by the date() function, that describes
+     * the format of a stored time value of this platform.
+     *
+     * Db2 does not support high precision time format strings (only datetime format strings)
+     *
+     * @return string The format string.
+     */
+    public function getTimeFormatString()
+    {
+        return 'H:i:s';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDateTimeFormatString()
+    {
+        return 'Y-m-d H:i:s.u';
+    }
+
+    public function getFallbackDateTimeFormatString(): string
+    {
+        return 'Y-m-d H:i:s';
     }
 
     /**

@@ -36,7 +36,6 @@ class VariableDateTimePrecisionIntrospectionTest extends FunctionalTestCase
 
         if (
             $this->platform instanceof SqlitePlatform ||
-            $this->platform instanceof DB2Platform ||
             $this->platform instanceof OraclePlatform
         ) {
             self::markTestSkipped(sprintf(
