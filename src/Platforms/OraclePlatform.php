@@ -320,7 +320,15 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $column)
     {
-        return 'TIMESTAMP(0)';
+        return $this->getDateTimeTypeDeclarationSQLFromSnippets($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTypeDeclarationSQLSnippet(array $column): string
+    {
+        return 'TIMESTAMP';
     }
 
     /**
@@ -328,7 +336,15 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDateTimeTzTypeDeclarationSQL(array $column)
     {
-        return 'TIMESTAMP(0) WITH TIME ZONE';
+        return $this->getDateTimeTzTypeDeclarationSQLFromSnippets($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTzTypeSQLSuffix(array $column): string
+    {
+        return ' WITH TIME ZONE';
     }
 
     /**
@@ -341,6 +357,8 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * DATE columns do not support fractional seconds.
      */
     public function getTimeTypeDeclarationSQL(array $column)
     {
@@ -1175,12 +1193,22 @@ SQL
         return 'Y-m-d H:i:s';
     }
 
+    public function getFallbackDateTimeFormatString(): string
+    {
+        return 'Y-m-d H:i:s';
+    }
+
     /**
      * {@inheritDoc}
      */
     public function getDateTimeTzFormatString()
     {
-        return 'Y-m-d H:i:sP';
+        return 'Y-m-d H:i:s P';
+    }
+
+    public function getFallbackDateTimeTzFormatString(): string
+    {
+        return 'Y-m-d H:i:s P';
     }
 
     /**
@@ -1195,6 +1223,11 @@ SQL
      * {@inheritDoc}
      */
     public function getTimeFormatString()
+    {
+        return '1900-01-01 H:i:s';
+    }
+
+    public function getFallbackTimeFormatString(): string
     {
         return '1900-01-01 H:i:s';
     }

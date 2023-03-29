@@ -8,6 +8,11 @@ use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use SensitiveParameter;
 
+use function filter_var;
+use function sprintf;
+
+use const FILTER_VALIDATE_BOOL;
+
 class InitializeSession implements Middleware
 {
     public function wrap(Driver $driver): Driver
@@ -20,6 +25,13 @@ class InitializeSession implements Middleware
                 #[SensitiveParameter]
                 array $params
             ): Connection {
+                $timestampSecondsSpecifier = filter_var(
+                    $params['driverOptions']['high_precision_timestamps'] ?? false,
+                    FILTER_VALIDATE_BOOL,
+                )
+                ? 'SS.FF6'
+                : 'SS';
+
                 $connection = parent::connect($params);
 
                 $connection->exec(
@@ -27,8 +39,11 @@ class InitializeSession implements Middleware
                         . " NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'"
                         . " NLS_TIME_FORMAT = 'HH24:MI:SS'"
                         . " NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'"
-                        . " NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS'"
-                        . " NLS_TIMESTAMP_TZ_FORMAT = 'YYYY-MM-DD HH24:MI:SS TZH:TZM'"
+                        . sprintf(" NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:%s'", $timestampSecondsSpecifier)
+                        . sprintf(
+                            " NLS_TIMESTAMP_TZ_FORMAT = 'YYYY-MM-DD HH24:MI:%s TZH:TZM'",
+                            $timestampSecondsSpecifier,
+                        )
                         . " NLS_NUMERIC_CHARACTERS = '.,'",
                 );
 

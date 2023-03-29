@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\API\OCI;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\OracleHptPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\Deprecations\Deprecation;
@@ -19,11 +20,23 @@ use function assert;
  */
 abstract class AbstractOracleDriver implements Driver
 {
+    protected bool $useHighPrecisionTimestamps = false;
+
     /**
      * {@inheritDoc}
      */
     public function getDatabasePlatform()
     {
+        if ($this->useHighPrecisionTimestamps) {
+            return new OracleHptPlatform();
+        }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/5961',
+            'InitializeSession. Not enabling high precision timestamps in the OraclePlatform is deprecated.',
+        );
+
         return new OraclePlatform();
     }
 

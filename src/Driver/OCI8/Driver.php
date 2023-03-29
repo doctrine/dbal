@@ -6,9 +6,11 @@ use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\OCI8\Exception\ConnectionFailed;
 use SensitiveParameter;
 
+use function filter_var;
 use function oci_connect;
 use function oci_pconnect;
 
+use const FILTER_VALIDATE_BOOL;
 use const OCI_NO_AUTO_COMMIT;
 
 /**
@@ -25,6 +27,11 @@ final class Driver extends AbstractOracleDriver
         #[SensitiveParameter]
         array $params
     ) {
+        $this->useHighPrecisionTimestamps = filter_var(
+            $params['driverOptions']['high_precision_timestamps'] ?? false,
+            FILTER_VALIDATE_BOOL,
+        );
+
         $username    = $params['user'] ?? '';
         $password    = $params['password'] ?? '';
         $charset     = $params['charset'] ?? '';

@@ -34,10 +34,7 @@ class VariableDateTimePrecisionIntrospectionTest extends FunctionalTestCase
     {
         $this->platform = $this->connection->getDatabasePlatform();
 
-        if (
-            $this->platform instanceof SqlitePlatform ||
-            $this->platform instanceof OraclePlatform
-        ) {
+        if ($this->platform instanceof SqlitePlatform) {
             self::markTestSkipped(sprintf(
                 "Platform %s doesn't support variable precision time",
                 get_class($this->platform),

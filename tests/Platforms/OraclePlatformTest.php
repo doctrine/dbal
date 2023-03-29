@@ -177,6 +177,36 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGeneratesTypeDeclarationForDatetimes(): void
+    {
+        self::assertEquals('TIMESTAMP(0)', $this->platform->getDateTimeTypeDeclarationSQL([]));
+        self::assertEquals(
+            'TIMESTAMP(0)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '0']),
+        );
+        self::assertEquals(
+            'TIMESTAMP(6)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '6']),
+        );
+
+        self::assertEquals('TIMESTAMP(0) WITH TIME ZONE', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
+        self::assertEquals(
+            'TIMESTAMP(0) WITH TIME ZONE',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '0']),
+        );
+        self::assertEquals(
+            'TIMESTAMP(6) WITH TIME ZONE',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '6']),
+        );
+    }
+
+    public function testGeneratesTypeDeclarationForTimes(): void
+    {
+        self::assertEquals('DATE', $this->platform->getTimeTypeDeclarationSQL([]));
+        self::assertEquals('DATE', $this->platform->getTimeTypeDeclarationSQL(['scale' => '0']));
+        self::assertEquals('DATE', $this->platform->getTimeTypeDeclarationSQL(['scale' => '6']));
+    }
+
     public function testPrefersIdentityColumns(): void
     {
         self::assertFalse($this->platform->prefersIdentityColumns());
@@ -931,5 +961,25 @@ SQL
     {
         return 'SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 3)'
             . ' WHERE doctrine_rownum >= 3';
+    }
+
+    public function testGetDateTimeTzFormatString(): void
+    {
+        self::assertEquals('Y-m-d H:i:s P', $this->platform->getDateTimeTzFormatString());
+    }
+
+    public function testGetFallbackDateTimeTzFormatString(): void
+    {
+        self::assertEquals('Y-m-d H:i:s P', $this->platform->getFallbackDateTimeTzFormatString());
+    }
+
+    public function testGetTimeFormatString(): void
+    {
+        self::assertEquals('1900-01-01 H:i:s', $this->platform->getTimeFormatString());
+    }
+
+    public function testGetFallbackTimeFormatString(): void
+    {
+        self::assertEquals('1900-01-01 H:i:s', $this->platform->getFallbackTimeFormatString());
     }
 }

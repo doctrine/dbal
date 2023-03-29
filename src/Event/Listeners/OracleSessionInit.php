@@ -10,9 +10,11 @@ use Doctrine\DBAL\Exception;
 use function array_change_key_case;
 use function array_merge;
 use function count;
+use function filter_var;
 use function implode;
 
 use const CASE_UPPER;
+use const FILTER_VALIDATE_BOOL;
 
 /**
  * Should be used when Oracle Server default environment does not match the Doctrine requirements.
@@ -54,6 +56,12 @@ class OracleSessionInit implements EventSubscriber
             return;
         }
 
+        $driverOptions = $args->getConnection()->getParams()['driverOptions'] ?? [];
+
+        if (filter_var($driverOptions['high_precision_timestamps'] ?? false, FILTER_VALIDATE_BOOL)) {
+            $this->setHighPrecisionTimestampFormats();
+        }
+
         $vars = [];
         foreach (array_change_key_case($this->_defaultSessionVars, CASE_UPPER) as $option => $value) {
             if ($option === 'CURRENT_SCHEMA') {
@@ -73,5 +81,11 @@ class OracleSessionInit implements EventSubscriber
     public function getSubscribedEvents()
     {
         return [Events::postConnect];
+    }
+
+    private function setHighPrecisionTimestampFormats(): void
+    {
+        $this->_defaultSessionVars['NLS_TIMESTAMP_FORMAT']    = 'YYYY-MM-DD HH24:MI:SS.FF6';
+        $this->_defaultSessionVars['NLS_TIMESTAMP_TZ_FORMAT'] = 'YYYY-MM-DD HH24:MI:SS.FF6 TZH:TZM';
     }
 }

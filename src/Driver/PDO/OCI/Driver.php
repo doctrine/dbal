@@ -9,6 +9,10 @@ use PDO;
 use PDOException;
 use SensitiveParameter;
 
+use function filter_var;
+
+use const FILTER_VALIDATE_BOOL;
+
 final class Driver extends AbstractOracleDriver
 {
     /**
@@ -21,6 +25,11 @@ final class Driver extends AbstractOracleDriver
         array $params
     ) {
         $driverOptions = $params['driverOptions'] ?? [];
+
+        $this->useHighPrecisionTimestamps = filter_var(
+            $driverOptions['high_precision_timestamps'] ?? false,
+            FILTER_VALIDATE_BOOL,
+        );
 
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
