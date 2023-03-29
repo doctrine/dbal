@@ -1277,14 +1277,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $column)
-    {
-        return 'DATETIMEOFFSET(6)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getAsciiStringTypeDeclarationSQL(array $column): string
     {
         $length = $column['length'] ?? null;
@@ -1371,9 +1363,29 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $column)
     {
-        // 3 - microseconds precision length
-        // http://msdn.microsoft.com/en-us/library/ms187819.aspx
-        return 'DATETIME2(6)';
+        return $this->getDateTimeTypeDeclarationSQLFromSnippets($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTypeDeclarationSQLSnippet(array $column): string
+    {
+        return 'DATETIME2';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTypePrecisionSQLSnippet(array $column): string
+    {
+        if (! isset($column['scale']) || (int) $column['scale'] === Column::DATETIME_SCALE_NOT_SET) {
+            // 3 - microseconds precision length
+            // http://msdn.microsoft.com/en-us/library/ms187819.aspx
+            return '(6)';
+        }
+
+        return '(' . $column['scale'] . ')';
     }
 
     /**
@@ -1387,9 +1399,45 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getDateTimeTzTypeDeclarationSQL(array $column)
+    {
+        return $this->getDateTimeTzTypeDeclarationSQLFromSnippets($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDateTimeTzTypeDeclarationSQLSnippet(array $column): string
+    {
+        return 'DATETIMEOFFSET';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getTimeTypeDeclarationSQL(array $column)
     {
-        return 'TIME(0)';
+        return $this->getTimeTypeDeclarationSQLFromSnippets($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getTimeTypeDeclarationSQLSnippet(array $column): string
+    {
+        return 'TIME';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getTimeTypePrecisionSQLSnippet(array $column): string
+    {
+        $scale = empty($column['scale']) || (int) $column['scale'] === Column::DATETIME_SCALE_NOT_SET
+                  ? '0'
+                  : $column['scale'];
+
+        return '(' . $scale . ')';
     }
 
     /**
@@ -1475,14 +1523,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeFormatString()
-    {
-        return 'Y-m-d H:i:s.u';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getDateFormatString()
     {
         return 'Y-m-d';
@@ -1491,17 +1531,14 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeFormatString()
-    {
-        return 'H:i:s';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:s.u P';
+    }
+
+    public function getFallbackDateTimeTzFormatString(): string
+    {
+        return 'Y-m-d H:i:s P';
     }
 
     /**

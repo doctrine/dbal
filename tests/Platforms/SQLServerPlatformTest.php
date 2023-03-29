@@ -1817,14 +1817,53 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    public function testGeneratesTypeDeclarationForDateTime(): void
+    {
+        self::assertEquals('DATETIME2(6)', $this->platform->getDateTimeTypeDeclarationSQL([]));
+        self::assertEquals(
+            'DATETIME2(0)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '0']),
+        );
+        self::assertEquals(
+            'DATETIME2(6)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['scale' => '6']),
+        );
+    }
+
     public function testGeneratesTypeDeclarationForDateTimeTz(): void
     {
         self::assertEquals('DATETIMEOFFSET(6)', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
+
+        self::assertEquals(
+            'DATETIMEOFFSET(0)',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '0']),
+        );
+        self::assertEquals(
+            'DATETIMEOFFSET(6)',
+            $this->platform->getDateTimeTzTypeDeclarationSQL(['scale' => '6']),
+        );
+    }
+
+    public function testGeneratesTypeDeclarationForTime(): void
+    {
+        self::assertEquals('TIME(0)', $this->platform->getTimeTypeDeclarationSQL([]));
+        self::assertEquals('TIME(0)', $this->platform->getTimeTypeDeclarationSQL(['scale' => '0']));
+        self::assertEquals('TIME(6)', $this->platform->getTimeTypeDeclarationSQL(['scale' => '6']));
     }
 
     public function testDropIndexSQLRequiresTable(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->platform->getDropIndexSQL('foo');
+    }
+
+    public function testGetDateTimeTzFormatString(): void
+    {
+        self::assertEquals('Y-m-d H:i:s.u P', $this->platform->getDateTimeTzFormatString());
+    }
+
+    public function testGetFallbackDateTimeTzFormatString(): void
+    {
+        self::assertEquals('Y-m-d H:i:s P', $this->platform->getFallbackDateTimeTzFormatString());
     }
 }

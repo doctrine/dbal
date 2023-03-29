@@ -6,7 +6,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
@@ -38,8 +37,7 @@ class VariableDateTimePrecisionIntrospectionTest extends FunctionalTestCase
         if (
             $this->platform instanceof SqlitePlatform ||
             $this->platform instanceof DB2Platform ||
-            $this->platform instanceof OraclePlatform ||
-            $this->platform instanceof SQLServerPlatform
+            $this->platform instanceof OraclePlatform
         ) {
             self::markTestSkipped(sprintf(
                 "Platform %s doesn't support variable precision time",

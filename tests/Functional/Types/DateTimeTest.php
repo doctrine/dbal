@@ -8,7 +8,6 @@ use DateTimeInterface;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -59,8 +58,7 @@ final class DateTimeTest extends FunctionalTestCase
         if (
             $platform instanceof SqlitePlatform ||
             $platform instanceof DB2Platform ||
-            $platform instanceof OraclePlatform ||
-            $platform instanceof SQLServerPlatform
+            $platform instanceof OraclePlatform
         ) {
             self::markTestSkipped(sprintf("Platform %s doesn't support variable precision time", get_class($platform)));
         }

@@ -153,6 +153,17 @@ SQL,
                 }
 
                 break;
+
+            case 'smalldatetime':
+                $tableColumn['scale'] = 0;
+                break;
+
+            case 'datetime':
+            case 'datetime2':
+            case 'datetimeoffset':
+            case 'time':
+                $tableColumn['scale'] ??= 0;
+                break;
         }
 
         if ($dbType === 'char' || $dbType === 'nchar' || $dbType === 'binary') {
