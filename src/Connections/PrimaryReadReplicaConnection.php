@@ -127,6 +127,10 @@ class PrimaryReadReplicaConnection extends Connection
 
         $this->keepReplica = (bool) ($params['keepReplica'] ?? false);
 
+        if (isset($params['primary']['serverVersion'])) {
+            $params['serverVersion'] = $params['primary']['serverVersion'];
+        }
+
         parent::__construct($params, $driver, $config, $eventManager);
     }
 
