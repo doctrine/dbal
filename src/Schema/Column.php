@@ -3,6 +3,9 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
+use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\DBAL\Types\DateTimeTzType;
+use Doctrine\DBAL\Types\TimeType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
@@ -15,6 +18,8 @@ use function method_exists;
  */
 class Column extends AbstractAsset
 {
+    public const DATETIME_SCALE_NOT_SET = -1;
+
     /** @var Type */
     protected $_type;
 
@@ -70,6 +75,18 @@ class Column extends AbstractAsset
     {
         $this->_setName($name);
         $this->setType($type);
+
+        if (
+            ! isset($options['scale']) &&
+            (
+                $type instanceof DateTimeType ||
+                $type instanceof DateTimeTzType ||
+                $type instanceof TimeType
+            )
+        ) {
+            $options['scale'] = self::DATETIME_SCALE_NOT_SET;
+        }
+
         $this->setOptions($options);
     }
 

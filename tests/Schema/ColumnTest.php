@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Iterator;
 use PHPUnit\Framework\TestCase;
 
 class ColumnTest extends TestCase
@@ -151,5 +152,49 @@ class ColumnTest extends TestCase
         $columnArray = $column->toArray();
         self::assertArrayHasKey('comment', $columnArray);
         self::assertEquals('foo', $columnArray['comment']);
+    }
+
+    /** @return Iterator<array{string, array<string, scalar>, int}> */
+    public static function datetimeColumnProvider(): Iterator
+    {
+        $dateTimeTypes = [
+            Types::DATETIME_MUTABLE,
+            Types::DATETIME_IMMUTABLE,
+            Types::DATETIMETZ_MUTABLE,
+            Types::DATETIMETZ_IMMUTABLE,
+            Types::TIME_MUTABLE,
+            Types::TIME_IMMUTABLE,
+        ];
+
+        $scales = [
+            [[], Column::DATETIME_SCALE_NOT_SET],
+            [['scale' => '0'], 0],
+            [['scale' => '3'], 3],
+            [['scale' => '6'], 6],
+        ];
+
+        foreach ($dateTimeTypes as $type) {
+            foreach ($scales as $scale) {
+                yield [$type, $scale[0], $scale[1]];
+            }
+        }
+    }
+
+    /**
+     * @param array<string, scalar> $options
+     *
+     * @dataProvider datetimeColumnProvider
+     */
+    public function testDateTimeColumnScale(string $type, array $options, int $expected): void
+    {
+        $column = new Column('foo', Type::getType($type), $options);
+
+        self::assertEquals($expected, $column->getScale());
+    }
+
+    public function testDecimalColumnWithoutScale(): void
+    {
+        $column = new Column('bar', Type::getType(Types::DECIMAL));
+        self::assertEquals(0, $column->getScale());
     }
 }
