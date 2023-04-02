@@ -446,7 +446,7 @@ SQL
      *
      * @throws Exception
      */
-    private function getForeignKeyDetails(string $table)
+    private function getForeignKeyDetails(string $table): array
     {
         $createSql = $this->getCreateTableSQL($table);
 

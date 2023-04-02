@@ -735,7 +735,7 @@ class Connection implements ServerVersionProvider
     }
 
     /**
-     * Executes an, optionally parametrized, SQL query.
+     * Executes an, optionally parameterized, SQL query.
      *
      * If the query is parametrized, a prepared statement is used.
      *
