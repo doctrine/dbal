@@ -23,6 +23,7 @@ use function is_a;
  * Factory for creating {@see Connection} instances.
  *
  * @psalm-type OverrideParams = array{
+ *     application_name?: string,
  *     charset?: string,
  *     dbname?: string,
  *     default_dbname?: string,
@@ -32,7 +33,7 @@ use function is_a;
  *     host?: string,
  *     password?: string,
  *     path?: string,
- *     pdo?: \PDO,
+ *     persistent?: bool,
  *     platform?: Platforms\AbstractPlatform,
  *     port?: int,
  *     url?: string,
@@ -40,6 +41,7 @@ use function is_a;
  *     unix_socket?: string,
  * }
  * @psalm-type Params = array{
+ *     application_name?: string,
  *     charset?: string,
  *     dbname?: string,
  *     defaultTableOptions?: array<string, mixed>,
@@ -54,7 +56,7 @@ use function is_a;
  *     memory?: bool,
  *     password?: string,
  *     path?: string,
- *     pdo?: \PDO,
+ *     persistent?: bool,
  *     platform?: Platforms\AbstractPlatform,
  *     port?: int,
  *     primary?: OverrideParams,
