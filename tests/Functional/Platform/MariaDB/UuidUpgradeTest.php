@@ -9,10 +9,13 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MariaDb1052Platform;
 use Doctrine\DBAL\Platforms\MariaDb1070Platform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\GuidType;
+use Doctrine\DBAL\Types\IntegerType;
 
 final class UuidUpgradeTest extends FunctionalTestCase
 {
@@ -34,17 +37,29 @@ final class UuidUpgradeTest extends FunctionalTestCase
 
         $schemaManager = $legacyConnection->createSchemaManager();
         try {
+            $schemaManager->dropTable('legacy_child_uuid');
+        } catch (Exception\TableNotFoundException $e) {
+            // ignore
+        }
+
+        try {
             $schemaManager->dropTable('legacy_uuid');
         } catch (Exception\TableNotFoundException $e) {
             // ignore
         }
 
-        $schemaManager->createTable($this->getTableDefinition());
+        $schemaManager->createSchemaObjects($this->getSchemaDefinition());
 
         $legacyConnection->insert(
             'legacy_uuid',
             ['id' => '94829370-f7ba-4536-bbb7-2e63b84492d4'],
             ['id' => new GuidType()],
+        );
+
+        $legacyConnection->insert(
+            'legacy_child_uuid',
+            ['id' => 1, 'legacy_uuid_id' => '94829370-f7ba-4536-bbb7-2e63b84492d4'],
+            ['id' => new IntegerType(), 'legacy_uuid_id' => new GuidType()],
         );
     }
 
@@ -60,6 +75,18 @@ final class UuidUpgradeTest extends FunctionalTestCase
         self::assertSame(
             '94829370-f7ba-4536-bbb7-2e63b84492d4',
             $type->convertToPHPValue($uuid, $this->connection->getDatabasePlatform()),
+        );
+    }
+
+    public function testJoinWithLegacyTable(): void
+    {
+        $uuid = $this->connection->fetchOne(
+            'SELECT u.id FROM legacy_child_uuid c JOIN legacy_uuid u ON (c.legacy_uuid_id = u.id) WHERE c.id = 1',
+        );
+
+        self::assertSame(
+            '94829370-f7ba-4536-bbb7-2e63b84492d4',
+            (new GuidType())->convertToPHPValue($uuid, $this->connection->getDatabasePlatform()),
         );
     }
 
@@ -89,14 +116,17 @@ final class UuidUpgradeTest extends FunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
         $comparator    = $schemaManager->createComparator();
 
-        $diff = $comparator->compareTables(
-            $schemaManager->introspectTable('legacy_uuid'),
-            $this->getTableDefinition(),
+        $diff = $comparator->compareSchemas(
+            new Schema([
+                $schemaManager->introspectTable('legacy_uuid'),
+                $schemaManager->introspectTable('legacy_child_uuid'),
+            ]),
+            $this->getSchemaDefinition(),
         );
 
         self::assertFalse($diff->isEmpty());
 
-        $schemaManager->alterTable($diff);
+        $schemaManager->alterSchema($diff);
 
         self::assertSame(
             'uuid',
@@ -117,14 +147,35 @@ final class UuidUpgradeTest extends FunctionalTestCase
             '94829370-f7ba-4536-bbb7-2e63b84492d4',
             $type->convertToPHPValue($uuid, $this->connection->getDatabasePlatform()),
         );
+
+        $uuid = $this->connection->fetchOne(
+            'SELECT u.id FROM legacy_child_uuid c JOIN legacy_uuid u ON (c.legacy_uuid_id = u.id) WHERE c.id = 1',
+        );
+
+        self::assertSame(
+            '94829370-f7ba-4536-bbb7-2e63b84492d4',
+            $type->convertToPHPValue($uuid, $this->connection->getDatabasePlatform()),
+        );
     }
 
-    private function getTableDefinition(): Table
+    private function getSchemaDefinition(): Schema
     {
-        return new Table(
-            'legacy_uuid',
-            [new Column('id', new GuidType())],
-            [new Index('PRIMARY', ['id'], false, true)],
-        );
+        return new Schema([
+            new Table(
+                'legacy_uuid',
+                [new Column('id', new GuidType())],
+                [new Index('PRIMARY', ['id'], false, true)],
+            ),
+            new Table(
+                'legacy_child_uuid',
+                [
+                    new Column('id', new IntegerType()),
+                    new Column('legacy_uuid_id', new GuidType()),
+                ],
+                [new Index('PRIMARY', ['id'], false, true)],
+                [],
+                [new ForeignKeyConstraint(['legacy_uuid_id'], 'legacy_uuid', ['id'])],
+            ),
+        ]);
     }
 }
