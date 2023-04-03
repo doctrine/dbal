@@ -163,6 +163,53 @@ class DriverManagerTest extends TestCase
         );
     }
 
+    public function testDatabaseServerVersionFromPrimaryReplica(): void
+    {
+        $options = [
+            'driver' => 'pdo_mysql',
+            'primary' => ['url' => 'mysql://foo:bar@localhost:11211/baz?serverVersion=8.0'],
+            'replica' => [
+                'replica1' => ['url' => 'mysql://foo:bar@localhost:11211/baz_replica?serverVersion=8.0'],
+            ],
+            'wrapperClass' => PrimaryReadReplicaConnection::class,
+        ];
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5843');
+        $conn = DriverManager::getConnection($options);
+
+        $params = $conn->getParams();
+        self::assertInstanceOf(PDO\MySQL\Driver::class, $conn->getDriver());
+
+        $expected = [
+            'user'     => 'foo',
+            'password' => 'bar',
+            'host'     => 'localhost',
+            'port'     => 11211,
+            'dbname'   => 'baz',
+            'driver'   => 'pdo_mysql',
+            'url'      => 'mysql://foo:bar@localhost:11211/baz?serverVersion=8.0',
+            'serverVersion' => '8.0',
+        ];
+
+        // src/Connection->getDatabasePlatformVersion() expects a serverVersion key at the root of the params array
+        self::assertEquals(
+            [
+                'primary' => $expected,
+                'replica' => [
+                    'replica1' => array_merge(
+                        $expected,
+                        [
+                            'dbname' => 'baz_replica',
+                            'url'    => 'mysql://foo:bar@localhost:11211/baz_replica?serverVersion=8.0',
+                        ],
+                    ),
+                ],
+                'serverVersion' => '8.0',
+            ],
+            array_intersect_key($params, ['primary' => null, 'replica' => null, 'serverVersion' => null]),
+        );
+    }
+
     /**
      * @param array<string, mixed>|false $expected
      * @psalm-param Params|string $url
