@@ -6,10 +6,12 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb1070Platform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\GuidType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -561,5 +563,21 @@ SQL;
         $diff = $this->schemaManager->createComparator()->diffTable($table, $onlineTable);
 
         self::assertFalse($diff, 'Tables should be identical.');
+    }
+
+    public function testIntrospectUuidColumn(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof MariaDb1070Platform) {
+            self::markTestSkipped('Only relevant for MariaDB 10.7 and newer.');
+        }
+
+        $this->connection->executeStatement('DROP TABLE IF EXISTS test_uuid_column_introspection');
+        $this->connection->executeStatement(
+            'CREATE TABLE test_uuid_column_introspection (col_uuid UUID NOT NULL PRIMARY KEY)',
+        );
+
+        $onlineTable = $this->schemaManager->introspectTable('test_uuid_column_introspection');
+
+        self::assertInstanceOf(GuidType::class, $onlineTable->getColumn('col_uuid')->getType());
     }
 }
