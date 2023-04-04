@@ -439,6 +439,9 @@ class Connection
         if (isset($this->params['serverVersion'])) {
             return $this->params['serverVersion'];
         }
+        if (isset($this->params['primary']) && isset($this->params['primary']['serverVersion'])) {
+            return $this->params['primary']['serverVersion'];
+        }
 
         // If not connected, we need to connect now to determine the platform version.
         if ($this->_conn === null) {
