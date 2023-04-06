@@ -76,7 +76,15 @@ class Table extends AbstractAsset
         }
 
         foreach ($indexes as $idx) {
-            $this->_addIndex($idx);
+            $idxName = $idx->getName() === '' ? null : $idx->getName();
+
+            if ($idx->isPrimary()) {
+                $this->setPrimaryKey($idx->getColumns(), $idxName);
+            } elseif ($idx->isUnique()) {
+                $this->addUniqueIndex($idx->getColumns(), $idxName, $idx->getOptions());
+            } else {
+                $this->addIndex($idx->getColumns(), $idxName, $idx->getFlags(), $idx->getOptions());
+            }
         }
 
         foreach ($uniqueConstraints as $uniqueConstraint) {

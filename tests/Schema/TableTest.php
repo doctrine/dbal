@@ -167,6 +167,23 @@ class TableTest extends TestCase
         self::assertSame('bar_idx', $table->getIndex('bar_idx')->getName());
     }
 
+    public function testCreateTableWithUnnamedIndexes(): void
+    {
+        $type    = Type::getType('integer');
+        $columns = [
+            new Column('foo', $type),
+            new Column('bar', $type),
+        ];
+        $indexes = [
+            new Index(null, ['foo']),
+            new Index(null, ['bar']),
+        ];
+        $table   = new Table('foo', $columns, $indexes);
+
+        self::assertTrue($table->hasIndex('IDX_8C7365218C736521'));
+        self::assertTrue($table->hasIndex('IDX_8C73652176FF8CAA'));
+    }
+
     public function testGetUnknownIndexThrowsException(): void
     {
         $this->expectException(SchemaException::class);
