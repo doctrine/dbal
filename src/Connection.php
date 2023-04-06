@@ -1919,6 +1919,7 @@ class Connection
                 $type === ArrayParameterType::INTEGER
                 || $type === ArrayParameterType::STRING
                 || $type === ArrayParameterType::ASCII
+                || $type === ArrayParameterType::BINARY
             ) {
                 return true;
             }

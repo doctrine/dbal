@@ -108,6 +108,10 @@ final class Statement implements StatementInterface
                 $this->lobs[$param] = &$variable;
                 break;
 
+            case ParameterType::BINARY:
+                $this->bind($param, $variable, DB2_PARAM_IN, DB2_BINARY);
+                break;
+
             default:
                 $this->bind($param, $variable, DB2_PARAM_IN, DB2_CHAR);
                 break;
