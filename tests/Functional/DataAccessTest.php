@@ -17,6 +17,8 @@ use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
 use function date;
+use function hex2bin;
+use function pack;
 use function sprintf;
 use function strtotime;
 
@@ -30,6 +32,7 @@ class DataAccessTest extends FunctionalTestCase
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_string', 'string', ['length' => 32]);
         $table->addColumn('test_datetime', 'datetime', ['notnull' => false]);
+        $table->addColumn('test_binary', 'binary', ['notnull' => false, 'length' => 4]);
         $table->setPrimaryKey(['test_int']);
 
         $this->dropAndCreateTable($table);
@@ -38,6 +41,9 @@ class DataAccessTest extends FunctionalTestCase
             'test_int' => 1,
             'test_string' => 'foo',
             'test_datetime' => '2010-01-01 10:10:10',
+            'test_binary' => hex2bin('C0DEF00D'),
+        ], [
+            'test_binary' => ParameterType::BINARY,
         ]);
     }
 
@@ -269,6 +275,9 @@ class DataAccessTest extends FunctionalTestCase
                 'test_int' => $i,
                 'test_string' => 'foo' . $i,
                 'test_datetime' => '2010-01-01 10:10:10',
+                'test_binary' => pack('L', $i),
+            ], [
+                'test_binary' => ParameterType::BINARY,
             ]);
         }
 
@@ -286,6 +295,24 @@ class DataAccessTest extends FunctionalTestCase
             'SELECT test_int FROM fetch_table WHERE test_string IN (?)',
             [['foo100', 'foo101', 'foo102', 'foo103', 'foo104']],
             [ArrayParameterType::STRING],
+        );
+
+        $data = $result->fetchAllNumeric();
+        self::assertCount(5, $data);
+        self::assertEquals([[100], [101], [102], [103], [104]], $data);
+
+        $result = $this->connection->executeQuery(
+            'SELECT test_int FROM fetch_table WHERE test_binary IN (?)',
+            [
+                [
+                    pack('L', 100),
+                    pack('L', 101),
+                    pack('L', 102),
+                    pack('L', 103),
+                    pack('L', 104),
+                ],
+            ],
+            [ArrayParameterType::BINARY],
         );
 
         $data = $result->fetchAllNumeric();

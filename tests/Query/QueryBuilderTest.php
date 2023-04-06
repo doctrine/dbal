@@ -16,6 +16,8 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+use function hex2bin;
+
 /** @psalm-import-type WrapperParameterTypeArray from Connection */
 class QueryBuilderTest extends TestCase
 {
@@ -814,12 +816,17 @@ class QueryBuilderTest extends TestCase
         $qb->andWhere('name IN (:names)');
         $qb->setParameter('names', ['john', 'jane'], ArrayParameterType::STRING);
 
+        $qb->andWhere('hash IN (:hashes)');
+        $qb->setParameter('hashes', [hex2bin('DEADBEEF'), hex2bin('C0DEF00D')], ArrayParameterType::BINARY);
+
         self::assertSame(ArrayParameterType::INTEGER, $qb->getParameterType('ids'));
         self::assertSame(ArrayParameterType::STRING, $qb->getParameterType('names'));
+        self::assertSame(ArrayParameterType::BINARY, $qb->getParameterType('hashes'));
 
         self::assertSame([
             'ids'   => ArrayParameterType::INTEGER,
             'names' => ArrayParameterType::STRING,
+            'hashes' => ArrayParameterType::BINARY,
         ], $qb->getParameterTypes());
     }
 
