@@ -248,10 +248,11 @@ SQL injection possibilities if not handled carefully.
 Doctrine DBAL implements a very powerful parsing process that will make this kind of prepared
 statement possible natively in the binding type system.
 The parsing necessarily comes with a performance overhead, but only if you really use a list of parameters.
-There are two special binding types that describe a list of integers or strings:
+There are three special binding types that describe a list of integers, regular strings or binary strings:
 
 -   ``\Doctrine\DBAL\ArrayParameterType::INTEGER``
 -   ``\Doctrine\DBAL\ArrayParameterType::STRING``
+-   ``\Doctrine\DBAL\ArrayParameterType::BINARY``
 
 Using one of these constants as a type you can activate the SQLParser inside Doctrine that rewrites
 the SQL and flattens the specified values into the set of parameters. Consider our previous example:
