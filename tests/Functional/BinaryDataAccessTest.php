@@ -12,8 +12,12 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
+use function array_keys;
+use function array_map;
 use function hex2bin;
+use function is_resource;
 use function pack;
+use function stream_get_contents;
 
 use const CASE_LOWER;
 
@@ -25,14 +29,14 @@ class BinaryDataAccessTest extends FunctionalTestCase
             self::markTestSkipped("PDO_OCI doesn't support binding binary values");
         }
 
-        $table = new Table('fetch_table');
+        $table = new Table('binary_fetch_table');
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_binary', 'binary', ['notnull' => false, 'length' => 4]);
         $table->setPrimaryKey(['test_int']);
 
         $this->dropAndCreateTable($table);
 
-        $this->connection->insert('fetch_table', [
+        $this->connection->insert('binary_fetch_table', [
             'test_int' => 1,
             'test_binary' => hex2bin('C0DEF00D'),
         ], [
@@ -42,7 +46,7 @@ class BinaryDataAccessTest extends FunctionalTestCase
 
     public function testPrepareWithBindValue(): void
     {
-        $sql  = 'SELECT test_int, test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql  = 'SELECT test_int, test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $stmt = $this->connection->prepare($sql);
 
         $stmt->bindValue(1, 1);
@@ -52,7 +56,15 @@ class BinaryDataAccessTest extends FunctionalTestCase
 
         self::assertIsArray($row);
         $row = array_change_key_case($row, CASE_LOWER);
-        self::assertEquals(['test_int' => 1, 'test_binary' => hex2bin('C0DEF00D')], $row);
+        self::assertEquals(['test_int', 'test_binary'], array_keys($row));
+        self::assertEquals(1, $row['test_int']);
+
+        $binaryResult = $row['test_binary'];
+        if (is_resource($binaryResult)) {
+            $binaryResult = stream_get_contents($binaryResult);
+        }
+
+        self::assertEquals(hex2bin('C0DEF00D'), $binaryResult);
     }
 
     public function testPrepareWithFetchAllAssociative(): void
@@ -60,7 +72,7 @@ class BinaryDataAccessTest extends FunctionalTestCase
         $paramInt = 1;
         $paramBin = hex2bin('C0DEF00D');
 
-        $sql  = 'SELECT test_int, test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql  = 'SELECT test_int, test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $stmt = $this->connection->prepare($sql);
 
         $stmt->bindValue(1, $paramInt);
@@ -68,7 +80,16 @@ class BinaryDataAccessTest extends FunctionalTestCase
 
         $rows    = $stmt->executeQuery()->fetchAllAssociative();
         $rows[0] = array_change_key_case($rows[0], CASE_LOWER);
-        self::assertEquals(['test_int' => $paramInt, 'test_binary' => $paramBin], $rows[0]);
+
+        self::assertEquals(['test_int', 'test_binary'], array_keys($rows[0]));
+        self::assertEquals(1, $rows[0]['test_int']);
+
+        $binaryResult = $rows[0]['test_binary'];
+        if (is_resource($binaryResult)) {
+            $binaryResult = stream_get_contents($binaryResult);
+        }
+
+        self::assertEquals(hex2bin('C0DEF00D'), $binaryResult);
     }
 
     public function testPrepareWithFetchOne(): void
@@ -76,7 +97,7 @@ class BinaryDataAccessTest extends FunctionalTestCase
         $paramInt = 1;
         $paramBin = hex2bin('C0DEF00D');
 
-        $sql  = 'SELECT test_int FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql  = 'SELECT test_int FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $stmt = $this->connection->prepare($sql);
 
         $stmt->bindValue(1, $paramInt);
@@ -88,7 +109,7 @@ class BinaryDataAccessTest extends FunctionalTestCase
 
     public function testFetchAllAssociative(): void
     {
-        $sql  = 'SELECT test_int, test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql  = 'SELECT test_int, test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $data = $this->connection->fetchAllAssociative($sql, [1, hex2bin('C0DEF00D')], [1 => ParameterType::BINARY]);
 
         self::assertCount(1, $data);
@@ -98,12 +119,18 @@ class BinaryDataAccessTest extends FunctionalTestCase
 
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(1, $row['test_int']);
-        self::assertEquals(hex2bin('C0DEF00D'), $row['test_binary']);
+
+        $binaryResult = $row['test_binary'];
+        if (is_resource($binaryResult)) {
+            $binaryResult = stream_get_contents($binaryResult);
+        }
+
+        self::assertEquals(hex2bin('C0DEF00D'), $binaryResult);
     }
 
     public function testFetchAllWithTypes(): void
     {
-        $sql  = 'SELECT test_int, test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql  = 'SELECT test_int, test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $data = $this->connection->fetchAllAssociative(
             $sql,
             [1, hex2bin('C0DEF00D')],
@@ -117,12 +144,18 @@ class BinaryDataAccessTest extends FunctionalTestCase
 
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(1, $row['test_int']);
-        self::assertStringStartsWith(hex2bin('C0DEF00D'), $row['test_binary']);
+
+        $binaryResult = $row['test_binary'];
+        if (is_resource($binaryResult)) {
+            $binaryResult = stream_get_contents($binaryResult);
+        }
+
+        self::assertEquals(hex2bin('C0DEF00D'), $binaryResult);
     }
 
     public function testFetchAssociative(): void
     {
-        $sql = 'SELECT test_int, test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql = 'SELECT test_int, test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $row = $this->connection->fetchAssociative($sql, [1, hex2bin('C0DEF00D')], [1 => ParameterType::BINARY]);
 
         self::assertNotFalse($row);
@@ -130,12 +163,18 @@ class BinaryDataAccessTest extends FunctionalTestCase
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals(1, $row['test_int']);
-        self::assertEquals(hex2bin('C0DEF00D'), $row['test_binary']);
+
+        $binaryResult = $row['test_binary'];
+        if (is_resource($binaryResult)) {
+            $binaryResult = stream_get_contents($binaryResult);
+        }
+
+        self::assertEquals(hex2bin('C0DEF00D'), $binaryResult);
     }
 
     public function testFetchAssocWithTypes(): void
     {
-        $sql = 'SELECT test_int, test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql = 'SELECT test_int, test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $row = $this->connection->fetchAssociative(
             $sql,
             [1, hex2bin('C0DEF00D')],
@@ -147,22 +186,34 @@ class BinaryDataAccessTest extends FunctionalTestCase
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals(1, $row['test_int']);
-        self::assertStringStartsWith(hex2bin('C0DEF00D'), $row['test_binary']);
+
+        $binaryResult = $row['test_binary'];
+        if (is_resource($binaryResult)) {
+            $binaryResult = stream_get_contents($binaryResult);
+        }
+
+        self::assertEquals(hex2bin('C0DEF00D'), $binaryResult);
     }
 
     public function testFetchArray(): void
     {
-        $sql = 'SELECT test_int, test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql = 'SELECT test_int, test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $row = $this->connection->fetchNumeric($sql, [1, hex2bin('C0DEF00D')], [1 => ParameterType::BINARY]);
         self::assertNotFalse($row);
 
         self::assertEquals(1, $row[0]);
-        self::assertEquals(hex2bin('C0DEF00D'), $row[1]);
+
+        $binaryResult = $row[1];
+        if (is_resource($binaryResult)) {
+            $binaryResult = stream_get_contents($binaryResult);
+        }
+
+        self::assertEquals(hex2bin('C0DEF00D'), $binaryResult);
     }
 
     public function testFetchArrayWithTypes(): void
     {
-        $sql = 'SELECT test_int, test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql = 'SELECT test_int, test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $row = $this->connection->fetchNumeric(
             $sql,
             [1, hex2bin('C0DEF00D')],
@@ -174,40 +225,53 @@ class BinaryDataAccessTest extends FunctionalTestCase
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals(1, $row[0]);
-        self::assertStringStartsWith(hex2bin('C0DEF00D'), $row[1]);
+
+        $binaryResult = $row[1];
+        if (is_resource($binaryResult)) {
+            $binaryResult = stream_get_contents($binaryResult);
+        }
+
+        self::assertEquals(hex2bin('C0DEF00D'), $binaryResult);
     }
 
     public function testFetchColumn(): void
     {
-        $sql     = 'SELECT test_int FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql     = 'SELECT test_int FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $testInt = $this->connection->fetchOne($sql, [1, hex2bin('C0DEF00D')], [1 => ParameterType::BINARY]);
 
         self::assertEquals(1, $testInt);
 
-        $sql        = 'SELECT test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql        = 'SELECT test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $testBinary = $this->connection->fetchOne($sql, [1, hex2bin('C0DEF00D')], [1 => ParameterType::BINARY]);
+
+        if (is_resource($testBinary)) {
+            $testBinary = stream_get_contents($testBinary);
+        }
 
         self::assertEquals(hex2bin('C0DEF00D'), $testBinary);
     }
 
     public function testFetchOneWithTypes(): void
     {
-        $sql    = 'SELECT test_binary FROM fetch_table WHERE test_int = ? AND test_binary = ?';
+        $sql    = 'SELECT test_binary FROM binary_fetch_table WHERE test_int = ? AND test_binary = ?';
         $column = $this->connection->fetchOne(
             $sql,
             [1, hex2bin('C0DEF00D')],
             [ParameterType::STRING, Types::BINARY],
         );
 
-        self::assertIsString($column);
+        if (is_resource($column)) {
+            $column = stream_get_contents($column);
+        }
 
-        self::assertStringStartsWith(hex2bin('C0DEF00D'), $column);
+        self::assertIsString($column);
+        self::assertEquals(hex2bin('C0DEF00D'), $column);
     }
 
     public function testNativeArrayListSupport(): void
     {
         for ($i = 100; $i < 110; $i++) {
-            $this->connection->insert('fetch_table', [
+            $this->connection->insert('binary_fetch_table', [
                 'test_int' => $i,
                 'test_binary' => pack('L', $i),
             ], [
@@ -216,7 +280,7 @@ class BinaryDataAccessTest extends FunctionalTestCase
         }
 
         $result = $this->connection->executeQuery(
-            'SELECT test_int FROM fetch_table WHERE test_int IN (?)',
+            'SELECT test_int FROM binary_fetch_table WHERE test_int IN (?)',
             [[100, 101, 102, 103, 104]],
             [ArrayParameterType::INTEGER],
         );
@@ -226,7 +290,7 @@ class BinaryDataAccessTest extends FunctionalTestCase
         self::assertEquals([[100], [101], [102], [103], [104]], $data);
 
         $result = $this->connection->executeQuery(
-            'SELECT test_int FROM fetch_table WHERE test_binary IN (?)',
+            'SELECT test_int FROM binary_fetch_table WHERE test_binary IN (?)',
             [
                 [
                     pack('L', 100),
@@ -244,7 +308,7 @@ class BinaryDataAccessTest extends FunctionalTestCase
         self::assertEquals([[100], [101], [102], [103], [104]], $data);
 
         $result = $this->connection->executeQuery(
-            'SELECT test_binary FROM fetch_table WHERE test_binary IN (?)',
+            'SELECT test_binary FROM binary_fetch_table WHERE test_binary IN (?)',
             [
                 [
                     pack('L', 100),
@@ -259,6 +323,14 @@ class BinaryDataAccessTest extends FunctionalTestCase
 
         $data = $result->fetchFirstColumn();
         self::assertCount(5, $data);
+
+        $data = array_map(
+            static fn ($binaryField) => is_resource($binaryField)
+                ? stream_get_contents($binaryField)
+                : $binaryField,
+            $data,
+        );
+
         self::assertEquals([
             pack('L', 100),
             pack('L', 101),
