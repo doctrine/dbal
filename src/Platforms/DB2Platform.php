@@ -23,6 +23,9 @@ use function implode;
 use function sprintf;
 use function strpos;
 
+/**
+ * Provides the behavior, features and SQL dialect of the IBM DB2 database platform of the oldest supported version.
+ */
 class DB2Platform extends AbstractPlatform
 {
     /**
@@ -35,7 +38,8 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'DB2Platform::getCharMaxLength() is deprecated.',
+            '%s() is deprecated.',
+            __METHOD__,
         );
 
         return 254;
@@ -51,7 +55,8 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'DB2Platform::getBinaryMaxLength() is deprecated.',
+            '%s() is deprecated.',
+            __METHOD__,
         );
 
         return 32704;
@@ -127,7 +132,7 @@ class DB2Platform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5058',
-            '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
+            '%s() is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
             __METHOD__,
         );
 
@@ -192,7 +197,8 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4749',
-            'DB2Platform::getName() is deprecated. Identify platforms by their class.',
+            '%s() is deprecated. Identify platforms by their class.',
+            __METHOD__,
         );
 
         return 'db2';
@@ -476,7 +482,7 @@ class DB2Platform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
+            '%s() is deprecated.',
             __METHOD__,
         );
 
@@ -653,7 +659,7 @@ class DB2Platform extends AbstractPlatform
                 Deprecation::trigger(
                     'doctrine/dbal',
                     'https://github.com/doctrine/dbal/pull/5663',
-                    'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
+                    'Generation of "rename table" SQL using %s() is deprecated. Use getRenameTableSQL() instead.',
                     __METHOD__,
                 );
 
@@ -939,7 +945,8 @@ class DB2Platform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/1519',
-            'DB2Platform::prefersIdentityColumns() is deprecated.',
+            '%s() is deprecated.',
+            __METHOD__,
         );
 
         return true;
@@ -985,8 +992,10 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4510',
-            'DB2Platform::getReservedKeywordsClass() is deprecated,'
-                . ' use DB2Platform::createReservedKeywordsList() instead.',
+            '%s() is deprecated,'
+                . ' use %s::createReservedKeywordsList() instead.',
+            __METHOD__,
+            static::class,
         );
 
         return Keywords\DB2Keywords::class;

@@ -16,6 +16,12 @@
         <var name="db_user" value="db2inst1"/>
         <var name="db_password" value="Doctrine2018"/>
         <var name="db_dbname" value="doctrine"/>
+
+        <var name="tmpdb_driver" value="ibm_db2"/>
+        <var name="tmpdb_host" value="127.0.0.1"/>
+        <var name="tmpdb_user" value="db2inst1"/>
+        <var name="tmpdb_password" value="Doctrine2018"/>
+        <var name="tmpdb_dbname" value="doctrine"/>
     </php>
 
     <testsuites>
