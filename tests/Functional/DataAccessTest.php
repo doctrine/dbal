@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use DateTime;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\SqliteHptPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Table;
@@ -25,6 +26,10 @@ class DataAccessTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
+        $datetimeString = $this->connection->getDatabasePlatform() instanceof SqliteHptPlatform
+        ? '2010-01-01 10:10:10.000000'
+        : '2010-01-01 10:10:10';
+
         $table = new Table('fetch_table');
         $table->addColumn('test_int', Types::INTEGER);
         $table->addColumn('test_string', Types::STRING);
@@ -36,7 +41,7 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->insert('fetch_table', [
             'test_int' => 1,
             'test_string' => 'foo',
-            'test_datetime' => '2010-01-01 10:10:10',
+            'test_datetime' => $datetimeString,
         ]);
     }
 

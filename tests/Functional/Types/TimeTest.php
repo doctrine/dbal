@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\SqliteHptPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -46,7 +47,7 @@ final class TimeTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (
-            $platform instanceof SqlitePlatform ||
+            ($platform instanceof SqlitePlatform && ! $platform instanceof SqliteHptPlatform) ||
             $platform instanceof DB2Platform ||
             $platform instanceof OraclePlatform
         ) {

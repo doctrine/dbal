@@ -12,6 +12,9 @@ use PDOException;
 use SensitiveParameter;
 
 use function array_intersect_key;
+use function filter_var;
+
+use const FILTER_VALIDATE_BOOL;
 
 final class Driver extends AbstractSQLiteDriver
 {
@@ -26,6 +29,11 @@ final class Driver extends AbstractSQLiteDriver
     ) {
         $driverOptions        = $params['driverOptions'] ?? [];
         $userDefinedFunctions = [];
+
+        $this->useHighPrecisionTimestamps = filter_var(
+            $driverOptions['high_precision_timestamps'] ?? false,
+            FILTER_VALIDATE_BOOL,
+        );
 
         if (isset($driverOptions['userDefinedFunctions'])) {
             Deprecation::trigger(

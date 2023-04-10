@@ -7,6 +7,10 @@ use Doctrine\DBAL\Driver\API\SQLite\UserDefinedFunctions;
 use SensitiveParameter;
 use SQLite3;
 
+use function filter_var;
+
+use const FILTER_VALIDATE_BOOL;
+
 final class Driver extends AbstractSQLiteDriver
 {
     /**
@@ -17,6 +21,11 @@ final class Driver extends AbstractSQLiteDriver
         array $params
     ): Connection {
         $isMemory = (bool) ($params['memory'] ?? false);
+
+        $this->useHighPrecisionTimestamps = filter_var(
+            $params['driverOptions']['high_precision_timestamps'] ?? false,
+            FILTER_VALIDATE_BOOL,
+        );
 
         if (isset($params['path'])) {
             if ($isMemory) {

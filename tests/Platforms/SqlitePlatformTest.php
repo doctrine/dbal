@@ -768,4 +768,19 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->platform->getCreateTableSQL($table),
         );
     }
+
+    public function testGetDateTimeFormatString(): void
+    {
+        self::assertEquals('Y-m-d H:i:s', $this->platform->getDateTimeFormatString());
+    }
+
+    public function testGetDateTimeTzFormatString(): void
+    {
+        self::assertEquals('Y-m-d H:i:s', $this->platform->getDateTimeFormatString());
+    }
+
+    public function testGetTimeFormatString(): void
+    {
+        self::assertEquals('H:i:s', $this->platform->getTimeFormatString());
+    }
 }

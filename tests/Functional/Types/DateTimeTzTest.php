@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Doctrine\DBAL\Platforms\OracleHptPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SqliteHptPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
@@ -71,7 +72,7 @@ final class DateTimeTzTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (
-            $platform instanceof SqlitePlatform ||
+            ($platform instanceof SqlitePlatform && ! $platform instanceof SqliteHptPlatform) ||
             ($platform instanceof OraclePlatform && ! $platform instanceof OracleHptPlatform)
         ) {
             self::markTestSkipped(sprintf("Platform %s doesn't support variable precision time", get_class($platform)));
