@@ -76,7 +76,10 @@ abstract class AbstractPlatform
 
     public const CREATE_FOREIGNKEYS = 2;
 
-    /** @var string[]|null */
+    /**
+     * @var array<string, string>|null
+     * @psalm-var array<string, Types\Types::*>|null
+     */
     protected $doctrineTypeMapping;
 
     /**
@@ -393,6 +396,7 @@ abstract class AbstractPlatform
      *
      * @param string $dbType
      * @param string $doctrineType
+     * @psalm-param Types\Types::* $doctrineType
      *
      * @return void
      *
@@ -426,6 +430,7 @@ abstract class AbstractPlatform
      * @param string $dbType
      *
      * @return string
+     * @phpstan-return Types\Types::*
      *
      * @throws Exception
      */

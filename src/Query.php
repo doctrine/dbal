@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 /**
  * An SQL query together with its bound parameters.
@@ -29,14 +30,14 @@ final class Query
      * The types of the parameters bound to the query.
      *
      * @var array<Type|int|string|null>
+     * @psalm-var array<int|string, int|ParameterType::*|Types::*|Type|null>
      */
     private array $types;
 
     /**
      * @param array<mixed>                $params
      * @param array<Type|int|string|null> $types
-     *
-     * @psalm-suppress ImpurePropertyAssignment
+     * @psalm-param array<int|string, int|ParameterType::*|Types::*|Type|null> $types
      */
     public function __construct(string $sql, array $params, array $types)
     {
@@ -56,7 +57,10 @@ final class Query
         return $this->params;
     }
 
-    /** @return array<Type|int|string|null> */
+    /**
+     * @return array<Type|int|string|null>
+     * @psalm-return array<int|string, int|ParameterType::*|Types::*|Type|null>
+     */
     public function getTypes(): array
     {
         return $this->types;

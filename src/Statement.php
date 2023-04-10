@@ -4,9 +4,12 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
+use function assert;
 use function func_num_args;
+use function is_int;
 use function is_string;
 
 /**
@@ -32,6 +35,7 @@ class Statement
      * The parameter types.
      *
      * @var int[]|string[]
+     * @psalm-var array<int|ParameterType::*|Types::*|Type|null>
      */
     protected $types = [];
 
@@ -86,6 +90,7 @@ class Statement
      * @param string|int $param The name or position of the parameter.
      * @param mixed      $value The value of the parameter.
      * @param mixed      $type  Either a PDO binding type or a DBAL mapping type name or instance.
+     * @psalm-param int|ParameterType::*|Types::*|Type|null $type
      *
      * @return bool TRUE on success, FALSE on failure.
      *
@@ -111,6 +116,8 @@ class Statement
             }
         }
 
+        assert(is_int($bindingType));
+
         try {
             return $this->stmt->bindValue($param, $value, $bindingType);
         } catch (Driver\Exception $e) {
@@ -130,6 +137,7 @@ class Statement
      * @param int        $type     The binding type.
      * @param int|null   $length   Must be specified when using an OUT bind
      *                             so that PHP allocates enough memory to hold the returned value.
+     * @psalm-param ParameterType::* $type
      *
      * @return bool TRUE on success, FALSE on failure.
      *

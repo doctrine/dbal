@@ -15,10 +15,16 @@ use function in_array;
  */
 final class TypeRegistry
 {
-    /** @var array<string, Type> Map of type names and their corresponding flyweight objects. */
+    /**
+     * @var array<string, Type> Map of type names and their corresponding flyweight objects.
+     * @psalm-var array<Types::*, Type>
+     */
     private array $instances;
 
-    /** @param array<string, Type> $instances */
+    /**
+     * @param array<string, Type> $instances
+     * @psalm-param array<Types::*, Type> $instances
+     */
     public function __construct(array $instances = [])
     {
         $this->instances = $instances;
@@ -26,6 +32,8 @@ final class TypeRegistry
 
     /**
      * Finds a type by the given name.
+     *
+     * @psalm-param Types::* $name
      *
      * @throws Exception
      */
@@ -40,6 +48,8 @@ final class TypeRegistry
 
     /**
      * Finds a name for the given type.
+     *
+     * @psalm-return Types::* $name
      *
      * @throws Exception
      */
@@ -56,6 +66,8 @@ final class TypeRegistry
 
     /**
      * Checks if there is a type of the given name.
+     *
+     * @psalm-param Types::* $name
      */
     public function has(string $name): bool
     {
@@ -64,6 +76,8 @@ final class TypeRegistry
 
     /**
      * Registers a custom type to the type map.
+     *
+     * @psalm-param Types::* $name
      *
      * @throws Exception
      */
@@ -82,6 +96,8 @@ final class TypeRegistry
 
     /**
      * Overrides an already defined type to use a different implementation.
+     *
+     * @psalm-param Types::* $name
      *
      * @throws Exception
      */
@@ -104,12 +120,14 @@ final class TypeRegistry
      * @internal
      *
      * @return array<string, Type>
+     * @psalm-return array<Types::*, Type>
      */
     public function getMap(): array
     {
         return $this->instances;
     }
 
+    /** @psalm-return Types::*|null */
     private function findTypeName(Type $type): ?string
     {
         $name = array_search($type, $this->instances, true);

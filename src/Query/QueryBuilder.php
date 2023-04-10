@@ -11,6 +11,7 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_key_exists;
@@ -99,17 +100,22 @@ class QueryBuilder
     /**
      * The parameter type map of this query.
      *
-     * @var array<int, int|string|Type|null>|array<string, int|string|Type|null>
+     * @var array<int|string, int|string|Type|null>
+     * @psalm-var array<int|string, int|ParameterType::*|Types::*|Type|null>
      */
     private array $paramTypes = [];
 
     /**
-     * The type of query this is. Can be select, update or delete.
+     * The type of query this is. Can be select, update, insert or delete.
+     *
+     * @psalm-var self::SELECT|self::UPDATE|self::INSERT|self::DELETE
      */
     private int $type = self::SELECT;
 
     /**
      * The state of the query object. Can be dirty or clean.
+     *
+     * @psalm-var self::STATE_*
      */
     private int $state = self::STATE_CLEAN;
 
@@ -170,6 +176,7 @@ class QueryBuilder
      * @deprecated If necessary, track the type of the query being built outside of the builder.
      *
      * @return int
+     * @psalm-return self::SELECT|self::UPDATE|self::INSERT|self::DELETE
      */
     public function getType()
     {
@@ -438,6 +445,7 @@ class QueryBuilder
      * @param int|string           $key   Parameter position or name
      * @param mixed                $value Parameter value
      * @param int|string|Type|null $type  Parameter type
+     * @psalm-param int|ParameterType::*|Types::*|Type|null $type
      *
      * @return $this This QueryBuilder instance.
      */
@@ -473,8 +481,9 @@ class QueryBuilder
      *         ));
      * </code>
      *
-     * @param list<mixed>|array<string, mixed>                                     $params Parameters to set
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
+     * @param list<mixed>|array<string, mixed>        $params Parameters to set
+     * @param array<int|string, int|string|Type|null> $types  Parameter types
+     * @psalm-param array<int|string, int|ParameterType::*|Types::*|Type|null> $types
      *
      * @return $this This QueryBuilder instance.
      */
@@ -511,8 +520,8 @@ class QueryBuilder
     /**
      * Gets all defined query parameter types for the query being constructed indexed by parameter index or name.
      *
-     * @return array<int, int|string|Type|null>|array<string, int|string|Type|null> The currently defined
-     *                                                                              query parameter types
+     * @return array<int|string, int|string|Type|null> The currently defined query parameter types
+     * @psalm-return array<int|string, int|ParameterType::*|Types::*|Type|null>
      */
     public function getParameterTypes()
     {
@@ -525,6 +534,7 @@ class QueryBuilder
      * @param int|string $key The key of the bound parameter type
      *
      * @return int|string|Type The value of the bound parameter type
+     * @psalm-return int|ParameterType::*|Types::*|Type
      */
     public function getParameterType($key)
     {
@@ -1487,6 +1497,7 @@ class QueryBuilder
      * @param mixed                $value
      * @param int|string|Type|null $type
      * @param string               $placeHolder The name to bind with. The string must start with a colon ':'.
+     * @psalm-param int|ParameterType::*|Types::*|Type|null $type
      *
      * @return string the placeholder name used.
      */
@@ -1521,6 +1532,7 @@ class QueryBuilder
      *
      * @param mixed                $value
      * @param int|string|Type|null $type
+     * @psalm-param int|ParameterType::*|Types::*|Type|null $type
      *
      * @return string
      */
@@ -1533,8 +1545,8 @@ class QueryBuilder
     }
 
     /**
-     * @param string             $fromAlias
-     * @param array<string,true> $knownAliases
+     * @param string              $fromAlias
+     * @param array<string, true> $knownAliases
      *
      * @throws QueryException
      */

@@ -10,6 +10,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
@@ -1735,8 +1736,10 @@ abstract class AbstractSchemaManager
      *
      * @param string|null $comment
      * @param string      $currentType
+     * @psalm-param Types::* $currentType
      *
      * @return string
+     * @psalm-return Types::*
      */
     public function extractDoctrineTypeFromComment($comment, $currentType)
     {
@@ -1752,6 +1755,7 @@ abstract class AbstractSchemaManager
      *
      * @param string|null $comment
      * @param string|null $type
+     * @psalm-param Types::*|null $type
      *
      * @return string|null
      */

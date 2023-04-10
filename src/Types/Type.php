@@ -103,6 +103,7 @@ abstract class Type
      * @deprecated this method will be removed in Doctrine DBAL 4.0.
      *
      * @return string
+     * @psalm-return Types::*
      */
     abstract public function getName();
 
@@ -127,8 +128,9 @@ abstract class Type
      * Type instances are implemented as flyweights.
      *
      * @param string $name The name of the type (as returned by getName()).
+     * @psalm-param Types::* $name
      *
-     * @return Type
+     * @return self
      *
      * @throws Exception
      */
@@ -141,7 +143,8 @@ abstract class Type
      * Adds a custom type to the type map.
      *
      * @param string             $name      The name of the type. This should correspond to what getName() returns.
-     * @param class-string<Type> $className The class name of the custom type.
+     * @param class-string<self> $className The class name of the custom type.
+     * @psalm-param Types::* $name
      *
      * @return void
      *
@@ -156,6 +159,7 @@ abstract class Type
      * Checks if exists support for a type.
      *
      * @param string $name The name of the type.
+     * @psalm-param Types::* $name
      *
      * @return bool TRUE if type is supported; FALSE otherwise.
      */
@@ -168,7 +172,8 @@ abstract class Type
      * Overrides an already defined type to use a different implementation.
      *
      * @param string             $name
-     * @param class-string<Type> $className
+     * @param class-string<self> $className
+     * @psalm-param Types::* $name
      *
      * @return void
      *
@@ -186,6 +191,7 @@ abstract class Type
      * This method should return one of the {@see ParameterType} constants.
      *
      * @return int
+     * @psalm-return ParameterType::*
      */
     public function getBindingType()
     {
@@ -197,11 +203,12 @@ abstract class Type
      * type class
      *
      * @return array<string, string>
+     * @psalm-return array<Types::*, class-string<self>>
      */
     public static function getTypesMap()
     {
         return array_map(
-            static function (Type $type): string {
+            static function (self $type): string {
                 return get_class($type);
             },
             self::getTypeRegistry()->getMap(),

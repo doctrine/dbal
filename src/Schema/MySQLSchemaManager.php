@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMeta
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
@@ -311,6 +312,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
      * inferred from a DC2Type comment.
      *
      * @param mixed[] $tableColumn
+     * @psalm-param Types::* $type
      */
     private function expectedDbType(string $type, array $tableColumn): string
     {

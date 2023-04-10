@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
@@ -332,6 +333,7 @@ class Table extends AbstractAsset
      * @param string  $name
      * @param string  $typeName
      * @param mixed[] $options
+     * @psalm-param Types::* $typeName
      *
      * @return Column
      *
