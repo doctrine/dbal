@@ -688,6 +688,15 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testInitializesDoctrineTypeMappings(): void
+    {
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('graphic'));
+        self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('graphic'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('vargraphic'));
+        self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('vargraphic'));
+    }
+
     protected function getLimitOffsetCastToIntExpectedQuery(): string
     {
         return 'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM'
