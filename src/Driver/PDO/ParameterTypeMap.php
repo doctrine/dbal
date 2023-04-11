@@ -27,6 +27,8 @@ final class ParameterTypeMap
      * @psalm-return PDO::PARAM_*
      *
      * @throws UnknownParameterType
+     *
+     * @psalm-assert ParameterType::* $type
      */
     public static function convertParamType(int $type): int
     {
