@@ -1472,6 +1472,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     /** @dataProvider commentsProvider */
     public function testExtractDoctrineTypeFromComment(string $comment, string $expected, string $currentType): void
     {
+        self::assertNotEmpty($comment);
+        self::assertNotEmpty($currentType);
+
         $result = $this->schemaManager->extractDoctrineTypeFromComment($comment, $currentType);
 
         self::assertSame($expected, $result);

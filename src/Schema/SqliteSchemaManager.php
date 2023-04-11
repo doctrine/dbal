@@ -15,6 +15,7 @@ use Doctrine\Deprecations\Deprecation;
 use function array_change_key_case;
 use function array_map;
 use function array_merge;
+use function assert;
 use function count;
 use function explode;
 use function file_exists;
@@ -337,9 +338,11 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 continue;
             }
 
-            $type = $this->extractDoctrineTypeFromComment($comment, '');
+            $typeName      = $type->getName();
+            $extractedType = $this->extractDoctrineTypeFromComment($comment, $typeName);
 
-            if ($type !== '') {
+            if ($extractedType !== $typeName) {
+                $type = $extractedType;
                 $column->setType(Type::getType($type));
 
                 $comment = $this->removeDoctrineTypeFromComment($comment, $type);
@@ -371,6 +374,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $dbType   = str_replace(' unsigned', '', $dbType);
             $unsigned = true;
         }
+
+        assert($dbType !== '');
 
         $fixed   = false;
         $type    = $this->_platform->getDoctrineTypeMapping($dbType);
@@ -540,6 +545,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment === '' ? null : $comment;
     }
 
+    /** @psalm-return non-empty-string|null */
     private function parseColumnCommentFromSQL(string $column, string $sql): ?string
     {
         $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))

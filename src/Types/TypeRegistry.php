@@ -15,10 +15,16 @@ use function in_array;
  */
 final class TypeRegistry
 {
-    /** @var array<string, Type> Map of type names and their corresponding flyweight objects. */
+    /**
+     * @var array<string, Type> Map of type names and their corresponding flyweight objects.
+     * @psalm-var array<non-empty-string, Type>
+     */
     private array $instances;
 
-    /** @param array<string, Type> $instances */
+    /**
+     * @param array<string, Type> $instances
+     * @psalm-param array<non-empty-string, Type> $instances
+     */
     public function __construct(array $instances = [])
     {
         $this->instances = $instances;
@@ -65,6 +71,8 @@ final class TypeRegistry
     /**
      * Registers a custom type to the type map.
      *
+     * @psalm-param non-empty-string $name
+     *
      * @throws Exception
      */
     public function register(string $name, Type $type): void
@@ -82,6 +90,8 @@ final class TypeRegistry
 
     /**
      * Overrides an already defined type to use a different implementation.
+     *
+     * @psalm-param non-empty-string $name
      *
      * @throws Exception
      */
@@ -104,6 +114,7 @@ final class TypeRegistry
      * @internal
      *
      * @return array<string, Type>
+     * @psalm-return array<non-empty-string, Type>
      */
     public function getMap(): array
     {

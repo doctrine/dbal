@@ -170,7 +170,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
         $dbType = strtolower($tableColumn['type']);
         $dbType = strtok($dbType, '(), ');
-        assert(is_string($dbType));
+        assert(is_string($dbType) && $dbType !== '');
 
         $length = $tableColumn['length'] ?? strtok('(), ');
 

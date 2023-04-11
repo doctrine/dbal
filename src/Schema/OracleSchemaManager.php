@@ -10,6 +10,7 @@ use Doctrine\Deprecations\Deprecation;
 
 use function array_change_key_case;
 use function array_values;
+use function assert;
 use function implode;
 use function is_string;
 use function preg_match;
@@ -151,6 +152,8 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $dbType = 'timestamp';
             }
         }
+
+        assert($dbType !== '');
 
         $unsigned = $fixed = $precision = $scale = $length = null;
 

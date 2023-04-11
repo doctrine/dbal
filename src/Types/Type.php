@@ -103,6 +103,7 @@ abstract class Type
      * @deprecated this method will be removed in Doctrine DBAL 4.0.
      *
      * @return string
+     * @psalm-return non-empty-string
      */
     abstract public function getName();
 
@@ -142,6 +143,7 @@ abstract class Type
      *
      * @param string             $name      The name of the type. This should correspond to what getName() returns.
      * @param class-string<Type> $className The class name of the custom type.
+     * @psalm-param non-empty-string $name
      *
      * @return void
      *
@@ -169,6 +171,7 @@ abstract class Type
      *
      * @param string             $name
      * @param class-string<Type> $className
+     * @psalm-param non-empty-string $name
      *
      * @return void
      *
@@ -197,11 +200,13 @@ abstract class Type
      * type class
      *
      * @return array<string, string>
+     * @psalm-return array<non-empty-string, class-string<self>>
      */
     public static function getTypesMap()
     {
         return array_map(
-            static function (Type $type): string {
+            /** @psalm-return class-string<self> */
+            static function (self $type): string {
                 return get_class($type);
             },
             self::getTypeRegistry()->getMap(),

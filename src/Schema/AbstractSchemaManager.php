@@ -1735,13 +1735,17 @@ abstract class AbstractSchemaManager
      *
      * @param string|null $comment
      * @param string      $currentType
+     * @psalm-param non-empty-string $currentType
      *
      * @return string
+     * @psalm-return non-empty-string
      */
     public function extractDoctrineTypeFromComment($comment, $currentType)
     {
-        if ($comment !== null && preg_match('(\(DC2Type:(((?!\)).)+)\))', $comment, $match) === 1) {
-            return $match[1];
+        if ($comment !== null && preg_match('(\(DC2Type:(?<type>(?:(?!\)).)+)\))', $comment, $match) === 1) {
+            assert($match['type'] !== '');
+
+            return $match['type'];
         }
 
         return $currentType;

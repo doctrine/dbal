@@ -76,7 +76,10 @@ abstract class AbstractPlatform
 
     public const CREATE_FOREIGNKEYS = 2;
 
-    /** @var string[]|null */
+    /**
+     * @var string[]|null
+     * @psalm-var non-empty-string[]|null
+     */
     protected $doctrineTypeMapping;
 
     /**
@@ -393,6 +396,7 @@ abstract class AbstractPlatform
      *
      * @param string $dbType
      * @param string $doctrineType
+     * @psalm-param non-empty-string $doctrineType
      *
      * @return void
      *
@@ -424,8 +428,10 @@ abstract class AbstractPlatform
      * Gets the Doctrine type that is mapped for the given database column type.
      *
      * @param string $dbType
+     * @psalm-param non-empty-string $dbType
      *
      * @return string
+     * @psalm-return non-empty-string
      *
      * @throws Exception
      */

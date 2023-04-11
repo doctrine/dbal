@@ -159,6 +159,8 @@ SQL,
             $fixed = true;
         }
 
+        assert($dbType !== '');
+
         $type                   = $this->_platform->getDoctrineTypeMapping($dbType);
         $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);

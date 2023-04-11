@@ -426,6 +426,8 @@ SQL,
             $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
         }
 
+        assert($dbType !== '');
+
         $type                   = $this->_platform->getDoctrineTypeMapping($dbType);
         $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
