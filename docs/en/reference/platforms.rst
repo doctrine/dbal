@@ -61,7 +61,8 @@ PostgreSQL
 IBM DB2
 ^^^^^^^
 
--  ``Db2Platform`` for all versions.
+-  ``Db2Platform`` for version 9.7 and above.
+-  ``Db2111Platform`` for version 11.1 (11.1 GA) and above.
 
 SQLite
 ^^^^^^
