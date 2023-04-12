@@ -374,6 +374,10 @@ using deserialization or ``null`` if no data is present.
     properly on vendors not supporting column comments and will fall back to
     ``text`` type instead.
 
+.. warning::
+
+    This type is deprecated since 3.4.0, use :ref:`json` instead.
+
 simple_array
 ^^^^^^^^^^^^
 
@@ -477,6 +481,10 @@ using deserialization or ``null`` if no data is present.
     the object type will cause deserialization errors on PostgreSQL. A workaround is
     to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()`` PHP objects and store
     them into a ``text`` field manually.
+
+.. warning::
+
+    This type is deprecated since 3.4.0, use :ref:`json` instead.
 
 .. _mappingMatrix:
 
