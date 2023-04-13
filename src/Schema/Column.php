@@ -3,6 +3,8 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
+use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\DBAL\Types\TimeType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 
@@ -82,6 +84,13 @@ class Column extends AbstractAsset
      */
     public function setOptions(array $options)
     {
+        if (
+            ($this->_type instanceof DateTimeType || $this->_type instanceof TimeType)
+            && ! isset($options['precision'])
+        ) {
+            $options['precision'] = 0;
+        }
+
         foreach ($options as $name => $value) {
             $method = 'set' . $name;
 

@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\Deprecations\Deprecation;
@@ -20,12 +21,14 @@ use function array_diff;
 use function array_merge;
 use function array_unique;
 use function array_values;
+use function assert;
 use function count;
 use function explode;
 use function implode;
 use function in_array;
 use function is_array;
 use function is_bool;
+use function is_int;
 use function is_numeric;
 use function is_string;
 use function sprintf;
@@ -245,6 +248,23 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function supportsCommentOnStatement()
     {
         return true;
+    }
+
+    public function columnsEqual(Column $column1, Column $column2): bool
+    {
+        $properties1 = $column1->toArray();
+        $properties2 = $column2->toArray();
+
+        if (
+            $properties1['type'] instanceof Types\DateTimeType
+            || $properties1['type'] instanceof Types\TimeType
+        ) {
+            if (($properties1['precision'] ?? 0) !== ($properties2['precision'] ?? 0)) {
+                return false;
+            }
+        }
+
+        return parent::columnsEqual($column1, $column2);
     }
 
     /**
@@ -1047,7 +1067,10 @@ SQL
      */
     public function getDateTimeTypeDeclarationSQL(array $column)
     {
-        return 'TIMESTAMP(0) WITHOUT TIME ZONE';
+        $precision = $column['precision'] ?? 0;
+        assert(is_int($precision));
+
+        return sprintf('TIMESTAMP(%d) WITHOUT TIME ZONE', $precision);
     }
 
     /**
@@ -1055,7 +1078,10 @@ SQL
      */
     public function getDateTimeTzTypeDeclarationSQL(array $column)
     {
-        return 'TIMESTAMP(0) WITH TIME ZONE';
+        $precision = $column['precision'] ?? 0;
+        assert(is_int($precision));
+
+        return sprintf('TIMESTAMP(%d) WITH TIME ZONE', $precision);
     }
 
     /**
@@ -1071,7 +1097,10 @@ SQL
      */
     public function getTimeTypeDeclarationSQL(array $column)
     {
-        return 'TIME(0) WITHOUT TIME ZONE';
+        $precision = $column['precision'] ?? 0;
+        assert(is_int($precision));
+
+        return sprintf('TIME(%d) WITHOUT TIME ZONE', $precision);
     }
 
     /**

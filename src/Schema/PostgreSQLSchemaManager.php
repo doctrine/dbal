@@ -503,6 +503,18 @@ SQL,
 
                 break;
 
+            case 'timestamp':
+                if (
+                    preg_match(
+                        '~[A-Za-z]+\((\d+)\)~',
+                        $tableColumn['complete_type'],
+                        $match,
+                    ) === 1
+                ) {
+                    $precision = (int) $match[1];
+                }
+
+                break;
             case 'year':
                 $length = null;
                 break;

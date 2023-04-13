@@ -500,6 +500,23 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         ];
     }
 
+    public function testComparatorSupportsTimestampPrecision(): void
+    {
+        $this->dropTableIfExists('timestamp_tests');
+        $this->connection->executeQuery('CREATE TABLE timestamp_tests (dt timestamp(6) NOT NULL, t time(6) NOT NULL)');
+
+        $table = new Table('timestamp_test');
+        $table->addColumn('dt', 'datetime', ['precision' => 5]);
+        $table->addColumn('t', 'time', ['precision' => 5]);
+
+        $tableDiff = $this->schemaManager->createComparator()
+            ->compareTables($this->schemaManager->introspectTable('timestamp_tests'), $table);
+
+        self::assertCount(2, $tableDiff->changedColumns);
+        self::assertArrayHasKey('dt', $tableDiff->changedColumns);
+        self::assertArrayHasKey('t', $tableDiff->changedColumns);
+    }
+
     /** @dataProvider serialTypes */
     public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValue(string $type): void
     {
