@@ -38,8 +38,8 @@ final class DsnParser
         #[SensitiveParameter]
         string $dsn
     ): array {
-        // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
-        $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $dsn);
+        // (pdo-)?sqlite3?:///... => (pdo-)?sqlite3?://localhost/... or else the URL will be invalid
+        $url = preg_replace('#^((?:pdo-)?sqlite3?):///#', '$1://localhost/', $dsn);
         assert($url !== null);
 
         $url = parse_url($url);
