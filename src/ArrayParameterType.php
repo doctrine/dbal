@@ -22,7 +22,7 @@ final class ArrayParameterType
     /**
      * @internal
      *
-     * @psalm-param self::INTEGER|self::STRING|self::ASCII $type
+     * @psalm-param self::* $type
      *
      * @psalm-return ParameterType::INTEGER|ParameterType::STRING|ParameterType::ASCII
      */
