@@ -193,6 +193,12 @@ class SqlitePlatform extends AbstractPlatform
         return "'main'";
     }
 
+    /** @inheritDoc */
+    public function getDateTimeTzFormatString()
+    {
+        return 'Y-m-d H:i:sO';
+    }
+
     /**
      * {@inheritDoc}
      */

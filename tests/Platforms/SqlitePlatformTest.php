@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use DateTimeImmutable;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -762,5 +763,16 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             ],
             $this->platform->getCreateTableSQL($table),
         );
+    }
+
+    public function testGetDateTimeTzFormatString(): void
+    {
+        $date = DateTimeImmutable::createFromFormat(
+            $this->platform->getDateTimeTzFormatString(),
+            '1986-03-22 22:45:30-03:00',
+        );
+
+        self::assertInstanceOf(DateTimeImmutable::class, $date);
+        self::assertSame('GMT-0300', $date->format('T'));
     }
 }
