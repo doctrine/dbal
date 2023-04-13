@@ -52,7 +52,7 @@ class Column extends AbstractAsset
     protected $_comment;
 
     /**
-     * @deprecated Use {@link $_platformOptions instead}
+     * @deprecated Use {@link $_platformOptions} instead
      *
      * @var mixed[]
      */
@@ -353,7 +353,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link setPlatformOption() instead}
+     * @deprecated Use {@link setPlatformOption()} instead
      *
      * @param string $name
      * @param mixed  $value
@@ -374,7 +374,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link hasPlatformOption() instead}
+     * @deprecated Use {@link hasPlatformOption()} instead
      *
      * @param string $name
      *
@@ -392,7 +392,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link getPlatformOption() instead}
+     * @deprecated Use {@link getPlatformOption()} instead
      *
      * @param string $name
      *
@@ -410,7 +410,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link setPlatformOptions() instead}
+     * @deprecated Use {@link setPlatformOptions()} instead
      *
      * @param mixed[] $customSchemaOptions
      *
@@ -430,7 +430,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @deprecated Use {@link getPlatformOptions() instead}
+     * @deprecated Use {@link getPlatformOptions()} instead
      *
      * @return mixed[]
      */
