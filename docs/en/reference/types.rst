@@ -407,6 +407,7 @@ using comma delimited ``explode()`` or ``null`` if no data is present.
     This basically means that every array item other than ``string``
     will lose its type awareness.
 
+.. _json:
 json
 ^^^^
 
