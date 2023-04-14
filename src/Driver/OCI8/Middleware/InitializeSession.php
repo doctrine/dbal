@@ -28,7 +28,7 @@ class InitializeSession implements Middleware
                         . " NLS_TIME_FORMAT = 'HH24:MI:SS'"
                         . " NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'"
                         . " NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS'"
-                        . " NLS_TIMESTAMP_TZ_FORMAT = 'YYYY-MM-DD HH24:MI:SS TZH:TZM'"
+                        . " NLS_TIMESTAMP_TZ_FORMAT = 'YYYY-MM-DD HH24:MI:SSTZH:TZM'"
                         . " NLS_NUMERIC_CHARACTERS = '.,'",
                 );
 
