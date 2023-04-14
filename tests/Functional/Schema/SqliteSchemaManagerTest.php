@@ -291,4 +291,84 @@ SQL;
         self::assertSame('users', $foreignKey->getForeignTableName());
         self::assertSame(['id'], $foreignKey->getForeignColumns());
     }
+
+    public function testShorthandInForeignKeyReference(): void
+    {
+        $this->dropTableIfExists('artist');
+        $this->dropTableIfExists('track');
+
+        $ddl = <<<'DDL'
+        CREATE TABLE artist(
+            artistid INTEGER PRIMARY KEY,
+            artistname TEXT
+        );
+
+        CREATE TABLE track(
+            trackid INTEGER,
+            trackname TEXT,
+            trackartist INTEGER REFERENCES artist
+        );
+        DDL;
+
+        $this->connection->executeStatement($ddl);
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $song        = $schemaManager->introspectTable('track');
+        $foreignKeys = $song->getForeignKeys();
+        self::assertCount(1, $foreignKeys);
+
+        $foreignKey1 = array_shift($foreignKeys);
+        self::assertEmpty($foreignKey1->getName());
+
+        self::assertSame(['trackartist'], $foreignKey1->getLocalColumns());
+        self::assertSame(['artistid'], $foreignKey1->getForeignColumns());
+    }
+
+    public function testShorthandInForeignKeyReferenceWithMultipleColumns(): void
+    {
+        $this->dropTableIfExists('artist');
+        $this->dropTableIfExists('track');
+
+        $ddl = <<<'DDL'
+        CREATE TABLE artist(
+            artistid INTEGER,
+            isrc TEXT,
+            artistname TEXT,
+            PRIMARY KEY (artistid, isrc)
+        );
+
+        CREATE TABLE track(
+            trackid INTEGER,
+            trackname TEXT,
+            trackartist INTEGER REFERENCES artist
+        );
+        DDL;
+
+        $this->connection->executeStatement($ddl);
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $track       = $schemaManager->introspectTable('track');
+        $foreignKeys = $track->getForeignKeys();
+        self::assertCount(1, $foreignKeys);
+
+        $foreignKey1 = array_shift($foreignKeys);
+        self::assertEmpty($foreignKey1->getName());
+
+        self::assertSame(['trackartist'], $foreignKey1->getLocalColumns());
+        self::assertSame(['artistid', 'isrc'], $foreignKey1->getForeignColumns());
+
+        $createTableTrackSql = $this->connection->getDatabasePlatform()->getCreateTableSQL($track);
+
+        self::assertSame(
+            [
+                'CREATE TABLE track (trackartist INTEGER DEFAULT NULL, trackid INTEGER DEFAULT NULL, trackname CLOB'
+                . ' DEFAULT NULL COLLATE "BINARY", FOREIGN KEY (trackartist) REFERENCES artist (artistid, isrc) ON'
+                . ' UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE)',
+                'CREATE INDEX IDX_D6E3F8A6FB96D8BC ON track (trackartist)',
+            ],
+            $createTableTrackSql,
+        );
+    }
 }
