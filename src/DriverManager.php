@@ -36,6 +36,7 @@ use function is_a;
  *     persistent?: bool,
  *     platform?: Platforms\AbstractPlatform,
  *     port?: int,
+ *     serverVersion?: string,
  *     url?: string,
  *     user?: string,
  *     unix_socket?: string,
