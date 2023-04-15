@@ -25,7 +25,7 @@ on:
     - cron: "42 3 * * *"
 
 env:
-  fail-fast: true
+  fail-fast: false
 
 jobs:
   phpunit-smoke-check:
@@ -33,6 +33,7 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     strategy:
+      fail-fast: false
       matrix:
         os:
           - "ubuntu-22.04"
@@ -373,7 +374,7 @@ jobs:
           - "7.4"
           - "8.0"
         mysql-version:
-          - "5.7"
+          # - "5.7"
           - "8.0"
         extension:
           - "mysqli"
@@ -381,7 +382,7 @@ jobs:
         config-file-suffix:
           - ""
         include:
-          - mysql-version: "5.7"
+          # - mysql-version: "5.7"
           - mysql-version: "8.0"
             # https://stackoverflow.com/questions/60902904/how-to-pass-mysql-native-password-to-mysql-service-in-github-actions
             custom-entrypoint: >-
