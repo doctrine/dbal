@@ -12,6 +12,16 @@ class MySQL80Platform extends MySQL57Platform
     /**
      * {@inheritdoc}
      *
+     * @link https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html#date-and-time-string-numeric-literals
+     */
+    public function getDateTimeTzFormatString()
+    {
+        return 'Y-m-d H:i:sP';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @deprecated Implement {@see createReservedKeywordsList()} instead.
      */
     protected function getReservedKeywordsClass()
