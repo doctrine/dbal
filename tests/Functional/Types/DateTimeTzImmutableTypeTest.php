@@ -6,8 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
