@@ -9,4 +9,6 @@ namespace Doctrine\DBAL\Types;
  */
 interface PhpDateTimeMappingType
 {
+    public const CONVERSION_TARGET_DATABASE = 'database';
+    public const CONVERSION_TARGET_PHP      = 'php';
 }

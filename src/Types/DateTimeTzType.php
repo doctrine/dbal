@@ -56,7 +56,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
         }
 
         if ($value instanceof DateTimeInterface) {
-            return $value->format($platform->getDateTimeTzFormatString());
+            return $value->format($platform->getDateTimeTzFormatString(self::CONVERSION_TARGET_DATABASE));
         }
 
         throw ConversionException::conversionFailedInvalidType(
@@ -81,7 +81,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             return $value;
         }
 
-        $val = DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
+        $val = DateTime::createFromFormat($platform->getDateTimeTzFormatString(self::CONVERSION_TARGET_PHP), $value);
         if ($val === false) {
             throw ConversionException::conversionFailedFormat(
                 $value,

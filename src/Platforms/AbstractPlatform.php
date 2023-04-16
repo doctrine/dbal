@@ -4288,7 +4288,7 @@ abstract class AbstractPlatform
      */
     public function getDateTimeTzFormatString()
     {
-        return 'Y-m-d H:i:s';
+        return $this->getDateTimeFormatString();
     }
 
     /**

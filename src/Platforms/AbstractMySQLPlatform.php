@@ -220,6 +220,36 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * Timezone support is not available until MySQL 8.0.19.
+     * MariaDB does not have timezone support.
+     *
+     * @link https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html#date-and-time-string-numeric-literals
+     * @link https://jira.mariadb.org/browse/MDEV-10018
+     * @link https://jira.mariadb.org/browse/MDEV-11829
+     *
+     * {@inheritdoc}
+     */
+    public function getDateTimeTzTypeDeclarationSQL(array $column)
+    {
+        throw Exception::notSupported(__METHOD__);
+    }
+
+    /**
+     * Timezone support is not available until MySQL 8.0.19.
+     * MariaDB does not have timezone support.
+     *
+     * @link https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html#date-and-time-string-numeric-literals
+     * @link https://jira.mariadb.org/browse/MDEV-10018
+     * @link https://jira.mariadb.org/browse/MDEV-11829
+     *
+     * {@inheritdoc}
+     */
+    public function getDateTimeTzFormatString()
+    {
+        throw Exception::notSupported(__METHOD__);
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed/*, $lengthOmitted = false*/)

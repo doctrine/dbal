@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Types\PhpDateTimeMappingType;
 use Doctrine\Deprecations\Deprecation;
 
 /**
@@ -9,6 +10,22 @@ use Doctrine\Deprecations\Deprecation;
  */
 class MySQL80Platform extends MySQL57Platform
 {
+    /** @inheritdoc */
+    public function getDateTimeTzTypeDeclarationSQL(array $column)
+    {
+        return $this->getDateTimeTypeDeclarationSQL($column);
+    }
+
+    /** @inheritdoc */
+    public function getDateTimeTzFormatString(string $target = PhpDateTimeMappingType::CONVERSION_TARGET_DATABASE)
+    {
+        if ($target === PhpDateTimeMappingType::CONVERSION_TARGET_DATABASE) {
+            return 'Y-m-d H:i:sP';
+        }
+
+        return 'Y-m-d H:i:s';
+    }
+
     /**
      * {@inheritdoc}
      *
