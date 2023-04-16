@@ -927,6 +927,23 @@ SQL
         ];
     }
 
+    /** @psalm-return iterable<int, array{string, string}> */
+    public function getNowExpressionCases(): iterable
+    {
+        yield ['TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD HH24:MI:SSTZH:TZM\')', 'timestamptz'];
+        yield ['TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD HH24:MI:SS\')', 'date'];
+        yield ['TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD HH24:MI:SS\')', 'time'];
+        yield ['TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD HH24:MI:SS\')', 'timestamp'];
+        yield ['TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD HH24:MI:SS\')', 'unknown_unsupported_type'];
+    }
+
+    /** @dataProvider getNowExpressionCases */
+    public function testGetNowExpression(string $expected, string $type): void
+    {
+        /** @psalm-suppress DeprecatedMethod */
+        self::assertSame($expected, $this->platform->getNowExpression($type));
+    }
+
     protected function getLimitOffsetCastToIntExpectedQuery(): string
     {
         return 'SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 3)'

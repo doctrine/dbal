@@ -83,6 +83,8 @@ class OraclePlatform extends AbstractPlatform
         );
 
         switch ($type) {
+            case 'timestamptz':
+                return 'TO_CHAR(CURRENT_TIMESTAMP, \'YYYY-MM-DD HH24:MI:SSTZH:TZM\')';
             case 'date':
             case 'time':
             case 'timestamp':

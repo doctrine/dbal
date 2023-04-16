@@ -6,6 +6,13 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 3.7
+
+# Deprecated using wrong timezone format for Oracle session middleware
+
+The default timezone format ("YYYY-MM-DD HH24:MI:SS TZH:TZM") is wrong. In order to use the proper format
+("YYYY-MM-DD HH24:MI:SSTZH:TZM"),  pass `true` as argument 1 for `InitializeSession::__construct()`.
+
 # Upgrade to 3.6
 
 ## Deprecated not setting a schema manager factory
