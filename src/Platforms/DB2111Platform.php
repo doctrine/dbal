@@ -17,7 +17,7 @@ use function sprintf;
 class DB2111Platform extends DB2Platform
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @see https://www.ibm.com/docs/en/db2/11.1?topic=subselect-fetch-clause
      */

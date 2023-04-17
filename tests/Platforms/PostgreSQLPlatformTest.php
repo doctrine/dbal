@@ -722,7 +722,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getQuotedAlterTableRenameColumnSQL(): array
     {
@@ -740,7 +740,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getQuotedAlterTableChangeColumnLengthSQL(): array
     {
@@ -792,7 +792,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getAlterTableRenameColumnSQL(): array
     {
@@ -800,7 +800,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getCommentOnColumnSQL(): array
     {
@@ -862,7 +862,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getAlterStringToFixedStringSQL(): array
     {
@@ -870,7 +870,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

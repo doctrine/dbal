@@ -24,7 +24,7 @@ final class Statement extends AbstractStatementMiddleware
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@see bindValue()} instead.
      *
@@ -89,7 +89,7 @@ final class Statement extends AbstractStatementMiddleware
     /**
      * @throws UnknownParameterType
      *
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @psalm-assert ParameterType::* $type
      */

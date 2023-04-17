@@ -40,7 +40,7 @@ class AbstractDB2DriverTest extends AbstractDriverTest
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getDatabasePlatformsForVersions(): array
     {

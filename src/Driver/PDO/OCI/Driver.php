@@ -12,7 +12,7 @@ use SensitiveParameter;
 final class Driver extends AbstractOracleDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return Connection
      */

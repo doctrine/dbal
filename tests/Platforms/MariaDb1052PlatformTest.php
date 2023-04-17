@@ -43,7 +43,7 @@ class MariaDb1052PlatformTest extends MariaDb1043PlatformTest
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

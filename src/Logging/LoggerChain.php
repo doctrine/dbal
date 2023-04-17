@@ -27,7 +27,7 @@ class LoggerChain implements SQLLogger
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function startQuery($sql, ?array $params = null, ?array $types = null)
     {
@@ -37,7 +37,7 @@ class LoggerChain implements SQLLogger
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function stopQuery()
     {

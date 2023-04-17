@@ -36,7 +36,7 @@ final class Statement extends AbstractStatementMiddleware
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@see bindValue()} instead.
      */
@@ -65,7 +65,7 @@ final class Statement extends AbstractStatementMiddleware
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
@@ -85,7 +85,7 @@ final class Statement extends AbstractStatementMiddleware
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function execute($params = null): ResultInterface
     {

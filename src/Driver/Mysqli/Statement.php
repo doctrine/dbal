@@ -64,7 +64,7 @@ final class Statement implements StatementInterface
     /**
      * @deprecated Use {@see bindValue()} instead.
      *
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @psalm-assert ParameterType::* $type
      */
@@ -99,7 +99,7 @@ final class Statement implements StatementInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @psalm-assert ParameterType::* $type
      */
@@ -128,7 +128,7 @@ final class Statement implements StatementInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function execute($params = null): ResultInterface
     {
