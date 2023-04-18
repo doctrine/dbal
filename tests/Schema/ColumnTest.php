@@ -18,7 +18,7 @@ class ColumnTest extends TestCase
         $column = $this->createColumn();
 
         self::assertEquals('foo', $column->getName());
-        self::assertSame(Type::getType('string'), $column->getType());
+        self::assertSame(Type::getType(Types::STRING), $column->getType());
 
         self::assertEquals(200, $column->getLength());
         self::assertEquals(5, $column->getPrecision());
@@ -43,7 +43,7 @@ class ColumnTest extends TestCase
     {
         $expected = [
             'name' => 'foo',
-            'type' => Type::getType('string'),
+            'type' => Type::getType(Types::STRING),
             'default' => 'baz',
             'notnull' => false,
             'length' => 200,
@@ -95,14 +95,14 @@ class ColumnTest extends TestCase
             'customSchemaOptions' => ['bar' => 'baz'],
         ];
 
-        $string = Type::getType('string');
+        $string = Type::getType(Types::STRING);
 
         return new Column('foo', $string, $options);
     }
 
     public function testQuotedColumnName(): void
     {
-        $string = Type::getType('string');
+        $string = Type::getType(Types::STRING);
         $column = new Column('`bar`', $string, []);
 
         $mysqlPlatform  = new MySQLPlatform();
@@ -123,7 +123,7 @@ class ColumnTest extends TestCase
     /** @dataProvider getIsQuoted */
     public function testIsQuoted(string $columnName, bool $isQuoted): void
     {
-        $type   = Type::getType('string');
+        $type   = Type::getType(Types::STRING);
         $column = new Column($columnName, $type);
 
         self::assertSame($isQuoted, $column->isQuoted());
@@ -142,7 +142,7 @@ class ColumnTest extends TestCase
 
     public function testColumnComment(): void
     {
-        $column = new Column('bar', Type::getType('string'));
+        $column = new Column('bar', Type::getType(Types::STRING));
         self::assertNull($column->getComment());
 
         $column->setComment('foo');

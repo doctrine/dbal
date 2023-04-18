@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 use function str_repeat;
 
@@ -23,7 +24,7 @@ class PlatformRestrictionsTest extends FunctionalTestCase
         $tableName  = str_repeat('x', $platform->getMaxIdentifierLength());
         $columnName = str_repeat('y', $platform->getMaxIdentifierLength());
         $table      = new Table($tableName);
-        $table->addColumn($columnName, 'integer', ['autoincrement' => true]);
+        $table->addColumn($columnName, Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey([$columnName]);
         $this->dropAndCreateTable($table);
         $createdTable = $this->connection->getSchemaManager()->introspectTable($tableName);

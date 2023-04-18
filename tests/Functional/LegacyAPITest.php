@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use LogicException;
 
@@ -20,8 +21,8 @@ class LegacyAPITest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('legacy_table');
-        $table->addColumn('test_int', 'integer');
-        $table->addColumn('test_string', 'string');
+        $table->addColumn('test_int', Types::INTEGER);
+        $table->addColumn('test_string', Types::STRING);
         $table->setPrimaryKey(['test_int']);
 
         $this->dropAndCreateTable($table);

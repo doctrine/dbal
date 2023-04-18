@@ -8,6 +8,7 @@ use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Middleware;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 use function array_keys;
 use function array_merge;
@@ -158,9 +159,9 @@ class PortabilityTest extends FunctionalTestCase
     private function createTable(): void
     {
         $table = new Table('portability_table');
-        $table->addColumn('Test_Int', 'integer');
-        $table->addColumn('Test_String', 'string', ['fixed' => true, 'length' => 32]);
-        $table->addColumn('Test_Null', 'string', ['notnull' => false]);
+        $table->addColumn('Test_Int', Types::INTEGER);
+        $table->addColumn('Test_String', Types::STRING, ['fixed' => true, 'length' => 32]);
+        $table->addColumn('Test_Null', Types::STRING, ['notnull' => false]);
         $table->setPrimaryKey(['Test_Int']);
 
         $this->dropAndCreateTable($table);

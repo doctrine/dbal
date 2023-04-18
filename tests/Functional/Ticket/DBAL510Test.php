@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 class DBAL510Test extends FunctionalTestCase
 {
@@ -27,7 +28,7 @@ class DBAL510Test extends FunctionalTestCase
     public function testSearchPathSchemaChanges(callable $comparatorFactory): void
     {
         $table = new Table('dbal510tbl');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);

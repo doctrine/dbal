@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 use function array_keys;
 use function strtolower;
@@ -15,13 +16,13 @@ class RenameColumnTest extends FunctionalTestCase
     public function testColumnPositionRetainedAfterRenaming(string $columnName, string $newColumnName): void
     {
         $table = new Table('test_rename');
-        $table->addColumn($columnName, 'string');
-        $table->addColumn('c2', 'integer');
+        $table->addColumn($columnName, Types::STRING);
+        $table->addColumn('c2', Types::INTEGER);
 
         $this->dropAndCreateTable($table);
 
         $table->dropColumn($columnName)
-            ->addColumn($newColumnName, 'string');
+            ->addColumn($newColumnName, Types::STRING);
 
         $sm         =  $this->connection->createSchemaManager();
         $comparator = new Comparator();

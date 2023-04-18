@@ -8,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeTzImmutableType;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -33,7 +34,7 @@ class DateTimeTzImmutableTypeTest extends TestCase
 
     public function testReturnsName(): void
     {
-        self::assertSame('datetimetz_immutable', $this->type->getName());
+        self::assertSame(Types::DATETIMETZ_IMMUTABLE, $this->type->getName());
     }
 
     public function testReturnsBindingType(): void

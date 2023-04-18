@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 class ReservedKeywordsValidatorTest extends TestCase
@@ -30,7 +31,7 @@ class ReservedKeywordsValidatorTest extends TestCase
     public function testReservedColumnName(): void
     {
         $table  = new Table('TABLE');
-        $column = $table->addColumn('table', 'string');
+        $column = $table->addColumn('table', Types::STRING);
 
         $this->validator->acceptColumn($table, $column);
 

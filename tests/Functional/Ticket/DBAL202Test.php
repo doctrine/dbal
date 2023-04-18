@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Ticket;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 class DBAL202Test extends FunctionalTestCase
 {
@@ -18,7 +19,7 @@ class DBAL202Test extends FunctionalTestCase
             $this->connection->executeStatement('DELETE FROM DBAL202');
         } else {
             $table = new Table('DBAL202');
-            $table->addColumn('id', 'integer');
+            $table->addColumn('id', Types::INTEGER);
             $table->setPrimaryKey(['id']);
 
             $this->connection->getSchemaManager()->createTable($table);

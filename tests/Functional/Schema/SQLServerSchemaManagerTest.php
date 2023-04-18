@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 use function current;
 
@@ -19,7 +20,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testColumnCollation(): void
     {
         $table  = new Table($tableName = 'test_collation');
-        $column = $table->addColumn($columnName = 'test', 'string');
+        $column = $table->addColumn($columnName = 'test', Types::STRING);
 
         $this->dropAndCreateTable($table);
         $columns = $this->schemaManager->listTableColumns($tableName);
@@ -38,13 +39,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDefaultConstraints(): void
     {
         $table = new Table('sqlsrv_default_constraints');
-        $table->addColumn('no_default', 'string');
-        $table->addColumn('df_integer', 'integer', ['default' => 666]);
-        $table->addColumn('df_string_1', 'string', ['default' => 'foobar']);
-        $table->addColumn('df_string_2', 'string', ['default' => 'Doctrine rocks!!!']);
-        $table->addColumn('df_string_3', 'string', ['default' => 'another default value']);
-        $table->addColumn('df_string_4', 'string', ['default' => 'column to rename']);
-        $table->addColumn('df_boolean', 'boolean', ['default' => true]);
+        $table->addColumn('no_default', Types::STRING);
+        $table->addColumn('df_integer', Types::INTEGER, ['default' => 666]);
+        $table->addColumn('df_string_1', Types::STRING, ['default' => 'foobar']);
+        $table->addColumn('df_string_2', Types::STRING, ['default' => 'Doctrine rocks!!!']);
+        $table->addColumn('df_string_3', Types::STRING, ['default' => 'another default value']);
+        $table->addColumn('df_string_4', Types::STRING, ['default' => 'column to rename']);
+        $table->addColumn('df_boolean', Types::BOOLEAN, ['default' => true]);
 
         $this->schemaManager->createTable($table);
         $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
@@ -63,7 +64,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $newTable->changeColumn('df_boolean', ['default' => false]);
         $newTable->dropColumn('df_string_1');
         $newTable->dropColumn('df_string_4');
-        $newTable->addColumn('df_string_renamed', 'string', ['default' => 'column to rename']);
+        $newTable->addColumn('df_string_renamed', Types::STRING, ['default' => 'column to rename']);
 
         $comparator = $this->schemaManager->createComparator();
 
@@ -96,26 +97,35 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(666, $columns['df_integer']->getDefault());
     }
 
+    /** @psalm-suppress DeprecatedConstant */
     public function testColumnComments(): void
     {
         $table = new Table('sqlsrv_column_comment');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('comment_null', 'integer', ['comment' => null]);
-        $table->addColumn('comment_false', 'integer', ['comment' => false]);
-        $table->addColumn('comment_empty_string', 'integer', ['comment' => '']);
-        $table->addColumn('comment_integer_0', 'integer', ['comment' => 0]);
-        $table->addColumn('comment_float_0', 'integer', ['comment' => 0.0]);
-        $table->addColumn('comment_string_0', 'integer', ['comment' => '0']);
-        $table->addColumn('comment', 'integer', ['comment' => 'Doctrine 0wnz you!']);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('comment_null', Types::INTEGER, ['comment' => null]);
+        $table->addColumn('comment_false', Types::INTEGER, ['comment' => false]);
+        $table->addColumn('comment_empty_string', Types::INTEGER, ['comment' => '']);
+        $table->addColumn('comment_integer_0', Types::INTEGER, ['comment' => 0]);
+        $table->addColumn('comment_float_0', Types::INTEGER, ['comment' => 0.0]);
+        $table->addColumn('comment_string_0', Types::INTEGER, ['comment' => '0']);
+        $table->addColumn('comment', Types::INTEGER, ['comment' => 'Doctrine 0wnz you!']);
         $table->addColumn(
             '`comment_quoted`',
-            'integer',
+            Types::INTEGER,
             ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'],
         );
-        $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
-        $table->addColumn('commented_type', 'object');
-        $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
-        $table->addColumn('commented_req_change_column', 'integer', ['comment' => 'Some comment', 'notnull' => true]);
+        $table->addColumn(
+            'create',
+            Types::INTEGER,
+            ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!'],
+        );
+        $table->addColumn('commented_type', Types::OBJECT);
+        $table->addColumn('commented_type_with_comment', Types::ARRAY, ['comment' => 'Doctrine array type.']);
+        $table->addColumn(
+            'commented_req_change_column',
+            Types::INTEGER,
+            ['comment' => 'Some comment', 'notnull' => true],
+        );
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->createTable($table);
@@ -140,20 +150,20 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('Some comment', $columns['commented_req_change_column']->getComment());
 
         $newTable = clone $table;
-        $newTable->addColumn('added_comment_none', 'integer');
-        $newTable->addColumn('added_comment_null', 'integer', ['comment' => null]);
-        $newTable->addColumn('added_comment_false', 'integer', ['comment' => false]);
-        $newTable->addColumn('added_comment_empty_string', 'integer', ['comment' => '']);
-        $newTable->addColumn('added_comment_integer_0', 'integer', ['comment' => 0]);
-        $newTable->addColumn('added_comment_float_0', 'integer', ['comment' => 0.0]);
-        $newTable->addColumn('added_comment_string_0', 'integer', ['comment' => '0']);
-        $newTable->addColumn('added_comment', 'integer', ['comment' => 'Doctrine']);
-        $newTable->addColumn('`added_comment_quoted`', 'integer', ['comment' => 'rulez']);
-        $newTable->addColumn('`select`', 'integer', ['comment' => '666']);
-        $newTable->addColumn('added_commented_type', 'object');
-        $newTable->addColumn('added_commented_type_with_comment', 'array', ['comment' => '666']);
+        $newTable->addColumn('added_comment_none', Types::INTEGER);
+        $newTable->addColumn('added_comment_null', Types::INTEGER, ['comment' => null]);
+        $newTable->addColumn('added_comment_false', Types::INTEGER, ['comment' => false]);
+        $newTable->addColumn('added_comment_empty_string', Types::INTEGER, ['comment' => '']);
+        $newTable->addColumn('added_comment_integer_0', Types::INTEGER, ['comment' => 0]);
+        $newTable->addColumn('added_comment_float_0', Types::INTEGER, ['comment' => 0.0]);
+        $newTable->addColumn('added_comment_string_0', Types::INTEGER, ['comment' => '0']);
+        $newTable->addColumn('added_comment', Types::INTEGER, ['comment' => 'Doctrine']);
+        $newTable->addColumn('`added_comment_quoted`', Types::INTEGER, ['comment' => 'rulez']);
+        $newTable->addColumn('`select`', Types::INTEGER, ['comment' => '666']);
+        $newTable->addColumn('added_commented_type', Types::OBJECT);
+        $newTable->addColumn('added_commented_type_with_comment', Types::ARRAY, ['comment' => '666']);
         $newTable->dropColumn('comment_float_0');
-        $newTable->addColumn('comment_double_0', 'decimal', ['comment' => '0']);
+        $newTable->addColumn('comment_double_0', Types::DECIMAL, ['comment' => '0']);
 
         // Add comment to non-commented column.
         $newTable->changeColumn('id', ['comment' => 'primary']);
@@ -165,7 +175,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $newTable->changeColumn('comment_false', ['comment' => 'false']);
 
         // Change type to custom type from empty string commented column.
-        $newTable->changeColumn('comment_empty_string', ['type' => Type::getType('object')]);
+        $newTable->changeColumn('comment_empty_string', ['type' => Type::getType(Types::OBJECT)]);
 
         // Change comment to false-comment from zero-string commented column.
         $newTable->changeColumn('comment_string_0', ['comment' => false]);
@@ -175,15 +185,15 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         // Change comment and change type to custom type from regular commented column.
         $newTable->changeColumn('`comment_quoted', [
-            'type' => Type::getType('array'),
+            'type' => Type::getType(Types::ARRAY),
             'comment' => 'Doctrine array.',
         ]);
 
         // Remove comment and change type to custom type from regular commented column.
-        $newTable->changeColumn('`create', ['type' => Type::getType('object'), 'comment' => null]);
+        $newTable->changeColumn('`create', ['type' => Type::getType(Types::OBJECT), 'comment' => null]);
 
         // Add comment and change custom type to regular type from non-commented column.
-        $newTable->changeColumn('commented_type', ['type' => Type::getType('integer'), 'comment' => 'foo']);
+        $newTable->changeColumn('commented_type', ['type' => Type::getType(Types::INTEGER), 'comment' => 'foo']);
 
         // Remove comment from commented custom type column.
         $newTable->changeColumn('commented_type_with_comment', ['comment' => null]);
@@ -237,8 +247,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // key_ordinal holds the index ordering. index_column_id is just a unique identifier
         // for index columns within the given index.
         $table = new Table('sqlsrv_pk_ordering');
-        $table->addColumn('colA', 'integer', ['notnull' => true]);
-        $table->addColumn('colB', 'integer', ['notnull' => true]);
+        $table->addColumn('colA', Types::INTEGER, ['notnull' => true]);
+        $table->addColumn('colB', Types::INTEGER, ['notnull' => true]);
         $table->setPrimaryKey(['colB', 'colA']);
         $this->schemaManager->createTable($table);
 

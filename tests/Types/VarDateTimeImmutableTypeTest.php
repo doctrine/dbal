@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\DBAL\Types\VarDateTimeImmutableType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -26,7 +27,7 @@ class VarDateTimeImmutableTypeTest extends TestCase
 
     public function testReturnsName(): void
     {
-        self::assertSame('datetime_immutable', $this->type->getName());
+        self::assertSame(Types::DATETIME_IMMUTABLE, $this->type->getName());
     }
 
     public function testReturnsBindingType(): void

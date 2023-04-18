@@ -7,6 +7,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 use Throwable;
 
 use function array_change_key_case;
@@ -24,7 +25,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
         try {
             $table = new Table('primary_replica_table');
-            $table->addColumn('test_int', 'integer');
+            $table->addColumn('test_int', Types::INTEGER);
             $table->setPrimaryKey(['test_int']);
 
             $sm = $this->connection->getSchemaManager();

@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\Types;
 
 class NoneTest extends FunctionalTestCase
 {
@@ -37,7 +38,7 @@ class NoneTest extends FunctionalTestCase
         }
 
         $table = new Table('users');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);

@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_merge;
@@ -44,7 +45,7 @@ class MySQLInheritCharsetTest extends TestCase
         $platform = new MySQLPlatform();
 
         // default, no overrides
-        $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
+        $table = new Table('foobar', [new Column('aa', Type::getType(Types::INTEGER))]);
         self::assertSame(
             [
                 'CREATE TABLE foobar (aa INT NOT NULL)'
@@ -54,7 +55,7 @@ class MySQLInheritCharsetTest extends TestCase
         );
 
         // explicit utf8
-        $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
+        $table = new Table('foobar', [new Column('aa', Type::getType(Types::INTEGER))]);
         $table->addOption('charset', 'utf8');
         self::assertSame(
             [
@@ -65,7 +66,7 @@ class MySQLInheritCharsetTest extends TestCase
         );
 
         // explicit utf8mb4
-        $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
+        $table = new Table('foobar', [new Column('aa', Type::getType(Types::INTEGER))]);
         $table->addOption('charset', 'utf8mb4');
         self::assertSame(
             ['CREATE TABLE foobar (aa INT NOT NULL)'

@@ -84,7 +84,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDetectsAutoIncrement(): void
     {
         $autoincTable = new Table('autoinc_table');
-        $column       = $autoincTable->addColumn('id', 'integer');
+        $column       = $autoincTable->addColumn('id', Types::INTEGER);
         $column->setAutoincrement(true);
         $this->dropAndCreateTable($autoincTable);
         $autoincTable = $this->schemaManager->introspectTable('autoinc_table');
@@ -106,13 +106,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         $tableFrom = new Table('autoinc_table_add');
-        $tableFrom->addColumn('id', 'integer');
+        $tableFrom->addColumn('id', Types::INTEGER);
         $this->dropAndCreateTable($tableFrom);
         $tableFrom = $this->schemaManager->introspectTable('autoinc_table_add');
         self::assertFalse($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_table_add');
-        $column  = $tableTo->addColumn('id', 'integer');
+        $column  = $tableTo->addColumn('id', Types::INTEGER);
         $column->setAutoincrement(true);
 
         $platform = $this->connection->getDatabasePlatform();
@@ -139,14 +139,14 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testAlterTableAutoIncrementDrop(callable $comparatorFactory): void
     {
         $tableFrom = new Table('autoinc_table_drop');
-        $column    = $tableFrom->addColumn('id', 'integer');
+        $column    = $tableFrom->addColumn('id', Types::INTEGER);
         $column->setAutoincrement(true);
         $this->dropAndCreateTable($tableFrom);
         $tableFrom = $this->schemaManager->introspectTable('autoinc_table_drop');
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_table_drop');
-        $tableTo->addColumn('id', 'integer');
+        $tableTo->addColumn('id', Types::INTEGER);
 
         $platform = $this->connection->getDatabasePlatform();
         $diff     = $comparatorFactory($this->schemaManager)->diffTable($tableFrom, $tableTo);
@@ -167,12 +167,12 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->connection->executeStatement('CREATE SCHEMA nested');
 
         $nestedRelatedTable = new Table('nested.schemarelated');
-        $column             = $nestedRelatedTable->addColumn('id', 'integer');
+        $column             = $nestedRelatedTable->addColumn('id', Types::INTEGER);
         $column->setAutoincrement(true);
         $nestedRelatedTable->setPrimaryKey(['id']);
 
         $nestedSchemaTable = new Table('nested.schematable');
-        $column            = $nestedSchemaTable->addColumn('id', 'integer');
+        $column            = $nestedSchemaTable->addColumn('id', Types::INTEGER);
         $column->setAutoincrement(true);
         $nestedSchemaTable->setPrimaryKey(['id']);
         $nestedSchemaTable->addForeignKeyConstraint($nestedRelatedTable, ['id'], ['id']);
@@ -204,13 +204,13 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $this->connection->executeStatement('CREATE SCHEMA another');
         $table = new Table('table');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'text');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('name', Types::TEXT);
         $this->schemaManager->createTable($table);
 
         $anotherSchemaTable = new Table('another.table');
-        $anotherSchemaTable->addColumn('id', 'text');
-        $anotherSchemaTable->addColumn('email', 'text');
+        $anotherSchemaTable->addColumn('id', Types::TEXT);
+        $anotherSchemaTable->addColumn('email', Types::TEXT);
         $this->schemaManager->createTable($anotherSchemaTable);
 
         $table = $this->schemaManager->listTableDetails('table');
@@ -255,7 +255,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $foreignKeys = [];
         $fkTable     = $this->getTestTable('test_create_fk1');
         for ($i = 0; $i < count($fkOptions); $i++) {
-            $fkTable->addColumn('foreign_key_test' . $i, 'integer');
+            $fkTable->addColumn('foreign_key_test' . $i, Types::INTEGER);
             $foreignKeys[] = new ForeignKeyConstraint(
                 ['foreign_key_test' . $i],
                 'test_create_fk2',
@@ -290,8 +290,8 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDefaultValueCharacterVarying(): void
     {
         $testTable = new Table('dbal511_default');
-        $testTable->addColumn('id', 'integer');
-        $testTable->addColumn('def', 'string', ['default' => 'foo']);
+        $testTable->addColumn('id', Types::INTEGER);
+        $testTable->addColumn('def', Types::STRING, ['default' => 'foo']);
         $testTable->setPrimaryKey(['id']);
         $this->dropAndCreateTable($testTable);
 
@@ -308,8 +308,8 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testBooleanDefault(callable $comparatorFactory): void
     {
         $table = new Table('ddc2843_bools');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('checked', 'boolean', ['default' => false]);
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('checked', Types::BOOLEAN, ['default' => false]);
 
         $this->dropAndCreateTable($table);
 
@@ -355,7 +355,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $schema = new Schema();
         $table  = $schema->createTable('test_autoincrement');
-        $table->addColumn('id', 'integer', [
+        $table->addColumn('id', Types::INTEGER, [
             'notnull' => true,
             'autoincrement' => true,
         ]);
@@ -408,9 +408,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testPartialIndexes(): void
     {
         $offlineTable = new Table('person');
-        $offlineTable->addColumn('id', 'integer');
-        $offlineTable->addColumn('name', 'string');
-        $offlineTable->addColumn('email', 'string');
+        $offlineTable->addColumn('id', Types::INTEGER);
+        $offlineTable->addColumn('name', Types::STRING);
+        $offlineTable->addColumn('email', Types::STRING);
         $offlineTable->addUniqueIndex(['id', 'name'], 'simple_partial_index', ['where' => '(id IS NULL)']);
 
         $this->dropAndCreateTable($offlineTable);
@@ -439,7 +439,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testItTriggersADeprecationWhenAttemptingToUseJsonbWithATypeNotExtendingJsonType(): void
     {
-        $backedUpType = Type::getType('json');
+        $backedUpType = Type::getType(Types::JSON);
         try {
             Type::getTypeRegistry()->override(Types::JSON, new class extends Type {
                 /**
@@ -452,7 +452,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
                 public function getName(): string
                 {
-                    return 'json';
+                    return Types::JSON;
                 }
             });
             $table = new Table('test_jsonb');
@@ -472,12 +472,12 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListNegativeColumnDefaultValue(): void
     {
         $table = new Table('test_default_negative');
-        $table->addColumn('col_smallint', 'smallint', ['default' => -1]);
-        $table->addColumn('col_integer', 'integer', ['default' => -1]);
-        $table->addColumn('col_bigint', 'bigint', ['default' => -1]);
-        $table->addColumn('col_float', 'float', ['default' => -1.1]);
-        $table->addColumn('col_decimal', 'decimal', ['default' => -1.1]);
-        $table->addColumn('col_string', 'string', ['default' => '(-1)']);
+        $table->addColumn('col_smallint', Types::SMALLINT, ['default' => -1]);
+        $table->addColumn('col_integer', Types::INTEGER, ['default' => -1]);
+        $table->addColumn('col_bigint', Types::BIGINT, ['default' => -1]);
+        $table->addColumn('col_float', Types::FLOAT, ['default' => -1.1]);
+        $table->addColumn('col_decimal', Types::DECIMAL, ['default' => -1.1]);
+        $table->addColumn('col_string', Types::STRING, ['default' => '(-1)']);
 
         $this->dropAndCreateTable($table);
 
@@ -495,8 +495,8 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public static function serialTypes(): iterable
     {
         return [
-            ['integer'],
-            ['bigint'],
+            [Types::INTEGER],
+            [Types::BIGINT],
         ];
     }
 
