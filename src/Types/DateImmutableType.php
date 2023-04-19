@@ -35,6 +35,22 @@ class DateImmutableType extends DateType
         }
 
         if ($value instanceof DateTimeImmutable) {
+            $offset        = $value->format('O');
+            $defaultOffset = (new DateTimeImmutable())->format('O');
+
+            if ($offset !== $defaultOffset) {
+                Deprecation::triggerIfCalledFromOutside(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/6020',
+                    'Passing a timezone offset (%s) different than the default one (%s) is deprecated'
+                    . ' as it will be lost, use %s::%s() instead.',
+                    $offset,
+                    $defaultOffset,
+                    DateTimeTzImmutableType::class,
+                    __FUNCTION__,
+                );
+            }
+
             return $value->format($platform->getDateFormatString());
         }
 
@@ -56,7 +72,27 @@ class DateImmutableType extends DateType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof DateTimeImmutable) {
+        if ($value === null) {
+            return null;
+        }
+
+        if ($value instanceof DateTimeImmutable) {
+            $offset        = $value->format('O');
+            $defaultOffset = (new DateTimeImmutable())->format('O');
+
+            if ($offset !== $defaultOffset) {
+                Deprecation::triggerIfCalledFromOutside(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/6020',
+                    'Passing a timezone offset (%s) different than the default one (%s) is deprecated'
+                    . ' as it may be lost, use %s::%s() instead.',
+                    $offset,
+                    $defaultOffset,
+                    DateTimeTzImmutableType::class,
+                    __FUNCTION__,
+                );
+            }
+
             return $value;
         }
 

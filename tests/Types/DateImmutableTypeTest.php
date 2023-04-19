@@ -4,10 +4,13 @@ namespace Doctrine\DBAL\Tests\Types;
 
 use DateTime;
 use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateImmutableType;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
+use InvalidArgumentException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -15,6 +18,8 @@ use function get_class;
 
 class DateImmutableTypeTest extends TestCase
 {
+    use VerifyDeprecations;
+
     /** @var AbstractPlatform&MockObject */
     private AbstractPlatform $platform;
 
@@ -48,10 +53,18 @@ class DateImmutableTypeTest extends TestCase
         $this->platform->expects(self::once())
             ->method('getDateFormatString')
             ->willReturn('Y-m-d');
-        $date->expects(self::once())
+        $date->expects(self::exactly(2))
             ->method('format')
-            ->with('Y-m-d')
-            ->willReturn('2016-01-01');
+            ->willReturnCallback(static function (string $format): string {
+                switch ($format) {
+                    case 'O':
+                        return 'UTC';
+                    case 'Y-m-d':
+                        return '2016-01-01';
+                    default:
+                        throw new InvalidArgumentException();
+                }
+            });
 
         self::assertSame(
             '2016-01-01',
@@ -116,5 +129,97 @@ class DateImmutableTypeTest extends TestCase
     public function testRequiresSQLCommentHint(): void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
+    }
+
+    /** @dataProvider provideDateTimeInstancesWithTimezone */
+    public function testTimezoneDeprecationFromConvertsToDatabaseValue(
+        string $defaultTimeZone,
+        DateTimeImmutable $date
+    ): void {
+        $this->iniSet('date.timezone', $defaultTimeZone);
+
+        $defaultOffset = (new DateTimeImmutable())->format('O');
+
+        self::assertFalse($defaultOffset === $date->format('O'));
+
+        $this->platform->expects(self::once())
+            ->method('getDateFormatString')
+            ->willReturn('Y-m-d');
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6020');
+
+        $this->type->convertToDatabaseValue($date, $this->platform);
+    }
+
+    /** @dataProvider provideDateTimeInstancesWithTimezone */
+    public function testTimezoneDeprecationFromConvertToPHPValue(string $defaultTimeZone, DateTimeImmutable $date): void
+    {
+        $this->iniSet('date.timezone', $defaultTimeZone);
+
+        $defaultOffset = (new DateTimeImmutable())->format('O');
+
+        self::assertFalse($defaultOffset === $date->format('O'));
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6020');
+
+        $this->type->convertToPHPValue($date, $this->platform);
+    }
+
+    /** @psalm-return iterable<string, array{0: string, 1: DateTimeImmutable}> */
+    public function provideDateTimeInstancesWithTimezone(): iterable
+    {
+        yield 'timezone_utc' => [
+            'UTC',
+            (new DateTimeImmutable())->setTimezone(new DateTimeZone('America/Argentina/Buenos_Aires')),
+        ];
+
+        yield 'timezone_amsterdam' => [
+            'Europe/Amsterdam',
+            (new DateTimeImmutable())->setTimezone(new DateTimeZone('America/Argentina/Buenos_Aires')),
+        ];
+
+        yield 'offset_utc' => [
+            'UTC',
+            (new DateTimeImmutable())->setTimezone(new DateTimeZone('-0300')),
+        ];
+    }
+
+    /** @dataProvider provideDateTimeInstancesWithNoTimezoneDiff */
+    public function testNoTimezoneInValueConversion(string $defaultTimeZone, DateTimeImmutable $date): void
+    {
+        $this->iniSet('date.timezone', $defaultTimeZone);
+
+        $this->platform->expects(self::once())
+            ->method('getDateFormatString')
+            ->willReturn('Y-m-d');
+
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6020');
+
+        $this->type->convertToDatabaseValue($date, $this->platform);
+        $this->type->convertToPHPValue($date, $this->platform);
+    }
+
+    /** @psalm-return iterable<string, array{0: string, 1: DateTimeImmutable}> */
+    public function provideDateTimeInstancesWithNoTimezoneDiff(): iterable
+    {
+        yield 'timezone_utc' => [
+            'UTC',
+            (new DateTimeImmutable())->setTimezone(new DateTimeZone('UTC')),
+        ];
+
+        yield 'timezone_buenos_aires' => [
+            'America/Argentina/Buenos_Aires',
+            (new DateTimeImmutable())->setTimezone(new DateTimeZone('America/Argentina/Buenos_Aires')),
+        ];
+
+        yield 'same_offset_with_different_timezones' => [
+            'America/Sao_Paulo',
+            (new DateTimeImmutable())->setTimezone(new DateTimeZone('America/Argentina/Buenos_Aires')),
+        ];
+
+        yield 'offset_-0300' => [
+            'America/Argentina/Buenos_Aires',
+            (new DateTimeImmutable())->setTimezone(new DateTimeZone('-0300')),
+        ];
     }
 }
