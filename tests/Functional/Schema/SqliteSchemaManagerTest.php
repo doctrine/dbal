@@ -91,10 +91,10 @@ EOS);
     public function testColumnCollation(): void
     {
         $table = new Table('test_collation');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('text', 'text');
-        $table->addColumn('foo', 'text')->setPlatformOption('collation', 'BINARY');
-        $table->addColumn('bar', 'text')->setPlatformOption('collation', 'NOCASE');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('text', Types::TEXT);
+        $table->addColumn('foo', Types::TEXT)->setPlatformOption('collation', 'BINARY');
+        $table->addColumn('bar', Types::TEXT)->setPlatformOption('collation', 'NOCASE');
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_collation');
@@ -149,8 +149,8 @@ SQL;
     public function testPrimaryKeyNoAutoIncrement(): void
     {
         $table = new Table('test_pk_auto_increment');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('text', 'text');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('text', Types::TEXT);
         $table->setPrimaryKey(['id']);
         $this->dropAndCreateTable($table);
 
@@ -171,9 +171,9 @@ SQL;
     public function testOnlyOwnCommentIsParsed(): void
     {
         $table = new Table('own_column_comment');
-        $table->addColumn('col1', 'string', ['length' => 16]);
-        $table->addColumn('col2', 'string', ['length' => 16, 'comment' => 'Column #2']);
-        $table->addColumn('col3', 'string', ['length' => 16]);
+        $table->addColumn('col1', Types::STRING, ['length' => 16]);
+        $table->addColumn('col2', Types::STRING, ['length' => 16, 'comment' => 'Column #2']);
+        $table->addColumn('col3', Types::STRING, ['length' => 16]);
 
         $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);

@@ -42,9 +42,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'list_table_column_notnull';
         $table     = new Table($tableName);
 
-        $table->addColumn('id', 'integer');
-        $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'string');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('foo', Types::INTEGER);
+        $table->addColumn('bar', Types::STRING);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
@@ -77,13 +77,13 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlinePrimaryTable = new Table($primaryTableName);
         $offlinePrimaryTable->addColumn(
             '"Id"',
-            'integer',
+            Types::INTEGER,
             ['autoincrement' => true, 'comment' => 'Explicit casing.'],
         );
-        $offlinePrimaryTable->addColumn('select', 'integer', ['comment' => 'Reserved keyword.']);
-        $offlinePrimaryTable->addColumn('foo', 'integer', ['comment' => 'Implicit uppercasing.']);
-        $offlinePrimaryTable->addColumn('BAR', 'integer');
-        $offlinePrimaryTable->addColumn('"BAZ"', 'integer');
+        $offlinePrimaryTable->addColumn('select', Types::INTEGER, ['comment' => 'Reserved keyword.']);
+        $offlinePrimaryTable->addColumn('foo', Types::INTEGER, ['comment' => 'Implicit uppercasing.']);
+        $offlinePrimaryTable->addColumn('BAR', Types::INTEGER);
+        $offlinePrimaryTable->addColumn('"BAZ"', Types::INTEGER);
         $offlinePrimaryTable->addIndex(['select'], 'from');
         $offlinePrimaryTable->addIndex(['foo'], 'foo_index');
         $offlinePrimaryTable->addIndex(['BAR'], 'BAR_INDEX');
@@ -92,8 +92,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $foreignTableName    = 'foreign';
         $offlineForeignTable = new Table($foreignTableName);
-        $offlineForeignTable->addColumn('id', 'integer', ['autoincrement' => true]);
-        $offlineForeignTable->addColumn('"Fk"', 'integer');
+        $offlineForeignTable->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $offlineForeignTable->addColumn('"Fk"', Types::INTEGER);
         $offlineForeignTable->addIndex(['"Fk"'], '"Fk_index"');
         $offlineForeignTable->addForeignKeyConstraint(
             $primaryTableName,
@@ -214,7 +214,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('list_table_indexes_pk_id_test');
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
-        $table->addColumn('id', 'integer', ['notnull' => true]);
+        $table->addColumn('id', Types::INTEGER, ['notnull' => true]);
         $table->addUniqueIndex(['id'], 'id_unique_index');
         $this->dropAndCreateTable($table);
 
@@ -234,17 +234,17 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableDateTypeColumns(): void
     {
         $table = new Table('tbl_date');
-        $table->addColumn('col_date', 'date');
-        $table->addColumn('col_datetime', 'datetime');
-        $table->addColumn('col_datetimetz', 'datetimetz');
+        $table->addColumn('col_date', Types::DATE_MUTABLE);
+        $table->addColumn('col_datetime', Types::DATETIME_MUTABLE);
+        $table->addColumn('col_datetimetz', Types::DATETIMETZ_MUTABLE);
 
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('tbl_date');
 
-        self::assertSame('date', $columns['col_date']->getType()->getName());
-        self::assertSame('datetime', $columns['col_datetime']->getType()->getName());
-        self::assertSame('datetimetz', $columns['col_datetimetz']->getType()->getName());
+        self::assertSame(Types::DATE_MUTABLE, $columns['col_date']->getType()->getName());
+        self::assertSame(Types::DATETIME_MUTABLE, $columns['col_datetime']->getType()->getName());
+        self::assertSame(Types::DATETIMETZ_MUTABLE, $columns['col_datetimetz']->getType()->getName());
     }
 
     public function testCreateAndListSequences(): void

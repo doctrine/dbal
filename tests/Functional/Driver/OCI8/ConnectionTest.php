@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\OCI8;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
 
 /** @requires extension oci8 */
 class ConnectionTest extends FunctionalTestCase
@@ -21,8 +22,8 @@ class ConnectionTest extends FunctionalTestCase
     public function testLastInsertIdAcceptsFqn(): void
     {
         $table = new Table('DBAL2595');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('foo', 'integer');
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('foo', Types::INTEGER);
 
         $this->dropAndCreateTable($table);
 

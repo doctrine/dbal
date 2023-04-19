@@ -156,7 +156,7 @@ final class ComparatorTest extends FunctionalTestCase
 
         $table = new Table('mariadb_json_upgrade');
 
-        $table->addColumn('json_col', 'json');
+        $table->addColumn('json_col', Types::JSON);
         $this->dropAndCreateTable($table);
 
         // Revert column to old LONGTEXT declaration

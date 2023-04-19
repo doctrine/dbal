@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use stdClass;
 
 use function str_repeat;
@@ -15,24 +16,25 @@ class TypeConversionTest extends FunctionalTestCase
 {
     private static int $typeCounter = 0;
 
+    /** @psalm-suppress DeprecatedConstant */
     protected function setUp(): void
     {
         $table = new Table('type_conversion');
-        $table->addColumn('id', 'integer', ['notnull' => false]);
-        $table->addColumn('test_string', 'string', ['notnull' => false]);
-        $table->addColumn('test_boolean', 'boolean', ['notnull' => false]);
-        $table->addColumn('test_bigint', 'bigint', ['notnull' => false]);
-        $table->addColumn('test_smallint', 'bigint', ['notnull' => false]);
-        $table->addColumn('test_datetime', 'datetime', ['notnull' => false]);
-        $table->addColumn('test_datetimetz', 'datetimetz', ['notnull' => false]);
-        $table->addColumn('test_date', 'date', ['notnull' => false]);
-        $table->addColumn('test_time', 'time', ['notnull' => false]);
-        $table->addColumn('test_text', 'text', ['notnull' => false]);
-        $table->addColumn('test_array', 'array', ['notnull' => false]);
-        $table->addColumn('test_json', 'json', ['notnull' => false]);
-        $table->addColumn('test_object', 'object', ['notnull' => false]);
-        $table->addColumn('test_float', 'float', ['notnull' => false]);
-        $table->addColumn('test_decimal', 'decimal', ['notnull' => false, 'scale' => 2, 'precision' => 10]);
+        $table->addColumn('id', Types::INTEGER, ['notnull' => false]);
+        $table->addColumn('test_string', Types::STRING, ['notnull' => false]);
+        $table->addColumn('test_boolean', Types::BOOLEAN, ['notnull' => false]);
+        $table->addColumn('test_bigint', Types::BIGINT, ['notnull' => false]);
+        $table->addColumn('test_smallint', Types::BIGINT, ['notnull' => false]);
+        $table->addColumn('test_datetime', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('test_datetimetz', Types::DATETIMETZ_MUTABLE, ['notnull' => false]);
+        $table->addColumn('test_date', Types::DATE_MUTABLE, ['notnull' => false]);
+        $table->addColumn('test_time', Types::TIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('test_text', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('test_array', Types::ARRAY, ['notnull' => false]);
+        $table->addColumn('test_json', Types::JSON, ['notnull' => false]);
+        $table->addColumn('test_object', Types::OBJECT, ['notnull' => false]);
+        $table->addColumn('test_float', Types::FLOAT, ['notnull' => false]);
+        $table->addColumn('test_decimal', Types::DECIMAL, ['notnull' => false, 'scale' => 2, 'precision' => 10]);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
@@ -55,8 +57,8 @@ class TypeConversionTest extends FunctionalTestCase
     public static function booleanProvider(): iterable
     {
         return [
-            'true' => ['boolean', true],
-            'false' => ['boolean', false],
+            'true' => [Types::BOOLEAN, true],
+            'false' => [Types::BOOLEAN, false],
         ];
     }
 
@@ -77,7 +79,7 @@ class TypeConversionTest extends FunctionalTestCase
     public static function integerProvider(): iterable
     {
         return [
-            'smallint' => ['smallint', 123],
+            'smallint' => [Types::SMALLINT, 123],
         ];
     }
 
@@ -98,7 +100,7 @@ class TypeConversionTest extends FunctionalTestCase
     public static function floatProvider(): iterable
     {
         return [
-            'float' => ['float', 1.5],
+            'float' => [Types::FLOAT, 1.5],
         ];
     }
 
@@ -109,7 +111,7 @@ class TypeConversionTest extends FunctionalTestCase
      */
     public function testIdempotentConversionToString(string $type, $originalValue): void
     {
-        if ($type === 'text' && TestUtil::isDriverOneOf('pdo_oci')) {
+        if ($type === Types::TEXT && TestUtil::isDriverOneOf('pdo_oci')) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
             self::markTestSkipped("DBAL doesn't support storing LOBs represented as streams using PDO_OCI");
@@ -125,8 +127,8 @@ class TypeConversionTest extends FunctionalTestCase
     public static function toStringProvider(): iterable
     {
         return [
-            'string' => ['string', 'ABCDEFGabcdefg'],
-            'text' => ['text', str_repeat('foo ', 1000)],
+            'string' => [Types::STRING, 'ABCDEFGabcdefg'],
+            'text' => [Types::TEXT, str_repeat('foo ', 1000)],
         ];
     }
 
@@ -143,12 +145,16 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     *
+     * @psalm-suppress DeprecatedConstant
+     */
     public static function toArrayProvider(): iterable
     {
         return [
-            'array' => ['array', ['foo' => 'bar']],
-            'json' => ['json', ['foo' => 'bar']],
+            'array' => [Types::ARRAY, ['foo' => 'bar']],
+            'json' => [Types::JSON, ['foo' => 'bar']],
         ];
     }
 
@@ -165,7 +171,11 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals($originalValue, $dbValue);
     }
 
-    /** @return mixed[][] */
+    /**
+     * @return mixed[][]
+     *
+     * @psalm-suppress DeprecatedConstant
+     */
     public static function toObjectProvider(): iterable
     {
         $obj      = new stdClass();
@@ -173,7 +183,7 @@ class TypeConversionTest extends FunctionalTestCase
         $obj->bar = 'baz';
 
         return [
-            'object' => ['object', $obj],
+            'object' => [Types::OBJECT, $obj],
         ];
     }
 
@@ -184,7 +194,7 @@ class TypeConversionTest extends FunctionalTestCase
 
         self::assertInstanceOf(DateTime::class, $dbValue);
 
-        if ($type === 'datetimetz') {
+        if ($type === Types::DATETIMETZ_MUTABLE) {
             return;
         }
 
@@ -199,10 +209,10 @@ class TypeConversionTest extends FunctionalTestCase
     public static function toDateTimeProvider(): iterable
     {
         return [
-            'datetime' => ['datetime', new DateTime('2010-04-05 10:10:10')],
-            'datetimetz' => ['datetimetz', new DateTime('2010-04-05 10:10:10')],
-            'date' => ['date', new DateTime('2010-04-05')],
-            'time' => ['time', new DateTime('1970-01-01 10:10:10')],
+            'datetime' => [Types::DATETIME_MUTABLE, new DateTime('2010-04-05 10:10:10')],
+            'datetimetz' => [Types::DATETIMETZ_MUTABLE, new DateTime('2010-04-05 10:10:10')],
+            'date' => [Types::DATE_MUTABLE, new DateTime('2010-04-05')],
+            'time' => [Types::TIME_MUTABLE, new DateTime('1970-01-01 10:10:10')],
         ];
     }
 

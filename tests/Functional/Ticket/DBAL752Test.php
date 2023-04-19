@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 class DBAL752Test extends FunctionalTestCase
 {
@@ -35,14 +36,14 @@ SQL);
 
         $fetchedTable = $schemaManager->introspectTable('dbal752_unsigneds');
 
-        self::assertEquals('smallint', $fetchedTable->getColumn('small')->getType()->getName());
-        self::assertEquals('smallint', $fetchedTable->getColumn('small_unsigned')->getType()->getName());
-        self::assertEquals('integer', $fetchedTable->getColumn('medium')->getType()->getName());
-        self::assertEquals('integer', $fetchedTable->getColumn('medium_unsigned')->getType()->getName());
-        self::assertEquals('integer', $fetchedTable->getColumn('integer')->getType()->getName());
-        self::assertEquals('integer', $fetchedTable->getColumn('integer_unsigned')->getType()->getName());
-        self::assertEquals('bigint', $fetchedTable->getColumn('big')->getType()->getName());
-        self::assertEquals('bigint', $fetchedTable->getColumn('big_unsigned')->getType()->getName());
+        self::assertEquals(Types::SMALLINT, $fetchedTable->getColumn('small')->getType()->getName());
+        self::assertEquals(Types::SMALLINT, $fetchedTable->getColumn('small_unsigned')->getType()->getName());
+        self::assertEquals(Types::INTEGER, $fetchedTable->getColumn('medium')->getType()->getName());
+        self::assertEquals(Types::INTEGER, $fetchedTable->getColumn('medium_unsigned')->getType()->getName());
+        self::assertEquals(Types::INTEGER, $fetchedTable->getColumn('integer')->getType()->getName());
+        self::assertEquals(Types::INTEGER, $fetchedTable->getColumn('integer_unsigned')->getType()->getName());
+        self::assertEquals(Types::BIGINT, $fetchedTable->getColumn('big')->getType()->getName());
+        self::assertEquals(Types::BIGINT, $fetchedTable->getColumn('big_unsigned')->getType()->getName());
 
         self::assertTrue($fetchedTable->getColumn('small_unsigned')->getUnsigned());
         self::assertTrue($fetchedTable->getColumn('medium_unsigned')->getUnsigned());

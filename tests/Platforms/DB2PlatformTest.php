@@ -155,8 +155,8 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function testGeneratesCreateTableSQLWithCommonIndexes(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('name', Types::STRING, ['length' => 50]);
         $table->setPrimaryKey(['id']);
         $table->addIndex(['name']);
         $table->addIndex(['id', 'name'], 'composite_idx');
@@ -174,9 +174,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function testGeneratesCreateTableSQLWithForeignKeyConstraints(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('fk_1', 'integer');
-        $table->addColumn('fk_2', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('fk_1', Types::INTEGER);
+        $table->addColumn('fk_2', Types::INTEGER);
         $table->setPrimaryKey(['id']);
         $table->addForeignKeyConstraint('foreign_table', ['fk_1', 'fk_2'], ['pk_1', 'pk_2']);
         $table->addForeignKeyConstraint(
@@ -207,9 +207,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function testGeneratesCreateTableSQLWithCheckConstraints(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('check_max', 'integer', ['platformOptions' => ['max' => 10]]);
-        $table->addColumn('check_min', 'integer', ['platformOptions' => ['min' => 10]]);
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('check_max', Types::INTEGER, ['platformOptions' => ['max' => 10]]);
+        $table->addColumn('check_min', Types::INTEGER, ['platformOptions' => ['min' => 10]]);
         $table->setPrimaryKey(['id']);
 
         self::assertEquals(
@@ -564,57 +564,57 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return [
             [
                 'columnDefinition',
-                new Column('bar', Type::getType('decimal'), ['columnDefinition' => 'MONEY NOT NULL']),
+                new Column('bar', Type::getType(Types::DECIMAL), ['columnDefinition' => 'MONEY NOT NULL']),
                 'MONEY NOT NULL',
             ],
             [
                 'type',
-                new Column('bar', Type::getType('integer')),
+                new Column('bar', Type::getType(Types::INTEGER)),
                 'SET DATA TYPE INTEGER',
             ],
             [
                 'length',
-                new Column('bar', Type::getType('string'), ['length' => 100]),
+                new Column('bar', Type::getType(Types::STRING), ['length' => 100]),
                 'SET DATA TYPE VARCHAR(100)',
             ],
             [
                 'precision',
-                new Column('bar', Type::getType('decimal'), ['precision' => 10, 'scale' => 2]),
+                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 10, 'scale' => 2]),
                 'SET DATA TYPE NUMERIC(10, 2)',
             ],
             [
                 'scale',
-                new Column('bar', Type::getType('decimal'), ['precision' => 5, 'scale' => 4]),
+                new Column('bar', Type::getType(Types::DECIMAL), ['precision' => 5, 'scale' => 4]),
                 'SET DATA TYPE NUMERIC(5, 4)',
             ],
             [
                 'fixed',
-                new Column('bar', Type::getType('string'), ['length' => 20, 'fixed' => true]),
+                new Column('bar', Type::getType(Types::STRING), ['length' => 20, 'fixed' => true]),
                 'SET DATA TYPE CHAR(20)',
             ],
             [
                 'notnull',
-                new Column('bar', Type::getType('string'), ['notnull' => true]),
+                new Column('bar', Type::getType(Types::STRING), ['notnull' => true]),
                 'SET NOT NULL',
             ],
             [
                 'notnull',
-                new Column('bar', Type::getType('string'), ['notnull' => false]),
+                new Column('bar', Type::getType(Types::STRING), ['notnull' => false]),
                 'DROP NOT NULL',
             ],
             [
                 'default',
-                new Column('bar', Type::getType('string'), ['default' => 'foo']),
+                new Column('bar', Type::getType(Types::STRING), ['default' => 'foo']),
                 "SET DEFAULT 'foo'",
             ],
             [
                 'default',
-                new Column('bar', Type::getType('integer'), ['autoincrement' => true, 'default' => 666]),
+                new Column('bar', Type::getType(Types::INTEGER), ['autoincrement' => true, 'default' => 666]),
                 null,
             ],
             [
                 'default',
-                new Column('bar', Type::getType('string')),
+                new Column('bar', Type::getType(Types::STRING)),
                 'DROP DEFAULT',
             ],
         ];

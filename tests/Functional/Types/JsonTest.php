@@ -8,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 use function is_resource;
 use function json_decode;
@@ -19,9 +20,9 @@ class JsonTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('json_test_table');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
 
-        $table->addColumn('val', 'json');
+        $table->addColumn('val', Types::JSON);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
@@ -66,7 +67,7 @@ class JsonTest extends FunctionalTestCase
             'val' => $value,
         ], [
             ParameterType::INTEGER,
-            Type::getType('json'),
+            Type::getType(Types::JSON),
         ]);
 
         self::assertSame(1, $result);

@@ -6,13 +6,14 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 class GuidTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
         $table = new Table('guid_table');
-        $table->addColumn('guid', 'guid');
+        $table->addColumn('guid', Types::GUID);
 
         $this->dropAndCreateTable($table);
     }

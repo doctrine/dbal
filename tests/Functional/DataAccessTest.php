@@ -26,9 +26,9 @@ class DataAccessTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('fetch_table');
-        $table->addColumn('test_int', 'integer');
-        $table->addColumn('test_string', 'string');
-        $table->addColumn('test_datetime', 'datetime', ['notnull' => false]);
+        $table->addColumn('test_int', Types::INTEGER);
+        $table->addColumn('test_string', Types::STRING);
+        $table->addColumn('test_datetime', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->setPrimaryKey(['test_int']);
 
         $this->dropAndCreateTable($table);
@@ -438,8 +438,8 @@ class DataAccessTest extends FunctionalTestCase
         }
 
         $table = new Table('fetch_table_date_math');
-        $table->addColumn('test_date', 'date');
-        $table->addColumn('test_days', 'integer');
+        $table->addColumn('test_date', Types::DATE_MUTABLE);
+        $table->addColumn('test_days', Types::INTEGER);
         $table->setPrimaryKey(['test_date']);
 
         $sm = $this->connection->getSchemaManager();

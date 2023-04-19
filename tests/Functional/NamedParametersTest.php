@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 use Throwable;
 
 use function array_change_key_case;
@@ -154,9 +155,9 @@ class NamedParametersTest extends FunctionalTestCase
 
         try {
             $table = new Table('ddc1372_foobar');
-            $table->addColumn('id', 'integer');
-            $table->addColumn('foo', 'string');
-            $table->addColumn('bar', 'string');
+            $table->addColumn('id', Types::INTEGER);
+            $table->addColumn('foo', Types::STRING);
+            $table->addColumn('bar', Types::STRING);
             $table->setPrimaryKey(['id']);
 
             $sm = $this->connection->getSchemaManager();

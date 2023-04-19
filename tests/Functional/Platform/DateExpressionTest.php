@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 use function sprintf;
 
@@ -13,8 +14,8 @@ class DateExpressionTest extends FunctionalTestCase
     public function testDifference(string $date1, string $date2, int $expected): void
     {
         $table = new Table('date_expr_test');
-        $table->addColumn('date1', 'datetime');
-        $table->addColumn('date2', 'datetime');
+        $table->addColumn('date1', Types::DATETIME_MUTABLE);
+        $table->addColumn('date2', Types::DATETIME_MUTABLE);
         $this->dropAndCreateTable($table);
         $this->connection->insert('date_expr_test', [
             'date1' => $date1,

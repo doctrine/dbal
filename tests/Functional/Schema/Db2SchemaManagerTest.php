@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BooleanType;
+use Doctrine\DBAL\Types\Types;
 
 class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -17,8 +18,8 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testGetBooleanColumn(): void
     {
         $table = new Table('boolean_column_test');
-        $table->addColumn('bool', 'boolean');
-        $table->addColumn('bool_commented', 'boolean', ['comment' => "That's a comment"]);
+        $table->addColumn('bool', Types::BOOLEAN);
+        $table->addColumn('bool_commented', Types::BOOLEAN, ['comment' => "That's a comment"]);
 
         $this->schemaManager->createTable($table);
 

@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_shift;
@@ -33,7 +34,7 @@ class TableTest extends TestCase
 
     public function testColumns(): void
     {
-        $type      = Type::getType('integer');
+        $type      = Type::getType(Types::INTEGER);
         $columns   = [];
         $columns[] = new Column('foo', $type);
         $columns[] = new Column('bar', $type);
@@ -52,7 +53,7 @@ class TableTest extends TestCase
     public function testColumnsCaseInsensitive(): void
     {
         $table  = new Table('foo');
-        $column = $table->addColumn('Foo', 'integer');
+        $column = $table->addColumn('Foo', Types::INTEGER);
 
         self::assertTrue($table->hasColumn('Foo'));
         self::assertTrue($table->hasColumn('foo'));
@@ -65,19 +66,19 @@ class TableTest extends TestCase
 
     public function testCreateColumn(): void
     {
-        $type = Type::getType('integer');
+        $type = Type::getType(Types::INTEGER);
 
         $table = new Table('foo');
 
         self::assertFalse($table->hasColumn('bar'));
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('bar', Types::INTEGER);
         self::assertTrue($table->hasColumn('bar'));
         self::assertSame($type, $table->getColumn('bar')->getType());
     }
 
     public function testDropColumn(): void
     {
-        $type      = Type::getType('integer');
+        $type      = Type::getType(Types::INTEGER);
         $columns   = [];
         $columns[] = new Column('foo', $type);
         $columns[] = new Column('bar', $type);
@@ -104,7 +105,7 @@ class TableTest extends TestCase
     {
         $this->expectException(SchemaException::class);
 
-        $type      = Type::getType('integer');
+        $type      = Type::getType(Types::INTEGER);
         $columns   = [];
         $columns[] = new Column('foo', $type);
         $columns[] = new Column('foo', $type);
@@ -113,7 +114,7 @@ class TableTest extends TestCase
 
     public function testCreateIndex(): void
     {
-        $type    = Type::getType('integer');
+        $type    = Type::getType(Types::INTEGER);
         $columns = [new Column('foo', $type), new Column('bar', $type), new Column('baz', $type)];
         $table   = new Table('foo', $columns);
 
@@ -126,7 +127,7 @@ class TableTest extends TestCase
 
     public function testIndexCaseInsensitive(): void
     {
-        $type    = Type::getType('integer');
+        $type    = Type::getType(Types::INTEGER);
         $columns = [
             new Column('foo', $type),
             new Column('bar', $type),
@@ -143,7 +144,7 @@ class TableTest extends TestCase
 
     public function testAddIndexes(): void
     {
-        $type    = Type::getType('integer');
+        $type    = Type::getType(Types::INTEGER);
         $columns = [
             new Column('foo', $type),
             new Column('bar', $type),
@@ -175,7 +176,7 @@ class TableTest extends TestCase
     {
         $this->expectException(SchemaException::class);
 
-        $type    = Type::getType('integer');
+        $type    = Type::getType(Types::INTEGER);
         $columns = [new Column('foo', $type), new Column('bar', $type)];
         $indexes = [
             new Index('the_primary', ['foo'], true, true),
@@ -188,7 +189,7 @@ class TableTest extends TestCase
     {
         $this->expectException(SchemaException::class);
 
-        $type    = Type::getType('integer');
+        $type    = Type::getType(Types::INTEGER);
         $columns = [new Column('foo', $type), new Column('bar', $type)];
         $indexes = [
             new Index('an_idx', ['foo'], false, false),
@@ -220,7 +221,7 @@ class TableTest extends TestCase
     {
         $table = new Table('foo');
 
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('bar', Types::INTEGER);
         $table->setPrimaryKey(['bar']);
 
         self::assertTrue($table->hasIndex('primary'));
@@ -233,7 +234,7 @@ class TableTest extends TestCase
     {
         $table = new Table('foo');
 
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('bar', Types::INTEGER);
         $table->addUniqueIndex(['bar'], 'my_idx');
 
         self::assertTrue($table->hasIndex('my_idx'));
@@ -245,7 +246,7 @@ class TableTest extends TestCase
     {
         $table = new Table('foo');
 
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('bar', Types::INTEGER);
         $table->addIndex(['bar'], 'my_idx');
 
         self::assertTrue($table->hasIndex('my_idx'));
@@ -258,7 +259,7 @@ class TableTest extends TestCase
         $this->expectException(SchemaException::class);
 
         $table = new Table('foo');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('bar', Types::INTEGER);
         $table->addIndex(['bar'], 'invalid name %&/');
     }
 
@@ -283,10 +284,10 @@ class TableTest extends TestCase
         $this->expectException(SchemaException::class);
 
         $table = new Table('foo');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
 
         $foreignTable = new Table('bar');
-        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->addColumn('id', Types::INTEGER);
 
         $table->addForeignKeyConstraint($foreignTable, ['foo'], ['id']);
     }
@@ -296,10 +297,10 @@ class TableTest extends TestCase
         $this->expectException(SchemaException::class);
 
         $table = new Table('foo');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
 
         $foreignTable = new Table('bar');
-        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->addColumn('id', Types::INTEGER);
 
         $table->addForeignKeyConstraint($foreignTable, ['id'], ['foo']);
     }
@@ -307,10 +308,10 @@ class TableTest extends TestCase
     public function testAddForeignKeyConstraint(): void
     {
         $table = new Table('foo');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
 
         $foreignTable = new Table('bar');
-        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->addColumn('id', Types::INTEGER);
 
         $table->addForeignKeyConstraint($foreignTable, ['id'], ['id'], ['foo' => 'bar']);
 
@@ -327,7 +328,7 @@ class TableTest extends TestCase
     public function testAddIndexWithCaseSensitiveColumnProblem(): void
     {
         $table = new Table('foo');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
 
         $table->addIndex(['ID'], 'my_idx');
 
@@ -339,7 +340,7 @@ class TableTest extends TestCase
     public function testAddPrimaryKeyColumnsAreExplicitlySetToNotNull(): void
     {
         $table  = new Table('foo');
-        $column = $table->addColumn('id', 'integer', ['notnull' => false]);
+        $column = $table->addColumn('id', Types::INTEGER, ['notnull' => false]);
 
         self::assertFalse($column->getNotnull());
 
@@ -351,7 +352,7 @@ class TableTest extends TestCase
     public function testAllowImplicitSchemaTableInAutogeneratedIndexNames(): void
     {
         $table = new Table('foo.bar');
-        $table->addColumn('baz', 'integer', []);
+        $table->addColumn('baz', Types::INTEGER, []);
         $table->addIndex(['baz']);
 
         self::assertCount(1, $table->getIndexes());
@@ -360,10 +361,10 @@ class TableTest extends TestCase
     public function testAddForeignKeyIndexImplicitly(): void
     {
         $table = new Table('foo');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
 
         $foreignTable = new Table('bar');
-        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->addColumn('id', Types::INTEGER);
 
         $table->addForeignKeyConstraint($foreignTable, ['id'], ['id'], ['foo' => 'bar']);
 
@@ -378,11 +379,11 @@ class TableTest extends TestCase
     public function testAddForeignKeyDoesNotCreateDuplicateIndex(): void
     {
         $table = new Table('foo');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('bar', Types::INTEGER);
         $table->addIndex(['bar'], 'bar_idx');
 
         $foreignTable = new Table('bar');
-        $foreignTable->addColumn('foo', 'integer');
+        $foreignTable->addColumn('foo', Types::INTEGER);
 
         $table->addForeignKeyConstraint($foreignTable, ['bar'], ['foo']);
 
@@ -394,15 +395,15 @@ class TableTest extends TestCase
     public function testAddForeignKeyAddsImplicitIndexIfIndexColumnsDoNotSpan(): void
     {
         $table = new Table('foo');
-        $table->addColumn('bar', 'integer');
-        $table->addColumn('baz', 'string');
-        $table->addColumn('bloo', 'string');
+        $table->addColumn('bar', Types::INTEGER);
+        $table->addColumn('baz', Types::STRING);
+        $table->addColumn('bloo', Types::STRING);
         $table->addIndex(['baz', 'bar'], 'composite_idx');
         $table->addIndex(['bar', 'baz', 'bloo'], 'full_idx');
 
         $foreignTable = new Table('bar');
-        $foreignTable->addColumn('foo', 'integer');
-        $foreignTable->addColumn('baz', 'string');
+        $foreignTable->addColumn('foo', Types::INTEGER);
+        $foreignTable->addColumn('baz', Types::STRING);
 
         $table->addForeignKeyConstraint($foreignTable, ['bar', 'baz'], ['foo', 'baz']);
 
@@ -418,7 +419,7 @@ class TableTest extends TestCase
     public function testOverrulingIndexDoesNotDropOverruledIndex(): void
     {
         $table = new Table('bar');
-        $table->addColumn('baz', 'integer', []);
+        $table->addColumn('baz', Types::INTEGER, []);
         $table->addIndex(['baz']);
 
         $indexes = $table->getIndexes();
@@ -433,7 +434,7 @@ class TableTest extends TestCase
     public function testAllowsAddingDuplicateIndexesBasedOnColumns(): void
     {
         $table = new Table('foo');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('bar', Types::INTEGER);
         $table->addIndex(['bar'], 'bar_idx');
         $table->addIndex(['bar'], 'duplicate_idx');
 
@@ -447,8 +448,8 @@ class TableTest extends TestCase
     public function testAllowsAddingFulfillingIndexesBasedOnColumns(): void
     {
         $table = new Table('foo');
-        $table->addColumn('bar', 'integer');
-        $table->addColumn('baz', 'string');
+        $table->addColumn('bar', Types::INTEGER);
+        $table->addColumn('baz', Types::STRING);
         $table->addIndex(['bar'], 'bar_idx');
         $table->addIndex(['bar', 'baz'], 'fulfilling_idx');
 
@@ -462,7 +463,7 @@ class TableTest extends TestCase
     public function testPrimaryKeyOverrulingUniqueIndexDoesNotDropUniqueIndex(): void
     {
         $table = new Table('bar');
-        $table->addColumn('baz', 'integer', []);
+        $table->addColumn('baz', Types::INTEGER, []);
         $table->addUniqueIndex(['baz'], 'idx_unique');
 
         $table->setPrimaryKey(['baz']);
@@ -479,10 +480,10 @@ class TableTest extends TestCase
     public function testAddingFulfillingRegularIndexOverridesImplicitForeignKeyConstraintIndex(): void
     {
         $foreignTable = new Table('foreign');
-        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->addColumn('id', Types::INTEGER);
 
         $localTable = new Table('local');
-        $localTable->addColumn('id', 'integer');
+        $localTable->addColumn('id', Types::INTEGER);
         $localTable->addForeignKeyConstraint($foreignTable, ['id'], ['id']);
 
         self::assertCount(1, $localTable->getIndexes());
@@ -496,10 +497,10 @@ class TableTest extends TestCase
     public function testAddingFulfillingUniqueIndexOverridesImplicitForeignKeyConstraintIndex(): void
     {
         $foreignTable = new Table('foreign');
-        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->addColumn('id', Types::INTEGER);
 
         $localTable = new Table('local');
-        $localTable->addColumn('id', 'integer');
+        $localTable->addColumn('id', Types::INTEGER);
         $localTable->addForeignKeyConstraint($foreignTable, ['id'], ['id']);
 
         self::assertCount(1, $localTable->getIndexes());
@@ -513,10 +514,10 @@ class TableTest extends TestCase
     public function testAddingFulfillingPrimaryKeyOverridesImplicitForeignKeyConstraintIndex(): void
     {
         $foreignTable = new Table('foreign');
-        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->addColumn('id', Types::INTEGER);
 
         $localTable = new Table('local');
-        $localTable->addColumn('id', 'integer');
+        $localTable->addColumn('id', Types::INTEGER);
         $localTable->addForeignKeyConstraint($foreignTable, ['id'], ['id']);
 
         self::assertCount(1, $localTable->getIndexes());
@@ -530,10 +531,10 @@ class TableTest extends TestCase
     public function testAddingFulfillingExplicitIndexOverridingImplicitForeignKeyConstraintIndexWithSameName(): void
     {
         $foreignTable = new Table('foreign');
-        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->addColumn('id', Types::INTEGER);
 
         $localTable = new Table('local');
-        $localTable->addColumn('id', 'integer');
+        $localTable->addColumn('id', Types::INTEGER);
         $localTable->addForeignKeyConstraint($foreignTable, ['id'], ['id']);
 
         self::assertCount(1, $localTable->getIndexes());
@@ -566,7 +567,7 @@ class TableTest extends TestCase
 
         self::assertFalse($table->hasPrimaryKey());
 
-        $table->addColumn('foo', 'integer');
+        $table->addColumn('foo', Types::INTEGER);
         $table->setPrimaryKey(['foo']);
 
         self::assertTrue($table->hasPrimaryKey());
@@ -575,8 +576,8 @@ class TableTest extends TestCase
     public function testAddIndexWithQuotedColumns(): void
     {
         $table = new Table('test');
-        $table->addColumn('"foo"', 'integer');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('"foo"', Types::INTEGER);
+        $table->addColumn('bar', Types::INTEGER);
         $table->addIndex(['"foo"', '"bar"']);
 
         self::assertTrue($table->columnsAreIndexed(['"foo"', '"bar"']));
@@ -585,8 +586,8 @@ class TableTest extends TestCase
     public function testAddForeignKeyWithQuotedColumnsAndTable(): void
     {
         $table = new Table('test');
-        $table->addColumn('"foo"', 'integer');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('"foo"', Types::INTEGER);
+        $table->addColumn('bar', Types::INTEGER);
         $table->addForeignKeyConstraint('"boing"', ['"foo"', '"bar"'], ['id']);
 
         self::assertCount(1, $table->getForeignKeys());
@@ -613,7 +614,7 @@ class TableTest extends TestCase
     public function testDropIndex(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->addIndex(['id'], 'idx');
 
         self::assertTrue($table->hasIndex('idx'));
@@ -625,7 +626,7 @@ class TableTest extends TestCase
     public function testDropPrimaryKey(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         self::assertTrue($table->hasPrimaryKey());
@@ -637,10 +638,10 @@ class TableTest extends TestCase
     public function testRenameIndex(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'integer');
-        $table->addColumn('baz', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('foo', Types::INTEGER);
+        $table->addColumn('bar', Types::INTEGER);
+        $table->addColumn('baz', Types::INTEGER);
         $table->setPrimaryKey(['id'], 'pk');
         $table->addIndex(['foo'], 'idx', ['flag']);
         $table->addUniqueIndex(['bar', 'baz'], 'uniq');
@@ -706,7 +707,7 @@ class TableTest extends TestCase
     public function testKeepsIndexOptionsOnRenamingRegularIndex(): void
     {
         $table = new Table('foo');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->addIndex(['id'], 'idx_bar', [], ['where' => '1 = 1']);
 
         $table->renameIndex('idx_bar', 'idx_baz');
@@ -717,7 +718,7 @@ class TableTest extends TestCase
     public function testKeepsIndexOptionsOnRenamingUniqueIndex(): void
     {
         $table = new Table('foo');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->addUniqueIndex(['id'], 'idx_bar', ['where' => '1 = 1']);
 
         $table->renameIndex('idx_bar', 'idx_baz');
@@ -728,7 +729,7 @@ class TableTest extends TestCase
     public function testThrowsExceptionOnRenamingNonExistingIndex(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->addIndex(['id'], 'idx');
 
         $this->expectException(SchemaException::class);
@@ -739,8 +740,8 @@ class TableTest extends TestCase
     public function testThrowsExceptionOnRenamingToAlreadyExistingIndex(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('foo', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('foo', Types::INTEGER);
         $table->addIndex(['id'], 'idx_id');
         $table->addIndex(['foo'], 'idx_foo');
 
@@ -754,7 +755,7 @@ class TableTest extends TestCase
     {
         $table = new Table('test');
 
-        $table->addColumn($assetName, 'integer');
+        $table->addColumn($assetName, Types::INTEGER);
         $table->addIndex([$assetName], $assetName);
         $table->addForeignKeyConstraint('test', [$assetName], [$assetName], [], $assetName);
 
@@ -831,7 +832,7 @@ class TableTest extends TestCase
     public function testRemoveUniqueConstraint(): void
     {
         $table = new Table('foo');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('bar', Types::INTEGER);
         $table->addUniqueConstraint(['bar'], 'unique_constraint');
 
         $table->removeUniqueConstraint('unique_constraint');
@@ -844,7 +845,7 @@ class TableTest extends TestCase
         $this->expectException(SchemaException::class);
 
         $table = new Table('foo');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('bar', Types::INTEGER);
 
         $table->removeUniqueConstraint('unique_constraint');
     }
