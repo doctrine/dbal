@@ -54,6 +54,14 @@ final class Driver extends AbstractSQLServerDriver
             $driverOptions['PWD'] = $params['password'];
         }
 
+        if (isset($params['Encrypt'])) {
+            $driverOptions['Encrypt'] = $params['Encrypt'];
+        }
+
+        if (isset($params['TrustServerCertificate'])) {
+            $driverOptions['TrustServerCertificate'] = $params['TrustServerCertificate'];
+        }
+
         if (! isset($driverOptions['ReturnDatesAsStrings'])) {
             $driverOptions['ReturnDatesAsStrings'] = 1;
         }
