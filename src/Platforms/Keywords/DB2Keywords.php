@@ -406,7 +406,6 @@ class DB2Keywords extends KeywordList
             'VALIDPROC',
             'VALUE',
             'VALUES',
-            'VARGRAPHIC',
             'VARIABLE',
             'VARIANT',
             'VCAT',
