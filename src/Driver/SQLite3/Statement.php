@@ -43,7 +43,7 @@ final class Statement implements StatementInterface
     /**
      * @throws UnknownParameterType
      *
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @psalm-assert ParameterType::* $type
      */
@@ -64,7 +64,7 @@ final class Statement implements StatementInterface
     /**
      * @throws UnknownParameterType
      *
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @psalm-assert ParameterType::* $type
      */
@@ -89,7 +89,7 @@ final class Statement implements StatementInterface
         return $this->statement->bindParam($param, $variable, $this->convertParamType($type));
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function execute($params = null): Result
     {
         if ($params !== null) {

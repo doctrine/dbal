@@ -21,7 +21,7 @@ class Graphviz extends AbstractVisitor
     private string $output = '';
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
@@ -37,7 +37,7 @@ class Graphviz extends AbstractVisitor
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function acceptSchema(Schema $schema)
     {
@@ -50,7 +50,7 @@ class Graphviz extends AbstractVisitor
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function acceptTable(Table $table)
     {

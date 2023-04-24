@@ -25,7 +25,7 @@ final class Statement implements StatementInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws UnknownParameterType
      *
@@ -113,7 +113,7 @@ final class Statement implements StatementInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function execute($params = null): ResultInterface
     {

@@ -21,7 +21,7 @@ class SQLiteSessionInit implements EventSubscriber
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSubscribedEvents()
     {

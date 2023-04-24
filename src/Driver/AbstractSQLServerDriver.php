@@ -20,7 +20,7 @@ use function assert;
 abstract class AbstractSQLServerDriver implements Driver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getDatabasePlatform()
     {
@@ -28,7 +28,7 @@ abstract class AbstractSQLServerDriver implements Driver
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@link SQLServerPlatform::createSchemaManager()} instead.
      */

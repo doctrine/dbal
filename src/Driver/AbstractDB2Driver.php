@@ -23,7 +23,7 @@ use function version_compare;
 abstract class AbstractDB2Driver implements VersionAwarePlatformDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getDatabasePlatform()
     {
@@ -31,7 +31,7 @@ abstract class AbstractDB2Driver implements VersionAwarePlatformDriver
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@link DB2Platform::createSchemaManager()} instead.
      */
@@ -55,7 +55,7 @@ abstract class AbstractDB2Driver implements VersionAwarePlatformDriver
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function createDatabasePlatformForVersion($version)
     {

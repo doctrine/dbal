@@ -1234,7 +1234,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getQuotedAlterTableRenameColumnSQL(): array
     {
@@ -1252,7 +1252,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getQuotedAlterTableChangeColumnLengthSQL(): array
     {
@@ -1512,7 +1512,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getAlterTableRenameColumnSQL(): array
     {
@@ -1524,7 +1524,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getCommentOnColumnSQL(): array
     {
@@ -1536,7 +1536,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
@@ -1566,7 +1566,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getAlterStringToFixedStringSQL(): array
     {
@@ -1574,7 +1574,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

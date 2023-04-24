@@ -29,7 +29,7 @@ use function version_compare;
 abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws Exception
      */
@@ -160,7 +160,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return AbstractMySQLPlatform
      */
@@ -170,7 +170,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@link AbstractMySQLPlatform::createSchemaManager()} instead.
      *

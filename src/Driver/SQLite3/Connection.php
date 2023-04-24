@@ -45,7 +45,7 @@ final class Connection implements ServerInfoAwareConnection
         return new Result($result, $this->connection->changes());
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function quote($value, $type = ParameterType::STRING): string
     {
         return sprintf('\'%s\'', SQLite3::escapeString($value));
@@ -62,7 +62,7 @@ final class Connection implements ServerInfoAwareConnection
         return $this->connection->changes();
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function lastInsertId($name = null): int
     {
         return $this->connection->lastInsertRowID();

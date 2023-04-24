@@ -60,7 +60,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

@@ -194,7 +194,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@see getLocalColumns()} instead.
      *
