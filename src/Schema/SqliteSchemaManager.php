@@ -417,14 +417,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         $options = [
-            'length'   => $length,
-            'unsigned' => $unsigned,
-            'fixed'    => $fixed,
-            'notnull'  => $notnull,
-            'default'  => $default,
+            'length'    => $length,
+            'unsigned'  => $unsigned,
+            'fixed'     => $fixed,
+            'notnull'   => $notnull,
+            'default'   => $default,
             'precision' => $precision,
             'scale'     => $scale,
-            'autoincrement' => false,
         ];
 
         return new Column($tableColumn['name'], Type::getType($type), $options);
