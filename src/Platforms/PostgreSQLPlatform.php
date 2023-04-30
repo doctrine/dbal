@@ -812,6 +812,18 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getDropIndexSQL($index, $table = null)
+    {
+        if ($index->isPrimary()) {
+            return $this->getDropConstraintSQL($table.'_pkey', $table);
+        }
+
+        return parent::getDropIndexSQL($index, $table);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);

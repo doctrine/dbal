@@ -581,6 +581,27 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $sql);
     }
 
+    public function testDroppingPrimaryKey(): void
+    {
+        $oldTable = new Table('mytable');
+        $oldTable->addColumn('id', 'integer');
+        $oldTable->setPrimaryKey(['id']);
+
+        $newTable = clone $oldTable;
+        $newTable->dropPrimaryKey();
+
+        $diff = (new Comparator())->diffTable($oldTable, $newTable);
+        self::assertNotFalse($diff);
+
+        $sql = $this->platform->getAlterTableSQL($diff);
+
+        $expectedSql = [
+            'ALTER TABLE mytable DROP CONSTRAINT mytable_pkey',
+        ];
+
+        self::assertEquals($expectedSql, $sql);
+    }
+
     public function testUsesSequenceEmulatedIdentityColumns(): void
     {
         self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
