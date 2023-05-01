@@ -590,7 +590,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $newTable = clone $oldTable;
         $newTable->dropPrimaryKey();
 
-        $diff = (new Comparator())->diffTable($oldTable, $newTable);
+        $diff = (new Comparator())->compareTables($oldTable, $newTable);
         self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
