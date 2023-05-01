@@ -815,7 +815,8 @@ SQL
     public function getDropIndexSQL($index, $table = null)
     {
         if ($index->isPrimary()) {
-            return $this->getDropConstraintSQL($table.'_pkey', $table);
+            $constraintName = 'primary' === $index->getName() ? $table . '_pkey' : $index->getName();
+            return $this->getDropConstraintSQL($constraintName, $table);
         }
 
         return parent::getDropIndexSQL($index, $table);
