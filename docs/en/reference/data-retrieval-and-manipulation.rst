@@ -104,6 +104,11 @@ position of the variable to bind into the ``bindValue()`` method:
     $stmt->bindValue(1, $id);
     $stmt->bindValue(2, $status);
     $resultSet = $stmt->executeQuery();
+    
+.. note::
+
+    The numerical parameters in ``bindValue()`` start with the needle
+    ``1``. 
 
 Named parameters have the advantage that their labels can be re-used and only need to be bound once:
 
