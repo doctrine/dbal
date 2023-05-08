@@ -18,7 +18,7 @@ abstract class AbstractDriverMiddleware implements Driver
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function connect(
         #[SensitiveParameter]

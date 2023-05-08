@@ -13,7 +13,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class SmallIntType extends Type implements PhpIntegerMappingType
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

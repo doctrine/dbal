@@ -13,7 +13,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class BooleanType extends Type
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

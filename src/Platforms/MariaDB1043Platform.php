@@ -18,7 +18,7 @@ class MariaDB1043Platform extends MariaDBPlatform
      * Use JSON rather than LONGTEXT for json columns. Since it is not a true native type, do not override
      * hasNativeJsonType() so the DC2Type comment will still be set.
      *
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getJsonTypeDeclarationSQL(array $column): string
     {

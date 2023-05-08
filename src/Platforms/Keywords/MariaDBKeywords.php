@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 class MariaDBKeywords extends MySQLKeywords
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getKeywords(): array
     {

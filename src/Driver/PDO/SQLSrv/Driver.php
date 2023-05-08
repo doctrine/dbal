@@ -18,7 +18,7 @@ use function sprintf;
 final class Driver extends AbstractSQLServerDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function connect(
         #[SensitiveParameter]

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Types\DecimalType;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
@@ -17,7 +18,7 @@ class DBAL461Test extends TestCase
     {
         $conn     = $this->createMock(Connection::class);
         $platform = $this->getMockForAbstractClass(SQLServerPlatform::class);
-        $platform->registerDoctrineTypeMapping('numeric', 'decimal');
+        $platform->registerDoctrineTypeMapping('numeric', Types::DECIMAL);
 
         $schemaManager = new SQLServerSchemaManager($conn, $platform);
 

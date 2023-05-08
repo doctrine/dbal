@@ -120,7 +120,7 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function fetchAllNumeric(): array
     {
@@ -128,7 +128,7 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function fetchAllAssociative(): array
     {
@@ -136,7 +136,7 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function fetchFirstColumn(): array
     {

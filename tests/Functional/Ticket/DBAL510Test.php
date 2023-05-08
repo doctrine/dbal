@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Ticket;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 class DBAL510Test extends FunctionalTestCase
 {
@@ -22,7 +23,7 @@ class DBAL510Test extends FunctionalTestCase
     public function testSearchPathSchemaChanges(): void
     {
         $table = new Table('dbal510tbl');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);

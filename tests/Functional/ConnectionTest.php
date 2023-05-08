@@ -16,6 +16,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
 use Error;
 use PDO;
 use Throwable;
@@ -364,7 +365,7 @@ class ConnectionTest extends FunctionalTestCase
     private function createTestTable(): void
     {
         $table = new Table(self::TABLE);
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);

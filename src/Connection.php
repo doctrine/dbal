@@ -182,6 +182,8 @@ class Connection implements ServerVersionProvider
 
             if (isset($this->params['serverVersion'])) {
                 $versionProvider = new StaticServerVersionProvider($this->params['serverVersion']);
+            } elseif (isset($this->params['primary']['serverVersion'])) {
+                $versionProvider = new StaticServerVersionProvider($this->params['primary']['serverVersion']);
             }
 
             $this->platform = $this->driver->getDatabasePlatform($versionProvider);

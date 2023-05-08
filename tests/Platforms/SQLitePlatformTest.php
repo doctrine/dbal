@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 /** @extends AbstractPlatformTestCase<SQLitePlatform> */
 class SQLitePlatformTest extends AbstractPlatformTestCase
@@ -208,7 +209,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     public function testGenerateTableSqlShouldNotAutoQuotePrimaryKey(): void
     {
         $table = new Table('test');
-        $table->addColumn('"like"', 'integer', ['notnull' => true, 'autoincrement' => true]);
+        $table->addColumn('"like"', Types::INTEGER, ['notnull' => true, 'autoincrement' => true]);
         $table->setPrimaryKey(['"like"']);
 
         $createTableSQL = $this->platform->getCreateTableSQL($table);
@@ -223,8 +224,8 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table = new Table('user');
 
         $diff = new TableDiff($table, [
-            new Column('foo', Type::getType('string')),
-            new Column('count', Type::getType('integer'), [
+            new Column('foo', Type::getType(Types::STRING)),
+            new Column('count', Type::getType(Types::INTEGER), [
                 'notnull' => false,
                 'default' => 1,
             ]),
@@ -241,10 +242,10 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     public function testRenameNonExistingColumn(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
 
         $tableDiff = new TableDiff($table, [], [], [], [
-            'value' => new Column('data', Type::getType('string')),
+            'value' => new Column('data', Type::getType(Types::STRING)),
         ], [], [], [], [], [], [], []);
 
         $this->expectException(Exception::class);
@@ -254,10 +255,10 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     public function testCreateTableWithDeferredForeignKeys(): void
     {
         $table = new Table('user');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('article', 'integer');
-        $table->addColumn('post', 'integer');
-        $table->addColumn('parent', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('article', Types::INTEGER);
+        $table->addColumn('post', Types::INTEGER);
+        $table->addColumn('parent', Types::INTEGER);
         $table->setPrimaryKey(['id']);
         $table->addForeignKeyConstraint('article', ['article'], ['id'], ['deferrable' => true]);
         $table->addForeignKeyConstraint('post', ['post'], ['id'], ['deferred' => true]);
@@ -285,10 +286,10 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     public function testAlterTable(): void
     {
         $table = new Table('user');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('article', 'integer');
-        $table->addColumn('post', 'integer');
-        $table->addColumn('parent', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('article', Types::INTEGER);
+        $table->addColumn('post', Types::INTEGER);
+        $table->addColumn('parent', Types::INTEGER);
         $table->setPrimaryKey(['id']);
         $table->addForeignKeyConstraint('article', ['article'], ['id'], ['deferrable' => true]);
         $table->addForeignKeyConstraint('post', ['post'], ['id'], ['deferred' => true]);
@@ -296,10 +297,10 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addIndex(['article', 'post'], 'index1');
 
         $diff = new TableDiff($table, [], [], [
-            new Column('parent', Type::getType('integer'), []),
+            new Column('parent', Type::getType(Types::INTEGER), []),
         ], [
-            'id' => new Column('key', Type::getType('integer'), []),
-            'post' => new Column('comment', Type::getType('integer'), []),
+            'id' => new Column('key', Type::getType(Types::INTEGER), []),
+            'post' => new Column('comment', Type::getType(Types::INTEGER), []),
         ], [], [], [
             $table->getIndex('index1'),
         ], [], [], [], []);
@@ -445,7 +446,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getCommentOnColumnSQL(): array
     {
@@ -492,7 +493,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getAlterStringToFixedStringSQL(): array
     {
@@ -506,7 +507,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
@@ -554,8 +555,12 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
-        $table->addColumn('no_collation', 'string', ['length' => 255]);
-        $table->addColumn('column_collation', 'string', ['length' => 255])->setPlatformOption('collation', 'NOCASE');
+        $table->addColumn('no_collation', Types::STRING, ['length' => 255]);
+        $table->addColumn(
+            'column_collation',
+            Types::STRING,
+            ['length' => 255],
+        )->setPlatformOption('collation', 'NOCASE');
 
         self::assertSame(
             [

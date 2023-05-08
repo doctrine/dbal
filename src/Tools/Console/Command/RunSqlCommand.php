@@ -53,7 +53,7 @@ EOT);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws Exception
      */

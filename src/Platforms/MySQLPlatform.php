@@ -35,7 +35,7 @@ class MySQLPlatform extends AbstractMySQLPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getJsonTypeDeclarationSQL(array $column): string
     {
@@ -43,7 +43,7 @@ class MySQLPlatform extends AbstractMySQLPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {

@@ -14,7 +14,7 @@ use SensitiveParameter;
 final class Driver extends AbstractOracleDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function connect(
         #[SensitiveParameter]

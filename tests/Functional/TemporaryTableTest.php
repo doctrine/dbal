@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Throwable;
 
 class TemporaryTableTest extends FunctionalTestCase
@@ -24,7 +25,7 @@ class TemporaryTableTest extends FunctionalTestCase
         $columnDefinitions = [
             [
                 'name' => 'id',
-                'type' => Type::getType('integer'),
+                'type' => Type::getType(Types::INTEGER),
                 'notnull' => true,
             ],
         ];
@@ -36,7 +37,7 @@ class TemporaryTableTest extends FunctionalTestCase
         $this->connection->executeStatement($createTempTableSQL);
 
         $table = new Table('nontemporary');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
@@ -63,7 +64,7 @@ class TemporaryTableTest extends FunctionalTestCase
         $columnDefinitions = [
             [
                 'name' => 'id',
-                'type' => Type::getType('integer'),
+                'type' => Type::getType(Types::INTEGER),
                 'notnull' => true,
             ],
         ];
@@ -74,7 +75,7 @@ class TemporaryTableTest extends FunctionalTestCase
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
 
         $table = new Table('nontemporary');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);

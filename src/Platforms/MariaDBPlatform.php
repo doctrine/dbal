@@ -20,7 +20,7 @@ use function in_array;
 class MariaDBPlatform extends AbstractMySQLPlatform
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @link https://mariadb.com/kb/en/library/json-data-type/
      */
@@ -30,7 +30,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
@@ -51,7 +51,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {

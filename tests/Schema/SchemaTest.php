@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_shift;
@@ -175,7 +176,7 @@ class SchemaTest extends TestCase
 
         $schema = new Schema([], [], $schemaConfig);
         $table  = $schema->createTable('smalltable');
-        $table->addColumn('long_id', 'integer');
+        $table->addColumn('long_id', Types::INTEGER);
         $table->addIndex(['long_id']);
 
         $indexes = $table->getIndexes();
@@ -192,11 +193,11 @@ class SchemaTest extends TestCase
         $sequence = $schema->createSequence('baz');
 
         $tableA = $schema->createTable('foo');
-        $tableA->addColumn('id', 'integer');
+        $tableA->addColumn('id', Types::INTEGER);
 
         $tableB = $schema->createTable('bar');
-        $tableB->addColumn('id', 'integer');
-        $tableB->addColumn('foo_id', 'integer');
+        $tableB->addColumn('id', Types::INTEGER);
+        $tableB->addColumn('foo_id', Types::INTEGER);
         $tableB->addForeignKeyConstraint($tableA->getName(), ['foo_id'], ['id']);
 
         $schemaNew = clone $schema;
@@ -215,7 +216,7 @@ class SchemaTest extends TestCase
         $schema = new Schema();
 
         $tableA = $schema->createTable('foo');
-        $tableA->addColumn('id', 'integer');
+        $tableA->addColumn('id', Types::INTEGER);
 
         self::assertTrue($schema->hasTable('`foo`'));
     }

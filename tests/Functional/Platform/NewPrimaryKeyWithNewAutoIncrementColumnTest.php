@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCase
 {
@@ -35,14 +36,14 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         $schema        = $schemaManager->introspectSchema();
 
         $table = $schema->createTable('dbal2807');
-        $table->addColumn('initial_id', 'integer');
+        $table->addColumn('initial_id', Types::INTEGER);
         $table->setPrimaryKey(['initial_id']);
 
         $schemaManager->createTable($table);
 
         $newSchema = clone $schema;
         $newTable  = $newSchema->getTable($table->getName());
-        $newTable->addColumn('new_id', 'integer', ['autoincrement' => true]);
+        $newTable->addColumn('new_id', Types::INTEGER, ['autoincrement' => true]);
         $newTable->dropPrimaryKey();
         $newTable->setPrimaryKey(['new_id']);
 

@@ -11,7 +11,7 @@ use SQLite3;
 final class Driver extends AbstractSQLiteDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function connect(
         #[SensitiveParameter]

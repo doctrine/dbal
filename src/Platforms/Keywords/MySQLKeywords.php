@@ -10,7 +10,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 class MySQLKeywords extends KeywordList
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @link https://dev.mysql.com/doc/mysqld-version-reference/en/keywords-5-7.html
      */

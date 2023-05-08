@@ -60,7 +60,7 @@ abstract class AbstractConnectionMiddleware implements Connection
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getNativeConnection()
     {

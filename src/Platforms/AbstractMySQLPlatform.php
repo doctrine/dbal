@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\Types;
 
 use function array_merge;
 use function array_unique;
@@ -625,7 +626,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getFloatDeclarationSQL(array $column): string
     {
@@ -633,7 +634,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getDecimalTypeDeclarationSQL(array $column): string
     {
@@ -710,37 +711,37 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
-            'bigint'     => 'bigint',
-            'binary'     => 'binary',
-            'blob'       => 'blob',
-            'char'       => 'string',
-            'date'       => 'date',
-            'datetime'   => 'datetime',
-            'decimal'    => 'decimal',
-            'double'     => 'float',
-            'float'      => 'float',
-            'int'        => 'integer',
-            'integer'    => 'integer',
-            'json'       => 'json',
-            'longblob'   => 'blob',
-            'longtext'   => 'text',
-            'mediumblob' => 'blob',
-            'mediumint'  => 'integer',
-            'mediumtext' => 'text',
-            'numeric'    => 'decimal',
-            'real'       => 'float',
-            'set'        => 'simple_array',
-            'smallint'   => 'smallint',
-            'string'     => 'string',
-            'text'       => 'text',
-            'time'       => 'time',
-            'timestamp'  => 'datetime',
-            'tinyblob'   => 'blob',
-            'tinyint'    => 'boolean',
-            'tinytext'   => 'text',
-            'varbinary'  => 'binary',
-            'varchar'    => 'string',
-            'year'       => 'date',
+            'bigint'     => Types::BIGINT,
+            'binary'     => Types::BINARY,
+            'blob'       => Types::BLOB,
+            'char'       => Types::STRING,
+            'date'       => Types::DATE_MUTABLE,
+            'datetime'   => Types::DATETIME_MUTABLE,
+            'decimal'    => Types::DECIMAL,
+            'double'     => Types::FLOAT,
+            'float'      => Types::FLOAT,
+            'int'        => Types::INTEGER,
+            'integer'    => Types::INTEGER,
+            'json'       => Types::JSON,
+            'longblob'   => Types::BLOB,
+            'longtext'   => Types::TEXT,
+            'mediumblob' => Types::BLOB,
+            'mediumint'  => Types::INTEGER,
+            'mediumtext' => Types::TEXT,
+            'numeric'    => Types::DECIMAL,
+            'real'       => Types::FLOAT,
+            'set'        => Types::SIMPLE_ARRAY,
+            'smallint'   => Types::SMALLINT,
+            'string'     => Types::STRING,
+            'text'       => Types::TEXT,
+            'time'       => Types::TIME_MUTABLE,
+            'timestamp'  => Types::DATETIME_MUTABLE,
+            'tinyblob'   => Types::BLOB,
+            'tinyint'    => Types::BOOLEAN,
+            'tinytext'   => Types::TEXT,
+            'varbinary'  => Types::BINARY,
+            'varchar'    => Types::STRING,
+            'year'       => Types::DATE_MUTABLE,
         ];
     }
 

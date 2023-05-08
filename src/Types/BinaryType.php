@@ -18,7 +18,7 @@ use function stream_get_contents;
 class BinaryType extends Type
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

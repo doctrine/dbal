@@ -47,7 +47,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
@@ -55,7 +55,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
@@ -168,7 +168,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
     {
@@ -198,7 +198,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
     {
@@ -212,7 +212,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
@@ -226,7 +226,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableDefinition(array $table): string
     {
@@ -238,7 +238,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableDatabaseDefinition(array $database): string
     {
@@ -246,7 +246,7 @@ SQL,
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableViewDefinition(array $view): View
     {

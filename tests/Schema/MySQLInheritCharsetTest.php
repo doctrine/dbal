@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_merge;
@@ -42,14 +43,14 @@ class MySQLInheritCharsetTest extends TestCase
         $platform = new MySQLPlatform();
 
         // no options
-        $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
+        $table = new Table('foobar', [new Column('aa', Type::getType(Types::INTEGER))]);
         self::assertSame(
             ['CREATE TABLE foobar (aa INT NOT NULL)'],
             $platform->getCreateTableSQL($table),
         );
 
         // charset
-        $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
+        $table = new Table('foobar', [new Column('aa', Type::getType(Types::INTEGER))]);
         $table->addOption('charset', 'utf8');
         self::assertSame(
             ['CREATE TABLE foobar (aa INT NOT NULL) DEFAULT CHARACTER SET utf8'],

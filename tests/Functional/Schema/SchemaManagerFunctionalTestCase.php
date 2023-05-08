@@ -245,13 +245,17 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function createListTableColumns(): Table
     {
         $table = new Table('list_table_columns');
-        $table->addColumn('id', 'integer', ['notnull' => true]);
-        $table->addColumn('test', 'string', ['length' => 255, 'notnull' => false, 'default' => 'expected default']);
-        $table->addColumn('foo', 'text', ['notnull' => true]);
-        $table->addColumn('bar', 'decimal', ['precision' => 10, 'scale' => 4, 'notnull' => false]);
-        $table->addColumn('baz1', 'datetime');
-        $table->addColumn('baz2', 'time');
-        $table->addColumn('baz3', 'date');
+        $table->addColumn('id', Types::INTEGER, ['notnull' => true]);
+        $table->addColumn(
+            'test',
+            Types::STRING,
+            ['length' => 255, 'notnull' => false, 'default' => 'expected default'],
+        );
+        $table->addColumn('foo', Types::TEXT, ['notnull' => true]);
+        $table->addColumn('bar', Types::DECIMAL, ['precision' => 10, 'scale' => 4, 'notnull' => false]);
+        $table->addColumn('baz1', Types::DATETIME_MUTABLE);
+        $table->addColumn('baz2', Types::TIME_MUTABLE);
+        $table->addColumn('baz3', Types::DATE_MUTABLE);
         $table->setPrimaryKey(['id']);
 
         return $table;
@@ -332,7 +336,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableName = 'test_list_table_fixed_string';
 
         $table = new Table($tableName);
-        $table->addColumn('column_char', 'string', ['fixed' => true, 'length' => 2]);
+        $table->addColumn('column_char', Types::STRING, ['fixed' => true, 'length' => 2]);
 
         $this->schemaManager->createTable($table);
 
@@ -416,7 +420,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         $table = new Table('test_unique_constraint');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $this->dropAndCreateTable($table);
 
         $uniqueConstraint = new UniqueConstraint('uniq_id', ['id']);
@@ -515,12 +519,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $tableToAlter = $schema->getTable('table_to_alter');
         $tableToAlter->dropColumn('foreign_key_test');
-        $tableToAlter->addColumn('number', 'integer');
+        $tableToAlter->addColumn('number', Types::INTEGER);
 
         $schema->dropTable('table_to_drop');
 
         $tableToCreate = $schema->createTable('table_to_create');
-        $tableToCreate->addColumn('id', 'integer', ['notnull' => true]);
+        $tableToCreate->addColumn('id', Types::INTEGER, ['notnull' => true]);
         $tableToCreate->setPrimaryKey(['id']);
 
         $this->schemaManager->migrateSchema($schema);
@@ -547,7 +551,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertCount(1, $table->getIndexes());
 
         $newTable = clone $table;
-        $newTable->addColumn('foo', 'integer');
+        $newTable->addColumn('foo', Types::INTEGER);
         $newTable->dropColumn('test');
 
         $comparator = $this->schemaManager->createComparator();
@@ -683,7 +687,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $table = new Table('test_autoincrement');
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->createTable($table);
@@ -701,8 +705,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $table = new Table('test_not_autoincrement');
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
-        $table->addColumn('id', 'integer');
-        $table->addColumn('other_id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('other_id', Types::INTEGER);
         $table->setPrimaryKey(['id', 'other_id']);
 
         $this->schemaManager->createTable($table);
@@ -715,13 +719,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testUpdateSchemaWithForeignKeyRenaming(): void
     {
         $table = new Table('test_fk_base');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $tableFK = new Table('test_fk_rename');
         $tableFK->setSchemaConfig($this->schemaManager->createSchemaConfig());
-        $tableFK->addColumn('id', 'integer');
-        $tableFK->addColumn('fk_id', 'integer');
+        $tableFK->addColumn('id', Types::INTEGER);
+        $tableFK->addColumn('fk_id', Types::INTEGER);
         $tableFK->setPrimaryKey(['id']);
         $tableFK->addIndex(['fk_id'], 'fk_idx');
         $tableFK->addForeignKeyConstraint('test_fk_base', ['fk_id'], ['id']);
@@ -734,8 +738,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $tableFKNew = new Table('test_fk_rename');
         $tableFKNew->setSchemaConfig($this->schemaManager->createSchemaConfig());
-        $tableFKNew->addColumn('id', 'integer');
-        $tableFKNew->addColumn('rename_fk_id', 'integer');
+        $tableFKNew->addColumn('id', Types::INTEGER);
+        $tableFKNew->addColumn('rename_fk_id', Types::INTEGER);
         $tableFKNew->setPrimaryKey(['id']);
         $tableFKNew->addIndex(['rename_fk_id'], 'fk_idx');
         $tableFKNew->addForeignKeyConstraint('test_fk_base', ['rename_fk_id'], ['id']);
@@ -759,11 +763,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testRenameIndexUsedInForeignKeyConstraint(): void
     {
         $primaryTable = new Table('test_rename_index_primary');
-        $primaryTable->addColumn('id', 'integer');
+        $primaryTable->addColumn('id', Types::INTEGER);
         $primaryTable->setPrimaryKey(['id']);
 
         $foreignTable = new Table('test_rename_index_foreign');
-        $foreignTable->addColumn('fk', 'integer');
+        $foreignTable->addColumn('fk', Types::INTEGER);
         $foreignTable->addIndex(['fk'], 'rename_index_fk_idx');
         $foreignTable->addForeignKeyConstraint(
             'test_rename_index_primary',
@@ -809,7 +813,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $newTable = clone $oldTable;
 
         $newTable->getColumn('col_int')
-            ->setType(Type::getType('integer'));
+            ->setType(Type::getType(Types::INTEGER));
 
         $newTable->getColumn('col_string')
             ->setFixed(true);
@@ -834,7 +838,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testListTableWithBlob(): void
     {
         $table = new Table('test_blob_table');
-        $table->addColumn('binarydata', 'blob', []);
+        $table->addColumn('binarydata', Types::BLOB, []);
 
         $this->schemaManager->createTable($table);
 
@@ -861,10 +865,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $table = new Table($name, [], [], [], [], $options);
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
-        $table->addColumn('id', 'integer', ['notnull' => true]);
+        $table->addColumn('id', Types::INTEGER, ['notnull' => true]);
         $table->setPrimaryKey(['id']);
-        $table->addColumn('test', 'string', ['length' => 255]);
-        $table->addColumn('foreign_key_test', 'integer');
+        $table->addColumn('test', Types::STRING, ['length' => 255]);
+        $table->addColumn('foreign_key_test', Types::INTEGER);
 
         return $table;
     }
@@ -873,10 +877,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $table = new Table($name, [], [], [], [], []);
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
-        $table->addColumn('id', 'integer', ['notnull' => true]);
-        $table->addColumn('other_id', 'integer', ['notnull' => true]);
+        $table->addColumn('id', Types::INTEGER, ['notnull' => true]);
+        $table->addColumn('other_id', Types::INTEGER, ['notnull' => true]);
         $table->setPrimaryKey(['id', 'other_id']);
-        $table->addColumn('test', 'string', ['length' => 255]);
+        $table->addColumn('test', Types::STRING, ['length' => 255]);
 
         return $table;
     }
@@ -922,20 +926,20 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testColumnDefaultLifecycle(): void
     {
         $oldTable = new Table('col_def_lifecycle');
-        $oldTable->addColumn('id', 'integer', ['autoincrement' => true]);
-        $oldTable->addColumn('column1', 'string', [
+        $oldTable->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $oldTable->addColumn('column1', Types::STRING, [
             'length' => 1,
             'default' => null,
         ]);
-        $oldTable->addColumn('column2', 'string', [
+        $oldTable->addColumn('column2', Types::STRING, [
             'length' => 1,
             'default' => '',
         ]);
-        $oldTable->addColumn('column3', 'string', [
+        $oldTable->addColumn('column3', Types::STRING, [
             'length' => 8,
             'default' => 'default1',
         ]);
-        $oldTable->addColumn('column4', 'integer', [
+        $oldTable->addColumn('column4', Types::INTEGER, [
             'length' => 1,
             'default' => 0,
         ]);
@@ -979,8 +983,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableName = 'test_binary_table';
 
         $table = new Table($tableName);
-        $table->addColumn('column_binary', 'binary', ['length' => 16, 'fixed' => true]);
-        $table->addColumn('column_varbinary', 'binary', ['length' => 32]);
+        $table->addColumn('column_binary', Types::BINARY, ['length' => 16, 'fixed' => true]);
+        $table->addColumn('column_varbinary', Types::BINARY, ['length' => 32]);
 
         $this->schemaManager->createTable($table);
 
@@ -1027,15 +1031,15 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foreignTableName = 'foreign_table';
 
         $table = new Table($foreignTableName);
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
 
         $table = new Table($primaryTableName);
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'string', ['length' => 32]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('foo', Types::INTEGER);
+        $table->addColumn('bar', Types::STRING, ['length' => 32]);
         $table->addForeignKeyConstraint($foreignTableName, ['foo'], ['id']);
         $table->addIndex(['bar']);
         $table->setPrimaryKey(['id']);
@@ -1059,12 +1063,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testDoesNotListIndexesImplicitlyCreatedByForeignKeys(): void
     {
         $primaryTable = new Table('test_list_index_impl_primary');
-        $primaryTable->addColumn('id', 'integer');
+        $primaryTable->addColumn('id', Types::INTEGER);
         $primaryTable->setPrimaryKey(['id']);
 
         $foreignTable = new Table('test_list_index_impl_foreign');
-        $foreignTable->addColumn('fk1', 'integer');
-        $foreignTable->addColumn('fk2', 'integer');
+        $foreignTable->addColumn('fk1', Types::INTEGER);
+        $foreignTable->addColumn('fk2', Types::INTEGER);
         $foreignTable->addIndex(['fk1'], 'explicit_fk1_idx');
         $foreignTable->addForeignKeyConstraint('test_list_index_impl_primary', ['fk1'], ['id']);
         $foreignTable->addForeignKeyConstraint('test_list_index_impl_primary', ['fk2'], ['id']);
@@ -1155,8 +1159,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testPrimaryKeyAutoIncrement(): void
     {
         $table = new Table('test_pk_auto_increment');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('text', 'string', ['length' => 1]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('text', Types::STRING, ['length' => 1]);
         $table->setPrimaryKey(['id']);
         $this->dropAndCreateTable($table);
 
@@ -1186,8 +1190,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         $table = new Table('test_partial_column_index');
-        $table->addColumn('long_column', 'string', ['length' => 40]);
-        $table->addColumn('standard_column', 'integer');
+        $table->addColumn('long_column', Types::STRING, ['length' => 40]);
+        $table->addColumn('standard_column', Types::INTEGER);
         $table->addIndex(['long_column'], 'partial_long_column_idx', [], ['lengths' => [4]]);
         $table->addIndex(['standard_column', 'long_column'], 'standard_and_partial_idx', [], ['lengths' => [null, 2]]);
 
@@ -1202,7 +1206,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testCommentInTable(): void
     {
         $table = new Table('table_with_comment');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setComment('Foo with control characters \'\\');
         $this->dropAndCreateTable($table);
 
@@ -1287,13 +1291,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $schema = new Schema();
 
         $user = $schema->createTable('user');
-        $user->addColumn('id', 'integer');
-        $user->addColumn('group_id', 'integer');
+        $user->addColumn('id', Types::INTEGER);
+        $user->addColumn('group_id', Types::INTEGER);
         $user->setPrimaryKey(['id']);
         $user->addForeignKeyConstraint('group', ['group_id'], ['id']);
 
         $group = $schema->createTable('group');
-        $group->addColumn('id', 'integer');
+        $group->addColumn('id', Types::INTEGER);
         $group->setPrimaryKey(['id']);
 
         $schemaManager = $this->connection->createSchemaManager();
@@ -1308,12 +1312,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $schema = new Schema();
 
         $parent = $schema->createTable('parent');
-        $parent->addColumn('id', 'integer');
+        $parent->addColumn('id', Types::INTEGER);
         $parent->setPrimaryKey(['id']);
 
         $child = $schema->createTable('child');
-        $child->addColumn('id', 'integer');
-        $child->addColumn('parent_id', 'integer');
+        $child->addColumn('id', Types::INTEGER);
+        $child->addColumn('parent_id', Types::INTEGER);
         $child->addIndex(['parent_id'], 'idx_1');
         $child->addForeignKeyConstraint('parent', ['parent_id'], ['id']);
 
@@ -1339,8 +1343,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testSwitchPrimaryKeyOrder(): void
     {
         $prototype = new Table('test_switch_pk_order');
-        $prototype->addColumn('foo_id', 'integer');
-        $prototype->addColumn('bar_id', 'integer');
+        $prototype->addColumn('foo_id', Types::INTEGER);
+        $prototype->addColumn('bar_id', Types::INTEGER);
 
         $table = clone $prototype;
         $table->setPrimaryKey(['foo_id', 'bar_id']);
@@ -1365,8 +1369,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testDropColumnWithDefault(): void
     {
         $table = new Table('drop_column_with_default');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('todrop', 'integer', ['default' => 10]);
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('todrop', Types::INTEGER, ['default' => 10]);
 
         $this->dropAndCreateTable($table);
 

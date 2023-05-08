@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 
 use function array_shift;
 
@@ -20,7 +21,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testColumnCollation(): void
     {
         $table  = new Table($tableName = 'test_collation');
-        $column = $table->addColumn('test', 'string', ['length' => 32]);
+        $column = $table->addColumn('test', Types::STRING, ['length' => 32]);
 
         $this->dropAndCreateTable($table);
         $columns = $this->schemaManager->listTableColumns($tableName);
@@ -39,25 +40,25 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDefaultConstraints(): void
     {
         $oldTable = new Table('sqlsrv_default_constraints');
-        $oldTable->addColumn('no_default', 'string', ['length' => 32]);
-        $oldTable->addColumn('df_integer', 'integer', ['default' => 666]);
-        $oldTable->addColumn('df_string_1', 'string', [
+        $oldTable->addColumn('no_default', Types::STRING, ['length' => 32]);
+        $oldTable->addColumn('df_integer', Types::INTEGER, ['default' => 666]);
+        $oldTable->addColumn('df_string_1', Types::STRING, [
             'length' => 32,
             'default' => 'foobar',
         ]);
-        $oldTable->addColumn('df_string_2', 'string', [
+        $oldTable->addColumn('df_string_2', Types::STRING, [
             'length' => 32,
             'default' => 'Doctrine rocks!!!',
         ]);
-        $oldTable->addColumn('df_string_3', 'string', [
+        $oldTable->addColumn('df_string_3', Types::STRING, [
             'length' => 32,
             'default' => 'another default value',
         ]);
-        $oldTable->addColumn('df_string_4', 'string', [
+        $oldTable->addColumn('df_string_4', Types::STRING, [
             'length' => 32,
             'default' => 'column to rename',
         ]);
-        $oldTable->addColumn('df_boolean', 'boolean', ['default' => true]);
+        $oldTable->addColumn('df_boolean', Types::BOOLEAN, ['default' => true]);
 
         $newTable = clone $oldTable;
 
@@ -83,7 +84,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ->setDefault(false);
 
         $newTable->dropColumn('df_string_4');
-        $newTable->addColumn('df_string_4_renamed', 'string', [
+        $newTable->addColumn('df_string_4_renamed', Types::STRING, [
             'length' => 32,
             'default' => 'column to rename',
         ]);
@@ -115,8 +116,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // key_ordinal holds the index ordering. index_column_id is just a unique identifier
         // for index columns within the given index.
         $table = new Table('sqlsrv_pk_ordering');
-        $table->addColumn('colA', 'integer', ['notnull' => true]);
-        $table->addColumn('colB', 'integer', ['notnull' => true]);
+        $table->addColumn('colA', Types::INTEGER, ['notnull' => true]);
+        $table->addColumn('colB', Types::INTEGER, ['notnull' => true]);
         $table->setPrimaryKey(['colB', 'colA']);
         $this->schemaManager->createTable($table);
 

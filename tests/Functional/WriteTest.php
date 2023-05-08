@@ -14,6 +14,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
 use Throwable;
 
 class WriteTest extends FunctionalTestCase
@@ -21,9 +22,9 @@ class WriteTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('write_table');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('test_int', 'integer');
-        $table->addColumn('test_string', 'string', [
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('test_int', Types::INTEGER);
+        $table->addColumn('test_string', Types::STRING, [
             'length' => 32,
             'notnull' => false,
         ]);
@@ -275,7 +276,7 @@ class WriteTest extends FunctionalTestCase
         }
 
         $table = new Table('test_empty_identity');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
         try {

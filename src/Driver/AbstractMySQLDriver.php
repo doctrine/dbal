@@ -25,7 +25,7 @@ use function version_compare;
 abstract class AbstractMySQLDriver implements Driver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @throws InvalidPlatformVersion
      */

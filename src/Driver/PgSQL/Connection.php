@@ -74,7 +74,7 @@ final class Connection implements ConnectionInterface
         return new Result($result);
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function quote(string $value): string
     {
         $quotedValue = pg_escape_literal($this->connection, $value);
@@ -88,7 +88,7 @@ final class Connection implements ConnectionInterface
         return $this->query($sql)->rowCount();
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function lastInsertId(): int|string
     {
         try {

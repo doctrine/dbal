@@ -644,7 +644,6 @@ abstract class AbstractPlatform
      * @param string           $interval SQL expression representing the value of the interval that shall be calculated
      *                                   into the date.
      * @param DateIntervalUnit $unit     The unit of the interval that shall be calculated into the date.
-     *                         One of the DATE_INTERVAL_UNIT_* constants.
      */
     abstract protected function getDateArithmeticIntervalExpression(
         string $date,

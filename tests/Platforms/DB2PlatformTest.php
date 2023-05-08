@@ -116,8 +116,8 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function testGeneratesCreateTableSQLWithCommonIndexes(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('name', Types::STRING, ['length' => 50]);
         $table->setPrimaryKey(['id']);
         $table->addIndex(['name']);
         $table->addIndex(['id', 'name'], 'composite_idx');
@@ -135,9 +135,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function testGeneratesCreateTableSQLWithForeignKeyConstraints(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('fk_1', 'integer');
-        $table->addColumn('fk_2', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('fk_1', Types::INTEGER);
+        $table->addColumn('fk_2', Types::INTEGER);
         $table->setPrimaryKey(['id']);
         $table->addForeignKeyConstraint('foreign_table', ['fk_1', 'fk_2'], ['pk_1', 'pk_2']);
         $table->addForeignKeyConstraint(
@@ -165,9 +165,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function testGeneratesCreateTableSQLWithCheckConstraints(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('check_max', 'integer', ['platformOptions' => ['max' => 10]]);
-        $table->addColumn('check_min', 'integer', ['platformOptions' => ['min' => 10]]);
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('check_max', Types::INTEGER, ['platformOptions' => ['max' => 10]]);
+        $table->addColumn('check_min', Types::INTEGER, ['platformOptions' => ['min' => 10]]);
         $table->setPrimaryKey(['id']);
 
         self::assertEquals(
@@ -430,7 +430,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getCommentOnColumnSQL(): array
     {
@@ -550,7 +550,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getAlterStringToFixedStringSQL(): array
     {
@@ -561,7 +561,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

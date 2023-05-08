@@ -45,7 +45,7 @@ class MariaDB1052PlatformTest extends MariaDB1043PlatformTest
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

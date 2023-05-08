@@ -23,7 +23,7 @@ use const JSON_THROW_ON_ERROR;
 class JsonType extends Type
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

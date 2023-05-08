@@ -181,7 +181,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testGenerateTableWithAutoincrement(): void
     {
         $table  = new Table('autoinc_table');
-        $column = $table->addColumn('id', 'integer');
+        $column = $table->addColumn('id', Types::INTEGER);
         $column->setAutoincrement(true);
 
         self::assertEquals(
@@ -424,11 +424,11 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testDroppingConstraintsBeforeColumns(): void
     {
         $newTable = new Table('mytable');
-        $newTable->addColumn('id', 'integer');
+        $newTable->addColumn('id', Types::INTEGER);
         $newTable->setPrimaryKey(['id']);
 
         $oldTable = clone $newTable;
-        $oldTable->addColumn('parent_id', 'integer');
+        $oldTable->addColumn('parent_id', Types::INTEGER);
         $oldTable->addForeignKeyConstraint('mytable', ['parent_id'], ['id']);
 
         $diff = $this->createComparator()
@@ -483,14 +483,14 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType(): void
     {
         $table1 = new Table('mytable');
-        $table1->addColumn('column_varbinary', 'binary');
-        $table1->addColumn('column_binary', 'binary', ['fixed' => true]);
-        $table1->addColumn('column_blob', 'blob');
+        $table1->addColumn('column_varbinary', Types::BINARY);
+        $table1->addColumn('column_binary', Types::BINARY, ['fixed' => true]);
+        $table1->addColumn('column_blob', Types::BLOB);
 
         $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', 'binary', ['fixed' => true]);
-        $table2->addColumn('column_binary', 'binary');
-        $table2->addColumn('column_blob', 'binary');
+        $table2->addColumn('column_varbinary', Types::BINARY, ['fixed' => true]);
+        $table2->addColumn('column_binary', Types::BINARY);
+        $table2->addColumn('column_blob', Types::BINARY);
 
         $comparator = $this->createComparator();
 
@@ -503,9 +503,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
 
         $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', 'binary', ['length' => 42]);
-        $table2->addColumn('column_binary', 'blob');
-        $table2->addColumn('column_blob', 'binary', ['length' => 11, 'fixed' => true]);
+        $table2->addColumn('column_varbinary', Types::BINARY, ['length' => 42]);
+        $table2->addColumn('column_binary', Types::BLOB);
+        $table2->addColumn('column_blob', Types::BINARY, ['length' => 11, 'fixed' => true]);
 
         // VARBINARY -> VARBINARY with changed length
         // BINARY    -> BLOB
@@ -516,9 +516,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
 
         $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', 'blob');
-        $table2->addColumn('column_binary', 'binary', ['length' => 42, 'fixed' => true]);
-        $table2->addColumn('column_blob', 'blob');
+        $table2->addColumn('column_varbinary', Types::BLOB);
+        $table2->addColumn('column_binary', Types::BINARY, ['length' => 42, 'fixed' => true]);
+        $table2->addColumn('column_blob', Types::BLOB);
 
         // VARBINARY -> BLOB
         // BINARY    -> BINARY with changed length
@@ -598,7 +598,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getCommentOnColumnSQL(): array
     {
@@ -611,8 +611,8 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
-        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
-        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
+        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType(Types::INTEGER))]);
+        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType(Types::INTEGER), ['comment' => 'baz'])]);
 
         $tableDiff = $this->createComparator()
             ->compareTables($table1, $table2);
@@ -639,7 +639,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getAlterStringToFixedStringSQL(): array
     {
@@ -647,7 +647,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
@@ -657,7 +657,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testInitializesTsvectorTypeMapping(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('tsvector'));
-        self::assertEquals('text', $this->platform->getDoctrineTypeMapping('tsvector'));
+        self::assertEquals(Types::TEXT, $this->platform->getDoctrineTypeMapping('tsvector'));
     }
 
     public function testSupportsPartialIndexes(): void
@@ -668,7 +668,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithUniqueConstraints(): void
     {
         $table = new Table('foo');
-        $table->addColumn('id', 'string');
+        $table->addColumn('id', Types::STRING);
         $table->addUniqueConstraint(['id'], 'test_unique_constraint');
         self::assertSame(
             [
@@ -683,7 +683,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
-        $table->addColumn('id', 'string');
+        $table->addColumn('id', Types::STRING);
         $table->addOption('comment', 'foo');
         self::assertSame(
             [

@@ -16,7 +16,7 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 class TimeType extends Type
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

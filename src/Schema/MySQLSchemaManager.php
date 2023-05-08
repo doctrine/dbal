@@ -57,7 +57,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     private ?DefaultTableOptions $defaultTableOptions = null;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableDefinition(array $table): string
     {
@@ -65,7 +65,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableViewDefinition(array $view): View
     {
@@ -73,7 +73,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
     {
@@ -103,7 +103,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableDatabaseDefinition(array $database): string
     {
@@ -111,7 +111,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
@@ -263,7 +263,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
     {

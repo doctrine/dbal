@@ -14,7 +14,7 @@ use function db2_pconnect;
 final class Driver extends AbstractDB2Driver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function connect(
         #[SensitiveParameter]

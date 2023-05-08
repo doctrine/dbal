@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 class MySQLSchemaTest extends TestCase
@@ -26,7 +27,7 @@ class MySQLSchemaTest extends TestCase
     public function testGenerateForeignKeySQL(): void
     {
         $tableOld = new Table('test');
-        $tableOld->addColumn('foo_id', 'integer');
+        $tableOld->addColumn('foo_id', Types::INTEGER);
         $tableOld->addForeignKeyConstraint('test_foreign', ['foo_id'], ['foo_id']);
 
         $sqls = [];
@@ -46,8 +47,8 @@ class MySQLSchemaTest extends TestCase
     public function testClobNoAlterTable(): void
     {
         $tableOld = new Table('test');
-        $tableOld->addColumn('id', 'integer');
-        $tableOld->addColumn('description', 'string', ['length' => 65536]);
+        $tableOld->addColumn('id', Types::INTEGER);
+        $tableOld->addColumn('description', Types::STRING, ['length' => 65536]);
         $tableNew = clone $tableOld;
 
         $tableNew->setPrimaryKey(['id']);

@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 use function sprintf;
 use function strtoupper;
@@ -167,7 +168,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
@@ -186,7 +187,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $tableName  = strtoupper('table' . uniqid());
         $table      = new Table($tableName);
 
-        $column = $table->addColumn($columnName, 'integer');
+        $column = $table->addColumn($columnName, Types::INTEGER);
         $column->setAutoincrement(true);
 
         self::assertSame([
@@ -314,13 +315,13 @@ SQL
     public function testInitializesDoctrineTypeMappings(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('long raw'));
-        self::assertSame('blob', $this->platform->getDoctrineTypeMapping('long raw'));
+        self::assertSame(Types::BLOB, $this->platform->getDoctrineTypeMapping('long raw'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('raw'));
-        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('raw'));
+        self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('raw'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('date'));
-        self::assertSame('date', $this->platform->getDoctrineTypeMapping('date'));
+        self::assertSame(Types::DATE_MUTABLE, $this->platform->getDoctrineTypeMapping('date'));
     }
 
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
@@ -362,18 +363,18 @@ SQL
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType(): void
     {
         $table1 = new Table('mytable');
-        $table1->addColumn('column_varbinary', 'binary', ['length' => 32]);
-        $table1->addColumn('column_binary', 'binary', [
+        $table1->addColumn('column_varbinary', Types::BINARY, ['length' => 32]);
+        $table1->addColumn('column_binary', Types::BINARY, [
             'fixed' => true,
             'length' => 32,
         ]);
 
         $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', 'binary', [
+        $table2->addColumn('column_varbinary', Types::BINARY, [
             'fixed' => true,
             'length' => 32,
         ]);
-        $table2->addColumn('column_binary', 'binary', ['length' => 32]);
+        $table2->addColumn('column_binary', Types::BINARY, ['length' => 32]);
 
         self::assertTrue(
             $this->createComparator()
@@ -484,7 +485,7 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getCommentOnColumnSQL(): array
     {
@@ -497,8 +498,8 @@ SQL
 
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
-        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
-        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
+        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType(Types::INTEGER))]);
+        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType(Types::INTEGER), ['comment' => 'baz'])]);
 
         $tableDiff = $this->createComparator()
             ->compareTables($table1, $table2);
@@ -512,7 +513,7 @@ SQL
     public function testQuotedTableNames(): void
     {
         $table = new Table('"test"');
-        $table->addColumn('"id"', 'integer', ['autoincrement' => true]);
+        $table->addColumn('"id"', Types::INTEGER, ['autoincrement' => true]);
 
         // assert tabel
         self::assertTrue($table->isQuoted());
@@ -565,7 +566,7 @@ EOD;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getAlterStringToFixedStringSQL(): array
     {
@@ -573,7 +574,7 @@ EOD;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {

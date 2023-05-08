@@ -18,6 +18,11 @@ use const SQLITE3_TEXT;
 
 final class Statement implements StatementInterface
 {
+    private const TYPE_BLOB    = SQLITE3_BLOB;
+    private const TYPE_INTEGER = SQLITE3_INTEGER;
+    private const TYPE_NULL    = SQLITE3_NULL;
+    private const TYPE_TEXT    = SQLITE3_TEXT;
+
     /** @internal The statement can be only instantiated by its driver connection. */
     public function __construct(
         private readonly SQLite3 $connection,
@@ -43,13 +48,14 @@ final class Statement implements StatementInterface
         return new Result($result, $this->connection->changes());
     }
 
+    /** @psalm-return self::TYPE_* */
     private function convertParamType(ParameterType $type): int
     {
         return match ($type) {
-            ParameterType::NULL => SQLITE3_NULL,
-            ParameterType::INTEGER, ParameterType::BOOLEAN => SQLITE3_INTEGER,
-            ParameterType::STRING, ParameterType::ASCII => SQLITE3_TEXT,
-            ParameterType::BINARY, ParameterType::LARGE_OBJECT => SQLITE3_BLOB,
+            ParameterType::NULL => self::TYPE_NULL,
+            ParameterType::INTEGER, ParameterType::BOOLEAN => self::TYPE_INTEGER,
+            ParameterType::STRING, ParameterType::ASCII => self::TYPE_TEXT,
+            ParameterType::BINARY, ParameterType::LARGE_OBJECT => self::TYPE_BLOB,
         };
     }
 }

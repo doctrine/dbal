@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 class RenameColumnTest extends FunctionalTestCase
 {
@@ -13,13 +14,13 @@ class RenameColumnTest extends FunctionalTestCase
     public function testColumnPositionRetainedAfterRenaming(string $columnName, string $newColumnName): void
     {
         $table = new Table('test_rename');
-        $table->addColumn($columnName, 'string', ['length' => 16]);
-        $table->addColumn('c2', 'integer');
+        $table->addColumn($columnName, Types::STRING, ['length' => 16]);
+        $table->addColumn('c2', Types::INTEGER);
 
         $this->dropAndCreateTable($table);
 
         $table->dropColumn($columnName)
-            ->addColumn($newColumnName, 'string', ['length' => 16]);
+            ->addColumn($newColumnName, Types::STRING, ['length' => 16]);
 
         $sm   =  $this->connection->createSchemaManager();
         $diff = $sm->createComparator()

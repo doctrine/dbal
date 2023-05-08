@@ -10,7 +10,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 class OracleKeywords extends KeywordList
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getKeywords(): array
     {

@@ -12,7 +12,7 @@ use function array_merge;
 class MySQL80Keywords extends MySQLKeywords
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @link https://dev.mysql.com/doc/refman/8.0/en/keywords.html
      */

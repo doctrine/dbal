@@ -44,19 +44,19 @@ final class Result implements ResultInterface
         return FetchUtils::fetchOne($this);
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);

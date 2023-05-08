@@ -323,8 +323,6 @@ class QueryBuilder
      * </code>
      *
      * @return string The SQL query string.
-     *
-     * @throws QueryException If the object doesn't represent a valid query in its current state.
      */
     public function getSQL(): string
     {

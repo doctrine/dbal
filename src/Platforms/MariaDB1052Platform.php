@@ -15,7 +15,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 class MariaDB1052Platform extends MariaDB1043Platform
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
@@ -23,7 +23,7 @@ class MariaDB1052Platform extends MariaDB1043Platform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
@@ -31,7 +31,7 @@ class MariaDB1052Platform extends MariaDB1043Platform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, $tableName): array
     {

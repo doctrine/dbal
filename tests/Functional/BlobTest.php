@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 use function fopen;
 use function str_repeat;
@@ -25,9 +26,9 @@ class BlobTest extends FunctionalTestCase
         }
 
         $table = new Table('blob_table');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('clobcolumn', 'text', ['notnull' => false]);
-        $table->addColumn('blobcolumn', 'blob', ['notnull' => false]);
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('clobcolumn', Types::TEXT, ['notnull' => false]);
+        $table->addColumn('blobcolumn', Types::BLOB, ['notnull' => false]);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
@@ -173,7 +174,10 @@ class BlobTest extends FunctionalTestCase
     {
         [, $blobValue] = $this->fetchRow();
 
-        $blobValue = Type::getType('blob')->convertToPHPValue($blobValue, $this->connection->getDatabasePlatform());
+        $blobValue = Type::getType(Types::BLOB)->convertToPHPValue(
+            $blobValue,
+            $this->connection->getDatabasePlatform(),
+        );
 
         self::assertIsResource($blobValue);
         self::assertEquals($text, stream_get_contents($blobValue));

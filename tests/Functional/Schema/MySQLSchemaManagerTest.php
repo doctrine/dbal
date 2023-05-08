@@ -15,6 +15,7 @@ use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 use function array_keys;
 
@@ -33,8 +34,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testSwitchPrimaryKeyColumns(): void
     {
         $tableOld = new Table('switch_primary_key_columns');
-        $tableOld->addColumn('foo_id', 'integer');
-        $tableOld->addColumn('bar_id', 'integer');
+        $tableOld->addColumn('foo_id', Types::INTEGER);
+        $tableOld->addColumn('bar_id', Types::INTEGER);
 
         $this->schemaManager->createTable($tableOld);
         $tableFetched = $this->schemaManager->introspectTable('switch_primary_key_columns');
@@ -56,7 +57,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testFulltextIndex(): void
     {
         $table = new Table('fulltext_index');
-        $table->addColumn('text', 'text');
+        $table->addColumn('text', Types::TEXT);
         $table->addIndex(['text'], 'f_index');
         $table->addOption('engine', 'MyISAM');
 
@@ -94,7 +95,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testIndexWithLength(): void
     {
         $table = new Table('index_length');
-        $table->addColumn('text', 'string', ['length' => 255]);
+        $table->addColumn('text', Types::STRING, ['length' => 255]);
         $table->addIndex(['text'], 'text_index', [], ['lengths' => [128]]);
 
         $this->dropAndCreateTable($table);
@@ -107,8 +108,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testAlterTableAddPrimaryKey(): void
     {
         $table = new Table('alter_table_add_pk');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('foo', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('foo', Types::INTEGER);
         $table->addIndex(['id'], 'idx_id');
 
         $this->schemaManager->createTable($table);
@@ -132,8 +133,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDropPrimaryKeyWithAutoincrementColumn(): void
     {
         $table = new Table('drop_primary_key');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('foo', 'integer');
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('foo', Types::INTEGER);
         $table->setPrimaryKey(['id', 'foo']);
 
         $this->dropAndCreateTable($table);
@@ -162,10 +163,10 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         $table = new Table('text_blob_default_value');
-        $table->addColumn('def_text', 'text', ['default' => 'def']);
-        $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
-        $table->addColumn('def_blob', 'blob', ['default' => 'def']);
-        $table->addColumn('def_blob_null', 'blob', ['notnull' => false, 'default' => 'def']);
+        $table->addColumn('def_text', Types::TEXT, ['default' => 'def']);
+        $table->addColumn('def_text_null', Types::TEXT, ['notnull' => false, 'default' => 'def']);
+        $table->addColumn('def_blob', Types::BLOB, ['default' => 'def']);
+        $table->addColumn('def_blob_null', Types::BLOB, ['notnull' => false, 'default' => 'def']);
 
         $this->dropAndCreateTable($table);
 
@@ -188,9 +189,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testColumnCharset(): void
     {
         $table = new Table('test_column_charset');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('foo', 'text')->setPlatformOption('charset', 'ascii');
-        $table->addColumn('bar', 'text')->setPlatformOption('charset', 'latin1');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('foo', Types::TEXT)->setPlatformOption('charset', 'ascii');
+        $table->addColumn('bar', Types::TEXT)->setPlatformOption('charset', 'latin1');
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_column_charset');
@@ -205,7 +206,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'test_alter_column_charset';
 
         $table = new Table($tableName);
-        $table->addColumn('col_text', 'text')->setPlatformOption('charset', 'utf8');
+        $table->addColumn('col_text', Types::TEXT)->setPlatformOption('charset', 'utf8');
 
         $this->dropAndCreateTable($table);
 
@@ -225,7 +226,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testColumnCharsetChange(): void
     {
         $table = new Table('test_column_charset_change');
-        $table->addColumn('col_string', 'string')
+        $table->addColumn('col_string', Types::STRING)
             ->setLength(100)
             ->setNotnull(true)
             ->setPlatformOption('charset', 'utf8');
@@ -252,11 +253,11 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table('test_collation');
         $table->addOption('collation', 'latin1_swedish_ci');
         $table->addOption('charset', 'latin1');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('text', 'text');
-        $table->addColumn('foo', 'text')->setPlatformOption('collation', 'latin1_swedish_ci');
-        $table->addColumn('bar', 'text')->setPlatformOption('collation', 'utf8mb4_general_ci');
-        $table->addColumn('baz', 'text')->setPlatformOption('collation', 'binary');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('text', Types::TEXT);
+        $table->addColumn('foo', Types::TEXT)->setPlatformOption('collation', 'latin1_swedish_ci');
+        $table->addColumn('bar', Types::TEXT)->setPlatformOption('collation', 'utf8mb4_general_ci');
+        $table->addColumn('baz', Types::TEXT)->setPlatformOption('collation', 'binary');
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_collation');
@@ -273,15 +274,15 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'lob_type_columns';
         $table     = new Table($tableName);
 
-        $table->addColumn('col_tinytext', 'text', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
-        $table->addColumn('col_text', 'text', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_TEXT]);
-        $table->addColumn('col_mediumtext', 'text', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
-        $table->addColumn('col_longtext', 'text');
+        $table->addColumn('col_tinytext', Types::TEXT, ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $table->addColumn('col_text', Types::TEXT, ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_TEXT]);
+        $table->addColumn('col_mediumtext', Types::TEXT, ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $table->addColumn('col_longtext', Types::TEXT);
 
-        $table->addColumn('col_tinyblob', 'text', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
-        $table->addColumn('col_blob', 'blob', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_BLOB]);
-        $table->addColumn('col_mediumblob', 'blob', ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
-        $table->addColumn('col_longblob', 'blob');
+        $table->addColumn('col_tinyblob', Types::TEXT, ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $table->addColumn('col_blob', Types::BLOB, ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_BLOB]);
+        $table->addColumn('col_mediumblob', Types::BLOB, ['length' => AbstractMySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $table->addColumn('col_longblob', Types::BLOB);
 
         $this->dropAndCreateTable($table);
 
@@ -326,7 +327,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDiffListGuidTableColumn(): void
     {
         $offlineTable = new Table('list_guid_table_column');
-        $offlineTable->addColumn('col_guid', 'guid');
+        $offlineTable->addColumn('col_guid', Types::GUID);
 
         $this->dropAndCreateTable($offlineTable);
 
@@ -346,12 +347,12 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'test_list_decimal_columns';
         $table     = new Table($tableName);
 
-        $table->addColumn('col', 'decimal', [
+        $table->addColumn('col', Types::DECIMAL, [
             'precision' => 10,
             'scale' => 6,
         ]);
 
-        $table->addColumn('col_unsigned', 'decimal', [
+        $table->addColumn('col_unsigned', Types::DECIMAL, [
             'precision' => 10,
             'scale' => 6,
             'unsigned' => true,
@@ -372,8 +373,8 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'test_list_float_columns';
         $table     = new Table($tableName);
 
-        $table->addColumn('col', 'float');
-        $table->addColumn('col_unsigned', 'float', ['unsigned' => true]);
+        $table->addColumn('col', Types::FLOAT);
+        $table->addColumn('col_unsigned', Types::FLOAT, ['unsigned' => true]);
 
         $this->dropAndCreateTable($table);
 
@@ -393,8 +394,12 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $currentTimeStampSql = $platform->getCurrentTimestampSQL();
 
-        $table->addColumn('col_datetime', 'datetime', ['notnull' => true, 'default' => $currentTimeStampSql]);
-        $table->addColumn('col_datetime_nullable', 'datetime', ['default' => $currentTimeStampSql]);
+        $table->addColumn(
+            'col_datetime',
+            Types::DATETIME_MUTABLE,
+            ['notnull' => true, 'default' => $currentTimeStampSql],
+        );
+        $table->addColumn('col_datetime_nullable', Types::DATETIME_MUTABLE, ['default' => $currentTimeStampSql]);
 
         $this->dropAndCreateTable($table);
 
@@ -415,16 +420,16 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table('test_column_defaults_are_valid');
 
         $currentTimeStampSql = $this->connection->getDatabasePlatform()->getCurrentTimestampSQL();
-        $table->addColumn('col_datetime', 'datetime', ['default' => $currentTimeStampSql]);
-        $table->addColumn('col_datetime_null', 'datetime', ['notnull' => false, 'default' => null]);
-        $table->addColumn('col_int', 'integer', ['default' => 1]);
-        $table->addColumn('col_neg_int', 'integer', ['default' => -1]);
-        $table->addColumn('col_string', 'string', [
+        $table->addColumn('col_datetime', Types::DATETIME_MUTABLE, ['default' => $currentTimeStampSql]);
+        $table->addColumn('col_datetime_null', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
+        $table->addColumn('col_int', Types::INTEGER, ['default' => 1]);
+        $table->addColumn('col_neg_int', Types::INTEGER, ['default' => -1]);
+        $table->addColumn('col_string', Types::STRING, [
             'length' => 1,
             'default' => 'A',
         ]);
-        $table->addColumn('col_decimal', 'decimal', ['scale' => 3, 'precision' => 6, 'default' => -2.3]);
-        $table->addColumn('col_date', 'date', ['default' => '2012-12-12']);
+        $table->addColumn('col_decimal', Types::DECIMAL, ['scale' => 3, 'precision' => 6, 'default' => -2.3]);
+        $table->addColumn('col_date', Types::DATE_MUTABLE, ['default' => '2012-12-12']);
 
         $this->dropAndCreateTable($table);
 
@@ -471,9 +476,9 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $currentTimeSql      = $platform->getCurrentTimeSQL();
         $currentDateSql      = $platform->getCurrentDateSQL();
 
-        $table->addColumn('col_datetime', 'datetime', ['default' => $currentTimestampSql]);
-        $table->addColumn('col_date', 'date', ['default' => $currentDateSql]);
-        $table->addColumn('col_time', 'time', ['default' => $currentTimeSql]);
+        $table->addColumn('col_datetime', Types::DATETIME_MUTABLE, ['default' => $currentTimestampSql]);
+        $table->addColumn('col_date', Types::DATE_MUTABLE, ['default' => $currentDateSql]);
+        $table->addColumn('col_time', Types::TIME_MUTABLE, ['default' => $currentTimeSql]);
 
         $this->dropAndCreateTable($table);
 

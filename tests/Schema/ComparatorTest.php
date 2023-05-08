@@ -32,7 +32,7 @@ abstract class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType(Types::INTEGER)),
                 ],
             ),
         ]);
@@ -40,7 +40,7 @@ abstract class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType(Types::INTEGER)),
                 ],
             ),
         ]);
@@ -57,8 +57,8 @@ abstract class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType(Types::INTEGER)),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType(Types::INTEGER)),
                 ],
             ),
         ]);
@@ -66,8 +66,8 @@ abstract class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
-                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType(Types::INTEGER)),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType(Types::INTEGER)),
                 ],
             ),
         ]);
@@ -82,7 +82,7 @@ abstract class ComparatorTest extends TestCase
     {
         $schemaConfig = new SchemaConfig();
 
-        $table = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
+        $table = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType(Types::INTEGER))]);
         $table->setSchemaConfig($schemaConfig);
 
         $schema1 = new Schema([$table], [], $schemaConfig);
@@ -98,7 +98,7 @@ abstract class ComparatorTest extends TestCase
     {
         $schemaConfig = new SchemaConfig();
 
-        $table = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
+        $table = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType(Types::INTEGER))]);
         $table->setSchemaConfig($schemaConfig);
 
         $schema1 = new Schema([], [], $schemaConfig);
@@ -111,8 +111,8 @@ abstract class ComparatorTest extends TestCase
 
     public function testCompareAutoIncrementChanged(): void
     {
-        $column1 = new Column('foo', Type::getType('integer'), ['autoincrement' => true]);
-        $column2 = new Column('foo', Type::getType('integer'), ['autoincrement' => false]);
+        $column1 = new Column('foo', Type::getType(Types::INTEGER), ['autoincrement' => true]);
+        $column2 = new Column('foo', Type::getType(Types::INTEGER), ['autoincrement' => false]);
 
         $diff = new ColumnDiff($column2, $column1);
 
@@ -165,11 +165,11 @@ abstract class ComparatorTest extends TestCase
     public function testCompareChangeColumnsMultipleNewColumnsRename(): void
     {
         $tableA = new Table('foo');
-        $tableA->addColumn('datecolumn1', 'datetime');
+        $tableA->addColumn('datecolumn1', Types::DATETIME_MUTABLE);
 
         $tableB = new Table('foo');
-        $tableB->addColumn('new_datecolumn1', 'datetime');
-        $tableB->addColumn('new_datecolumn2', 'datetime');
+        $tableB->addColumn('new_datecolumn1', Types::DATETIME_MUTABLE);
+        $tableB->addColumn('new_datecolumn2', Types::DATETIME_MUTABLE);
 
         $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
@@ -219,13 +219,13 @@ abstract class ComparatorTest extends TestCase
     public function testTableAddForeignKey(): void
     {
         $tableForeign = new Table('bar');
-        $tableForeign->addColumn('id', 'integer');
+        $tableForeign->addColumn('id', Types::INTEGER);
 
         $table1 = new Table('foo');
-        $table1->addColumn('fk', 'integer');
+        $table1->addColumn('fk', Types::INTEGER);
 
         $table2 = new Table('foo');
-        $table2->addColumn('fk', 'integer');
+        $table2->addColumn('fk', Types::INTEGER);
         $table2->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
         $tableDiff = $this->comparator->compareTables($table1, $table2);
@@ -236,13 +236,13 @@ abstract class ComparatorTest extends TestCase
     public function testTableRemoveForeignKey(): void
     {
         $tableForeign = new Table('bar');
-        $tableForeign->addColumn('id', 'integer');
+        $tableForeign->addColumn('id', Types::INTEGER);
 
         $table1 = new Table('foo');
-        $table1->addColumn('fk', 'integer');
+        $table1->addColumn('fk', Types::INTEGER);
 
         $table2 = new Table('foo');
-        $table2->addColumn('fk', 'integer');
+        $table2->addColumn('fk', Types::INTEGER);
         $table2->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
         $tableDiff = $this->comparator->compareTables($table2, $table1);
@@ -253,14 +253,14 @@ abstract class ComparatorTest extends TestCase
     public function testTableUpdateForeignKey(): void
     {
         $tableForeign = new Table('bar');
-        $tableForeign->addColumn('id', 'integer');
+        $tableForeign->addColumn('id', Types::INTEGER);
 
         $table1 = new Table('foo');
-        $table1->addColumn('fk', 'integer');
+        $table1->addColumn('fk', Types::INTEGER);
         $table1->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
         $table2 = new Table('foo');
-        $table2->addColumn('fk', 'integer');
+        $table2->addColumn('fk', Types::INTEGER);
         $table2->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id'], ['onUpdate' => 'CASCADE']);
 
         $tableDiff = $this->comparator->compareTables($table1, $table2);
@@ -271,17 +271,17 @@ abstract class ComparatorTest extends TestCase
     public function testMovedForeignKeyForeignTable(): void
     {
         $tableForeign = new Table('bar');
-        $tableForeign->addColumn('id', 'integer');
+        $tableForeign->addColumn('id', Types::INTEGER);
 
         $tableForeign2 = new Table('bar2');
-        $tableForeign2->addColumn('id', 'integer');
+        $tableForeign2->addColumn('id', Types::INTEGER);
 
         $table1 = new Table('foo');
-        $table1->addColumn('fk', 'integer');
+        $table1->addColumn('fk', Types::INTEGER);
         $table1->addForeignKeyConstraint($tableForeign->getName(), ['fk'], ['id']);
 
         $table2 = new Table('foo');
-        $table2->addColumn('fk', 'integer');
+        $table2->addColumn('fk', Types::INTEGER);
         $table2->addForeignKeyConstraint($tableForeign2->getName(), ['fk'], ['id']);
 
         $tableDiff = $this->comparator->compareTables($table1, $table2);
@@ -334,10 +334,10 @@ abstract class ComparatorTest extends TestCase
     public function testCompareColumnCompareCaseInsensitive(): void
     {
         $tableA = new Table('foo');
-        $tableA->addColumn('id', 'integer');
+        $tableA->addColumn('id', Types::INTEGER);
 
         $tableB = new Table('foo');
-        $tableB->addColumn('ID', 'integer');
+        $tableB->addColumn('ID', Types::INTEGER);
 
         $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
@@ -347,11 +347,11 @@ abstract class ComparatorTest extends TestCase
     public function testCompareIndexBasedOnPropertiesNotName(): void
     {
         $tableA = new Table('foo');
-        $tableA->addColumn('id', 'integer');
+        $tableA->addColumn('id', Types::INTEGER);
         $tableA->addIndex(['id'], 'foo_bar_idx');
 
         $tableB = new Table('foo');
-        $tableB->addColumn('ID', 'integer');
+        $tableB->addColumn('ID', Types::INTEGER);
         $tableB->addIndex(['id'], 'bar_foo_idx');
 
         self::assertEquals(
@@ -365,11 +365,11 @@ abstract class ComparatorTest extends TestCase
     public function testCompareForeignKeyBasedOnPropertiesNotName(): void
     {
         $tableA = new Table('foo');
-        $tableA->addColumn('id', 'integer');
+        $tableA->addColumn('id', Types::INTEGER);
         $tableA->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'foo_constraint');
 
         $tableB = new Table('foo');
-        $tableB->addColumn('ID', 'integer');
+        $tableB->addColumn('ID', Types::INTEGER);
         $tableB->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'bar_constraint');
 
         $tableDiff = $this->comparator->compareTables($tableA, $tableB);
@@ -380,10 +380,10 @@ abstract class ComparatorTest extends TestCase
     public function testDetectRenameColumn(): void
     {
         $tableA = new Table('foo');
-        $tableA->addColumn('foo', 'integer');
+        $tableA->addColumn('foo', Types::INTEGER);
 
         $tableB = new Table('foo');
-        $tableB->addColumn('bar', 'integer');
+        $tableB->addColumn('bar', Types::INTEGER);
 
         $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
@@ -403,11 +403,11 @@ abstract class ComparatorTest extends TestCase
     public function testDetectRenameColumnAmbiguous(): void
     {
         $tableA = new Table('foo');
-        $tableA->addColumn('foo', 'integer');
-        $tableA->addColumn('bar', 'integer');
+        $tableA->addColumn('foo', Types::INTEGER);
+        $tableA->addColumn('bar', Types::INTEGER);
 
         $tableB = new Table('foo');
-        $tableB->addColumn('baz', 'integer');
+        $tableB->addColumn('baz', Types::INTEGER);
 
         $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
@@ -419,7 +419,7 @@ abstract class ComparatorTest extends TestCase
     public function testDetectRenameIndex(): void
     {
         $table1 = new Table('foo');
-        $table1->addColumn('foo', 'integer');
+        $table1->addColumn('foo', Types::INTEGER);
 
         $table2 = clone $table1;
 
@@ -445,7 +445,7 @@ abstract class ComparatorTest extends TestCase
     public function testDetectRenameIndexAmbiguous(): void
     {
         $table1 = new Table('foo');
-        $table1->addColumn('foo', 'integer');
+        $table1->addColumn('foo', Types::INTEGER);
 
         $table2 = clone $table1;
 
@@ -464,10 +464,10 @@ abstract class ComparatorTest extends TestCase
     public function testDetectChangeIdentifierType(): void
     {
         $tableA = new Table('foo');
-        $tableA->addColumn('id', 'integer', ['autoincrement' => false]);
+        $tableA->addColumn('id', Types::INTEGER, ['autoincrement' => false]);
 
         $tableB = new Table('foo');
-        $tableB->addColumn('id', 'integer', ['autoincrement' => true]);
+        $tableB->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
 
         $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
@@ -479,16 +479,16 @@ abstract class ComparatorTest extends TestCase
     public function testDiff(): void
     {
         $table = new Table('twitter_users');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('twitterId', 'integer');
-        $table->addColumn('displayName', 'string', ['length' => 32]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('twitterId', Types::INTEGER);
+        $table->addColumn('displayName', Types::STRING, ['length' => 32]);
         $table->setPrimaryKey(['id']);
 
         $newtable = new Table('twitter_users');
-        $newtable->addColumn('id', 'integer', ['autoincrement' => true]);
-        $newtable->addColumn('twitter_id', 'integer');
-        $newtable->addColumn('display_name', 'string', ['length' => 32]);
-        $newtable->addColumn('logged_in_at', 'datetime');
+        $newtable->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $newtable->addColumn('twitter_id', Types::INTEGER);
+        $newtable->addColumn('display_name', Types::STRING, ['length' => 32]);
+        $newtable->addColumn('logged_in_at', Types::DATETIME_MUTABLE);
         $newtable->setPrimaryKey(['id']);
 
         $tableDiff = $this->comparator->compareTables($table, $newtable);
@@ -585,13 +585,13 @@ abstract class ComparatorTest extends TestCase
     {
         $oldSchema = new Schema();
         $table     = $oldSchema->createTable('foo');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
         $oldSchema->createSequence('foo_id_seq');
 
         $newSchema = new Schema();
         $table     = $newSchema->createTable('foo');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
         $diff = $this->comparator->compareSchemas($oldSchema, $newSchema);
@@ -606,12 +606,12 @@ abstract class ComparatorTest extends TestCase
     {
         $oldSchema = new Schema();
         $table     = $oldSchema->createTable('foo');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
         $newSchema = new Schema();
         $table     = $newSchema->createTable('foo');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
         $newSchema->createSequence('foo_id_seq');
 
@@ -654,8 +654,8 @@ abstract class ComparatorTest extends TestCase
     /** @dataProvider getCompareColumnComments */
     public function testCompareColumnComments(string $comment1, string $comment2, bool $equals): void
     {
-        $column1 = new Column('foo', Type::getType('integer'), ['comment' => $comment1]);
-        $column2 = new Column('foo', Type::getType('integer'), ['comment' => $comment2]);
+        $column1 = new Column('foo', Type::getType(Types::INTEGER), ['comment' => $comment1]);
+        $column2 = new Column('foo', Type::getType(Types::INTEGER), ['comment' => $comment2]);
 
         $diff1 = new ColumnDiff($column2, $column1);
         $diff2 = new ColumnDiff($column1, $column2);
@@ -690,14 +690,14 @@ abstract class ComparatorTest extends TestCase
             'table1' => new Table(
                 'table1',
                 [
-                    'id' => new Column('id', Type::getType('integer')),
+                    'id' => new Column('id', Type::getType(Types::INTEGER)),
                 ],
             ),
             'table2' => new Table(
                 'table2',
                 [
-                    'id' => new Column('id', Type::getType('integer')),
-                    'id_table1' => new Column('id_table1', Type::getType('integer')),
+                    'id' => new Column('id', Type::getType(Types::INTEGER)),
+                    'id_table1' => new Column('id_table1', Type::getType(Types::INTEGER)),
                 ],
                 [],
                 [],
@@ -710,8 +710,8 @@ abstract class ComparatorTest extends TestCase
             'table2' => new Table(
                 'table2',
                 [
-                    'id' => new Column('id', Type::getType('integer')),
-                    'id_table3' => new Column('id_table3', Type::getType('integer')),
+                    'id' => new Column('id', Type::getType(Types::INTEGER)),
+                    'id_table3' => new Column('id_table3', Type::getType(Types::INTEGER)),
                 ],
                 [],
                 [],
@@ -722,7 +722,7 @@ abstract class ComparatorTest extends TestCase
             'table3' => new Table(
                 'table3',
                 [
-                    'id' => new Column('id', Type::getType('integer')),
+                    'id' => new Column('id', Type::getType(Types::INTEGER)),
                 ],
             ),
         ]);
@@ -746,7 +746,7 @@ abstract class ComparatorTest extends TestCase
                     [
                         new Column(
                             'is_default',
-                            Type::getType('string'),
+                            Type::getType(Types::STRING),
                             ['length' => 32],
                         ),
                     ],
@@ -758,10 +758,14 @@ abstract class ComparatorTest extends TestCase
                 new Table(
                     'a_table',
                     [
-                        new Column('is_default', Type::getType('string'), [
-                            'columnDefinition' => 'ENUM(\'default\')',
-                            'length' => 32,
-                        ]),
+                        new Column(
+                            'is_default',
+                            Type::getType(Types::STRING),
+                            [
+                                'columnDefinition' => 'ENUM(\'default\')',
+                                'length' => 32,
+                            ],
+                        ),
                     ],
                 ),
             ],

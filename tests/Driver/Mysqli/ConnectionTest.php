@@ -14,6 +14,6 @@ class ConnectionTest extends FunctionalTestCase
     public function testHostnameIsRequiredForPersistentConnection(): void
     {
         $this->expectException(HostRequired::class);
-        (new Driver())->connect(['persistent' => 'true']);
+        (new Driver())->connect(['persistent' => true]);
     }
 }

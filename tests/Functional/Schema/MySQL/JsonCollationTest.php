@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 use Iterator;
 
 use function array_filter;
@@ -103,9 +104,9 @@ final class JsonCollationTest extends FunctionalTestCase
 
         foreach ($columns as $column) {
             if (! isset($column['charset']) || ! isset($column['collation'])) {
-                $table->addColumn($column['name'], $column['type'] ?? 'json');
+                $table->addColumn($column['name'], $column['type'] ?? Types::JSON);
             } else {
-                $table->addColumn($column['name'], $column['type'] ?? 'json')
+                $table->addColumn($column['name'], $column['type'] ?? Types::JSON)
                       ->setPlatformOption('charset', $column['charset'])
                       ->setPlatformOption('collation', $column['collation']);
             }

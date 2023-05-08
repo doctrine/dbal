@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 /** @extends AbstractPlatformTestCase<SQLServerPlatform> */
 class SQLServerPlatformTest extends AbstractPlatformTestCase
@@ -545,7 +546,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testCreateNonClusteredPrimaryKeyInTable(): void
     {
         $table = new Table('tbl');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
         $table->getIndex('primary')->addFlag('nonclustered');
 
@@ -629,7 +630,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testCreateTableWithSchemaColumnComments(): void
     {
         $table = new Table('testschema.test');
-        $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
+        $table->addColumn('id', Types::INTEGER, ['comment' => 'This is a comment']);
         $table->setPrimaryKey(['id']);
 
         $expectedSql = [
@@ -646,7 +647,11 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $table = new Table('testschema.mytable');
 
         $tableDiff = new TableDiff($table, [
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
+            new Column(
+                'quota',
+                Type::getType(Types::INTEGER),
+                ['comment' => 'A comment'],
+            ),
         ], [], [], [], [], [], [], [], [], [], []);
 
         $expectedSql = [
@@ -663,8 +668,8 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $table = new Table('testschema.mytable');
 
         $tableDiff = new TableDiff($table, [], [new ColumnDiff(
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
-            new Column('quota', Type::getType('integer'), []),
+            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
+            new Column('quota', Type::getType(Types::INTEGER), []),
         ),
         ], [], [], [], [], [], [], [], [], []);
 
@@ -681,8 +686,8 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $table = new Table('testschema.mytable');
 
         $tableDiff = new TableDiff($table, [], [new ColumnDiff(
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
-            new Column('quota', Type::getType('integer'), ['comment' => 'B comment']),
+            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
+            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'B comment']),
         ),
         ], [], [], [], [], [], [], [], [], []);
 
@@ -696,79 +701,79 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testInitializesDoctrineTypeMappings(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('bigint'));
-        self::assertSame('bigint', $this->platform->getDoctrineTypeMapping('bigint'));
+        self::assertSame(Types::BIGINT, $this->platform->getDoctrineTypeMapping('bigint'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('numeric'));
-        self::assertSame('decimal', $this->platform->getDoctrineTypeMapping('numeric'));
+        self::assertSame(Types::DECIMAL, $this->platform->getDoctrineTypeMapping('numeric'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('bit'));
-        self::assertSame('boolean', $this->platform->getDoctrineTypeMapping('bit'));
+        self::assertSame(Types::BOOLEAN, $this->platform->getDoctrineTypeMapping('bit'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smallint'));
-        self::assertSame('smallint', $this->platform->getDoctrineTypeMapping('smallint'));
+        self::assertSame(Types::SMALLINT, $this->platform->getDoctrineTypeMapping('smallint'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('decimal'));
-        self::assertSame('decimal', $this->platform->getDoctrineTypeMapping('decimal'));
+        self::assertSame(Types::DECIMAL, $this->platform->getDoctrineTypeMapping('decimal'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smallmoney'));
-        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('smallmoney'));
+        self::assertSame(Types::INTEGER, $this->platform->getDoctrineTypeMapping('smallmoney'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('int'));
-        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('int'));
+        self::assertSame(Types::INTEGER, $this->platform->getDoctrineTypeMapping('int'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('tinyint'));
-        self::assertSame('smallint', $this->platform->getDoctrineTypeMapping('tinyint'));
+        self::assertSame(Types::SMALLINT, $this->platform->getDoctrineTypeMapping('tinyint'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('money'));
-        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('money'));
+        self::assertSame(Types::INTEGER, $this->platform->getDoctrineTypeMapping('money'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('float'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('float'));
+        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('float'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('real'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('real'));
+        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('real'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('double'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('double'));
+        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('double'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('double precision'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('double precision'));
+        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('double precision'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smalldatetime'));
-        self::assertSame('datetime', $this->platform->getDoctrineTypeMapping('smalldatetime'));
+        self::assertSame(Types::DATETIME_MUTABLE, $this->platform->getDoctrineTypeMapping('smalldatetime'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('datetime'));
-        self::assertSame('datetime', $this->platform->getDoctrineTypeMapping('datetime'));
+        self::assertSame(Types::DATETIME_MUTABLE, $this->platform->getDoctrineTypeMapping('datetime'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('char'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('char'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('char'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('varchar'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('varchar'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('varchar'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('text'));
-        self::assertSame('text', $this->platform->getDoctrineTypeMapping('text'));
+        self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('text'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('nchar'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('nchar'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('nchar'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('nvarchar'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('nvarchar'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('nvarchar'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('ntext'));
-        self::assertSame('text', $this->platform->getDoctrineTypeMapping('ntext'));
+        self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('ntext'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('binary'));
-        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('binary'));
+        self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('binary'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('varbinary'));
-        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('varbinary'));
+        self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('varbinary'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('image'));
-        self::assertSame('blob', $this->platform->getDoctrineTypeMapping('image'));
+        self::assertSame(Types::BLOB, $this->platform->getDoctrineTypeMapping('image'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('uniqueidentifier'));
-        self::assertSame('guid', $this->platform->getDoctrineTypeMapping('uniqueidentifier'));
+        self::assertSame(Types::GUID, $this->platform->getDoctrineTypeMapping('uniqueidentifier'));
     }
 
     protected function getExpectedFixedLengthStringTypeDeclarationSQLNoLength(): string
@@ -844,7 +849,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getCommentOnColumnSQL(): array
     {
@@ -856,7 +861,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
@@ -886,7 +891,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getAlterStringToFixedStringSQL(): array
     {
@@ -894,7 +899,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
@@ -985,7 +990,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testGetDefaultValueDeclarationSQLForDateType(): void
     {
         $currentDateSql = $this->platform->getCurrentDateSQL();
-        foreach (['date', 'date_immutable'] as $type) {
+        foreach ([Types::DATE_MUTABLE, Types::DATE_IMMUTABLE] as $type) {
             self::assertSame(
                 ' DEFAULT CONVERT(date, GETDATE())',
                 $this->platform->getDefaultValueDeclarationSQL([
@@ -1012,8 +1017,8 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
-        $table->addColumn('no_collation', 'string', ['length' => 255]);
-        $table->addColumn('column_collation', 'string', ['length' => 255])
+        $table->addColumn('no_collation', Types::STRING, ['length' => 255]);
+        $table->addColumn('column_collation', Types::STRING, ['length' => 255])
             ->setPlatformOption('collation', 'Latin1_General_CS_AS_KS_WS');
 
         self::assertSame(
@@ -1056,8 +1061,8 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
         $tableDiff = new TableDiff($table, [], [
             new ColumnDiff(
-                new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => false]),
-                new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => true]),
+                new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment', 'notnull' => false]),
+                new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment', 'notnull' => true]),
             ),
         ], [], [], [], [], [], [], [], [], []);
 

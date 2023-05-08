@@ -528,6 +528,50 @@ class ConnectionTest extends TestCase
         self::assertSame($platform, $connection->getDatabasePlatform());
     }
 
+    public function testPlatformDetectionFetchedFromParameters(): void
+    {
+        $driverMock = $this->createMock(Driver::class);
+
+        $driverConnectionMock = $this->createMock(Driver\Connection::class);
+
+        $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
+
+        $connection = new Connection(['serverVersion' => '8.0'], $driverMock);
+
+        $driverMock->expects(self::never())
+            ->method('connect')
+            ->willReturn($driverConnectionMock);
+
+        $driverMock->expects(self::once())
+            ->method('getDatabasePlatform')
+            ->with(new Connection\StaticServerVersionProvider('8.0'))
+            ->willReturn($platformMock);
+
+        self::assertSame($platformMock, $connection->getDatabasePlatform());
+    }
+
+    public function testPlatformDetectionFetchedFromPrimaryReplicaParameters(): void
+    {
+        $driverMock = $this->createMock(Driver::class);
+
+        $driverConnectionMock = $this->createMock(Driver\Connection::class);
+
+        $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
+
+        $connection = new Connection(['primary' => ['serverVersion' => '8.0']], $driverMock);
+
+        $driverMock->expects(self::never())
+            ->method('connect')
+            ->willReturn($driverConnectionMock);
+
+        $driverMock->expects(self::once())
+            ->method('getDatabasePlatform')
+            ->with(new Connection\StaticServerVersionProvider('8.0'))
+            ->willReturn($platformMock);
+
+        self::assertSame($platformMock, $connection->getDatabasePlatform());
+    }
+
     public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
         $cacheItemMock = $this->createMock(CacheItemInterface::class);

@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\Comparator;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function sprintf;
@@ -50,28 +51,28 @@ class MariaDBJsonComparatorTest extends TestCase
             ['charset' => 'latin1', 'collation' => 'latin1_swedish_ci'],
         );
 
-        $this->tables['A']->addColumn('json_1', 'json')->setPlatformOption('collation', 'latin1_swedish_ci');
-        $this->tables['A']->addColumn('json_2', 'json')->setPlatformOption('collation', 'utf8_general_ci');
-        $this->tables['A']->addColumn('json_3', 'json');
+        $this->tables['A']->addColumn('json_1', Types::JSON)->setPlatformOption('collation', 'latin1_swedish_ci');
+        $this->tables['A']->addColumn('json_2', Types::JSON)->setPlatformOption('collation', 'utf8_general_ci');
+        $this->tables['A']->addColumn('json_3', Types::JSON);
 
         // TableB has no table-level collation and various column collations
         $this->tables['B'] = new Table('foo');
-        $this->tables['B']->addColumn('json_1', 'json')->setPlatformOption('collation', 'latin1_swedish_ci');
-        $this->tables['B']->addColumn('json_2', 'json')->setPlatformOption('collation', 'utf8_general_ci');
-        $this->tables['B']->addColumn('json_3', 'json');
+        $this->tables['B']->addColumn('json_1', Types::JSON)->setPlatformOption('collation', 'latin1_swedish_ci');
+        $this->tables['B']->addColumn('json_2', Types::JSON)->setPlatformOption('collation', 'utf8_general_ci');
+        $this->tables['B']->addColumn('json_3', Types::JSON);
 
         // Table C has no table-level collation and column collations as MariaDb would return for columns declared
         // as JSON
         $this->tables['C'] = new Table('foo');
-        $this->tables['C']->addColumn('json_1', 'json')->setPlatformOption('collation', 'utf8mb4_bin');
-        $this->tables['C']->addColumn('json_2', 'json')->setPlatformOption('collation', 'utf8mb4_bin');
-        $this->tables['C']->addColumn('json_3', 'json')->setPlatformOption('collation', 'utf8mb4_bin');
+        $this->tables['C']->addColumn('json_1', Types::JSON)->setPlatformOption('collation', 'utf8mb4_bin');
+        $this->tables['C']->addColumn('json_2', Types::JSON)->setPlatformOption('collation', 'utf8mb4_bin');
+        $this->tables['C']->addColumn('json_3', Types::JSON)->setPlatformOption('collation', 'utf8mb4_bin');
 
         // Table D has no table or column collations set
         $this->tables['D'] = new Table('foo');
-        $this->tables['D']->addColumn('json_1', 'json');
-        $this->tables['D']->addColumn('json_2', 'json');
-        $this->tables['D']->addColumn('json_3', 'json');
+        $this->tables['D']->addColumn('json_1', Types::JSON);
+        $this->tables['D']->addColumn('json_2', Types::JSON);
+        $this->tables['D']->addColumn('json_3', Types::JSON);
     }
 
     /** @return array{string, string}[] */

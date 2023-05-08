@@ -28,7 +28,7 @@ abstract class AbstractResultMiddleware implements Result
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function fetchAllNumeric(): array
     {
@@ -36,7 +36,7 @@ abstract class AbstractResultMiddleware implements Result
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function fetchAllAssociative(): array
     {
@@ -44,7 +44,7 @@ abstract class AbstractResultMiddleware implements Result
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function fetchFirstColumn(): array
     {

@@ -32,7 +32,7 @@ use const CASE_LOWER;
 class OracleSchemaManager extends AbstractSchemaManager
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableViewDefinition(array $view): View
     {
@@ -42,7 +42,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableDefinition(array $table): string
     {
@@ -52,7 +52,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
@@ -83,7 +83,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
@@ -181,7 +181,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
     {
@@ -227,7 +227,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
@@ -241,7 +241,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableDatabaseDefinition(array $database): string
     {

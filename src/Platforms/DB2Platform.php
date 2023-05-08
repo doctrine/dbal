@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\Types;
 
 use function array_merge;
 use function count;
@@ -23,6 +24,9 @@ use function implode;
 use function sprintf;
 use function str_contains;
 
+/**
+ * Provides the behavior, features and SQL dialect of the IBM DB2 database platform of the oldest supported version.
+ */
 class DB2Platform extends AbstractPlatform
 {
     /**
@@ -37,21 +41,21 @@ class DB2Platform extends AbstractPlatform
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
-            'bigint'    => 'bigint',
-            'binary'    => 'binary',
-            'blob'      => 'blob',
-            'character' => 'string',
-            'clob'      => 'text',
-            'date'      => 'date',
-            'decimal'   => 'decimal',
-            'double'    => 'float',
-            'integer'   => 'integer',
-            'real'      => 'float',
-            'smallint'  => 'smallint',
-            'time'      => 'time',
-            'timestamp' => 'datetime',
-            'varbinary' => 'binary',
-            'varchar'   => 'string',
+            'bigint'    => Types::BIGINT,
+            'binary'    => Types::BINARY,
+            'blob'      => Types::BLOB,
+            'character' => Types::STRING,
+            'clob'      => Types::TEXT,
+            'date'      => Types::DATE_MUTABLE,
+            'decimal'   => Types::DECIMAL,
+            'double'    => Types::FLOAT,
+            'integer'   => Types::INTEGER,
+            'real'      => Types::FLOAT,
+            'smallint'  => Types::SMALLINT,
+            'time'      => Types::TIME_MUTABLE,
+            'timestamp' => Types::DATETIME_MUTABLE,
+            'varbinary' => Types::BINARY,
+            'varchar'   => Types::STRING,
         ];
     }
 
@@ -460,7 +464,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {

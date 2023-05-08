@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 use function random_bytes;
 use function str_replace;
@@ -22,11 +23,11 @@ class BinaryTest extends FunctionalTestCase
         }
 
         $table = new Table('binary_table');
-        $table->addColumn('id', 'binary', [
+        $table->addColumn('id', Types::BINARY, [
             'length' => 16,
             'fixed' => true,
         ]);
-        $table->addColumn('val', 'binary', ['length' => 64]);
+        $table->addColumn('val', Types::BINARY, ['length' => 64]);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);

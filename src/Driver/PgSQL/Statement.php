@@ -49,7 +49,7 @@ final class Statement implements StatementInterface
         );
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function bindValue(int|string $param, mixed $value, ParameterType $type = ParameterType::STRING): void
     {
         if (! isset($this->parameterMap[$param])) {
@@ -60,7 +60,7 @@ final class Statement implements StatementInterface
         $this->parameterTypes[$this->parameterMap[$param]] = $type;
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function execute(): Result
     {
         ksort($this->parameters);

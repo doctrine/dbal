@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Error;
 
 use function base64_decode;
@@ -27,8 +28,8 @@ class StatementTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('stmt_test');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'text', ['notnull' => false]);
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('name', Types::TEXT, ['notnull' => false]);
         $this->dropAndCreateTable($table);
     }
 
@@ -62,8 +63,8 @@ class StatementTest extends FunctionalTestCase
         }
 
         $table = new Table('stmt_longer_results');
-        $table->addColumn('param', 'string', ['length' => 24]);
-        $table->addColumn('val', 'text');
+        $table->addColumn('param', Types::STRING, ['length' => 24]);
+        $table->addColumn('val', Types::TEXT);
         $this->dropAndCreateTable($table);
 
         $row1 = [
@@ -104,7 +105,7 @@ class StatementTest extends FunctionalTestCase
         $this->iniSet('memory_limit', '4G');
 
         $table = new Table('stmt_long_blob');
-        $table->addColumn('contents', 'blob', ['length' => 0xFFFFFFFF]);
+        $table->addColumn('contents', Types::BLOB, ['length' => 0xFFFFFFFF]);
         $this->dropAndCreateTable($table);
 
         $contents = base64_decode(<<<'EOF'
@@ -129,7 +130,7 @@ EOF
         $result = $this->connection->prepare('SELECT contents FROM stmt_long_blob')
             ->executeQuery();
 
-        $stream = Type::getType('blob')
+        $stream = Type::getType(Types::BLOB)
             ->convertToPHPValue(
                 $result->fetchOne(),
                 $this->connection->getDatabasePlatform(),

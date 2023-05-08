@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -79,8 +80,8 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testRegisterDoctrineMappingType(): void
     {
-        $this->platform->registerDoctrineTypeMapping('foo', 'integer');
-        self::assertEquals('integer', $this->platform->getDoctrineTypeMapping('foo'));
+        $this->platform->registerDoctrineTypeMapping('foo', Types::INTEGER);
+        self::assertEquals(Types::INTEGER, $this->platform->getDoctrineTypeMapping('foo'));
     }
 
     public function testRegisterUnknownDoctrineMappingType(): void
@@ -100,8 +101,8 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGeneratesTableCreationSql(): void
     {
         $table = new Table('test');
-        $table->addColumn('id', 'integer', ['notnull' => true, 'autoincrement' => true]);
-        $table->addColumn('test', 'string', ['notnull' => false, 'length' => 255]);
+        $table->addColumn('id', Types::INTEGER, ['notnull' => true, 'autoincrement' => true]);
+        $table->addColumn('test', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->setPrimaryKey(['id']);
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -113,8 +114,8 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGenerateTableWithMultiColumnUniqueIndex(): void
     {
         $table = new Table('test');
-        $table->addColumn('foo', 'string', ['notnull' => false, 'length' => 255]);
-        $table->addColumn('bar', 'string', ['notnull' => false, 'length' => 255]);
+        $table->addColumn('foo', Types::STRING, ['notnull' => false, 'length' => 255]);
+        $table->addColumn('bar', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addUniqueIndex(['foo', 'bar']);
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -238,15 +239,21 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         // non-timestamp value will get single quotes
         self::assertEquals(" DEFAULT 'non_timestamp'", $this->platform->getDefaultValueDeclarationSQL([
-            'type' => Type::getType('string'),
+            'type' => Type::getType(Types::STRING),
             'default' => 'non_timestamp',
         ]));
     }
 
     public function testGetDefaultValueDeclarationSQLDateTime(): void
     {
+        $types = [
+            Types::DATETIME_MUTABLE,
+            Types::DATETIMETZ_MUTABLE,
+            Types::DATETIME_IMMUTABLE,
+            Types::DATETIMETZ_IMMUTABLE,
+        ];
         // timestamps on datetime types should not be quoted
-        foreach (['datetime', 'datetimetz', 'datetime_immutable', 'datetimetz_immutable'] as $type) {
+        foreach ($types as $type) {
             self::assertSame(
                 ' DEFAULT ' . $this->platform->getCurrentTimestampSQL(),
                 $this->platform->getDefaultValueDeclarationSQL([
@@ -259,7 +266,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetDefaultValueDeclarationSQLForIntegerTypes(): void
     {
-        foreach (['bigint', 'integer', 'smallint'] as $type) {
+        foreach ([Types::BIGINT, Types::INTEGER, Types::SMALLINT] as $type) {
             self::assertEquals(
                 ' DEFAULT 1',
                 $this->platform->getDefaultValueDeclarationSQL([
@@ -273,7 +280,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGetDefaultValueDeclarationSQLForDateType(): void
     {
         $currentDateSql = $this->platform->getCurrentDateSQL();
-        foreach (['date', 'date_immutable'] as $type) {
+        foreach ([Types::DATE_MUTABLE, Types::DATE_IMMUTABLE] as $type) {
             self::assertSame(
                 ' DEFAULT ' . $currentDateSql,
                 $this->platform->getDefaultValueDeclarationSQL([
@@ -294,7 +301,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testQuotedColumnInPrimaryKeyPropagation(): void
     {
         $table = new Table('`quoted`');
-        $table->addColumn('create', 'string', ['length' => 255]);
+        $table->addColumn('create', Types::STRING, ['length' => 255]);
         $table->setPrimaryKey(['create']);
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -316,7 +323,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testQuotedColumnInIndexPropagation(): void
     {
         $table = new Table('`quoted`');
-        $table->addColumn('create', 'string', ['length' => 255]);
+        $table->addColumn('create', Types::STRING, ['length' => 255]);
         $table->addIndex(['create']);
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -326,7 +333,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testQuotedNameInIndexSQL(): void
     {
         $table = new Table('test');
-        $table->addColumn('column1', 'string', ['length' => 255]);
+        $table->addColumn('column1', Types::STRING, ['length' => 255]);
         $table->addIndex(['column1'], '`key`');
 
         $sql = $this->platform->getCreateTableSQL($table);
@@ -336,21 +343,21 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testQuotedColumnInForeignKeyPropagation(): void
     {
         $table = new Table('`quoted`');
-        $table->addColumn('create', 'string', ['length' => 255]);
-        $table->addColumn('foo', 'string', ['length' => 255]);
-        $table->addColumn('`bar`', 'string', ['length' => 255]);
+        $table->addColumn('create', Types::STRING, ['length' => 255]);
+        $table->addColumn('foo', Types::STRING, ['length' => 255]);
+        $table->addColumn('`bar`', Types::STRING, ['length' => 255]);
 
         // Foreign table with reserved keyword as name (needs quotation).
         $foreignTable = new Table('foreign');
 
         // Foreign column with reserved keyword as name (needs quotation).
-        $foreignTable->addColumn('create', 'string');
+        $foreignTable->addColumn('create', Types::STRING);
 
         // Foreign column with non-reserved keyword as name (does not need quotation).
-        $foreignTable->addColumn('bar', 'string');
+        $foreignTable->addColumn('bar', Types::STRING);
 
         // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
-        $foreignTable->addColumn('`foo-bar`', 'string');
+        $foreignTable->addColumn('`foo-bar`', Types::STRING);
 
         $table->addForeignKeyConstraint(
             $foreignTable->getQuotedName($this->platform),
@@ -364,13 +371,13 @@ abstract class AbstractPlatformTestCase extends TestCase
         $foreignTable = new Table('foo');
 
         // Foreign column with reserved keyword as name (needs quotation).
-        $foreignTable->addColumn('create', 'string');
+        $foreignTable->addColumn('create', Types::STRING);
 
         // Foreign column with non-reserved keyword as name (does not need quotation).
-        $foreignTable->addColumn('bar', 'string');
+        $foreignTable->addColumn('bar', Types::STRING);
 
         // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
-        $foreignTable->addColumn('`foo-bar`', 'string');
+        $foreignTable->addColumn('`foo-bar`', Types::STRING);
 
         $table->addForeignKeyConstraint(
             $foreignTable->getQuotedName($this->platform),
@@ -384,13 +391,13 @@ abstract class AbstractPlatformTestCase extends TestCase
         $foreignTable = new Table('`foo-bar`');
 
         // Foreign column with reserved keyword as name (needs quotation).
-        $foreignTable->addColumn('create', 'string');
+        $foreignTable->addColumn('create', Types::STRING);
 
         // Foreign column with non-reserved keyword as name (does not need quotation).
-        $foreignTable->addColumn('bar', 'string');
+        $foreignTable->addColumn('bar', Types::STRING);
 
         // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
-        $foreignTable->addColumn('`foo-bar`', 'string');
+        $foreignTable->addColumn('`foo-bar`', Types::STRING);
 
         $table->addForeignKeyConstraint(
             $foreignTable->getQuotedName($this->platform),
@@ -467,14 +474,14 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testAlterTableChangeQuotedColumn(): void
     {
         $table = new Table('mytable');
-        $table->addColumn('select', 'integer');
+        $table->addColumn('select', Types::INTEGER);
 
         $tableDiff = new TableDiff($table, [], [
             new ColumnDiff(
                 $table->getColumn('select'),
                 new Column(
                     'select',
-                    Type::getType('string'),
+                    Type::getType(Types::STRING),
                     ['length' => 255],
                 ),
             ),
@@ -613,7 +620,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $column = [
             'length'  => 666,
             'notnull' => true,
-            'type'    => Type::getType('json'),
+            'type'    => Type::getType(Types::JSON),
         ];
 
         self::assertSame(
@@ -625,7 +632,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testAlterTableRenameIndex(): void
     {
         $table = new Table('mytable');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $tableDiff = new TableDiff($table, [], [], [], [], [], [], [], [
@@ -650,7 +657,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testQuotesAlterTableRenameIndex(): void
     {
         $table = new Table('table');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $tableDiff = new TableDiff($table, [], [], [], [], [], [], [], [
@@ -678,7 +685,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testAlterTableRenameIndexInSchema(): void
     {
         $table = new Table('myschema.mytable');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $tableDiff = new TableDiff($table, [], [], [], [], [], [], [], [
@@ -703,7 +710,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testQuotesAlterTableRenameIndexInSchema(): void
     {
         $table = new Table('`schema`.table');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $tableDiff = new TableDiff($table, [], [], [], [], [], [], [], [
@@ -851,14 +858,14 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testAlterStringToFixedString(): void
     {
         $table = new Table('mytable');
-        $table->addColumn('name', 'string', ['length' => 2]);
+        $table->addColumn('name', Types::STRING, ['length' => 2]);
 
         $tableDiff = new TableDiff($table, [], [
             new ColumnDiff(
                 $table->getColumn('name'),
                 new Column(
                     'name',
-                    Type::getType('string'),
+                    Type::getType(Types::STRING),
                     ['fixed' => true, 'length' => 2],
                 ),
             ),
@@ -877,13 +884,13 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): void
     {
         $foreignTable = new Table('foreign_table');
-        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->addColumn('id', Types::INTEGER);
         $foreignTable->setPrimaryKey(['id']);
 
         $primaryTable = new Table('mytable');
-        $primaryTable->addColumn('foo', 'integer');
-        $primaryTable->addColumn('bar', 'integer');
-        $primaryTable->addColumn('baz', 'integer');
+        $primaryTable->addColumn('foo', Types::INTEGER);
+        $primaryTable->addColumn('bar', Types::INTEGER);
+        $primaryTable->addColumn('baz', Types::INTEGER);
         $primaryTable->addIndex(['foo'], 'idx_foo');
         $primaryTable->addIndex(['bar'], 'idx_bar');
         $primaryTable->addForeignKeyConstraint($foreignTable->getName(), ['foo'], ['id'], [], 'fk_foo');

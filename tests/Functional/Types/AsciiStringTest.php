@@ -7,18 +7,19 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 class AsciiStringTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
         $table = new Table('ascii_table');
-        $table->addColumn('id', 'ascii_string', [
+        $table->addColumn('id', Types::ASCII_STRING, [
             'length' => 3,
             'fixed' => true,
         ]);
 
-        $table->addColumn('val', 'ascii_string', ['length' => 4]);
+        $table->addColumn('val', Types::ASCII_STRING, ['length' => 4]);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);

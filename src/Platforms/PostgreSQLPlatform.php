@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\Types;
 use UnexpectedValueException;
 
 use function array_merge;
@@ -317,7 +318,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
@@ -679,47 +680,47 @@ class PostgreSQLPlatform extends AbstractPlatform
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
-            'bigint'           => 'bigint',
-            'bigserial'        => 'bigint',
-            'bool'             => 'boolean',
-            'boolean'          => 'boolean',
-            'bpchar'           => 'string',
-            'bytea'            => 'blob',
-            'char'             => 'string',
-            'date'             => 'date',
-            'datetime'         => 'datetime',
-            'decimal'          => 'decimal',
-            'double'           => 'float',
-            'double precision' => 'float',
-            'float'            => 'float',
-            'float4'           => 'float',
-            'float8'           => 'float',
-            'inet'             => 'string',
-            'int'              => 'integer',
-            'int2'             => 'smallint',
-            'int4'             => 'integer',
-            'int8'             => 'bigint',
-            'integer'          => 'integer',
-            'interval'         => 'string',
-            'json'             => 'json',
-            'jsonb'            => 'json',
-            'money'            => 'decimal',
-            'numeric'          => 'decimal',
-            'serial'           => 'integer',
-            'serial4'          => 'integer',
-            'serial8'          => 'bigint',
-            'real'             => 'float',
-            'smallint'         => 'smallint',
-            'text'             => 'text',
-            'time'             => 'time',
-            'timestamp'        => 'datetime',
-            'timestamptz'      => 'datetimetz',
-            'timetz'           => 'time',
-            'tsvector'         => 'text',
-            'uuid'             => 'guid',
-            'varchar'          => 'string',
-            'year'             => 'date',
-            '_varchar'         => 'string',
+            'bigint'           => Types::BIGINT,
+            'bigserial'        => Types::BIGINT,
+            'bool'             => Types::BOOLEAN,
+            'boolean'          => Types::BOOLEAN,
+            'bpchar'           => Types::STRING,
+            'bytea'            => Types::BLOB,
+            'char'             => Types::STRING,
+            'date'             => Types::DATE_MUTABLE,
+            'datetime'         => Types::DATETIME_MUTABLE,
+            'decimal'          => Types::DECIMAL,
+            'double'           => Types::FLOAT,
+            'double precision' => Types::FLOAT,
+            'float'            => Types::FLOAT,
+            'float4'           => Types::FLOAT,
+            'float8'           => Types::FLOAT,
+            'inet'             => Types::STRING,
+            'int'              => Types::INTEGER,
+            'int2'             => Types::SMALLINT,
+            'int4'             => Types::INTEGER,
+            'int8'             => Types::BIGINT,
+            'integer'          => Types::INTEGER,
+            'interval'         => Types::STRING,
+            'json'             => Types::JSON,
+            'jsonb'            => Types::JSON,
+            'money'            => Types::DECIMAL,
+            'numeric'          => Types::DECIMAL,
+            'serial'           => Types::INTEGER,
+            'serial4'          => Types::INTEGER,
+            'serial8'          => Types::BIGINT,
+            'real'             => Types::FLOAT,
+            'smallint'         => Types::SMALLINT,
+            'text'             => Types::TEXT,
+            'time'             => Types::TIME_MUTABLE,
+            'timestamp'        => Types::DATETIME_MUTABLE,
+            'timestamptz'      => Types::DATETIMETZ_MUTABLE,
+            'timetz'           => Types::TIME_MUTABLE,
+            'tsvector'         => Types::TEXT,
+            'uuid'             => Types::GUID,
+            'varchar'          => Types::STRING,
+            'year'             => Types::DATE_MUTABLE,
+            '_varchar'         => Types::STRING,
         ];
     }
 
@@ -737,7 +738,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
@@ -757,7 +758,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getJsonTypeDeclarationSQL(array $column): string
     {

@@ -62,7 +62,7 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
@@ -80,7 +80,7 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
     public function testCollationOptionIsTakenIntoAccount(): void
     {
         $table = new Table('quotations');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->addOption('collation', 'my_collation');
         self::assertStringContainsString(
             'my_collation',
