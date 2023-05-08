@@ -78,6 +78,14 @@ final class DsnParserTest extends TestCase
                     'driver' => 'sqlite3',
                 ],
             ],
+            'pdo-sqlite relative URL without host' => [
+                'pdo-sqlite:///foo/dbname.sqlite',
+                [
+                    'host' => 'localhost',
+                    'path'   => 'foo/dbname.sqlite',
+                    'driver' => 'pdo_sqlite',
+                ],
+            ],
             'sqlite absolute URL without host' => [
                 'sqlite:////tmp/dbname.sqlite',
                 [
