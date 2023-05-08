@@ -148,11 +148,11 @@ class TestUtil
         switch ($driver) {
             case 'pdo_oci':
             case 'oci8':
-                $configuration->setMiddlewares([new InitializeSession()]);
+                $configuration->setMiddleware([new InitializeSession()]);
                 break;
             case 'pdo_sqlite':
             case 'sqlite3':
-                $configuration->setMiddlewares([new EnableForeignKeys()]);
+                $configuration->setMiddleware([new EnableForeignKeys()]);
                 break;
         }
 

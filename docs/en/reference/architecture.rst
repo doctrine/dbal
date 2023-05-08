@@ -43,8 +43,8 @@ interfaces:
 -  ``Doctrine\DBAL\Driver\Statement``
 -  ``Doctrine\DBAL\Driver\Result``
 
-Middlewares
------------
+Middleware
+----------
 
 A middleware sits in the middle between the wrapper components and the driver.
 By implementing the ``Doctrine\DBAL\Driver\Middleware``, it decorates the

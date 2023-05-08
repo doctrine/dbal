@@ -19,7 +19,7 @@ use function func_num_args;
 class Configuration
 {
     /** @var Middleware[] */
-    private array $middlewares = [];
+    private array $middleware = [];
 
     /**
      * The SQL logger in use. If null, SQL logging is disabled.
@@ -68,14 +68,14 @@ class Configuration
     /**
      * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
      *
-     * @deprecated Use {@see setMiddlewares()} and {@see \Doctrine\DBAL\Logging\Middleware} instead.
+     * @deprecated Use {@see setMiddleware()} and {@see \Doctrine\DBAL\Logging\Middleware} instead.
      */
     public function setSQLLogger(?SQLLogger $logger = null): void
     {
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4967',
-            '%s is deprecated, use setMiddlewares() and Logging\\Middleware instead.',
+            '%s is deprecated, use setMiddleware() and Logging\\Middleware instead.',
             __METHOD__,
         );
 
@@ -212,21 +212,57 @@ class Configuration
     }
 
     /**
-     * @param Middleware[] $middlewares
+     * @deprecated setMiddlewares is deprecated since doctrine/dbal 3.6. Use setMiddleware instead.
+     *
+     * @param Middleware[] $middleware
      *
      * @return $this
      */
-    public function setMiddlewares(array $middlewares): self
+    public function setMiddlewares(array $middleware): self
     {
-        $this->middlewares = $middlewares;
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6033',
+            '%s is deprecated since doctrine/dbal 3.7. Use setMiddleware instead.',
+            __METHOD__,
+        );
+
+        return $this->setMiddleware($middleware);
+    }
+
+    /**
+     * @param Middleware[] $middleware
+     *
+     * @return $this
+     */
+    public function setMiddleware(array $middleware): self
+    {
+        $this->middleware = $middleware;
 
         return $this;
     }
 
-    /** @return Middleware[] */
+    /**
+     * @deprecated getMiddlewares is deprecated since doctrine/dbal 3.6. Use getMiddleware instead.
+     *
+     * @return Middleware[]
+     */
     public function getMiddlewares(): array
     {
-        return $this->middlewares;
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6033',
+            '%s is deprecated since doctrine/dbal 3.7. Use getMiddleware instead.',
+            __METHOD__,
+        );
+
+        return $this->getMiddleware();
+    }
+
+    /** @return Middleware[] */
+    public function getMiddleware(): array
+    {
+        return $this->middleware;
     }
 
     public function getSchemaManagerFactory(): ?SchemaManagerFactory

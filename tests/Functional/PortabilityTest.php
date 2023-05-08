@@ -143,9 +143,9 @@ class PortabilityTest extends FunctionalTestCase
         $this->connection->close();
 
         $configuration = $this->connection->getConfiguration();
-        $configuration->setMiddlewares(
+        $configuration->setMiddleware(
             array_merge(
-                $configuration->getMiddlewares(),
+                $configuration->getMiddleware(),
                 [new Middleware($mode, $case)],
             ),
         );

@@ -184,7 +184,7 @@ final class DriverManager
 
         $driver = self::createDriver($params['driver'] ?? null, $params['driverClass'] ?? null);
 
-        foreach ($config->getMiddlewares() as $middleware) {
+        foreach ($config->getMiddleware() as $middleware) {
             $driver = $middleware->wrap($driver);
         }
 
