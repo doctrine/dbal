@@ -10,7 +10,7 @@ use Doctrine\Deprecations\Deprecation;
 class SQLiteKeywords extends KeywordList
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */
@@ -26,7 +26,7 @@ class SQLiteKeywords extends KeywordList
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getKeywords()
     {

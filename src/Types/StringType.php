@@ -10,7 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class StringType extends Type
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
@@ -18,7 +18,7 @@ class StringType extends Type
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getName()
     {

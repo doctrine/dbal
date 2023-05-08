@@ -23,7 +23,7 @@ use const PGSQL_CONNECT_FORCE_NEW;
 
 final class Driver extends AbstractPostgreSQLDriver
 {
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function connect(
         #[SensitiveParameter]
         array $params

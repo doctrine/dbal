@@ -18,7 +18,7 @@ use function is_string;
 class BlobType extends Type
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
@@ -26,7 +26,7 @@ class BlobType extends Type
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
@@ -50,7 +50,7 @@ class BlobType extends Type
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getName()
     {
@@ -58,7 +58,7 @@ class BlobType extends Type
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getBindingType()
     {

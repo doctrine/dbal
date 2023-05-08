@@ -12,7 +12,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class DateType extends Type
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getName()
     {
@@ -20,7 +20,7 @@ class DateType extends Type
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
@@ -28,7 +28,7 @@ class DateType extends Type
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @psalm-param T $value
      *
@@ -50,7 +50,7 @@ class DateType extends Type
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param T $value
      *

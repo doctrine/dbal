@@ -107,7 +107,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Delete the database file using the filesystem.
      */
@@ -127,7 +127,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated The engine will create the database file automatically.
      */
@@ -151,7 +151,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function createForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
@@ -163,7 +163,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@see dropForeignKey()} and {@see createForeignKey()} instead.
      */
@@ -184,7 +184,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function dropForeignKey($foreignKey, $table)
     {
@@ -196,7 +196,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function listTableForeignKeys($table, $database = null)
     {
@@ -213,7 +213,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableDefinition($table)
     {
@@ -221,7 +221,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
@@ -285,7 +285,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableColumnList($table, $database, $tableColumns)
     {
@@ -352,7 +352,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
@@ -431,7 +431,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableViewDefinition($view)
     {
@@ -439,7 +439,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {

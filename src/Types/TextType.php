@@ -13,7 +13,7 @@ use function stream_get_contents;
 class TextType extends Type
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
@@ -21,7 +21,7 @@ class TextType extends Type
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
@@ -29,7 +29,7 @@ class TextType extends Type
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getName()
     {
