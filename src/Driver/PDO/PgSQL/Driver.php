@@ -13,7 +13,7 @@ use SensitiveParameter;
 final class Driver extends AbstractPostgreSQLDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return Connection
      */

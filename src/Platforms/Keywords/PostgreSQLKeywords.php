@@ -10,7 +10,7 @@ use Doctrine\Deprecations\Deprecation;
 class PostgreSQLKeywords extends KeywordList
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */
@@ -26,7 +26,7 @@ class PostgreSQLKeywords extends KeywordList
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getKeywords()
     {

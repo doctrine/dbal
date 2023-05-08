@@ -93,7 +93,7 @@ final class Connection implements ServerInfoAwareConnection
         return new Result($result);
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function quote($value, $type = ParameterType::STRING)
     {
         if ($type === ParameterType::BINARY || $type === ParameterType::LARGE_OBJECT) {
@@ -108,7 +108,7 @@ final class Connection implements ServerInfoAwareConnection
         return $this->query($sql)->rowCount();
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritDoc} */
     public function lastInsertId($name = null)
     {
         if ($name !== null) {

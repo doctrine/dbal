@@ -443,7 +443,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         try {
             Type::getTypeRegistry()->override(Types::JSON, new class extends Type {
                 /**
-                 * {@inheritdoc}
+                 * {@inheritDoc}
                  */
                 public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
                 {

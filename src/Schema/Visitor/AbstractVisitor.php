@@ -21,7 +21,7 @@ class AbstractVisitor implements Visitor, NamespaceVisitor
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function acceptNamespace($namespaceName)
     {
