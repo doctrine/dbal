@@ -236,7 +236,7 @@ the following very common SQL statement:
     SELECT * FROM articles WHERE id IN (?)
 
 Since you are using an ``IN`` expression you would really like to use it in the following way
-(and I guess everybody has tried to do this once in his life, before realizing it doesn't work):
+(and I guess everybody has tried to do this once in their life, before realizing it doesn't work):
 
 .. code-block:: php
 
