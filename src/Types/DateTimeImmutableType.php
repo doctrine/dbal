@@ -5,8 +5,7 @@ namespace Doctrine\DBAL\Types;
 use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Deprecations\Deprecation;
-
-use function date_create_immutable;
+use Exception;
 
 /**
  * Immutable type of {@see DateTimeType}.
@@ -64,19 +63,20 @@ class DateTimeImmutableType extends DateTimeType
 
         $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeFormatString(), $value);
 
-        if ($dateTime === false) {
-            $dateTime = date_create_immutable($value);
+        if ($dateTime !== false) {
+            return $dateTime;
         }
 
-        if ($dateTime === false) {
+        try {
+            return new DateTimeImmutable($value);
+        } catch (Exception $e) {
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),
                 $platform->getDateTimeFormatString(),
+                $e,
             );
         }
-
-        return $dateTime;
     }
 
     /**

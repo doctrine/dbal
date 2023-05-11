@@ -3,8 +3,12 @@
 namespace Doctrine\DBAL\Types;
 
 use DateTime;
+use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Deprecations\Deprecation;
+
+use function get_class;
 
 /**
  * Type that maps an SQL TIME to a PHP DateTime object.
@@ -42,11 +46,22 @@ class TimeType extends Type
             return $value;
         }
 
+        if ($value instanceof DateTimeImmutable) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6017',
+                'Passing an instance of %s is deprecated, use %s::%s() instead.',
+                get_class($value),
+                TimeImmutableType::class,
+                __FUNCTION__,
+            );
+        }
+
         if ($value instanceof DateTimeInterface) {
             return $value->format($platform->getTimeFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', DateTime::class]);
     }
 
     /**
@@ -60,19 +75,30 @@ class TimeType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
+        if ($value instanceof DateTimeImmutable) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6017',
+                'Passing an instance of %s is deprecated, use %s::%s() instead.',
+                get_class($value),
+                TimeImmutableType::class,
+                __FUNCTION__,
+            );
+        }
+
         if ($value === null || $value instanceof DateTimeInterface) {
             return $value;
         }
 
-        $val = DateTime::createFromFormat('!' . $platform->getTimeFormatString(), $value);
-        if ($val === false) {
-            throw ConversionException::conversionFailedFormat(
-                $value,
-                $this->getName(),
-                $platform->getTimeFormatString(),
-            );
+        $dateTime = DateTime::createFromFormat('!' . $platform->getTimeFormatString(), $value);
+        if ($dateTime !== false) {
+            return $dateTime;
         }
 
-        return $val;
+        throw ConversionException::conversionFailedFormat(
+            $value,
+            $this->getName(),
+            $platform->getTimeFormatString(),
+        );
     }
 }
