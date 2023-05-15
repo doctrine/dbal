@@ -869,6 +869,9 @@ class SQLServerPlatform extends AbstractPlatform
         if ($length === null) {
             throw ColumnLengthRequired::new($this, 'NVARCHAR');
         }
+        if ($length == -1) {
+        return 'NVARCHAR(MAX)';
+    }
 
         return sprintf('NVARCHAR(%d)', $length);
     }
