@@ -86,6 +86,9 @@ SQL,
             case 'nvarchar':
             case 'ntext':
                 // Unicode data requires 2 bytes per character
+                if ($length === -1) {
+                    break;
+                }
                 $length /= 2;
                 break;
 
