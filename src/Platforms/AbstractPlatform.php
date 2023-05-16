@@ -3107,6 +3107,10 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $this->convertBooleans($default);
         }
 
+        if ($type instanceof Types\JsonType && in_array(strtoupper($default), ['JSON_ARRAY()', 'JSON_OBJECT()'])) {
+            return ' DEFAULT ('.$default.')';
+        }
+
         return ' DEFAULT ' . $this->quoteStringLiteral($default);
     }
 
