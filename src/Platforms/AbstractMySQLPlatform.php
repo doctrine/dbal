@@ -474,7 +474,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      *
      * @throws Exception
      */
@@ -517,7 +517,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * @param TableDiff $diff The table diff to gather the SQL for.
      *
-     * @return string[]
+     * @return list<string>
      *
      * @throws Exception
      */
@@ -580,7 +580,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * @param TableDiff $diff The table diff to gather the SQL for.
      *
-     * @return string[]
+     * @return list<string>
      */
     protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
@@ -815,7 +815,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * @param list<T> $assets
+     * @param array<T> $assets
      *
      * @return array<string,T>
      *

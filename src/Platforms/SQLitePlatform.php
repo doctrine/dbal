@@ -702,7 +702,7 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
-     * @return string[]|false
+     * @return list<string>|false
      *
      * @throws Exception
      */
