@@ -16,8 +16,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
-use function array_merge;
-
 /** @psalm-import-type Params from DriverManager */
 class MySQLInheritCharsetTest extends TestCase
 {
@@ -70,7 +68,6 @@ class MySQLInheritCharsetTest extends TestCase
         $driverMock = $this->createMock(Driver::class);
 
         $platform = new MySQLPlatform();
-        $params   = array_merge(['platform' => $platform], $params);
         $conn     = new Connection($params, $driverMock, new Configuration());
         $manager  = new MySQLSchemaManager($conn, $platform);
 

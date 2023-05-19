@@ -36,7 +36,7 @@ class RenameColumnTest extends FunctionalTestCase
         self::assertEqualsIgnoringCase('c2', $columns[1]->getName());
     }
 
-    /** @return iterable<array{string}> */
+    /** @return iterable<array{string,string}> */
     public static function columnNameProvider(): iterable
     {
         yield ['c1', 'c1_x'];

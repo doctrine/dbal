@@ -212,14 +212,14 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $fkOptions   = ['SET NULL', 'SET DEFAULT', 'NO ACTION', 'CASCADE', 'RESTRICT'];
         $foreignKeys = [];
         $fkTable     = $this->getTestTable('test_create_fk1');
-        for ($i = 0; $i < count($fkOptions); $i++) {
+        foreach ($fkOptions as $i => $fkOption) {
             $fkTable->addColumn('foreign_key_test' . $i, Types::INTEGER);
             $foreignKeys[] = new ForeignKeyConstraint(
                 ['foreign_key_test' . $i],
                 'test_create_fk2',
                 ['id'],
                 'foreign_key_test' . $i . '_fk',
-                ['onDelete' => $fkOptions[$i]],
+                ['onDelete' => $fkOption],
             );
         }
 

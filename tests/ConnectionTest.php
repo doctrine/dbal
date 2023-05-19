@@ -50,11 +50,9 @@ class ConnectionTest extends TestCase
     {
         $driverMock = $this->createMock(Driver::class);
 
-        $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
-
         return $this->getMockBuilder(Connection::class)
             ->onlyMethods(['executeStatement'])
-            ->setConstructorArgs([['platform' => $platform], $driverMock])
+            ->setConstructorArgs([[], $driverMock])
             ->getMock();
     }
 
@@ -475,9 +473,7 @@ class ConnectionTest extends TestCase
         $driver->expects(self::once())
             ->method('connect');
 
-        $platform = $this->createMock(AbstractPlatform::class);
-
-        $conn = new Connection(['platform' => $platform], $driver);
+        $conn = new Connection([], $driver);
         $conn->executeQuery('SELECT 1');
         $conn->executeQuery('SELECT 2');
     }
