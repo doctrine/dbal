@@ -19,6 +19,7 @@ parameters:
                 - src/Driver/AbstractOracleDriver/EasyConnectString.php
                 - src/Platforms/*Platform.php
                 - src/Schema/*SchemaManager.php
+                - tests/TestUtil.php
 
         # In some namespaces, we use array<string,mixed>, some elements of which are actually boolean
         -
@@ -88,6 +89,13 @@ parameters:
             message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection\:\:exec\(\) should return int\|numeric\-string but returns int\|string\.$~'
             count: 1
             path: src/Driver/Mysqli/Connection.php
+
+        # https://github.com/phpstan/phpstan/issues/9429
+        -
+            message: '~^Strict comparison using === between int<0, max> and false will always evaluate to false.$~'
+            paths:
+                - src/Driver/IBMDB2/Connection.php
+                - src/Driver/IBMDB2/Result.php
 
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon

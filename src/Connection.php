@@ -33,6 +33,7 @@ use Throwable;
 use Traversable;
 
 use function array_key_exists;
+use function array_merge;
 use function assert;
 use function count;
 use function implode;
@@ -47,7 +48,7 @@ use function sprintf;
  *
  * @psalm-import-type Params from DriverManager
  * @psalm-type WrapperParameterType = string|Type|ParameterType|ArrayParameterType
- * @psalm-type WrapperParameterTypeArray = array<int, WrapperParameterType>|array<string, WrapperParameterType>
+ * @psalm-type WrapperParameterTypeArray = array<int<0, max>, WrapperParameterType>|array<string, WrapperParameterType>
  * @psalm-consistent-constructor
  */
 class Connection implements ServerVersionProvider
@@ -347,19 +348,14 @@ class Connection implements ServerVersionProvider
     /**
      * Adds condition based on the criteria to the query components
      *
-     * @param array<string, mixed> $criteria   Map of key columns to their values
-     * @param array<int, string>   $columns    Column names
-     * @param array<int, mixed>    $values     Column values
-     * @param array<int, string>   $conditions Key conditions
+     * @param array<string, mixed> $criteria Map of key columns to their values
      *
-     * @throws Exception
+     * @return array{list<string>, list<mixed>, list<string>}
      */
-    private function addCriteriaCondition(
-        array $criteria,
-        array &$columns,
-        array &$values,
-        array &$conditions,
-    ): void {
+    private function getCriteriaCondition(array $criteria): array
+    {
+        $columns = $values = $conditions = [];
+
         foreach ($criteria as $columnName => $value) {
             if ($value === null) {
                 $conditions[] = $columnName . ' IS NULL';
@@ -370,6 +366,8 @@ class Connection implements ServerVersionProvider
             $values[]     = $value;
             $conditions[] = $columnName . ' = ?';
         }
+
+        return [$columns, $values, $conditions];
     }
 
     /**
@@ -377,8 +375,8 @@ class Connection implements ServerVersionProvider
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param array<string, mixed>                                                           $criteria
-     * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
+     * @param array<string, mixed>                                                                  $criteria
+     * @param array<int<0,max>, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
      * @return int|numeric-string The number of affected rows.
      *
@@ -386,9 +384,7 @@ class Connection implements ServerVersionProvider
      */
     public function delete(string $table, array $criteria = [], array $types = []): int|string
     {
-        $columns = $values = $conditions = [];
-
-        $this->addCriteriaCondition($criteria, $columns, $values, $conditions);
+        [$columns, $values, $conditions] = $this->getCriteriaCondition($criteria);
 
         $sql = 'DELETE FROM ' . $table;
 
@@ -443,9 +439,9 @@ class Connection implements ServerVersionProvider
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param array<string, mixed>                                                           $data
-     * @param array<string, mixed>                                                           $criteria
-     * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
+     * @param array<string, mixed>                                                                  $data
+     * @param array<string, mixed>                                                                  $criteria
+     * @param array<int<0,max>, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
      * @return int|numeric-string The number of affected rows.
      *
@@ -461,7 +457,11 @@ class Connection implements ServerVersionProvider
             $set[]     = $columnName . ' = ?';
         }
 
-        $this->addCriteriaCondition($criteria, $columns, $values, $conditions);
+        [$criteriaColumns, $criteriaValues, $criteriaConditions] = $this->getCriteriaCondition($criteria);
+
+        $columns    = array_merge($columns, $criteriaColumns);
+        $values     = array_merge($values, $criteriaValues);
+        $conditions = array_merge($conditions, $criteriaConditions);
 
         if (is_string(key($types))) {
             $types = $this->extractTypeValues($columns, $types);
@@ -481,8 +481,8 @@ class Connection implements ServerVersionProvider
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param array<string, mixed>                                                           $data
-     * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
+     * @param array<string, mixed>                                                                  $data
+     * @param array<int<0,max>, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
      * @return int|numeric-string The number of affected rows.
      *
@@ -518,7 +518,7 @@ class Connection implements ServerVersionProvider
      * @param array<int, string>                                                             $columns
      * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
      *
-     * @return array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type>
+     * @return array<int<0, max>, string|ParameterType|Type>
      */
     private function extractTypeValues(array $columns, array $types): array
     {
@@ -1308,13 +1308,13 @@ class Connection implements ServerVersionProvider
     }
 
     /**
-     * @param array<int, mixed>|array<string, mixed> $params
+     * @param list<mixed>|array<string, mixed> $params
      * @psalm-param WrapperParameterTypeArray $types
      *
      * @return array{
      *     string,
-     *     array<int, mixed>|array<string, mixed>,
-     *     array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type>
+     *     list<mixed>|array<string, mixed>,
+     *     array<int<0, max>, string|ParameterType|Type>|array<string, string|ParameterType|Type>
      * }
      */
     private function expandArrayParameters(string $sql, array $params, array $types): array
