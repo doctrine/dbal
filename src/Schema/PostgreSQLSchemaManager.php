@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
+use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function assert;
@@ -231,6 +232,9 @@ SQL,
         $autoincrement = $tableColumn['attidentity'] === 'd';
 
         $matches = [];
+
+        assert(array_key_exists('default', $tableColumn));
+        assert(array_key_exists('complete_type', $tableColumn));
 
         if ($tableColumn['default'] !== null) {
             if (preg_match("/^['(](.*)[')]::/", $tableColumn['default'], $matches) === 1) {
