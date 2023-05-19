@@ -218,9 +218,14 @@ class PrimaryReadReplicaConnection extends Connection
     protected function connectTo(string $connectionName): DriverConnection
     {
         $params = $this->getParams();
-        assert(isset($params['primary'], $params['replica']));
+        assert(isset($params['primary']));
 
-        $connectionParams = $this->chooseConnectionConfiguration($connectionName, $params);
+        if ($connectionName === 'primary') {
+            $connectionParams = $params['primary'];
+        } else {
+            assert(isset($params['replica']));
+            $connectionParams = $this->chooseReplicaConnectionParameters($params['primary'], $params['replica']);
+        }
 
         try {
             return $this->driver->connect($connectionParams);
@@ -230,28 +235,25 @@ class PrimaryReadReplicaConnection extends Connection
     }
 
     /**
-     * @param array<string, mixed> $params
-     * @psalm-param array{primary: OverrideParams, replica: array<OverrideParams>} $params
+     * @param OverrideParams        $primary
+     * @param array<OverrideParams> $replicas
      *
      * @return array<string, mixed>
      * @psalm-return OverrideParams
      */
-    protected function chooseConnectionConfiguration(
-        string $connectionName,
+    protected function chooseReplicaConnectionParameters(
         #[SensitiveParameter]
-        array $params,
+        array $primary,
+        #[SensitiveParameter]
+        array $replicas,
     ): array {
-        if ($connectionName === 'primary') {
-            return $params['primary'];
+        $params = $replicas[array_rand($replicas)];
+
+        if (! isset($params['charset']) && isset($primary['charset'])) {
+            $params['charset'] = $primary['charset'];
         }
 
-        $config = $params['replica'][array_rand($params['replica'])];
-
-        if (! isset($config['charset']) && isset($params['primary']['charset'])) {
-            $config['charset'] = $params['primary']['charset'];
-        }
-
-        return $config;
+        return $params;
     }
 
     /**
