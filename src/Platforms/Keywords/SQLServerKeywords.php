@@ -11,7 +11,7 @@ use Doctrine\Deprecations\Deprecation;
 class SQLServerKeywords extends KeywordList
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */
@@ -27,7 +27,7 @@ class SQLServerKeywords extends KeywordList
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @link http://msdn.microsoft.com/en-us/library/aa238507%28v=sql.80%29.aspx
      */

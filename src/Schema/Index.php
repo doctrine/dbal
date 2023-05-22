@@ -84,7 +84,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getColumns()
     {
@@ -92,7 +92,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getQuotedColumns(AbstractPlatform $platform)
     {

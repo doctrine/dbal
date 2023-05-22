@@ -24,7 +24,7 @@ use function version_compare;
 abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function createDatabasePlatformForVersion($version)
     {
@@ -55,7 +55,7 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getDatabasePlatform()
     {
@@ -63,7 +63,7 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@link PostgreSQLPlatform::createSchemaManager()} instead.
      */

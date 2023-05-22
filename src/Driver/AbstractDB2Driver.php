@@ -19,7 +19,7 @@ use function assert;
 abstract class AbstractDB2Driver implements Driver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getDatabasePlatform()
     {
@@ -27,7 +27,7 @@ abstract class AbstractDB2Driver implements Driver
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated Use {@link DB2Platform::createSchemaManager()} instead.
      */

@@ -16,7 +16,7 @@ use function sprintf;
 final class Driver extends AbstractSQLServerDriver
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @return Connection
      */

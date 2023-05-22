@@ -26,7 +26,7 @@ use function strpos;
 class DB2Platform extends AbstractPlatform
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */
@@ -42,7 +42,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */
@@ -58,7 +58,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */
@@ -120,7 +120,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function isCommentedDoctrineType(Type $doctrineType)
     {
@@ -159,7 +159,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed/*, $lengthOmitted = false*/)
     {
@@ -244,7 +244,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getBitAndComparisonExpression($value1, $value2)
     {
@@ -252,7 +252,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getBitOrComparisonExpression($value1, $value2)
     {
@@ -260,7 +260,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
@@ -280,7 +280,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getDateDiffExpression($date1, $date2)
     {
@@ -316,7 +316,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
@@ -484,7 +484,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
@@ -801,7 +801,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {

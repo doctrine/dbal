@@ -12,7 +12,7 @@ use Doctrine\Deprecations\Deprecation;
 class MySQL57Keywords extends MySQLKeywords
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @deprecated
      */
@@ -28,7 +28,7 @@ class MySQL57Keywords extends MySQLKeywords
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @link http://dev.mysql.com/doc/mysqld-version-reference/en/mysqld-version-reference-reservedwords-5-7.html
      */
