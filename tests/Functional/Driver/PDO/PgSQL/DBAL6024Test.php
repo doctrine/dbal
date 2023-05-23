@@ -38,8 +38,6 @@ class DBAL6024Test extends FunctionalTestCase
         $newTable = clone $table;
         $newTable->dropPrimaryKey();
 
-        xdebug_break();
-
         $diff = (new Comparator())->compareTables($table, $newTable);
 
         $statements = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
