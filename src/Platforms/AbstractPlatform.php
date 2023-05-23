@@ -3107,7 +3107,7 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $this->convertBooleans($default);
         }
 
-        if ($type instanceof Types\JsonType && in_array(strtoupper($default), ['JSON_ARRAY()', 'JSON_OBJECT()'])) {
+        if ($type instanceof Types\JsonType && in_array(strtoupper($default), ['JSON_ARRAY()', 'JSON_OBJECT()'], true)) {
             return ' DEFAULT ('.$default.')';
         }
 
