@@ -815,12 +815,14 @@ SQL
     public function getDropIndexSQL($index, $table = null)
     {
         if ($index instanceof Index && $index->isPrimary()) {
-            $constraintName = 'primary' === $index->getName() ? $table . '_pkey' : $index->getName();
+            $constraintName = $index->getName() === 'primary' ? $table . '_pkey' : $index->getName();
+
             return $this->getDropConstraintSQL($constraintName, $table);
         }
 
-        if ('"primary"' === $index) {
+        if ($index === '"primary"') {
             $constraintName = $table . '_pkey';
+
             return $this->getDropConstraintSQL($constraintName, $table);
         }
 

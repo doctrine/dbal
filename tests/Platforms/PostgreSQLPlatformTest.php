@@ -595,9 +595,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
-        $expectedSql = [
-            'ALTER TABLE mytable DROP CONSTRAINT mytable_pkey',
-        ];
+        $expectedSql = ['ALTER TABLE mytable DROP CONSTRAINT mytable_pkey'];
 
         self::assertEquals($expectedSql, $sql);
     }
@@ -618,9 +616,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
-        $expectedSql = [
-            'ALTER TABLE mytable DROP CONSTRAINT a_user_name',
-        ];
+        $expectedSql = ['ALTER TABLE mytable DROP CONSTRAINT a_user_name'];
 
         self::assertEquals($expectedSql, $sql);
     }
