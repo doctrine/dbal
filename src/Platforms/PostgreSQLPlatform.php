@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
@@ -814,14 +815,16 @@ SQL
      */
     public function getDropIndexSQL($index, $table = null)
     {
-        if ($index instanceof Index && $index->isPrimary()) {
-            $constraintName = $index->getName() === 'primary' ? $table . '_pkey' : $index->getName();
+        $tableName = static fn ($t) => $t instanceof Table ? $t->getName() : (string) $t;
+
+        if ($index instanceof Index && $index->isPrimary() && $table !== null) {
+            $constraintName = $index->getName() === 'primary' ? $tableName($table) . '_pkey' : $index->getName();
 
             return $this->getDropConstraintSQL($constraintName, $table);
         }
 
-        if ($index === '"primary"') {
-            $constraintName = $table . '_pkey';
+        if ($index === '"primary"' && $table !== null) {
+            $constraintName = $tableName($table) . '_pkey';
 
             return $this->getDropConstraintSQL($constraintName, $table);
         }
