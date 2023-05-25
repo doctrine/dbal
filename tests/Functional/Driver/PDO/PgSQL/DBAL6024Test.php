@@ -5,10 +5,9 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\PgSQL;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Tests\TestUtil;
 
 /**
- * How to run this test:
+ * How to run this test with PostgreSQL (the original target of the issue):
  * 1) Start a PostgreSQLInstance
  * 2) If needed, change ci/github/phpunit/pdo_pgsql.xml according to your PostgreSQL local settings
  * 3) Run
@@ -18,15 +17,6 @@ use Doctrine\DBAL\Tests\TestUtil;
 /** @requires extension pdo_pgsql */
 class DBAL6024Test extends FunctionalTestCase
 {
-    protected function setUp(): void
-    {
-        if (TestUtil::isDriverOneOf('pdo_pgsql')) {
-            return;
-        }
-
-        self::markTestSkipped('This test requires the pdo_pgsql driver.');
-    }
-
     public function testDropPrimaryKey(): void
     {
         $table = new Table('mytable');
@@ -44,6 +34,11 @@ class DBAL6024Test extends FunctionalTestCase
             $this->connection->executeStatement($statement);
         }
 
-        $this->assertTrue($this->count($statements) > 0);
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $validationSchema = $schemaManager->introspectSchema();
+        $validationTable  = $validationSchema->getTable($table->getName());
+
+        $this->assertNull($validationTable->getPrimaryKey());
     }
 }
