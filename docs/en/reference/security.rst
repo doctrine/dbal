@@ -63,7 +63,7 @@ SQL or DQL query. For Example:
     // Very wrong!
     $sql = "SELECT * FROM users WHERE name = '" . $_GET['username']. "'";
 
-An attacker could inject any value into the GET variable "username" to modify the query to his needs.
+An attacker could inject any value into the GET variable "username" to modify the query to their needs.
 
 Although DQL is a wrapper around SQL that can prevent some security implications, the previous
 example is also a threat to DQL queries.
