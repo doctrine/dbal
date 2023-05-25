@@ -189,7 +189,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     public function testGenerateUnloggedTable(): void
     {
-        $table  = new Table('mytable');
+        $table = new Table('mytable');
         $table->addOption('unlogged', true);
         $table->addColumn('foo', 'string');
 

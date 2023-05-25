@@ -821,9 +821,9 @@ SQL
             $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
-        $unlogged = (isset($options['unlogged']) && true === $options['unlogged']) ? ' UNLOGGED' : '';
+        $unlogged = isset($options['unlogged']) && $options['unlogged'] === true ? ' UNLOGGED' : '';
 
-        $query = 'CREATE'.$unlogged.' TABLE ' . $name . ' (' . $queryFields . ')';
+        $query = 'CREATE' . $unlogged . ' TABLE ' . $name . ' (' . $queryFields . ')';
 
         $sql = [$query];
 
