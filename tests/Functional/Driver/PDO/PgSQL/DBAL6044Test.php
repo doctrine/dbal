@@ -6,14 +6,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/**
- * How to run this test with PostgreSQL:
- * 1) Start a PostgreSQLInstance
- * 2) If needed, change ci/github/phpunit/pdo_pgsql.xml according to your PostgreSQL local settings
- * 3) Run
- * vendor/bin/phpunit -c ci/github/phpunit/pdo_pgsql.xml tests/Functional/Driver/PDO/PgSQL/DBAL6044Test.php
- */
-
 /** @requires extension pdo_pgsql */
 class DBAL6044Test extends FunctionalTestCase
 {
