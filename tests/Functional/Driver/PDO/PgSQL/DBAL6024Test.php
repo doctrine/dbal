@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\PgSQL;
 
-use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
