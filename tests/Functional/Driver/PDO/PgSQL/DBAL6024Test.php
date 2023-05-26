@@ -18,14 +18,13 @@ class DBAL6024Test extends FunctionalTestCase
         $newTable = clone $table;
         $newTable->dropPrimaryKey();
 
-        $diff = (new Comparator())->compareTables($table, $newTable);
+        $schemaManager = $this->connection->createSchemaManager();
+        $diff          = $schemaManager->createComparator()->compareTables($table, $newTable);
 
         $statements = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
         foreach ($statements as $statement) {
             $this->connection->executeStatement($statement);
         }
-
-        $schemaManager = $this->connection->createSchemaManager();
 
         $validationSchema = $schemaManager->introspectSchema();
         $validationTable  = $validationSchema->getTable($table->getName());
