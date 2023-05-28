@@ -4,9 +4,20 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\PgSQL;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 
+/** @requires extension pdo_pgsql */
 class DBAL6024Test extends FunctionalTestCase
 {
+    protected function setUp(): void
+    {
+        if (TestUtil::isDriverOneOf('pdo_pgsql')) {
+            return;
+        }
+
+        self::markTestSkipped('This test requires the pdo_pgsql driver.');
+    }
+
     public function testDropPrimaryKey(): void
     {
         $table = new Table('mytable');
