@@ -21,6 +21,7 @@ use function sprintf;
 use function sys_get_temp_dir;
 use function touch;
 use function unlink;
+use function xdebug_break;
 
 use const E_ALL;
 use const E_WARNING;
@@ -252,6 +253,8 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testConnectionExceptionSqLite(): void
     {
+        xdebug_break();
+
         if (! ($this->connection->getDatabasePlatform() instanceof SqlitePlatform)) {
             self::markTestSkipped('Only fails this way on sqlite');
         }

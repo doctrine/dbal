@@ -815,7 +815,8 @@ SQL
      */
     public function getDropIndexSQL($index, $table = null)
     {
-        $tableName = static fn (mixed $t): string => $t instanceof Table ? $t->getName() : (string) $t;
+        /** @psalm-suppress MissingClosureParamType */
+        $tableName = static fn ($t): string => $t instanceof Table ? $t->getName() : (string) $t;
 
         if ($index instanceof Index && $index->isPrimary() && $table !== null) {
             $constraintName = $index->getName() === 'primary' ? $tableName($table) . '_pkey' : $index->getName();
