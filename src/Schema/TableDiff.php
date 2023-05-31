@@ -180,7 +180,7 @@ class TableDiff
         $this->changedForeignKeys = $changedForeignKeys;
         $this->removedForeignKeys = $removedForeignKeys;
 
-        if ($fromTable !== null) {
+        if ($fromTable === null) {
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5678',
