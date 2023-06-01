@@ -6,11 +6,14 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class TableDiffTest extends TestCase
 {
+    use VerifyDeprecations;
+
     /** @var AbstractPlatform&MockObject */
     private AbstractPlatform $platform;
 
@@ -52,5 +55,26 @@ class TableDiffTest extends TestCase
         $tableDiff->newName = 'bar';
 
         self::assertEquals(new Identifier('bar'), $tableDiff->getNewName());
+    }
+
+    public function testOmittingFromTableInConstructorIsDeprecated(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5678');
+        $tableDiff = new TableDiff('foo');
+    }
+
+    public function testPassingFromTableToConstructorIsDeprecated(): void
+    {
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/5678');
+        $tableDiff = new TableDiff(
+            'foo',
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            new Table('foo'),
+        );
     }
 }
