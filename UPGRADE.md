@@ -260,9 +260,9 @@ if (! $diff->isEmpty()) {
 }
 ```
 
-## Deprecated not passing `$fromColumn` to the `TableDiff` constructor.
+## Deprecated not passing `$fromTable` to the `TableDiff` constructor.
 
-Not passing `$fromColumn` to the `TableDiff` constructor has been deprecated.
+Not passing `$fromTable` to the `TableDiff` constructor has been deprecated.
 
 The `TableDiff::$name` property and the `TableDiff::getName()` method have been deprecated as well. In order to obtain
 the name of the table that the diff describes, use `TableDiff::getOldTable()`.
@@ -1002,7 +1002,7 @@ deprecated in order to provide a more consistent API.
 
 ## Deprecated `Comparator::compare($fromSchema, $toSchema)`
 
-The usage of `Comparator::compare($fromSchema, $toSchema)` is deprecated and 
+The usage of `Comparator::compare($fromSchema, $toSchema)` is deprecated and
 replaced by `Comparator::compareSchemas($fromSchema, $toSchema)` in order to
 clarify the purpose of the method.
 
