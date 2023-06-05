@@ -724,7 +724,7 @@ class Table extends AbstractAsset
      */
     public function getForeignKeyColumns()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5731',
             '%s is deprecated. Use getForeignKey() and ForeignKeyConstraint::getLocalColumns() instead.',
@@ -813,7 +813,7 @@ class Table extends AbstractAsset
      */
     public function getPrimaryKeyColumns()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5731',
             '%s is deprecated. Use getPrimaryKey() and Index::getColumns() instead.',
