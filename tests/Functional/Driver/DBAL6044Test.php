@@ -32,9 +32,11 @@ class DBAL6044Test extends FunctionalTestCase
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $validationSchema = $schemaManager->introspectSchema();
-        $validationTable  = $validationSchema->getTable($unloggedTable->getName());
-        $this->assertEquals($unloggedTable->getName(), $validationTable->getName());
+        $validationSchema        = $schemaManager->introspectSchema();
+        $validationUnloggedTable = $validationSchema->getTable($unloggedTable->getName());
+        $this->assertTrue($validationUnloggedTable->getOption('unlogged'));
+        $validationLoggedTable = $validationSchema->getTable($loggedTable->getName());
+        $this->assertFalse($validationLoggedTable->getOption('unlogged'));
 
         $sql  = 'SELECT relpersistence FROM pg_class WHERE relname = ?';
         $stmt = $this->connection->prepare($sql);
