@@ -6,7 +6,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
-/** @requires extension pdo_pgsql */
 class DBAL6044Test extends FunctionalTestCase
 {
     protected function setUp(): void
