@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\PgSQL;
+namespace Doctrine\DBAL\Tests\Functional\Driver;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -12,11 +12,11 @@ class DBAL6044Test extends FunctionalTestCase
     {
         parent::setUp();
 
-        if (TestUtil::isDriverOneOf('pdo_pgsql')) {
+        if (TestUtil::isDriverOneOf('pdo_pgsql', 'pgsql')) {
             return;
         }
 
-        self::markTestSkipped('This test requires the pdo_pgsql driver.');
+        self::markTestSkipped('This test requires the pdo_pgsql or the pgsql driver.');
     }
 
     public function testUnloggedTables(): void
