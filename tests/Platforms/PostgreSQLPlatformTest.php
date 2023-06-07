@@ -187,6 +187,18 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGenerateUnloggedTable(): void
+    {
+        $table = new Table('mytable');
+        $table->addOption('unlogged', true);
+        $table->addColumn('foo', 'string');
+
+        self::assertEquals(
+            ['CREATE UNLOGGED TABLE mytable (foo VARCHAR(255) NOT NULL)'],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
     /** @return mixed[][] */
     public static function serialTypes(): iterable
     {
