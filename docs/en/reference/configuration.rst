@@ -134,6 +134,20 @@ name.
 
     $conn = DriverManager::getConnection($connectionParams);
 
+You can also use the mapping table to map a DSN's scheme to a custom driver
+class:
+
+.. code-block:: php
+
+    <?php
+    use Doctrine\DBAL\Tools\DsnParser;
+    use App\DBAL\CustomDriver; // implements Doctrine\DBAL\Driver
+
+    //..
+    $dsnParser = new DsnParser(['custom' => CustomDriver::class]);
+    $connectionParams = $dsnParser
+        ->parse('custom://user:secret@localhost/mydb');
+
 Driver
 ~~~~~~
 
