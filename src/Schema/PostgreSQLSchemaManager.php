@@ -739,7 +739,7 @@ FROM pg_class c
          ON n.oid = c.relnamespace
 SQL;
 
-        $conditions = array_merge(["c.relkind = 'r'"], $this->buildQueryConditions($tableName));
+        $conditions = $this->buildQueryConditions($tableName);
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
