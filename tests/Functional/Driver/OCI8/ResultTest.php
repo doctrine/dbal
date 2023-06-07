@@ -84,7 +84,7 @@ class ResultTest extends FunctionalTestCase
             'SELECT * FROM TABLE(%s.test_oracle_fetch_failure())',
             $this->connectionParams['user'],
         ));
-        $result    = $statement->execute();
+        $result    = $statement->executeQuery();
 
         // Access the first result to cause the first X rows to be prefetched
         // as defined by oci8.default_prefetch (often 100 rows)

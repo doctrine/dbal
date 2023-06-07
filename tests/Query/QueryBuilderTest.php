@@ -967,7 +967,7 @@ class QueryBuilderTest extends TestCase
         $result = $qb
             ->select('id')
             ->from('foo')
-            ->execute();
+            ->executeQuery();
 
         self::assertInstanceOf(Result::class, $result);
     }

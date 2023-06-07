@@ -67,7 +67,7 @@ class WriteTest extends FunctionalTestCase
         $stmt->bindValue(1, 1);
         $stmt->bindValue(2, 'foo');
 
-        self::assertEquals(1, $stmt->execute()->rowCount());
+        self::assertEquals(1, $stmt->executeQuery()->rowCount());
     }
 
     public function testPrepareWithPrimitiveTypes(): void
@@ -78,7 +78,7 @@ class WriteTest extends FunctionalTestCase
         $stmt->bindValue(1, 1, ParameterType::INTEGER);
         $stmt->bindValue(2, 'foo', ParameterType::STRING);
 
-        self::assertEquals(1, $stmt->execute()->rowCount());
+        self::assertEquals(1, $stmt->executeQuery()->rowCount());
     }
 
     public function testPrepareWithDoctrineMappingTypes(): void
@@ -89,7 +89,7 @@ class WriteTest extends FunctionalTestCase
         $stmt->bindValue(1, 1, Type::getType(Types::INTEGER));
         $stmt->bindValue(2, 'foo', Type::getType(Types::STRING));
 
-        self::assertEquals(1, $stmt->execute()->rowCount());
+        self::assertEquals(1, $stmt->executeQuery()->rowCount());
     }
 
     public function testPrepareWithDoctrineMappingTypeNames(): void
@@ -100,7 +100,7 @@ class WriteTest extends FunctionalTestCase
         $stmt->bindValue(1, 1, 'integer');
         $stmt->bindValue(2, 'foo', 'string');
 
-        self::assertEquals(1, $stmt->execute()->rowCount());
+        self::assertEquals(1, $stmt->executeQuery()->rowCount());
     }
 
     public function insertRows(): void

@@ -48,7 +48,7 @@ class DataAccessTest extends FunctionalTestCase
         $stmt->bindValue(1, 1);
         $stmt->bindValue(2, 'foo');
 
-        $row = $stmt->execute()->fetchAssociative();
+        $row = $stmt->executeQuery()->fetchAssociative();
 
         self::assertIsArray($row);
         $row = array_change_key_case($row, CASE_LOWER);
@@ -66,7 +66,7 @@ class DataAccessTest extends FunctionalTestCase
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
 
-        $row = $stmt->execute()->fetchAssociative();
+        $row = $stmt->executeQuery()->fetchAssociative();
 
         self::assertIsArray($row);
         $row = array_change_key_case($row, CASE_LOWER);
@@ -84,7 +84,7 @@ class DataAccessTest extends FunctionalTestCase
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
 
-        $rows    = $stmt->execute()->fetchAllAssociative();
+        $rows    = $stmt->executeQuery()->fetchAllAssociative();
         $rows[0] = array_change_key_case($rows[0], CASE_LOWER);
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $rows[0]);
     }
@@ -100,7 +100,7 @@ class DataAccessTest extends FunctionalTestCase
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
 
-        $column = $stmt->execute()->fetchOne();
+        $column = $stmt->executeQuery()->fetchOne();
         self::assertEquals(1, $column);
     }
 
@@ -288,7 +288,7 @@ class DataAccessTest extends FunctionalTestCase
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->connection->prepare($sql);
         $stmt->bindValue(1, new DateTime('2010-01-01 10:10:10'), Types::DATETIME_MUTABLE);
-        $result = $stmt->execute();
+        $result = $stmt->executeQuery();
 
         self::assertEquals(1, $result->fetchOne());
     }

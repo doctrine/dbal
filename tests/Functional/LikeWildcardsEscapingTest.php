@@ -23,7 +23,7 @@ final class LikeWildcardsEscapingTest extends FunctionalTestCase
                     $escapeChar,
                 ),
             ),
-        )->execute();
+        )->executeQuery();
 
         self::assertTrue((bool) $result->fetchOne());
     }
