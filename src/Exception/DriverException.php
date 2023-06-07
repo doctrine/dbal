@@ -29,7 +29,7 @@ class DriverException extends Exception implements TheDriverException
     public function __construct(TheDriverException $driverException, ?Query $query)
     {
         if ($query !== null) {
-            $message = 'An exception occurred while executing a query: ' . $driverException->getMessage();
+            $message = 'An exception occurred while executing a query: ' . $query->getSQL();
         } else {
             $message = 'An exception occurred in the driver: ' . $driverException->getMessage();
         }
