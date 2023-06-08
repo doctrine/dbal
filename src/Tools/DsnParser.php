@@ -2,12 +2,14 @@
 
 namespace Doctrine\DBAL\Tools;
 
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\MalformedDsnException;
 use SensitiveParameter;
 
 use function array_merge;
 use function assert;
+use function is_a;
 use function is_string;
 use function parse_str;
 use function parse_url;
@@ -20,10 +22,10 @@ use function substr;
 /** @psalm-import-type Params from DriverManager */
 final class DsnParser
 {
-    /** @var array<string, string> */
+    /** @var array<string, string|class-string<Driver>> */
     private array $schemeMapping;
 
-    /** @param array<string, string> $schemeMapping An array used to map DSN schemes to DBAL drivers */
+    /** @param array<string, string|class-string<Driver>> $schemeMapping An array used to map DSN schemes to DBAL drivers */
     public function __construct(array $schemeMapping = [])
     {
         $this->schemeMapping = $schemeMapping;
@@ -76,6 +78,11 @@ final class DsnParser
 
         if (isset($url['pass'])) {
             $params['password'] = $url['pass'];
+        }
+
+        if (isset($params['driver']) && is_a($params['driver'], Driver::class, true)) {
+            $params['driverClass'] = $params['driver'];
+            unset($params['driver']);
         }
 
         $params = $this->parseDatabaseUrlPath($url, $params);

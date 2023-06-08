@@ -2,10 +2,12 @@
 
 namespace Doctrine\DBAL\Tests\Tools;
 
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
 use PHPUnit\Framework\TestCase;
 
+use function get_class;
 use function ksort;
 
 /** @psalm-import-type Params from DriverManager */
@@ -171,5 +173,23 @@ final class DsnParserTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    public function testDriverClassScheme(): void
+    {
+        $driverClass = get_class($this->createMock(Driver::class));
+        $parser      = new DsnParser(['custom' => $driverClass]);
+        $actual      = $parser->parse('custom://foo:bar@localhost/baz');
+
+        self::assertSame(
+            [
+                'host'        => 'localhost',
+                'user'        => 'foo',
+                'password'    => 'bar',
+                'driverClass' => $driverClass,
+                'dbname'      => 'baz',
+            ],
+            $actual,
+        );
     }
 }
