@@ -41,6 +41,7 @@ jobs:
           - "8.0"
           - "8.1"
           - "8.2"
+          - "8.3"
         dependencies:
           - "highest"
         extension:
@@ -106,8 +107,8 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.1"
           - "8.2"
+          - "8.3"
         oracle-version:
           - "21"
         include:
@@ -164,8 +165,8 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.1"
           - "8.2"
+          - "8.3"
         oracle-version:
           - "21"
         include:
@@ -229,16 +230,16 @@ jobs:
           - "pgsql"
           - "pdo_pgsql"
         include:
-          - php-version: "8.1"
-            postgres-version: "15"
-            extension: "pgsql"
           - php-version: "8.2"
             postgres-version: "15"
             extension: "pgsql"
-          - php-version: "8.1"
+          - php-version: "8.3"
+            postgres-version: "15"
+            extension: "pgsql"
+          - php-version: "8.2"
             postgres-version: "15"
             extension: "pdo_pgsql"
-          - php-version: "8.2"
+          - php-version: "8.3"
             postgres-version: "15"
             extension: "pdo_pgsql"
 
@@ -302,22 +303,22 @@ jobs:
           - "mysqli"
           - "pdo_mysql"
         include:
-          - php-version: "8.1"
+          - php-version: "8.2"
             mariadb-version: "10.7"
             extension: "mysqli"
-          - php-version: "8.1"
+          - php-version: "8.2"
             mariadb-version: "10.7"
-            extension: "pdo_mysql"
-          - php-version: "8.1"
-            mariadb-version: "10.11"
-            extension: "mysqli"
-          - php-version: "8.1"
-            mariadb-version: "10.11"
             extension: "pdo_mysql"
           - php-version: "8.2"
             mariadb-version: "10.11"
             extension: "mysqli"
           - php-version: "8.2"
+            mariadb-version: "10.11"
+            extension: "pdo_mysql"
+          - php-version: "8.3"
+            mariadb-version: "10.11"
+            extension: "mysqli"
+          - php-version: "8.3"
             mariadb-version: "10.11"
             extension: "pdo_mysql"
 
@@ -371,7 +372,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.0"
+          - "8.1"
         mysql-version:
           - "5.7"
           - "8.0"
@@ -390,20 +391,20 @@ jobs:
             php-version: "7.4"
             mysql-version: "8.0"
             extension: "mysqli"
-          - php-version: "8.1"
+          - php-version: "8.2"
             mysql-version: "8.0"
             extension: "mysqli"
             custom-entrypoint: >-
               --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
-          - php-version: "8.1"
+          - php-version: "8.2"
             mysql-version: "8.0"
             extension: "pdo_mysql"
             custom-entrypoint: >-
               --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
-          - php-version: "8.2"
+          - php-version: "8.3"
             mysql-version: "8.0"
             extension: "mysqli"
-          - php-version: "8.2"
+          - php-version: "8.3"
             mysql-version: "8.0"
             extension: "pdo_mysql"
 
@@ -461,8 +462,8 @@ jobs:
       matrix:
         php-version:
           - "7.4"
-          - "8.1"
           - "8.2"
+          - "8.3"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -529,6 +530,7 @@ jobs:
         php-version:
           - "7.4"
           - "8.2"
+          - "8.3"
 
     services:
       ibm_db2:
