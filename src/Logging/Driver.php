@@ -45,10 +45,6 @@ final class Driver extends AbstractDriverMiddleware
             $params['password'] = '<redacted>';
         }
 
-        if (isset($params['url'])) {
-            $params['url'] = '<redacted>';
-        }
-
         return $params;
     }
 }

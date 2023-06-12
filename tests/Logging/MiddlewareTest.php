@@ -35,7 +35,6 @@ class MiddlewareTest extends TestCase
         $this->driver->connect([
             'username' => 'admin',
             'password' => 'Passw0rd!',
-            'url' => 'mysql://user:secret@localhost/mydb',
         ]);
 
         self::assertTrue($this->logger->hasInfo([
@@ -44,7 +43,6 @@ class MiddlewareTest extends TestCase
                 'params' => [
                     'username' => 'admin',
                     'password' => '<redacted>',
-                    'url' => '<redacted>',
                 ],
             ],
         ]));
