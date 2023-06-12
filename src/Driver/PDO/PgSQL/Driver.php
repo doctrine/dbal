@@ -57,6 +57,12 @@ final class Driver extends AbstractPostgreSQLDriver
             $connection->exec('SET NAMES \'' . $params['charset'] . '\'');
         }
 
+        /* Defining default schema via SET SEARCH_PATH to avoid migration issues
+         */
+        if (!empty($params['schema'])) {
+            $connection->exec('SET SEARCH_PATH = "' . $params['schema'] . '"');
+        }
+
         return $connection;
     }
 
