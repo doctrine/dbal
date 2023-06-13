@@ -6,7 +6,6 @@
          beStrictAboutTodoAnnotatedTests="true"
          failOnRisky="true"
          failOnWarning="true"
-         convertDeprecationsToExceptions="true"
 >
     <php>
         <ini name="error_reporting" value="-1" />
@@ -30,9 +29,9 @@
         </testsuite>
     </testsuites>
 
-    <coverage>
+    <source>
         <include>
-            <directory suffix=".php">../../../src</directory>
+            <directory>../../../src</directory>
         </include>
-    </coverage>
+    </source>
 </phpunit>
