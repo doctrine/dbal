@@ -392,7 +392,7 @@ class ConnectionTest extends TestCase
     }
 
     /** @return bool[][] */
-    public function resultProvider(): array
+    public static function resultProvider(): array
     {
         return [[true], [false]];
     }

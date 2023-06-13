@@ -17,7 +17,7 @@ class TypeTest extends TestCase
     }
 
     /** @return iterable<string[]> */
-    public function defaultTypesProvider(): iterable
+    public static function defaultTypesProvider(): iterable
     {
         foreach ((new ReflectionClass(Type::class))->getReflectionConstants() as $constant) {
             if (! $constant->isPublic()) {

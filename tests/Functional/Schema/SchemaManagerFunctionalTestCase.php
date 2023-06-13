@@ -1478,7 +1478,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     }
 
     /** @return string[][] */
-    public function commentsProvider(): array
+    public static function commentsProvider(): array
     {
         $currentType = 'current type';
 

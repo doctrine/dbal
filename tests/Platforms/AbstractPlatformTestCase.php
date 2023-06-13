@@ -1362,7 +1362,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     }
 
     /** @return array<int, array{string, array<string, mixed>}> */
-    public function asciiStringSqlDeclarationDataProvider(): array
+    public static function asciiStringSqlDeclarationDataProvider(): array
     {
         return [
             ['VARCHAR(12)', ['length' => 12]],

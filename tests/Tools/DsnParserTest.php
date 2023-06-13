@@ -32,7 +32,7 @@ final class DsnParserTest extends TestCase
     }
 
     /** @psalm-return iterable<string, array{string, Params}> */
-    public function databaseUrls(): iterable
+    public static function databaseUrls(): iterable
     {
         return [
             'simple URL' => [
