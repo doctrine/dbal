@@ -815,22 +815,29 @@ SQL
      */
     public function getDropIndexSQL($index, $table = null)
     {
-        /** @psalm-suppress MissingClosureParamType */
-        $tableName = static fn ($t): string => $t instanceof Table ? $t->getName() : (string) $t;
-
         if ($index instanceof Index && $index->isPrimary() && $table !== null) {
-            $constraintName = $index->getName() === 'primary' ? $tableName($table) . '_pkey' : $index->getName();
+            $constraintName = $index->getName() === 'primary' ? $this->tableName($table) . '_pkey' : $index->getName();
 
             return $this->getDropConstraintSQL($constraintName, $table);
         }
 
         if ($index === '"primary"' && $table !== null) {
-            $constraintName = $tableName($table) . '_pkey';
+            $constraintName = $this->tableName($table) . '_pkey';
 
             return $this->getDropConstraintSQL($constraintName, $table);
         }
 
         return parent::getDropIndexSQL($index, $table);
+    }
+
+    /**
+     * @param Table|string|null $table
+     *
+     * @return string
+     */
+    private function tableName($table)
+    {
+        return $table instanceof Table ? $table->getName() : (string) $table;
     }
 
     /**
