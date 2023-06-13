@@ -18,7 +18,7 @@ use function get_class;
 use function sprintf;
 
 /** @template P of AbstractPlatform */
-abstract class AbstractDriverTest extends TestCase
+abstract class AbstractDriverTestCase extends TestCase
 {
     use VerifyDeprecations;
 

@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 use function array_keys;
 use function get_class;
 
-class ComparatorTest extends TestCase
+class AbstractComparatorTestCase extends TestCase
 {
     use VerifyDeprecations;
 

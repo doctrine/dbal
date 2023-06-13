@@ -12,8 +12,8 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
-/** @extends AbstractDriverTest<SQLServerPlatform> */
-abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
+/** @extends AbstractDriverTestCase<SQLServerPlatform> */
+abstract class AbstractSQLServerDriverTestCase extends AbstractDriverTestCase
 {
     protected function createPlatform(): AbstractPlatform
     {

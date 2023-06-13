@@ -5,14 +5,14 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\SQLSrv;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDO\SQLSrv\Connection;
 use Doctrine\DBAL\Driver\PDO\SQLSrv\Driver;
-use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
+use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use PDO;
 
 use function array_merge;
 
 /** @requires extension pdo_sqlsrv */
-class DriverTest extends AbstractDriverTest
+class DriverTest extends AbstractDriverTestCase
 {
     protected function setUp(): void
     {

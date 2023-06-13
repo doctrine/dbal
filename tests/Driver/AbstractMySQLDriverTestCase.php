@@ -3,8 +3,6 @@
 namespace Doctrine\DBAL\Tests\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\API\MySQL;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -16,14 +14,9 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 
-/** @extends AbstractDriverTest<MySQLPlatform> */
-class AbstractMySQLDriverTest extends AbstractDriverTest
+/** @extends AbstractDriverTestCase<MySQLPlatform> */
+abstract class AbstractMySQLDriverTestCase extends AbstractDriverTestCase
 {
-    protected function createDriver(): Driver
-    {
-        return $this->getMockForAbstractClass(AbstractMySQLDriver::class);
-    }
-
     protected function createPlatform(): AbstractPlatform
     {
         return new MySQLPlatform();

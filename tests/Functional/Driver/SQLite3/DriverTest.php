@@ -6,11 +6,11 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\SQLite3\Driver;
 use Doctrine\DBAL\Exception\DriverException;
-use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
+use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
 /** @requires extension sqlite3 */
-class DriverTest extends AbstractDriverTest
+class DriverTest extends AbstractDriverTestCase
 {
     protected function setUp(): void
     {
