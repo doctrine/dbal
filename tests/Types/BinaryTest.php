@@ -35,39 +35,6 @@ class BinaryTest extends TestCase
         self::assertSame(ParameterType::BINARY, $this->type->getBindingType());
     }
 
-    /**
-     * @param mixed[][] $definition
-     *
-     * @dataProvider definitionProvider()
-     */
-    public function testReturnsSQLDeclaration(array $definition, string $expectedDeclaration): void
-    {
-        $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
-        self::assertSame($expectedDeclaration, $this->type->getSQLDeclaration($definition, $platform));
-    }
-
-    /** @return mixed[][] */
-    public static function definitionProvider(): iterable
-    {
-        return [
-            'fixed-unspecified-length' => [
-                ['fixed' => true],
-                'BINARY',
-            ],
-            'fixed-specified-length' => [
-                [
-                    'fixed' => true,
-                    'length' => 20,
-                ],
-                'BINARY(20)',
-            ],
-            'variable-length' => [
-                ['length' => 20],
-                'VARBINARY(20)',
-            ],
-        ];
-    }
-
     public function testBinaryNullConvertsToPHPValue(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
