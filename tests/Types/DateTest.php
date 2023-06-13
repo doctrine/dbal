@@ -15,6 +15,9 @@ class DateTest extends BaseDateTypeTestCase
         $this->type = new DateType();
 
         parent::setUp();
+
+        $this->platform->method('getDateFormatString')
+            ->willReturn('Y-m-d');
     }
 
     public function testDateConvertsToPHPValue(): void
