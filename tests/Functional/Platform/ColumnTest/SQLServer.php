@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
 
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
+use Doctrine\DBAL\Tests\Functional\Platform\AbstractColumnTestCase;
 
-final class SQLServer extends ColumnTest
+final class SQLServer extends AbstractColumnTestCase
 {
     protected function setUp(): void
     {

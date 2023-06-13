@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
 
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
+use Doctrine\DBAL\Tests\Functional\Platform\AbstractColumnTestCase;
 
-final class Oracle extends ColumnTest
+final class Oracle extends AbstractColumnTestCase
 {
     protected function setUp(): void
     {
