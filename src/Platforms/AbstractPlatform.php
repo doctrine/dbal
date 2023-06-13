@@ -4155,7 +4155,7 @@ abstract class AbstractPlatform
      */
     public function supportsCreateDropDatabase()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
             '%s is deprecated.',
