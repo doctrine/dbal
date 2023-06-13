@@ -11,7 +11,9 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
+use function array_key_exists;
 use function array_values;
+use function assert;
 use function implode;
 use function is_string;
 use function preg_match;
@@ -105,6 +107,8 @@ class OracleSchemaManager extends AbstractSchemaManager
         if (! isset($tableColumn['column_name'])) {
             $tableColumn['column_name'] = '';
         }
+
+        assert(array_key_exists('data_default', $tableColumn));
 
         // Default values returned from database sometimes have trailing spaces.
         if (is_string($tableColumn['data_default'])) {

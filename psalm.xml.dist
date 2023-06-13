@@ -2,6 +2,8 @@
 <psalm
     errorLevel="2"
     phpVersion="8.2"
+    findUnusedBaselineEntry="false"
+    findUnusedCode="false"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -22,6 +24,15 @@
         <file name="vendor/jetbrains/phpstorm-stubs/sqlsrv/sqlsrv.php" />
     </stubs>
     <issueHandlers>
+        <ArgumentTypeCoercion>
+            <!--
+                The actual return type of the driver functions or methods depends on the
+                values of the passed arguments, so it cannot be determined statically.
+            -->
+            <errorLevel type="suppress">
+                <file name="src/Driver/PgSQL/Result.php"/>
+            </errorLevel>
+        </ArgumentTypeCoercion>
         <ConflictingReferenceConstraint>
             <errorLevel type="suppress">
                 <!--
@@ -85,6 +96,18 @@
                 <file name="src/Driver/OCI8/Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
+        <InaccessibleProperty>
+            <errorLevel type="suppress">
+                <!--
+                     Even though DateInterval properties are recommended to be considered as readonly,
+                     there is no way to initialize an inverted interval using the constructor.
+
+                     See: https://github.com/vimeo/psalm/pull/9895
+                -->
+                <file name="src/Types/DateIntervalType.php"/>
+                <file name="tests/Types/DateIntervalTest.php"/>
+            </errorLevel>
+        </InaccessibleProperty>
         <InvalidArgument>
             <errorLevel type="suppress">
                 <!-- We're testing with invalid input here. -->
@@ -104,6 +127,40 @@
                 <file name="src/Driver/PDO/Exception.php"/>
             </errorLevel>
         </InvalidPropertyAssignmentValue>
+        <LessSpecificReturnStatement>
+            <!--
+                The actual return type of the driver functions or methods depends on the
+                values of the passed arguments, so it cannot be determined statically.
+            -->
+            <errorLevel type="suppress">
+                <file name="src/Driver/IBMDB2/Result.php"/>
+                <file name="src/Driver/OCI8/Result.php"/>
+                <file name="src/Driver/PDO/Result.php"/>
+                <file name="src/Driver/PgSQL/Result.php"/>
+                <file name="src/Driver/SQLite3/Result.php"/>
+            </errorLevel>
+        </LessSpecificReturnStatement>
+        <MoreSpecificReturnType>
+            <errorLevel type="suppress">
+                <!--
+                    The actual return type of the driver functions or methods depends on the
+                    values of the passed arguments, so it cannot be determined statically.
+                -->
+                <file name="src/Driver/IBMDB2/Result.php"/>
+                <file name="src/Driver/OCI8/Result.php"/>
+                <file name="src/Driver/PDO/Result.php"/>
+                <file name="src/Driver/PgSQL/Result.php"/>
+                <file name="src/Driver/SQLite3/Result.php"/>
+            </errorLevel>
+        </MoreSpecificReturnType>
+        <NoValue>
+            <errorLevel type="suppress">
+                <!--
+                    This error looks bogus.
+                -->
+                <file name="static-analysis/driver-manager-retrieves-correct-connection-type.php"/>
+            </errorLevel>
+        </NoValue>
         <NullableReturnStatement>
             <errorLevel type="suppress">
                 <!--
@@ -131,6 +188,9 @@
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/pull/82 -->
                 <file name="tests/Functional/PrimaryReadReplicaConnectionTest.php"/>
                 <file name="tests/Functional/Schema/PostgreSQLSchemaManagerTest.php"/>
+                <!-- There is no way to mark a nullable element in an array shape as always set,
+                     and the PHPUnit plugin for Psalm does not seem to understand static assertions -->
+                <file name="tests/TestUtil.php"/>
             </errorLevel>
         </PossiblyUndefinedArrayOffset>
         <PossiblyUndefinedVariable>
@@ -212,6 +272,19 @@
                 <referencedClass name="OCILob"/>
             </errorLevel>
         </UndefinedDocblockClass>
+        <UnsupportedPropertyReferenceUsage>
+            <errorLevel type="suppress">
+                <!-- This code is valid -->
+                <file name="src/Driver/Mysqli/Result.php"/>
+                <file name="src/Driver/Mysqli/Statement.php"/>
+            </errorLevel>
+        </UnsupportedPropertyReferenceUsage>
+        <UnsupportedReferenceUsage>
+            <errorLevel type="suppress">
+                <!-- This code is valid -->
+                <file name="src/Driver/SQLSrv/Statement.php"/>
+            </errorLevel>
+        </UnsupportedReferenceUsage>
         <InvalidReturnStatement>
             <errorLevel type="suppress">
                 <!-- lastInsertId has a return type that does not match the one defined in the interface-->

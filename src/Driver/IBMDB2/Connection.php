@@ -74,7 +74,13 @@ final class Connection implements ConnectionInterface
             throw StatementError::new();
         }
 
-        return db2_num_rows($stmt);
+        $numRows = db2_num_rows($stmt);
+
+        if ($numRows === false) {
+            throw StatementError::new();
+        }
+
+        return $numRows;
     }
 
     public function lastInsertId(): string

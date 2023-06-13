@@ -10,6 +10,8 @@ use Doctrine\DBAL\Exception\NoKeyValue;
 use Traversable;
 
 use function array_shift;
+use function assert;
+use function count;
 
 class Result
 {
@@ -109,8 +111,10 @@ class Result
 
         $data = [];
 
-        foreach ($this->fetchAllNumeric() as [$key, $value]) {
-            $data[$key] = $value;
+        foreach ($this->fetchAllNumeric() as $row) {
+            assert(count($row) >= 2);
+            [$key, $value] = $row;
+            $data[$key]    = $value;
         }
 
         return $data;
@@ -174,7 +178,7 @@ class Result
     }
 
     /**
-     * {@inheritDoc}
+     * @return Traversable<mixed,mixed>
      *
      * @throws Exception
      */
@@ -182,7 +186,10 @@ class Result
     {
         $this->ensureHasKeyValue();
 
-        foreach ($this->iterateNumeric() as [$key, $value]) {
+        foreach ($this->iterateNumeric() as $row) {
+            assert(count($row) >= 2);
+            [$key, $value] = $row;
+
             yield $key => $value;
         }
     }

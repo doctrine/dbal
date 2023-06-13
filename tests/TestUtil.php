@@ -22,6 +22,7 @@ use PHPUnit\Framework\Assert;
 use function array_keys;
 use function array_map;
 use function array_values;
+use function assert;
 use function extension_loaded;
 use function file_exists;
 use function implode;
@@ -34,6 +35,8 @@ use function unlink;
 
 /**
  * TestUtil is a class with static utility methods used during tests.
+ *
+ * @psalm-import-type Params from DriverManager
  */
 class TestUtil
 {
@@ -61,12 +64,14 @@ class TestUtil
      */
     public static function getConnection(): Connection
     {
-        if (self::hasRequiredConnectionParams() && ! self::$initialized) {
+        $params = self::getConnectionParams();
+
+        if (empty($params['memory']) && ! self::$initialized) {
             self::initializeDatabase();
             self::$initialized = true;
         }
 
-        $params = self::getConnectionParams();
+        assert(isset($params['driver']));
 
         return DriverManager::getConnection(
             $params,
@@ -74,19 +79,23 @@ class TestUtil
         );
     }
 
-    /** @return mixed[] */
+    /** @return Params */
     public static function getConnectionParams(): array
     {
-        if (self::hasRequiredConnectionParams()) {
-            return self::getTestConnectionParameters();
+        $params = self::getTestConnectionParameters();
+
+        if (isset($params['driver'])) {
+            return $params;
         }
 
-        return self::getFallbackConnectionParams();
-    }
+        if (! extension_loaded('pdo_sqlite')) {
+            Assert::markTestSkipped('PDO SQLite extension is not loaded');
+        }
 
-    private static function hasRequiredConnectionParams(): bool
-    {
-        return isset($GLOBALS['db_driver']);
+        return [
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
+        ];
     }
 
     private static function initializeDatabase(): void
@@ -114,15 +123,21 @@ class TestUtil
             $testConn->close();
         } else {
             if (! $platform instanceof OraclePlatform) {
+                if (! isset($testConnParams['dbname'])) {
+                    throw new InvalidArgumentException(
+                        'You must have a database configured in your connection.',
+                    );
+                }
+
                 $dbname = $testConnParams['dbname'];
             } else {
-                $dbname = $testConnParams['user'];
-            }
+                if (! isset($testConnParams['user'])) {
+                    throw new InvalidArgumentException(
+                        'You must have a user configured in your connection.',
+                    );
+                }
 
-            if ($dbname === null) {
-                throw new InvalidArgumentException(
-                    'You must have a database configured in your connection.',
-                );
+                $dbname = $testConnParams['user'];
             }
 
             $sm = $privConn->createSchemaManager();
@@ -136,19 +151,6 @@ class TestUtil
         }
 
         $privConn->close();
-    }
-
-    /** @return mixed[] */
-    private static function getFallbackConnectionParams(): array
-    {
-        if (! extension_loaded('pdo_sqlite')) {
-            Assert::markTestSkipped('PDO SQLite extension is not loaded');
-        }
-
-        return [
-            'driver' => 'pdo_sqlite',
-            'memory' => true,
-        ];
     }
 
     private static function createConfiguration(string $driver): Configuration
@@ -171,7 +173,7 @@ class TestUtil
         return $configuration;
     }
 
-    /** @return mixed[] */
+    /** @return Params */
     private static function getPrivilegedConnectionParameters(): array
     {
         if (isset($GLOBALS['tmpdb_driver'])) {
@@ -184,7 +186,7 @@ class TestUtil
         return $parameters;
     }
 
-    /** @return mixed[] */
+    /** @return Params */
     private static function getTestConnectionParameters(): array
     {
         return self::mapConnectionParameters($GLOBALS, 'db_');
@@ -193,7 +195,7 @@ class TestUtil
     /**
      * @param array<string,mixed> $configuration
      *
-     * @return array<string,mixed>
+     * @return Params
      */
     private static function mapConnectionParameters(array $configuration, string $prefix): array
     {
@@ -254,7 +256,10 @@ class TestUtil
 
     public static function isDriverOneOf(string ...$names): bool
     {
-        return in_array(self::getConnectionParams()['driver'], $names, true);
+        $params = self::getConnectionParams();
+        assert(isset($params['driver']));
+
+        return in_array($params['driver'], $names, true);
     }
 
     /**

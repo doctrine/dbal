@@ -25,6 +25,6 @@ final class StatementError extends AbstractException
     {
         $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
 
-        return new self($exception->getMessage(), $p->getValue($exception), (int) $exception->getCode(), $exception);
+        return new self($exception->getMessage(), $p->getValue($exception), $exception->getCode(), $exception);
     }
 }

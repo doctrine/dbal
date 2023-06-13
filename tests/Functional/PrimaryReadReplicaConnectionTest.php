@@ -54,9 +54,16 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
      */
     private function createPrimaryReadReplicaConnectionParams(bool $keepReplica = false): array
     {
-        $params                 = $this->connection->getParams();
-        $params['primary']      = $params;
-        $params['replica']      = [$params, $params];
+        $params = $instanceParams = $this->connection->getParams();
+
+        unset(
+            $instanceParams['keepReplica'],
+            $instanceParams['primary'],
+            $instanceParams['replica'],
+        );
+
+        $params['primary']      = $instanceParams;
+        $params['replica']      = [$instanceParams, $instanceParams];
         $params['keepReplica']  = $keepReplica;
         $params['wrapperClass'] = PrimaryReadReplicaConnection::class;
 

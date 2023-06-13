@@ -26,7 +26,7 @@ final class ExpandArrayParameters implements Visitor
     /** @var list<mixed> */
     private array $convertedParameters = [];
 
-    /** @var array<int,string|ParameterType|Type> */
+    /** @var array<int<0, max>,string|ParameterType|Type> */
     private array $convertedTypes = [];
 
     /**
@@ -105,7 +105,7 @@ final class ExpandArrayParameters implements Visitor
         $this->appendTypedParameter($value, ArrayParameterType::toElementParameterType($type));
     }
 
-    /** @return array<int,string|ParameterType|Type> */
+    /** @return array<int<0, max>,string|ParameterType|Type> */
     public function getTypes(): array
     {
         return $this->convertedTypes;

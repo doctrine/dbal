@@ -79,7 +79,13 @@ final class Result implements ResultInterface
 
     public function rowCount(): int
     {
-        return @db2_num_rows($this->statement);
+        $numRows = @db2_num_rows($this->statement);
+
+        if ($numRows === false) {
+            throw StatementError::new($this->statement);
+        }
+
+        return $numRows;
     }
 
     public function columnCount(): int

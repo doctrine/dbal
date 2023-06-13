@@ -17,10 +17,10 @@ final class AbstractDriverMiddlewareTest extends TestCase
         $driver     = $this->createMock(Driver::class);
         $driver->expects(self::once())
             ->method('connect')
-            ->with(['foo' => 'bar'])
+            ->with(['host' => 'localhost'])
             ->willReturn($connection);
 
-        self::assertSame($connection, $this->createMiddleware($driver)->connect(['foo' => 'bar']));
+        self::assertSame($connection, $this->createMiddleware($driver)->connect(['host' => 'localhost']));
     }
 
     private function createMiddleware(Driver $driver): AbstractDriverMiddleware

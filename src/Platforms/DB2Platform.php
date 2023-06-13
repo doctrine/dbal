@@ -350,10 +350,10 @@ class DB2Platform extends AbstractPlatform
     /**
      * Gathers the table alteration SQL for a given column diff.
      *
-     * @param string     $table      The table to gather the SQL for.
-     * @param ColumnDiff $columnDiff The column diff to evaluate.
-     * @param string[]   $sql        The sequence of table alteration statements to fill.
-     * @param mixed[]    $queryParts The sequence of column alteration clauses to fill.
+     * @param string       $table      The table to gather the SQL for.
+     * @param ColumnDiff   $columnDiff The column diff to evaluate.
+     * @param list<string> $sql        The sequence of table alteration statements to fill.
+     * @param list<string> $queryParts The sequence of column alteration clauses to fill.
      */
     private function gatherAlterColumnSQL(
         string $table,

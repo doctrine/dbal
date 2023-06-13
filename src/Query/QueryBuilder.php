@@ -76,6 +76,8 @@ class QueryBuilder
 
     /**
      * The counter of bound parameters used with {@see bindValue).
+     *
+     * @var int<0, max>
      */
     private int $boundCounter = 0;
 
@@ -345,7 +347,7 @@ class QueryBuilder
      *         ->setParameter('user_id', 1);
      * </code>
      *
-     * @param int|string $key Parameter position or name
+     * @param int<0, max>|string $key Parameter position or name
      *
      * @return $this This QueryBuilder instance.
      */

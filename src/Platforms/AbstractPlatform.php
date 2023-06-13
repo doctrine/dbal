@@ -872,7 +872,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param list<Table> $tables
+     * @param array<Table> $tables
      *
      * @return list<string>
      */
@@ -897,7 +897,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param list<Table> $tables
+     * @param array<Table> $tables
      *
      * @return list<string>
      */
@@ -1235,7 +1235,7 @@ abstract class AbstractPlatform
         return sprintf('ALTER TABLE %s RENAME TO %s', $oldName, $newName);
     }
 
-    /** @return string[] */
+    /** @return list<string> */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
         $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
@@ -1261,7 +1261,7 @@ abstract class AbstractPlatform
         return $sql;
     }
 
-    /** @return string[] */
+    /** @return list<string> */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql = [];
@@ -1302,7 +1302,7 @@ abstract class AbstractPlatform
      * @param Index  $index        The definition of the index to rename to.
      * @param string $tableName    The table to rename the given index on.
      *
-     * @return string[] The sequence of SQL statements for renaming the given index.
+     * @return list<string> The sequence of SQL statements for renaming the given index.
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
