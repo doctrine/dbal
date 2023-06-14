@@ -33,16 +33,6 @@ abstract class AbstractSQLServerDriverTestCase extends AbstractDriverTestCase
         return new ExceptionConverter();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDatabasePlatformsForVersions(): array
-    {
-        return [
-            ['12', SQLServer2012Platform::class],
-        ];
-    }
-
     public function testPortWithoutHost(): void
     {
         $this->expectException(PortWithoutHost::class);
