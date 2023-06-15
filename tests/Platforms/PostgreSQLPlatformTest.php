@@ -593,6 +593,44 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $sql);
     }
 
+    public function testDroppingPrimaryKey(): void
+    {
+        $oldTable = new Table('mytable');
+        $oldTable->addColumn('id', 'integer');
+        $oldTable->setPrimaryKey(['id']);
+
+        $newTable = clone $oldTable;
+        $newTable->dropPrimaryKey();
+
+        $diff = (new Comparator())->compareTables($oldTable, $newTable);
+
+        $sql = $this->platform->getAlterTableSQL($diff);
+
+        $expectedSql = ['ALTER TABLE mytable DROP CONSTRAINT mytable_pkey'];
+
+        self::assertEquals($expectedSql, $sql);
+    }
+
+    public function testDroppingPrimaryKeyWithUserDefinedName(): void
+    {
+        self::markTestSkipped('Edge case not covered yet');
+
+        $oldTable = new Table('mytable');
+        $oldTable->addColumn('id', 'integer');
+        $oldTable->setPrimaryKey(['id'], 'a_user_name');
+
+        $newTable = clone $oldTable;
+        $newTable->dropPrimaryKey();
+
+        $diff = (new Comparator())->compareTables($oldTable, $newTable);
+
+        $sql = $this->platform->getAlterTableSQL($diff);
+
+        $expectedSql = ['ALTER TABLE mytable DROP CONSTRAINT a_user_name'];
+
+        self::assertEquals($expectedSql, $sql);
+    }
+
     public function testUsesSequenceEmulatedIdentityColumns(): void
     {
         self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
