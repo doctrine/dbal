@@ -14,11 +14,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
-use function get_class;
-use function sprintf;
-
 /** @template P of AbstractPlatform */
-abstract class AbstractDriverTest extends TestCase
+abstract class AbstractDriverTestCase extends TestCase
 {
     use VerifyDeprecations;
 
@@ -30,59 +27,6 @@ abstract class AbstractDriverTest extends TestCase
     protected function setUp(): void
     {
         $this->driver = $this->createDriver();
-    }
-
-    public function testVersionAwarePlatformCreationIsTested(): void
-    {
-        if (! $this->driver instanceof VersionAwarePlatformDriver) {
-            self::markTestSkipped('This test is only intended for version aware platform drivers.');
-        }
-
-        self::assertNotEmpty(
-            static::getDatabasePlatformsForVersions(),
-            sprintf(
-                'No test data found for test %s. You have to return test data from %s.',
-                static::class . '::' . __FUNCTION__,
-                static::class . '::getDatabasePlatformsForVersions',
-            ),
-        );
-    }
-
-    /**
-     * @param class-string<AbstractPlatform> $expectedPlatformClass
-     *
-     * @dataProvider getDatabasePlatformsForVersions
-     */
-    public function testCreatesDatabasePlatformForVersion(
-        string $version,
-        string $expectedPlatformClass,
-        ?string $deprecation = null,
-        ?bool $expectDeprecation = null
-    ): void {
-        if (! $this->driver instanceof VersionAwarePlatformDriver) {
-            self::markTestSkipped('This test is only intended for version aware platform drivers.');
-        }
-
-        if ($deprecation !== null) {
-            if ($expectDeprecation ?? true) {
-                $this->expectDeprecationWithIdentifier($deprecation);
-            } else {
-                $this->expectNoDeprecationWithIdentifier($deprecation);
-            }
-        }
-
-        $actualPlatform = $this->driver->createDatabasePlatformForVersion($version);
-
-        self::assertInstanceOf(
-            $expectedPlatformClass,
-            $actualPlatform,
-            sprintf(
-                'Expected platform for version "%s" should be "%s", "%s" given',
-                $version,
-                $expectedPlatformClass,
-                get_class($actualPlatform),
-            ),
-        );
     }
 
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void

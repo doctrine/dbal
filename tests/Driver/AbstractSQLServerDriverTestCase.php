@@ -12,8 +12,8 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
-/** @extends AbstractDriverTest<SQLServerPlatform> */
-abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
+/** @extends AbstractDriverTestCase<SQLServerPlatform> */
+abstract class AbstractSQLServerDriverTestCase extends AbstractDriverTestCase
 {
     protected function createPlatform(): AbstractPlatform
     {
@@ -31,16 +31,6 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
     protected function createExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDatabasePlatformsForVersions(): array
-    {
-        return [
-            ['12', SQLServer2012Platform::class],
-        ];
     }
 
     public function testPortWithoutHost(): void

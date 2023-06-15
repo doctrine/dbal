@@ -8,7 +8,7 @@ use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PHPUnit\Framework\Constraint\IsType;
 
-abstract class AbstractDriverTest extends FunctionalTestCase
+abstract class AbstractDriverTestCase extends FunctionalTestCase
 {
     /**
      * The driver instance under test.

@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
-use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
@@ -167,7 +166,7 @@ class DriverManagerTest extends TestCase
      * @param array<string, mixed>|false $expected
      * @psalm-param Params|string $url
      *
-     * @dataProvider databaseUrls
+     * @dataProvider databaseUrlProvider
      */
     public function testDatabaseUrlDeprecated($url, $expected): void
     {
@@ -196,7 +195,7 @@ class DriverManagerTest extends TestCase
      * @param array<string, mixed>|string $url
      * @param array<string, mixed>|false  $expected
      *
-     * @dataProvider databaseUrls
+     * @dataProvider databaseUrlProvider
      */
     public function testDatabaseUrl($url, $expected): void
     {
@@ -239,11 +238,8 @@ class DriverManagerTest extends TestCase
      *                    array<string, mixed>|false,
      *                }>
      */
-    public function databaseUrls(): iterable
+    public static function databaseUrlProvider(): iterable
     {
-        $driver      = $this->createMock(Driver::class);
-        $driverClass = get_class($driver);
-
         return [
             'simple URL' => [
                 'mysql://foo:bar@localhost/baz',
@@ -405,28 +401,28 @@ class DriverManagerTest extends TestCase
             'URL without scheme but custom driver' => [
                 [
                     'url'         => '//foo:bar@localhost/baz',
-                    'driverClass' => $driverClass,
+                    'driverClass' => PDO\MySQL\Driver::class,
                 ],
                 [
                     'user'        => 'foo',
                     'password'    => 'bar',
                     'host'        => 'localhost',
                     'dbname'      => 'baz',
-                    'driverClass' => $driverClass,
+                    'driverClass' => PDO\MySQL\Driver::class,
                 ],
             ],
             'URL without scheme but driver and custom driver' => [
                 [
                     'url'         => '//foo:bar@localhost/baz',
                     'driver'      => 'pdo_mysql',
-                    'driverClass' => $driverClass,
+                    'driverClass' => PDO\MySQL\Driver::class,
                 ],
                 [
                     'user'        => 'foo',
                     'password'    => 'bar',
                     'host'        => 'localhost',
                     'dbname'      => 'baz',
-                    'driverClass' => $driverClass,
+                    'driverClass' => PDO\MySQL\Driver::class,
                 ],
             ],
             'URL with default driver' => [
@@ -445,7 +441,7 @@ class DriverManagerTest extends TestCase
             'URL with default custom driver' => [
                 [
                     'url'         => 'mysql://foo:bar@localhost/baz',
-                    'driverClass' => $driverClass,
+                    'driverClass' => PDO\MySQL\Driver::class,
                 ],
                 [
                     'user'     => 'foo',
@@ -459,7 +455,7 @@ class DriverManagerTest extends TestCase
                 [
                     'url'         => 'mysql://foo:bar@localhost/baz',
                     'driver'      => 'sqlite',
-                    'driverClass' => $driverClass,
+                    'driverClass' => PDO\MySQL\Driver::class,
                 ],
                 [
                     'user'     => 'foo',

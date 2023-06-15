@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 use function array_keys;
 use function get_class;
 
-class ComparatorTest extends TestCase
+class AbstractComparatorTestCase extends TestCase
 {
     use VerifyDeprecations;
 
@@ -1137,28 +1137,8 @@ class ComparatorTest extends TestCase
 
     public function testComparesNamespaces(): void
     {
-        $fromSchema = $this->getMockBuilder(Schema::class)
-            ->onlyMethods(['getNamespaces', 'hasNamespace'])
-            ->getMock();
-        $toSchema   = $this->getMockBuilder(Schema::class)
-            ->onlyMethods(['getNamespaces', 'hasNamespace'])
-            ->getMock();
-
-        $fromSchema->expects(self::once())
-            ->method('getNamespaces')
-            ->willReturn(['foo', 'bar']);
-
-        $fromSchema->method('hasNamespace')
-            ->withConsecutive(['bar'], ['baz'])
-            ->willReturnOnConsecutiveCalls(true, false);
-
-        $toSchema->expects(self::once())
-            ->method('getNamespaces')
-            ->willReturn(['bar', 'baz']);
-
-        $toSchema->method('hasNamespace')
-            ->withConsecutive(['foo'], ['bar'])
-            ->willReturnOnConsecutiveCalls(false, true);
+        $fromSchema = new Schema([], [], null, ['foo', 'bar']);
+        $toSchema   = new Schema([], [], null, ['bar', 'baz']);
 
         $expected                    = new SchemaDiff();
         $expected->fromSchema        = $fromSchema;

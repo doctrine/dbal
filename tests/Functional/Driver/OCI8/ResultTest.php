@@ -123,7 +123,7 @@ class ResultTest extends FunctionalTestCase
         );
     }
 
-    public function dataProviderForTestTruncatedFetch(): Generator
+    public static function dataProviderForTestTruncatedFetch(): Generator
     {
         yield 'it should return all rows if no data invalidation occurs'
             => [false];

@@ -13,13 +13,16 @@ class DateTimeTest extends BaseDateTypeTestCase
         $this->type = new DateTimeType();
 
         parent::setUp();
+
+        $this->platform->method('getDateTimeFormatString')
+            ->willReturn('Y-m-d H:i:s');
     }
 
     public function testDateTimeConvertsToDatabaseValue(): void
     {
         $date = new DateTime('1985-09-01 10:10:10');
 
-        $expected = $date->format($this->platform->getDateTimeTzFormatString());
+        $expected = $date->format($this->platform->getDateTimeFormatString());
         $actual   = $this->type->convertToDatabaseValue($date, $this->platform);
 
         self::assertEquals($expected, $actual);

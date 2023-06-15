@@ -18,15 +18,18 @@ class VarDateTimeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->platform = $this->getMockForAbstractClass(AbstractPlatform::class);
+        $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = new VarDateTimeType();
+
+        $this->platform->method('getDateTimeFormatString')
+            ->willReturn('Y-m-d H:i:s');
     }
 
     public function testDateTimeConvertsToDatabaseValue(): void
     {
         $date = new DateTime('1985-09-01 10:10:10');
 
-        $expected = $date->format($this->platform->getDateTimeTzFormatString());
+        $expected = $date->format($this->platform->getDateTimeFormatString());
         $actual   = $this->type->convertToDatabaseValue($date, $this->platform);
 
         self::assertEquals($expected, $actual);

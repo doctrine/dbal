@@ -14,7 +14,7 @@ use function rtrim;
 final class DecimalTest extends FunctionalTestCase
 {
     /** @return string[][] */
-    public function dataValuesProvider(): array
+    public static function dataValuesProvider(): array
     {
         return [
             ['13.37'],
