@@ -39,6 +39,7 @@ jobs:
         php-version:
           - "8.1"
           - "8.2"
+          - "8.3"
         dependencies:
           - "highest"
         extension:
@@ -101,6 +102,7 @@ jobs:
         php-version:
           - "8.1"
           - "8.2"
+          - "8.3"
         oracle-version:
           - "18"
           - "21"
@@ -156,6 +158,7 @@ jobs:
         php-version:
           - "8.1"
           - "8.2"
+          - "8.3"
         oracle-version:
           - "18"
           - "21"
@@ -220,7 +223,7 @@ jobs:
           - php-version: "8.2"
             postgres-version: "15"
             extension: "pgsql"
-          - php-version: "8.2"
+          - php-version: "8.3"
             postgres-version: "15"
             extension: "pdo_pgsql"
 
@@ -286,7 +289,7 @@ jobs:
           - php-version: "8.2"
             mariadb-version: "10.11"
             extension: "mysqli"
-          - php-version: "8.2"
+          - php-version: "8.3"
             mariadb-version: "10.11"
             extension: "pdo_mysql"
 
@@ -356,7 +359,7 @@ jobs:
           - php-version: "8.2"
             mysql-version: "8.0"
             extension: "mysqli"
-          - php-version: "8.2"
+          - php-version: "8.3"
             mysql-version: "8.0"
             extension: "pdo_mysql"
 
@@ -415,6 +418,7 @@ jobs:
         php-version:
           - "8.1"
           - "8.2"
+          - "8.3"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -481,6 +485,7 @@ jobs:
         php-version:
           - "8.1"
           - "8.2"
+          - "8.3"
 
     services:
       ibm_db2:
@@ -526,6 +531,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v2"
+        with:
+          composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"

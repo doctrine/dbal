@@ -53,14 +53,14 @@ class TimeImmutableType extends TimeType
 
         $dateTime = DateTimeImmutable::createFromFormat('!' . $platform->getTimeFormatString(), $value);
 
-        if ($dateTime === false) {
-            throw InvalidFormat::new(
-                $value,
-                static::class,
-                $platform->getTimeFormatString(),
-            );
+        if ($dateTime !== false) {
+            return $dateTime;
         }
 
-        return $dateTime;
+        throw InvalidFormat::new(
+            $value,
+            static::class,
+            $platform->getTimeFormatString(),
+        );
     }
 }

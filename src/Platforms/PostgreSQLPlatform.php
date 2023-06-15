@@ -368,6 +368,17 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $this->getDropConstraintSQL($foreignKey, $table);
     }
 
+    public function getDropIndexSQL(string $name, string $table): string
+    {
+        if ($name === '"primary"') {
+            $constraintName = $table . '_pkey';
+
+            return $this->getDropConstraintSQL($constraintName, $table);
+        }
+
+        return parent::getDropIndexSQL($name, $table);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -380,7 +391,9 @@ class PostgreSQLPlatform extends AbstractPlatform
             $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
-        $query = 'CREATE TABLE ' . $name . ' (' . $queryFields . ')';
+        $unlogged = isset($options['unlogged']) && $options['unlogged'] === true ? ' UNLOGGED' : '';
+
+        $query = 'CREATE' . $unlogged . ' TABLE ' . $name . ' (' . $queryFields . ')';
 
         $sql = [$query];
 

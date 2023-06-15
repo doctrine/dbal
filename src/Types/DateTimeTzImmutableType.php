@@ -53,14 +53,14 @@ class DateTimeTzImmutableType extends DateTimeTzType
 
         $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeTzFormatString(), $value);
 
-        if ($dateTime === false) {
-            throw InvalidFormat::new(
-                $value,
-                static::class,
-                $platform->getDateTimeTzFormatString(),
-            );
+        if ($dateTime !== false) {
+            return $dateTime;
         }
 
-        return $dateTime;
+        throw InvalidFormat::new(
+            $value,
+            static::class,
+            $platform->getDateTimeTzFormatString(),
+        );
     }
 }

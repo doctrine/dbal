@@ -6,11 +6,11 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\PDO\SQLite;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDO\SQLite\Driver;
-use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
+use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
 /** @requires extension pdo_sqlite */
-class DriverTest extends AbstractDriverTest
+class DriverTest extends AbstractDriverTestCase
 {
     protected function setUp(): void
     {

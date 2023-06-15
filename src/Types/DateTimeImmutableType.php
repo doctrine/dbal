@@ -8,8 +8,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
-
-use function date_create_immutable;
+use Exception;
 
 /**
  * Immutable type of {@see DateTimeType}.
@@ -55,18 +54,19 @@ class DateTimeImmutableType extends DateTimeType
 
         $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeFormatString(), $value);
 
-        if ($dateTime === false) {
-            $dateTime = date_create_immutable($value);
+        if ($dateTime !== false) {
+            return $dateTime;
         }
 
-        if ($dateTime === false) {
+        try {
+            return new DateTimeImmutable($value);
+        } catch (Exception $e) {
             throw InvalidFormat::new(
                 $value,
                 static::class,
                 $platform->getDateTimeFormatString(),
+                $e,
             );
         }
-
-        return $dateTime;
     }
 }

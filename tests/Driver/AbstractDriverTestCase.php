@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Connection\StaticServerVersionProvider;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -14,7 +13,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /** @template P of AbstractPlatform */
-abstract class AbstractDriverTest extends TestCase
+abstract class AbstractDriverTestCase extends TestCase
 {
     /**
      * The driver mock under test.
@@ -24,16 +23,6 @@ abstract class AbstractDriverTest extends TestCase
     protected function setUp(): void
     {
         $this->driver = $this->createDriver();
-    }
-
-    /** @dataProvider platformVersionProvider */
-    public function testCreatesDatabasePlatformForVersion(string $version, string $expectedClass): void
-    {
-        $platform = $this->driver->getDatabasePlatform(
-            new StaticServerVersionProvider($version),
-        );
-
-        self::assertSame($expectedClass, $platform::class);
     }
 
     public function testReturnsExceptionConverter(): void
@@ -73,7 +62,4 @@ abstract class AbstractDriverTest extends TestCase
     {
         return $this->createMock(Connection::class);
     }
-
-    /** @return array<int, array<int, string>> */
-    abstract public static function platformVersionProvider(): array;
 }

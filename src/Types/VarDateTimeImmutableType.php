@@ -8,8 +8,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
-
-use function date_create_immutable;
+use Exception;
 
 /**
  * Immutable type of {@see VarDateTimeType}.
@@ -53,10 +52,10 @@ class VarDateTimeImmutableType extends VarDateTimeType
             return $value;
         }
 
-        $dateTime = date_create_immutable($value);
-
-        if ($dateTime === false) {
-            throw ValueNotConvertible::new($value, DateTimeImmutable::class);
+        try {
+            $dateTime = new DateTimeImmutable($value);
+        } catch (Exception $e) {
+            throw ValueNotConvertible::new($value, DateTimeImmutable::class, $e->getMessage(), $e);
         }
 
         return $dateTime;

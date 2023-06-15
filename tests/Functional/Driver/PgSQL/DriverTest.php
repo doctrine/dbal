@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Driver\PgSQL;
 
 use Doctrine\DBAL\Driver\PgSQL\Driver;
-use Doctrine\DBAL\Tests\Functional\Driver\AbstractPostgreSQLDriverTest;
+use Doctrine\DBAL\Tests\Functional\Driver\AbstractPostgreSQLDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
 /** @requires extension pgsql */
-class DriverTest extends AbstractPostgreSQLDriverTest
+class DriverTest extends AbstractPostgreSQLDriverTestCase
 {
     protected function setUp(): void
     {

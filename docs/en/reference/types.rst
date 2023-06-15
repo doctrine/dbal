@@ -278,13 +278,19 @@ or ``null`` if no data is present.
     could cause quite some troubles on platforms that had various
     microtime precision formats.
     Starting with 2.5 whenever the parsing of a date fails with
-    the predefined platform format, the ``date_create()``
-    function will be used to parse the date.
+    the predefined platform format, ``DateTime::__construct()``
+    method will be used to parse the date.
 
     This could cause some troubles when your date format is weird
-    and not parsed correctly by ``date_create()``, however since
+    and not parsed correctly by ``DateTime::__construct()``, however since
     databases are rather strict on dates there should be no problem.
 
+.. warning::
+
+    Passing instances of ``DateTimeImmutable`` to this type is deprecated since 3.7. Use
+    :ref:`datetime_immutable` instead.
+
+.. _datetime_immutable:
 datetime_immutable
 ^^^^^^^^^^^^^^^^^^
 
@@ -301,6 +307,12 @@ information, you should consider using this type.
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
 
+.. warning::
+
+    Passing instances of ``DateTimeImmutable`` to this type is deprecated since 3.7. Use
+    :ref:`datetimetz_immutable` instead.
+
+.. _datetimetz_immutable:
 datetimetz_immutable
 ^^^^^^^^^^^^^^^^^^^^
 

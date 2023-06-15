@@ -176,7 +176,7 @@ class ConnectionTest extends TestCase
     }
 
     /** @return bool[][] */
-    public function resultProvider(): array
+    public static function resultProvider(): array
     {
         return [[true], [false]];
     }
@@ -530,7 +530,7 @@ class ConnectionTest extends TestCase
 
         $driverConnectionMock = $this->createMock(Driver\Connection::class);
 
-        $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
+        $platformMock = $this->createMock(AbstractPlatform::class);
 
         $connection = new Connection(['serverVersion' => '8.0'], $driverMock);
 
@@ -552,7 +552,7 @@ class ConnectionTest extends TestCase
 
         $driverConnectionMock = $this->createMock(Driver\Connection::class);
 
-        $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
+        $platformMock = $this->createMock(AbstractPlatform::class);
 
         $connection = new Connection(['primary' => ['serverVersion' => '8.0']], $driverMock);
 

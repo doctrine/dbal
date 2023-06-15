@@ -190,6 +190,18 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGenerateUnloggedTable(): void
+    {
+        $table = new Table('mytable');
+        $table->addOption('unlogged', true);
+        $table->addColumn('foo', 'string');
+
+        self::assertEquals(
+            ['CREATE UNLOGGED TABLE mytable (foo VARCHAR NOT NULL)'],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
     /** @return mixed[][] */
     public static function serialTypes(): iterable
     {
@@ -441,6 +453,25 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'DROP INDEX IDX_6B2BD609727ACA70',
             'ALTER TABLE mytable DROP parent_id',
         ];
+
+        self::assertEquals($expectedSql, $sql);
+    }
+
+    public function testDroppingPrimaryKey(): void
+    {
+        $oldTable = new Table('mytable');
+        $oldTable->addColumn('id', 'integer');
+        $oldTable->setPrimaryKey(['id']);
+
+        $newTable = clone $oldTable;
+        $newTable->dropPrimaryKey();
+
+        $diff = $this->createComparator()
+            ->compareTables($oldTable, $newTable);
+
+        $sql = $this->platform->getAlterTableSQL($diff);
+
+        $expectedSql = ['ALTER TABLE mytable DROP CONSTRAINT mytable_pkey'];
 
         self::assertEquals($expectedSql, $sql);
     }

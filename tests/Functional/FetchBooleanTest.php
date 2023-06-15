@@ -28,7 +28,7 @@ class FetchBooleanTest extends FunctionalTestCase
     }
 
     /** @return iterable<array{string, bool}> */
-    public function booleanLiteralProvider(): iterable
+    public static function booleanLiteralProvider(): iterable
     {
         yield ['true', true];
         yield ['false', false];

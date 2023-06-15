@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -17,9 +18,9 @@ class TypeTest extends TestCase
     }
 
     /** @return iterable<string[]> */
-    public function defaultTypesProvider(): iterable
+    public static function defaultTypesProvider(): iterable
     {
-        foreach ((new ReflectionClass(Type::class))->getReflectionConstants() as $constant) {
+        foreach ((new ReflectionClass(Types::class))->getReflectionConstants() as $constant) {
             if (! $constant->isPublic()) {
                 continue;
             }

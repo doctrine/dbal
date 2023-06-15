@@ -13,8 +13,8 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
-/** @extends AbstractDriverTest<SQLServerPlatform> */
-abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
+/** @extends AbstractDriverTestCase<SQLServerPlatform> */
+abstract class AbstractSQLServerDriverTestCase extends AbstractDriverTestCase
 {
     protected function createPlatform(): AbstractPlatform
     {
@@ -43,13 +43,5 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
     {
         self::markTestSkipped('SQL Server drivers do not use server version to instantiate platform');
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public static function platformVersionProvider(): array
-    {
-        self::markTestSkipped('SQL Server drivers use one platform implementation for all server versions');
     }
 }

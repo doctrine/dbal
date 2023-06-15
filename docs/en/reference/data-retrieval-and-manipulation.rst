@@ -104,6 +104,11 @@ position of the variable to bind into the ``bindValue()`` method:
     $stmt->bindValue(1, $id);
     $stmt->bindValue(2, $status);
     $resultSet = $stmt->executeQuery();
+    
+.. note::
+
+    The numerical parameters in ``bindValue()`` start with the needle
+    ``1``. 
 
 Named parameters have the advantage that their labels can be re-used and only need to be bound once:
 
@@ -231,7 +236,7 @@ the following very common SQL statement:
     SELECT * FROM articles WHERE id IN (?)
 
 Since you are using an ``IN`` expression you would really like to use it in the following way
-(and I guess everybody has tried to do this once in his life, before realizing it doesn't work):
+(and I guess everybody has tried to do this once in their life, before realizing it doesn't work):
 
 .. code-block:: php
 

@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 
 use function array_keys;
 
-abstract class ComparatorTest extends TestCase
+abstract class AbstractComparatorTestCase extends TestCase
 {
     protected Comparator $comparator;
 
@@ -622,28 +622,8 @@ abstract class ComparatorTest extends TestCase
 
     public function testComparesNamespaces(): void
     {
-        $oldSchema = $this->getMockBuilder(Schema::class)
-            ->onlyMethods(['getNamespaces', 'hasNamespace'])
-            ->getMock();
-        $newSchema = $this->getMockBuilder(Schema::class)
-            ->onlyMethods(['getNamespaces', 'hasNamespace'])
-            ->getMock();
-
-        $oldSchema->expects(self::once())
-            ->method('getNamespaces')
-            ->willReturn(['foo', 'bar']);
-
-        $oldSchema->method('hasNamespace')
-            ->withConsecutive(['bar'], ['baz'])
-            ->willReturnOnConsecutiveCalls(true, false);
-
-        $newSchema->expects(self::once())
-            ->method('getNamespaces')
-            ->willReturn(['bar', 'baz']);
-
-        $newSchema->method('hasNamespace')
-            ->withConsecutive(['foo'], ['bar'])
-            ->willReturnOnConsecutiveCalls(false, true);
+        $oldSchema = new Schema([], [], null, ['foo', 'bar']);
+        $newSchema = new Schema([], [], null, ['bar', 'baz']);
 
         $diff = $this->comparator->compareSchemas($oldSchema, $newSchema);
 

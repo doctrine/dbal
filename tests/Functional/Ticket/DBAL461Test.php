@@ -17,7 +17,7 @@ class DBAL461Test extends TestCase
     public function testIssue(): void
     {
         $conn     = $this->createMock(Connection::class);
-        $platform = $this->getMockForAbstractClass(SQLServerPlatform::class);
+        $platform = new SQLServerPlatform();
         $platform->registerDoctrineTypeMapping('numeric', Types::DECIMAL);
 
         $schemaManager = new SQLServerSchemaManager($conn, $platform);

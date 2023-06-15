@@ -590,7 +590,7 @@ EOD;
     }
 
     /** @return array<int, array{string, array<string, mixed>}> */
-    public function asciiStringSqlDeclarationDataProvider(): array
+    public static function asciiStringSqlDeclarationDataProvider(): array
     {
         return [
             ['VARCHAR2(12)', ['length' => 12]],

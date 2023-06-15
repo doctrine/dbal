@@ -533,6 +533,7 @@ SQL;
     {
         $sql = <<<'SQL'
 SELECT c.relname,
+       CASE c.relpersistence WHEN 'u' THEN true ELSE false END as unlogged,
        obj_description(c.oid, 'pg_class') AS comment
 FROM pg_class c
      INNER JOIN pg_namespace n

@@ -8,11 +8,10 @@ use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
-
-use function date_create;
+use Exception;
 
 /**
- * Variable DateTime Type using date_create() instead of DateTime::createFromFormat().
+ * Variable DateTime Type using DateTime::__construct() instead of DateTime::createFromFormat().
  *
  * This type has performance implications as it runs twice as long as the regular
  * {@see DateTimeType}, however in certain PostgreSQL configurations with
@@ -33,11 +32,12 @@ class VarDateTimeType extends DateTimeType
             return $value;
         }
 
-        $val = date_create($value);
-        if ($val === false) {
-            throw ValueNotConvertible::new($value, DateTime::class);
+        try {
+            $dateTime = new DateTime($value);
+        } catch (Exception $e) {
+            throw ValueNotConvertible::new($value, DateTime::class, $e->getMessage(), $e);
         }
 
-        return $val;
+        return $dateTime;
     }
 }

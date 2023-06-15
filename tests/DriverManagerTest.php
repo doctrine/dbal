@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
@@ -106,7 +105,7 @@ class DriverManagerTest extends TestCase
      * @param Params                     $params
      * @param array<string, mixed>|false $expected
      *
-     * @dataProvider databaseUrls
+     * @dataProvider databaseUrlProvider
      */
     public function testDatabaseUrl(string $url, array $params, array|false $expected): void
     {
@@ -137,11 +136,8 @@ class DriverManagerTest extends TestCase
      *                    array<string, mixed>|false,
      *                }>
      */
-    public function databaseUrls(): iterable
+    public static function databaseUrlProvider(): iterable
     {
-        $driver      = $this->createMock(Driver::class);
-        $driverClass = $driver::class;
-
         return [
             'simple URL' => [
                 'pdo-mysql://foo:bar@localhost/baz',
@@ -311,13 +307,13 @@ class DriverManagerTest extends TestCase
             ],
             'URL without scheme but custom driver' => [
                 '//foo:bar@localhost/baz',
-                ['driverClass' => $driverClass],
+                ['driverClass' => PDO\MySQL\Driver::class],
                 [
                     'user'        => 'foo',
                     'password'    => 'bar',
                     'host'        => 'localhost',
                     'dbname'      => 'baz',
-                    'driverClass' => $driverClass,
+                    'driverClass' => PDO\MySQL\Driver::class,
                 ],
             ],
         ];

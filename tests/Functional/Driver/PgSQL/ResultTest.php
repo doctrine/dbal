@@ -40,7 +40,7 @@ class ResultTest extends FunctionalTestCase
         parent::tearDown();
     }
 
-    /** @dataProvider provideTypedValues */
+    /** @dataProvider typedValueProvider */
     public function testTypeConversionFetchAssociative(
         string $postgresType,
         mixed $expectedValue,
@@ -56,7 +56,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame(['my_value' => $expectedValue, 'my_null' => null], $result);
     }
 
-    /** @dataProvider provideTypedValues */
+    /** @dataProvider typedValueProvider */
     public function testTypeConversionFetchAllAssociative(
         string $postgresType,
         mixed $expectedValue,
@@ -72,7 +72,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame([['my_value' => $expectedValue, 'my_null' => null]], $result);
     }
 
-    /** @dataProvider provideTypedValues */
+    /** @dataProvider typedValueProvider */
     public function testTypeConversionFetchNumeric(string $postgresType, mixed $expectedValue, string $dbalType): void
     {
         $id = $this->prepareTypesTestTable($postgresType, $expectedValue, $dbalType);
@@ -85,7 +85,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame([$expectedValue, null], $result);
     }
 
-    /** @dataProvider provideTypedValues */
+    /** @dataProvider typedValueProvider */
     public function testTypeConversionFetchAllNumeric(
         string $postgresType,
         mixed $expectedValue,
@@ -101,7 +101,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame([[$expectedValue, null]], $result);
     }
 
-    /** @dataProvider provideTypedValues */
+    /** @dataProvider typedValueProvider */
     public function testTypeConversionFetchOne(string $postgresType, mixed $expectedValue, string $dbalType): void
     {
         $id = $this->prepareTypesTestTable($postgresType, $expectedValue, $dbalType);
@@ -114,7 +114,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame($expectedValue, $result);
     }
 
-    /** @dataProvider provideTypedValues */
+    /** @dataProvider typedValueProvider */
     public function testTypeConversionFetchFirstColumn(
         string $postgresType,
         mixed $expectedValue,
@@ -131,7 +131,7 @@ class ResultTest extends FunctionalTestCase
     }
 
     /** @psalm-return Generator<string, array{string, mixed, (Types::*)}> */
-    public function provideTypedValues(): Generator
+    public static function typedValueProvider(): Generator
     {
         yield 'integer' => ['INTEGER', 4711, Types::INTEGER];
         yield 'negative integer' => ['INTEGER', -4711, Types::INTEGER];

@@ -26,7 +26,7 @@ abstract class BaseDateTypeTestCase extends TestCase
 
     protected function setUp(): void
     {
-        $this->platform        = $this->getMockForAbstractClass(AbstractPlatform::class);
+        $this->platform        = $this->createMock(AbstractPlatform::class);
         $this->currentTimezone = date_default_timezone_get();
     }
 

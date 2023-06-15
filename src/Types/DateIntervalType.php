@@ -46,7 +46,7 @@ class DateIntervalType extends Type
             return $value->format(self::FORMAT);
         }
 
-        throw InvalidType::new($value, static::class, ['null', 'DateInterval']);
+        throw InvalidType::new($value, static::class, ['null', DateInterval::class]);
     }
 
     /**

@@ -15,6 +15,9 @@ class DateTimeTzTest extends BaseDateTypeTestCase
         $this->type = new DateTimeTzType();
 
         parent::setUp();
+
+        $this->platform->method('getDateTimeTzFormatString')
+            ->willReturn('Y-m-d H:i:s');
     }
 
     public function testDateTimeConvertsToDatabaseValue(): void

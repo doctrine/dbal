@@ -223,7 +223,7 @@
                     or breaking API changes.
                 -->
                 <file name="src/Platforms/AbstractMySQLPlatform.php"/>
-                <file name="tests/Functional/Driver/AbstractDriverTest.php"/>
+                <file name="tests/Functional/Driver/AbstractDriverTestCase.php"/>
 
                 <!-- We're checking for invalid input. -->
                 <directory name="src/Driver/PgSQL"/>

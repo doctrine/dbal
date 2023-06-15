@@ -45,7 +45,7 @@ final class JsonCollationTest extends FunctionalTestCase
      *
      * @return Iterator<array{Table}>
      */
-    public function tableProvider(): iterable
+    public static function tableProvider(): iterable
     {
         $tables = [
             [
@@ -85,7 +85,7 @@ final class JsonCollationTest extends FunctionalTestCase
         ];
 
         foreach ($tables as $table) {
-            yield [$this->setUpTable(
+            yield [self::setUpTable(
                 $table['name'],
                 $table['columns'],
                 $table['charset'] ?? null,
@@ -96,8 +96,12 @@ final class JsonCollationTest extends FunctionalTestCase
     }
 
     /** @param array{name: string, type?: string, charset?: string, collation?: string}[] $columns */
-    private function setUpTable(string $name, array $columns, ?string $charset = null, ?string $collation = null): Table
-    {
+    private static function setUpTable(
+        string $name,
+        array $columns,
+        ?string $charset = null,
+        ?string $collation = null,
+    ): Table {
         $tableOptions = array_filter(['charset' => $charset, 'collation' => $collation]);
 
         $table = new Table($name, [], [], [], [], $tableOptions);
