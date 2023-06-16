@@ -21,9 +21,9 @@
         </testsuite>
     </testsuites>
 
-    <coverage>
+    <source>
         <include>
-            <directory suffix=".php">../../src</directory>
+            <directory>../../src</directory>
         </include>
-    </coverage>
+    </source>
 </phpunit>

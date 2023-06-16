@@ -36,7 +36,7 @@ class AlterDecimalColumnTest extends FunctionalTestCase
     }
 
     /** @return iterable<string,array{int,int}> */
-    public function scaleAndPrecisionProvider(): iterable
+    public static function scaleAndPrecisionProvider(): iterable
     {
         yield 'Precision' => [12, 6];
         yield 'Scale' => [16, 8];

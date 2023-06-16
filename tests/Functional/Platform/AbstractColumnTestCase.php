@@ -12,7 +12,7 @@ use Doctrine\DBAL\Types\Types;
 
 use function sprintf;
 
-abstract class ColumnTest extends FunctionalTestCase
+abstract class AbstractColumnTestCase extends FunctionalTestCase
 {
     public function testVariableLengthStringNoLength(): void
     {
