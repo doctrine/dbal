@@ -363,9 +363,11 @@ abstract class AbstractSchemaManager
      * Filters asset names if they are configured to return only a subset of all
      * the found elements.
      *
-     * @param mixed[] $assetNames
+     * @param N $assetNames
      *
-     * @return mixed[]
+     * @return N
+     *
+     * @template N of list<string>|list<AbstractAsset>
      */
     protected function filterAssetNames($assetNames)
     {
@@ -1340,7 +1342,7 @@ abstract class AbstractSchemaManager
     /**
      * @param mixed[][] $sequences
      *
-     * @return Sequence[]
+     * @return list<Sequence>
      *
      * @throws Exception
      */
@@ -1520,7 +1522,7 @@ abstract class AbstractSchemaManager
     /**
      * @param mixed[][] $tables
      *
-     * @return string[]
+     * @return list<string>
      */
     protected function _getPortableTablesList($tables)
     {

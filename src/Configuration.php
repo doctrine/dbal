@@ -7,6 +7,7 @@ use Doctrine\Common\Cache\Psr6\CacheAdapter;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Logging\SQLLogger;
+use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Doctrine\Deprecations\Deprecation;
 use Psr\Cache\CacheItemPoolInterface;
@@ -153,6 +154,8 @@ class Configuration
 
     /**
      * Sets the callable to use to filter schema assets.
+     *
+     * @param callable(AbstractAsset|string): bool $callable
      */
     public function setSchemaAssetsFilter(?callable $callable = null): void
     {
@@ -177,6 +180,8 @@ class Configuration
 
     /**
      * Returns the callable to use to filter schema assets.
+     *
+     * @return callable(AbstractAsset|string): bool
      */
     public function getSchemaAssetsFilter(): ?callable
     {

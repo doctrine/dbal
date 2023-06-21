@@ -46,6 +46,7 @@ use function array_values;
 use function count;
 use function current;
 use function get_class;
+use function is_string;
 use function sprintf;
 use function strcasecmp;
 use function strlen;
@@ -242,7 +243,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->markConnectionNotReusable();
 
         $this->connection->getConfiguration()->setSchemaAssetsFilter(
-            static function (string $name) use ($prefix): bool {
+            /** @param AbstractAsset|string $name */
+            static function ($name) use ($prefix): bool {
+                if (! is_string($name)) {
+                    return true;
+                }
+
                 return substr(strtolower($name), 0, strlen($prefix)) === $prefix;
             },
         );
