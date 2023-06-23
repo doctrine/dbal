@@ -95,15 +95,6 @@ and absolutely not portable.
 -  **unlogged** (boolean): Set a PostgreSQL table type as
   `unlogged <https://www.postgresql.org/docs/current/sql-createtable.htmll>`_
 
-You can set this options via doctrine configuration. For example:
-
-.. code-block:: yaml
-
-    doctrine:
-        dbal:
-            default_table_options:
-                unlogged: true
-
 Column
 ~~~~~~
 
