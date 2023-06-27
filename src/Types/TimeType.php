@@ -91,6 +91,13 @@ class TimeType extends Type
         }
 
         $dateTime = DateTime::createFromFormat('!' . $platform->getTimeFormatString(), $value);
+
+        if ($dateTime !== false) {
+            return $dateTime;
+        }
+
+        $dateTime = DateTime::createFromFormat('!' . $platform->getFallbackTimeFormatString(), $value);
+
         if ($dateTime !== false) {
             return $dateTime;
         }

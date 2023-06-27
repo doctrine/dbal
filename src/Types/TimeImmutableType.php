@@ -66,6 +66,15 @@ class TimeImmutableType extends TimeType
             return $dateTime;
         }
 
+        $dateTime = DateTimeImmutable::createFromFormat(
+            '!' . $platform->getFallbackTimeFormatString(),
+            $value,
+        );
+
+        if ($dateTime !== false) {
+            return $dateTime;
+        }
+
         throw ConversionException::conversionFailedFormat(
             $value,
             $this->getName(),
