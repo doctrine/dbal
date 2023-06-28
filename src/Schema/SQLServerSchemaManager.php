@@ -403,7 +403,7 @@ WHERE type = 'U'
 ORDER BY name
 SQL;
 
-        return $this->_conn->executeQuery($sql, [$databaseName]);
+        return $this->_conn->executeQuery($sql);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
