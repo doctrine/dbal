@@ -101,6 +101,7 @@ abstract class Type
      * Gets the name of this type.
      *
      * @deprecated this method will be removed in Doctrine DBAL 4.0.
+     * You should use Type::getTypeRegistry()->lookupName($type) instead.
      *
      * @return string
      */
