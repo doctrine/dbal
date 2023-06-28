@@ -289,7 +289,7 @@ WHERE type = 'U'
 ORDER BY name
 SQL;
 
-        return $this->connection->executeQuery($sql, [$databaseName]);
+        return $this->connection->executeQuery($sql);
     }
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
