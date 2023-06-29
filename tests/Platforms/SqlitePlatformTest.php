@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -333,7 +334,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
         $tableDiff                          = new TableDiff('test');
         $tableDiff->fromTable               = $table;
-        $tableDiff->renamedColumns['value'] = new Column('data', Type::getType(Types::STRING));
+        $newCol                             = new Column('data', Type::getType(Types::STRING));
+        $tableDiff->changedColumns['value'] = new ColumnDiff('value', $newCol);
 
         $this->expectException(Exception::class);
         $this->platform->getAlterTableSQL($tableDiff);
@@ -405,8 +407,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $diff                           = new TableDiff('user');
         $diff->fromTable                = $table;
         $diff->newName                  = 'client';
-        $diff->renamedColumns['id']     = new Column('key', Type::getType(Types::INTEGER), []);
-        $diff->renamedColumns['post']   = new Column('comment', Type::getType(Types::INTEGER), []);
+        $diff->changedColumns['id']     = new ColumnDiff(
+            'id',
+            new Column('key', Type::getType(Types::INTEGER), []),
+        );
+        $diff->changedColumns['post']   = new ColumnDiff(
+            'post',
+            new Column('comment', Type::getType(Types::INTEGER), []),
+        );
         $diff->removedColumns['parent'] = new Column('parent', Type::getType(Types::INTEGER), []);
         $diff->removedIndexes['index1'] = $table->getIndex('index1');
 

@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\Deprecations\Deprecation;
 
 use function in_array;
+use function strcasecmp;
 
 /**
  * Represents the change of a column.
@@ -76,6 +77,14 @@ class ColumnDiff
     public function getNewColumn(): Column
     {
         return $this->column;
+    }
+
+    public function hasNameChanged(): bool
+    {
+        $oldColumn = $this->getOldColumn() ?? $this->getOldColumnName();
+
+        // Column names are case insensitive
+        return strcasecmp($oldColumn->getName(), $this->getNewColumn()->getName()) !== 0;
     }
 
     public function hasTypeChanged(): bool

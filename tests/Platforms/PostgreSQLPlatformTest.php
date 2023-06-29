@@ -361,6 +361,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         return [
             'ALTER TABLE mytable ADD quota INT NOT NULL',
+            'ALTER TABLE mytable RENAME COLUMN bar TO baz',
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             'COMMENT ON COLUMN mytable.foo IS NULL',
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
@@ -783,9 +784,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable RENAME COLUMN "create" TO reserved_keyword',
             'ALTER TABLE mytable RENAME COLUMN "table" TO "from"',
             'ALTER TABLE mytable RENAME COLUMN "select" TO "bar"',
-            'ALTER TABLE mytable RENAME COLUMN quoted1 TO quoted',
-            'ALTER TABLE mytable RENAME COLUMN quoted2 TO "and"',
-            'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
+            'ALTER TABLE mytable RENAME COLUMN "quoted1" TO quoted',
+            'ALTER TABLE mytable RENAME COLUMN "quoted2" TO "and"',
+            'ALTER TABLE mytable RENAME COLUMN "quoted3" TO "baz"',
         ];
     }
 

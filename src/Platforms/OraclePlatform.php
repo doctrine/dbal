@@ -897,12 +897,26 @@ SQL
         }
 
         $fields = [];
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
+            $newColumn     = $columnDiff->getNewColumn();
+            $newColumnName = $newColumn->getQuotedName($this);
+            $oldColumn     = $columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName();
+
+            $oldColumnName = $oldColumn->getQuotedName($this);
+
+            // Column names in Oracle are case insensitive and automatically uppercased on the server.
+            if ($columnDiff->hasNameChanged()) {
+                if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
+                    continue;
+                }
+
+                $sql = array_merge(
+                    $sql,
+                    $this->getRenameColumnSQL($tableNameSQL, $oldColumnName, $newColumnName),
+                );
+            } elseif ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
-
-            $newColumn = $columnDiff->getNewColumn();
 
             // Do not generate column alteration clause if type is binary and only fixed property has changed.
             // Oracle only supports binary type columns with variable length.
@@ -920,7 +934,7 @@ SQL
             /**
              * Do not add query part if only comment has changed
              */
-            if (! ($columnHasChangedComment && count($columnDiff->changedProperties) === 1)) {
+            if (count($columnDiff->changedProperties) > ($columnHasChangedComment ? 1 : 0)) {
                 $newColumnProperties = $newColumn->toArray();
 
                 if (! $columnDiff->hasNotNullChanged()) {
@@ -943,17 +957,6 @@ SQL
 
         if (count($fields) > 0) {
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY (' . implode(', ', $fields) . ')';
-        }
-
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
-                continue;
-            }
-
-            $oldColumnName = new Identifier($oldColumnName);
-
-            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this)
-                . ' TO ' . $column->getQuotedName($this);
         }
 
         $fields = [];

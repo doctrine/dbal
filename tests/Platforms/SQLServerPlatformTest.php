@@ -740,6 +740,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function getAlterTableColumnCommentsSQL(): array
     {
         return [
+            "EXEC sp_rename 'mytable.bar', 'baz', 'COLUMN'",
             'ALTER TABLE mytable ADD quota INT NOT NULL',
             "EXEC sp_addextendedproperty N'MS_Description', N'A comment', "
                 . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', quota",
@@ -895,8 +896,10 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $tableDiff->addedColumns['added_comment_with_string_literal_char']
             = new Column('added_comment_with_string_literal_char', Type::getType(Types::STRING), ['comment' => "''"]);
 
-        $tableDiff->renamedColumns['comment_float_0']
-            = new Column('comment_double_0', Type::getType(Types::DECIMAL), ['comment' => 'Double for real!']);
+        $tableDiff->changedColumns['comment_float_0'] = new ColumnDiff(
+            'comment_float_0',
+            new Column('comment_double_0', Type::getType(Types::DECIMAL), ['comment' => 'Double for real!']),
+        );
 
         // Add comment to non-commented column.
         $tableDiff->changedColumns['id'] = new ColumnDiff(
@@ -990,7 +993,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $tableDiff->changedColumns['comment_with_string_literal_char'] = new ColumnDiff(
             'comment_with_string_literal_char',
             new Column('comment_with_string_literal_char', Type::getType(Types::STRING), ['comment' => "'"]),
-            ['comment'],
+            ['comment', 'type'],
             new Column('comment_with_string_literal_char', Type::getType(Types::ARRAY), ['comment' => "O'Reilly"]),
         );
 
@@ -1000,7 +1003,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             [
                 // Renamed columns.
-                "sp_rename 'mytable.comment_float_0', 'comment_double_0', 'COLUMN'",
+                "EXEC sp_rename 'mytable.comment_float_0', 'comment_double_0', 'COLUMN'",
 
                 // Added columns.
                 'ALTER TABLE mytable ADD added_comment_none INT NOT NULL',
@@ -1022,7 +1025,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
                 'ALTER TABLE mytable ALTER COLUMN [comment_quoted] VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN [create] VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN commented_type INT NOT NULL',
-
+                'ALTER TABLE mytable ALTER COLUMN comment_with_string_literal_char NVARCHAR(255) NOT NULL',
                 // Added columns.
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', "
                     . "N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment_integer_0",
@@ -1239,15 +1242,15 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     protected function getQuotedAlterTableRenameColumnSQL(): array
     {
         return [
-            "sp_rename 'mytable.unquoted1', 'unquoted', 'COLUMN'",
-            "sp_rename 'mytable.unquoted2', '[where]', 'COLUMN'",
-            "sp_rename 'mytable.unquoted3', '[foo]', 'COLUMN'",
-            "sp_rename 'mytable.[create]', 'reserved_keyword', 'COLUMN'",
-            "sp_rename 'mytable.[table]', '[from]', 'COLUMN'",
-            "sp_rename 'mytable.[select]', '[bar]', 'COLUMN'",
-            "sp_rename 'mytable.quoted1', 'quoted', 'COLUMN'",
-            "sp_rename 'mytable.quoted2', '[and]', 'COLUMN'",
-            "sp_rename 'mytable.quoted3', '[baz]', 'COLUMN'",
+            "EXEC sp_rename 'mytable.unquoted1', 'unquoted', 'COLUMN'",
+            "EXEC sp_rename 'mytable.unquoted2', '[where]', 'COLUMN'",
+            "EXEC sp_rename 'mytable.unquoted3', '[foo]', 'COLUMN'",
+            "EXEC sp_rename 'mytable.[create]', 'reserved_keyword', 'COLUMN'",
+            "EXEC sp_rename 'mytable.[table]', '[from]', 'COLUMN'",
+            "EXEC sp_rename 'mytable.[select]', '[bar]', 'COLUMN'",
+            "EXEC sp_rename 'mytable.[quoted1]', 'quoted', 'COLUMN'",
+            "EXEC sp_rename 'mytable.[quoted2]', '[and]', 'COLUMN'",
+            "EXEC sp_rename 'mytable.[quoted3]', '[baz]', 'COLUMN'",
         ];
     }
 
@@ -1427,7 +1430,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
                     "CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo'",
                     'ALTER TABLE mytable DROP COLUMN removecolumn',
                     'ALTER TABLE mytable DROP CONSTRAINT DF_6B2BD609_9BADD926',
-                    'ALTER TABLE mytable ALTER COLUMN mycolumn NVARCHAR(255) NOT NULL',
                     "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'bar' FOR mycolumn",
                 ],
             ],
@@ -1451,7 +1453,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
                     "CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo'",
                     'ALTER TABLE [mytable] DROP COLUMN [removecolumn]',
                     'ALTER TABLE [mytable] DROP CONSTRAINT DF_6B2BD609_9BADD926',
-                    'ALTER TABLE [mytable] ALTER COLUMN [mycolumn] NVARCHAR(255) NOT NULL',
                     "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'bar' FOR [mycolumn]",
                 ],
             ],
@@ -1475,7 +1476,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
                     "CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo'",
                     'ALTER TABLE [table] DROP COLUMN [drop]',
                     'ALTER TABLE [table] DROP CONSTRAINT DF_F6298F46_4BF2EAC0',
-                    'ALTER TABLE [table] ALTER COLUMN [select] NVARCHAR(255) NOT NULL',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'bar' FOR [select]",
                 ],
             ],
@@ -1499,7 +1499,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
                     "CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo'",
                     'ALTER TABLE [table] DROP COLUMN [drop]',
                     'ALTER TABLE [table] DROP CONSTRAINT DF_F6298F46_4BF2EAC0',
-                    'ALTER TABLE [table] ALTER COLUMN [select] NVARCHAR(255) NOT NULL',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'bar' FOR [select]",
                 ],
             ],
@@ -1517,7 +1516,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function getAlterTableRenameColumnSQL(): array
     {
         return [
-            "sp_rename 'foo.bar', 'baz', 'COLUMN'",
+            "EXEC sp_rename 'foo.bar', 'baz', 'COLUMN'",
             'ALTER TABLE foo DROP CONSTRAINT DF_8C736521_76FF8CAA',
             'ALTER TABLE foo ADD CONSTRAINT DF_8C736521_78240498 DEFAULT 666 FOR baz',
         ];
