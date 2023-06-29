@@ -50,6 +50,32 @@ class TableTest extends TestCase
         self::assertCount(2, $table->getColumns());
     }
 
+    public function testRenameColumn(): void
+    {
+        $typeStr   = Type::getType(Types::STRING);
+        $typeTxt   = Type::getType(Types::TEXT);
+        $columns   = [];
+        $columns[] = new Column('foo', $typeStr);
+        $table     = new Table('foo', $columns, [], []);
+
+        self::assertFalse($table->hasColumn('bar'));
+        self::assertTrue($table->hasColumn('foo'));
+
+        $column = $table->renameColumn('foo', 'bar');
+        $column->setType($typeTxt);
+        self::assertTrue($table->hasColumn('bar'), 'Should now have bar column');
+        self::assertFalse($table->hasColumn('foo'), 'Should not have foo column anymore');
+        self::assertCount(1, $table->getColumns());
+
+        self::assertEquals(['bar' => 'foo'], $table->getRenamedColumns());
+        $table->renameColumn('bar', 'baz');
+
+        self::assertTrue($table->hasColumn('baz'), 'Should now have baz column');
+        self::assertFalse($table->hasColumn('bar'), 'Should not have bar column anymore');
+        self::assertEquals(['baz' => 'foo'], $table->getRenamedColumns());
+        self::assertCount(1, $table->getColumns());
+    }
+
     public function testColumnsCaseInsensitive(): void
     {
         $table  = new Table('foo');

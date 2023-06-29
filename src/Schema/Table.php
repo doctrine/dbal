@@ -26,6 +26,9 @@ class Table extends AbstractAsset
     /** @var Column[] */
     protected $_columns = [];
 
+    /** @var string[] */
+    protected array $_renamedColumns = [];
+
     /** @var Index[] */
     protected $_indexes = [];
 
@@ -342,6 +345,34 @@ class Table extends AbstractAsset
         $column = new Column($name, Type::getType($typeName), $options);
 
         $this->_addColumn($column);
+
+        return $column;
+    }
+
+    /** @return string[] */
+    public function getRenamedColumns(): array
+    {
+        return $this->_renamedColumns;
+    }
+
+    public function renameColumn(string $oldName, string $newName): Column
+    {
+        $oldName = $this->normalizeIdentifier($oldName);
+        $newName = $this->normalizeIdentifier($newName);
+
+        $column = $this->getColumn($oldName);
+        $column->_setName($newName);
+        unset($this->_columns[$oldName]);
+        $this->_addColumn($column);
+
+        // If a column is renamed multiple times, we only want to know the original and last new name
+        if (isset($this->_renamedColumns[$oldName])) {
+            $toRemove = $oldName;
+            $oldName  = $this->_renamedColumns[$oldName];
+            unset($this->_renamedColumns[$toRemove]);
+        }
+
+        $this->_renamedColumns[$newName] = $oldName;
 
         return $column;
     }
