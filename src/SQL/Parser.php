@@ -47,7 +47,7 @@ final class Parser
     private const SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
     private const OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
 
-    private const REPLACE_PATTERNS = ['/\bARRAY\s*\[/' => 'ARRAY['];
+    private const REPLACE_PATTERNS = ['/\b([Aa][Rr][Rr][Aa][Yy])\s*\[/' => '\1['];
 
     private string $sqlPattern;
 
