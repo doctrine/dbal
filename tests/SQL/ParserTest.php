@@ -78,6 +78,11 @@ class ParserTest extends TestCase implements Visitor
         ];
 
         yield [
+            'SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY   [?])',
+            'SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[{?}])',
+        ];
+
+        yield [
             "SELECT 'Doctrine\DBAL?' FROM foo WHERE bar = ?",
             "SELECT 'Doctrine\DBAL?' FROM foo WHERE bar = {?}",
         ];

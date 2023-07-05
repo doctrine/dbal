@@ -7,6 +7,8 @@ use Doctrine\DBAL\SQL\Parser\Exception\RegularExpressionError;
 use Doctrine\DBAL\SQL\Parser\Visitor;
 
 use function array_merge;
+use function array_keys;
+use function array_values;
 use function assert;
 use function current;
 use function implode;
@@ -14,6 +16,7 @@ use function key;
 use function next;
 use function preg_last_error;
 use function preg_match;
+use function preg_replace;
 use function reset;
 use function sprintf;
 use function strlen;
@@ -43,6 +46,8 @@ final class Parser
     private const MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
     private const SPECIAL              = '[' . self::SPECIAL_CHARS . ']';
     private const OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
+
+    private const REPLACE_PATTERNS = ['/\bARRAY\s*\[/' => 'ARRAY['];
 
     private string $sqlPattern;
 
@@ -79,6 +84,8 @@ final class Parser
      */
     public function parse(string $sql, Visitor $visitor): void
     {
+        $sql = preg_replace(array_keys(self::REPLACE_PATTERNS), array_values(self::REPLACE_PATTERNS), $sql);
+
         /** @var array<string,callable> $patterns */
         $patterns = [
             self::NAMED_PARAMETER => static function (string $sql) use ($visitor): void {
