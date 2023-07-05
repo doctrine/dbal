@@ -84,6 +84,7 @@ final class Parser
      */
     public function parse(string $sql, Visitor $visitor): void
     {
+        /** @var string $sql */
         $sql = preg_replace(array_keys(self::REPLACE_PATTERNS), array_values(self::REPLACE_PATTERNS), $sql);
 
         /** @var array<string,callable> $patterns */
