@@ -442,7 +442,7 @@ abstract class AbstractSchemaManager
      */
     public function listTableDetails($name)
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5595',
             '%s is deprecated. Use introspectTable() instead.',
