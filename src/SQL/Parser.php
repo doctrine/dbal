@@ -6,12 +6,13 @@ use Doctrine\DBAL\SQL\Parser\Exception;
 use Doctrine\DBAL\SQL\Parser\Exception\RegularExpressionError;
 use Doctrine\DBAL\SQL\Parser\Visitor;
 
-use function array_merge;
 use function array_keys;
+use function array_merge;
 use function array_values;
 use function assert;
 use function current;
 use function implode;
+use function is_string;
 use function key;
 use function next;
 use function preg_last_error;
@@ -84,8 +85,8 @@ final class Parser
      */
     public function parse(string $sql, Visitor $visitor): void
     {
-        /** @var string $sql */
         $sql = preg_replace(array_keys(self::REPLACE_PATTERNS), array_values(self::REPLACE_PATTERNS), $sql);
+        assert(is_string($sql));
 
         /** @var array<string,callable> $patterns */
         $patterns = [
