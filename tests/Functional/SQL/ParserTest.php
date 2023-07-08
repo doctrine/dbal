@@ -7,8 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional\SQL;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
-use function assert;
-
 class ParserTest extends FunctionalTestCase
 {
     public function testPostgreSQLJSONBQuestionOperator(): void
@@ -27,18 +25,16 @@ class ParserTest extends FunctionalTestCase
             self::markTestSkipped('This test requires the pdo_pgsql driver.');
         }
 
-        $sql    = 'SELECT * FROM (SELECT \'xyz\' AS x, \'{"foo":[1,2,3,4,5],"bar":true}\'::jsonb AS json_value) AS ' .
-                  'dummy WHERE x = :x AND json_value @> ANY (ARRAY    [:value]::jsonb[]);';
-        $stmt   = $this->connection->prepare($sql);
+        $sql = 'SELECT * FROM (SELECT \'xyz\' AS x, \'{"foo":[1,2,3,4,5],"bar":true}\'::jsonb AS json_value) AS ' .
+               'dummy WHERE x = :x AND json_value @> ANY (ARRAY    [:value]::jsonb[]);';
+
         $params = [
             'x' => 'xyz',
             'value' => '{"foo":[3]}',
         ];
 
-        $row = $stmt->execute($params)->fetchAssociative();
+        $results = $this->connection->fetchAllAssociative($sql, $params);
 
-        assert($row !== false);
-
-        self::assertCount(2, $row);
+        self::assertCount(1, $results);
     }
 }
