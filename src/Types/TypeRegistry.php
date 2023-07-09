@@ -21,7 +21,10 @@ final class TypeRegistry
     /** @param array<string, Type> $instances */
     public function __construct(array $instances = [])
     {
-        $this->instances = $instances;
+        $this->instances = [];
+        foreach ($instances as $name => $type) {
+            $this->register($name, $type);
+        }
     }
 
     /**
