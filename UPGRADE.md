@@ -679,10 +679,12 @@ This method is unused by the DBAL since 2.0.
 
 ## Deprecated `Type::getName()`
 
-This will method is not useful for the DBAL anymore, and will be removed in 4.0.
+This method is not useful for the DBAL anymore, and will be removed in 4.0.
 As a consequence, depending on the name of a type being `json` for `jsonb` to
 be used for the Postgres platform is deprecated in favor of extending
 `Doctrine\DBAL\Types\JsonType`.
+
+You can use `Type::getTypeRegistry()->lookupName($type)` instead.
 
 ## Deprecated `AbstractPlatform::getColumnComment()`, `AbstractPlatform::getDoctrineTypeComment()`,
 `AbstractPlatform::hasNative*Type()` and `Type::requiresSQLCommentHint()`
