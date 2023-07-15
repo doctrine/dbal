@@ -84,7 +84,7 @@ Represents a table in the schema.
 Vendor specific options
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The following options, that can be set using `default_table_options`, are completely vendor specific
+The following options, that can be set using ``default_table_options``, are completely vendor specific
 and absolutely not portable.
 
 -  **charset** (string): The character set to use for the table. Currently only supported
