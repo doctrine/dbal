@@ -99,6 +99,14 @@ class TypeRegistryTest extends TestCase
         $this->registry->register('other', $newType);
     }
 
+    public function testConstructorWithDuplicateInstance(): void
+    {
+        $newType = new TextType();
+
+        $this->expectException(Exception::class);
+        new TypeRegistry(['a' => $newType, 'b' => $newType]);
+    }
+
     public function testOverride(): void
     {
         $baseType     = new TextType();
