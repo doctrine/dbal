@@ -274,7 +274,7 @@ abstract class AbstractSchemaManager
 
         $tableIndexes = $this->_conn->fetchAllAssociative($sql);
 
-        return $this->_getPortableTableIndexesList($tableIndexes, $table);
+        return $this->filterAssets($this->_getPortableTableIndexesList($tableIndexes, $table));
     }
 
     /**
@@ -289,12 +289,14 @@ abstract class AbstractSchemaManager
         $database = $this->getDatabase(__METHOD__);
         $table    = $this->normalizeName($table);
 
-        return $this->_getPortableTableIndexesList(
-            $this->selectIndexColumns(
-                $database,
+        return $this->filterAssets(
+            $this->_getPortableTableIndexesList(
+                $this->selectIndexColumns(
+                    $database,
+                    $table,
+                )->fetchAllAssociative(),
                 $table,
-            )->fetchAllAssociative(),
-            $table,
+            ),
         );
     }
 
@@ -378,6 +380,23 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @param A[] $assets
+     *
+     * @return A[]
+     *
+     * @template A of AbstractAsset
+     */
+    protected function filterAssets(array $assets): array
+    {
+        $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
+        if ($filter === null || ! $filter instanceof SchemaAssetFilter) {
+            return $assets;
+        }
+
+        return array_values(array_filter($assets, $filter));
+    }
+
+    /**
      * Lists the tables for this connection.
      *
      * @return list<Table>
@@ -418,10 +437,11 @@ abstract class AbstractSchemaManager
                 continue;
             }
 
-            $tables[] = new Table(
+            $tableIndexes =  $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName);
+            $tables[]     = new Table(
                 $tableName,
                 $this->_getPortableTableColumnList($tableName, $database, $tableColumns),
-                $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName),
+                $this->filterAssets($tableIndexes),
                 [],
                 $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName] ?? []),
                 $tableOptionsByTable[$tableName] ?? [],

@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\SchemaAssetFilter;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
@@ -256,6 +257,82 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         yield 'One table' => ['filter_test_1', 1];
         yield 'Two tables' => ['filter_test_', 2];
+    }
+
+    /**
+     * @param string[] $removedSequences
+     *
+     * @dataProvider sequenceFilterProvider
+     */
+    public function testListSequencesWithFilter(string $prefix, array $removedSequences): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
+            $this->markTestSkipped("Platform doesn't support sequences");
+        }
+
+        $this->schemaManager->createSequence(new Sequence('filter_sequence_test_1'));
+        $this->schemaManager->createSequence(new Sequence('filter_sequence_test_2'));
+
+        $this->markConnectionNotReusable();
+
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(
+            $this->getSchemaAssetFilterRemovesAssetsWithPrefix($prefix),
+        );
+
+        $sequences = $this->schemaManager->listSequences();
+        $this->schemaManager->dropSequence('filter_sequence_test_1');
+        $this->schemaManager->dropSequence('filter_sequence_test_2');
+
+        $sequenceNames = array_map(static fn (Sequence $s): string => $s->getName(), $sequences);
+        foreach ($removedSequences as $removedSequence) {
+            self::assertNotContains($removedSequence, $sequenceNames);
+        }
+    }
+
+    /** @return iterable<string, array{string, string[]}> */
+    public static function sequenceFilterProvider(): iterable
+    {
+        yield 'One sequence' => ['filter_sequence_test_1', ['filter_sequence_test_1']];
+        yield 'Two sequence' => ['filter_sequence_test_', ['filter_sequence_test_1', 'filter_sequence_test_2']];
+    }
+
+    /** @dataProvider indexFilterProvider */
+    public function testListTableIndexesWithFilter(string $prefix, int $expectedCount): void
+    {
+        $tableName = 'list_table_indexes_test';
+        $table     = $this->getTestTable($tableName);
+        $table->addUniqueIndex(['test'], 'test_index_name');
+        $table->addIndex(['id', 'test'], 'test_composite_idx');
+
+        $this->dropAndCreateTable($table);
+
+        $this->markConnectionNotReusable();
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(
+            $this->getSchemaAssetFilterRemovesAssetsWithPrefix($prefix),
+        );
+
+        $table = null;
+        foreach ($this->schemaManager->listTables() as $t) {
+            if ($tableName !== strtolower($t->getName())) {
+                continue;
+            }
+
+            $table = $t;
+        }
+
+        self::assertNotNull($table);
+        self::assertCount($expectedCount, $this->schemaManager->listTableIndexes($tableName));
+        self::assertCount($expectedCount, $table->getIndexes());
+    }
+
+    /** @return iterable<string, array{string, int}> */
+    public static function indexFilterProvider(): iterable
+    {
+        // index count includes the primary key on the table
+        yield 'Filter index' => ['test_index_', 2];
+        yield 'Filter unique index' => ['test_composite', 2];
+        yield 'No indexes returned' => ['test_', 1];
+        yield 'Both indexes returned' => ['includes_all', 3];
     }
 
     public function testRenameTable(): void
@@ -1802,6 +1879,30 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         return null;
+    }
+
+    protected function getSchemaAssetFilterRemovesAssetsWithPrefix(string $prefix): SchemaAssetFilter
+    {
+        return new class ($prefix) implements SchemaAssetFilter {
+            private string $prefix;
+
+            public function __construct(string $prefix)
+            {
+                $this->prefix = $prefix;
+            }
+
+            /** @inheritdoc */
+            public function __invoke($asset): bool
+            {
+                if ($asset instanceof AbstractAsset) {
+                    $assetName = $asset->getName();
+                } else {
+                    $assetName = $asset;
+                }
+
+                return substr(strtolower($assetName), 0, strlen($this->prefix)) !== $this->prefix;
+            }
+        };
     }
 }
 

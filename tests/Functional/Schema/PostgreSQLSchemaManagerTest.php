@@ -627,6 +627,34 @@ SQL;
         $this->assertArrayHasKey('id', $afterColumns);
     }
 
+    public function testIndexAssetFilterOnUnsupportedIndex(): void
+    {
+        $tableName = 'custom_index_test';
+        $table     = $this->getTestTable($tableName);
+        $table->addColumn('tenant_id', 'integer');
+        $table->addColumn('username', 'string');
+        $this->dropAndCreateTable($table);
+
+        $this->markConnectionNotReusable();
+
+        $this->connection->executeStatement(<<<'SQL'
+            CREATE UNIQUE INDEX custom_idx_unique_username ON custom_index_test (tenant_id, LOWER(username))
+SQL);
+        $prefix = 'custom_idx_';
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(
+            $this->getSchemaAssetFilterRemovesAssetsWithPrefix($prefix),
+        );
+
+        $dbTable    = $this->schemaManager->introspectTable($tableName);
+        $comparator = $this->schemaManager->createComparator();
+
+        $diff = $comparator->compareTables($dbTable, $table);
+        self::assertCount(0, $diff->getDroppedIndexes());
+
+        $diff = $comparator->compareTables($table, $dbTable);
+        self::assertCount(0, $diff->getAddedIndexes());
+    }
+
     /** @return iterable<mixed[]> */
     public static function autoIncrementTypeMigrations(): iterable
     {
