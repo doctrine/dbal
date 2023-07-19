@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Types\Exception\TypeAlreadyRegistered;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
 use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
 use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 
 use function array_search;
+use function in_array;
 
 /**
  * The type registry is responsible for holding a map of all known DBAL types.
@@ -71,6 +73,10 @@ final class TypeRegistry
             throw TypesAlreadyExists::new($name);
         }
 
+        if (array_search($type, $this->instances, true) !== false) {
+            throw TypeAlreadyRegistered::new($type);
+        }
+
         $this->instances[$name] = $type;
     }
 
@@ -83,6 +89,10 @@ final class TypeRegistry
     {
         if (! isset($this->instances[$name])) {
             throw TypeNotFound::new($name);
+        }
+
+        if (! in_array(array_search($type, $this->instances, true), [$name, false], true)) {
+            throw TypeAlreadyRegistered::new($type);
         }
 
         $this->instances[$name] = $type;
