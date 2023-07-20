@@ -1277,6 +1277,8 @@ class Connection
             $this->commit();
 
             return $res;
+        } catch (DeadlockException $e) {
+            throw $e;
         } catch (Throwable $e) {
             $this->rollBack();
 
