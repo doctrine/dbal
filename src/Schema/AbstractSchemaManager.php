@@ -482,7 +482,7 @@ abstract class AbstractSchemaManager
 
         return new Table(
             $name,
-            $this->listTableColumns($name, $database),
+            $this->listTableColumns($name),
             $this->listTableIndexes($name),
             [],
             $foreignKeys,
