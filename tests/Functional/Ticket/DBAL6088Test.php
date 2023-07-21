@@ -25,7 +25,7 @@ CREATE TABLE bug (id int identity primary key, content varchar(max))
 SQL);
 
         $stmt = $this->connection->prepare(<<<'SQL'
-INSERT INTO bug (content) VALUES (?);')
+INSERT INTO bug (content) VALUES (?)
 SQL);
 
         $stmt->bindValue(1, implode(array_fill(0, 4000, 'x')));
