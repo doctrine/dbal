@@ -1586,4 +1586,185 @@ class QueryBuilderTest extends TestCase
             'SELECT u.id FROM users u WITH (UPDLOCK, ROWLOCK) WHERE u.nickname = ?',
         ];
     }
+
+    /** @dataProvider providePlatformAndExpectedSkipLockedSql */
+    public function testQueryWithSkipLocked(AbstractPlatform $platform, string $expectedSql): void
+    {
+        $conn = $this->createConnectionMock();
+        $conn->expects(self::any())
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
+
+        $qb   = new QueryBuilder($conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->where($expr->and($expr->eq('u.nickname', '?')))
+            ->skipLocked();
+
+        self::assertEquals($expectedSql, (string) $qb);
+    }
+
+    /**
+     * @return iterable<
+     *     string,
+     *     array{
+     *          AbstractPlatform,
+     *          string
+     *  }>
+     */
+    public static function providePlatformAndExpectedSkipLockedSql(): iterable
+    {
+        yield 'DB2Platform' => [
+            new DB2Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? ',
+        ];
+
+        yield 'DB2111Platform' => [
+            new DB2111Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? SKIP LOCKED DATA',
+        ];
+
+        yield 'MySQLPlatform' => [
+            new MySQLPlatform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? SKIP LOCKED',
+        ];
+
+        yield 'MySQL57Platform' => [
+            new MySQL57Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? ',
+        ];
+
+        yield 'MySQL80Platform' => [
+            new MySQL80Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? SKIP LOCKED',
+        ];
+
+        yield 'OraclePlatform' => [
+            new MySQL80Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? SKIP LOCKED',
+        ];
+
+        yield 'PostgreSQLPlatform' => [
+            new PostgreSQLPlatform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? SKIP LOCKED',
+        ];
+
+        yield 'PostgreSQL94Platform' => [
+            new PostgreSQL94Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? SKIP LOCKED',
+        ];
+
+        yield 'PostgreSQL100Platform' => [
+            new PostgreSQL100Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? SKIP LOCKED',
+        ];
+
+        yield 'SqlitePlatform' => [
+            new SqlitePlatform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? ',
+        ];
+
+        yield 'SQLServerPlatform' => [
+            new SQLServerPlatform(),
+            'SELECT u.id FROM users u WITH (READPAST) WHERE u.nickname = ?',
+        ];
+
+        yield 'SQLServer2012Platform' => [
+            new SQLServer2012Platform(),
+            'SELECT u.id FROM users u WITH (READPAST) WHERE u.nickname = ?',
+        ];
+    }
+
+    /** @dataProvider providePlatformAndExpectedLockHintsSql */
+    public function testQueryWithAllLockOptions(AbstractPlatform $platform, string $expectedSql): void
+    {
+        $conn = $this->createConnectionMock();
+        $conn->expects(self::any())
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
+
+        $qb   = new QueryBuilder($conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->where($expr->and($expr->eq('u.nickname', '?')))
+            ->skipLocked()
+            ->lockForUpdate();
+
+        self::assertEquals($expectedSql, (string) $qb);
+    }
+
+    /**
+     * @return iterable<
+     *     string,
+     *     array{
+     *          AbstractPlatform,
+     *          string
+     *  }>
+     */
+    public static function providePlatformAndExpectedLockHintsSql(): iterable
+    {
+        yield 'DB2Platform' => [
+            new DB2Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? WITH RR USE AND KEEP UPDATE LOCKS',
+        ];
+
+        yield 'DB2111Platform' => [
+            new DB2111Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? WITH RR USE AND KEEP UPDATE LOCKS SKIP LOCKED DATA',
+        ];
+
+        yield 'MySQLPlatform' => [
+            new MySQLPlatform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE SKIP LOCKED',
+        ];
+
+        yield 'MySQL57Platform' => [
+            new MySQL57Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE',
+        ];
+
+        yield 'MySQL80Platform' => [
+            new MySQL80Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE SKIP LOCKED',
+        ];
+
+        yield 'OraclePlatform' => [
+            new MySQL80Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE SKIP LOCKED',
+        ];
+
+        yield 'PostgreSQLPlatform' => [
+            new PostgreSQLPlatform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE SKIP LOCKED',
+        ];
+
+        yield 'PostgreSQL94Platform' => [
+            new PostgreSQL94Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE SKIP LOCKED',
+        ];
+
+        yield 'PostgreSQL100Platform' => [
+            new PostgreSQL100Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE SKIP LOCKED',
+        ];
+
+        yield 'SqlitePlatform' => [
+            new SqlitePlatform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? ',
+        ];
+
+        yield 'SQLServerPlatform' => [
+            new SQLServerPlatform(),
+            'SELECT u.id FROM users u WITH (UPDLOCK, ROWLOCK, READPAST) WHERE u.nickname = ?',
+        ];
+
+        yield 'SQLServer2012Platform' => [
+            new SQLServer2012Platform(),
+            'SELECT u.id FROM users u WITH (UPDLOCK, ROWLOCK, READPAST) WHERE u.nickname = ?',
+        ];
+    }
 }

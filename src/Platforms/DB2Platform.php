@@ -1041,4 +1041,9 @@ SQL
     {
         return new DB2SchemaManager($connection, $this);
     }
+
+    public function getSkipLockedSQL(): string
+    {
+        return '';
+    }
 }

@@ -37,4 +37,9 @@ class DB2111Platform extends DB2Platform
 
         return $query;
     }
+
+    public function getSkipLockedSQL(): string
+    {
+        return 'SKIP LOCKED DATA';
+    }
 }

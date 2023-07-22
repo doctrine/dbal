@@ -1766,6 +1766,14 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the FOR UPDATE SKIP LOCKED expression.
+     */
+    public function getSkipLockedSQL(): string
+    {
+        return 'SKIP LOCKED';
+    }
+
+    /**
      * Honors that some SQL vendors such as MsSql use table hints for locking instead of the
      * ANSI SQL FOR UPDATE specification.
      *

@@ -25,4 +25,14 @@ class MySQL80Platform extends MySQL57Platform
 
         return Keywords\MySQL80Keywords::class;
     }
+
+    /**
+     * Returns the SKIP LOCKED expression.
+     * When support for MySQL 5.7 is removed, this method can be removed from this
+     * class as it is already implemented in the base class.
+     */
+    public function getSkipLockedSQL(): string
+    {
+        return 'SKIP LOCKED';
+    }
 }

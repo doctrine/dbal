@@ -16,7 +16,8 @@ use function trim;
 /** @internal */
 final class QueryLockBuilder
 {
-    public const FOR_UPDATE = 'FOR_UPDATE';
+    public const FOR_UPDATE  = 'FOR_UPDATE';
+    public const SKIP_LOCKED = 'SKIP_LOCKED';
 
     private AbstractPlatform $platform;
 
@@ -42,6 +43,9 @@ final class QueryLockBuilder
             switch ($lock) {
                 case self::FOR_UPDATE:
                     $locksSql[0] = $this->platform->getForUpdateSQL();
+                    break;
+                case self::SKIP_LOCKED:
+                    $locksSql[1] = $this->platform->getSkipLockedSQL();
                     break;
             }
         }

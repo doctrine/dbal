@@ -1616,6 +1616,11 @@ class SQLServerPlatform extends AbstractPlatform
         return 'WITH (UPDLOCK, ROWLOCK)';
     }
 
+    public function getSkipLockedSQL(): string
+    {
+        return 'WITH (READPAST)';
+    }
+
     /**
      * {@inheritDoc}
      *

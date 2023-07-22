@@ -1,0 +1,79 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Doctrine\DBAL\Tests\Functional\Query;
+
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
+
+final class QueryBuilderTest extends FunctionalTestCase
+{
+    protected function setUp(): void
+    {
+        $tableName = 'users';
+        $table     = new Table($tableName);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('nickname', Types::STRING);
+        $table->setPrimaryKey(['id']);
+
+        $this->dropAndCreateTable($table);
+
+        $this->connection->insert($tableName, ['nickname' => 'aaa']);
+        $this->connection->insert($tableName, ['nickname' => 'bbb']);
+    }
+
+    public function testConcurrentConnectionSkipsLockedRows(): void
+    {
+        $connection1 = $this->connection;
+        $qb1         = new QueryBuilder($connection1);
+        $qb1->select('u.id')
+            ->from('users', 'u')
+            ->orderBy('id', 'ASC')
+            ->setMaxResults(1)
+            ->lockForUpdate()
+            ->skipLocked();
+
+        self::assertFalse($connection1->isTransactionActive(), 'A transaction should not be active on connection 1');
+        $connection1->beginTransaction();
+        self::assertTrue($connection1->isTransactionActive(), 'A transaction should be active on connection 1');
+        $result     = $connection1->executeQuery($qb1->getSQL());
+        $resultList = $result->fetchAllAssociative();
+        self::assertCount(1, $resultList);
+        self::assertEquals(1, $resultList[0]['id']);
+
+        $connection2 = TestUtil::getConnection();
+        self::assertTrue(
+            $connection1 !== $connection2,
+            "The two competing connections must be different, but they are the same so we can't run this test with it.",
+        );
+        self::assertFalse($connection2->isTransactionActive(), 'A transaction should not be active on connection 2');
+
+        $qb2 = new QueryBuilder($connection2);
+        $qb2->select('u.id')
+            ->from('users', 'u')
+            ->orderBy('id', 'ASC')
+            ->setMaxResults(1)
+            ->lockForUpdate()
+            ->skipLocked();
+
+        self::assertTrue($connection1->isTransactionActive(), 'A transaction should still be active on connection 1');
+        $result     = $connection2->executeQuery($qb2->getSQL());
+        $resultList = $result->fetchAllAssociative();
+        self::assertCount(1, $resultList);
+        self::assertEquals(2, $resultList[0]['id']);
+
+        $connection1->commit();
+        self::assertFalse(
+            $connection1->isTransactionActive(),
+            'A transaction should not be active anymore on connection 1',
+        );
+        $result     = $connection2->executeQuery($qb2->getSQL());
+        $resultList = $result->fetchAllAssociative();
+        self::assertCount(1, $resultList);
+        self::assertEquals(1, $resultList[0]['id']);
+    }
+}

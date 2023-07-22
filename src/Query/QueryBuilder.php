@@ -1650,4 +1650,16 @@ class QueryBuilder
 
         return $this;
     }
+
+    /**
+     * Sets a lock on the queried rows, until the end of the transaction
+     *
+     * @return $this
+     */
+    public function skipLocked(): self
+    {
+        $this->sqlParts['locks'][] = QueryLockBuilder::SKIP_LOCKED;
+
+        return $this;
+    }
 }

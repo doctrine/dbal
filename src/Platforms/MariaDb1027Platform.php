@@ -12,4 +12,11 @@ namespace Doctrine\DBAL\Platforms;
  */
 class MariaDb1027Platform extends MariaDBPlatform
 {
+    /**
+     * Returns the FOR UPDATE expression, as SKIP LOCKED is only available since MariaDB 10.6.0.
+     */
+    public function getSkipLockedSQL(): string
+    {
+        return '';
+    }
 }

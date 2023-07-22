@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\DB2111Platform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MariaDb1052Platform;
+use Doctrine\DBAL\Platforms\MariaDb1060Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
@@ -73,7 +74,7 @@ class VersionAwarePlatformDriverTest extends TestCase
                 'https://github.com/doctrine/dbal/pull/5779',
                 false,
             ],
-            ['mariadb-10.9.3', MariaDB1052Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
+            ['mariadb-10.9.3', MariaDb1060Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
             [
                 '10.5.2-MariaDB-1~lenny-log',
                 MariaDB1052Platform::class,
@@ -82,7 +83,7 @@ class VersionAwarePlatformDriverTest extends TestCase
             ],
             [
                 '11.0.2-MariaDB-1:11.0.2+maria~ubu2204',
-                MariaDB1052Platform::class,
+                MariaDb1060Platform::class,
                 'https://github.com/doctrine/dbal/pull/5779',
                 false,
             ],

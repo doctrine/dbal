@@ -96,4 +96,12 @@ class MySQL57Platform extends MySQLPlatform
 
         $this->doctrineTypeMapping['json'] = Types::JSON;
     }
+
+    /**
+     * Returns '', as SKIP LOCKED is only available since MySQL 8.
+     */
+    public function getSkipLockedSQL(): string
+    {
+        return '';
+    }
 }

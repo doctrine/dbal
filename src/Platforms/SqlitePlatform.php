@@ -740,6 +740,11 @@ class SqlitePlatform extends AbstractPlatform
         return '';
     }
 
+    public function getSkipLockedSQL(): string
+    {
+        return '';
+    }
+
     /**
      * {@inheritDoc}
      *
