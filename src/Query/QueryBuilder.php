@@ -75,6 +75,7 @@ class QueryBuilder
         'having'   => null,
         'orderBy'  => [],
         'values'   => [],
+        'locks'    => [],
     ];
 
     /**
@@ -137,6 +138,8 @@ class QueryBuilder
      */
     private ?QueryCacheProfile $resultCacheProfile = null;
 
+    private QueryLockBuilder $queryLockParser;
+
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
      *
@@ -144,7 +147,8 @@ class QueryBuilder
      */
     public function __construct(Connection $connection)
     {
-        $this->connection = $connection;
+        $this->connection      = $connection;
+        $this->queryLockParser = new QueryLockBuilder($this->connection->getDatabasePlatform());
     }
 
     /**
@@ -1356,11 +1360,17 @@ class QueryBuilder
         $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
                   implode(', ', $this->sqlParts['select']);
 
+        $locksSql = $this->hasLocks()
+            ? ' ' . $this->queryLockParser->getLocksSql(...$this->sqlParts['locks'])
+            : '';
+
         $query .= ($this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '')
+            . ($this->queryLockParser->isLocatedAfterFrom() ? $locksSql : '')
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
             . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
             . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
-            . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
+            . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '')
+            . ($this->queryLockParser->isLocatedAtTheEnd() ? $locksSql : '');
 
         if ($this->isLimitQuery()) {
             return $this->connection->getDatabasePlatform()->modifyLimitQuery(
@@ -1620,6 +1630,23 @@ class QueryBuilder
     public function disableResultCache(): self
     {
         $this->resultCacheProfile = null;
+
+        return $this;
+    }
+
+    private function hasLocks(): bool
+    {
+        return $this->sqlParts['locks'] !== [];
+    }
+
+    /**
+     * Sets a lock on the queried rows, until the end of the transaction
+     *
+     * @return $this
+     */
+    public function lockForUpdate(): self
+    {
+        $this->sqlParts['locks'][] = QueryLockBuilder::FOR_UPDATE;
 
         return $this;
     }

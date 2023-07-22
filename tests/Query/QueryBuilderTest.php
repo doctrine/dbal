@@ -6,6 +6,18 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DB2111Platform;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
@@ -24,13 +36,11 @@ class QueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->conn = $this->createMock(Connection::class);
-
-        $expressionBuilder = new ExpressionBuilder($this->conn);
+        $this->conn = $this->createConnectionMock();
 
         $this->conn->expects(self::any())
-                   ->method('getExpressionBuilder')
-                   ->willReturn($expressionBuilder);
+            ->method('getDatabasePlatform')
+            ->willReturn($this->createMock(AbstractPlatform::class));
     }
 
     public function testSimpleSelectWithoutFrom(): void
@@ -1471,5 +1481,109 @@ class QueryBuilderTest extends TestCase
             $mockedResult,
             $results,
         );
+    }
+
+    /** @return Connection&MockObject */
+    private function createConnectionMock(): Connection
+    {
+        $conn = $this->createMock(Connection::class);
+
+        $expressionBuilder = new ExpressionBuilder($conn);
+
+        $conn->expects(self::any())
+            ->method('getExpressionBuilder')
+            ->willReturn($expressionBuilder);
+
+        return $conn;
+    }
+
+    /** @dataProvider providePlatformAndExpectedForUpdateLockSql */
+    public function testQueryWithForUpdateLock(AbstractPlatform $platform, string $expectedSql): void
+    {
+        $conn = $this->createConnectionMock();
+        $conn->expects(self::any())
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
+
+        $qb   = new QueryBuilder($conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->where($expr->and($expr->eq('u.nickname', '?')))
+            ->lockForUpdate();
+
+        self::assertEquals($expectedSql, (string) $qb);
+    }
+
+    /**
+     * @return iterable<
+     *     string,
+     *     array{
+     *          AbstractPlatform,
+     *          string
+     *  }>
+     */
+    public static function providePlatformAndExpectedForUpdateLockSql(): iterable
+    {
+        yield 'DB2Platform' => [
+            new DB2Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? WITH RR USE AND KEEP UPDATE LOCKS',
+        ];
+
+        yield 'DB2111Platform' => [
+            new DB2111Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? WITH RR USE AND KEEP UPDATE LOCKS',
+        ];
+
+        yield 'MySQLPlatform' => [
+            new MySQLPlatform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE',
+        ];
+
+        yield 'MySQL57Platform' => [
+            new MySQL57Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE',
+        ];
+
+        yield 'MySQL80Platform' => [
+            new MySQL80Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE',
+        ];
+
+        yield 'OraclePlatform' => [
+            new MySQL80Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE',
+        ];
+
+        yield 'PostgreSQLPlatform' => [
+            new PostgreSQLPlatform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE',
+        ];
+
+        yield 'PostgreSQL94Platform' => [
+            new PostgreSQL94Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE',
+        ];
+
+        yield 'PostgreSQL100Platform' => [
+            new PostgreSQL100Platform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE',
+        ];
+
+        yield 'SqlitePlatform' => [
+            new SqlitePlatform(),
+            'SELECT u.id FROM users u WHERE u.nickname = ? ',
+        ];
+
+        yield 'SQLServerPlatform' => [
+            new SQLServerPlatform(),
+            'SELECT u.id FROM users u WITH (UPDLOCK, ROWLOCK) WHERE u.nickname = ?',
+        ];
+
+        yield 'SQLServer2012Platform' => [
+            new SQLServer2012Platform(),
+            'SELECT u.id FROM users u WITH (UPDLOCK, ROWLOCK) WHERE u.nickname = ?',
+        ];
     }
 }
