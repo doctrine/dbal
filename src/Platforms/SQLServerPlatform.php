@@ -1613,7 +1613,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getForUpdateSQL()
     {
-        return ' ';
+        return 'WITH (UPDLOCK, ROWLOCK)';
     }
 
     /**

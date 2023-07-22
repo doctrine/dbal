@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
@@ -118,7 +119,8 @@ class TableGenerator
             $platform = $this->conn->getDatabasePlatform();
             $sql      = 'SELECT sequence_value, sequence_increment_by'
                 . ' FROM ' . $platform->appendLockHint($this->generatorTableName, LockMode::PESSIMISTIC_WRITE)
-                . ' WHERE sequence_name = ? ' . $platform->getWriteLockSQL();
+                . ' WHERE sequence_name = ? '
+                . ($platform instanceof SQLServerPlatform ? '' : $platform->getWriteLockSQL());
             $row      = $this->conn->fetchAssociative($sql, [$sequence]);
 
             if ($row !== false) {
