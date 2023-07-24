@@ -15,10 +15,10 @@ use function sqlsrv_rows_affected;
 use const SQLSRV_FETCH_ASSOC;
 use const SQLSRV_FETCH_NUMERIC;
 
-final class Result implements ResultInterface
+class Result implements ResultInterface
 {
     /** @var resource */
-    private $statement;
+    protected $statement;
 
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
@@ -114,5 +114,13 @@ final class Result implements ResultInterface
     private function fetch(int $fetchType)
     {
         return sqlsrv_fetch_array($this->statement, $fetchType) ?? false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnMeta($index): array
+    {
+        return [];
     }
 }

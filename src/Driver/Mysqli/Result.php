@@ -16,9 +16,9 @@ use function array_combine;
 use function array_fill;
 use function count;
 
-final class Result implements ResultInterface
+class Result implements ResultInterface
 {
-    private mysqli_stmt $statement;
+    protected mysqli_stmt $statement;
 
     /**
      * Whether the statement result has columns. The property should be used only after the result metadata
@@ -175,5 +175,13 @@ final class Result implements ResultInterface
     public function free(): void
     {
         $this->statement->free_result();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnMeta($index): array
+    {
+        return [];
     }
 }

@@ -90,4 +90,9 @@ interface Result
      * Discards the non-fetched portion of the result, enabling the originating statement to be executed again.
      */
     public function free(): void;
+
+    /**
+     * Returns the column information.
+     */
+    public function getColumnMeta($index): array;
 }

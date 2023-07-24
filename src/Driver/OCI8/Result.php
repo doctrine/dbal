@@ -23,10 +23,10 @@ use const OCI_NUM;
 use const OCI_RETURN_LOBS;
 use const OCI_RETURN_NULLS;
 
-final class Result implements ResultInterface
+class Result implements ResultInterface
 {
     /** @var resource */
-    private $statement;
+    protected $statement;
 
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
@@ -141,5 +141,13 @@ final class Result implements ResultInterface
         );
 
         return $result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnMeta($index): array
+    {
+        return [];
     }
 }

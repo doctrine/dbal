@@ -15,10 +15,10 @@ use function db2_num_fields;
 use function db2_num_rows;
 use function db2_stmt_error;
 
-final class Result implements ResultInterface
+class Result implements ResultInterface
 {
     /** @var resource */
-    private $statement;
+    protected $statement;
 
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
@@ -109,5 +109,13 @@ final class Result implements ResultInterface
     public function free(): void
     {
         db2_free_result($this->statement);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnMeta($index): array
+    {
+        return [];
     }
 }

@@ -32,10 +32,10 @@ use const PGSQL_ASSOC;
 use const PGSQL_NUM;
 use const PHP_INT_SIZE;
 
-final class Result implements ResultInterface
+class Result implements ResultInterface
 {
     /** @var PgSqlResult|resource|null */
-    private $result;
+    protected $result;
 
     /** @param PgSqlResult|resource $result */
     public function __construct($result)
@@ -278,5 +278,13 @@ final class Result implements ResultInterface
         }
 
         return $value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnMeta($index): array
+    {
+        return [];
     }
 }

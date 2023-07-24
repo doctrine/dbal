@@ -9,9 +9,9 @@ use SQLite3Result;
 use const SQLITE3_ASSOC;
 use const SQLITE3_NUM;
 
-final class Result implements ResultInterface
+class Result implements ResultInterface
 {
-    private ?SQLite3Result $result;
+    protected ?SQLite3Result $result;
     private int $changes;
 
     /** @internal The result can be only instantiated by its driver connection or statement. */
@@ -87,5 +87,13 @@ final class Result implements ResultInterface
 
         $this->result->finalize();
         $this->result = null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnMeta($index): array
+    {
+        return [];
     }
 }

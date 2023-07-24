@@ -9,9 +9,9 @@ use PDO;
 use PDOException;
 use PDOStatement;
 
-final class Result implements ResultInterface
+class Result implements ResultInterface
 {
-    private PDOStatement $statement;
+    protected PDOStatement $statement;
 
     /** @internal The result can be only instantiated by its driver connection or statement. */
     public function __construct(PDOStatement $statement)
@@ -120,5 +120,13 @@ final class Result implements ResultInterface
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnMeta($index): array
+    {
+        return $this->statement->getColumnMeta($index);
     }
 }

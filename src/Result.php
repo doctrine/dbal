@@ -317,4 +317,14 @@ class Result
 
         throw new LogicException('Only fetch modes declared on Doctrine\DBAL\FetchMode are supported by legacy API.');
     }
+
+    /** @throws Exception */
+    public function getColumnMeta($index): array
+    {
+        try {
+            return $this->result->getColumnMeta($index);
+        } catch (DriverException $e) {
+            throw $this->connection->convertException($e);
+        }
+    }
 }
