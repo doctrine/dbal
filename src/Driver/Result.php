@@ -92,7 +92,13 @@ interface Result
     public function free(): void;
 
     /**
-     * Returns the column information.
+     * Returns the column metadata.
+     *
+     * @param int $index
+     *
+     * @return array Column metadata.
+     *
+     * @throws Exception
      */
     public function getColumnMeta($index): array;
 }

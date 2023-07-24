@@ -318,7 +318,15 @@ class Result
         throw new LogicException('Only fetch modes declared on Doctrine\DBAL\FetchMode are supported by legacy API.');
     }
 
-    /** @throws Exception */
+    /**
+     * Returns the column metadata.
+     *
+     * @param int $index
+     *
+     * @return array Column metadata.
+     *
+     * @throws Exception
+     */
     public function getColumnMeta($index): array
     {
         try {
