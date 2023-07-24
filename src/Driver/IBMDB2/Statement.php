@@ -118,6 +118,8 @@ final class Statement implements StatementInterface
             } else {
                 $this->bind($param, $value, DB2_PARAM_IN, DB2_CHAR);
             }
+
+            unset($value);
         }
 
         return $handles;
