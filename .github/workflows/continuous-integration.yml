@@ -293,33 +293,35 @@ jobs:
         php-version:
           - "7.4"
         mariadb-version:
-          - "10.0"
-          - "10.2"
-          - "10.5"
-          - "10.7"
-          - "10.9"
-          - "10.11"
+          - "10.0"  # Oldest version supported by DBAL
+          - "10.4"  # LTS (Jun 2024)
+          - "10.5"  # LTS (Jun 2025)
+          - "10.6"  # LTS (Jul 2026)
+          - "10.9"  # STS (Aug 2023)
+          - "10.10" # STS (Nov 2023)
+          - "10.11" # LTS (Feb 2028)
+          - "11.0"  # STS (Jun 2024)
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - php-version: "8.2"
-            mariadb-version: "10.7"
+            mariadb-version: "10.6"
             extension: "mysqli"
           - php-version: "8.2"
-            mariadb-version: "10.7"
+            mariadb-version: "10.6"
             extension: "pdo_mysql"
           - php-version: "8.2"
-            mariadb-version: "10.11"
+            mariadb-version: "11.0"
             extension: "mysqli"
           - php-version: "8.2"
-            mariadb-version: "10.11"
+            mariadb-version: "11.0"
             extension: "pdo_mysql"
           - php-version: "8.3"
-            mariadb-version: "10.11"
+            mariadb-version: "11.0"
             extension: "mysqli"
           - php-version: "8.3"
-            mariadb-version: "10.11"
+            mariadb-version: "11.0"
             extension: "pdo_mysql"
 
     services:
@@ -330,7 +332,7 @@ jobs:
           MYSQL_DATABASE: "doctrine_tests"
 
         options: >-
-          --health-cmd "mysqladmin ping --silent"
+          --health-cmd "mariadb-admin ping --silent || mysqladmin ping --silent"
 
         ports:
           - "3306:3306"

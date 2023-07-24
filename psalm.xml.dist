@@ -62,6 +62,7 @@
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\MariaDb1027Platform"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\MariaDb1043Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\MySQL57Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL100Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL94Platform"/>

@@ -80,6 +80,12 @@ class VersionAwarePlatformDriverTest extends TestCase
                 'https://github.com/doctrine/dbal/pull/5779',
                 false,
             ],
+            [
+                '11.0.2-MariaDB-1:11.0.2+maria~ubu2204',
+                MariaDB1052Platform::class,
+                'https://github.com/doctrine/dbal/pull/5779',
+                false,
+            ],
         ];
     }
 

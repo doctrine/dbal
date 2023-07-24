@@ -47,6 +47,13 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
                 return new MariaDb1043Platform();
             }
 
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6110',
+                'Support for MariaDB < 10.4 is deprecated and will be removed in DBAL 4.'
+                . ' Consider upgrading to a more recent version of MariaDB.',
+            );
+
             if (version_compare($mariaDbVersion, '10.2.7', '>=')) {
                 return new MariaDb1027Platform();
             }
@@ -77,14 +84,14 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 
                 return new MySQL57Platform();
             }
-        }
 
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5060',
-            'MySQL 5.6 support is deprecated and will be removed in DBAL 4.'
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/5060',
+                'MySQL 5.6 support is deprecated and will be removed in DBAL 4.'
                 . ' Consider upgrading to MySQL 5.7 or later.',
-        );
+            );
+        }
 
         return $this->getDatabasePlatform();
     }
