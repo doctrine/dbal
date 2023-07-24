@@ -215,7 +215,7 @@ abstract class AbstractSchemaManager
         if ($database === null) {
             $database = $this->getDatabase(__METHOD__);
         } else {
-            Deprecation::trigger(
+            Deprecation::triggerIfCalledFromOutside(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/5284',
                 'Passing $database to AbstractSchemaManager::listTableColumns() is deprecated.',
