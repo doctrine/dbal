@@ -16,9 +16,9 @@ use function array_combine;
 use function array_fill;
 use function count;
 
-class Result implements ResultInterface
+final class Result implements ResultInterface
 {
-    protected mysqli_stmt $statement;
+    private mysqli_stmt $statement;
 
     /**
      * Whether the statement result has columns. The property should be used only after the result metadata

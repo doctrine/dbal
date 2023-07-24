@@ -23,10 +23,10 @@ use const OCI_NUM;
 use const OCI_RETURN_LOBS;
 use const OCI_RETURN_NULLS;
 
-class Result implements ResultInterface
+final class Result implements ResultInterface
 {
     /** @var resource */
-    protected $statement;
+    private $statement;
 
     /**
      * @internal The result can be only instantiated by its driver connection or statement.

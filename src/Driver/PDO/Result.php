@@ -9,9 +9,9 @@ use PDO;
 use PDOException;
 use PDOStatement;
 
-class Result implements ResultInterface
+final class Result implements ResultInterface
 {
-    protected PDOStatement $statement;
+    private PDOStatement $statement;
 
     /** @internal The result can be only instantiated by its driver connection or statement. */
     public function __construct(PDOStatement $statement)

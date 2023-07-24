@@ -15,10 +15,10 @@ use function sqlsrv_rows_affected;
 use const SQLSRV_FETCH_ASSOC;
 use const SQLSRV_FETCH_NUMERIC;
 
-class Result implements ResultInterface
+final class Result implements ResultInterface
 {
     /** @var resource */
-    protected $statement;
+    private $statement;
 
     /**
      * @internal The result can be only instantiated by its driver connection or statement.

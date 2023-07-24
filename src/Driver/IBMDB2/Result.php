@@ -15,10 +15,10 @@ use function db2_num_fields;
 use function db2_num_rows;
 use function db2_stmt_error;
 
-class Result implements ResultInterface
+final class Result implements ResultInterface
 {
     /** @var resource */
-    protected $statement;
+    private $statement;
 
     /**
      * @internal The result can be only instantiated by its driver connection or statement.

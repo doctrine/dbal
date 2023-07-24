@@ -32,10 +32,10 @@ use const PGSQL_ASSOC;
 use const PGSQL_NUM;
 use const PHP_INT_SIZE;
 
-class Result implements ResultInterface
+final class Result implements ResultInterface
 {
     /** @var PgSqlResult|resource|null */
-    protected $result;
+    private $result;
 
     /** @param PgSqlResult|resource $result */
     public function __construct($result)

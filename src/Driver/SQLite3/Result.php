@@ -9,9 +9,9 @@ use SQLite3Result;
 use const SQLITE3_ASSOC;
 use const SQLITE3_NUM;
 
-class Result implements ResultInterface
+final class Result implements ResultInterface
 {
-    protected ?SQLite3Result $result;
+    private ?SQLite3Result $result;
     private int $changes;
 
     /** @internal The result can be only instantiated by its driver connection or statement. */
