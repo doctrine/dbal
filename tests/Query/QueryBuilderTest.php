@@ -442,7 +442,7 @@ class QueryBuilderTest extends TestCase
     public function testEmptyUpdate(): void
     {
         $qb  = new QueryBuilder($this->conn);
-        $qb2 = $qb->update();
+        $qb2 = $qb->update('users');
 
         self::assertEquals(QueryBuilder::UPDATE, $qb->getType());
         self::assertSame($qb2, $qb);
@@ -482,6 +482,17 @@ class QueryBuilderTest extends TestCase
 
         self::assertEquals(QueryBuilder::DELETE, $qb->getType());
         self::assertSame($qb2, $qb);
+    }
+
+    public function testEmptyDeleteUsingFrom(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->delete()
+           ->from('users', 'u')
+           ->from('articles')
+           ->where('u.foo = ?');
+
+        self::assertEquals('DELETE FROM users u WHERE u.foo = ?', (string) $qb);
     }
 
     public function testInsertValues(): void
@@ -552,6 +563,20 @@ class QueryBuilderTest extends TestCase
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
         self::assertSame($qb2, $qb);
+    }
+
+    public function testEmptyInsertUsingInto(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert()
+            ->into('users')
+            ->values(
+                ['foo' => '?'],
+            )
+            ->setValue('bar', '?');
+
+        self::assertEquals(QueryBuilder::INSERT, $qb->getType());
+        self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }
 
     public function testGetConnection(): void

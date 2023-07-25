@@ -15,7 +15,9 @@ use Doctrine\Deprecations\Deprecation;
 
 use function array_key_exists;
 use function array_keys;
+use function array_map;
 use function array_unshift;
+use function array_values;
 use function count;
 use function func_get_args;
 use function func_num_args;
@@ -69,7 +71,6 @@ class QueryBuilder
         'distinct' => false,
         'from'     => [],
         'join'     => [],
-        'set'      => [],
         'where'    => null,
         'groupBy'  => [],
         'having'   => null,
@@ -585,7 +586,7 @@ class QueryBuilder
     /**
      * Either appends to or replaces a single, generic query part.
      *
-     * The available parts are: 'select', 'from', 'set', 'where',
+     * The available parts are: 'select', 'from', 'where',
      * 'groupBy', 'having' and 'orderBy'.
      *
      * @param string $sqlPartName
@@ -610,7 +611,6 @@ class QueryBuilder
                 $sqlPartName === 'orderBy'
                 || $sqlPartName === 'groupBy'
                 || $sqlPartName === 'select'
-                || $sqlPartName === 'set'
             ) {
                 foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
@@ -755,10 +755,9 @@ class QueryBuilder
             return $this;
         }
 
-        return $this->add('from', [
-            'table' => $delete,
-            'alias' => $alias,
-        ]);
+        $this->sqlParts['from'] = [['table' => $delete, 'alias' => $alias]];
+
+        return $this;
     }
 
     /**
@@ -777,18 +776,13 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function update($update = null, $alias = null)
+    public function update($update, $alias = null)
     {
         $this->type = self::UPDATE;
 
-        if ($update === null) {
-            return $this;
-        }
+        $this->sqlParts['from'] = [['table' => $update, 'alias' => $alias]];
 
-        return $this->add('from', [
-            'table' => $update,
-            'alias' => $alias,
-        ]);
+        return $this;
     }
 
     /**
@@ -818,7 +812,28 @@ class QueryBuilder
             return $this;
         }
 
-        return $this->add('from', ['table' => $insert]);
+        $this->sqlParts['from'] = [['table' => $insert]];
+
+        return $this;
+    }
+
+    /**
+     * Turns the query being built into an insert query that inserts into
+     * a certain table
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->insert()
+     *         ->into('users')
+     * </code>
+     *
+     * @param string $insert The table into which the rows should be inserted.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function into($insert)
+    {
+        return $this->insert($insert);
     }
 
     /**
@@ -838,10 +853,9 @@ class QueryBuilder
      */
     public function from($from, $alias = null)
     {
-        return $this->add('from', [
-            'table' => $from,
-            'alias' => $alias,
-        ], true);
+        $this->sqlParts['from'][] = ['table' => $from, 'alias' => $alias];
+
+        return $this;
     }
 
     /**
@@ -970,7 +984,7 @@ class QueryBuilder
      */
     public function set($key, $value)
     {
-        return $this->add('set', $key . ' = ' . $value, true);
+        return $this->setValue($key, $value);
     }
 
     /**
@@ -1423,7 +1437,7 @@ class QueryBuilder
      */
     private function getSQLForInsert(): string
     {
-        return 'INSERT INTO ' . $this->sqlParts['from']['table'] .
+        return 'INSERT INTO ' . $this->sqlParts['from'][0]['table'] .
         ' (' . implode(', ', array_keys($this->sqlParts['values'])) . ')' .
         ' VALUES(' . implode(', ', $this->sqlParts['values']) . ')';
     }
@@ -1433,11 +1447,15 @@ class QueryBuilder
      */
     private function getSQLForUpdate(): string
     {
-        $table = $this->sqlParts['from']['table']
-            . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $table = $this->sqlParts['from'][0]['table']
+            . ($this->sqlParts['from'][0]['alias'] ? ' ' . $this->sqlParts['from'][0]['alias'] : '');
 
         return 'UPDATE ' . $table
-            . ' SET ' . implode(', ', $this->sqlParts['set'])
+            . ' SET ' . implode(', ', array_map(
+                (static fn ($k, $v) => $k . ' = ' . $v),
+                array_keys($this->sqlParts['values']),
+                array_values($this->sqlParts['values']),
+            ))
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
     }
 
@@ -1446,8 +1464,8 @@ class QueryBuilder
      */
     private function getSQLForDelete(): string
     {
-        $table = $this->sqlParts['from']['table']
-            . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $table = $this->sqlParts['from'][0]['table']
+            . ($this->sqlParts['from'][0]['alias'] ? ' ' . $this->sqlParts['from'][0]['alias'] : '');
 
         return 'DELETE FROM ' . $table
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
