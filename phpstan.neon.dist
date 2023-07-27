@@ -136,5 +136,9 @@ parameters:
             message: '~^Strict comparison using === between array<int, array> and false will always evaluate to false\.$~'
             paths:
                 - src/Driver/PgSQL/Result.php
+
+        # Ignore the possible false return value of db2_num_rows().
+        - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\Connection\:\:exec\(\) should return int but returns int<0, max>\|false\.$~'
+        - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\Result\:\:rowCount\(\) should return int but returns int<0, max>\|false\.$~'
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
