@@ -24,7 +24,8 @@ class ParserTest extends FunctionalTestCase
             self::markTestSkipped('This test requires the pgsql or pdo_pgsql driver.');
         }
 
-        $sql = 'SELECT * FROM (SELECT CAST(\'xyz\' AS text) AS x, \'{"foo":[1,2,3,4,5],"bar":true}\'::jsonb AS json_value) AS ' .
+        $sql = 'SELECT * FROM (SELECT CAST(\'xyz\' AS text) AS x, ' .
+               '\'{"foo":[1,2,3,4,5],"bar":true}\'::jsonb AS json_value) AS ' .
                'dummy WHERE x = :x AND json_value @> ANY (ARRAY    [:value]::jsonb[]);';
 
         $params = [
