@@ -277,8 +277,7 @@ jobs:
         php-version:
           - "8.1"
         mariadb-version:
-          - "10.2"  # Oldest version supported by DBAL
-          - "10.4"  # LTS (Jun 2024)
+          - "10.4"  # Oldest version supported by DBAL, LTS (Jun 2024)
           - "10.5"  # LTS (Jun 2025)
           - "10.6"  # LTS (Jul 2026)
           - "10.9"  # STS (Aug 2023)

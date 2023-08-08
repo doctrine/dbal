@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
-use Doctrine\DBAL\Platforms\MariaDB1043Platform;
 use Doctrine\DBAL\Platforms\MariaDB1052Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
@@ -36,10 +35,6 @@ abstract class AbstractMySQLDriver implements Driver
             $mariaDbVersion = $this->getMariaDbMysqlVersionNumber($version);
             if (version_compare($mariaDbVersion, '10.5.2', '>=')) {
                 return new MariaDB1052Platform();
-            }
-
-            if (version_compare($mariaDbVersion, '10.4.3', '>=')) {
-                return new MariaDB1043Platform();
             }
 
             return new MariaDBPlatform();

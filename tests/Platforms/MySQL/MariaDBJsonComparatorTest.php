@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms\MySQL;
 
-use Doctrine\DBAL\Platforms\MariaDB1043Platform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\Comparator;
@@ -25,7 +25,7 @@ class MariaDBJsonComparatorTest extends TestCase
     protected function setUp(): void
     {
         $this->comparator = new Comparator(
-            new MariaDB1043Platform(),
+            new MariaDBPlatform(),
             new class implements CharsetMetadataProvider {
                 public function getDefaultCharsetCollation(string $charset): ?string
                 {

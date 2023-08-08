@@ -42,11 +42,6 @@
                 <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
-        <DeprecatedClass>
-            <errorLevel type="suppress">
-                <referencedClass name="Doctrine\DBAL\Platforms\MariaDB1043Platform"/>
-            </errorLevel>
-        </DeprecatedClass>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!-- TODO for PHPUnit 10 -->

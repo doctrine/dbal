@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDBKeywords;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\JsonType;
 
 use function array_diff_key;
 use function array_merge;
@@ -20,13 +21,53 @@ use function in_array;
 class MariaDBPlatform extends AbstractMySQLPlatform
 {
     /**
-     * {@inheritDoc}
+     * Use JSON rather than LONGTEXT for json columns. Since it is not a true native type, do not override
+     * hasNativeJsonType() so the DC2Type comment will still be set.
      *
      * @link https://mariadb.com/kb/en/library/json-data-type/
+     *
+     * {@inheritDoc}
      */
     public function getJsonTypeDeclarationSQL(array $column): string
     {
-        return 'LONGTEXT';
+        return 'JSON';
+    }
+
+    /**
+     * Generate SQL snippets to reverse the aliasing of JSON to LONGTEXT.
+     *
+     * MariaDb aliases columns specified as JSON to LONGTEXT and sets a CHECK constraint to ensure the column
+     * is valid json. This function generates the SQL snippets which reverse this aliasing i.e. report a column
+     * as JSON where it was originally specified as such instead of LONGTEXT.
+     *
+     * The CHECK constraints are stored in information_schema.CHECK_CONSTRAINTS so JOIN that table.
+     *
+     * @return array{string, string}
+     */
+    public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
+    {
+        if ($this->getJsonTypeDeclarationSQL([]) !== 'JSON') {
+            return parent::getColumnTypeSQLSnippets($tableAlias);
+        }
+
+        $columnTypeSQL = <<<SQL
+            IF(
+                x.CHECK_CLAUSE IS NOT NULL AND $tableAlias.COLUMN_TYPE = 'longtext',
+                'json',
+                $tableAlias.COLUMN_TYPE
+            )
+        SQL;
+
+        $joinCheckConstraintSQL = <<<SQL
+        LEFT JOIN information_schema.CHECK_CONSTRAINTS x
+            ON (
+                $tableAlias.TABLE_SCHEMA = x.CONSTRAINT_SCHEMA
+                AND $tableAlias.TABLE_NAME = x.TABLE_NAME
+                AND x.CHECK_CLAUSE = CONCAT('json_valid(`', $tableAlias.COLUMN_NAME , '`)')
+            )
+        SQL;
+
+        return [$columnTypeSQL, $joinCheckConstraintSQL];
     }
 
     /**
@@ -117,6 +158,19 @@ class MariaDBPlatform extends AbstractMySQLPlatform
         }
 
         return $foreignKeys;
+    }
+
+    /** {@inheritDoc} */
+    public function getColumnDeclarationSQL(string $name, array $column): string
+    {
+        // MariaDb forces column collation to utf8mb4_bin where the column was declared as JSON so ignore
+        // collation and character set for json columns as attempting to set them can cause an error.
+        if ($this->getJsonTypeDeclarationSQL([]) === 'JSON' && ($column['type'] ?? null) instanceof JsonType) {
+            unset($column['collation']);
+            unset($column['charset']);
+        }
+
+        return parent::getColumnDeclarationSQL($name, $column);
     }
 
     protected function createReservedKeywordsList(): KeywordList
