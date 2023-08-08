@@ -77,6 +77,16 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $this->connection->executeStatement('DROP SCHEMA testschema');
         } catch (Exception) {
         }
+
+        try {
+            $this->connection->executeStatement('DROP VIEW test_view');
+        } catch (Exception) {
+        }
+
+        try {
+            $this->connection->executeStatement('DROP VIEW doctrine_test_view');
+        } catch (Exception) {
+        }
     }
 
     public function testCreateSequence(): void

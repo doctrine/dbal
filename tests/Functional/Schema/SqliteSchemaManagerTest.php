@@ -42,6 +42,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListForeignKeysFromExistingDatabase(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS user');
         $this->connection->executeStatement(<<<'EOS'
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
