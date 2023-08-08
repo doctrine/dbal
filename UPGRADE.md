@@ -1329,7 +1329,7 @@ Additional related changes:
 
 1. The `FetchMode` class and the `setFetchMode()` method of the `Connection` and `Statement` interfaces are removed.
 2. The `Statement::fetch()` method is replaced with `fetchNumeric()`, `fetchAssociative()` and `fetchOne()`.
-3. The `Statement::fetchAll()` method is replaced with `fetchAllNumeric()`, `fetchAllAssociative()` and `fechColumn()`.
+3. The `Statement::fetchAll()` method is replaced with `fetchAllNumeric()`, `fetchAllAssociative()` and `fetchColumn()`.
 4. The `Statement::fetchColumn()` method is replaced with `fetchOne()`.
 5. The `Connection::fetchArray()` and `fetchAssoc()` methods are replaced with `fetchNumeric()` and `fetchAssociative()` respectively.
 6. The `StatementIterator` class is removed. The usage of a `Statement` object as `Traversable` is no longer possible. Use `iterateNumeric()`, `iterateAssociative()` and `iterateColumn()` instead.
@@ -1393,7 +1393,7 @@ All implementations of the `VersionAwarePlatformDriver` interface have to implem
 ## BC BREAK: Removed `MsSQLKeywords` class
 
 The `Doctrine\DBAL\Platforms\MsSQLKeywords` class has been removed.
-Please use `Doctrine\DBAL\Platforms\SQLServerPlatform `instead.
+Please use `Doctrine\DBAL\Platforms\SQLServerPlatform` instead.
 
 ## BC BREAK: Removed PDO DB2 driver
 
