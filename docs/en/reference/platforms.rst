@@ -39,7 +39,8 @@ MySQL
 MariaDB
 ^^^^^
 
--  ``MariaDBPlatform`` for version 10.2 (10.2.7 GA) and above.
+-  ``MariaDBPlatform`` for version 10.4 (10.4.3 GA) and above.
+-  ``MariaDB1052Platform`` for version 10.5 (10.5.2 GA) and above.
 
 Oracle
 ^^^^^^

@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDB1052Platform;
 
-class MariaDB1052PlatformTest extends MariaDB1043PlatformTest
+class MariaDB1052PlatformTest extends MariaDBPlatformTest
 {
     public function createPlatform(): AbstractPlatform
     {

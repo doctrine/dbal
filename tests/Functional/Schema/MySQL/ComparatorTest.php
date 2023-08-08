@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema\MySQL;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MariaDB1043Platform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
@@ -177,7 +177,7 @@ final class ComparatorTest extends FunctionalTestCase
 
     public function testMariaDb1043NativeJsonUpgradeDetected(): void
     {
-        if (! $this->platform instanceof MariaDB1043Platform) {
+        if (! $this->platform instanceof MariaDBPlatform) {
             self::markTestSkipped();
         }
 

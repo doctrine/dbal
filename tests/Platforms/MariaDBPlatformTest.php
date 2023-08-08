@@ -16,13 +16,14 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
     }
 
     /**
-     * From MariaDB 10.2.7, JSON type is an alias to LONGTEXT
+     * From MariaDB 10.2.7, JSON type is an alias to LONGTEXT however from 10.4.3 setting a column
+     * as JSON adds additional functionality so use JSON.
      *
      * @link https://mariadb.com/kb/en/library/json-data-type/
      */
     public function testReturnsJsonTypeDeclarationSQL(): void
     {
-        self::assertSame('LONGTEXT', $this->platform->getJsonTypeDeclarationSQL([]));
+        self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
     }
 
     public function testInitializesJsonTypeMapping(): void

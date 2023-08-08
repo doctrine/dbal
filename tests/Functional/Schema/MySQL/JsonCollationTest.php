@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema\MySQL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MariaDB1043Platform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
@@ -31,7 +31,7 @@ final class JsonCollationTest extends FunctionalTestCase
     {
         $this->platform = $this->connection->getDatabasePlatform();
 
-        if (! $this->platform instanceof MariaDB1043Platform) {
+        if (! $this->platform instanceof MariaDBPlatform) {
             self::markTestSkipped();
         }
 
