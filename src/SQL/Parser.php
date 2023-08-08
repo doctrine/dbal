@@ -12,17 +12,21 @@ use function array_values;
 use function assert;
 use function current;
 use function implode;
+use function is_array;
 use function is_string;
 use function key;
 use function next;
 use function preg_last_error;
 use function preg_match;
 use function preg_replace;
+use function preg_split;
 use function reset;
 use function sprintf;
 use function strlen;
 
 use const PREG_NO_ERROR;
+use const PREG_SPLIT_DELIM_CAPTURE;
+use const PREG_SPLIT_NO_EMPTY;
 
 /**
  * The SQL parser that focuses on identifying prepared statement parameters. It implements parsing other tokens like
@@ -49,6 +53,10 @@ final class Parser
     private const OTHER                = '[^' . self::SPECIAL_CHARS . ']+';
 
     private const REPLACE_PATTERNS = ['/\b([Aa][Rr][Rr][Aa][Yy])\s*\[/' => '\1['];
+
+    private const STRING_LITERAL_DELIMITER = "/(['\"])((?:\\\\\\1|(?:(?!\\1)).)*?)\\1(*SKIP)(*F)|([^'\"]+)/";
+
+    private const STRING_LITERAL = '/^([\'"`])(?:\\\\\\1|(?:(?!\1)).)*\1$/';
 
     private string $sqlPattern;
 
@@ -85,7 +93,24 @@ final class Parser
      */
     public function parse(string $sql, Visitor $visitor): void
     {
-        $sql = preg_replace(array_keys(self::REPLACE_PATTERNS), array_values(self::REPLACE_PATTERNS), $sql);
+        $parts = preg_split(self::STRING_LITERAL_DELIMITER, $sql, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        if (is_array($parts)) {
+            foreach ($parts as &$part) {
+                if (preg_match(self::STRING_LITERAL, $part) !== 0) {
+                    continue;
+                }
+
+                $part = preg_replace(
+                    array_keys(self::REPLACE_PATTERNS),
+                    array_values(self::REPLACE_PATTERNS),
+                    $part,
+                );
+            }
+
+            unset($part);
+            $sql = implode('', $parts);
+        }
+
         assert(is_string($sql));
 
         /** @var array<string,callable> $patterns */
