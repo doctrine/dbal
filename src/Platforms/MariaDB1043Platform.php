@@ -11,6 +11,9 @@ use Doctrine\DBAL\Types\JsonType;
  *
  * Extend deprecated MariaDb1027Platform to ensure correct functions used in MySQLSchemaManager which
  * tests for MariaDb1027Platform not MariaDBPlatform.
+ *
+ * @deprecated This class will be merged with {@see MariaDBPlatform} in 4.0 because support for MariaDB
+ *             releases prior to 10.4.3 will be dropped.
  */
 class MariaDB1043Platform extends MariaDBPlatform
 {
