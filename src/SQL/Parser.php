@@ -111,8 +111,6 @@ final class Parser
             $sql = implode('', $parts);
         }
 
-        assert(is_string($sql));
-
         /** @var array<string,callable> $patterns */
         $patterns = [
             self::NAMED_PARAMETER => static function (string $sql) use ($visitor): void {
