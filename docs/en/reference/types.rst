@@ -87,14 +87,14 @@ Unsigned integer values have a range of **0** to **18446744073709551615** while 
 integer values have a range of **−9223372036854775808** to **9223372036854775807**.
 If you know the integer data you want to store always fits into one of these ranges
 you should consider using this type.
-Values retrieved from the database are always converted to PHP's ``string`` type
+Values retrieved from the database are always converted to PHP's ``int`` type
 or ``null`` if no data is present.
 
 .. note::
 
     For compatibility reasons this type is not converted to an integer
-    as PHP can only represent big integer values as real integers on
-    systems with a 64-bit architecture and would fall back to approximated
+    on 32-bit architectures as PHP can only represent big integer values as real
+    integers on systems with a 64-bit architecture and would fall back to approximated
     float values otherwise which could lead to false assumptions in applications.
 
     Not all of the database vendors support unsigned integers, so such an assumption
