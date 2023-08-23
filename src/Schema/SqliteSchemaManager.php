@@ -230,7 +230,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $indexBuffer = [];
 
         // fetch primary
-        $indexArray = $this->_conn->fetchAllAssociative('SELECT * FROM PRAGMA_TABLE_INFO (?)', [$tableName]);
+        $indexArray = $this->_conn->fetchAllAssociative('SELECT * FROM PRAGMA_TABLE_XINFO (?)', [$tableName]);
 
         usort(
             $indexArray,
@@ -684,7 +684,7 @@ SQL;
             SELECT t.name AS table_name,
                    c.*
               FROM sqlite_master t
-              JOIN pragma_table_info(t.name) c
+              JOIN pragma_table_xinfo(t.name) c
 SQL;
 
         $conditions = [

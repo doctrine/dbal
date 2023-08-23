@@ -291,4 +291,27 @@ SQL;
         self::assertSame('users', $foreignKey->getForeignTableName());
         self::assertSame(['id'], $foreignKey->getForeignColumns());
     }
+
+    public function testGeneratedColumnsGetListed(): void
+    {
+        $this->dropTableIfExists('users');
+
+        $ddl = <<<'DDL'
+        CREATE TABLE "users" (
+            "id" INTEGER,
+            "a" INTEGER,
+            "b" INTEGER AS (a*2),
+            "c" INT GENERATED ALWAYS AS (a*2) VIRTUAL,
+            "d" INT GENERATED ALWAYS AS (a*2) STORED
+        );
+        DDL;
+
+        $this->connection->executeStatement($ddl);
+        $users = $this->schemaManager->introspectTable('users');
+
+        $this->assertTrue($users->hasColumn('a'));
+        $this->assertTrue($users->hasColumn('b'));
+        $this->assertTrue($users->hasColumn('c'));
+        $this->assertTrue($users->hasColumn('d'));
+    }
 }
