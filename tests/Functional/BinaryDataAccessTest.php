@@ -16,7 +16,6 @@ use function array_keys;
 use function array_map;
 use function hex2bin;
 use function is_resource;
-use function pack;
 use function stream_get_contents;
 
 use const CASE_LOWER;
@@ -270,10 +269,23 @@ class BinaryDataAccessTest extends FunctionalTestCase
 
     public function testNativeArrayListSupport(): void
     {
+        $binaryValues = [
+            hex2bin('A0AEFA'),
+            hex2bin('1F43BA'),
+            hex2bin('8C9D2A'),
+            hex2bin('72E8AA'),
+            hex2bin('5B6F9A'),
+            hex2bin('DAB24A'),
+            hex2bin('3E71CA'),
+            hex2bin('F0D6EA'),
+            hex2bin('6A8B5A'),
+            hex2bin('C582FA'),
+        ];
+
         for ($i = 100; $i < 110; $i++) {
             $this->connection->insert('binary_fetch_table', [
                 'test_int' => $i,
-                'test_binary' => pack('L', $i),
+                'test_binary' => $binaryValues[$i - 100],
             ], [
                 'test_binary' => ParameterType::BINARY,
             ]);
@@ -293,11 +305,11 @@ class BinaryDataAccessTest extends FunctionalTestCase
             'SELECT test_int FROM binary_fetch_table WHERE test_binary IN (?)',
             [
                 [
-                    pack('L', 100),
-                    pack('L', 101),
-                    pack('L', 102),
-                    pack('L', 103),
-                    pack('L', 104),
+                    $binaryValues[0],
+                    $binaryValues[1],
+                    $binaryValues[2],
+                    $binaryValues[3],
+                    $binaryValues[4],
                 ],
             ],
             [ArrayParameterType::BINARY],
@@ -311,11 +323,11 @@ class BinaryDataAccessTest extends FunctionalTestCase
             'SELECT test_binary FROM binary_fetch_table WHERE test_binary IN (?)',
             [
                 [
-                    pack('L', 100),
-                    pack('L', 101),
-                    pack('L', 102),
-                    pack('L', 103),
-                    pack('L', 104),
+                    $binaryValues[0],
+                    $binaryValues[1],
+                    $binaryValues[2],
+                    $binaryValues[3],
+                    $binaryValues[4],
                 ],
             ],
             [ArrayParameterType::BINARY],
@@ -332,11 +344,11 @@ class BinaryDataAccessTest extends FunctionalTestCase
         );
 
         self::assertEquals([
-            pack('L', 100),
-            pack('L', 101),
-            pack('L', 102),
-            pack('L', 103),
-            pack('L', 104),
+            $binaryValues[0],
+            $binaryValues[1],
+            $binaryValues[2],
+            $binaryValues[3],
+            $binaryValues[4],
         ], $data);
     }
 }
