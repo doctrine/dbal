@@ -20,9 +20,8 @@
         {
             "name": "3.6",
             "branchName": "3.6.x",
-            "slug": "current",
-            "current": true,
-            "aliases": ["stable"]
+            "slug": "3.6",
+            "current": true
         },
         {
             "name": "3.5",
