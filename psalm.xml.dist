@@ -589,6 +589,11 @@
                 <file name="tests/Functional/Schema/SchemaManagerFunctionalTestCase.php"/>
             </errorLevel>
         </DocblockTypeContradiction>
+        <DuplicateClass>
+            <errorLevel type="suppress">
+                <file name="src/Tools/Console/Command/CommandCompatibility.php"/>
+            </errorLevel>
+        </DuplicateClass>
         <FalsableReturnStatement>
             <errorLevel type="suppress">
                 <!--

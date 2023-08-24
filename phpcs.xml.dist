@@ -34,6 +34,10 @@
         <exclude name="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore"/>
     </rule>
 
+    <rule ref="Generic.Classes.DuplicateClassName.Found">
+        <exclude-pattern>*/src/Tools/Console/Command/CommandCompatibility.php</exclude-pattern>
+    </rule>
+
     <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
         <exclude-pattern>*/src/Configuration.php</exclude-pattern>
         <exclude-pattern>*/src/Connection.php</exclude-pattern>
@@ -70,6 +74,7 @@
     </rule>
 
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
+        <exclude-pattern>*/src/Tools/Console/Command/CommandCompatibility.php</exclude-pattern>
         <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>
 
