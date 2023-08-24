@@ -122,6 +122,16 @@ abstract class Type
     }
 
     /**
+     * Finds a name for the given type.
+     *
+     * @throws Exception
+     */
+    public static function lookupName(self $type): string
+    {
+        return self::getTypeRegistry()->lookupName($type);
+    }
+
+    /**
      * Adds a custom type to the type map.
      *
      * @param string             $name      The name of the type.

@@ -17,6 +17,13 @@ class TypeTest extends TestCase
         self::assertTrue(Type::hasType($name));
     }
 
+    /** @dataProvider defaultTypesProvider() */
+    public function testDefaultTypesReverseLookup(string $name): void
+    {
+        $type = Type::getType($name);
+        self::assertSame($name, Type::lookupName($type));
+    }
+
     /** @return iterable<string[]> */
     public static function defaultTypesProvider(): iterable
     {
