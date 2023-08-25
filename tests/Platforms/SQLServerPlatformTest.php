@@ -126,9 +126,9 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             'NVARCHAR(255)',
             $this->platform->getStringTypeDeclarationSQL([]),
         );
-        self::assertSame('VARCHAR(MAX)', $this->platform->getClobTypeDeclarationSQL([]));
+        self::assertSame('NVARCHAR(MAX)', $this->platform->getClobTypeDeclarationSQL([]));
         self::assertSame(
-            'VARCHAR(MAX)',
+            'NVARCHAR(MAX)',
             $this->platform->getClobTypeDeclarationSQL(['length' => 5, 'fixed' => true]),
         );
     }
@@ -747,7 +747,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function getCreateTableColumnTypeCommentsSQL(): array
     {
         return [
-            'CREATE TABLE test (id INT NOT NULL, data VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))',
+            'CREATE TABLE test (id INT NOT NULL, data NVARCHAR(MAX) NOT NULL, PRIMARY KEY (id))',
             "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:array)', "
                 . "N'SCHEMA', 'dbo', N'TABLE', 'test', N'COLUMN', data",
         ];
@@ -786,8 +786,8 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
                     . 'comment INT NOT NULL, '
                     . '[comment_quoted] INT NOT NULL, '
                     . '[create] INT NOT NULL, '
-                    . 'commented_type VARCHAR(MAX) NOT NULL, '
-                    . 'commented_type_with_comment VARCHAR(MAX) NOT NULL, '
+                    . 'commented_type NVARCHAR(MAX) NOT NULL, '
+                    . 'commented_type_with_comment NVARCHAR(MAX) NOT NULL, '
                     . 'comment_with_string_literal_char NVARCHAR(255) NOT NULL, '
                     . 'PRIMARY KEY (id))',
                 "EXEC sp_addextendedproperty N'MS_Description', "
@@ -994,14 +994,14 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
                 'ALTER TABLE mytable ADD added_comment INT NOT NULL',
                 'ALTER TABLE mytable ADD [added_comment_quoted] INT NOT NULL',
                 'ALTER TABLE mytable ADD [select] INT NOT NULL',
-                'ALTER TABLE mytable ADD added_commented_type VARCHAR(MAX) NOT NULL',
-                'ALTER TABLE mytable ADD added_commented_type_with_comment VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ADD added_commented_type NVARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ADD added_commented_type_with_comment NVARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ADD added_comment_with_string_literal_char NVARCHAR(255) NOT NULL',
                 'ALTER TABLE mytable DROP COLUMN comment_integer_0',
                 'ALTER TABLE mytable ALTER COLUMN comment_null NVARCHAR(255) NOT NULL',
-                'ALTER TABLE mytable ALTER COLUMN comment_empty_string VARCHAR(MAX) NOT NULL',
-                'ALTER TABLE mytable ALTER COLUMN [comment_quoted] VARCHAR(MAX) NOT NULL',
-                'ALTER TABLE mytable ALTER COLUMN [create] VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ALTER COLUMN comment_empty_string NVARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ALTER COLUMN [comment_quoted] NVARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ALTER COLUMN [create] NVARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN commented_type INT NOT NULL',
 
                 // Added columns.

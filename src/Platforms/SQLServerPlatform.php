@@ -1354,7 +1354,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getClobTypeDeclarationSQL(array $column)
     {
-        return 'VARCHAR(MAX)';
+        return 'NVARCHAR(MAX)';
     }
 
     /**
