@@ -101,6 +101,7 @@ final class ExpandArrayParameters implements Visitor
             $type !== ArrayParameterType::INTEGER
             && $type !== ArrayParameterType::STRING
             && $type !== ArrayParameterType::ASCII
+            && $type !== ArrayParameterType::BINARY
         ) {
             $this->appendTypedParameter([$value], $type);
 
