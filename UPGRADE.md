@@ -2389,3 +2389,14 @@ The constructor of `Doctrine\DBAL\Exception\DriverException` is now `@internal`.
 - all `Configuration` methods are now typed
 - `Configuration::setSchemaAssetsFilter()` now returns `void`
 - `Configuration::$_attributes` has been removed; use individual properties in subclasses instead
+
+## BC Break: BIGINT types are now converted to integers
+
+Before:
+
+BIGINT values retrieved from the database used to be converted to PHP string.
+
+After:
+
+BIGINT values are cast to a PHP integer if the value is within the PHP integer range.
+Otherwise, it converts to a string.

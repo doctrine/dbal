@@ -7,8 +7,11 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
+use const PHP_INT_MAX;
+use const PHP_INT_MIN;
+
 /**
- * Type that maps a database BIGINT to a PHP string.
+ * Type that maps a database BIGINT to a PHP int.
  */
 class BigIntType extends Type implements PhpIntegerMappingType
 {
@@ -22,18 +25,29 @@ class BigIntType extends Type implements PhpIntegerMappingType
 
     public function getBindingType(): ParameterType
     {
-        return ParameterType::STRING;
+        return ParameterType::INTEGER;
     }
 
     /**
      * @param T $value
      *
-     * @return (T is null ? null : string)
+     * @return (T is null ? null : int|string)
      *
      * @template T
      */
-    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?string
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): int|string|null
     {
-        return $value === null ? null : (string) $value;
+        if ($value === null) {
+            return null;
+        }
+
+        if (
+            $value >= PHP_INT_MIN &&
+            $value <= PHP_INT_MAX
+        ) {
+            return (int) $value;
+        }
+
+        return (string) $value;
     }
 }
