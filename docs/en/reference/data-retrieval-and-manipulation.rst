@@ -538,4 +538,4 @@ given data.
 
     <?php
     $conn->update('user', ['username' => 'jwage'], ['id' => 1]);
-    // UPDATE user (username) VALUES (?) WHERE id = ? (jwage, 1)
+    // UPDATE user SET username = ? WHERE id = ? (jwage, 1)
