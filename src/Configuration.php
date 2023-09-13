@@ -56,6 +56,14 @@ class Configuration
      */
     protected $autoCommit = true;
 
+    /**
+     * Whether type comments should be disabled to provide the same DB schema than
+     * will be obtained with DBAL 4.x. This is useful when relying only on the
+     * platform-aware schema comparison (which does not need those type comments)
+     * rather than the deprecated legacy tooling.
+     */
+    private bool $disableTypeComments = false;
+
     private ?SchemaManagerFactory $schemaManagerFactory = null;
 
     public function __construct()
@@ -238,6 +246,19 @@ class Configuration
     public function setSchemaManagerFactory(SchemaManagerFactory $schemaManagerFactory): self
     {
         $this->schemaManagerFactory = $schemaManagerFactory;
+
+        return $this;
+    }
+
+    public function getDisableTypeComments(): bool
+    {
+        return $this->disableTypeComments;
+    }
+
+    /** @return $this */
+    public function setDisableTypeComments(bool $disableTypeComments): self
+    {
+        $this->disableTypeComments = $disableTypeComments;
 
         return $this;
     }
