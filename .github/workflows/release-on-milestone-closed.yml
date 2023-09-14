@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v4"
 
       - name: "Release"
         uses: "laminas/automatic-releases@1.24.0"
