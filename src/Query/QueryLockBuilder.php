@@ -13,9 +13,7 @@ use function ltrim;
 use function rtrim;
 use function trim;
 
-/**
- * @internal
- */
+/** @internal */
 final class QueryLockBuilder
 {
     public const FOR_UPDATE = 'FOR_UPDATE';

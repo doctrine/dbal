@@ -6,8 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\LockMode;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\Deprecations\Deprecation;
 use Throwable;
 
@@ -116,12 +114,13 @@ class TableGenerator
         $this->conn->beginTransaction();
 
         try {
-            $platform = $this->conn->getDatabasePlatform();
-            $sql      = 'SELECT sequence_value, sequence_increment_by'
-                . ' FROM ' . $platform->appendLockHint($this->generatorTableName, LockMode::PESSIMISTIC_WRITE)
-                . ' WHERE sequence_name = ? '
-                . ($platform instanceof SQLServerPlatform ? '' : $platform->getWriteLockSQL());
-            $row      = $this->conn->fetchAssociative($sql, [$sequence]);
+            $qb  = $this->conn->createQueryBuilder();
+            $sql = $qb->select('t.sequence_value', 't.sequence_increment_by')
+                ->from($this->generatorTableName, 't')
+                ->where('t.sequence_name = ?')
+                ->lockForUpdate()
+                ->getSQL();
+            $row = $this->conn->fetchAssociative($sql, [$sequence]);
 
             if ($row !== false) {
                 $row = array_change_key_case($row, CASE_LOWER);
