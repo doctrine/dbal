@@ -45,7 +45,10 @@ class BigIntTypeTest extends TestCase
     {
         self::assertSame(
             PHP_INT_MIN,
-            $this->type->convertToPHPValue((string) PHP_INT_MIN, $this->platform),
+            $this->type->convertToPHPValue(
+                (string) PHP_INT_MIN,
+                $this->platform,
+            ),
         );
     }
 
@@ -53,16 +56,16 @@ class BigIntTypeTest extends TestCase
     {
         self::assertSame(
             PHP_INT_MAX,
-            $this->type->convertToPHPValue((string) PHP_INT_MAX, $this->platform),
+            $this->type->convertToPHPValue(
+                (string) PHP_INT_MAX,
+                $this->platform,
+            ),
         );
     }
 
     public function testShouldConvertZeroIntegerToInteger(): void
     {
-        self::assertSame(
-            0,
-            $this->type->convertToPHPValue(0, $this->platform),
-        );
+        self::assertSame(0, $this->type->convertToPHPValue(0, $this->platform));
     }
 
     public function testShouldConvertZeroStringToInteger(): void
@@ -86,6 +89,17 @@ class BigIntTypeTest extends TestCase
         self::assertSame(
             PHP_INT_MAX - 1,
             $this->type->convertToPHPValue(PHP_INT_MAX - 1, $this->platform),
+        );
+    }
+
+    public function testShouldConvertMaximumUnsignedIntegerValueToString(): void
+    {
+        self::assertSame(
+            '18446744073709551615',
+            $this->type->convertToPHPValue(
+                '18446744073709551615',
+                $this->platform,
+            ),
         );
     }
 }

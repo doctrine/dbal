@@ -25,7 +25,7 @@ class BigIntType extends Type implements PhpIntegerMappingType
 
     public function getBindingType(): ParameterType
     {
-        return ParameterType::INTEGER;
+        return ParameterType::STRING;
     }
 
     /**
@@ -42,8 +42,8 @@ class BigIntType extends Type implements PhpIntegerMappingType
         }
 
         if (
-            $value >= PHP_INT_MIN &&
-            $value <= PHP_INT_MAX
+            ($value >= PHP_INT_MIN && $value < PHP_INT_MAX) ||
+            (string) $value === (string) PHP_INT_MAX
         ) {
             return (int) $value;
         }
