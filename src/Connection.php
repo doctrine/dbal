@@ -209,6 +209,7 @@ class Connection
 
             $this->platform = $params['platform'];
             $this->platform->setEventManager($this->_eventManager);
+            $this->platform->setDisableTypeComments($config->getDisableTypeComments());
         }
 
         $this->_expr = $this->createExpressionBuilder();
@@ -315,6 +316,7 @@ class Connection
         if ($this->platform === null) {
             $this->platform = $this->detectDatabasePlatform();
             $this->platform->setEventManager($this->_eventManager);
+            $this->platform->setDisableTypeComments($this->_config->getDisableTypeComments());
         }
 
         return $this->platform;

@@ -103,6 +103,14 @@ abstract class AbstractPlatform
      */
     protected $_keywords;
 
+    private bool $disableTypeComments = false;
+
+    /** @internal */
+    final public function setDisableTypeComments(bool $value): void
+    {
+        $this->disableTypeComments = $value;
+    }
+
     /**
      * Sets the EventManager used by the Platform.
      *
@@ -578,7 +586,7 @@ abstract class AbstractPlatform
 
         $comment = $column->getComment();
 
-        if ($column->getType()->requiresSQLCommentHint($this)) {
+        if (! $this->disableTypeComments && $column->getType()->requiresSQLCommentHint($this)) {
             $comment .= $this->getDoctrineTypeComment($column->getType());
         }
 
