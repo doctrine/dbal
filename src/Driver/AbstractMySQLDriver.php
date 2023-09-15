@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\MySQL8013Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
@@ -50,7 +51,11 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
                     );
                 }
 
-                return new MySQL80Platform();
+                if (version_compare($version, '8.0.13', '<')) {
+                    return new MySQL80Platform();
+                }
+
+                return new MySQL8013Platform();
             }
 
             if (version_compare($oracleMysqlVersion, '5.7.9', '>=')) {

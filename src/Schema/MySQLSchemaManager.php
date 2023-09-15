@@ -7,6 +7,7 @@ use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
+use Doctrine\DBAL\Platforms\MySQL8013Platform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
@@ -450,10 +451,12 @@ SQL;
             $sql .= ' TABLE_NAME,';
         }
 
-        $sql .= <<<'SQL'
+        $columnName = $this->getColumnNameForIndexFetch();
+
+        $sql .= <<<SQL
         NON_UNIQUE  AS Non_Unique,
         INDEX_NAME  AS Key_name,
-        COLUMN_NAME AS Column_Name,
+        {$columnName},
         SUB_PART    AS Sub_Part,
         INDEX_TYPE  AS Index_Type
 FROM information_schema.STATISTICS
@@ -583,5 +586,22 @@ SQL;
         }
 
         return $options;
+    }
+
+    /*
+     * EXPRESSION
+     *
+     * MySQL 8.0.13 and higher supports functional key parts (see Functional Key Parts), which affects both
+     * the COLUMN_NAME and EXPRESSION columns:
+     * For a nonfunctional key part, COLUMN_NAME indicates the column indexed by the key part and EXPRESSION is NULL.
+     * For a functional key part, COLUMN_NAME column is NULL and EXPRESSION indicates the expression for the key part.
+     */
+    private function getColumnNameForIndexFetch(): string
+    {
+        if ($this->_platform instanceof MySQL8013Platform) {
+            return "COALESCE(COLUMN_NAME, concat('(', EXPRESSION, ')')) AS Column_Name";
+        }
+
+        return 'COLUMN_NAME as Column_Name';
     }
 }

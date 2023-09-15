@@ -1470,7 +1470,7 @@ abstract class AbstractSchemaManager
                 ];
             }
 
-            $result[$keyName]['columns'][]            = $tableIndex['column_name'];
+            $result[$keyName]['columns'][]            = stripslashes($tableIndex['column_name']);
             $result[$keyName]['options']['lengths'][] = $tableIndex['length'] ?? null;
         }
 
