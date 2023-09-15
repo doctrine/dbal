@@ -453,7 +453,7 @@ SQL;
         $sql .= <<<'SQL'
         NON_UNIQUE  AS Non_Unique,
         INDEX_NAME  AS Key_name,
-        COLUMN_NAME AS Column_Name,
+        COALESCE(column_name, concat('(', expression, ')')) AS Column_Name,
         SUB_PART    AS Sub_Part,
         INDEX_TYPE  AS Index_Type
 FROM information_schema.STATISTICS
