@@ -226,21 +226,22 @@ jobs:
         postgres-version:
           - "9.4"
           - "15"
+          - "16"
         extension:
           - "pgsql"
           - "pdo_pgsql"
         include:
           - php-version: "8.2"
-            postgres-version: "15"
+            postgres-version: "16"
             extension: "pgsql"
           - php-version: "8.3"
-            postgres-version: "15"
+            postgres-version: "16"
             extension: "pgsql"
           - php-version: "8.2"
-            postgres-version: "15"
+            postgres-version: "16"
             extension: "pdo_pgsql"
           - php-version: "8.3"
-            postgres-version: "15"
+            postgres-version: "16"
             extension: "pdo_pgsql"
 
     services:
