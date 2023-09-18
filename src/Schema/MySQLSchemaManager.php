@@ -588,7 +588,7 @@ SQL;
         return $options;
     }
 
-    /*
+    /**
      * EXPRESSION
      *
      * MySQL 8.0.13 and higher supports functional key parts (see Functional Key Parts), which affects both

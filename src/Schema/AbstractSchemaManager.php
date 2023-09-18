@@ -25,6 +25,7 @@ use function is_callable;
 use function is_string;
 use function preg_match;
 use function str_replace;
+use function stripslashes;
 use function strtolower;
 
 /**

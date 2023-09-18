@@ -7,8 +7,8 @@ namespace Doctrine\DBAL\Platforms;
  *
  * Note: Should not be used with versions prior to 8.0.13.
  *
- * @deprecated This class will be merged with {@see MySQLPlatform} when support for MySQL
- *             releases prior to 8.0.13 will be dropped.
+ * This class will be merged with {@see MySQLPlatform} when support for MySQL
+ * releases prior to 8.0.13 will be dropped.
  */
 class MySQL8013Platform extends MySQL80Platform
 {
