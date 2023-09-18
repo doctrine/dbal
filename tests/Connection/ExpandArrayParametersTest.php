@@ -14,6 +14,8 @@ use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 
+use function hex2bin;
+
 /** @psalm-import-type WrapperParameterTypeArray from Connection */
 class ExpandArrayParametersTest extends TestCase
 {
@@ -107,16 +109,24 @@ class ExpandArrayParametersTest extends TestCase
                 [1 => ParameterType::STRING, 2 => ParameterType::STRING],
             ],
             'Positional: explicit keys for array params and array types' => [
-                'SELECT * FROM Foo WHERE foo IN (?) AND bar IN (?) AND baz = ? AND bax IN (?)',
-                [1 => ['bar1', 'bar2'], 2 => true, 0 => [1, 2, 3], ['bax1', 'bax2']],
+                'SELECT * FROM Foo WHERE foo IN (?) AND bar IN (?) AND baz = ? AND bax IN (?) AND bay IN (?)',
                 [
+                    1 => ['bar1', 'bar2'],
+                    2 => true,
+                    0 => [1, 2, 3],
+                    ['bax1', 'bax2'],
+                    4 => [hex2bin('DEADBEEF'), hex2bin('C0DEF00D')],
+                ],
+                [
+                    4 => ArrayParameterType::BINARY,
                     3 => ArrayParameterType::ASCII,
                     2 => ParameterType::BOOLEAN,
                     1 => ArrayParameterType::STRING,
                     0 => ArrayParameterType::INTEGER,
                 ],
-                'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND bar IN (?, ?) AND baz = ? AND bax IN (?, ?)',
-                [1, 2, 3, 'bar1', 'bar2', true, 'bax1', 'bax2'],
+                'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND bar IN (?, ?) AND baz = ? AND bax IN (?, ?) ' .
+                    'AND bay IN (?, ?)',
+                [1, 2, 3, 'bar1', 'bar2', true, 'bax1', 'bax2', hex2bin('DEADBEEF'), hex2bin('C0DEF00D')],
                 [
                     ParameterType::INTEGER,
                     ParameterType::INTEGER,
@@ -126,6 +136,8 @@ class ExpandArrayParametersTest extends TestCase
                     ParameterType::BOOLEAN,
                     ParameterType::ASCII,
                     ParameterType::ASCII,
+                    ParameterType::BINARY,
+                    ParameterType::BINARY,
                 ],
             ],
             'Named: Very simple with param int' => [
@@ -322,6 +334,22 @@ class ExpandArrayParametersTest extends TestCase
                 'SELECT NULL FROM dummy WHERE ? IN (?, ?)',
                 ['foo', 'bar', 'baz'],
                 [1 => ParameterType::STRING, ParameterType::STRING],
+            ],
+            'Named: Binary array with explicit types' => [
+                'SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)',
+                [
+                    'foo' => [hex2bin('DEADBEEF'), hex2bin('C0DEF00D')],
+                    'bar' => [hex2bin('DEADBEEF'), hex2bin('C0DEF00D')],
+                ],
+                ['foo' => ArrayParameterType::BINARY, 'bar' => ArrayParameterType::BINARY],
+                'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar IN (?, ?)',
+                [hex2bin('DEADBEEF'), hex2bin('C0DEF00D'), hex2bin('DEADBEEF'), hex2bin('C0DEF00D')],
+                [
+                    ParameterType::BINARY,
+                    ParameterType::BINARY,
+                    ParameterType::BINARY,
+                    ParameterType::BINARY,
+                ],
             ],
         ];
     }

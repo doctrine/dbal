@@ -330,6 +330,7 @@ pdo_sqlsrv / sqlsrv
 -  ``host`` (string): Hostname of the database to connect to.
 -  ``port`` (integer): Port of the database to connect to.
 -  ``dbname`` (string): Name of the database/schema to connect to.
+-  ``driverOptions`` (array): Any supported options found on `https://learn.microsoft.com/en-us/sql/connect/php/connection-options`
 
 ibm_db2
 ^^^^^^^

@@ -21,6 +21,11 @@ enum ArrayParameterType
      */
     case ASCII;
 
+    /**
+     * Represents an array of ascii strings to be expanded by Doctrine SQL parsing.
+     */
+    case BINARY;
+
     /** @internal */
     public static function toElementParameterType(self $type): ParameterType
     {
@@ -28,6 +33,7 @@ enum ArrayParameterType
             self::INTEGER => ParameterType::INTEGER,
             self::STRING => ParameterType::STRING,
             self::ASCII => ParameterType::ASCII,
+            self::BINARY => ParameterType::BINARY,
         };
     }
 }

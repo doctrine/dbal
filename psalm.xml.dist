@@ -115,6 +115,12 @@
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
             </errorLevel>
         </InvalidArgument>
+        <InvalidArrayOffset>
+            <errorLevel type="suppress">
+                <!-- https://github.com/vimeo/psalm/issues/10213 -->
+                <file name="tests/Functional/BinaryDataAccessTest.php"/>
+            </errorLevel>
+        </InvalidArrayOffset>
         <InvalidDocblock>
             <errorLevel type="suppress">
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->

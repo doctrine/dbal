@@ -79,6 +79,14 @@ abstract class AbstractPlatform
      */
     protected ?KeywordList $_keywords = null;
 
+    private bool $disableTypeComments = false;
+
+    /** @internal */
+    final public function setDisableTypeComments(bool $value): void
+    {
+        $this->disableTypeComments = $value;
+    }
+
     /**
      * Returns the SQL snippet that declares a boolean column.
      *
