@@ -69,7 +69,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 
         Deprecation::trigger(
             'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5060',
+            'https://github.com/doctrine/dbal/pull/5072',
             'MySQL 5.6 support is deprecated and will be removed in DBAL 4.'
                 . ' Consider upgrading to MySQL 5.7 or later.',
         );
