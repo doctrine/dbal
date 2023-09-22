@@ -12,8 +12,16 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 /**
  * Immutable type of {@see DateTimeTzType}.
  */
-class DateTimeTzImmutableType extends DateTimeTzType
+class DateTimeTzImmutableType extends Type implements PhpDateTimeMappingType
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        return $platform->getDateTimeTzTypeDeclarationSQL($column);
+    }
+
     /**
      * @psalm-param T $value
      *

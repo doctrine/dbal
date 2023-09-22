@@ -13,7 +13,7 @@ use Exception;
 /**
  * Immutable type of {@see VarDateTimeType}.
  */
-class VarDateTimeImmutableType extends VarDateTimeType
+class VarDateTimeImmutableType extends DateTimeImmutableType
 {
     /**
      * @param T $value

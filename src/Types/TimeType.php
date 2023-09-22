@@ -5,17 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
-use Doctrine\Deprecations\Deprecation;
 
 /**
  * Type that maps an SQL TIME to a PHP DateTime object.
  */
-class TimeType extends Type
+class TimeType extends Type implements PhpTimeMappingType
 {
     /**
      * {@inheritDoc}
@@ -38,18 +35,7 @@ class TimeType extends Type
             return $value;
         }
 
-        if ($value instanceof DateTimeImmutable) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6017',
-                'Passing an instance of %s is deprecated, use %s::%s() instead.',
-                $value::class,
-                TimeImmutableType::class,
-                __FUNCTION__,
-            );
-        }
-
-        if ($value instanceof DateTimeInterface) {
+        if ($value instanceof DateTime) {
             return $value->format($platform->getTimeFormatString());
         }
 
@@ -59,24 +45,13 @@ class TimeType extends Type
     /**
      * @param T $value
      *
-     * @return (T is null ? null : DateTimeInterface)
+     * @return (T is null ? null : DateTime)
      *
      * @template T
      */
-    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeInterface
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTime
     {
-        if ($value instanceof DateTimeImmutable) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6017',
-                'Passing an instance of %s is deprecated, use %s::%s() instead.',
-                $value::class,
-                TimeImmutableType::class,
-                __FUNCTION__,
-            );
-        }
-
-        if ($value === null || $value instanceof DateTimeInterface) {
+        if ($value === null || $value instanceof DateTime) {
             return $value;
         }
 
