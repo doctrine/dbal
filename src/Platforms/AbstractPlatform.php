@@ -1463,11 +1463,11 @@ abstract class AbstractPlatform
             return ' DEFAULT ' . $this->getCurrentTimestampSQL();
         }
 
-        if ($type instanceof Types\TimeType && $default === $this->getCurrentTimeSQL()) {
+        if ($type instanceof Types\PhpTimeMappingType && $default === $this->getCurrentTimeSQL()) {
             return ' DEFAULT ' . $this->getCurrentTimeSQL();
         }
 
-        if ($type instanceof Types\DateType && $default === $this->getCurrentDateSQL()) {
+        if ($type instanceof Types\PhpDateMappingType && $default === $this->getCurrentDateSQL()) {
             return ' DEFAULT ' . $this->getCurrentDateSQL();
         }
 

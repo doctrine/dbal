@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Types;
 
 use DateTime;
-use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
@@ -18,9 +17,7 @@ use function date_default_timezone_set;
 
 abstract class BaseDateTypeTestCase extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    protected AbstractPlatform $platform;
-
+    protected AbstractPlatform&MockObject $platform;
     protected Type $type;
     private string $currentTimezone;
 
@@ -58,28 +55,6 @@ abstract class BaseDateTypeTestCase extends TestCase
         $date = new DateTime('now');
 
         self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
-    }
-
-    /**
-     * Note that while \@see \DateTimeImmutable is supposed to be handled
-     * by @see \Doctrine\DBAL\Types\DateTimeImmutableType, previous DBAL versions handled it just fine.
-     * This test is just in place to prevent further regressions, even if the type is being misused
-     */
-    public function testConvertDateTimeImmutableToPHPValue(): void
-    {
-        $date = new DateTimeImmutable('now');
-
-        self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
-    }
-
-    /**
-     * Note that while \@see \DateTimeImmutable is supposed to be handled
-     * by @see \Doctrine\DBAL\Types\DateTimeImmutableType, previous DBAL versions handled it just fine.
-     * This test is just in place to prevent further regressions, even if the type is being misused
-     */
-    public function testDateTimeImmutableConvertsToDatabaseValue(): void
-    {
-        self::assertIsString($this->type->convertToDatabaseValue(new DateTimeImmutable(), $this->platform));
     }
 
     /** @return mixed[][] */

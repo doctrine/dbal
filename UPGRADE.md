@@ -8,6 +8,25 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Stricter `DateTime` types
+
+The following types don't accept or return `DateTimeImmutable` instances anymore:
+
+* `DateTimeType`
+* `DateTimeTzType`
+* `DateType`
+* `TimeType`
+* `VarDateTimeType`
+
+As a consequence, the following type classes don't extend their mutable
+counterparts anymore:
+
+* `DateTimeImmutableType`
+* `DateTimeTzImmutableType`
+* `DateImmutableType`
+* `TimeImmutableType`
+* `VarDateTimeImmutableType`
+
 ## BC BREAK: Remove legacy execute and fetch methods.
 
 The following methods have been removed:

@@ -12,8 +12,16 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 /**
  * Immutable type of {@see DateType}.
  */
-class DateImmutableType extends DateType
+class DateImmutableType extends Type implements PhpDateMappingType
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        return $platform->getDateTypeDeclarationSQL($column);
+    }
+
     /**
      * @param T $value
      *

@@ -13,8 +13,16 @@ use Exception;
 /**
  * Immutable type of {@see DateTimeType}.
  */
-class DateTimeImmutableType extends DateTimeType
+class DateTimeImmutableType extends Type implements PhpDateTimeMappingType
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        return $platform->getDateTimeTypeDeclarationSQL($column);
+    }
+
     /**
      * @param T $value
      *

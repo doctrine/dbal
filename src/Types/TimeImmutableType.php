@@ -12,8 +12,16 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
 /**
  * Immutable type of {@see TimeType}.
  */
-class TimeImmutableType extends TimeType
+class TimeImmutableType extends Type implements PhpTimeMappingType
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        return $platform->getTimeTypeDeclarationSQL($column);
+    }
+
     /**
      * @param T $value
      *
