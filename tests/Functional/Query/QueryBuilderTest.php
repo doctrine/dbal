@@ -4,16 +4,29 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Query;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
 
+use function get_class;
+use function sprintf;
+
 final class QueryBuilderTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+        if (! $this->supportsPlatform($platform)) {
+            self::markTestSkipped(sprintf('Skipping since connected to %s', get_class($platform)));
+        }
+
         $tableName = 'users';
         $table     = new Table($tableName);
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
@@ -24,6 +37,14 @@ final class QueryBuilderTest extends FunctionalTestCase
 
         $this->connection->insert($tableName, ['nickname' => 'aaa']);
         $this->connection->insert($tableName, ['nickname' => 'bbb']);
+    }
+
+    private function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return ! $platform instanceof DB2Platform
+            && ! $platform instanceof MariaDb1027Platform
+            && ! $platform instanceof MySQL57Platform
+            && ! $platform instanceof SqlitePlatform;
     }
 
     public function testConcurrentConnectionSkipsLockedRows(): void
