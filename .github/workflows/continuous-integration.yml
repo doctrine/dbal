@@ -281,19 +281,19 @@ jobs:
           - "10.4"  # Oldest version supported by DBAL, LTS (Jun 2024)
           - "10.5"  # LTS (Jun 2025)
           - "10.6"  # LTS (Jul 2026)
-          - "10.9"  # STS (Aug 2023)
           - "10.10" # STS (Nov 2023)
           - "10.11" # LTS (Feb 2028)
           - "11.0"  # STS (Jun 2024)
+          - "11.1"  # STS (Aug 2024)
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - php-version: "8.2"
-            mariadb-version: "11.0"
+            mariadb-version: "11.1"
             extension: "mysqli"
           - php-version: "8.3"
-            mariadb-version: "11.0"
+            mariadb-version: "11.1"
             extension: "pdo_mysql"
 
     services:
