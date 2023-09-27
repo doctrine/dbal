@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1043Platform;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
@@ -148,9 +149,29 @@ final class ComparatorTest extends FunctionalTestCase
         ));
     }
 
+    public function testSimpleArrayTypeNonChangeNotDetected(): void
+    {
+        $table = new Table('comparator_test');
+
+        $table->addColumn('simple_array_col', Types::SIMPLE_ARRAY, ['length' => 255]);
+        $this->dropAndCreateTable($table);
+
+        self::assertFalse(ComparatorTestUtils::diffFromActualToDesiredTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table,
+        ));
+
+        self::assertFalse(ComparatorTestUtils::diffFromDesiredToActualTable(
+            $this->schemaManager,
+            $this->comparator,
+            $table,
+        ));
+    }
+
     public function testMariaDb1043NativeJsonUpgradeDetected(): void
     {
-        if (! $this->platform instanceof MariaDb1043Platform) {
+        if (! $this->platform instanceof MariaDb1043Platform && ! $this->platform instanceof MySQL80Platform) {
             self::markTestSkipped();
         }
 
