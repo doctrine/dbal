@@ -417,7 +417,7 @@ class SQLServerPlatform extends AbstractPlatform
             $tableSQL               = $this->quoteStringLiteral($tableSQL);
         } else {
             $schemaSQL = "'dbo'";
-            $tableSQL  = $this->quoteStringLiteral($tableName);
+            $tableSQL  = $tableName;
         }
 
         return $this->getAddExtendedPropertySQL(
