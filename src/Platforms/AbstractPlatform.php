@@ -17,6 +17,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
+use Doctrine\DBAL\Query\QueryLock;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -54,6 +55,7 @@ use function is_array;
 use function is_bool;
 use function is_int;
 use function is_string;
+use function ksort;
 use function preg_quote;
 use function preg_replace;
 use function sprintf;
@@ -62,6 +64,7 @@ use function strlen;
 use function strpos;
 use function strtolower;
 use function strtoupper;
+use function trim;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -1766,11 +1769,46 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the FOR UPDATE SKIP LOCKED expression.
+     * Returns the SKIP LOCKED expression.
      */
     public function getSkipLockedSQL(): string
     {
         return 'SKIP LOCKED';
+    }
+
+    public function getLocksSql(QueryLock ...$locks): string
+    {
+        return trim(implode(' ', $this->getLocksSqlList(...$locks)));
+    }
+
+    /** @return string[] */
+    protected function getLocksSqlList(QueryLock ...$locks): array
+    {
+        $locksSqlList = [];
+        foreach ($locks as $lock) {
+            switch ($lock->value()) {
+                case QueryLock::forUpdate()->value():
+                    $locksSqlList[0] = $this->getForUpdateSQL();
+                    break;
+                case QueryLock::skipLocked()->value():
+                    $locksSqlList[1] = $this->getSkipLockedSQL();
+                    break;
+            }
+        }
+
+        ksort($locksSqlList);
+
+        return $locksSqlList;
+    }
+
+    public function isLockLocatedAfterFrom(): bool
+    {
+        return false;
+    }
+
+    public function isLockLocatedAtTheEnd(): bool
+    {
+        return true;
     }
 
     /**

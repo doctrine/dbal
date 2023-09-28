@@ -36,6 +36,24 @@ use function substr;
 class OraclePlatform extends AbstractPlatform
 {
     /**
+     * Returns the FOR UPDATE expression.
+     *
+     * @return string
+     */
+    public function getForUpdateSQL()
+    {
+        return '';
+    }
+
+    /**
+     * Returns the SKIP LOCKED expression.
+     */
+    public function getSkipLockedSQL(): string
+    {
+        return '';
+    }
+
+    /**
      * Assertion for Oracle identifiers.
      *
      * @deprecated

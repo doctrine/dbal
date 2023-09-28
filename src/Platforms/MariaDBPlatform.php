@@ -10,6 +10,11 @@ use Doctrine\Deprecations\Deprecation;
  */
 class MariaDBPlatform extends MySQLPlatform
 {
+    public function getSkipLockedSQL(): string
+    {
+        return '';
+    }
+
     /**
      * {@inheritDoc}
      *

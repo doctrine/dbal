@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Query\QueryLock;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -33,8 +34,10 @@ use function is_array;
 use function is_bool;
 use function is_numeric;
 use function is_string;
+use function ltrim;
 use function preg_match;
 use function preg_match_all;
+use function rtrim;
 use function sprintf;
 use function str_replace;
 use function strpos;
@@ -1619,6 +1622,27 @@ class SQLServerPlatform extends AbstractPlatform
     public function getSkipLockedSQL(): string
     {
         return 'WITH (READPAST)';
+    }
+
+    public function getLocksSql(QueryLock ...$locks): string
+    {
+        $locksSqlList = $this->getLocksSqlList(...$locks);
+
+        foreach ($locksSqlList as $key => $lockSql) {
+            $locksSqlList[$key] = rtrim(ltrim($lockSql, 'WITH ('), ')');
+        }
+
+        return 'WITH (' . implode(', ', $locksSqlList) . ')';
+    }
+
+    public function isLockLocatedAfterFrom(): bool
+    {
+        return true;
+    }
+
+    public function isLockLocatedAtTheEnd(): bool
+    {
+        return false;
     }
 
     /**

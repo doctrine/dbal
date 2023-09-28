@@ -27,4 +27,12 @@ class PostgreSQL100Platform extends PostgreSQL94Platform
 
         return PostgreSQL100Keywords::class;
     }
+
+    /**
+     * Returns the SKIP LOCKED expression.
+     */
+    public function getSkipLockedSQL(): string
+    {
+        return 'SKIP LOCKED';
+    }
 }

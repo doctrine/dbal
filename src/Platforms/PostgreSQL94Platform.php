@@ -9,4 +9,11 @@ namespace Doctrine\DBAL\Platforms;
  */
 class PostgreSQL94Platform extends PostgreSQLPlatform
 {
+    /**
+     * Returns the SKIP LOCKED expression.
+     */
+    public function getSkipLockedSQL(): string
+    {
+        return '';
+    }
 }

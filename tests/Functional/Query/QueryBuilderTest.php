@@ -8,6 +8,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
@@ -20,11 +22,23 @@ use function sprintf;
 
 final class QueryBuilderTest extends FunctionalTestCase
 {
-    protected function setUp(): void
+    private function platformSupportsLocks(AbstractPlatform $platform): bool
+    {
+        return ! $platform instanceof DB2Platform
+            && ! $platform instanceof MariaDb1027Platform
+            && ! $platform instanceof MySQL57Platform
+            && ! $platform instanceof PostgreSQL94Platform
+            && ! $platform instanceof OraclePlatform
+            && ! $platform instanceof SqlitePlatform;
+    }
+
+    public function testConcurrentConnectionSkipsLockedRows(): void
     {
         $platform = $this->connection->getDatabasePlatform();
-        if (! $this->supportsPlatform($platform)) {
-            self::markTestSkipped(sprintf('Skipping since connected to %s', get_class($platform)));
+        if (! $this->platformSupportsLocks($platform)) {
+            self::markTestSkipped(
+                sprintf('Skipping, because platform %s does not support locks', get_class($platform)),
+            );
         }
 
         $tableName = 'users';
@@ -32,23 +46,10 @@ final class QueryBuilderTest extends FunctionalTestCase
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('nickname', Types::STRING);
         $table->setPrimaryKey(['id']);
-
         $this->dropAndCreateTable($table);
-
         $this->connection->insert($tableName, ['nickname' => 'aaa']);
         $this->connection->insert($tableName, ['nickname' => 'bbb']);
-    }
 
-    private function supportsPlatform(AbstractPlatform $platform): bool
-    {
-        return ! $platform instanceof DB2Platform
-            && ! $platform instanceof MariaDb1027Platform
-            && ! $platform instanceof MySQL57Platform
-            && ! $platform instanceof SqlitePlatform;
-    }
-
-    public function testConcurrentConnectionSkipsLockedRows(): void
-    {
         $connection1 = $this->connection;
         $qb1         = new QueryBuilder($connection1);
         $qb1->select('u.id')

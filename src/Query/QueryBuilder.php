@@ -138,8 +138,6 @@ class QueryBuilder
      */
     private ?QueryCacheProfile $resultCacheProfile = null;
 
-    private QueryLockBuilder $queryLockParser;
-
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
      *
@@ -147,8 +145,7 @@ class QueryBuilder
      */
     public function __construct(Connection $connection)
     {
-        $this->connection      = $connection;
-        $this->queryLockParser = new QueryLockBuilder($this->connection->getDatabasePlatform());
+        $this->connection = $connection;
     }
 
     /**
@@ -1360,20 +1357,20 @@ class QueryBuilder
         $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
                   implode(', ', $this->sqlParts['select']);
 
-        $locksSql = $this->hasLocks()
-            ? ' ' . $this->queryLockParser->getLocksSql(...$this->sqlParts['locks'])
-            : '';
+        $platform = $this->connection->getDatabasePlatform();
+
+        $locksSql = $this->hasLocks() ? ' ' . $platform->getLocksSql(...$this->sqlParts['locks']) : '';
 
         $query .= ($this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '')
-            . ($this->queryLockParser->isLocatedAfterFrom() ? $locksSql : '')
+            . ($platform->isLockLocatedAfterFrom() ? $locksSql : '')
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
             . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
             . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
             . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '')
-            . ($this->queryLockParser->isLocatedAtTheEnd() ? $locksSql : '');
+            . ($platform->isLockLocatedAtTheEnd() ? $locksSql : '');
 
         if ($this->isLimitQuery()) {
-            return $this->connection->getDatabasePlatform()->modifyLimitQuery(
+            return $platform->modifyLimitQuery(
                 $query,
                 $this->maxResults,
                 $this->firstResult,
@@ -1646,7 +1643,7 @@ class QueryBuilder
      */
     public function lockForUpdate(): self
     {
-        $this->sqlParts['locks'][] = QueryLockBuilder::FOR_UPDATE;
+        $this->sqlParts['locks'][] = QueryLock::forUpdate();
 
         return $this;
     }
@@ -1658,7 +1655,7 @@ class QueryBuilder
      */
     public function skipLocked(): self
     {
-        $this->sqlParts['locks'][] = QueryLockBuilder::SKIP_LOCKED;
+        $this->sqlParts['locks'][] = QueryLock::skipLocked();
 
         return $this;
     }

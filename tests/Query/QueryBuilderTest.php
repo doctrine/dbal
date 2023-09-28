@@ -1653,7 +1653,7 @@ class QueryBuilderTest extends TestCase
 
         yield 'PostgreSQL94Platform' => [
             new PostgreSQL94Platform(),
-            'SELECT u.id FROM users u WHERE u.nickname = ? SKIP LOCKED',
+            'SELECT u.id FROM users u WHERE u.nickname = ? ',
         ];
 
         yield 'PostgreSQL100Platform' => [
@@ -1744,7 +1744,7 @@ class QueryBuilderTest extends TestCase
 
         yield 'PostgreSQL94Platform' => [
             new PostgreSQL94Platform(),
-            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE SKIP LOCKED',
+            'SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE',
         ];
 
         yield 'PostgreSQL100Platform' => [

@@ -74,13 +74,14 @@ class VersionAwarePlatformDriverTest extends TestCase
                 'https://github.com/doctrine/dbal/pull/5779',
                 false,
             ],
-            ['mariadb-10.9.3', MariaDb1060Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
             [
                 '10.5.2-MariaDB-1~lenny-log',
                 MariaDB1052Platform::class,
                 'https://github.com/doctrine/dbal/pull/5779',
                 false,
             ],
+            ['mariadb-10.6.0', MariaDb1060Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
+            ['mariadb-10.9.3', MariaDb1060Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
             [
                 '11.0.2-MariaDB-1:11.0.2+maria~ubu2204',
                 MariaDb1060Platform::class,
