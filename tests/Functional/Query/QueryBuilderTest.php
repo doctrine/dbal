@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Functional\Query;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb1043Platform;
+use Doctrine\DBAL\Platforms\MariaDb1052Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
@@ -26,6 +28,8 @@ final class QueryBuilderTest extends FunctionalTestCase
     {
         return ! $platform instanceof DB2Platform
             && ! $platform instanceof MariaDb1027Platform
+            && ! $platform instanceof MariaDb1043Platform
+            && ! $platform instanceof MariaDb1052Platform
             && ! $platform instanceof MySQL57Platform
             && ! $platform instanceof PostgreSQL94Platform
             && ! $platform instanceof OraclePlatform
