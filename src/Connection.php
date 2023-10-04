@@ -430,7 +430,7 @@ class Connection
      *
      * @throws Throwable
      */
-    private function getDatabasePlatformVersion()
+    public function getDatabasePlatformVersion()
     {
         // Driver does not support version specific platforms.
         if (! $this->_driver instanceof VersionAwarePlatformDriver) {

@@ -18,6 +18,8 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
+use Exception;
+use Throwable;
 
 use function get_class;
 use function sprintf;
@@ -66,7 +68,17 @@ final class QueryBuilderTest extends FunctionalTestCase
         self::assertFalse($connection1->isTransactionActive(), 'A transaction should not be active on connection 1');
         $connection1->beginTransaction();
         self::assertTrue($connection1->isTransactionActive(), 'A transaction should be active on connection 1');
-        $result     = $connection1->executeQuery($qb1->getSQL());
+        try {
+            $result = $connection1->executeQuery($qb1->getSQL());
+        } catch (Throwable $t) {
+            throw new Exception(
+                'Failed SQL with SKIP LOCKED - platform: ' . get_class($connection1->getDatabasePlatform())
+                . ' DB version:' . $connection1->getDatabasePlatformVersion(),
+                0,
+                $t,
+            );
+        }
+
         $resultList = $result->fetchAllAssociative();
         self::assertCount(1, $resultList);
         self::assertEquals(1, $resultList[0]['id']);
