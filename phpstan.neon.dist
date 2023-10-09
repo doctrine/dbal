@@ -97,7 +97,7 @@ parameters:
             paths:
                 - src/Connection.php
         -
-            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::exec\(\) should return int but returns int\|string\.$~'
+            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection::exec\(\) should return int but returns int<-1, max>\|string\.$~'
             paths:
                 - src/Driver/Mysqli/Connection.php
         -
