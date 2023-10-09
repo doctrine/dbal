@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: BIGINT vales are cast to int if possible
+
+`BigIntType` casts values retrieved from the database to int if they're inside
+the integer range of PHP. Previously, those values were always cast to string.
+
 ## BC BREAK: Stricter `DateTime` types
 
 The following types don't accept or return `DateTimeImmutable` instances anymore:
