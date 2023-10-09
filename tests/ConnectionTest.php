@@ -196,7 +196,7 @@ class ConnectionTest extends TestCase
 
     public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions(): void
     {
-        $platform = $this->createStub(AbstractPlatform::class);
+        $platform = self::createStub(AbstractPlatform::class);
         $platform
             ->method('supportsSavepoints')
             ->willReturn(true);
@@ -610,7 +610,7 @@ class ConnectionTest extends TestCase
 
     public function testCustomSchemaManagerFactory(): void
     {
-        $schemaManager = $this->createStub(AbstractSchemaManager::class);
+        $schemaManager = self::createStub(AbstractSchemaManager::class);
         $factory       = $this->createMock(SchemaManagerFactory::class);
         $factory->expects(self::once())->method('createSchemaManager')->willReturn($schemaManager);
 

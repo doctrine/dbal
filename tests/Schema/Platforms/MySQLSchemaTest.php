@@ -68,8 +68,8 @@ class MySQLSchemaTest extends TestCase
     {
         return new MySQL\Comparator(
             new MySQLPlatform(),
-            $this->createStub(CharsetMetadataProvider::class),
-            $this->createStub(CollationMetadataProvider::class),
+            self::createStub(CharsetMetadataProvider::class),
+            self::createStub(CollationMetadataProvider::class),
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),
         );
     }

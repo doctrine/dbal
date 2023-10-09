@@ -675,8 +675,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         return new MySQL\Comparator(
             $this->platform,
-            $this->createStub(CharsetMetadataProvider::class),
-            $this->createStub(CollationMetadataProvider::class),
+            self::createStub(CharsetMetadataProvider::class),
+            self::createStub(CollationMetadataProvider::class),
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),
         );
     }
