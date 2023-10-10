@@ -6,6 +6,13 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 3.8
+
+## Deprecated getting query parts from `QueryBuilder`
+
+The usage of `QueryBuilder::getQueryPart()` and `::getQueryParts()` is deprecated. The query parts
+are implementation details and should not be relied upon.
+
 # Upgrade to 3.6
 
 ## Deprecated not setting a schema manager factory

@@ -499,6 +499,11 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Connection::getEventManager"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::setEventManager"/>
+                <!--
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::getQueryPart"/>
+                <referencedMethod name="Doctrine\DBAL\Query\QueryBuilder::getQueryParts"/>
 
                 <!-- TODO for PHPUnit 10 -->
                 <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::withConsecutive"/>
