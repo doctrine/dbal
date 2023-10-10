@@ -12,6 +12,7 @@ use Doctrine\DBAL\Query\QueryException;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -19,6 +20,8 @@ use function hex2bin;
 
 class QueryBuilderTest extends TestCase
 {
+    use VerifyDeprecations;
+
     /** @var Connection&MockObject */
     protected Connection $conn;
 
@@ -791,6 +794,8 @@ class QueryBuilderTest extends TestCase
         self::assertEquals((string) $qb, (string) $qbClone);
 
         $qb->andWhere('u.id = 1');
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6179');
 
         self::assertNotSame($qb->getQueryParts(), $qbClone->getQueryParts());
         self::assertNotSame($qb->getParameters(), $qbClone->getParameters());

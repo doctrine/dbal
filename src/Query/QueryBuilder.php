@@ -1297,22 +1297,38 @@ class QueryBuilder
     /**
      * Gets a query part by its name.
      *
+     * @deprecated The query parts are implementation details and should not be relied upon.
+     *
      * @param string $queryPartName
      *
      * @return mixed
      */
     public function getQueryPart($queryPartName)
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6179',
+            'Getting query parts is deprecated as they are implementation details.',
+        );
+
         return $this->sqlParts[$queryPartName];
     }
 
     /**
      * Gets all query parts.
      *
+     * @deprecated The query parts are implementation details and should not be relied upon.
+     *
      * @return mixed[]
      */
     public function getQueryParts()
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6179',
+            'Getting query parts is deprecated as they are implementation details.',
+        );
+
         return $this->sqlParts;
     }
 
