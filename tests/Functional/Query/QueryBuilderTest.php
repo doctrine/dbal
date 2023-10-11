@@ -4,47 +4,51 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Query;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DB2111Platform;
 use Doctrine\DBAL\Platforms\DB2Platform;
-use Doctrine\DBAL\Platforms\MariaDb1027Platform;
-use Doctrine\DBAL\Platforms\MariaDb1043Platform;
-use Doctrine\DBAL\Platforms\MariaDb1052Platform;
-use Doctrine\DBAL\Platforms\MySQL57Platform;
-use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\MariaDb1060Platform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
-use Exception;
-use Throwable;
-
-use function get_class;
-use function sprintf;
 
 final class QueryBuilderTest extends FunctionalTestCase
 {
-    private function platformSupportsLocks(AbstractPlatform $platform): bool
-    {
-        return ! $platform instanceof DB2Platform
-            && ! $platform instanceof MariaDb1027Platform
-            && ! $platform instanceof MariaDb1043Platform
-            && ! $platform instanceof MariaDb1052Platform
-            && ! $platform instanceof MySQL57Platform
-            && ! $platform instanceof PostgreSQL94Platform
-            && ! $platform instanceof OraclePlatform
-            && ! $platform instanceof SqlitePlatform;
-    }
-
     public function testConcurrentConnectionSkipsLockedRows(): void
     {
         $platform = $this->connection->getDatabasePlatform();
-        if (! $this->platformSupportsLocks($platform)) {
-            self::markTestSkipped(
-                sprintf('Skipping, because platform %s does not support locks', get_class($platform)),
-            );
+
+        if ($platform instanceof DB2Platform && ! $platform instanceof DB2111Platform) {
+            self::markTestSkipped('Skipping on IBM DB2 older than 11.1');
+        }
+
+        if ($platform instanceof MariaDBPlatform && ! $platform instanceof MariaDb1060Platform) {
+            self::markTestSkipped('Skipping on MariaDB older than 10.6');
+        }
+
+        if ($platform instanceof MySQLPlatform && ! $platform instanceof MySQL80Platform) {
+            self::markTestSkipped('Skipping on MySQL older than 8.0');
+        }
+
+        if ($platform instanceof PostgreSQLPlatform && ! $platform instanceof PostgreSQL100Platform) {
+            self::markTestSkipped('Skipping on PostgreSQL older than 10.0');
+        }
+
+        if ($platform instanceof SqlitePlatform) {
+            self::markTestSkipped('Skipping on SQLite');
+        }
+
+        if (TestUtil::isDriverOneOf('oci8')) {
+            // DBAL uses oci_connect() which won't necessarily start a new session, and there is
+            // no API to make it use oci_new_connect(). The feature is still covered via pdo_oci.
+            self::markTestSkipped('Skipping on oci8');
         }
 
         $tableName = 'users';
@@ -58,60 +62,35 @@ final class QueryBuilderTest extends FunctionalTestCase
 
         $connection1 = $this->connection;
         $qb1         = new QueryBuilder($connection1);
-        $qb1->select('u.id')
-            ->from('users', 'u')
-            ->orderBy('id', 'ASC')
-            ->setMaxResults(1)
-            ->lockForUpdate()
-            ->skipLocked();
+        $qb1->select('id')
+            ->from('users')
+            ->where('id = 1')
+            ->lockForUpdate();
 
         self::assertFalse($connection1->isTransactionActive(), 'A transaction should not be active on connection 1');
         $connection1->beginTransaction();
         self::assertTrue($connection1->isTransactionActive(), 'A transaction should be active on connection 1');
-        try {
-            $result = $connection1->executeQuery($qb1->getSQL());
-        } catch (Throwable $t) {
-            throw new Exception(
-                'Failed SQL with SKIP LOCKED - platform: ' . get_class($connection1->getDatabasePlatform())
-                . ' DB version:' . $connection1->getDatabasePlatformVersion(),
-                0,
-                $t,
-            );
-        }
 
-        $resultList = $result->fetchAllAssociative();
-        self::assertCount(1, $resultList);
-        self::assertEquals(1, $resultList[0]['id']);
+        self::assertEquals([1], $qb1->fetchFirstColumn());
 
         $connection2 = TestUtil::getConnection();
-        self::assertTrue(
-            $connection1 !== $connection2,
-            "The two competing connections must be different, but they are the same so we can't run this test with it.",
-        );
         self::assertFalse($connection2->isTransactionActive(), 'A transaction should not be active on connection 2');
 
         $qb2 = new QueryBuilder($connection2);
-        $qb2->select('u.id')
-            ->from('users', 'u')
-            ->orderBy('id', 'ASC')
-            ->setMaxResults(1)
+        $qb2->select('id')
+            ->from('users')
+            ->orderBy('id')
             ->lockForUpdate()
             ->skipLocked();
 
         self::assertTrue($connection1->isTransactionActive(), 'A transaction should still be active on connection 1');
-        $result     = $connection2->executeQuery($qb2->getSQL());
-        $resultList = $result->fetchAllAssociative();
-        self::assertCount(1, $resultList);
-        self::assertEquals(2, $resultList[0]['id']);
+        self::assertEquals([2], $qb2->fetchFirstColumn());
 
         $connection1->commit();
         self::assertFalse(
             $connection1->isTransactionActive(),
             'A transaction should not be active anymore on connection 1',
         );
-        $result     = $connection2->executeQuery($qb2->getSQL());
-        $resultList = $result->fetchAllAssociative();
-        self::assertCount(1, $resultList);
-        self::assertEquals(1, $resultList[0]['id']);
+        self::assertEquals([1, 2], $qb2->fetchFirstColumn());
     }
 }

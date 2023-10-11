@@ -1366,15 +1366,14 @@ class QueryBuilder
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
             . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
             . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
-            . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '')
-            . ($platform->isLockLocatedAtTheEnd() ? $locksSql : '');
+            . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
 
         if ($this->isLimitQuery()) {
-            return $platform->modifyLimitQuery(
-                $query,
-                $this->maxResults,
-                $this->firstResult,
-            );
+            $query = $platform->modifyLimitQuery($query, $this->maxResults, $this->firstResult);
+        }
+
+        if ($platform->isLockLocatedAtTheEnd()) {
+            $query .= $locksSql;
         }
 
         return $query;
