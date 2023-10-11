@@ -641,6 +641,17 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertSame('mytable_mycolumn_seq', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
     }
 
+    public function testReturnsTruncatedIdentitySequenceName(): void
+    {
+        self::assertSame(
+            'mytable_to_test_that_the_identity_sequence_name_is_mycolumn_seq',
+            $this->platform->getIdentitySequenceName(
+                'mytable_to_test_that_the_identity_sequence_name_is_truncated',
+                'mycolumn',
+            ),
+        );
+    }
+
     /** @dataProvider dataCreateSequenceWithCache */
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
