@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\LockMode;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -21,11 +22,6 @@ class NoneTest extends FunctionalTestCase
 
     public function setUp(): void
     {
-        if (TestUtil::isDriverOneOf('oci8')) {
-            // https://github.com/doctrine/dbal/issues/4417
-            self::markTestSkipped('This test fails on OCI8 for a currently unknown reason');
-        }
-
         if ($this->connection->getDatabasePlatform() instanceof SQLServerPlatform) {
             // Use row versioning instead of locking on SQL Server (if we don't, the second connection will block when
             // attempting to read the row created by the first connection, instead of reading the previous version);
@@ -43,7 +39,13 @@ class NoneTest extends FunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $this->connection2 = TestUtil::getConnection();
+        $params = TestUtil::getConnectionParams();
+
+        if (TestUtil::isDriverOneOf('oci8')) {
+            $params['driverOptions']['exclusive'] = true;
+        }
+
+        $this->connection2 = DriverManager::getConnection($params);
 
         if ($this->connection2->getSchemaManager()->tablesExist('users')) {
             return;

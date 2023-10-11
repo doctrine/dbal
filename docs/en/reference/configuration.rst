@@ -319,6 +319,9 @@ pdo_oci / oci8
    parameters will no longer be used. Note that when using this parameter, the ``getHost``
    and ``getPort`` methods from ``Doctrine\DBAL\Connection`` will no longer function as expected.
 -  ``persistent`` (boolean): Whether to establish a persistent connection.
+-  ``driverOptions`` (array):
+    -  ``exclusive`` (boolean): Once specified for an ``oci8`` connection, forces the driver to always establish
+       a new connection instead of reusing an existing one from the connection pool.
 
 pdo_sqlsrv / sqlsrv
 ^^^^^^^^^^^^^^^^^^^
