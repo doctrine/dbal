@@ -49,11 +49,6 @@ use const PREG_OFFSET_CAPTURE;
  */
 class SQLServerPlatform extends AbstractPlatform
 {
-    public function isSupportsFunctionalIndex(): bool
-    {
-        return false;
-    }
-
     /**
      * {@inheritDoc}
      */

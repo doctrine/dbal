@@ -55,11 +55,6 @@ class OraclePlatform extends AbstractPlatform
         }
     }
 
-    public function isSupportsFunctionalIndex(): bool
-    {
-        return true;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -1332,5 +1327,10 @@ SQL
     public function createSchemaManager(Connection $connection): OracleSchemaManager
     {
         return new OracleSchemaManager($connection, $this);
+    }
+
+    protected function supportsFunctionalIndex(): bool
+    {
+        return true;
     }
 }

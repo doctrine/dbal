@@ -397,11 +397,6 @@ abstract class AbstractPlatform
     abstract public function getName();
 
     /**
-     * A flag that indicates whether the platform supports functional indexes.
-     */
-    abstract public function isSupportsFunctionalIndex(): bool;
-
-    /**
      * Registers a doctrine type to be used in conjunction with a column type of this platform.
      *
      * @param string $dbType
@@ -3242,7 +3237,7 @@ abstract class AbstractPlatform
             __METHOD__,
         );
 
-        if ($index->isFunctional() && ! $this->isSupportsFunctionalIndex()) {
+        if ($index->isFunctional() && ! $this->supportsFunctionalIndex()) {
             throw Exception::notSupported('Functional indexes');
         }
 
@@ -4683,5 +4678,13 @@ abstract class AbstractPlatform
     public function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         throw Exception::notSupported(__METHOD__);
+    }
+
+    /**
+     * A flag that indicates whether the platform supports functional indexes.
+     */
+    protected function supportsFunctionalIndex(): bool
+    {
+        return false;
     }
 }

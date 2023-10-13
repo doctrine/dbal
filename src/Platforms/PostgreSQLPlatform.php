@@ -62,11 +62,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         ],
     ];
 
-    public function isSupportsFunctionalIndex(): bool
-    {
-        return true;
-    }
-
     /**
      * PostgreSQL has different behavior with some drivers
      * with regard to how booleans have to be handled.
@@ -1403,5 +1398,10 @@ SQL
     public function createSchemaManager(Connection $connection): PostgreSQLSchemaManager
     {
         return new PostgreSQLSchemaManager($connection, $this);
+    }
+
+    protected function supportsFunctionalIndex(): bool
+    {
+        return true;
     }
 }

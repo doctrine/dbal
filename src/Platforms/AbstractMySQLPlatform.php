@@ -50,9 +50,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public const LENGTH_LIMIT_BLOB       = 65535;
     public const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
 
-    public function isSupportsFunctionalIndex(): bool
+    public function getColumnNameForIndexFetch(): string
     {
-        return false;
+        return 'COLUMN_NAME';
     }
 
     /**

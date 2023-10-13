@@ -45,11 +45,6 @@ class SqlitePlatform extends AbstractPlatform
 {
     private bool $schemaEmulationEnabled = true;
 
-    public function isSupportsFunctionalIndex(): bool
-    {
-        return true;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -1486,5 +1481,10 @@ class SqlitePlatform extends AbstractPlatform
     public function createSchemaManager(Connection $connection): SqliteSchemaManager
     {
         return new SqliteSchemaManager($connection, $this);
+    }
+
+    protected function supportsFunctionalIndex(): bool
+    {
+        return true;
     }
 }

@@ -7,7 +7,6 @@ use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
-use Doctrine\DBAL\Platforms\MySQL8013Platform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
@@ -29,6 +28,7 @@ use const CASE_LOWER;
 /**
  * Schema manager for the MySQL RDBMS.
  *
+ * @template T of AbstractMySQLPlatform
  * @extends AbstractSchemaManager<AbstractMySQLPlatform>
  */
 class MySQLSchemaManager extends AbstractSchemaManager
@@ -633,10 +633,6 @@ SQL;
      */
     private function getColumnNameForIndexFetch(): string
     {
-        if ($this->_platform instanceof MySQL8013Platform) {
-            return "COALESCE(COLUMN_NAME, concat('(', EXPRESSION, ')')) AS Column_Name";
-        }
-
-        return 'COLUMN_NAME as Column_Name';
+        return $this->_platform->getColumnNameForIndexFetch() . ' as Column_Name';
     }
 }
