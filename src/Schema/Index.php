@@ -74,7 +74,10 @@ class Index extends AbstractAsset implements Constraint
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
-            $this->_isFunctional = $this->_isFunctional ?: self::isFunctionalIndex($column);
+
+            $this->_isFunctional = $this->_isFunctional === true
+                ? $this->_isFunctional
+                : self::isFunctionalIndex($column);
         }
 
         foreach ($flags as $flag) {
