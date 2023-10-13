@@ -292,7 +292,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
         // Check underlying database type where doctrine type is inferred from DC2Type comment
         // and set a flag if it is not as expected.
-        if ($origType !== $type && $this->expectedDbType($type, $options) !== $dbType) {
+        if ($type === 'json' && $origType !== $type && $this->expectedDbType($type, $options) !== $dbType) {
             $column->setPlatformOption('declarationMismatch', true);
         }
 
