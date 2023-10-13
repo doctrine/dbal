@@ -20,11 +20,16 @@ final class ArrayParameterType
     public const ASCII = ParameterType::ASCII + Connection::ARRAY_PARAM_OFFSET;
 
     /**
+     * Represents an array of ascii strings to be expanded by Doctrine SQL parsing.
+     */
+    public const BINARY = ParameterType::BINARY + Connection::ARRAY_PARAM_OFFSET;
+
+    /**
      * @internal
      *
-     * @psalm-param self::INTEGER|self::STRING|self::ASCII $type
+     * @psalm-param self::* $type
      *
-     * @psalm-return ParameterType::INTEGER|ParameterType::STRING|ParameterType::ASCII
+     * @psalm-return ParameterType::INTEGER|ParameterType::STRING|ParameterType::ASCII|ParameterType::BINARY
      */
     public static function toElementParameterType(int $type): int
     {

@@ -209,6 +209,7 @@ class Connection
 
             $this->platform = $params['platform'];
             $this->platform->setEventManager($this->_eventManager);
+            $this->platform->setDisableTypeComments($config->getDisableTypeComments());
         }
 
         $this->_expr = $this->createExpressionBuilder();
@@ -315,6 +316,7 @@ class Connection
         if ($this->platform === null) {
             $this->platform = $this->detectDatabasePlatform();
             $this->platform->setEventManager($this->_eventManager);
+            $this->platform->setDisableTypeComments($this->_config->getDisableTypeComments());
         }
 
         return $this->platform;
@@ -1919,6 +1921,7 @@ class Connection
                 $type === ArrayParameterType::INTEGER
                 || $type === ArrayParameterType::STRING
                 || $type === ArrayParameterType::ASCII
+                || $type === ArrayParameterType::BINARY
             ) {
                 return true;
             }
@@ -1944,33 +1947,54 @@ class Connection
     /**
      * BC layer for a wide-spread use-case of old DBAL APIs
      *
-     * @deprecated This API is deprecated and will be removed after 2022
+     * @deprecated Use {@see executeStatement()} instead
      *
      * @param array<mixed>           $params The query parameters
      * @param array<int|string|null> $types  The parameter types
      */
     public function executeUpdate(string $sql, array $params = [], array $types = []): int
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4163',
+            '%s is deprecated, please use executeStatement() instead.',
+            __METHOD__,
+        );
+
         return $this->executeStatement($sql, $params, $types);
     }
 
     /**
      * BC layer for a wide-spread use-case of old DBAL APIs
      *
-     * @deprecated This API is deprecated and will be removed after 2022
+     * @deprecated Use {@see executeQuery()} instead
      */
     public function query(string $sql): Result
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4163',
+            '%s is deprecated, please use executeQuery() instead.',
+            __METHOD__,
+        );
+
         return $this->executeQuery($sql);
     }
 
     /**
      * BC layer for a wide-spread use-case of old DBAL APIs
      *
-     * @deprecated This API is deprecated and will be removed after 2022
+     * @deprecated please use {@see executeStatement()} instead
      */
     public function exec(string $sql): int
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4163',
+            '%s is deprecated, please use executeStatement() instead.',
+            __METHOD__,
+        );
+
         return $this->executeStatement($sql);
     }
 }

@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\SQL\Builder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 use function strtolower;
 
@@ -31,8 +32,8 @@ class CreateAndDropSchemaObjectsSQLBuilderTest extends FunctionalTestCase
     private function createTable(Schema $schema, string $name, string $otherName): void
     {
         $table = $schema->createTable($name);
-        $table->addColumn('id', 'integer');
-        $table->addColumn($otherName . '_id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn($otherName . '_id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
         $table->addForeignKeyConstraint($otherName, [$otherName . '_id'], ['id']);
     }

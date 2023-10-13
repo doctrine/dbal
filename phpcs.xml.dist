@@ -34,6 +34,10 @@
         <exclude name="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore"/>
     </rule>
 
+    <rule ref="Generic.Classes.DuplicateClassName.Found">
+        <exclude-pattern>*/src/Tools/Console/Command/CommandCompatibility.php</exclude-pattern>
+    </rule>
+
     <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
         <exclude-pattern>*/src/Configuration.php</exclude-pattern>
         <exclude-pattern>*/src/Connection.php</exclude-pattern>
@@ -60,9 +64,17 @@
         <!-- ext-sqlite3 throws generic exceptions. -->
         <!-- Catching \Exception is legit here, and we don't want to widen types to \Throwable. -->
         <exclude-pattern>src/Driver/SQLite3/*</exclude-pattern>
+
+        <!-- Catching \Exception is legit for `\DateTime::__construct()`. -->
+        <exclude-pattern>src/Types/DateTimeType.php</exclude-pattern>
+        <exclude-pattern>src/Types/VarDateTimeType.php</exclude-pattern>
+        <!-- Catching \Exception is legit for `\DateTimeImmutable::__construct()`. -->
+        <exclude-pattern>src/Types/DateTimeImmutableType.php</exclude-pattern>
+        <exclude-pattern>src/Types/VarDateTimeImmutableType.php</exclude-pattern>
     </rule>
 
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
+        <exclude-pattern>*/src/Tools/Console/Command/CommandCompatibility.php</exclude-pattern>
         <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>
 
@@ -99,6 +111,7 @@
         -->
         <exclude-pattern>src/Driver/IBMDB2/Connection.php</exclude-pattern>
         <exclude-pattern>src/Driver/Mysqli/Exception/ConnectionFailed.php</exclude-pattern>
+        <exclude-pattern>tests/Functional/Driver/Mysqli/ResultTest.php</exclude-pattern>
     </rule>
 
     <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->

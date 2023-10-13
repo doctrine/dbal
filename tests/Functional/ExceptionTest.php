@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
 use Throwable;
 
 use function array_merge;
@@ -32,7 +33,7 @@ class ExceptionTest extends FunctionalTestCase
     public function testPrimaryConstraintViolationException(): void
     {
         $table = new Table('duplicatekey_table');
-        $table->addColumn('id', 'integer', []);
+        $table->addColumn('id', Types::INTEGER, []);
         $table->setPrimaryKey(['id']);
         $this->dropAndCreateTable($table);
 
@@ -54,7 +55,7 @@ class ExceptionTest extends FunctionalTestCase
     {
         $schemaManager = $this->connection->getSchemaManager();
         $table         = new Table('alreadyexist_table');
-        $table->addColumn('id', 'integer', []);
+        $table->addColumn('id', Types::INTEGER, []);
         $table->setPrimaryKey(['id']);
 
         $this->expectException(Exception\TableExistsException::class);
@@ -187,8 +188,8 @@ class ExceptionTest extends FunctionalTestCase
     public function testNotNullConstraintViolationException(): void
     {
         $table = new Table('notnull_table');
-        $table->addColumn('id', 'integer', []);
-        $table->addColumn('val', 'integer', ['notnull' => true]);
+        $table->addColumn('id', Types::INTEGER, []);
+        $table->addColumn('val', Types::INTEGER, ['notnull' => true]);
         $table->setPrimaryKey(['id']);
         $this->dropAndCreateTable($table);
 
@@ -199,7 +200,7 @@ class ExceptionTest extends FunctionalTestCase
     public function testInvalidFieldNameException(): void
     {
         $table = new Table('bad_columnname_table');
-        $table->addColumn('id', 'integer', []);
+        $table->addColumn('id', Types::INTEGER, []);
         $this->dropAndCreateTable($table);
 
         // prevent the PHPUnit error handler from handling the warning that db2_bind_param() may trigger
@@ -212,11 +213,11 @@ class ExceptionTest extends FunctionalTestCase
     public function testNonUniqueFieldNameException(): void
     {
         $table1 = new Table('ambiguous_list_table_1');
-        $table1->addColumn('id', 'integer');
+        $table1->addColumn('id', Types::INTEGER);
         $this->dropAndCreateTable($table1);
 
         $table2 = new Table('ambiguous_list_table_2');
-        $table2->addColumn('id', 'integer');
+        $table2->addColumn('id', Types::INTEGER);
         $this->dropAndCreateTable($table2);
 
         $sql = 'SELECT id FROM ambiguous_list_table_1, ambiguous_list_table_2';
@@ -227,7 +228,7 @@ class ExceptionTest extends FunctionalTestCase
     public function testUniqueConstraintViolationException(): void
     {
         $table = new Table('unique_column_table');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->addUniqueIndex(['id']);
 
         $this->dropAndCreateTable($table);
@@ -240,7 +241,7 @@ class ExceptionTest extends FunctionalTestCase
     public function testSyntaxErrorException(): void
     {
         $table = new Table('syntax_error_table');
-        $table->addColumn('id', 'integer', []);
+        $table->addColumn('id', Types::INTEGER, []);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
@@ -280,7 +281,7 @@ class ExceptionTest extends FunctionalTestCase
 
         $schema = new Schema();
         $table  = $schema->createTable('no_connection');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
 
         $this->expectException(Exception\ReadOnlyException::class);
         $this->expectExceptionMessage(
@@ -354,12 +355,12 @@ class ExceptionTest extends FunctionalTestCase
         $schemaManager = $this->connection->getSchemaManager();
 
         $table = new Table('constraint_error_table');
-        $table->addColumn('id', 'integer', []);
+        $table->addColumn('id', Types::INTEGER, []);
         $table->setPrimaryKey(['id']);
 
         $owningTable = new Table('owning_table');
-        $owningTable->addColumn('id', 'integer', []);
-        $owningTable->addColumn('constraint_id', 'integer', []);
+        $owningTable->addColumn('id', Types::INTEGER, []);
+        $owningTable->addColumn('constraint_id', Types::INTEGER, []);
         $owningTable->setPrimaryKey(['id']);
         $owningTable->addForeignKeyConstraint($table, ['constraint_id'], ['id']);
 

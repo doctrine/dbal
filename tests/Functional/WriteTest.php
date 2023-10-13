@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Throwable;
 
 use function array_filter;
@@ -19,9 +20,9 @@ class WriteTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('write_table');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('test_int', 'integer');
-        $table->addColumn('test_string', 'string', ['notnull' => false]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('test_int', Types::INTEGER);
+        $table->addColumn('test_string', Types::STRING, ['notnull' => false]);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
@@ -85,8 +86,8 @@ class WriteTest extends FunctionalTestCase
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindValue(1, 1, Type::getType('integer'));
-        $stmt->bindValue(2, 'foo', Type::getType('string'));
+        $stmt->bindValue(1, 1, Type::getType(Types::INTEGER));
+        $stmt->bindValue(2, 'foo', Type::getType(Types::STRING));
 
         self::assertEquals(1, $stmt->execute()->rowCount());
     }
@@ -278,7 +279,7 @@ class WriteTest extends FunctionalTestCase
         }
 
         $table = new Table('test_empty_identity');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
         try {

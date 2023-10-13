@@ -7,6 +7,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
 use function count;
@@ -18,12 +19,12 @@ class ModifyLimitQueryTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('modify_limit_table');
-        $table->addColumn('test_int', 'integer');
+        $table->addColumn('test_int', Types::INTEGER);
         $table->setPrimaryKey(['test_int']);
 
         $table2 = new Table('modify_limit_table2');
-        $table2->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table2->addColumn('test_int', 'integer');
+        $table2->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table2->addColumn('test_int', Types::INTEGER);
         $table2->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);

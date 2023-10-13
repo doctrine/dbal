@@ -4,11 +4,11 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\IBMDB2\Driver;
-use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
+use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
 /** @requires extension ibm_db2 */
-class DriverTest extends AbstractDriverTest
+class DriverTest extends AbstractDriverTestCase
 {
     protected function setUp(): void
     {

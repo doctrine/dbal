@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\PDO;
 
+use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
@@ -25,6 +26,10 @@ final class Statement implements StatementInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @throws UnknownParameterType
+     *
+     * @psalm-assert ParameterType::* $type
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
@@ -56,6 +61,10 @@ final class Statement implements StatementInterface
      * @param int      $type
      * @param int|null $length
      * @param mixed    $driverOptions The usage of the argument is deprecated.
+     *
+     * @throws UnknownParameterType
+     *
+     * @psalm-assert ParameterType::* $type
      */
     public function bindParam(
         $param,

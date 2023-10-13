@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 class AutoIncrementColumnTest extends FunctionalTestCase
 {
@@ -13,7 +14,7 @@ class AutoIncrementColumnTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('auto_increment_table');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
@@ -35,10 +36,10 @@ class RemoveNamespacedAssetsTest extends TestCase
         $schema = new Schema([], [], $config);
 
         $fooTable = $schema->createTable('foo.bar');
-        $fooTable->addColumn('id', 'integer');
+        $fooTable->addColumn('id', Types::INTEGER);
 
         $testTable = $schema->createTable('test.test');
-        $testTable->addColumn('id', 'integer');
+        $testTable->addColumn('id', Types::INTEGER);
 
         $testTable->addForeignKeyConstraint('foo.bar', ['id'], ['id']);
 
@@ -55,10 +56,10 @@ class RemoveNamespacedAssetsTest extends TestCase
         $schema = new Schema([], [], $config);
 
         $testTable = $schema->createTable('test.test');
-        $testTable->addColumn('id', 'integer');
+        $testTable->addColumn('id', Types::INTEGER);
 
         $fooTable = $schema->createTable('foo.bar');
-        $fooTable->addColumn('id', 'integer');
+        $fooTable->addColumn('id', Types::INTEGER);
 
         $testTable->addForeignKeyConstraint('foo.bar', ['id'], ['id']);
 

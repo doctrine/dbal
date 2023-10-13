@@ -7,6 +7,7 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Exception\NoKeyValue;
+use Doctrine\Deprecations\Deprecation;
 use LogicException;
 use Traversable;
 
@@ -261,7 +262,9 @@ class Result
     /**
      * BC layer for a wide-spread use-case of old DBAL APIs
      *
-     * @deprecated This API is deprecated and will be removed after 2022
+     * @deprecated Use {@see fetchNumeric()}, {@see fetchAssociative()} or {@see fetchOne()} instead.
+     *
+     * @psalm-param FetchMode::* $mode
      *
      * @return mixed
      *
@@ -269,6 +272,13 @@ class Result
      */
     public function fetch(int $mode = FetchMode::ASSOCIATIVE)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4007',
+            '%s is deprecated, please use fetchNumeric(), fetchAssociative() or fetchOne() instead.',
+            __METHOD__,
+        );
+
         if (func_num_args() > 1) {
             throw new LogicException('Only invocations with one argument are still supported by this legacy API.');
         }
@@ -291,7 +301,9 @@ class Result
     /**
      * BC layer for a wide-spread use-case of old DBAL APIs
      *
-     * @deprecated This API is deprecated and will be removed after 2022
+     * @deprecated Use {@see fetchAllNumeric()}, {@see fetchAllAssociative()} or {@see fetchFirstColumn()} instead.
+     *
+     * @psalm-param FetchMode::* $mode
      *
      * @return list<mixed>
      *
@@ -299,6 +311,13 @@ class Result
      */
     public function fetchAll(int $mode = FetchMode::ASSOCIATIVE): array
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/4007',
+            '%s is deprecated, please use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.',
+            __METHOD__,
+        );
+
         if (func_num_args() > 1) {
             throw new LogicException('Only invocations with one argument are still supported by this legacy API.');
         }

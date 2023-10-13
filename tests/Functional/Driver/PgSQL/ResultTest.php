@@ -50,7 +50,7 @@ class ResultTest extends FunctionalTestCase
     /**
      * @param mixed $expectedValue
      *
-     * @dataProvider provideTypedValues
+     * @dataProvider typedValueProvider
      */
     public function testTypeConversionFetchAssociative(string $postgresType, $expectedValue, string $dbalType): void
     {
@@ -67,7 +67,7 @@ class ResultTest extends FunctionalTestCase
     /**
      * @param mixed $expectedValue
      *
-     * @dataProvider provideTypedValues
+     * @dataProvider typedValueProvider
      */
     public function testTypeConversionFetchAllAssociative(string $postgresType, $expectedValue, string $dbalType): void
     {
@@ -84,7 +84,7 @@ class ResultTest extends FunctionalTestCase
     /**
      * @param mixed $expectedValue
      *
-     * @dataProvider provideTypedValues
+     * @dataProvider typedValueProvider
      */
     public function testTypeConversionFetchNumeric(string $postgresType, $expectedValue, string $dbalType): void
     {
@@ -101,7 +101,7 @@ class ResultTest extends FunctionalTestCase
     /**
      * @param mixed $expectedValue
      *
-     * @dataProvider provideTypedValues
+     * @dataProvider typedValueProvider
      */
     public function testTypeConversionFetchAllNumeric(string $postgresType, $expectedValue, string $dbalType): void
     {
@@ -118,7 +118,7 @@ class ResultTest extends FunctionalTestCase
     /**
      * @param mixed $expectedValue
      *
-     * @dataProvider provideTypedValues
+     * @dataProvider typedValueProvider
      */
     public function testTypeConversionFetchOne(string $postgresType, $expectedValue, string $dbalType): void
     {
@@ -135,7 +135,7 @@ class ResultTest extends FunctionalTestCase
     /**
      * @param mixed $expectedValue
      *
-     * @dataProvider provideTypedValues
+     * @dataProvider typedValueProvider
      */
     public function testTypeConversionFetchFirstColumn(string $postgresType, $expectedValue, string $dbalType): void
     {
@@ -150,7 +150,7 @@ class ResultTest extends FunctionalTestCase
     }
 
     /** @psalm-return Generator<string, array{string, mixed, (Types::*)}> */
-    public function provideTypedValues(): Generator
+    public static function typedValueProvider(): Generator
     {
         yield 'integer' => ['INTEGER', 4711, Types::INTEGER];
         yield 'negative integer' => ['INTEGER', -4711, Types::INTEGER];

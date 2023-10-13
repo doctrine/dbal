@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
 
 /** @extends AbstractPlatformTestCase<SQLServerPlatform> */
@@ -572,7 +573,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testCreateNonClusteredPrimaryKeyInTable(): void
     {
         $table = new Table('tbl');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
         $table->setPrimaryKey(['id']);
         $table->getIndex('primary')->addFlag('nonclustered');
 
@@ -656,7 +657,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testCreateTableWithSchemaColumnComments(): void
     {
         $table = new Table('testschema.test');
-        $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
+        $table->addColumn('id', Types::INTEGER, ['comment' => 'This is a comment']);
         $table->setPrimaryKey(['id']);
 
         $expectedSql = [
@@ -671,7 +672,11 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testAlterTableWithSchemaColumnComments(): void
     {
         $tableDiff                        = new TableDiff('testschema.mytable');
-        $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['comment' => 'A comment']);
+        $tableDiff->addedColumns['quota'] = new Column(
+            'quota',
+            Type::getType(Types::INTEGER),
+            ['comment' => 'A comment'],
+        );
 
         $expectedSql = [
             'ALTER TABLE testschema.mytable ADD quota INT NOT NULL',
@@ -687,9 +692,9 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
             'quota',
-            new Column('quota', Type::getType('integer'), []),
+            new Column('quota', Type::getType(Types::INTEGER), []),
             ['comment'],
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
+            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
         );
 
         $expectedSql = [
@@ -705,9 +710,9 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
             'quota',
-            new Column('quota', Type::getType('integer'), ['comment' => 'B comment']),
+            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'B comment']),
             ['comment'],
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment']),
+            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
         );
 
         $expectedSql = ["EXEC sp_updateextendedproperty N'MS_Description', N'B comment', "
@@ -753,26 +758,31 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    /** @psalm-suppress DeprecatedConstant */
     public function testGeneratesCreateTableSQLWithColumnComments(): void
     {
         $table = new Table('mytable');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('comment_null', 'integer', ['comment' => null]);
-        $table->addColumn('comment_false', 'integer', ['comment' => false]);
-        $table->addColumn('comment_empty_string', 'integer', ['comment' => '']);
-        $table->addColumn('comment_integer_0', 'integer', ['comment' => 0]);
-        $table->addColumn('comment_float_0', 'integer', ['comment' => 0.0]);
-        $table->addColumn('comment_string_0', 'integer', ['comment' => '0']);
-        $table->addColumn('comment', 'integer', ['comment' => 'Doctrine 0wnz you!']);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('comment_null', Types::INTEGER, ['comment' => null]);
+        $table->addColumn('comment_false', Types::INTEGER, ['comment' => false]);
+        $table->addColumn('comment_empty_string', Types::INTEGER, ['comment' => '']);
+        $table->addColumn('comment_integer_0', Types::INTEGER, ['comment' => 0]);
+        $table->addColumn('comment_float_0', Types::INTEGER, ['comment' => 0.0]);
+        $table->addColumn('comment_string_0', Types::INTEGER, ['comment' => '0']);
+        $table->addColumn('comment', Types::INTEGER, ['comment' => 'Doctrine 0wnz you!']);
         $table->addColumn(
             '`comment_quoted`',
-            'integer',
+            Types::INTEGER,
             ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'],
         );
-        $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
-        $table->addColumn('commented_type', 'object');
-        $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
-        $table->addColumn('comment_with_string_literal_char', 'string', ['comment' => "O'Reilly"]);
+        $table->addColumn(
+            'create',
+            Types::INTEGER,
+            ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!'],
+        );
+        $table->addColumn('commented_type', Types::OBJECT);
+        $table->addColumn('commented_type_with_comment', Types::ARRAY, ['comment' => 'Doctrine array type.']);
+        $table->addColumn('comment_with_string_literal_char', Types::STRING, ['comment' => "O'Reilly"]);
         $table->setPrimaryKey(['id']);
 
         self::assertEquals(
@@ -816,137 +826,142 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    /** @psalm-suppress DeprecatedConstant */
     public function testGeneratesAlterTableSQLWithColumnComments(): void
     {
         $table = new Table('mytable');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('comment_null', 'integer', ['comment' => null]);
-        $table->addColumn('comment_false', 'integer', ['comment' => false]);
-        $table->addColumn('comment_empty_string', 'integer', ['comment' => '']);
-        $table->addColumn('comment_integer_0', 'integer', ['comment' => 0]);
-        $table->addColumn('comment_float_0', 'integer', ['comment' => 0.0]);
-        $table->addColumn('comment_string_0', 'integer', ['comment' => '0']);
-        $table->addColumn('comment', 'integer', ['comment' => 'Doctrine 0wnz you!']);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('comment_null', Types::INTEGER, ['comment' => null]);
+        $table->addColumn('comment_false', Types::INTEGER, ['comment' => false]);
+        $table->addColumn('comment_empty_string', Types::INTEGER, ['comment' => '']);
+        $table->addColumn('comment_integer_0', Types::INTEGER, ['comment' => 0]);
+        $table->addColumn('comment_float_0', Types::INTEGER, ['comment' => 0.0]);
+        $table->addColumn('comment_string_0', Types::INTEGER, ['comment' => '0']);
+        $table->addColumn('comment', Types::INTEGER, ['comment' => 'Doctrine 0wnz you!']);
         $table->addColumn(
             '`comment_quoted`',
-            'integer',
+            Types::INTEGER,
             ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'],
         );
-        $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
-        $table->addColumn('commented_type', 'object');
-        $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
-        $table->addColumn('comment_with_string_literal_quote_char', 'array', ['comment' => "O'Reilly"]);
+        $table->addColumn(
+            'create',
+            Types::INTEGER,
+            ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!'],
+        );
+        $table->addColumn('commented_type', Types::OBJECT);
+        $table->addColumn('commented_type_with_comment', Types::ARRAY, ['comment' => 'Doctrine array type.']);
+        $table->addColumn('comment_with_string_literal_quote_char', Types::ARRAY, ['comment' => "O'Reilly"]);
         $table->setPrimaryKey(['id']);
 
         $tableDiff            = new TableDiff('mytable');
         $tableDiff->fromTable = $table;
 
         $tableDiff->addedColumns['added_comment_none']
-            = new Column('added_comment_none', Type::getType('integer'));
+            = new Column('added_comment_none', Type::getType(Types::INTEGER));
 
         $tableDiff->addedColumns['added_comment_null']
-            = new Column('added_comment_null', Type::getType('integer'), ['comment' => null]);
+            = new Column('added_comment_null', Type::getType(Types::INTEGER), ['comment' => null]);
 
         $tableDiff->addedColumns['added_comment_false']
-            = new Column('added_comment_false', Type::getType('integer'), ['comment' => false]);
+            = new Column('added_comment_false', Type::getType(Types::INTEGER), ['comment' => false]);
 
         $tableDiff->addedColumns['added_comment_empty_string']
-            = new Column('added_comment_empty_string', Type::getType('integer'), ['comment' => '']);
+            = new Column('added_comment_empty_string', Type::getType(Types::INTEGER), ['comment' => '']);
 
         $tableDiff->addedColumns['added_comment_integer_0']
-            = new Column('added_comment_integer_0', Type::getType('integer'), ['comment' => 0]);
+            = new Column('added_comment_integer_0', Type::getType(Types::INTEGER), ['comment' => 0]);
 
         $tableDiff->addedColumns['added_comment_float_0']
-            = new Column('added_comment_float_0', Type::getType('integer'), ['comment' => 0.0]);
+            = new Column('added_comment_float_0', Type::getType(Types::INTEGER), ['comment' => 0.0]);
 
         $tableDiff->addedColumns['added_comment_string_0']
-            = new Column('added_comment_string_0', Type::getType('integer'), ['comment' => '0']);
+            = new Column('added_comment_string_0', Type::getType(Types::INTEGER), ['comment' => '0']);
 
         $tableDiff->addedColumns['added_comment']
-            = new Column('added_comment', Type::getType('integer'), ['comment' => 'Doctrine']);
+            = new Column('added_comment', Type::getType(Types::INTEGER), ['comment' => 'Doctrine']);
 
         $tableDiff->addedColumns['`added_comment_quoted`']
-            = new Column('`added_comment_quoted`', Type::getType('integer'), ['comment' => 'rulez']);
+            = new Column('`added_comment_quoted`', Type::getType(Types::INTEGER), ['comment' => 'rulez']);
 
         $tableDiff->addedColumns['select']
-            = new Column('select', Type::getType('integer'), ['comment' => '666']);
+            = new Column('select', Type::getType(Types::INTEGER), ['comment' => '666']);
 
         $tableDiff->addedColumns['added_commented_type']
-            = new Column('added_commented_type', Type::getType('object'));
+            = new Column('added_commented_type', Type::getType(Types::OBJECT));
 
         $tableDiff->addedColumns['added_commented_type_with_comment']
-            = new Column('added_commented_type_with_comment', Type::getType('array'), ['comment' => '666']);
+            = new Column('added_commented_type_with_comment', Type::getType(Types::ARRAY), ['comment' => '666']);
 
         $tableDiff->addedColumns['added_comment_with_string_literal_char']
-            = new Column('added_comment_with_string_literal_char', Type::getType('string'), ['comment' => "''"]);
+            = new Column('added_comment_with_string_literal_char', Type::getType(Types::STRING), ['comment' => "''"]);
 
         $tableDiff->renamedColumns['comment_float_0']
-            = new Column('comment_double_0', Type::getType('decimal'), ['comment' => 'Double for real!']);
+            = new Column('comment_double_0', Type::getType(Types::DECIMAL), ['comment' => 'Double for real!']);
 
         // Add comment to non-commented column.
         $tableDiff->changedColumns['id'] = new ColumnDiff(
             'id',
-            new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
+            new Column('id', Type::getType(Types::INTEGER), ['autoincrement' => true, 'comment' => 'primary']),
             ['comment'],
-            new Column('id', Type::getType('integer'), ['autoincrement' => true]),
+            new Column('id', Type::getType(Types::INTEGER), ['autoincrement' => true]),
         );
 
         // Remove comment from null-commented column.
         $tableDiff->changedColumns['comment_null'] = new ColumnDiff(
             'comment_null',
-            new Column('comment_null', Type::getType('string')),
+            new Column('comment_null', Type::getType(Types::STRING)),
             ['type'],
-            new Column('comment_null', Type::getType('integer'), ['comment' => null]),
+            new Column('comment_null', Type::getType(Types::INTEGER), ['comment' => null]),
         );
 
         // Add comment to false-commented column.
         $tableDiff->changedColumns['comment_false'] = new ColumnDiff(
             'comment_false',
-            new Column('comment_false', Type::getType('integer'), ['comment' => 'false']),
+            new Column('comment_false', Type::getType(Types::INTEGER), ['comment' => 'false']),
             ['comment'],
-            new Column('comment_false', Type::getType('integer'), ['comment' => false]),
+            new Column('comment_false', Type::getType(Types::INTEGER), ['comment' => false]),
         );
 
         // Change type to custom type from empty string commented column.
         $tableDiff->changedColumns['comment_empty_string'] = new ColumnDiff(
             'comment_empty_string',
-            new Column('comment_empty_string', Type::getType('object')),
+            new Column('comment_empty_string', Type::getType(Types::OBJECT)),
             ['type'],
-            new Column('comment_empty_string', Type::getType('integer'), ['comment' => '']),
+            new Column('comment_empty_string', Type::getType(Types::INTEGER), ['comment' => '']),
         );
 
         // Change comment to false-comment from zero-string commented column.
         $tableDiff->changedColumns['comment_string_0'] = new ColumnDiff(
             'comment_string_0',
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => false]),
+            new Column('comment_string_0', Type::getType(Types::INTEGER), ['comment' => false]),
             ['comment'],
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => '0']),
+            new Column('comment_string_0', Type::getType(Types::INTEGER), ['comment' => '0']),
         );
 
         // Remove comment from regular commented column.
         $tableDiff->changedColumns['comment'] = new ColumnDiff(
             'comment',
-            new Column('comment', Type::getType('integer')),
+            new Column('comment', Type::getType(Types::INTEGER)),
             ['comment'],
-            new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
+            new Column('comment', Type::getType(Types::INTEGER), ['comment' => 'Doctrine 0wnz you!']),
         );
 
         // Change comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['`comment_quoted`'] = new ColumnDiff(
             '`comment_quoted`',
-            new Column('`comment_quoted`', Type::getType('array'), ['comment' => 'Doctrine array.']),
+            new Column('`comment_quoted`', Type::getType(Types::ARRAY), ['comment' => 'Doctrine array.']),
             ['comment', 'type'],
-            new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!']),
+            new Column('`comment_quoted`', Type::getType(Types::INTEGER), ['comment' => 'Doctrine 0wnz you!']),
         );
 
         // Remove comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['create'] = new ColumnDiff(
             'create',
-            new Column('create', Type::getType('object')),
+            new Column('create', Type::getType(Types::OBJECT)),
             ['comment', 'type'],
             new Column(
                 'create',
-                Type::getType('integer'),
+                Type::getType(Types::INTEGER),
                 ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!'],
             ),
         );
@@ -954,29 +969,33 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         // Add comment and change custom type to regular type from non-commented column.
         $tableDiff->changedColumns['commented_type'] = new ColumnDiff(
             'commented_type',
-            new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
+            new Column('commented_type', Type::getType(Types::INTEGER), ['comment' => 'foo']),
             ['comment', 'type'],
-            new Column('commented_type', Type::getType('object')),
+            new Column('commented_type', Type::getType(Types::OBJECT)),
         );
 
         // Remove comment from commented custom type column.
         $tableDiff->changedColumns['commented_type_with_comment'] = new ColumnDiff(
             'commented_type_with_comment',
-            new Column('commented_type_with_comment', Type::getType('array')),
+            new Column('commented_type_with_comment', Type::getType(Types::ARRAY)),
             ['comment'],
-            new Column('commented_type_with_comment', Type::getType('array'), ['comment' => 'Doctrine array type.']),
+            new Column(
+                'commented_type_with_comment',
+                Type::getType(Types::ARRAY),
+                ['comment' => 'Doctrine array type.'],
+            ),
         );
 
         // Change comment from comment with string literal char column.
         $tableDiff->changedColumns['comment_with_string_literal_char'] = new ColumnDiff(
             'comment_with_string_literal_char',
-            new Column('comment_with_string_literal_char', Type::getType('string'), ['comment' => "'"]),
+            new Column('comment_with_string_literal_char', Type::getType(Types::STRING), ['comment' => "'"]),
             ['comment'],
-            new Column('comment_with_string_literal_char', Type::getType('array'), ['comment' => "O'Reilly"]),
+            new Column('comment_with_string_literal_char', Type::getType(Types::ARRAY), ['comment' => "O'Reilly"]),
         );
 
         $tableDiff->removedColumns['comment_integer_0']
-            = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
+            = new Column('comment_integer_0', Type::getType(Types::INTEGER), ['comment' => 0]);
 
         self::assertEquals(
             [
@@ -1053,79 +1072,79 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testInitializesDoctrineTypeMappings(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('bigint'));
-        self::assertSame('bigint', $this->platform->getDoctrineTypeMapping('bigint'));
+        self::assertSame(Types::BIGINT, $this->platform->getDoctrineTypeMapping('bigint'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('numeric'));
-        self::assertSame('decimal', $this->platform->getDoctrineTypeMapping('numeric'));
+        self::assertSame(Types::DECIMAL, $this->platform->getDoctrineTypeMapping('numeric'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('bit'));
-        self::assertSame('boolean', $this->platform->getDoctrineTypeMapping('bit'));
+        self::assertSame(Types::BOOLEAN, $this->platform->getDoctrineTypeMapping('bit'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smallint'));
-        self::assertSame('smallint', $this->platform->getDoctrineTypeMapping('smallint'));
+        self::assertSame(Types::SMALLINT, $this->platform->getDoctrineTypeMapping('smallint'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('decimal'));
-        self::assertSame('decimal', $this->platform->getDoctrineTypeMapping('decimal'));
+        self::assertSame(Types::DECIMAL, $this->platform->getDoctrineTypeMapping('decimal'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smallmoney'));
-        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('smallmoney'));
+        self::assertSame(Types::INTEGER, $this->platform->getDoctrineTypeMapping('smallmoney'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('int'));
-        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('int'));
+        self::assertSame(Types::INTEGER, $this->platform->getDoctrineTypeMapping('int'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('tinyint'));
-        self::assertSame('smallint', $this->platform->getDoctrineTypeMapping('tinyint'));
+        self::assertSame(Types::SMALLINT, $this->platform->getDoctrineTypeMapping('tinyint'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('money'));
-        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('money'));
+        self::assertSame(Types::INTEGER, $this->platform->getDoctrineTypeMapping('money'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('float'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('float'));
+        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('float'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('real'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('real'));
+        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('real'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('double'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('double'));
+        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('double'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('double precision'));
-        self::assertSame('float', $this->platform->getDoctrineTypeMapping('double precision'));
+        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('double precision'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smalldatetime'));
-        self::assertSame('datetime', $this->platform->getDoctrineTypeMapping('smalldatetime'));
+        self::assertSame(Types::DATETIME_MUTABLE, $this->platform->getDoctrineTypeMapping('smalldatetime'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('datetime'));
-        self::assertSame('datetime', $this->platform->getDoctrineTypeMapping('datetime'));
+        self::assertSame(Types::DATETIME_MUTABLE, $this->platform->getDoctrineTypeMapping('datetime'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('char'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('char'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('char'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('varchar'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('varchar'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('varchar'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('text'));
-        self::assertSame('text', $this->platform->getDoctrineTypeMapping('text'));
+        self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('text'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('nchar'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('nchar'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('nchar'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('nvarchar'));
-        self::assertSame('string', $this->platform->getDoctrineTypeMapping('nvarchar'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('nvarchar'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('ntext'));
-        self::assertSame('text', $this->platform->getDoctrineTypeMapping('ntext'));
+        self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('ntext'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('binary'));
-        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('binary'));
+        self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('binary'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('varbinary'));
-        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('varbinary'));
+        self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('varbinary'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('image'));
-        self::assertSame('blob', $this->platform->getDoctrineTypeMapping('image'));
+        self::assertSame(Types::BLOB, $this->platform->getDoctrineTypeMapping('image'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('uniqueidentifier'));
-        self::assertSame('guid', $this->platform->getDoctrineTypeMapping('uniqueidentifier'));
+        self::assertSame(Types::GUID, $this->platform->getDoctrineTypeMapping('uniqueidentifier'));
     }
 
     protected function getBinaryMaxLength(): int
@@ -1180,23 +1199,23 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $tableName = 'column_def_change_type';
         $table     = new Table($tableName);
 
-        $table->addColumn('col_int', 'smallint', ['default' => 666]);
-        $table->addColumn('col_string', 'string', ['default' => 'foo']);
+        $table->addColumn('col_int', Types::SMALLINT, ['default' => 666]);
+        $table->addColumn('col_string', Types::STRING, ['default' => 'foo']);
 
         $tableDiff                            = new TableDiff($tableName);
         $tableDiff->fromTable                 = $table;
         $tableDiff->changedColumns['col_int'] = new ColumnDiff(
             'col_int',
-            new Column('col_int', Type::getType('integer'), ['default' => 666]),
+            new Column('col_int', Type::getType(Types::INTEGER), ['default' => 666]),
             ['type'],
-            new Column('col_int', Type::getType('smallint'), ['default' => 666]),
+            new Column('col_int', Type::getType(Types::SMALLINT), ['default' => 666]),
         );
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
             'col_string',
-            new Column('col_string', Type::getType('string'), ['default' => 666, 'fixed' => true]),
+            new Column('col_string', Type::getType(Types::STRING), ['default' => 666, 'fixed' => true]),
             ['fixed'],
-            new Column('col_string', Type::getType('string'), ['default' => 666]),
+            new Column('col_string', Type::getType(Types::STRING), ['default' => 666]),
         );
 
         $expected = $this->platform->getAlterTableSQL($tableDiff);
@@ -1341,7 +1360,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         return [
             // Unquoted identifiers non-reserved keywords.
             [
-                new Table('mytable', [new Column('mycolumn', Type::getType('string'), ['default' => 'foo'])]),
+                new Table('mytable', [new Column('mycolumn', Type::getType(Types::STRING), ['default' => 'foo'])]),
                 [
                     'CREATE TABLE mytable (mycolumn NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn",
@@ -1349,7 +1368,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             ],
             // Quoted identifiers reserved keywords.
             [
-                new Table('`mytable`', [new Column('`mycolumn`', Type::getType('string'), ['default' => 'foo'])]),
+                new Table('`mytable`', [new Column('`mycolumn`', Type::getType(Types::STRING), ['default' => 'foo'])]),
                 [
                     'CREATE TABLE [mytable] ([mycolumn] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]",
@@ -1357,7 +1376,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             ],
             // Unquoted identifiers reserved keywords.
             [
-                new Table('table', [new Column('select', Type::getType('string'), ['default' => 'foo'])]),
+                new Table('table', [new Column('select', Type::getType(Types::STRING), ['default' => 'foo'])]),
                 [
                     'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]",
@@ -1365,7 +1384,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             ],
             // Quoted identifiers reserved keywords.
             [
-                new Table('`table`', [new Column('`select`', Type::getType('string'), ['default' => 'foo'])]),
+                new Table('`table`', [new Column('`select`', Type::getType(Types::STRING), ['default' => 'foo'])]),
                 [
                     'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]",
@@ -1392,16 +1411,16 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             [
                 new TableDiff(
                     'mytable',
-                    [new Column('addcolumn', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('addcolumn', Type::getType(Types::STRING), ['default' => 'foo'])],
                     [
                         'mycolumn' => new ColumnDiff(
                             'mycolumn',
-                            new Column('mycolumn', Type::getType('string'), ['default' => 'bar']),
+                            new Column('mycolumn', Type::getType(Types::STRING), ['default' => 'bar']),
                             ['default'],
-                            new Column('mycolumn', Type::getType('string'), ['default' => 'foo']),
+                            new Column('mycolumn', Type::getType(Types::STRING), ['default' => 'foo']),
                         ),
                     ],
-                    [new Column('removecolumn', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('removecolumn', Type::getType(Types::STRING), ['default' => 'foo'])],
                 ),
                 [
                     'ALTER TABLE mytable ADD addcolumn NVARCHAR(255) NOT NULL ' .
@@ -1416,16 +1435,16 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             [
                 new TableDiff(
                     '`mytable`',
-                    [new Column('`addcolumn`', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('`addcolumn`', Type::getType(Types::STRING), ['default' => 'foo'])],
                     [
                         'mycolumn' => new ColumnDiff(
                             '`mycolumn`',
-                            new Column('`mycolumn`', Type::getType('string'), ['default' => 'bar']),
+                            new Column('`mycolumn`', Type::getType(Types::STRING), ['default' => 'bar']),
                             ['default'],
-                            new Column('`mycolumn`', Type::getType('string'), ['default' => 'foo']),
+                            new Column('`mycolumn`', Type::getType(Types::STRING), ['default' => 'foo']),
                         ),
                     ],
-                    [new Column('`removecolumn`', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('`removecolumn`', Type::getType(Types::STRING), ['default' => 'foo'])],
                 ),
                 [
                     'ALTER TABLE [mytable] ADD [addcolumn] NVARCHAR(255) NOT NULL ' .
@@ -1440,16 +1459,16 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             [
                 new TableDiff(
                     'table',
-                    [new Column('add', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('add', Type::getType(Types::STRING), ['default' => 'foo'])],
                     [
                         'select' => new ColumnDiff(
                             'select',
-                            new Column('select', Type::getType('string'), ['default' => 'bar']),
+                            new Column('select', Type::getType(Types::STRING), ['default' => 'bar']),
                             ['default'],
-                            new Column('select', Type::getType('string'), ['default' => 'foo']),
+                            new Column('select', Type::getType(Types::STRING), ['default' => 'foo']),
                         ),
                     ],
-                    [new Column('drop', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('drop', Type::getType(Types::STRING), ['default' => 'foo'])],
                 ),
                 [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL ' .
@@ -1464,16 +1483,16 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             [
                 new TableDiff(
                     '`table`',
-                    [new Column('`add`', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('`add`', Type::getType(Types::STRING), ['default' => 'foo'])],
                     [
                         'select' => new ColumnDiff(
                             '`select`',
-                            new Column('`select`', Type::getType('string'), ['default' => 'bar']),
+                            new Column('`select`', Type::getType(Types::STRING), ['default' => 'bar']),
                             ['default'],
-                            new Column('`select`', Type::getType('string'), ['default' => 'foo']),
+                            new Column('`select`', Type::getType(Types::STRING), ['default' => 'foo']),
                         ),
                     ],
-                    [new Column('`drop`', Type::getType('string'), ['default' => 'foo'])],
+                    [new Column('`drop`', Type::getType(Types::STRING), ['default' => 'foo'])],
                 ),
                 [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL ' .
@@ -1694,7 +1713,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testGetDefaultValueDeclarationSQLForDateType(): void
     {
         $currentDateSql = $this->platform->getCurrentDateSQL();
-        foreach (['date', 'date_immutable'] as $type) {
+        foreach ([Types::DATE_MUTABLE, Types::DATE_IMMUTABLE] as $type) {
             self::assertSame(
                 ' DEFAULT CONVERT(date, GETDATE())',
                 $this->platform->getDefaultValueDeclarationSQL([
@@ -1721,8 +1740,9 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
-        $table->addColumn('no_collation', 'string');
-        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'Latin1_General_CS_AS_KS_WS');
+        $table->addColumn('no_collation', Types::STRING);
+        $table->addColumn('column_collation', Types::STRING)
+            ->setPlatformOption('collation', 'Latin1_General_CS_AS_KS_WS');
 
         self::assertSame(
             ['CREATE TABLE foo (no_collation NVARCHAR(255) NOT NULL, '
@@ -1763,9 +1783,9 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
             'quota',
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => true]),
+            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment', 'notnull' => true]),
             ['notnull'],
-            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => false]),
+            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment', 'notnull' => false]),
         );
 
         $expectedSql = ['ALTER TABLE testschema.mytable ALTER COLUMN quota INT NOT NULL'];

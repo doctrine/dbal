@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\Types;
 
 use function array_shift;
 
@@ -27,7 +28,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testGenerateMixedCaseTableCreate(): void
     {
         $table = new Table('Foo');
-        $table->addColumn('Bar', 'integer');
+        $table->addColumn('Bar', Types::INTEGER);
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
@@ -162,14 +163,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testUniquePrimaryKey(Comparator $comparator): void
     {
         $keyTable = new Table('foo');
-        $keyTable->addColumn('bar', 'integer');
-        $keyTable->addColumn('baz', 'string');
+        $keyTable->addColumn('bar', Types::INTEGER);
+        $keyTable->addColumn('baz', Types::STRING);
         $keyTable->setPrimaryKey(['bar']);
         $keyTable->addUniqueIndex(['baz']);
 
         $oldTable = new Table('foo');
-        $oldTable->addColumn('bar', 'integer');
-        $oldTable->addColumn('baz', 'string');
+        $oldTable->addColumn('bar', Types::INTEGER);
+        $oldTable->addColumn('baz', Types::STRING);
 
         $diff = $comparator->diffTable($oldTable, $keyTable);
         self::assertNotFalse($diff);
@@ -282,7 +283,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         $table = new Table('fulltext_table');
         $table->addOption('engine', 'MyISAM');
-        $table->addColumn('text', 'text');
+        $table->addColumn('text', Types::TEXT);
         $table->addIndex(['text'], 'fulltext_text');
 
         $index = $table->getIndex('fulltext_text');
@@ -303,7 +304,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         $table = new Table('spatial_table');
         $table->addOption('engine', 'MyISAM');
-        $table->addColumn('point', 'text'); // This should be a point type
+        $table->addColumn('point', Types::TEXT); // This should be a point type
         $table->addIndex(['point'], 'spatial_text');
 
         $index = $table->getIndex('spatial_text');
@@ -347,8 +348,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testAlterTableAddPrimaryKey(Comparator $comparator): void
     {
         $table = new Table('alter_table_add_pk');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('foo', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('foo', Types::INTEGER);
         $table->addIndex(['id'], 'idx_id');
 
         $diffTable = clone $table;
@@ -369,8 +370,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testAlterPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('alter_primary_key');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('foo', 'integer');
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('foo', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $diffTable = clone $table;
@@ -395,9 +396,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testDropPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('drop_primary_key');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('foo', Types::INTEGER);
+        $table->addColumn('bar', Types::INTEGER);
         $table->setPrimaryKey(['id', 'foo']);
 
         $diffTable = clone $table;
@@ -421,9 +422,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         Comparator $comparator
     ): void {
         $table = new Table('tbl');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('foo', Types::INTEGER);
+        $table->addColumn('bar', Types::INTEGER);
         $table->setPrimaryKey(['id', 'foo']);
 
         $diffTable = clone $table;
@@ -448,9 +449,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn(Comparator $comparator): void
     {
         $table = new Table('tbl');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'integer');
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('foo', Types::INTEGER);
+        $table->addColumn('bar', Types::INTEGER);
         $table->setPrimaryKey(['id']);
 
         $diffTable = clone $table;
@@ -475,12 +476,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testAddAutoIncrementPrimaryKey(Comparator $comparator): void
     {
         $keyTable = new Table('foo');
-        $keyTable->addColumn('id', 'integer', ['autoincrement' => true]);
-        $keyTable->addColumn('baz', 'string');
+        $keyTable->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+        $keyTable->addColumn('baz', Types::STRING);
         $keyTable->setPrimaryKey(['id']);
 
         $oldTable = new Table('foo');
-        $oldTable->addColumn('baz', 'string');
+        $oldTable->addColumn('baz', Types::STRING);
 
         $diff = $comparator->diffTable($oldTable, $keyTable);
         self::assertNotFalse($diff);
@@ -507,13 +508,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testAlterPrimaryKeyWithNewColumn(Comparator $comparator): void
     {
         $table = new Table('yolo');
-        $table->addColumn('pkc1', 'integer');
-        $table->addColumn('col_a', 'integer');
+        $table->addColumn('pkc1', Types::INTEGER);
+        $table->addColumn('col_a', Types::INTEGER);
         $table->setPrimaryKey(['pkc1']);
 
         $diffTable = clone $table;
 
-        $diffTable->addColumn('pkc2', 'integer');
+        $diffTable->addColumn('pkc2', Types::INTEGER);
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['pkc1', 'pkc2']);
 
@@ -533,10 +534,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testInitializesDoctrineTypeMappings(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('binary'));
-        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('binary'));
+        self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('binary'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('varbinary'));
-        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('varbinary'));
+        self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('varbinary'));
     }
 
     protected function getBinaryMaxLength(): int
@@ -584,8 +585,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines(): void
     {
         $table = new Table('foreign_table');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('fk_id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('fk_id', Types::INTEGER);
         $table->addForeignKeyConstraint('foreign_table', ['fk_id'], ['id']);
         $table->setPrimaryKey(['id']);
         $table->addOption('engine', 'MyISAM');
@@ -623,8 +624,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testDoesNotPropagateForeignKeyAlterationForNonSupportingEngines(): void
     {
         $table = new Table('foreign_table');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('fk_id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('fk_id', Types::INTEGER);
         $table->addForeignKeyConstraint('foreign_table', ['fk_id'], ['id']);
         $table->setPrimaryKey(['id']);
         $table->addOption('engine', 'MyISAM');
@@ -713,10 +714,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testIgnoresDifferenceInDefaultValuesForUnsupportedColumnTypes(): void
     {
         $table = new Table('text_blob_default_value');
-        $table->addColumn('def_text', 'text', ['default' => 'def']);
-        $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
-        $table->addColumn('def_blob', 'blob', ['default' => 'def']);
-        $table->addColumn('def_blob_null', 'blob', ['notnull' => false, 'default' => 'def']);
+        $table->addColumn('def_text', Types::TEXT, ['default' => 'def']);
+        $table->addColumn('def_text_null', Types::TEXT, ['notnull' => false, 'default' => 'def']);
+        $table->addColumn('def_blob', Types::BLOB, ['default' => 'def']);
+        $table->addColumn('def_blob_null', Types::BLOB, ['notnull' => false, 'default' => 'def']);
 
         self::assertSame(
             [
@@ -959,8 +960,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
-        $table->addColumn('no_collation', 'string');
-        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'ascii_general_ci');
+        $table->addColumn('no_collation', Types::STRING);
+        $table->addColumn('column_collation', Types::STRING)->setPlatformOption('collation', 'ascii_general_ci');
 
         self::assertSame(
             [

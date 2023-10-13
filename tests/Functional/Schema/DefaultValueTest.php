@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 use function sprintf;
 
@@ -14,10 +15,10 @@ class DefaultValueTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('default_value');
-        $table->addColumn('id', 'integer');
+        $table->addColumn('id', Types::INTEGER);
 
         foreach (self::columnProvider() as [$name, $default]) {
-            $table->addColumn($name, 'string', [
+            $table->addColumn($name, Types::STRING, [
                 'default' => $default,
                 'notnull' => false,
             ]);

@@ -15,8 +15,8 @@ class AlterColumnTest extends FunctionalTestCase
     public function testColumnPositionRetainedAfterAltering(): void
     {
         $table = new Table('test_alter');
-        $table->addColumn('c1', 'integer');
-        $table->addColumn('c2', 'integer');
+        $table->addColumn('c1', Types::INTEGER);
+        $table->addColumn('c2', Types::INTEGER);
 
         $this->dropAndCreateTable($table);
 

@@ -103,6 +103,14 @@ abstract class AbstractPlatform
      */
     protected $_keywords;
 
+    private bool $disableTypeComments = false;
+
+    /** @internal */
+    final public function setDisableTypeComments(bool $value): void
+    {
+        $this->disableTypeComments = $value;
+    }
+
     /**
      * Sets the EventManager used by the Platform.
      *
@@ -583,7 +591,7 @@ abstract class AbstractPlatform
 
         $comment = $column->getComment();
 
-        if ($column->getType()->requiresSQLCommentHint($this)) {
+        if (! $this->disableTypeComments && $column->getType()->requiresSQLCommentHint($this)) {
             $comment .= $this->getDoctrineTypeComment($column->getType());
         }
 
@@ -4637,6 +4645,10 @@ abstract class AbstractPlatform
             return false;
         }
 
+        if (! $this->columnDeclarationsMatch($column1, $column2)) {
+            return false;
+        }
+
         // If the platform supports inline comments, all comparison is already done above
         if ($this->supportsInlineColumnComments()) {
             return true;
@@ -4647,6 +4659,17 @@ abstract class AbstractPlatform
         }
 
         return $column1->getType() === $column2->getType();
+    }
+
+    /**
+     * Whether the database data type matches that expected for the doctrine type for the given colunms.
+     */
+    private function columnDeclarationsMatch(Column $column1, Column $column2): bool
+    {
+        return ! (
+            $column1->hasPlatformOption('declarationMismatch') ||
+            $column2->hasPlatformOption('declarationMismatch')
+        );
     }
 
     /**

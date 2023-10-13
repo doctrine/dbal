@@ -8,6 +8,7 @@ use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Middleware;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Types\Types;
 
 use function array_keys;
 use function array_merge;
@@ -46,7 +47,8 @@ class PortabilityTest extends FunctionalTestCase
     }
 
     /**
-     * @param list<string> $expected
+     * @param 0|ColumnCase::LOWER|ColumnCase::UPPER $case
+     * @param list<string>                          $expected
      *
      * @dataProvider caseProvider
      */
@@ -61,7 +63,7 @@ class PortabilityTest extends FunctionalTestCase
         self::assertSame($expected, array_keys($row));
     }
 
-    /** @return iterable<string, array{int, list<string>}> */
+    /** @return iterable<string, array{(ColumnCase::LOWER|ColumnCase::UPPER), list<string>}> */
     public static function caseProvider(): iterable
     {
         yield 'lower' => [ColumnCase::LOWER, ['test_int', 'test_string', 'test_null']];
@@ -137,6 +139,7 @@ class PortabilityTest extends FunctionalTestCase
         self::assertNotNull($this->connection->getDatabase());
     }
 
+     /** @param 0|ColumnCase::LOWER|ColumnCase::UPPER $case */
     private function connectWithPortability(int $mode, int $case): void
     {
         // closing the default connection prior to 4.0.0 to prevent connection leak
@@ -156,9 +159,9 @@ class PortabilityTest extends FunctionalTestCase
     private function createTable(): void
     {
         $table = new Table('portability_table');
-        $table->addColumn('Test_Int', 'integer');
-        $table->addColumn('Test_String', 'string', ['fixed' => true, 'length' => 32]);
-        $table->addColumn('Test_Null', 'string', ['notnull' => false]);
+        $table->addColumn('Test_Int', Types::INTEGER);
+        $table->addColumn('Test_String', Types::STRING, ['fixed' => true, 'length' => 32]);
+        $table->addColumn('Test_Null', Types::STRING, ['notnull' => false]);
         $table->setPrimaryKey(['Test_Int']);
 
         $this->dropAndCreateTable($table);

@@ -34,6 +34,8 @@ use function is_string;
 /** @deprecated Use database documentation instead. */
 class ReservedWordsCommand extends Command
 {
+    use CommandCompatibility;
+
     /** @var array<string,KeywordList> */
     private array $keywordLists;
 
@@ -136,14 +138,8 @@ The following keyword lists are currently shipped with Doctrine:
 EOT);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return int
-     *
-     * @throws Exception
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /** @throws Exception */
+    private function doExecute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln(
             '<comment>The <info>dbal:reserved-words</info> command is deprecated.</comment>'

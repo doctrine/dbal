@@ -51,15 +51,18 @@
                 -->
                 <referencedClass name="Doctrine\DBAL\Driver\ServerInfoAwareConnection"/>
                 <referencedClass name="Doctrine\DBAL\VersionAwarePlatformDriver"/>
+                <referencedClass name="Doctrine\DBAL\FetchMode"/>
                 <!--
                     TODO: remove in 4.0.0
                 -->
+                <referencedClass name="Doctrine\DBAL\Platforms\DB2111Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\MariaDb102Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\MariaDb1027Platform"/>
+                <referencedClass name="Doctrine\DBAL\Platforms\MariaDb1043Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\MySQL57Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL100Platform"/>
                 <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL94Platform"/>
@@ -132,7 +135,7 @@
                 <file name="src/Types/ArrayType.php"/>
                 <file name="src/Types/ObjectType.php"/>
                 <file name="src/Types/Type.php"/>
-                <file name="tests/Schema/ComparatorTest.php"/>
+                <file name="tests/Schema/AbstractComparatorTestCase.php"/>
                 <!--
                     TODO: remove in 4.0.0
                 -->
@@ -586,6 +589,11 @@
                 <file name="tests/Functional/Schema/SchemaManagerFunctionalTestCase.php"/>
             </errorLevel>
         </DocblockTypeContradiction>
+        <DuplicateClass>
+            <errorLevel type="suppress">
+                <file name="src/Tools/Console/Command/CommandCompatibility.php"/>
+            </errorLevel>
+        </DuplicateClass>
         <FalsableReturnStatement>
             <errorLevel type="suppress">
                 <!--
@@ -604,6 +612,7 @@
         <InvalidArgument>
             <errorLevel type="suppress">
                 <!-- We're testing with invalid input here. -->
+                <file name="tests/Functional/LegacyAPITest.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
             </errorLevel>
         </InvalidArgument>
@@ -744,10 +753,11 @@
                     or breaking API changes.
                 -->
                 <file name="src/Platforms/AbstractMySQLPlatform.php"/>
-                <file name="tests/Functional/Driver/AbstractDriverTest.php"/>
-                
+                <file name="tests/Functional/Driver/AbstractDriverTestCase.php"/>
+
                 <!-- We're checking for invalid input. -->
                 <directory name="src/Driver/PgSQL"/>
+                <file name="src/Result.php"/>
             </errorLevel>
         </RedundantConditionGivenDocblockType>
         <RedundantPropertyInitializationCheck>

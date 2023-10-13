@@ -13,6 +13,9 @@ class TimeTest extends BaseDateTypeTestCase
         $this->type = new TimeType();
 
         parent::setUp();
+
+        $this->platform->method('getTimeFormatString')
+            ->willReturn('H:i:s');
     }
 
     public function testTimeConvertsToPHPValue(): void

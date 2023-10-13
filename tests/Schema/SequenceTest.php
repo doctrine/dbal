@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 class SequenceTest extends TestCase
@@ -11,7 +12,7 @@ class SequenceTest extends TestCase
     public function testIsAutoincrementFor(): void
     {
         $table = new Table('foo');
-        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['id']);
 
         $sequence  = new Sequence('foo_id_seq');
@@ -26,7 +27,7 @@ class SequenceTest extends TestCase
     public function testIsAutoincrementForCaseInsensitive(): void
     {
         $table = new Table('foo');
-        $table->addColumn('ID', 'integer', ['autoincrement' => true]);
+        $table->addColumn('ID', Types::INTEGER, ['autoincrement' => true]);
         $table->setPrimaryKey(['ID']);
 
         $sequence  = new Sequence('foo_id_seq');

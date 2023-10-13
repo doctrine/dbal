@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -16,10 +17,17 @@ class TypeTest extends TestCase
         self::assertTrue(Type::hasType($name));
     }
 
-    /** @return iterable<string[]> */
-    public function defaultTypesProvider(): iterable
+    /** @dataProvider defaultTypesProvider() */
+    public function testDefaultTypesReverseLookup(string $name): void
     {
-        foreach ((new ReflectionClass(Type::class))->getReflectionConstants() as $constant) {
+        $type = Type::getType($name);
+        self::assertSame($name, Type::lookupName($type));
+    }
+
+    /** @return iterable<string[]> */
+    public static function defaultTypesProvider(): iterable
+    {
+        foreach ((new ReflectionClass(Types::class))->getReflectionConstants() as $constant) {
             if (! $constant->isPublic()) {
                 continue;
             }

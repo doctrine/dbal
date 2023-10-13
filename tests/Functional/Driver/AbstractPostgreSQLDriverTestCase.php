@@ -10,7 +10,7 @@ use function array_key_exists;
 use function microtime;
 use function sprintf;
 
-abstract class AbstractPostgreSQLDriverTest extends AbstractDriverTest
+abstract class AbstractPostgreSQLDriverTestCase extends AbstractDriverTestCase
 {
     public function testConnectsWithApplicationNameParameter(): void
     {

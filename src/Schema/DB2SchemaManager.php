@@ -148,17 +148,13 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $options = [
             'length'        => $length,
-            'unsigned'      => false,
             'fixed'         => (bool) $fixed,
             'default'       => $default,
             'autoincrement' => (bool) $tableColumn['autoincrement'],
             'notnull'       => $tableColumn['nulls'] === 'N',
-            'scale'         => null,
-            'precision'     => null,
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
-            'platformOptions' => [],
         ];
 
         if ($scale !== null && $precision !== null) {

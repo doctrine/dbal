@@ -97,7 +97,8 @@ final class DriverManager
      *
      * @deprecated Use actual driver names instead.
      *
-     * @var string[]
+     * @var array<string, string>
+     * @psalm-var array<string, key-of<self::DRIVER_MAP>>
      */
     private static array $driverSchemeAliases = [
         'db2'        => 'ibm_db2',
@@ -208,10 +209,10 @@ final class DriverManager
     }
 
     /**
-     * @param class-string<Driver>|null     $driverClass
-     * @param key-of<self::DRIVER_MAP>|null $driver
-     *
      * @throws Exception
+     *
+     * @psalm-assert key-of<self::DRIVER_MAP>|null $driver
+     * @psalm-assert class-string<Driver>|null     $driverClass
      */
     private static function createDriver(?string $driver, ?string $driverClass): Driver
     {

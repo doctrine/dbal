@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 
+use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\PDO\Statement as PDOStatement;
 use Doctrine\DBAL\ParameterType;
@@ -32,6 +33,10 @@ final class Statement extends AbstractStatementMiddleware
      * @param int        $type
      * @param int|null   $length
      * @param mixed      $driverOptions The usage of the argument is deprecated.
+     *
+     * @throws UnknownParameterType
+     *
+     * @psalm-assert ParameterType::* $type
      */
     public function bindParam(
         $param,
@@ -82,7 +87,11 @@ final class Statement extends AbstractStatementMiddleware
     }
 
     /**
+     * @throws UnknownParameterType
+     *
      * {@inheritDoc}
+     *
+     * @psalm-assert ParameterType::* $type
      */
     public function bindValue($param, $value, $type = ParameterType::STRING): bool
     {

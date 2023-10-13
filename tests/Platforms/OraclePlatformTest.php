@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 use function sprintf;
 use function strtoupper;
@@ -303,7 +304,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $columnName = strtoupper('id' . uniqid());
         $tableName  = strtoupper('table' . uniqid());
         $table      = new Table($tableName);
-        $column     = $table->addColumn($columnName, 'integer');
+        $column     = $table->addColumn($columnName, Types::INTEGER);
         $column->setAutoincrement(true);
 
         self::assertSame([
@@ -470,7 +471,7 @@ SQL
             'foo',
             new Column(
                 'foo',
-                Type::getType('string'),
+                Type::getType(Types::STRING),
                 ['default' => 'bla', 'notnull' => true],
             ),
             ['type'],
@@ -479,7 +480,7 @@ SQL
             'bar',
             new Column(
                 'baz',
-                Type::getType('string'),
+                Type::getType(Types::STRING),
                 ['default' => 'bla', 'notnull' => true],
             ),
             ['type', 'notnull'],
@@ -488,7 +489,7 @@ SQL
             'metar',
             new Column(
                 'metar',
-                Type::getType('string'),
+                Type::getType(Types::STRING),
                 ['length' => 2000, 'notnull' => false],
             ),
             ['notnull'],
@@ -505,13 +506,13 @@ SQL
     public function testInitializesDoctrineTypeMappings(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('long raw'));
-        self::assertSame('blob', $this->platform->getDoctrineTypeMapping('long raw'));
+        self::assertSame(Types::BLOB, $this->platform->getDoctrineTypeMapping('long raw'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('raw'));
-        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('raw'));
+        self::assertSame(Types::BINARY, $this->platform->getDoctrineTypeMapping('raw'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('date'));
-        self::assertSame('date', $this->platform->getDoctrineTypeMapping('date'));
+        self::assertSame(Types::DATE_MUTABLE, $this->platform->getDoctrineTypeMapping('date'));
     }
 
     protected function getBinaryMaxLength(): int
@@ -543,12 +544,12 @@ SQL
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType(): void
     {
         $table1 = new Table('mytable');
-        $table1->addColumn('column_varbinary', 'binary');
-        $table1->addColumn('column_binary', 'binary', ['fixed' => true]);
+        $table1->addColumn('column_varbinary', Types::BINARY);
+        $table1->addColumn('column_binary', Types::BINARY, ['fixed' => true]);
 
         $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', 'binary', ['fixed' => true]);
-        $table2->addColumn('column_binary', 'binary');
+        $table2->addColumn('column_varbinary', Types::BINARY, ['fixed' => true]);
+        $table2->addColumn('column_binary', Types::BINARY);
 
         self::assertFalse((new Comparator($this->platform))->diffTable($table1, $table2));
     }
@@ -720,8 +721,8 @@ SQL
 
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
-        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
-        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
+        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType(Types::INTEGER))]);
+        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType(Types::INTEGER), ['comment' => 'baz'])]);
 
         $comparator = new Comparator();
 
@@ -737,7 +738,7 @@ SQL
     public function testQuotedTableNames(): void
     {
         $table = new Table('"test"');
-        $table->addColumn('"id"', 'integer', ['autoincrement' => true]);
+        $table->addColumn('"id"', Types::INTEGER, ['autoincrement' => true]);
 
         // assert tabel
         self::assertTrue($table->isQuoted());
@@ -918,7 +919,7 @@ SQL
     }
 
     /** @return array<int, array{string, array<string, mixed>}> */
-    public function asciiStringSqlDeclarationDataProvider(): array
+    public static function asciiStringSqlDeclarationDataProvider(): array
     {
         return [
             ['VARCHAR2(12)', ['length' => 12]],

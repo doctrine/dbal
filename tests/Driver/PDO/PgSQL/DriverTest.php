@@ -6,12 +6,12 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
-use Doctrine\DBAL\Tests\Driver\AbstractPostgreSQLDriverTest;
+use Doctrine\DBAL\Tests\Driver\AbstractPostgreSQLDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
 use function array_merge;
 
-class DriverTest extends AbstractPostgreSQLDriverTest
+class DriverTest extends AbstractPostgreSQLDriverTestCase
 {
     protected function setUp(): void
     {

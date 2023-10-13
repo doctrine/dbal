@@ -23,8 +23,30 @@ use function implode;
 use function sprintf;
 use function strpos;
 
+/**
+ * Provides the behavior, features and SQL dialect of the IBM DB2 database platform of the oldest supported version.
+ */
 class DB2Platform extends AbstractPlatform
 {
+    /** @see https://www.ibm.com/docs/en/db2/11.5?topic=views-syscatcolumns */
+    private const SYSCAT_COLUMNS_GENERATED_DEFAULT = 'D';
+
+    /** @see https://www.ibm.com/docs/en/db2/11.5?topic=views-syscatindexes */
+    private const SYSCAT_INDEXES_UNIQUERULE_PERMITS_DUPLICATES     = 'D';
+    private const SYSCAT_INDEXES_UNIQUERULE_IMPLEMENTS_PRIMARY_KEY = 'P';
+
+    /** @see https://www.ibm.com/docs/en/db2/11.5?topic=views-syscattabconst */
+    private const SYSCAT_TABCONST_TYPE_PRIMARY_KEY = 'P';
+
+    /** @see https://www.ibm.com/docs/en/db2/11.5?topic=views-syscatreferences */
+    private const SYSCAT_REFERENCES_UPDATERULE_RESTRICT = 'R';
+    private const SYSCAT_REFERENCES_DELETERULE_CASCADE  = 'C';
+    private const SYSCAT_REFERENCES_DELETERULE_SET_NULL = 'N';
+    private const SYSCAT_REFERENCES_DELETERULE_RESTRICT = 'R';
+
+    /** @see https://www.ibm.com/docs/en/db2-for-zos/11?topic=tables-systables */
+    private const SYSIBM_SYSTABLES_TYPE_TABLE = 'T';
+
     public function isSupportsFunctionalIndex(): bool
     {
         return false;
@@ -40,7 +62,8 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'DB2Platform::getCharMaxLength() is deprecated.',
+            '%s() is deprecated.',
+            __METHOD__,
         );
 
         return 254;
@@ -56,7 +79,8 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/3263',
-            'DB2Platform::getBinaryMaxLength() is deprecated.',
+            '%s() is deprecated.',
+            __METHOD__,
         );
 
         return 32704;
@@ -106,21 +130,21 @@ class DB2Platform extends AbstractPlatform
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = [
-            'bigint'    => 'bigint',
-            'binary'    => 'binary',
-            'blob'      => 'blob',
-            'character' => 'string',
-            'clob'      => 'text',
-            'date'      => 'date',
-            'decimal'   => 'decimal',
-            'double'    => 'float',
-            'integer'   => 'integer',
-            'real'      => 'float',
-            'smallint'  => 'smallint',
-            'time'      => 'time',
-            'timestamp' => 'datetime',
-            'varbinary' => 'binary',
-            'varchar'   => 'string',
+            'bigint'    => Types::BIGINT,
+            'binary'    => Types::BINARY,
+            'blob'      => Types::BLOB,
+            'character' => Types::STRING,
+            'clob'      => Types::TEXT,
+            'date'      => Types::DATE_MUTABLE,
+            'decimal'   => Types::DECIMAL,
+            'double'    => Types::FLOAT,
+            'integer'   => Types::INTEGER,
+            'real'      => Types::FLOAT,
+            'smallint'  => Types::SMALLINT,
+            'time'      => Types::TIME_MUTABLE,
+            'timestamp' => Types::DATETIME_MUTABLE,
+            'varbinary' => Types::BINARY,
+            'varchar'   => Types::STRING,
         ];
     }
 
@@ -132,7 +156,7 @@ class DB2Platform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5058',
-            '%s is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
+            '%s() is deprecated and will be removed in Doctrine DBAL 4.0. Use Type::requiresSQLCommentHint() instead.',
             __METHOD__,
         );
 
@@ -197,7 +221,8 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4749',
-            'DB2Platform::getName() is deprecated. Identify platforms by their class.',
+            '%s() is deprecated. Identify platforms by their class.',
+            __METHOD__,
         );
 
         return 'db2';
@@ -367,14 +392,14 @@ class DB2Platform extends AbstractPlatform
                  c.remarks AS comment,
                  k.colseq,
                  CASE
-                 WHEN c.generated = 'D' THEN 1
+                 WHEN c.generated = '" . self::SYSCAT_COLUMNS_GENERATED_DEFAULT . "' THEN 1
                  ELSE 0
                  END     AS autoincrement
                FROM syscat.columns c
                  LEFT JOIN (syscat.keycoluse k JOIN syscat.tabconst tc
                      ON (k.tabschema = tc.tabschema
                          AND k.tabname = tc.tabname
-                         AND tc.type = 'P'))
+                         AND tc.type = '" . self::SYSCAT_TABCONST_TYPE_PRIMARY_KEY . "'))
                    ON (c.tabschema = k.tabschema
                        AND c.tabname = k.tabname
                        AND c.colname = k.colname)
@@ -396,7 +421,8 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = 'T' AND CREATOR = CURRENT_USER";
+        return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = '" . self::SYSIBM_SYSTABLES_TYPE_TABLE . "'"
+            . ' AND CREATOR = CURRENT_USER';
     }
 
     /**
@@ -421,11 +447,13 @@ class DB2Platform extends AbstractPlatform
         return "SELECT   idx.INDNAME AS key_name,
                          idxcol.COLNAME AS column_name,
                          CASE
-                             WHEN idx.UNIQUERULE = 'P' THEN 1
+                             WHEN idx.UNIQUERULE = '" . self::SYSCAT_INDEXES_UNIQUERULE_IMPLEMENTS_PRIMARY_KEY . "'
+                             THEN 1
                              ELSE 0
                          END AS primary,
                          CASE
-                             WHEN idx.UNIQUERULE = 'D' THEN 1
+                             WHEN idx.UNIQUERULE = '" . self::SYSCAT_INDEXES_UNIQUERULE_PERMITS_DUPLICATES . "'
+                             THEN 1
                              ELSE 0
                          END AS non_unique
                 FROM     SYSCAT.INDEXES AS idx
@@ -449,13 +477,13 @@ class DB2Platform extends AbstractPlatform
                          pkcol.COLNAME AS foreign_column,
                          fk.CONSTNAME AS index_name,
                          CASE
-                             WHEN fk.UPDATERULE = 'R' THEN 'RESTRICT'
+                             WHEN fk.UPDATERULE = '" . self::SYSCAT_REFERENCES_UPDATERULE_RESTRICT . "' THEN 'RESTRICT'
                              ELSE NULL
                          END AS on_update,
                          CASE
-                             WHEN fk.DELETERULE = 'C' THEN 'CASCADE'
-                             WHEN fk.DELETERULE = 'N' THEN 'SET NULL'
-                             WHEN fk.DELETERULE = 'R' THEN 'RESTRICT'
+                             WHEN fk.DELETERULE = '" . self::SYSCAT_REFERENCES_DELETERULE_CASCADE . "' THEN 'CASCADE'
+                             WHEN fk.DELETERULE = '" . self::SYSCAT_REFERENCES_DELETERULE_SET_NULL . "' THEN 'SET NULL'
+                             WHEN fk.DELETERULE = '" . self::SYSCAT_REFERENCES_DELETERULE_RESTRICT . "' THEN 'RESTRICT'
                              ELSE NULL
                          END AS on_delete
                 FROM     SYSCAT.REFERENCES AS fk
@@ -481,7 +509,7 @@ class DB2Platform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5513',
-            '%s is deprecated.',
+            '%s() is deprecated.',
             __METHOD__,
         );
 
@@ -658,7 +686,7 @@ class DB2Platform extends AbstractPlatform
                 Deprecation::trigger(
                     'doctrine/dbal',
                     'https://github.com/doctrine/dbal/pull/5663',
-                    'Generation of "rename table" SQL using %s is deprecated. Use getRenameTableSQL() instead.',
+                    'Generation of "rename table" SQL using %s() is deprecated. Use getRenameTableSQL() instead.',
                     __METHOD__,
                 );
 
@@ -944,7 +972,8 @@ class DB2Platform extends AbstractPlatform
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/1519',
-            'DB2Platform::prefersIdentityColumns() is deprecated.',
+            '%s() is deprecated.',
+            __METHOD__,
         );
 
         return true;
@@ -990,8 +1019,10 @@ class DB2Platform extends AbstractPlatform
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/issues/4510',
-            'DB2Platform::getReservedKeywordsClass() is deprecated,'
-                . ' use DB2Platform::createReservedKeywordsList() instead.',
+            '%s() is deprecated,'
+                . ' use %s::createReservedKeywordsList() instead.',
+            __METHOD__,
+            static::class,
         );
 
         return Keywords\DB2Keywords::class;

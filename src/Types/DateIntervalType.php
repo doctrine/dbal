@@ -53,7 +53,7 @@ class DateIntervalType extends Type
             return $value->format(self::FORMAT);
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateInterval']);
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', DateInterval::class]);
     }
 
     /**
