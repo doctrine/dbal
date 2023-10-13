@@ -320,7 +320,7 @@ class Table extends AbstractAsset
         }
 
         foreach ($columnNames as $columnName) {
-            if (! $this->hasColumn($columnName)) {
+            if (! $this->hasColumn($columnName) && ! Index::isFunctionalIndex($columnName)) {
                 throw SchemaException::columnDoesNotExist($columnName, $this->_name);
             }
         }

@@ -389,6 +389,11 @@ abstract class AbstractPlatform
     abstract public function getName();
 
     /**
+     * A flag that indicates whether the platform supports functional indexes.
+     */
+    abstract public function isSupportsFunctionalIndex(): bool;
+
+    /**
      * Registers a doctrine type to be used in conjunction with a column type of this platform.
      *
      * @param string $dbType
@@ -3217,6 +3222,8 @@ abstract class AbstractPlatform
      * declaration to be used in statements like CREATE TABLE.
      *
      * @deprecated
+     *
+     * @throws Exception If not supported on this platform.
      */
     public function getIndexFieldDeclarationListSQL(Index $index): string
     {
@@ -3226,6 +3233,10 @@ abstract class AbstractPlatform
             '%s is deprecated.',
             __METHOD__,
         );
+
+        if ($index->isFunctional() && ! $this->isSupportsFunctionalIndex()) {
+            throw Exception::notSupported('Functional indexes');
+        }
 
         return implode(', ', $index->getQuotedColumns($this));
     }

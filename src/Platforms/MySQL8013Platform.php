@@ -12,4 +12,8 @@ namespace Doctrine\DBAL\Platforms;
  */
 class MySQL8013Platform extends MySQL80Platform
 {
+    public function isSupportsFunctionalIndex(): bool
+    {
+        return true;
+    }
 }

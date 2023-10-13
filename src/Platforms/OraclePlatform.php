@@ -54,6 +54,11 @@ class OraclePlatform extends AbstractPlatform
         }
     }
 
+    public function isSupportsFunctionalIndex(): bool
+    {
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      */

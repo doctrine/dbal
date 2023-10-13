@@ -45,6 +45,11 @@ class SqlitePlatform extends AbstractPlatform
 {
     private bool $schemaEmulationEnabled = true;
 
+    public function isSupportsFunctionalIndex(): bool
+    {
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      */

@@ -25,6 +25,11 @@ use function strpos;
 
 class DB2Platform extends AbstractPlatform
 {
+    public function isSupportsFunctionalIndex(): bool
+    {
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      *

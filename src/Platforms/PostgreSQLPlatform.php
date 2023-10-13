@@ -61,6 +61,11 @@ class PostgreSQLPlatform extends AbstractPlatform
         ],
     ];
 
+    public function isSupportsFunctionalIndex(): bool
+    {
+        return true;
+    }
+
     /**
      * PostgreSQL has different behavior with some drivers
      * with regard to how booleans have to be handled.

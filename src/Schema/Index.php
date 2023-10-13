@@ -11,6 +11,7 @@ use function array_map;
 use function array_search;
 use function array_shift;
 use function count;
+use function mb_strlen;
 use function strtolower;
 
 class Index extends AbstractAsset implements Constraint
@@ -28,6 +29,9 @@ class Index extends AbstractAsset implements Constraint
 
     /** @var bool */
     protected $_isPrimary = false;
+
+    /** @var bool */
+    protected $_isFunctional = false;
 
     /**
      * Platform specific flags for indexes.
@@ -70,6 +74,7 @@ class Index extends AbstractAsset implements Constraint
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
+            $this->_isFunctional = $this->_isFunctional ?: self::isFunctionalIndex($column);
         }
 
         foreach ($flags as $flag) {
@@ -104,10 +109,14 @@ class Index extends AbstractAsset implements Constraint
         foreach ($this->_columns as $column) {
             $length = array_shift($subParts);
 
-            $quotedColumn = $column->getQuotedName($platform);
+            if ($this->isFunctional()) {
+                $quotedColumn = $column->getName();
+            } else {
+                $quotedColumn = $column->getQuotedName($platform);
 
-            if ($length !== null) {
-                $quotedColumn .= '(' . $length . ')';
+                if ($length !== null) {
+                    $quotedColumn .= '(' . $length . ')';
+                }
             }
 
             $columns[] = $quotedColumn;
@@ -142,6 +151,11 @@ class Index extends AbstractAsset implements Constraint
     public function isPrimary()
     {
         return $this->_isPrimary;
+    }
+
+    public function isFunctional(): bool
+    {
+        return $this->_isFunctional;
     }
 
     /**
@@ -332,6 +346,11 @@ class Index extends AbstractAsset implements Constraint
     public function getOptions()
     {
         return $this->options;
+    }
+
+    public static function isFunctionalIndex(string $name): bool
+    {
+        return $name[0] === '(' && $name[mb_strlen($name) - 1] === ')';
     }
 
     /**
