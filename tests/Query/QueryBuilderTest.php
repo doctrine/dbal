@@ -631,6 +631,17 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('SELECT u.* FROM users u', (string) $qb);
     }
 
+    public function testResetOrderBy(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.*')->from('users', 'u')->orderBy('u.name');
+
+        self::assertEquals('SELECT u.* FROM users u ORDER BY u.name ASC', (string) $qb);
+        $qb->resetOrderBy();
+        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
+    }
+
     public function testCreateNamedParameter(): void
     {
         $qb = new QueryBuilder($this->conn);

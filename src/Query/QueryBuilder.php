@@ -1366,6 +1366,20 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Resets the ordering for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetOrderBy(): self
+    {
+        $this->sqlParts['orderBy'] = self::SQL_PARTS_DEFAULTS['orderBy'];
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
+    }
+
     /** @throws QueryException */
     private function getSQLForSelect(): string
     {
