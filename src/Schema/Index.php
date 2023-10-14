@@ -11,7 +11,7 @@ use function array_map;
 use function array_search;
 use function array_shift;
 use function count;
-use function mb_strlen;
+use function mb_substr;
 use function strtolower;
 
 class Index extends AbstractAsset implements Constraint
@@ -353,7 +353,7 @@ class Index extends AbstractAsset implements Constraint
 
     public static function isFunctionalIndex(string $name): bool
     {
-        return $name[0] === '(' && $name[mb_strlen($name) - 1] === ')';
+        return $name[0] === '(' && mb_substr($name, -1) === ')';
     }
 
     /**

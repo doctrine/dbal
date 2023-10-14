@@ -25,7 +25,6 @@ use function is_callable;
 use function is_string;
 use function preg_match;
 use function str_replace;
-use function stripslashes;
 use function strtolower;
 
 /**
@@ -1471,7 +1470,7 @@ abstract class AbstractSchemaManager
                 ];
             }
 
-            $result[$keyName]['columns'][]            = stripslashes($tableIndex['column_name']);
+            $result[$keyName]['columns'][]            = $tableIndex['column_name'];
             $result[$keyName]['options']['lengths'][] = $tableIndex['length'] ?? null;
         }
 

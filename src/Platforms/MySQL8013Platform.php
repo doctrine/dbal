@@ -11,7 +11,7 @@ class MySQL8013Platform extends MySQL80Platform
 {
     public function getColumnNameForIndexFetch(): string
     {
-        return "COALESCE(COLUMN_NAME, concat('(', EXPRESSION, ')'))";
+        return "COALESCE(COLUMN_NAME, CONCAT('(', REPLACE(EXPRESSION, '\\''', ''''), ')'))";
     }
 
     protected function supportsFunctionalIndex(): bool

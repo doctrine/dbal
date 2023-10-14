@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MariaDb1052Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\MySQL8013Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
@@ -50,6 +51,8 @@ class VersionAwarePlatformDriverTest extends TestCase
             ['8', MySQL80Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
             ['8.0', MySQL80Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
             ['8.0.11', MySQL80Platform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['8.0.13', MySQL8013Platform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['8.0.14', MySQL8013Platform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
             ['6', MySQL57Platform::class],
             ['10.0.15-MariaDB-1~wheezy', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
             ['5.5.5-10.1.25-MariaDB', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
