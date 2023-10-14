@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -14,6 +15,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
@@ -49,6 +51,11 @@ use const PREG_OFFSET_CAPTURE;
  */
 class SQLServerPlatform extends AbstractPlatform
 {
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new SQLServerSelectSQLBuilder($this);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -1610,6 +1617,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated This API is not portable.
      */
     public function getForUpdateSQL()
     {

@@ -515,6 +515,9 @@
 
                 <!-- TODO for PHPUnit 10 -->
                 <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::withConsecutive"/>
+
+                <!-- TODO: remove in 4.0.0 -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getForUpdateSQL"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>

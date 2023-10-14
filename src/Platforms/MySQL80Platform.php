@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\Deprecations\Deprecation;
 
 /**
@@ -24,5 +25,10 @@ class MySQL80Platform extends MySQL57Platform
         );
 
         return Keywords\MySQL80Keywords::class;
+    }
+
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return AbstractPlatform::createSelectSQLBuilder();
     }
 }

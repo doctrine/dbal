@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\Deprecations\Deprecation;
 
 /**
@@ -26,5 +27,10 @@ class PostgreSQL100Platform extends PostgreSQL94Platform
         );
 
         return PostgreSQL100Keywords::class;
+    }
+
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return AbstractPlatform::createSelectSQLBuilder();
     }
 }
