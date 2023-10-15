@@ -1351,7 +1351,7 @@ class QueryBuilder
     {
         Deprecation::trigger(
             'doctrine/dbal',
-            'TODO',
+            'https://github.com/doctrine/dbal/pull/6193',
             '%s() is deprecated, instead use dedicated reset methods for the parts that shall be reset.',
             __METHOD__,
         );
@@ -1381,7 +1381,7 @@ class QueryBuilder
         if ($queryPartName === 'distinct') {
             Deprecation::trigger(
                 'doctrine/dbal',
-                'TODO',
+                'https://github.com/doctrine/dbal/pull/6193',
                 'Calling %s() with "distinct" is deprecated, call distinct(false) instead.',
                 __METHOD__,
             );
@@ -1393,7 +1393,7 @@ class QueryBuilder
         if (array_key_exists($queryPartName, self::SQL_PARTS_DEFAULTS) && method_exists($this, $newMethodName)) {
             Deprecation::trigger(
                 'doctrine/dbal',
-                'TODO',
+                'https://github.com/doctrine/dbal/pull/6193',
                 'Calling %s() with "%s" is deprecated, call %s() instead.',
                 __METHOD__,
                 $queryPartName,
@@ -1405,7 +1405,7 @@ class QueryBuilder
 
         Deprecation::trigger(
             'doctrine/dbal',
-            'TODO',
+            'https://github.com/doctrine/dbal/pull/6193',
             'Calling %s() with "%s" is deprecated without replacement.',
             __METHOD__,
             $queryPartName,
