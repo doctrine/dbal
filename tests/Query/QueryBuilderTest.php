@@ -609,37 +609,167 @@ class QueryBuilderTest extends TestCase
         self::assertEquals(10, $qb->getFirstResult());
     }
 
-    public function testResetQueryPart(): void
+    private function prepareQueryBuilderToReset(): QueryBuilder
     {
-        $qb = new QueryBuilder($this->conn);
+        $qb = (new QueryBuilder($this->conn))
+            ->select('u.*')
+            ->distinct()
+            ->from('users', 'u')
+            ->where('u.name = ?')
+            ->orderBy('u.name', 'ASC');
 
-        $qb->select('u.*')->from('users', 'u')->where('u.name = ?');
+        self::assertEquals('SELECT DISTINCT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
-        $qb->resetQueryPart('where');
-        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
+        return $qb;
     }
 
     public function testResetQueryParts(): void
     {
-        $qb = new QueryBuilder($this->conn);
+        $qb = $this->prepareQueryBuilderToReset();
 
-        $qb->select('u.*')->from('users', 'u')->where('u.name = ?')->orderBy('u.name');
+        $this->expectDeprecationWithIdentifier('TODO');
+        $qb->resetQueryParts(['distinct', 'where', 'orderBy']);
+
+        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
+    }
+
+    public function testLegacyResetSelect(): void
+    {
+        $qb = $this->prepareQueryBuilderToReset();
+
+        $this->expectDeprecationWithIdentifier('TODO');
+        $qb->resetQueryPart('select')->addSelect('u.name');
+
+        self::assertEquals('SELECT DISTINCT u.name FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
+    }
+
+    public function testLegacyResetDistinct(): void
+    {
+        $qb = $this->prepareQueryBuilderToReset();
+
+        $this->expectDeprecationWithIdentifier('TODO');
+        $qb->resetQueryPart('distinct');
 
         self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
-        $qb->resetQueryParts(['where', 'orderBy']);
-        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
+    }
+
+    public function testResetDistinct(): void
+    {
+        $qb = $this->prepareQueryBuilderToReset();
+
+        $this->expectNoDeprecationWithIdentifier('TODO');
+        $qb->distinct(false);
+
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
+    }
+
+    public function testLegacyResetWhere(): void
+    {
+        $qb = $this->prepareQueryBuilderToReset();
+
+        $this->expectDeprecationWithIdentifier('TODO');
+        $qb->resetQueryPart('where');
+
+        self::assertEquals('SELECT DISTINCT u.* FROM users u ORDER BY u.name ASC', (string) $qb);
+    }
+
+    public function testResetWhere(): void
+    {
+        $qb = $this->prepareQueryBuilderToReset();
+
+        $this->expectNoDeprecationWithIdentifier('TODO');
+        $qb->resetWhere();
+
+        self::assertEquals('SELECT DISTINCT u.* FROM users u ORDER BY u.name ASC', (string) $qb);
+    }
+
+    public function testLegacyResetOrderBy(): void
+    {
+        $qb = $this->prepareQueryBuilderToReset();
+
+        $this->expectDeprecationWithIdentifier('TODO');
+        $qb->resetQueryPart('orderBy');
+
+        self::assertEquals('SELECT DISTINCT u.* FROM users u WHERE u.name = ?', (string) $qb);
     }
 
     public function testResetOrderBy(): void
     {
-        $qb = new QueryBuilder($this->conn);
+        $qb = $this->prepareQueryBuilderToReset();
 
-        $qb->select('u.*')->from('users', 'u')->orderBy('u.name');
-
-        self::assertEquals('SELECT u.* FROM users u ORDER BY u.name ASC', (string) $qb);
+        $this->expectNoDeprecationWithIdentifier('TODO');
         $qb->resetOrderBy();
-        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
+
+        self::assertEquals('SELECT DISTINCT u.* FROM users u WHERE u.name = ?', (string) $qb);
+    }
+
+    private function prepareGroupedQueryBuilderToReset(): QueryBuilder
+    {
+        $qb = (new QueryBuilder($this->conn))
+            ->select('u.country', 'COUNT(*)')
+            ->from('users', 'u')
+            ->groupBy('u.country')
+            ->having('COUNT(*) > ?')
+            ->orderBy('COUNT(*)', 'DESC');
+
+        self::assertEquals(
+            'SELECT u.country, COUNT(*) FROM users u GROUP BY u.country HAVING COUNT(*) > ? ORDER BY COUNT(*) DESC',
+            (string) $qb,
+        );
+
+        return $qb;
+    }
+
+    public function testLegacyResetHaving(): void
+    {
+        $qb = $this->prepareGroupedQueryBuilderToReset();
+
+        $this->expectDeprecationWithIdentifier('TODO');
+        $qb->resetQueryPart('having');
+
+        self::assertEquals(
+            'SELECT u.country, COUNT(*) FROM users u GROUP BY u.country ORDER BY COUNT(*) DESC',
+            (string) $qb,
+        );
+    }
+
+    public function testResetHaving(): void
+    {
+        $qb = $this->prepareGroupedQueryBuilderToReset();
+
+        $this->expectNoDeprecationWithIdentifier('TODO');
+        $qb->resetHaving();
+
+        self::assertEquals(
+            'SELECT u.country, COUNT(*) FROM users u GROUP BY u.country ORDER BY COUNT(*) DESC',
+            (string) $qb,
+        );
+    }
+
+    public function testLegacyResetGroupBy(): void
+    {
+        $qb = $this->prepareGroupedQueryBuilderToReset();
+
+        $this->expectDeprecationWithIdentifier('TODO');
+        $qb->resetQueryPart('groupBy');
+
+        self::assertEquals(
+            'SELECT u.country, COUNT(*) FROM users u HAVING COUNT(*) > ? ORDER BY COUNT(*) DESC',
+            (string) $qb,
+        );
+    }
+
+    public function testGroupBy(): void
+    {
+        $qb = $this->prepareGroupedQueryBuilderToReset();
+
+        $this->expectNoDeprecationWithIdentifier('TODO');
+        $qb->resetGroupBy();
+
+        self::assertEquals(
+            'SELECT u.country, COUNT(*) FROM users u HAVING COUNT(*) > ? ORDER BY COUNT(*) DESC',
+            (string) $qb,
+        );
     }
 
     public function testCreateNamedParameter(): void

@@ -8,6 +8,23 @@ awareness about deprecated code.
 
 # Upgrade to 3.8
 
+## Deprecated reset methods from `QueryBuilder`
+
+`QueryBuilder::resetQueryParts()` has been deprecated.
+
+Resetting individual query parts through the generic `resetQueryPart()` method has been deprecated as well.
+However, several replacements have been put in place depending on the `$queryPartName` parameter:
+
+| `$queryPartName` | suggested replacement                      |
+|------------------|--------------------------------------------|
+| `'select'`       | Call `select()` with a new set of columns. |
+| `'distinct'`     | `distinct(false)`                          |
+| `'where'`        | `resetWhere()`                             |
+| `'groupBy'`      | `resetGroupBy()`                           |
+| `'having'`       | `resetHaving()`                            |
+| `'orderBy'`      | `resetOrderBy()`                           |
+| `'values'`       | Call `values()` with a new set of values.  |
+
 ## Deprecated getting query parts from `QueryBuilder`
 
 The usage of `QueryBuilder::getQueryPart()` and `::getQueryParts()` is deprecated. The query parts
