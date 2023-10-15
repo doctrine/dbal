@@ -565,7 +565,7 @@ class QueryBuilderTest extends TestCase
         );
     }
 
-    public function testGroupBy(): void
+    public function testResetGroupBy(): void
     {
         $qb = $this->prepareGroupedQueryBuilderToReset()->resetGroupBy();
 
