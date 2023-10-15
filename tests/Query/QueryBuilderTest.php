@@ -627,7 +627,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareQueryBuilderToReset();
 
-        $this->expectDeprecationWithIdentifier('TODO');
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetQueryParts(['distinct', 'where', 'orderBy']);
 
         self::assertEquals('SELECT u.* FROM users u', (string) $qb);
@@ -637,7 +637,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareQueryBuilderToReset();
 
-        $this->expectDeprecationWithIdentifier('TODO');
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetQueryPart('select')->addSelect('u.name');
 
         self::assertEquals('SELECT DISTINCT u.name FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
@@ -647,7 +647,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareQueryBuilderToReset();
 
-        $this->expectDeprecationWithIdentifier('TODO');
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetQueryPart('distinct');
 
         self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
@@ -657,7 +657,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareQueryBuilderToReset();
 
-        $this->expectNoDeprecationWithIdentifier('TODO');
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->distinct(false);
 
         self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
@@ -667,7 +667,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareQueryBuilderToReset();
 
-        $this->expectDeprecationWithIdentifier('TODO');
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetQueryPart('where');
 
         self::assertEquals('SELECT DISTINCT u.* FROM users u ORDER BY u.name ASC', (string) $qb);
@@ -677,7 +677,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareQueryBuilderToReset();
 
-        $this->expectNoDeprecationWithIdentifier('TODO');
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetWhere();
 
         self::assertEquals('SELECT DISTINCT u.* FROM users u ORDER BY u.name ASC', (string) $qb);
@@ -687,7 +687,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareQueryBuilderToReset();
 
-        $this->expectDeprecationWithIdentifier('TODO');
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetQueryPart('orderBy');
 
         self::assertEquals('SELECT DISTINCT u.* FROM users u WHERE u.name = ?', (string) $qb);
@@ -697,7 +697,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareQueryBuilderToReset();
 
-        $this->expectNoDeprecationWithIdentifier('TODO');
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetOrderBy();
 
         self::assertEquals('SELECT DISTINCT u.* FROM users u WHERE u.name = ?', (string) $qb);
@@ -724,7 +724,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareGroupedQueryBuilderToReset();
 
-        $this->expectDeprecationWithIdentifier('TODO');
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetQueryPart('having');
 
         self::assertEquals(
@@ -737,7 +737,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareGroupedQueryBuilderToReset();
 
-        $this->expectNoDeprecationWithIdentifier('TODO');
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetHaving();
 
         self::assertEquals(
@@ -750,7 +750,7 @@ class QueryBuilderTest extends TestCase
     {
         $qb = $this->prepareGroupedQueryBuilderToReset();
 
-        $this->expectDeprecationWithIdentifier('TODO');
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetQueryPart('groupBy');
 
         self::assertEquals(
@@ -759,11 +759,11 @@ class QueryBuilderTest extends TestCase
         );
     }
 
-    public function testGroupBy(): void
+    public function testResetGroupBy(): void
     {
         $qb = $this->prepareGroupedQueryBuilderToReset();
 
-        $this->expectNoDeprecationWithIdentifier('TODO');
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6193');
         $qb->resetGroupBy();
 
         self::assertEquals(
