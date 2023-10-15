@@ -17,14 +17,17 @@ use function array_key_exists;
 use function array_keys;
 use function array_unshift;
 use function count;
+use function func_get_arg;
 use function func_get_args;
 use function func_num_args;
 use function implode;
 use function is_array;
 use function is_object;
 use function key;
+use function method_exists;
 use function strtoupper;
 use function substr;
+use function ucfirst;
 
 /**
  * QueryBuilder class is responsible to dynamically create SQL queries.
@@ -35,6 +38,8 @@ use function substr;
  * The query builder does no validation whatsoever if certain features even work with the
  * underlying database vendor. Limit queries and joins are NOT applied to UPDATE and DELETE statements
  * even if some vendors such as MySQL support it.
+ *
+ * @method $this distinct(bool $distinct = true) Adds or removes DISTINCT to/from the query.
  */
 class QueryBuilder
 {
@@ -677,7 +682,7 @@ class QueryBuilder
     }
 
     /**
-     * Adds DISTINCT to the query.
+     * Adds or removes DISTINCT to/from the query.
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -688,9 +693,10 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function distinct(): self
+    public function distinct(/* bool $distinct = true */): self
     {
-        $this->sqlParts['distinct'] = true;
+        $this->sqlParts['distinct'] = func_num_args() < 1 || func_get_arg(0);
+        $this->state                = self::STATE_DIRTY;
 
         return $this;
     }
@@ -1335,17 +1341,28 @@ class QueryBuilder
     /**
      * Resets SQL parts.
      *
+     * @deprecated Use the dedicated reset*() methods instead.
+     *
      * @param string[]|null $queryPartNames
      *
      * @return $this This QueryBuilder instance.
      */
     public function resetQueryParts($queryPartNames = null)
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'TODO',
+            '%s() is deprecated, instead use dedicated reset methods for the parts that shall be reset.',
+            __METHOD__,
+        );
+
         $queryPartNames ??= array_keys($this->sqlParts);
 
         foreach ($queryPartNames as $queryPartName) {
-            $this->resetQueryPart($queryPartName);
+            $this->sqlParts[$queryPartName] = self::SQL_PARTS_DEFAULTS[$queryPartName];
         }
+
+        $this->state = self::STATE_DIRTY;
 
         return $this;
     }
@@ -1353,13 +1370,91 @@ class QueryBuilder
     /**
      * Resets a single SQL part.
      *
+     * @deprecated Use the dedicated reset*() methods instead.
+     *
      * @param string $queryPartName
      *
      * @return $this This QueryBuilder instance.
      */
     public function resetQueryPart($queryPartName)
     {
+        if ($queryPartName === 'distinct') {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'TODO',
+                'Calling %s() with "distinct" is deprecated, call distinct(false) instead.',
+                __METHOD__,
+            );
+
+            return $this->distinct(false);
+        }
+
+        $newMethodName = 'reset' . ucfirst($queryPartName);
+        if (array_key_exists($queryPartName, self::SQL_PARTS_DEFAULTS) && method_exists($this, $newMethodName)) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'TODO',
+                'Calling %s() with "%s" is deprecated, call %s() instead.',
+                __METHOD__,
+                $queryPartName,
+                $newMethodName,
+            );
+
+            return $this->$newMethodName();
+        }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'TODO',
+            'Calling %s() with "%s" is deprecated without replacement.',
+            __METHOD__,
+            $queryPartName,
+            $newMethodName,
+        );
+
         $this->sqlParts[$queryPartName] = self::SQL_PARTS_DEFAULTS[$queryPartName];
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
+    }
+
+    /**
+     * Resets the WHERE conditions for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetWhere(): self
+    {
+        $this->sqlParts['where'] = self::SQL_PARTS_DEFAULTS['where'];
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
+    }
+
+    /**
+     * Resets the grouping for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetGroupBy(): self
+    {
+        $this->sqlParts['groupBy'] = self::SQL_PARTS_DEFAULTS['groupBy'];
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
+    }
+
+    /**
+     * Resets the HAVING conditions for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetHaving(): self
+    {
+        $this->sqlParts['having'] = self::SQL_PARTS_DEFAULTS['having'];
 
         $this->state = self::STATE_DIRTY;
 

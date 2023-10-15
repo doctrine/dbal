@@ -112,6 +112,12 @@ parameters:
             paths:
                 - src/Platforms/AbstractPlatform.php
 
+        # Deprecated method, will be removed in 4.0.0
+        -
+            message: '~^Variable method call on \$this\(Doctrine\\DBAL\\Query\\QueryBuilder\)\.$~'
+            paths:
+                - src/Query/QueryBuilder.php
+
         # There is no way to make this assertion in the code,
         # and the API doesn't support parametrization of returned column types.
         -
