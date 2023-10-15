@@ -503,15 +503,76 @@ class QueryBuilderTest extends TestCase
         self::assertEquals(10, $qb->getFirstResult());
     }
 
+    private function prepareQueryBuilderToReset(): QueryBuilder
+    {
+        $qb = (new QueryBuilder($this->conn))
+            ->select('u.*')
+            ->distinct()
+            ->from('users', 'u')
+            ->where('u.name = ?')
+            ->orderBy('u.name', 'ASC');
+
+        self::assertEquals('SELECT DISTINCT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
+
+        return $qb;
+    }
+
+    public function testResetDistinct(): void
+    {
+        $qb = $this->prepareQueryBuilderToReset()->distinct(false);
+
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
+    }
+
+    public function testResetWhere(): void
+    {
+        $qb = $this->prepareQueryBuilderToReset()->resetWhere();
+
+        self::assertEquals('SELECT DISTINCT u.* FROM users u ORDER BY u.name ASC', (string) $qb);
+    }
+
     public function testResetOrderBy(): void
     {
-        $qb = new QueryBuilder($this->conn);
+        $qb = $this->prepareQueryBuilderToReset()->resetOrderBy();
 
-        $qb->select('u.*')->from('users', 'u')->orderBy('u.name', 'ASC');
+        self::assertEquals('SELECT DISTINCT u.* FROM users u WHERE u.name = ?', (string) $qb);
+    }
 
-        self::assertEquals('SELECT u.* FROM users u ORDER BY u.name ASC', (string) $qb);
-        $qb->resetOrderBy();
-        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
+    private function prepareGroupedQueryBuilderToReset(): QueryBuilder
+    {
+        $qb = (new QueryBuilder($this->conn))
+            ->select('u.country', 'COUNT(*)')
+            ->from('users', 'u')
+            ->groupBy('u.country')
+            ->having('COUNT(*) > ?')
+            ->orderBy('COUNT(*)', 'DESC');
+
+        self::assertEquals(
+            'SELECT u.country, COUNT(*) FROM users u GROUP BY u.country HAVING COUNT(*) > ? ORDER BY COUNT(*) DESC',
+            (string) $qb,
+        );
+
+        return $qb;
+    }
+
+    public function testResetHaving(): void
+    {
+        $qb = $this->prepareGroupedQueryBuilderToReset()->resetHaving();
+
+        self::assertEquals(
+            'SELECT u.country, COUNT(*) FROM users u GROUP BY u.country ORDER BY COUNT(*) DESC',
+            (string) $qb,
+        );
+    }
+
+    public function testGroupBy(): void
+    {
+        $qb = $this->prepareGroupedQueryBuilderToReset()->resetGroupBy();
+
+        self::assertEquals(
+            'SELECT u.country, COUNT(*) FROM users u HAVING COUNT(*) > ? ORDER BY COUNT(*) DESC',
+            (string) $qb,
+        );
     }
 
     public function testCreateNamedParameter(): void

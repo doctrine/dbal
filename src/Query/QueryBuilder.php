@@ -515,7 +515,7 @@ class QueryBuilder
     }
 
     /**
-     * Adds DISTINCT to the query.
+     * Adds or removes DISTINCT to/from the query.
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -526,11 +526,10 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function distinct(): self
+    public function distinct(bool $distinct = true): self
     {
-        $this->distinct = true;
-
-        $this->sql = null;
+        $this->distinct = $distinct;
+        $this->sql      = null;
 
         return $this;
     }
@@ -1135,6 +1134,45 @@ class QueryBuilder
         $this->orderBy[] = $orderBy;
 
         $this->sql = null;
+
+        return $this;
+    }
+
+    /**
+     * Resets the WHERE conditions for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetWhere(): self
+    {
+        $this->where = null;
+        $this->sql   = null;
+
+        return $this;
+    }
+
+    /**
+     * Resets the grouping for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetGroupBy(): self
+    {
+        $this->groupBy = [];
+        $this->sql     = null;
+
+        return $this;
+    }
+
+    /**
+     * Resets the HAVING conditions for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetHaving(): self
+    {
+        $this->having = null;
+        $this->sql    = null;
 
         return $this;
     }
