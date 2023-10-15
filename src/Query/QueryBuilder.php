@@ -1139,6 +1139,19 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Resets the ordering for the query.
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function resetOrderBy(): self
+    {
+        $this->orderBy = [];
+        $this->sql     = null;
+
+        return $this;
+    }
+
     /** @throws QueryException */
     private function getSQLForSelect(): string
     {
