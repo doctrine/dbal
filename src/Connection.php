@@ -1336,7 +1336,7 @@ class Connection
      */
     protected function _getNestedTransactionSavePointName()
     {
-        return 'DOCTRINE2_SAVEPOINT_' . $this->transactionNestingLevel;
+        return 'DOCTRINE_' . $this->transactionNestingLevel;
     }
 
     /**
