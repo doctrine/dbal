@@ -155,7 +155,7 @@ final class DriverManager
      * @param EventManager|null  $eventManager The event manager to use.
      * @psalm-param Params $params
      *
-     * @psalm-return ($params is array{wrapperClass: class-string<T>} ? T : Connection)
+     * @psalm-return ($params is array{wrapperClass: class-string<T>, ...} ? T : Connection)
      *
      * @throws Exception
      *
