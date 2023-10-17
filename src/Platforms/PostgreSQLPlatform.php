@@ -1400,7 +1400,7 @@ SQL
         return new PostgreSQLSchemaManager($connection, $this);
     }
 
-    protected function supportsFunctionalIndex(): bool
+    public function supportsFunctionalIndex(): bool
     {
         return true;
     }

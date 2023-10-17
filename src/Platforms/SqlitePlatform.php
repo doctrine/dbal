@@ -1483,7 +1483,7 @@ class SqlitePlatform extends AbstractPlatform
         return new SqliteSchemaManager($connection, $this);
     }
 
-    protected function supportsFunctionalIndex(): bool
+    public function supportsFunctionalIndex(): bool
     {
         return true;
     }

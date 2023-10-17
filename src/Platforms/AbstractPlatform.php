@@ -4401,6 +4401,14 @@ abstract class AbstractPlatform
     }
 
     /**
+     * A flag that indicates whether the platform supports functional indexes.
+     */
+    public function supportsFunctionalIndex(): bool
+    {
+        return false;
+    }
+
+    /**
      * Maximum length of any given database identifier, like tables or column names.
      *
      * @return int
@@ -4678,13 +4686,5 @@ abstract class AbstractPlatform
     public function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         throw Exception::notSupported(__METHOD__);
-    }
-
-    /**
-     * A flag that indicates whether the platform supports functional indexes.
-     */
-    protected function supportsFunctionalIndex(): bool
-    {
-        return false;
     }
 }

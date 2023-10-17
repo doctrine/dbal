@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use DateTime;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
@@ -264,6 +265,37 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'ALTER TABLE test_column_charset_change CHANGE col_string'
                 . ' col_string VARCHAR(100) CHARACTER SET ascii NOT NULL',
             $diff,
+        );
+    }
+
+    public function testCreateTableWithFunctionalIndex(): void
+    {
+        $tableName = 'table_with_functional_index';
+
+        if (! $this->connection->getDatabasePlatform()->supportsFunctionalIndex()) {
+            $this->expectException(Exception::class);
+        }
+
+        $table = new Table($tableName);
+        $table->addColumn('col_string', Types::STRING)
+            ->setLength(100)
+            ->setNotnull(true)
+            ->setPlatformOption('charset', 'utf8');
+
+        $table->addIndex(['(LENGTH(col_string))'], 'length_index');
+
+        $this->dropAndCreateTable($table);
+
+        if (! ($this->connection->getDatabasePlatform()->supportsFunctionalIndex())) {
+            return;
+        }
+
+        $schema = $this->schemaManager->introspectTable($tableName);
+        self::assertArrayHasKey('length_index', $schema->getIndexes());
+        self::assertTrue($schema->getIndexes()['length_index']->isFunctional());
+        self::assertEquals(
+            '(length(`col_string`))',
+            $schema->getIndexes()['length_index']->getColumns()[0],
         );
     }
 
