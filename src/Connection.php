@@ -971,7 +971,7 @@ class Connection implements ServerVersionProvider
      */
     protected function _getNestedTransactionSavePointName(): string
     {
-        return 'DOCTRINE2_SAVEPOINT_' . $this->transactionNestingLevel;
+        return 'DOCTRINE_' . $this->transactionNestingLevel;
     }
 
     /** @throws Exception */
