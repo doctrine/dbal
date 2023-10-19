@@ -69,12 +69,4 @@ class MoneyType extends Type
     {
         return true;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getMappedDatabaseTypes(AbstractPlatform $platform)
-    {
-        return ['point'];
-    }
 }
