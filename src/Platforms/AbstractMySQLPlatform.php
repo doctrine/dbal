@@ -404,7 +404,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      *
      * @return array{string, string}
      */
-    public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
+    public function getColumnTypeSQLSnippets(string $tableAlias = 'c', ?string $databaseName = null): array
     {
         return [$tableAlias . '.COLUMN_TYPE', ''];
     }

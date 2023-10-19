@@ -40,7 +40,7 @@ class MariaDb1043Platform extends MariaDb1027Platform
      */
     public function getListTableColumnsSQL($table, $database = null): string
     {
-        [$columnTypeSQL, $joinCheckConstraintSQL] = $this->getColumnTypeSQLSnippets();
+        [$columnTypeSQL, $joinCheckConstraintSQL] = $this->getColumnTypeSQLSnippets('c', $database);
 
         return sprintf(
             <<<SQL
@@ -76,30 +76,33 @@ class MariaDb1043Platform extends MariaDb1027Platform
      *
      * @return array{string, string}
      */
-    public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
+    public function getColumnTypeSQLSnippets(string $tableAlias = 'c', ?string $databaseName = null): array
     {
         if ($this->getJsonTypeDeclarationSQL([]) !== 'JSON') {
-            return parent::getColumnTypeSQLSnippets($tableAlias);
+            return parent::getColumnTypeSQLSnippets($tableAlias, $databaseName);
         }
+
+        $databaseName = $this->getDatabaseNameSQL($databaseName);
 
         $columnTypeSQL = <<<SQL
             IF(
-                x.CHECK_CLAUSE IS NOT NULL AND $tableAlias.COLUMN_TYPE = 'longtext',
+                $tableAlias.COLUMN_TYPE = 'longtext'
+                AND EXISTS(
+                    SELECT * from information_schema.CHECK_CONSTRAINTS 
+                    WHERE CONSTRAINT_SCHEMA = $databaseName
+                    AND TABLE_NAME = $tableAlias.TABLE_NAME
+                    AND CHECK_CLAUSE = CONCAT(
+                        'json_valid(`',
+                            $tableAlias.COLUMN_NAME,
+                        '`)'
+                    )
+                ),
                 'json',
                 $tableAlias.COLUMN_TYPE
             )
         SQL;
 
-        $joinCheckConstraintSQL = <<<SQL
-        LEFT JOIN information_schema.CHECK_CONSTRAINTS x
-            ON (
-                $tableAlias.TABLE_SCHEMA = x.CONSTRAINT_SCHEMA
-                AND $tableAlias.TABLE_NAME = x.TABLE_NAME
-                AND x.CHECK_CLAUSE = CONCAT('json_valid(`', $tableAlias.COLUMN_NAME , '`)')
-            )
-        SQL;
-
-        return [$columnTypeSQL, $joinCheckConstraintSQL];
+        return [$columnTypeSQL, ''];
     }
 
     /** {@inheritDoc} */

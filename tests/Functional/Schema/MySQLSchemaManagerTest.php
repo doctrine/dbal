@@ -6,6 +6,7 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb1043Platform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
@@ -400,6 +401,11 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table('test_mysql_json');
         $table->addColumn('col_json', Types::JSON);
         $this->dropAndCreateTable($table);
+
+        // Remove the comment from the column to ensure the type is detected correctly from the check constraints.
+        if ($this->connection->getDatabasePlatform() instanceof MariaDb1043Platform) {
+            $this->connection->executeStatement('ALTER TABLE test_mysql_json CHANGE COLUMN col_json col_json JSON');
+        }
 
         $columns = $this->schemaManager->listTableColumns('test_mysql_json');
 
