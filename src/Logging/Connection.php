@@ -20,7 +20,7 @@ final class Connection extends AbstractConnectionMiddleware
 
     public function __destruct()
     {
-        $this->logger->info('Disconnecting');
+        $this->logger->debug('Disconnecting');
     }
 
     public function prepare(string $sql): DriverStatement
