@@ -1176,11 +1176,11 @@ class Connection
      * @param list<mixed>|array<string, mixed>                                     $params Statement parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return int|string The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws Exception
      */
-    public function executeStatement($sql, array $params = [], array $types = [])
+    public function executeStatement($sql, array $params = [], array $types = []): int
     {
         $connection = $this->getWrappedConnection();
 
