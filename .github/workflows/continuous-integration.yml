@@ -379,7 +379,7 @@ jobs:
         mysql-version:
           - "5.7"
           - "8.0"
-          - "8.1"
+          - "8.2"
         extension:
           - "mysqli"
           - "pdo_mysql"
