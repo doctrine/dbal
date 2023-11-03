@@ -402,9 +402,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      *
      * Returns an array of the form [column type SELECT snippet, additional JOIN statement snippet]
      *
+     * @param string|null $databaseName
+     *
      * @return array{string, string}
      */
-    public function getColumnTypeSQLSnippets(string $tableAlias = 'c', ?string $databaseName = null): array
+    public function getColumnTypeSQLSnippets(string $tableAlias = 'c' /* , ?string $databaseName = null*/): array
     {
         return [$tableAlias . '.COLUMN_TYPE', ''];
     }

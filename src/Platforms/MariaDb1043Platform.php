@@ -4,6 +4,8 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Types\JsonType;
 
+use function func_get_arg;
+use function func_num_args;
 use function sprintf;
 
 /**
@@ -72,18 +74,23 @@ class MariaDb1043Platform extends MariaDb1027Platform
      * is valid json. This function generates the SQL snippets which reverse this aliasing i.e. report a column
      * as JSON where it was originally specified as such instead of LONGTEXT.
      *
-     * The CHECK constraints are stored in information_schema.CHECK_CONSTRAINTS so JOIN that table.
+     * The CHECK constraints are stored in information_schema.CHECK_CONSTRAINTS so query that table.
+     *
+     * @param string|null $databaseName
      *
      * @return array{string, string}
      */
-    public function getColumnTypeSQLSnippets(string $tableAlias = 'c', ?string $databaseName = null): array
+    public function getColumnTypeSQLSnippets(string $tableAlias = 'c' /* , ?string $databaseName = null*/): array
     {
+        $databaseName = func_num_args() > 1 ? func_get_arg(1) : null;
+
         if ($this->getJsonTypeDeclarationSQL([]) !== 'JSON') {
             return parent::getColumnTypeSQLSnippets($tableAlias, $databaseName);
         }
 
         $databaseName = $this->getDatabaseNameSQL($databaseName);
 
+        // The check for `CONSTRAINT_SCHEMA = $databaseName` is mandatory here to prevent performance issues
         $columnTypeSQL = <<<SQL
             IF(
                 $tableAlias.COLUMN_TYPE = 'longtext'
