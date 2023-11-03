@@ -791,6 +791,8 @@
                 <file name="src/Schema/SqliteSchemaManager.php"/>
                 <!-- See https://github.com/doctrine/dbal/pull/3498 -->
                 <file name="tests/Platforms/AbstractMySQLPlatformTestCase.php"/>
+                <!-- See https://github.com/doctrine/dbal/pull/6202 -->
+                <file name="src/Schema/MySQLSchemaManager.php"/>
             </errorLevel>
         </TooManyArguments>
         <TypeDoesNotContainType>
