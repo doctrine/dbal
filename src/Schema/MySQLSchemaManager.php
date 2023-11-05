@@ -343,8 +343,7 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        // @todo 4.0 - call getColumnTypeSQLSnippet() instead
-        [$columnTypeSQL, $joinCheckConstraintSQL] = $this->platform->getColumnTypeSQLSnippets('c', $databaseName);
+        $columnTypeSQL = $this->platform->getColumnTypeSQLSnippet('c', $databaseName);
 
         $sql = 'SELECT';
 
@@ -365,7 +364,6 @@ SQL;
 FROM information_schema.COLUMNS c
     INNER JOIN information_schema.TABLES t
         ON t.TABLE_NAME = c.TABLE_NAME
-    $joinCheckConstraintSQL
 SQL;
 
         // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition

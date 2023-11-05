@@ -42,13 +42,13 @@ class MariaDBPlatform extends AbstractMySQLPlatform
      *
      * The CHECK constraints are stored in information_schema.CHECK_CONSTRAINTS so query that table.
      */
-    public function getColumnTypeSQLSnippet(string $tableAlias = 'c', ?string $databaseName = null): string
+    public function getColumnTypeSQLSnippet(string $tableAlias, string $databaseName): string
     {
         if ($this->getJsonTypeDeclarationSQL([]) !== 'JSON') {
             return parent::getColumnTypeSQLSnippet($tableAlias, $databaseName);
         }
 
-        $databaseName = $this->getDatabaseNameSQL($databaseName);
+        $databaseName = $this->quoteStringLiteral($databaseName);
 
         // The check for `CONSTRAINT_SCHEMA = $databaseName` is mandatory here to prevent performance issues
         return <<<SQL
