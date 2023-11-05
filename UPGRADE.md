@@ -8,10 +8,12 @@ awareness about deprecated code.
 
 # Upgrade to 3.8
 
-## Deprecated `AbstractMySQLPlatform::getColumnTypeSQLSnippets()`
+## Deprecated `AbstractMySQLPlatform` methods
 
-`AbstractMySQLPlatform::getColumnTypeSQLSnippets()` has been deprecated.
-Use `AbstractMySQLPlatform::getColumnTypeSQLSnippet()` instead.
+* `AbstractMySQLPlatform::getColumnTypeSQLSnippets()` has been deprecated
+  in favor of `AbstractMySQLPlatform::getColumnTypeSQLSnippet()`.
+* `AbstractMySQLPlatform::getDatabaseNameSQL()` has been deprecated without replacement.
+* Not passing a database name to `AbstractMySQLPlatform::getColumnTypeSQLSnippet()` has been deprecated.
 
 ## Deprecated reset methods from `QueryBuilder`
 

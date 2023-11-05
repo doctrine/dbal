@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Types\JsonType;
+use Doctrine\Deprecations\Deprecation;
 
 use function sprintf;
 
@@ -79,6 +80,16 @@ class MariaDb1043Platform extends MariaDb1027Platform
     {
         if ($this->getJsonTypeDeclarationSQL([]) !== 'JSON') {
             return parent::getColumnTypeSQLSnippet($tableAlias, $databaseName);
+        }
+
+        if ($databaseName === null) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6215',
+                'Not passing a database name to methods "getColumnTypeSQLSnippet()", '
+                    . '"getColumnTypeSQLSnippets()", and "getListTableColumnsSQL()" of "%s" is deprecated.',
+                self::class,
+            );
         }
 
         $databaseName = $this->getDatabaseNameSQL($databaseName);

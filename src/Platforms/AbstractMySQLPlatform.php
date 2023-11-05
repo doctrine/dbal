@@ -1422,8 +1422,16 @@ SQL
         return true;
     }
 
+    /** @deprecated Will be removed without replacement. */
     protected function getDatabaseNameSQL(?string $databaseName): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6215',
+            '%s is deprecated without replacement.',
+            __METHOD__,
+        );
+
         if ($databaseName !== null) {
             return $this->quoteStringLiteral($databaseName);
         }
