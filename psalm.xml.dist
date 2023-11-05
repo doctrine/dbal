@@ -499,6 +499,11 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Connection::getEventManager"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractPlatform::setEventManager"/>
+                <!--
+                    See https://github.com/doctrine/dbal/pull/6202
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractMySQLPlatform::getColumnTypeSQLSnippets" />
 
                 <!-- TODO for PHPUnit 10 -->
                 <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::withConsecutive"/>
@@ -791,8 +796,6 @@
                 <file name="src/Schema/SqliteSchemaManager.php"/>
                 <!-- See https://github.com/doctrine/dbal/pull/3498 -->
                 <file name="tests/Platforms/AbstractMySQLPlatformTestCase.php"/>
-                <!-- See https://github.com/doctrine/dbal/pull/6202 -->
-                <file name="src/Schema/MySQLSchemaManager.php"/>
             </errorLevel>
         </TooManyArguments>
         <TypeDoesNotContainType>
