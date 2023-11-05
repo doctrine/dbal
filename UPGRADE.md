@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 3.8
 
+## Deprecated `AbstractMySQLPlatform::getColumnTypeSQLSnippets()`
+
+`AbstractMySQLPlatform::getColumnTypeSQLSnippets()` has been deprecated.
+Use `AbstractMySQLPlatform::getColumnTypeSQLSnippet()` instead.
+
 ## Deprecated reset methods from `QueryBuilder`
 
 `QueryBuilder::resetQueryParts()` has been deprecated.
