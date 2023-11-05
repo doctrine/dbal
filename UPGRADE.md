@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `AbstractMySQLPlatform` methods.
+
+1. `getColumnTypeSQLSnippets()`,
+2. `getDatabaseNameSQL()`.
+
 ## BC BREAK: BIGINT vales are cast to int if possible
 
 `BigIntType` casts values retrieved from the database to int if they're inside
