@@ -387,6 +387,22 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 
+    public function testJsonColumnType(): void
+    {
+        $table = new Table('test_mysql_json');
+        $table->addColumn('col_json', Types::JSON);
+        $this->dropAndCreateTable($table);
+
+        // Remove the comment from the column to ensure the type is detected correctly from the check constraints.
+        if ($this->connection->getDatabasePlatform() instanceof MariaDb1043Platform) {
+            $this->connection->executeStatement('ALTER TABLE test_mysql_json CHANGE COLUMN col_json col_json JSON');
+        }
+
+        $columns = $this->schemaManager->listTableColumns('test_mysql_json');
+
+        self::assertSame(Types::JSON, $columns['col_json']->getType()->getName());
+    }
+
     public function testColumnDefaultCurrentTimestamp(): void
     {
         $platform = $this->connection->getDatabasePlatform();

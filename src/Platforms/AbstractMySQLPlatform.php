@@ -208,6 +208,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated Use {@see getColumnTypeSQLSnippet()} instead.
+     *
      * The SQL snippets required to elucidate a column type
      *
      * Returns an array of the form [column type SELECT snippet, additional JOIN statement snippet]
@@ -216,7 +218,24 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
     {
-        return [$tableAlias . '.COLUMN_TYPE', ''];
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6202',
+            'AbstractMySQLPlatform::getColumnTypeSQLSnippets() is deprecated. '
+            . 'Use AbstractMySQLPlatform::getColumnTypeSQLSnippet() instead.',
+        );
+
+        return [$this->getColumnTypeSQLSnippet(...func_get_args()), ''];
+    }
+
+    /**
+     * The SQL snippet required to elucidate a column type
+     *
+     * Returns a column type SELECT snippet string
+     */
+    public function getColumnTypeSQLSnippet(string $tableAlias = 'c', ?string $databaseName = null): string
+    {
+        return $tableAlias . '.COLUMN_TYPE';
     }
 
     /**

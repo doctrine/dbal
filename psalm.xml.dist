@@ -44,6 +44,12 @@
         </ConflictingReferenceConstraint>
         <DeprecatedMethod>
             <errorLevel type="suppress">
+                <!--
+                    See https://github.com/doctrine/dbal/pull/6202
+                    TODO: remove in 4.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\AbstractMySQLPlatform::getColumnTypeSQLSnippets" />
+
                 <!-- TODO for PHPUnit 11 -->
                 <referencedMethod name="PHPUnit\Framework\TestCase::iniSet"/>
             </errorLevel>
