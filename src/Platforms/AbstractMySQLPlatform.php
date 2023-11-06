@@ -120,6 +120,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getJsonTypeDeclarationSQL(array $column): string
+    {
+        return 'JSON';
+    }
+
+    /**
      * Gets the SQL snippet used to declare a CLOB column type.
      *     TINYTEXT   : 2 ^  8 - 1 = 255
      *     TEXT       : 2 ^ 16 - 1 = 65535

@@ -37,14 +37,6 @@ class MySQLPlatform extends AbstractMySQLPlatform
     /**
      * {@inheritDoc}
      */
-    public function getJsonTypeDeclarationSQL(array $column): string
-    {
-        return 'JSON';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         return ['ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];

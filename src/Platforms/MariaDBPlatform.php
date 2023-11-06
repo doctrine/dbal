@@ -21,19 +21,6 @@ use function in_array;
 class MariaDBPlatform extends AbstractMySQLPlatform
 {
     /**
-     * Use JSON rather than LONGTEXT for json columns. Since it is not a true native type, do not override
-     * hasNativeJsonType() so the DC2Type comment will still be set.
-     *
-     * @link https://mariadb.com/kb/en/library/json-data-type/
-     *
-     * {@inheritDoc}
-     */
-    public function getJsonTypeDeclarationSQL(array $column): string
-    {
-        return 'JSON';
-    }
-
-    /**
      * Generate SQL snippets to reverse the aliasing of JSON to LONGTEXT.
      *
      * MariaDb aliases columns specified as JSON to LONGTEXT and sets a CHECK constraint to ensure the column
@@ -46,10 +33,6 @@ class MariaDBPlatform extends AbstractMySQLPlatform
      */
     public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
     {
-        if ($this->getJsonTypeDeclarationSQL([]) !== 'JSON') {
-            return parent::getColumnTypeSQLSnippets($tableAlias);
-        }
-
         $columnTypeSQL = <<<SQL
             IF(
                 x.CHECK_CLAUSE IS NOT NULL AND $tableAlias.COLUMN_TYPE = 'longtext',
