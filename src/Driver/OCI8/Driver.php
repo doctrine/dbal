@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\OCI8\Exception\InvalidConfiguration;
 use SensitiveParameter;
 
 use function oci_connect;
+use function oci_new_connect;
 use function oci_pconnect;
 
 use const OCI_NO_AUTO_COMMIT;

@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\DB2111Platform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MariaDb1052Platform;
+use Doctrine\DBAL\Platforms\MariaDb1060Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
@@ -37,55 +38,31 @@ class VersionAwarePlatformDriverTest extends TestCase
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\PDO\MySQL\Driver(), $version, $expectedClass);
     }
 
-    /** @return array<array{0: string, 1: class-string<AbstractPlatform>, 2?: string, 3?: bool}> */
+    /** @return array<array{string, class-string<AbstractPlatform>}> */
     public static function mySQLVersionProvider(): array
     {
         return [
-            ['5.6.9', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
-            ['5.7', MySQL57Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
-            ['5.7.0', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
-            ['5.7.8', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
-            ['5.7.9', MySQL57Platform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
-            ['5.7.10', MySQL57Platform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
-            ['8', MySQL80Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
-            ['8.0', MySQL80Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
-            ['8.0.11', MySQL80Platform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
+            ['5.6.9', MySQLPlatform::class],
+            ['5.7', MySQL57Platform::class],
+            ['5.7.0', MySQLPlatform::class],
+            ['5.7.8', MySQLPlatform::class],
+            ['5.7.9', MySQL57Platform::class],
+            ['5.7.10', MySQL57Platform::class],
+            ['8', MySQL80Platform::class],
+            ['8.0', MySQL80Platform::class],
+            ['8.0.11', MySQL80Platform::class],
             ['6', MySQL57Platform::class],
-            ['10.0.15-MariaDB-1~wheezy', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
-            ['5.5.5-10.1.25-MariaDB', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
-            ['10.1.2a-MariaDB-a1~lenny-log', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
-            ['5.5.40-MariaDB-1~wheezy', MySQLPlatform::class, 'https://github.com/doctrine/dbal/pull/5779', false],
-            [
-                '5.5.5-MariaDB-10.2.8+maria~xenial-log',
-                MariaDb1027Platform::class,
-                'https://github.com/doctrine/dbal/pull/5779',
-                false,
-            ],
-            [
-                '10.2.8-MariaDB-10.2.8+maria~xenial-log',
-                MariaDb1027Platform::class,
-                'https://github.com/doctrine/dbal/pull/5779',
-                false,
-            ],
-            [
-                '10.2.8-MariaDB-1~lenny-log',
-                MariaDb1027Platform::class,
-                'https://github.com/doctrine/dbal/pull/5779',
-                false,
-            ],
-            ['mariadb-10.9.3', MariaDB1052Platform::class, 'https://github.com/doctrine/dbal/pull/5779', true],
-            [
-                '10.5.2-MariaDB-1~lenny-log',
-                MariaDB1052Platform::class,
-                'https://github.com/doctrine/dbal/pull/5779',
-                false,
-            ],
-            [
-                '11.0.2-MariaDB-1:11.0.2+maria~ubu2204',
-                MariaDB1052Platform::class,
-                'https://github.com/doctrine/dbal/pull/5779',
-                false,
-            ],
+            ['10.0.15-MariaDB-1~wheezy', MySQLPlatform::class],
+            ['5.5.5-10.1.25-MariaDB', MySQLPlatform::class],
+            ['10.1.2a-MariaDB-a1~lenny-log', MySQLPlatform::class],
+            ['5.5.40-MariaDB-1~wheezy', MySQLPlatform::class],
+            ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
+            ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
+            ['10.2.8-MariaDB-1~lenny-log', MariaDb1027Platform::class],
+            ['10.5.2-MariaDB-1~lenny-log', MariaDB1052Platform::class],
+            ['mariadb-10.6.0', MariaDb1060Platform::class],
+            ['mariadb-10.9.3', MariaDb1060Platform::class],
+            ['11.0.2-MariaDB-1:11.0.2+maria~ubu2204', MariaDb1060Platform::class],
         ];
     }
 
@@ -118,13 +95,13 @@ class VersionAwarePlatformDriverTest extends TestCase
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\IBMDB2\Driver(), $version, $expectedClass);
     }
 
-    /** @return array<array{0: string, 1: class-string<AbstractPlatform>, 2?: string, 3?: bool}> */
+    /** @return array<array{string, class-string<AbstractPlatform>}> */
     public static function db2VersionProvider(): array
     {
         return [
-            ['10.1.0', DB2Platform::class, 'https://github.com/doctrine/dbal/pull/5156', true],
-            ['10.1.0.0', DB2Platform::class, 'https://github.com/doctrine/dbal/pull/5156', true],
-            ['DB2/LINUXX8664 10.1.0.0', DB2Platform::class, 'https://github.com/doctrine/dbal/pull/5156', true],
+            ['10.1.0', DB2Platform::class],
+            ['10.1.0.0', DB2Platform::class],
+            ['DB2/LINUXX8664 10.1.0.0', DB2Platform::class],
             ['11.1.0', DB2111Platform::class],
             ['11.1.0.0', DB2111Platform::class],
             ['DB2/LINUXX8664 11.1.0.0', DB2111Platform::class],

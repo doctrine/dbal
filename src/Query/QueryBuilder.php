@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
@@ -70,16 +71,17 @@ class QueryBuilder
      * The default values of SQL parts collection
      */
     private const SQL_PARTS_DEFAULTS = [
-        'select'   => [],
-        'distinct' => false,
-        'from'     => [],
-        'join'     => [],
-        'set'      => [],
-        'where'    => null,
-        'groupBy'  => [],
-        'having'   => null,
-        'orderBy'  => [],
-        'values'   => [],
+        'select'     => [],
+        'distinct'   => false,
+        'from'       => [],
+        'join'       => [],
+        'set'        => [],
+        'where'      => null,
+        'groupBy'    => [],
+        'having'     => null,
+        'orderBy'    => [],
+        'values'     => [],
+        'for_update' => null,
     ];
 
     /**
@@ -589,6 +591,20 @@ class QueryBuilder
     public function getMaxResults()
     {
         return $this->maxResults;
+    }
+
+    /**
+     * Locks the queried rows for a subsequent update.
+     *
+     * @return $this
+     */
+    public function forUpdate(int $conflictResolutionMode = ConflictResolutionMode::ORDINARY): self
+    {
+        $this->state = self::STATE_DIRTY;
+
+        $this->sqlParts['for_update'] = new ForUpdate($conflictResolutionMode);
+
+        return $this;
     }
 
     /**
@@ -1475,27 +1491,24 @@ class QueryBuilder
         return $this;
     }
 
-    /** @throws QueryException */
+    /** @throws Exception */
     private function getSQLForSelect(): string
     {
-        $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
-                  implode(', ', $this->sqlParts['select']);
-
-        $query .= ($this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '')
-            . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
-            . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
-            . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
-            . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
-
-        if ($this->isLimitQuery()) {
-            return $this->connection->getDatabasePlatform()->modifyLimitQuery(
-                $query,
-                $this->maxResults,
-                $this->firstResult,
+        return $this->connection->getDatabasePlatform()
+            ->createSelectSQLBuilder()
+            ->buildSQL(
+                new SelectQuery(
+                    $this->sqlParts['distinct'],
+                    $this->sqlParts['select'],
+                    $this->getFromClauses(),
+                    $this->sqlParts['where'],
+                    $this->sqlParts['groupBy'],
+                    $this->sqlParts['having'],
+                    $this->sqlParts['orderBy'],
+                    new Limit($this->maxResults, $this->firstResult),
+                    $this->sqlParts['for_update'],
+                ),
             );
-        }
-
-        return $query;
     }
 
     /**
@@ -1540,11 +1553,6 @@ class QueryBuilder
                 throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
             }
         }
-    }
-
-    private function isLimitQuery(): bool
-    {
-        return $this->maxResults !== null || $this->firstResult !== 0;
     }
 
     /**
