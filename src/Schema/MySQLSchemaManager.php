@@ -343,7 +343,8 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        [$columnTypeSQL, $joinCheckConstraintSQL] = $this->platform->getColumnTypeSQLSnippets();
+        // @todo 4.0 - call getColumnTypeSQLSnippet() instead
+        [$columnTypeSQL, $joinCheckConstraintSQL] = $this->platform->getColumnTypeSQLSnippets('c', $databaseName);
 
         $sql = 'SELECT';
 

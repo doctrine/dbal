@@ -14,13 +14,17 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
+use function func_get_args;
 use function implode;
 use function in_array;
 use function is_numeric;
@@ -216,6 +220,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * @deprecated Use {@see getColumnTypeSQLSnippet()} instead.
+     *
      * The SQL snippets required to elucidate a column type
      *
      * Returns an array of the form [column type SELECT snippet, additional JOIN statement snippet]
@@ -224,7 +230,24 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
     {
-        return [$tableAlias . '.COLUMN_TYPE', ''];
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6202',
+            'AbstractMySQLPlatform::getColumnTypeSQLSnippets() is deprecated. '
+            . 'Use AbstractMySQLPlatform::getColumnTypeSQLSnippet() instead.',
+        );
+
+        return [$this->getColumnTypeSQLSnippet(...func_get_args()), ''];
+    }
+
+    /**
+     * The SQL snippet required to elucidate a column type
+     *
+     * Returns a column type SELECT snippet string
+     */
+    public function getColumnTypeSQLSnippet(string $tableAlias, string $databaseName): string
+    {
+        return $tableAlias . '.COLUMN_TYPE';
     }
 
     /**
@@ -280,6 +303,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         }
 
         return $sql;
+    }
+
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', null);
     }
 
     /**

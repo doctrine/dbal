@@ -921,6 +921,18 @@ The following methods have been removed.
 
 # Upgrade to 3.8
 
+## Deprecated lock-related `AbstractPlatform` methods
+
+The usage of `AbstractPlatform::getReadLockSQL()`, `::getWriteLockSQL()` and `::getForUpdateSQL` is deprecated as this
+API is not portable. Use `QueryBuilder::forUpdate()` as a replacement for the latter.
+
+## Deprecated `AbstractMySQLPlatform` methods
+
+* `AbstractMySQLPlatform::getColumnTypeSQLSnippets()` has been deprecated
+  in favor of `AbstractMySQLPlatform::getColumnTypeSQLSnippet()`.
+* `AbstractMySQLPlatform::getDatabaseNameSQL()` has been deprecated without replacement.
+* Not passing a database name to `AbstractMySQLPlatform::getColumnTypeSQLSnippet()` has been deprecated.
+
 ## Deprecated reset methods from `QueryBuilder`
 
 `QueryBuilder::resetQueryParts()` has been deprecated.

@@ -13,6 +13,8 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 
@@ -557,6 +559,12 @@ class DB2Platform extends AbstractPlatform
         return true;
     }
 
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new DefaultSelectSQLBuilder($this, 'WITH RR USE AND KEEP UPDATE LOCKS', null);
+    }
+
+    /** @deprecated This API is not portable. */
     public function getForUpdateSQL(): string
     {
         return ' WITH RR USE AND KEEP UPDATE LOCKS';

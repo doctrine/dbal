@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
+use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
@@ -16,6 +17,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
@@ -46,6 +48,11 @@ class SQLServerPlatform extends AbstractPlatform
 {
     /** @internal Should be used only from within the {@see AbstractSchemaManager} class hierarchy. */
     public const OPTION_DEFAULT_CONSTRAINT_NAME = 'default_constraint_name';
+
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new SQLServerSelectSQLBuilder($this);
+    }
 
     public function getCurrentDateSQL(): string
     {
@@ -1089,6 +1096,7 @@ class SQLServerPlatform extends AbstractPlatform
         };
     }
 
+    /** @deprecated This API is not portable. */
     public function getForUpdateSQL(): string
     {
         return ' ';

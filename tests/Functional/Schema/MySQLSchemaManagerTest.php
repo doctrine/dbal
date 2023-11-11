@@ -15,6 +15,7 @@ use Doctrine\DBAL\Tests\Functional\Schema\MySQL\CustomType;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -385,6 +386,17 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertArrayHasKey('col_unsigned', $columns);
         self::assertFalse($columns['col']->getUnsigned());
         self::assertTrue($columns['col_unsigned']->getUnsigned());
+    }
+
+    public function testJsonColumnType(): void
+    {
+        $table = new Table('test_mysql_json');
+        $table->addColumn('col_json', Types::JSON);
+        $this->dropAndCreateTable($table);
+
+        $columns = $this->schemaManager->listTableColumns('test_mysql_json');
+
+        self::assertInstanceOf(JsonType::class, $columns['col_json']->getType());
     }
 
     public function testColumnDefaultCurrentTimestamp(): void
