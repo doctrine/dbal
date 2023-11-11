@@ -685,11 +685,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $sql;
     }
 
-    public function getReadLockSQL(): string
-    {
-        return 'FOR SHARE';
-    }
-
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [

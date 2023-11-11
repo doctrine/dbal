@@ -321,7 +321,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
 
         self::assertEquals("'1987/05/02' - 10 YEAR", $this->platform->getDateSubYearsExpression("'1987/05/02'", '10'));
-        self::assertEquals(' WITH RR USE AND KEEP UPDATE LOCKS', $this->platform->getForUpdateSQL());
 
         self::assertEquals(
             'LOCATE(substring_column, string_column)',

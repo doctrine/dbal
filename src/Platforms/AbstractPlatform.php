@@ -33,7 +33,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -702,23 +701,6 @@ abstract class AbstractPlatform
     abstract public function getCurrentDatabaseExpression(): string;
 
     /**
-     * Returns the FOR UPDATE expression.
-     *
-     * @deprecated This API is not portable. Use {@link QueryBuilder::forUpdate()}` instead.
-     */
-    public function getForUpdateSQL(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6191',
-            '%s is deprecated as non-portable.',
-            __METHOD__,
-        );
-
-        return 'FOR UPDATE';
-    }
-
-    /**
      * Honors that some SQL vendors such as MsSql use table hints for locking instead of the
      * ANSI SQL FOR UPDATE specification.
      *
@@ -727,45 +709,6 @@ abstract class AbstractPlatform
     public function appendLockHint(string $fromClause, LockMode $lockMode): string
     {
         return $fromClause;
-    }
-
-    /**
-     * Returns the SQL snippet to append to any SELECT statement which locks rows in shared read lock.
-     *
-     * This defaults to the ANSI SQL "FOR UPDATE", which is an exclusive lock (Write). Some database
-     * vendors allow to lighten this constraint up to be a real read lock.
-     *
-     * @deprecated This API is not portable.
-     */
-    public function getReadLockSQL(): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6191',
-            '%s is deprecated as non-portable.',
-            __METHOD__,
-        );
-
-        return $this->getForUpdateSQL();
-    }
-
-    /**
-     * Returns the SQL snippet to append to any SELECT statement which obtains an exclusive lock on the rows.
-     *
-     * The semantics of this lock mode should equal the SELECT .. FOR UPDATE of the ANSI SQL standard.
-     *
-     * @deprecated This API is not portable.
-     */
-    public function getWriteLockSQL(): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6191',
-            '%s is deprecated as non-portable.',
-            __METHOD__,
-        );
-
-        return $this->getForUpdateSQL();
     }
 
     /**

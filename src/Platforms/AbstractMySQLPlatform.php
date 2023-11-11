@@ -739,11 +739,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    public function getReadLockSQL(): string
-    {
-        return 'LOCK IN SHARE MODE';
-    }
-
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
