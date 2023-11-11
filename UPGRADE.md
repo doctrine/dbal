@@ -10,8 +10,8 @@ awareness about deprecated code.
 
 ## Deprecated lock-related `AbstractPlatform` methods
 
-The usage of `AbstractPlatform::getReadLockSQL()`, `::getWriteLockSQL()` and `::getForUpdateSQL` is deprecated as this
-API is not portable. Use `QueryBuilder::forUpdate()` as a replacement for the latter.
+The usage of `AbstractPlatform::getReadLockSQL()`, `::getWriteLockSQL()` and `::getForUpdateSQL()` is deprecated as
+this API is not portable. Use `QueryBuilder::forUpdate()` as a replacement for the latter.
 
 ## Deprecated `AbstractMySQLPlatform` methods
 
