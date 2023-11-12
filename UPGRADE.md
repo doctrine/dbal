@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: Removed lock-related `AbstractPlatform` methods
+
+The methods `AbstractPlatform::getReadLockSQL()`, `::getWriteLockSQL()` and `::getForUpdateSQL()` have been removed
+Use `QueryBuilder::forUpdate()` as a replacement for the latter.
+
 ## BC BREAK: BIGINT vales are cast to int if possible
 
 `BigIntType` casts values retrieved from the database to int if they're inside
@@ -215,9 +220,11 @@ The following classes have been converted to enums:
 1. `Doctrine\DBAL\ColumnCase`,
 2. `Doctrine\DBAL\LockMode`,
 3. `Doctrine\DBAL\ParameterType`,
-4. `Doctrine\DBAL\TransactionIsolationLevel`,
-5. `Doctrine\DBAL\Platforms\DateIntervalUnit`,
-6. `Doctrine\DBAL\Platforms\TrimMode`.
+4. `Doctrine\DBAL\ArrayParameterType`,
+5. `Doctrine\DBAL\TransactionIsolationLevel`,
+6. `Doctrine\DBAL\Platforms\DateIntervalUnit`,
+7. `Doctrine\DBAL\Platforms\TrimMode`.
+8. `Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode`
 
 The corresponding class constants are now instances of their enum type.
 

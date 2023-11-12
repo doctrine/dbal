@@ -415,11 +415,6 @@ class SQLitePlatform extends AbstractPlatform
         return 'DELETE FROM ' . $tableIdentifier->getQuotedName($this);
     }
 
-    public function getForUpdateSQL(): string
-    {
-        return '';
-    }
-
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function getInlineColumnCommentSQL(string $comment): string
     {

@@ -564,12 +564,6 @@ class DB2Platform extends AbstractPlatform
         return new DefaultSelectSQLBuilder($this, 'WITH RR USE AND KEEP UPDATE LOCKS', null);
     }
 
-    /** @deprecated This API is not portable. */
-    public function getForUpdateSQL(): string
-    {
-        return ' WITH RR USE AND KEEP UPDATE LOCKS';
-    }
-
     public function getDummySelectSQL(string $expression = '1'): string
     {
         return sprintf('SELECT %s FROM sysibm.sysdummy1', $expression);

@@ -1096,12 +1096,6 @@ class SQLServerPlatform extends AbstractPlatform
         };
     }
 
-    /** @deprecated This API is not portable. */
-    public function getForUpdateSQL(): string
-    {
-        return ' ';
-    }
-
     protected function createReservedKeywordsList(): KeywordList
     {
         return new SQLServerKeywords();

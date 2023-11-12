@@ -492,7 +492,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function forUpdate(int $conflictResolutionMode = ConflictResolutionMode::ORDINARY): self
+    public function forUpdate(ConflictResolutionMode $conflictResolutionMode = ConflictResolutionMode::ORDINARY): self
     {
         $this->forUpdate = new ForUpdate($conflictResolutionMode);
 
