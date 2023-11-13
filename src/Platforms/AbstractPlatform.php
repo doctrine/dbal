@@ -26,6 +26,8 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
@@ -699,14 +701,6 @@ abstract class AbstractPlatform
     abstract public function getCurrentDatabaseExpression(): string;
 
     /**
-     * Returns the FOR UPDATE expression.
-     */
-    public function getForUpdateSQL(): string
-    {
-        return 'FOR UPDATE';
-    }
-
-    /**
      * Honors that some SQL vendors such as MsSql use table hints for locking instead of the
      * ANSI SQL FOR UPDATE specification.
      *
@@ -715,27 +709,6 @@ abstract class AbstractPlatform
     public function appendLockHint(string $fromClause, LockMode $lockMode): string
     {
         return $fromClause;
-    }
-
-    /**
-     * Returns the SQL snippet to append to any SELECT statement which locks rows in shared read lock.
-     *
-     * This defaults to the ANSI SQL "FOR UPDATE", which is an exclusive lock (Write). Some database
-     * vendors allow to lighten this constraint up to be a real read lock.
-     */
-    public function getReadLockSQL(): string
-    {
-        return $this->getForUpdateSQL();
-    }
-
-    /**
-     * Returns the SQL snippet to append to any SELECT statement which obtains an exclusive lock on the rows.
-     *
-     * The semantics of this lock mode should equal the SELECT .. FOR UPDATE of the ANSI SQL standard.
-     */
-    public function getWriteLockSQL(): string
-    {
-        return $this->getForUpdateSQL();
     }
 
     /**
@@ -797,6 +770,11 @@ abstract class AbstractPlatform
     public function getCreateTableSQL(Table $table): array
     {
         return $this->buildCreateTableSQL($table, true);
+    }
+
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', 'SKIP LOCKED');
     }
 
     /**

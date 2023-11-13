@@ -14,6 +14,8 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 
@@ -117,6 +119,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getListViewsSQL(string $database): string
     {
         return 'SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = ' . $this->quoteStringLiteral($database);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getJsonTypeDeclarationSQL(array $column): string
+    {
+        return 'JSON';
     }
 
     /**
@@ -270,6 +280,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         }
 
         return $sql;
+    }
+
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', null);
     }
 
     /**
@@ -699,11 +714,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
     {
         return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
-    }
-
-    public function getReadLockSQL(): string
-    {
-        return 'LOCK IN SHARE MODE';
     }
 
     protected function initializeDoctrineTypeMappings(): void

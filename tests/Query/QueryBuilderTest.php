@@ -8,10 +8,12 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -30,9 +32,15 @@ class QueryBuilderTest extends TestCase
 
         $expressionBuilder = new ExpressionBuilder($this->conn);
 
-        $this->conn->expects(self::any())
-                   ->method('createExpressionBuilder')
-                   ->willReturn($expressionBuilder);
+        $this->conn->method('createExpressionBuilder')
+           ->willReturn($expressionBuilder);
+
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform->method('createSelectSQLBuilder')
+            ->willReturn(new DefaultSelectSQLBuilder($platform, null, null));
+
+        $this->conn->method('getDatabasePlatform')
+            ->willReturn($platform);
     }
 
     public function testSimpleSelectWithoutFrom(): void

@@ -15,6 +15,7 @@ use Doctrine\DBAL\Tests\Functional\Schema\MySQL\CustomType;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -400,7 +401,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->schemaManager->listTableColumns('test_mysql_json');
 
-        self::assertSame(Types::JSON, Type::lookupName($columns['col_json']->getType()));
+        self::assertInstanceOf(JsonType::class, $columns['col_json']->getType());
     }
 
     public function testColumnDefaultCurrentTimestamp(): void

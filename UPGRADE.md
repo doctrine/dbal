@@ -13,6 +13,11 @@ awareness about deprecated code.
 1. `getColumnTypeSQLSnippets()`,
 2. `getDatabaseNameSQL()`.
 
+## BC BREAK: Removed lock-related `AbstractPlatform` methods
+
+The methods `AbstractPlatform::getReadLockSQL()`, `::getWriteLockSQL()` and `::getForUpdateSQL()` have been removed
+Use `QueryBuilder::forUpdate()` as a replacement for the latter.
+
 ## BC BREAK: BIGINT vales are cast to int if possible
 
 `BigIntType` casts values retrieved from the database to int if they're inside
@@ -220,9 +225,11 @@ The following classes have been converted to enums:
 1. `Doctrine\DBAL\ColumnCase`,
 2. `Doctrine\DBAL\LockMode`,
 3. `Doctrine\DBAL\ParameterType`,
-4. `Doctrine\DBAL\TransactionIsolationLevel`,
-5. `Doctrine\DBAL\Platforms\DateIntervalUnit`,
-6. `Doctrine\DBAL\Platforms\TrimMode`.
+4. `Doctrine\DBAL\ArrayParameterType`,
+5. `Doctrine\DBAL\TransactionIsolationLevel`,
+6. `Doctrine\DBAL\Platforms\DateIntervalUnit`,
+7. `Doctrine\DBAL\Platforms\TrimMode`.
+8. `Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode`
 
 The corresponding class constants are now instances of their enum type.
 
@@ -925,6 +932,18 @@ The following methods have been removed.
 | `QueryCacheProfile` | `getResultCacheDriver()` | `getResultCache()` |
 
 # Upgrade to 3.8
+
+## Deprecated lock-related `AbstractPlatform` methods
+
+The usage of `AbstractPlatform::getReadLockSQL()`, `::getWriteLockSQL()` and `::getForUpdateSQL` is deprecated as this
+API is not portable. Use `QueryBuilder::forUpdate()` as a replacement for the latter.
+
+## Deprecated `AbstractMySQLPlatform` methods
+
+* `AbstractMySQLPlatform::getColumnTypeSQLSnippets()` has been deprecated
+  in favor of `AbstractMySQLPlatform::getColumnTypeSQLSnippet()`.
+* `AbstractMySQLPlatform::getDatabaseNameSQL()` has been deprecated without replacement.
+* Not passing a database name to `AbstractMySQLPlatform::getColumnTypeSQLSnippet()` has been deprecated.
 
 ## Deprecated reset methods from `QueryBuilder`
 

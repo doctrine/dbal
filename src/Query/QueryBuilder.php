@@ -13,6 +13,7 @@ use Doctrine\DBAL\Query\Exception\NonUniqueAlias;
 use Doctrine\DBAL\Query\Exception\UnknownAlias;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
@@ -142,6 +143,8 @@ class QueryBuilder
      * @var string[]
      */
     private array $orderBy = [];
+
+    private ?ForUpdate $forUpdate = null;
 
     /**
      * The values of an INSERT query.
@@ -485,6 +488,20 @@ class QueryBuilder
     }
 
     /**
+     * Locks the queried rows for a subsequent update.
+     *
+     * @return $this
+     */
+    public function forUpdate(ConflictResolutionMode $conflictResolutionMode = ConflictResolutionMode::ORDINARY): self
+    {
+        $this->forUpdate = new ForUpdate($conflictResolutionMode);
+
+        $this->sql = null;
+
+        return $this;
+    }
+
+    /**
      * Specifies an item that is to be returned in the query result.
      * Replaces any previously specified selections, if any.
      *
@@ -502,10 +519,6 @@ class QueryBuilder
     public function select(string ...$expressions): self
     {
         $this->type = QueryType::SELECT;
-
-        if (count($expressions) < 1) {
-            return $this;
-        }
 
         $this->select = $expressions;
 
@@ -1190,50 +1203,28 @@ class QueryBuilder
         return $this;
     }
 
-    /** @throws QueryException */
+    /** @throws Exception */
     private function getSQLForSelect(): string
     {
         if (count($this->select) === 0) {
             throw new QueryException('No SELECT expressions given. Please use select() or addSelect().');
         }
 
-        $query = 'SELECT';
-
-        if ($this->distinct) {
-            $query .= ' DISTINCT';
-        }
-
-        $query .= ' ' . implode(', ', $this->select);
-
-        if (count($this->from) !== 0) {
-            $query .= ' FROM ' . implode(', ', $this->getFromClauses());
-        }
-
-        if ($this->where !== null) {
-            $query .= ' WHERE ' . $this->where;
-        }
-
-        if (count($this->groupBy) !== 0) {
-            $query .= ' GROUP BY ' . implode(', ', $this->groupBy);
-        }
-
-        if ($this->having !== null) {
-            $query .= ' HAVING ' . $this->having;
-        }
-
-        if (count($this->orderBy) !== 0) {
-            $query .= ' ORDER BY ' . implode(', ', $this->orderBy);
-        }
-
-        if ($this->isLimitQuery()) {
-            return $this->connection->getDatabasePlatform()->modifyLimitQuery(
-                $query,
-                $this->maxResults,
-                $this->firstResult,
+        return $this->connection->getDatabasePlatform()
+            ->createSelectSQLBuilder()
+            ->buildSQL(
+                new SelectQuery(
+                    $this->distinct,
+                    $this->select,
+                    $this->getFromClauses(),
+                    $this->where !== null ? (string) $this->where : null,
+                    $this->groupBy,
+                    $this->having !== null ? (string) $this->having : null,
+                    $this->orderBy,
+                    new Limit($this->maxResults, $this->firstResult),
+                    $this->forUpdate,
+                ),
             );
-        }
-
-        return $query;
     }
 
     /**
@@ -1277,11 +1268,6 @@ class QueryBuilder
                 throw UnknownAlias::new($fromAlias, array_keys($knownAliases));
             }
         }
-    }
-
-    private function isLimitQuery(): bool
-    {
-        return $this->maxResults !== null || $this->firstResult !== 0;
     }
 
     /**

@@ -17,6 +17,8 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 
@@ -145,6 +147,12 @@ class SQLitePlatform extends AbstractPlatform
     public function getCurrentDatabaseExpression(): string
     {
         return "'main'";
+    }
+
+    /** @link https://www2.sqlite.org/cvstrac/wiki?p=UnsupportedSql */
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new DefaultSelectSQLBuilder($this, null, null);
     }
 
     protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level): string
@@ -405,11 +413,6 @@ class SQLitePlatform extends AbstractPlatform
         $tableIdentifier = new Identifier($tableName);
 
         return 'DELETE FROM ' . $tableIdentifier->getQuotedName($this);
-    }
-
-    public function getForUpdateSQL(): string
-    {
-        return '';
     }
 
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
