@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## BC BREAK: removed `AbstractMySQLPlatform` methods.
+
+1. `getColumnTypeSQLSnippets()`,
+2. `getDatabaseNameSQL()`.
+
 ## BC BREAK: Removed lock-related `AbstractPlatform` methods
 
 The methods `AbstractPlatform::getReadLockSQL()`, `::getWriteLockSQL()` and `::getForUpdateSQL()` have been removed

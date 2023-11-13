@@ -18,13 +18,11 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
-use function func_get_args;
 use function implode;
 use function in_array;
 use function is_numeric;
@@ -217,27 +215,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function supportsColumnCollation(): bool
     {
         return true;
-    }
-
-    /**
-     * @deprecated Use {@see getColumnTypeSQLSnippet()} instead.
-     *
-     * The SQL snippets required to elucidate a column type
-     *
-     * Returns an array of the form [column type SELECT snippet, additional JOIN statement snippet]
-     *
-     * @return array{string, string}
-     */
-    public function getColumnTypeSQLSnippets(string $tableAlias = 'c'): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6202',
-            'AbstractMySQLPlatform::getColumnTypeSQLSnippets() is deprecated. '
-            . 'Use AbstractMySQLPlatform::getColumnTypeSQLSnippet() instead.',
-        );
-
-        return [$this->getColumnTypeSQLSnippet(...func_get_args()), ''];
     }
 
     /**
