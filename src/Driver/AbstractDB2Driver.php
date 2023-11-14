@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\IBMDB2\ExceptionConverter;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\ServerVersionProvider;
@@ -19,7 +20,7 @@ abstract class AbstractDB2Driver implements Driver
         return new DB2Platform();
     }
 
-    public function getExceptionConverter(): ExceptionConverter
+    public function getExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();
     }
