@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
@@ -52,7 +53,7 @@ abstract class AbstractMySQLDriver implements Driver
         return new MySQLPlatform();
     }
 
-    public function getExceptionConverter(): ExceptionConverter
+    public function getExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();
     }

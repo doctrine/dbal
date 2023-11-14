@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
+use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\OCI\ExceptionConverter;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\ServerVersionProvider;
@@ -20,7 +21,7 @@ abstract class AbstractOracleDriver implements Driver
         return new OraclePlatform();
     }
 
-    public function getExceptionConverter(): ExceptionConverter
+    public function getExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();
     }

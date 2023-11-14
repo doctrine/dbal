@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\API\PostgreSQL\ExceptionConverter;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
@@ -19,7 +20,7 @@ abstract class AbstractPostgreSQLDriver implements Driver
         return new PostgreSQLPlatform();
     }
 
-    public function getExceptionConverter(): ExceptionConverter
+    public function getExceptionConverter(): ExceptionConverterInterface
     {
         return new ExceptionConverter();
     }
