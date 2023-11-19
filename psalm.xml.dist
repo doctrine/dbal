@@ -77,6 +77,8 @@
                 <file name="src/Schema/Column.php"/>
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->
                 <file name="src/Portability/Converter.php"/>
+                <!-- We're checking for invalid input -->
+                <file name="src/Configuration.php"/>
             </errorLevel>
         </DocblockTypeContradiction>
         <FalsableReturnStatement>
