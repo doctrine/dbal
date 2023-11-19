@@ -188,7 +188,6 @@ class Connection implements ServerVersionProvider
             }
 
             $this->platform = $this->driver->getDatabasePlatform($versionProvider);
-            $this->platform->setDisableTypeComments($this->_config->getDisableTypeComments());
         }
 
         return $this->platform;
