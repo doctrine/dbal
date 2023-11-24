@@ -21,6 +21,7 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+use InvalidArgumentException;
 
 use function array_combine;
 use function array_keys;
@@ -29,9 +30,11 @@ use function array_search;
 use function array_unique;
 use function array_values;
 use function count;
+use function explode;
 use function implode;
 use function sprintf;
 use function str_replace;
+use function strpos;
 use function strtolower;
 use function trim;
 
@@ -536,6 +539,35 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         return $sql;
+    }
+
+    /** {@inheritDoc} */
+    public function getCreateIndexSQL(Index $index, string $table): string
+    {
+        $name    = $index->getQuotedName($this);
+        $columns = $index->getColumns();
+
+        if (strpos($table, '.') !== false) {
+            [$schema, $table] = explode('.', $table);
+            $name             = $schema . '.' . $name;
+        }
+
+        if (count($columns) === 0) {
+            throw new InvalidArgumentException(sprintf(
+                'Incomplete or invalid index definition %s on table %s',
+                $name,
+                $table,
+            ));
+        }
+
+        if ($index->isPrimary()) {
+            return $this->getCreatePrimaryKeySQL($index, $table);
+        }
+
+        $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
+        $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
+
+        return $query;
     }
 
     /**
