@@ -326,6 +326,7 @@
                 <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableForeignKeysSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableIndexesSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SQLServerPlatform::getListTableMetadataSQL"/>
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::disableSchemaEmulation"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableColumnsSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableForeignKeysSQL"/>
                 <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::getListTableIndexesSQL"/>
