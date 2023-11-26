@@ -19,6 +19,8 @@ abstract class BaseDateTypeTestCase extends TestCase
 {
     protected AbstractPlatform&MockObject $platform;
     protected Type $type;
+
+    /** @var non-empty-string */
     private string $currentTimezone;
 
     protected function setUp(): void

@@ -101,10 +101,8 @@ parameters:
         - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\Connection\:\:exec\(\) should return int but returns int<0, max>\|false\.$~'
         - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\Result\:\:rowCount\(\) should return int but returns int<0, max>\|false\.$~'
 
-        # TODO
-        -
-            message: '~^Property Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:\$disableTypeComments is never read, only written\.$~'
-            path: src/Platforms/AbstractPlatform.php
+        # Required for Psalm compatibility
+        - '~^Property Doctrine\\DBAL\\Tests\\Types\\BaseDateTypeTestCase\:\:\$currentTimezone \(non-empty-string\) does not accept string\.$~'
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
