@@ -6,7 +6,8 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Exception;
 
-use function spl_object_id;
+use function crc32;
+use function get_class;
 
 /**
  * The type registry is responsible for holding a map of all known DBAL types.
@@ -84,7 +85,7 @@ final class TypeRegistry
         }
 
         $this->instances[$name]                            = $type;
-        $this->instancesReverseIndex[spl_object_id($type)] = $name;
+        $this->instancesReverseIndex[self::getObjectKey($type)] = $name;
     }
 
     /**
@@ -103,9 +104,9 @@ final class TypeRegistry
             throw Exception::typeAlreadyRegistered($type);
         }
 
-        unset($this->instancesReverseIndex[spl_object_id($origType)]);
+        unset($this->instancesReverseIndex[self::getObjectKey($origType)]);
         $this->instances[$name]                            = $type;
-        $this->instancesReverseIndex[spl_object_id($type)] = $name;
+        $this->instancesReverseIndex[self::getObjectKey($type)] = $name;
     }
 
     /**
@@ -122,6 +123,11 @@ final class TypeRegistry
 
     private function findTypeName(Type $type): ?string
     {
-        return $this->instancesReverseIndex[spl_object_id($type)] ?? null;
+        return $this->instancesReverseIndex[self::getObjectKey($type)] ?? null;
+    }
+
+    private static function getObjectKey(object $object): int
+    {
+        return crc32(get_class($object));
     }
 }
