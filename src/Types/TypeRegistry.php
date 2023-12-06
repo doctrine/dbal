@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 
 use function crc32;
 use function get_class;
+use function spl_object_id;
 
 /**
  * The type registry is responsible for holding a map of all known DBAL types.
@@ -128,6 +129,6 @@ final class TypeRegistry
 
     private static function getObjectKey(object $object): int
     {
-        return crc32(get_class($object));
+        return crc32(get_class($object) . spl_object_id($object));
     }
 }
