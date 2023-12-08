@@ -10,6 +10,8 @@ use PgSql\Connection as PgSqlConnection;
 use TypeError;
 
 use function assert;
+use function fseek;
+use function ftell;
 use function func_num_args;
 use function get_class;
 use function gettype;
@@ -26,6 +28,9 @@ use function pg_result_error;
 use function pg_send_execute;
 use function sprintf;
 use function stream_get_contents;
+use function stream_get_meta_data;
+
+use const SEEK_SET;
 
 final class Statement implements StatementInterface
 {
@@ -151,10 +156,24 @@ final class Statement implements StatementInterface
             switch ($this->parameterTypes[$parameter]) {
                 case ParameterType::BINARY:
                 case ParameterType::LARGE_OBJECT:
+                    $isResource = is_resource($value);
+                    $resource   = $value;
+                    $resetTo    = false;
+                    if ($isResource) {
+                        if (stream_get_meta_data($resource)['seekable']) {
+                            $resetTo = ftell($resource);
+                        }
+                    }
+
                     $escapedParameters[] = $value === null ? null : pg_escape_bytea(
                         $this->connection,
-                        is_resource($value) ? stream_get_contents($value) : $value,
+                        $isResource ? stream_get_contents($value) : $value,
                     );
+
+                    if ($resetTo !== false) {
+                        fseek($resource, $resetTo, SEEK_SET);
+                    }
+
                     break;
                 default:
                     $escapedParameters[] = $value;
