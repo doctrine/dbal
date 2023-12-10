@@ -29,5 +29,5 @@
    .. toctree::
       :depth: 3
 
-    explanation/dc2type-comments
-    explanation/implicit-indexes
+      explanation/dc2type-comments
+      explanation/implicit-indexes
