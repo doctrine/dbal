@@ -10,15 +10,20 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
 
 use function assert;
+use function fseek;
+use function ftell;
 use function func_num_args;
 use function is_int;
+use function is_resource;
 use function sqlsrv_execute;
 use function SQLSRV_PHPTYPE_STREAM;
 use function SQLSRV_PHPTYPE_STRING;
 use function sqlsrv_prepare;
 use function SQLSRV_SQLTYPE_VARBINARY;
+use function stream_get_meta_data;
 use function stripos;
 
+use const SEEK_SET;
 use const SQLSRV_ENC_BINARY;
 use const SQLSRV_ENC_CHAR;
 use const SQLSRV_PARAM_IN;
@@ -59,6 +64,13 @@ final class Statement implements StatementInterface
     private array $types = [];
 
     /**
+     * Resources used as bound values.
+     *
+     * @var mixed[]|null
+     */
+    private ?array $paramResources = null;
+
+    /**
      * Append to any INSERT query to retrieve the last insert id.
      */
     private const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
@@ -95,6 +107,10 @@ final class Statement implements StatementInterface
                 'Not passing $type to Statement::bindValue() is deprecated.'
                     . ' Pass the type corresponding to the parameter being bound.',
             );
+        }
+
+        if ($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY) {
+            $this->trackParamResource($value);
         }
 
         $this->variables[$param] = $value;
@@ -159,10 +175,17 @@ final class Statement implements StatementInterface
             }
         }
 
-        $this->stmt ??= $this->prepare();
+        $resourceOffsets = $this->getResourceOffsets();
+        try {
+            $this->stmt ??= $this->prepare();
 
-        if (! sqlsrv_execute($this->stmt)) {
-            throw Error::new();
+            if (! sqlsrv_execute($this->stmt)) {
+                throw Error::new();
+            }
+        } finally {
+            if ($resourceOffsets !== null) {
+                $this->restoreResourceOffsets($resourceOffsets);
+            }
         }
 
         return new Result($this->stmt);
@@ -219,5 +242,74 @@ final class Statement implements StatementInterface
         }
 
         return $stmt;
+    }
+
+    /**
+     * Track a binary parameter reference at binding time. These
+     * are cached for later analysis by the getResourceOffsets.
+     *
+     * @param mixed $resource
+     */
+    private function trackParamResource($resource): void
+    {
+        if (! is_resource($resource)) {
+            return;
+        }
+
+        $this->paramResources ??= [];
+        $this->paramResources[] = $resource;
+    }
+
+    /**
+     * Determine the offset that any resource parameters needs to be
+     * restored to after the statement is executed. Call immediately
+     * before execute (not during bindValue) to get the most accurate offset.
+     *
+     * @return int[]|null Return offsets to restore if needed. The array may be sparse.
+     */
+    private function getResourceOffsets(): ?array
+    {
+        if ($this->paramResources === null) {
+            return null;
+        }
+
+        $resourceOffsets = null;
+        foreach ($this->paramResources as $index => $resource) {
+            $position = false;
+            if (stream_get_meta_data($resource)['seekable']) {
+                $position = ftell($resource);
+            }
+
+            if ($position === false) {
+                continue;
+            }
+
+            $resourceOffsets       ??= [];
+            $resourceOffsets[$index] = $position;
+        }
+
+        if ($resourceOffsets === null) {
+            $this->paramResources = null;
+        }
+
+        return $resourceOffsets;
+    }
+
+    /**
+     * Restore resource offsets moved by PDOStatement->execute
+     *
+     * @param int[]|null $resourceOffsets The offsets returned by getResourceOffsets.
+     */
+    private function restoreResourceOffsets(?array $resourceOffsets): void
+    {
+        if ($resourceOffsets === null || $this->paramResources === null) {
+            return;
+        }
+
+        foreach ($resourceOffsets as $index => $offset) {
+            fseek($this->paramResources[$index], $offset, SEEK_SET);
+        }
+
+        $this->paramResources = null;
     }
 }
