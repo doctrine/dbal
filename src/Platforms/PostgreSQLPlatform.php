@@ -828,7 +828,28 @@ SQL
             return $this->getDropConstraintSQL($constraintName, $table);
         }
 
-        return parent::getDropIndexSQL($index, $table);
+        if ($index instanceof Index) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/issues/4798',
+                'Passing $index as an Index object to %s is deprecated. Pass it as a quoted name instead.',
+                __METHOD__,
+            );
+
+            $index = $index->getQuotedName($this);
+        } elseif (! is_string($index)) {
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.',
+            );
+        }
+
+        if (strpos($table, '.') !== false) {
+            [$schema] = explode('.', $table);
+            $index    = $schema . '.' . $index;
+        }
+
+
+        return 'DROP INDEX ' . $index;
     }
 
     /**

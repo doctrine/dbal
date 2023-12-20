@@ -1069,4 +1069,12 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('jsonb'));
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('jsonb'));
     }
+
+    public function testDropIndexSQLRequiresTable(): void
+    {
+        self::assertSame(
+            'DROP INDEX schema.idx_id',
+            $this->platform->getDropIndexSQL('idx_id', 'schema.table'),
+        );
+    }
 }
