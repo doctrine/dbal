@@ -849,7 +849,6 @@ SQL
             $index    = $schema . '.' . $index;
         }
 
-
         return 'DROP INDEX ' . $index;
     }
 
