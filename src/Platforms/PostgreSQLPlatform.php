@@ -16,6 +16,7 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
+use InvalidArgumentException;
 use UnexpectedValueException;
 
 use function array_diff;
