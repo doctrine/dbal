@@ -479,6 +479,7 @@ SQL
                         AND a.attrelid = c.oid
                         AND a.atttypid = t.oid
                         AND n.oid = c.relnamespace
+                        AND a.attisdropped = false
                     ORDER BY a.attnum';
     }
 
