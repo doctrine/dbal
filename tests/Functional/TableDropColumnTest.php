@@ -19,11 +19,20 @@ class TableDropColumnTest extends FunctionalTestCase
         $table->addColumn('test_column1', Types::STRING);
         $table->addColumn('test_column2', Types::INTEGER);
         $table->setPrimaryKey(['id']);
-        $table->addIndex(['test_column1', 'test_column2']);
+
+        $platform = $this->connection->getDatabasePlatform();
+
+        $table->addIndex(['test_column1', 'test_column2'], 'test');
 
         $this->dropAndCreateTable($table);
 
-        $this->connection->executeStatement('ALTER TABLE write_table DROP COLUMN test_column1');
+        // some db engine dont allow drop column which belongs to index but on pgsql it leave pg_attribute with attisdropped=true so we can test it
+        try {
+            $this->connection->executeStatement('ALTER TABLE write_table DROP COLUMN test_column1');
+        } catch (Throwable $e) {
+            $table->dropIndex('test');
+            $this->connection->executeStatement('ALTER TABLE write_table DROP COLUMN test_column1');
+        }
     }
 
     public function testPgSqlPgAttributeTable(): void
