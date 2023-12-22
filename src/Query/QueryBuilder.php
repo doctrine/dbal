@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Query;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\LimitOffsetPlaceholders;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
@@ -546,6 +547,7 @@ class QueryBuilder
     {
         $this->state       = self::STATE_DIRTY;
         $this->firstResult = $firstResult;
+        $this->setParameter(LimitOffsetPlaceholders::OFFSET_PLACEHOLDER, $firstResult, ParameterType::INTEGER);
 
         return $this;
     }
@@ -571,6 +573,7 @@ class QueryBuilder
     {
         $this->state      = self::STATE_DIRTY;
         $this->maxResults = $maxResults;
+        $this->setParameter(LimitOffsetPlaceholders::LIMIT_PLACEHOLDER, $maxResults, ParameterType::INTEGER);
 
         return $this;
     }

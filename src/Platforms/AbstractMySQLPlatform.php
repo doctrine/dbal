@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\LimitOffsetPlaceholders;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -56,10 +57,10 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
         if ($limit !== null) {
-            $query .= sprintf(' LIMIT %d', $limit);
+            $query .= sprintf(' LIMIT :%s', LimitOffsetPlaceholders::LIMIT_PLACEHOLDER);
 
             if ($offset > 0) {
-                $query .= sprintf(' OFFSET %d', $offset);
+                $query .= sprintf(' OFFSET :%s', LimitOffsetPlaceholders::OFFSET_PLACEHOLDER);
             }
         } elseif ($offset > 0) {
             // 2^64-1 is the maximum of unsigned BIGINT, the biggest limit possible

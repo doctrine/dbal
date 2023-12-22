@@ -76,6 +76,8 @@ abstract class AbstractPlatform
 
     public const CREATE_FOREIGNKEYS = 2;
 
+
+
     /** @var string[]|null */
     protected $doctrineTypeMapping;
 
