@@ -1133,7 +1133,7 @@ SQL
         if ($limit === null && $offset <= 0) {
             return $query;
         }
-
+        
         if (preg_match('/^\s*SELECT/i', $query) === 1) {
             if (preg_match('/\sFROM\s/i', $query) === 0) {
                 $query .= ' FROM dual';

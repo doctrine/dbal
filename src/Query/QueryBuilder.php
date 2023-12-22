@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Query;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\LimitOffsetPlaceholders;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
@@ -464,6 +465,13 @@ class QueryBuilder
         return $this;
     }
 
+    private function unsetParameter(string $key): self
+    {
+        unset($this->params[$key], $this->paramTypes[$key]);
+
+        return $this;
+    }
+
     /**
      * Sets a collection of query parameters for the query being constructed.
      *
@@ -542,12 +550,17 @@ class QueryBuilder
      * @param int $firstResult The first result to return.
      *
      * @return $this This QueryBuilder instance.
+     * @throws Exception\InvalidArgumentException
      */
     public function setFirstResult($firstResult)
     {
+        $firstResult = (int) $firstResult;
+        if($firstResult < 0) {
+            throw new Exception\InvalidArgumentException('The $firstResult parameter should be greater or equal to 0.');
+        }
+
         $this->state       = self::STATE_DIRTY;
         $this->firstResult = $firstResult;
-        $this->setParameter(LimitOffsetPlaceholders::OFFSET_PLACEHOLDER, $firstResult, ParameterType::INTEGER);
 
         return $this;
     }
@@ -568,12 +581,20 @@ class QueryBuilder
      * @param int|null $maxResults The maximum number of results to retrieve or NULL to retrieve all results.
      *
      * @return $this This QueryBuilder instance.
+     * @throws Exception\InvalidArgumentException
      */
     public function setMaxResults($maxResults)
     {
+        if($maxResults < 1) {
+            throw new Exception\InvalidArgumentException('The maxResults parameter should be greater than 0.');
+        }
         $this->state      = self::STATE_DIRTY;
         $this->maxResults = $maxResults;
-        $this->setParameter(LimitOffsetPlaceholders::LIMIT_PLACEHOLDER, $maxResults, ParameterType::INTEGER);
+        if($maxResults !== null) {
+            $this->setParameter(LimitOffsetPlaceholders::LIMIT_PLACEHOLDER, $maxResults, ParameterType::INTEGER);
+        } else {
+            $this->unsetParameter(LimitOffsetPlaceholders::LIMIT_PLACEHOLDER);
+        }
 
         return $this;
     }
