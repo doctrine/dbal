@@ -657,6 +657,7 @@ SQL;
             'a.attnum > 0',
             "c.relkind = 'r'",
             'd.refobjid IS NULL',
+            'a.attisdropped = false',
         ], $this->buildQueryConditions($tableName));
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY a.attnum';
