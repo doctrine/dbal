@@ -237,7 +237,10 @@ SQL,
         assert(array_key_exists('complete_type', $tableColumn));
 
         if ($tableColumn['default'] !== null) {
-            if (preg_match("/^['(](.*)[')]::/", $tableColumn['default'], $matches) === 1) {
+            if (preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches) === 1) {
+                $tableColumn['default'] = null;
+                $autoincrement          = true;
+            } elseif (preg_match("/^['(](.*)[')]::/", $tableColumn['default'], $matches) === 1) {
                 $tableColumn['default'] = $matches[1];
             } elseif (preg_match('/^NULL::/', $tableColumn['default']) === 1) {
                 $tableColumn['default'] = null;

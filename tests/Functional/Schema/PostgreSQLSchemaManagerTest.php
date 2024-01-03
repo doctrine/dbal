@@ -555,6 +555,17 @@ SQL;
             'bigint->int' => ['bigint', 'integer', 'INT'],
         ];
     }
+
+    public function testIdentifySerialAsAutoincrement(): void
+    {
+        $sql = 'CREATE TABLE test_serial (id SERIAL PRIMARY KEY)';
+        $this->connection->executeStatement($sql);
+
+        $table = $this->schemaManager->introspectTable('test_serial');
+
+        self::assertTrue($table->getColumn('id')->getAutoincrement());
+        self::assertNull($table->getColumn('id')->getDefault());
+    }
 }
 
 class MoneyType extends Type
