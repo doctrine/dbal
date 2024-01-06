@@ -55,15 +55,7 @@ final class EasyConnectString
         $connectData = [];
 
         if (isset($params['servicename']) || isset($params['dbname'])) {
-            $serviceKey = 'SID';
-
-            if (isset($params['service'])) {
-                $serviceKey = 'SERVICE_NAME';
-            }
-
-            $serviceName = $params['servicename'] ?? $params['dbname'];
-
-            $connectData[$serviceKey] = $serviceName;
+            $connectData['SERVICE_NAME'] = $params['servicename'] ?? $params['dbname'];
         }
 
         if (isset($params['instancename'])) {
