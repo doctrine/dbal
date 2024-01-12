@@ -733,6 +733,22 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->markTestSkipped('SQLite does not support altering foreign key constraints.');
     }
 
+    public function testDateAddStaticNumberOfMinutes(): void
+    {
+        self::assertSame(
+            "DATETIME(endAt,'+12 MINUTE')",
+            $this->platform->getDateAddMinutesExpression('endAt', 12),
+        );
+    }
+
+    public function testDateAddNumberOfMinutesFromColumn(): void
+    {
+        self::assertSame(
+            "DATETIME(endAt,'+' || duration || ' MINUTE')",
+            $this->platform->getDateAddMinutesExpression('endAt', 'duration'),
+        );
+    }
+
     public function testDateAddStaticNumberOfDays(): void
     {
         self::assertSame(
