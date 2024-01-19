@@ -420,7 +420,7 @@ The `Connection::ARRAY_PARAM_OFFSET` constant has been marked as internal. It wi
 
 ## Deprecated using NULL as prepared statement parameter type.
 
-Omit the type or use `Parameter::STRING` instead.
+Omit the type or use `ParameterType::STRING` instead.
 
 ## Deprecated passing asset names as assets in `AbstractPlatform` and `AbstractSchemaManager` methods.
 
