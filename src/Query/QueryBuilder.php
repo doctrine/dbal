@@ -454,7 +454,7 @@ class QueryBuilder
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/pull/5550',
                 'Using NULL as prepared statement parameter type is deprecated.'
-                    . 'Omit or use Parameter::STRING instead',
+                    . 'Omit or use ParameterType::STRING instead',
             );
         }
 
