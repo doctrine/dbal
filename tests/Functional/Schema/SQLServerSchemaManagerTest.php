@@ -262,4 +262,19 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('colB', $columns[0]);
         self::assertEquals('colA', $columns[1]);
     }
+
+    public function testNvarcharMaxIsLengthMinus1(): void
+    {
+        $sql = 'CREATE TABLE test_nvarchar_max (
+            col_nvarchar_max NVARCHAR(MAX),
+            col_nvarchar NVARCHAR(128)
+        )';
+
+        $this->connection->executeStatement($sql);
+
+        $table = $this->schemaManager->introspectTable('test_nvarchar_max');
+
+        self::assertSame(-1, $table->getColumn('col_nvarchar_max')->getLength());
+        self::assertSame(128, $table->getColumn('col_nvarchar')->getLength());
+    }
 }
