@@ -261,12 +261,12 @@ class AbstractComparatorTestCase extends TestCase
         $tableDiff = $this->comparator->diffTable($tableA, $tableB);
         self::assertNotFalse($tableDiff);
 
-        self::assertCount(1, $tableDiff->renamedColumns);
-        self::assertArrayHasKey('datecolumn1', $tableDiff->renamedColumns);
-        self::assertCount(1, $tableDiff->addedColumns);
+        self::assertCount(1, $tableDiff->getRenamedColumns());
+        self::assertArrayHasKey('datecolumn1', $tableDiff->getRenamedColumns());
+        self::assertCount(1, $tableDiff->getAddedColumns());
         self::assertArrayHasKey('new_datecolumn2', $tableDiff->addedColumns);
-        self::assertCount(0, $tableDiff->removedColumns);
-        self::assertCount(0, $tableDiff->changedColumns);
+        self::assertCount(0, $tableDiff->getDroppedColumns());
+        self::assertCount(0, $tableDiff->getModifiedColumns());
     }
 
     public function testCompareRemovedIndex(): void
@@ -714,10 +714,10 @@ class AbstractComparatorTestCase extends TestCase
         $tableDiff = $this->comparator->diffTable($tableA, $tableB);
         self::assertNotFalse($tableDiff);
 
-        self::assertCount(0, $tableDiff->addedColumns);
-        self::assertCount(0, $tableDiff->removedColumns);
-        self::assertArrayHasKey('foo', $tableDiff->renamedColumns);
-        self::assertEquals('bar', $tableDiff->renamedColumns['foo']->getName());
+        self::assertCount(0, $tableDiff->getAddedColumns());
+        self::assertCount(0, $tableDiff->getDroppedColumns());
+        self::assertArrayHasKey('foo', $tableDiff->changedColumns);
+        self::assertEquals('bar', $tableDiff->changedColumns['foo']->getNewColumn()->getName());
     }
 
     /**
@@ -742,7 +742,7 @@ class AbstractComparatorTestCase extends TestCase
         self::assertCount(2, $tableDiff->removedColumns);
         self::assertArrayHasKey('foo', $tableDiff->removedColumns);
         self::assertArrayHasKey('bar', $tableDiff->removedColumns);
-        self::assertCount(0, $tableDiff->renamedColumns);
+        self::assertCount(0, $tableDiff->getRenamedColumns());
     }
 
     public function testDetectRenameIndex(): void
@@ -825,7 +825,7 @@ class AbstractComparatorTestCase extends TestCase
         $tableDiff = $this->comparator->diffTable($table, $newtable);
 
         self::assertInstanceOf(TableDiff::class, $tableDiff);
-        self::assertEquals(['twitterId', 'displayName'], array_keys($tableDiff->renamedColumns));
+        self::assertEquals(['twitterId', 'displayName'], array_keys($tableDiff->getRenamedColumns()));
         self::assertEquals(['logged_in_at'], array_keys($tableDiff->addedColumns));
         self::assertCount(0, $tableDiff->removedColumns);
     }

@@ -1095,35 +1095,19 @@ class SqlitePlatform extends AbstractPlatform
             );
         }
 
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
-                continue;
-            }
-
-            $oldColumnName = strtolower($oldColumnName);
-
-            $columns = $this->replaceColumn(
-                $table->getName(),
-                $columns,
-                $oldColumnName,
-                $column,
-            );
-
-            if (! isset($newColumnNames[$oldColumnName])) {
-                continue;
-            }
-
-            $newColumnNames[$oldColumnName] = $column->getQuotedName($this);
-        }
-
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
-                continue;
-            }
-
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             $oldColumn = $columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName();
+            $newColumn = $columnDiff->getNewColumn();
 
             $oldColumnName = strtolower($oldColumn->getName());
+
+            if ($columnDiff->hasNameChanged()) {
+                if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
+                    continue;
+                }
+            } elseif ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
 
             $columns = $this->replaceColumn(
                 $table->getName(),
@@ -1241,7 +1225,7 @@ class SqlitePlatform extends AbstractPlatform
     private function getSimpleAlterTableSQL(TableDiff $diff)
     {
         // Suppress changes on integer type autoincrement columns.
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             $oldColumn = $columnDiff->getOldColumn();
 
             if ($oldColumn === null) {
@@ -1272,9 +1256,8 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         if (
-            count($diff->getModifiedColumns()) > 0
+            count($diff->getChangedColumns()) > 0
             || count($diff->getDroppedColumns()) > 0
-            || count($diff->getRenamedColumns()) > 0
             || count($diff->getAddedIndexes()) > 0
             || count($diff->getModifiedIndexes()) > 0
             || count($diff->getDroppedIndexes()) > 0
@@ -1360,13 +1343,7 @@ class SqlitePlatform extends AbstractPlatform
             unset($columns[$columnName]);
         }
 
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            $columnName                          = $column->getName();
-            $columns[strtolower($oldColumnName)] = $columnName;
-            $columns[strtolower($columnName)]    = $columnName;
-        }
-
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             $oldColumn = $columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName();
 
             $oldColumnName                       = $oldColumn->getName();

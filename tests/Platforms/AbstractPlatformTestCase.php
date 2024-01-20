@@ -3,6 +3,12 @@
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidLockMode;
@@ -355,19 +361,24 @@ abstract class AbstractPlatformTestCase extends TestCase
         $listenerMock = $this->createMock(GetAlterTableSqlDispatchEventListener::class);
         $listenerMock
             ->expects(self::once())
-            ->method('onSchemaAlterTable');
+            ->method('onSchemaAlterTable')
+            ->willReturnCallback(static fn (SchemaEventArgs $args) => $args->preventDefault());
         $listenerMock
             ->expects(self::once())
-            ->method('onSchemaAlterTableAddColumn');
+            ->method('onSchemaAlterTableAddColumn')
+            ->willReturnCallback(static fn (SchemaEventArgs $args) => $args->preventDefault());
         $listenerMock
             ->expects(self::once())
-            ->method('onSchemaAlterTableRemoveColumn');
+            ->method('onSchemaAlterTableRemoveColumn')
+            ->willReturnCallback(static fn (SchemaEventArgs $args) => $args->preventDefault());
         $listenerMock
             ->expects(self::once())
-            ->method('onSchemaAlterTableChangeColumn');
+            ->method('onSchemaAlterTableChangeColumn')
+            ->willReturnCallback(static fn (SchemaEventArgs $args) => $args->preventDefault());
         $listenerMock
             ->expects(self::once())
-            ->method('onSchemaAlterTableRenameColumn');
+            ->method('onSchemaAlterTableRenameColumn')
+            ->willReturnCallback(static fn (SchemaEventArgs $args) => $args->preventDefault());
 
         $eventManager = new EventManager();
         $events       = [
@@ -393,13 +404,16 @@ abstract class AbstractPlatformTestCase extends TestCase
         $tableDiff->changedColumns['changed'] = new ColumnDiff(
             'changed',
             new Column(
-                'changed2',
+                'changed',
                 Type::getType(Types::STRING),
                 [],
             ),
             [],
         );
-        $tableDiff->renamedColumns['renamed'] = new Column('renamed2', Type::getType(Types::INTEGER), []);
+        $tableDiff->changedColumns['renamed'] = new ColumnDiff(
+            'renamed',
+            new Column('renamed2', Type::getType(Types::INTEGER), []),
+        );
 
         $this->platform->getAlterTableSQL($tableDiff);
     }
@@ -1196,8 +1210,8 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesAlterTableRenameColumnSQL(): void
     {
-        $table = new Table('foo');
-        $table->addColumn(
+        $table     = new Table('foo');
+        $oldColumn = $table->addColumn(
             'bar',
             Types::INTEGER,
             ['notnull' => true, 'default' => 666, 'comment' => 'rename test'],
@@ -1205,11 +1219,12 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $tableDiff                        = new TableDiff('foo');
         $tableDiff->fromTable             = $table;
-        $tableDiff->renamedColumns['bar'] = new Column(
+        $newColumn                        = new Column(
             'baz',
             Type::getType(Types::INTEGER),
             ['notnull' => true, 'default' => 666, 'comment' => 'rename test'],
         );
+        $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $newColumn, [], $oldColumn);
 
         self::assertSame($this->getAlterTableRenameColumnSQL(), $this->platform->getAlterTableSQL($tableDiff));
     }
@@ -1431,15 +1446,15 @@ interface GetCreateTableSqlDispatchEventListener
 
 interface GetAlterTableSqlDispatchEventListener
 {
-    public function onSchemaAlterTable(): void;
+    public function onSchemaAlterTable(SchemaAlterTableEventArgs $args): void;
 
-    public function onSchemaAlterTableAddColumn(): void;
+    public function onSchemaAlterTableAddColumn(SchemaAlterTableAddColumnEventArgs $args): void;
 
-    public function onSchemaAlterTableRemoveColumn(): void;
+    public function onSchemaAlterTableRemoveColumn(SchemaAlterTableRemoveColumnEventArgs $args): void;
 
-    public function onSchemaAlterTableChangeColumn(): void;
+    public function onSchemaAlterTableChangeColumn(SchemaAlterTableChangeColumnEventArgs $args): void;
 
-    public function onSchemaAlterTableRenameColumn(): void;
+    public function onSchemaAlterTableRenameColumn(SchemaAlterTableRenameColumnEventArgs $args): void;
 }
 
 interface GetDropTableSqlDispatchEventListener

@@ -567,16 +567,37 @@ class SQLServerPlatform extends AbstractPlatform
             $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+        $tableNameSQL = $table->getQuotedName($this);
+
+        foreach ($diff->getChangedColumns() as $columnDiff) {
+            $newColumn     = $columnDiff->getNewColumn();
+            $newColumnName = $newColumn->getQuotedName($this);
+
+            $oldColumn     = $columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName();
+            $oldColumnName = $oldColumn->getQuotedName($this);
+            $nameChanged   = $columnDiff->hasNameChanged();
+
+            // Column names in SQL server are case insensitive and automatically uppercased on the server.
+            if ($nameChanged) {
+                if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
+                    continue;
+                }
+
+                $sql = array_merge(
+                    $sql,
+                    $this->getRenameColumnSQL($tableNameSQL, $oldColumnName, $newColumnName),
+                );
+
+                // Recreate default constraint with new column name if necessary (for future reference).
+                if ($newColumn->getDefault() === null) {
+                    continue;
+                }
+            } elseif ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
 
-            $newColumn     = $columnDiff->getNewColumn();
             $newComment    = $this->getColumnComment($newColumn);
             $hasNewComment = ! empty($newComment) || is_numeric($newComment);
-
-            $oldColumn = $columnDiff->getOldColumn();
 
             if ($oldColumn instanceof Column) {
                 $oldComment    = $this->getColumnComment($oldColumn);
@@ -602,61 +623,40 @@ class SQLServerPlatform extends AbstractPlatform
                 }
             }
 
-            // Do not add query part if only comment has changed.
-            if ($columnDiff->hasCommentChanged() && count($columnDiff->changedProperties) === 1) {
+            $columnNameSQL = $newColumn->getQuotedName($this);
+
+            $newDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $newColumn->toArray());
+            if ($oldColumn instanceof Column) {
+                $oldDeclarationSQL     = $this->getColumnDeclarationSQL($columnNameSQL, $oldColumn->toArray());
+                $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
+            } else {
+                $maxChanged            = $columnDiff->hasCommentChanged() ? 1 : 0;
+                $declarationSQLChanged = count($columnDiff->changedProperties) > $maxChanged;
+            }
+
+            $defaultChanged = $columnDiff->hasDefaultChanged();
+
+            if (! $declarationSQLChanged && ! $defaultChanged && ! $nameChanged) {
                 continue;
             }
 
             $requireDropDefaultConstraint = $this->alterColumnRequiresDropDefaultConstraint($columnDiff);
 
             if ($requireDropDefaultConstraint) {
-                $oldColumn = $columnDiff->getOldColumn();
-
-                if ($oldColumn !== null) {
-                    $oldColumnName = $oldColumn->getName();
-                } else {
-                    $oldColumnName = $columnDiff->oldColumnName;
-                }
-
                 $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($tableName, $oldColumnName);
             }
 
-            $columnProperties = $newColumn->toArray();
-
-            $queryParts[] = 'ALTER COLUMN ' .
-                    $this->getColumnDeclarationSQL($newColumn->getQuotedName($this), $columnProperties);
+            if ($declarationSQLChanged) {
+                $queryParts[] = 'ALTER COLUMN ' . $newDeclarationSQL;
+            }
 
             if (
-                ! isset($columnProperties['default'])
-                || (! $requireDropDefaultConstraint && ! $columnDiff->hasDefaultChanged())
+                $newColumn->getDefault() === null
+                || (! $requireDropDefaultConstraint && ! $defaultChanged)
             ) {
                 continue;
             }
 
-            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
-        }
-
-        $tableNameSQL = $table->getQuotedName($this);
-
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $newColumn) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
-                continue;
-            }
-
-            $oldColumnName = new Identifier($oldColumnName);
-
-            $sql[] = "sp_rename '" . $tableNameSQL . '.' . $oldColumnName->getQuotedName($this) .
-                "', '" . $newColumn->getQuotedName($this) . "', 'COLUMN'";
-
-            // Recreate default constraint with new column name if necessary (for future reference).
-            if ($newColumn->getDefault() === null) {
-                continue;
-            }
-
-            $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
-                $tableName,
-                $oldColumnName->getQuotedName($this),
-            );
             $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
         }
 
@@ -700,7 +700,7 @@ class SQLServerPlatform extends AbstractPlatform
     public function getRenameTableSQL(string $oldName, string $newName): array
     {
         return [
-            sprintf('sp_rename %s, %s', $this->quoteStringLiteral($oldName), $this->quoteStringLiteral($newName)),
+            sprintf('EXEC sp_rename %s, %s', $this->quoteStringLiteral($oldName), $this->quoteStringLiteral($newName)),
 
             /* Rename table's default constraints names
              * to match the new table name.
@@ -783,7 +783,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         // We need to drop an existing default constraint if the column was
         // defined with a default value before and the native column type has changed.
-        return $columnDiff->hasTypeChanged() || $columnDiff->hasFixedChanged();
+        return $columnDiff->hasTypeChanged() || $columnDiff->hasFixedChanged() || $columnDiff->hasNameChanged();
     }
 
     /**
@@ -874,6 +874,25 @@ class SQLServerPlatform extends AbstractPlatform
             $tableName,
             $oldIndexName,
             $index->getQuotedName($this),
+        ),
+        ];
+    }
+
+    /**
+     * Returns the SQL for renaming a column
+     *
+     * @param string $tableName     The table to rename the column on.
+     * @param string $oldColumnName The name of the column we want to rename.
+     * @param string $newColumnName The name we should rename it to.
+     *
+     * @return string[] The sequence of SQL statements for renaming the given column.
+     */
+    protected function getRenameColumnSQL(string $tableName, string $oldColumnName, string $newColumnName): array
+    {
+        return [sprintf(
+            "EXEC sp_rename %s, %s, 'COLUMN'",
+            $this->quoteStringLiteral($tableName . '.' . $oldColumnName),
+            $this->quoteStringLiteral($newColumnName),
         ),
         ];
     }

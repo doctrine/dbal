@@ -623,16 +623,27 @@ class DB2Platform extends AbstractPlatform
             );
         }
 
+        $needsReorg = false;
         foreach ($diff->getDroppedColumns() as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
             $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
+            $needsReorg   = true;
         }
 
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
+            $newColumn = $columnDiff->getNewColumn();
+            $oldColumn = $columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName();
+
+            $oldColumnName = $oldColumn->getQuotedName($this);
+
+            if ($columnDiff->hasNameChanged()) {
+                if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
+                    continue;
+                }
+            } elseif ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
 
@@ -650,17 +661,12 @@ class DB2Platform extends AbstractPlatform
                 $sql,
                 $queryParts,
             );
-        }
 
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+            if (empty($columnDiff->changedProperties)) {
                 continue;
             }
 
-            $oldColumnName = new Identifier($oldColumnName);
-
-            $queryParts[] =  'RENAME COLUMN ' . $oldColumnName->getQuotedName($this) .
-                ' TO ' . $column->getQuotedName($this);
+            $needsReorg = true;
         }
 
         $tableSql = [];
@@ -671,7 +677,7 @@ class DB2Platform extends AbstractPlatform
             }
 
             // Some table alteration operations require a table reorganization.
-            if (count($diff->getDroppedColumns()) > 0 || count($diff->getModifiedColumns()) > 0) {
+            if ($needsReorg) {
                 $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $tableNameSQL . "')";
             }
 
@@ -758,13 +764,20 @@ class DB2Platform extends AbstractPlatform
     {
         $newColumn = $columnDiff->getNewColumn()->toArray();
 
-        $alterClause = 'ALTER COLUMN ' . $columnDiff->getNewColumn()->getQuotedName($this);
+        $newName = $columnDiff->getNewColumn()->getQuotedName($this);
+        $oldName = ($columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName())->getQuotedName($this);
+
+        $alterClause = 'ALTER COLUMN ' . $newName;
 
         if ($newColumn['columnDefinition'] !== null) {
             return [$alterClause . ' ' . $newColumn['columnDefinition']];
         }
 
         $clauses = [];
+
+        if ($columnDiff->hasNameChanged()) {
+            $clauses[] = 'RENAME COLUMN ' . $oldName . ' TO ' . $newName;
+        }
 
         if (
             $columnDiff->hasTypeChanged() ||

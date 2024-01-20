@@ -463,4 +463,13 @@ class Column extends AbstractAsset
             'comment' => $this->_comment,
         ], $this->_platformOptions, $this->_customSchemaOptions);
     }
+
+    /** @internal To be removed in 4.0 */
+    public function cloneWithName(string $name): Column
+    {
+        $clone = clone $this;
+        $clone->_setName($name);
+
+        return $clone;
+    }
 }

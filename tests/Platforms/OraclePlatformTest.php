@@ -398,6 +398,7 @@ SQL
     {
         return [
             'ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)',
+            'ALTER TABLE mytable RENAME COLUMN bar TO baz',
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS ''",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
@@ -496,6 +497,7 @@ SQL
         );
 
         $expectedSql = [
+            'ALTER TABLE mytable RENAME COLUMN bar TO baz',
             "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, "
                 . 'metar VARCHAR2(2000) DEFAULT NULL NULL)',
         ];
@@ -615,9 +617,9 @@ SQL
             'ALTER TABLE mytable RENAME COLUMN "create" TO reserved_keyword',
             'ALTER TABLE mytable RENAME COLUMN "table" TO "from"',
             'ALTER TABLE mytable RENAME COLUMN "select" TO "bar"',
-            'ALTER TABLE mytable RENAME COLUMN quoted1 TO quoted',
-            'ALTER TABLE mytable RENAME COLUMN quoted2 TO "and"',
-            'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
+            'ALTER TABLE mytable RENAME COLUMN "quoted1" TO quoted',
+            'ALTER TABLE mytable RENAME COLUMN "quoted2" TO "and"',
+            'ALTER TABLE mytable RENAME COLUMN "quoted3" TO "baz"',
         ];
     }
 

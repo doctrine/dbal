@@ -517,6 +517,13 @@
                 <!-- TODO for PHPUnit 10 -->
                 <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::withConsecutive"/>
 
+                <!--
+                    TODO: remove in 4.0.0
+                    See https://github.com/doctrine/dbal/pull/6080
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\TableDiff::getModifiedColumns"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\TableDiff::getRenamedColumns"/>
+
                 <!-- TODO: remove in 4.0.0 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getForUpdateSQL"/>
             </errorLevel>

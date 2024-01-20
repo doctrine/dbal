@@ -756,9 +756,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "CHANGE `create` reserved_keyword INT NOT NULL COMMENT 'Reserved keyword 1', " .
             "CHANGE `table` `from` INT NOT NULL COMMENT 'Reserved keyword 2', " .
             "CHANGE `select` `bar` INT NOT NULL COMMENT 'Reserved keyword 3', " .
-            "CHANGE quoted1 quoted INT NOT NULL COMMENT 'Quoted 1', " .
-            "CHANGE quoted2 `and` INT NOT NULL COMMENT 'Quoted 2', " .
-            "CHANGE quoted3 `baz` INT NOT NULL COMMENT 'Quoted 3'",
+            "CHANGE `quoted1` quoted INT NOT NULL COMMENT 'Quoted 1', " .
+            "CHANGE `quoted2` `and` INT NOT NULL COMMENT 'Quoted 2', " .
+            "CHANGE `quoted3` `baz` INT NOT NULL COMMENT 'Quoted 3'",
         ];
     }
 
