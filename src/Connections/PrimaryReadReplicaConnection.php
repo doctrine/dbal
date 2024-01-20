@@ -67,8 +67,8 @@ use function count;
  *    'driver' => 'pdo_mysql',
  *    'primary' => array('user' => '', 'password' => '', 'host' => '', 'dbname' => ''),
  *    'replica' => array(
- *        array('user' => 'replica1', 'password', 'host' => '', 'dbname' => ''),
- *        array('user' => 'replica2', 'password', 'host' => '', 'dbname' => ''),
+ *        array('user' => 'replica1', 'password' => '', 'host' => '', 'dbname' => ''),
+ *        array('user' => 'replica2', 'password' => '', 'host' => '', 'dbname' => ''),
  *    )
  * ));
  *
