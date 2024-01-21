@@ -47,9 +47,9 @@ install:
     - ps: |
         # Check if installation is cached
         if (!(Test-Path c:\tools\php)) {
-          appveyor-retry cinst --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version 7.4.27
+          appveyor-retry choco install --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version 7.4.27
           # install sqlite
-          appveyor-retry cinst -y sqlite
+          appveyor-retry choco install -y sqlite
           Get-ChildItem -Path c:\tools\php
           cd c:\tools\php
 
@@ -66,7 +66,7 @@ install:
           Add-Content php.ini "`n extension=php_curl.dll"
 
           # Get and install the latest stable sqlsrv DLL's
-          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/sqlsrv/stable.txt").Content
+          $DLLVersion = "5.9.0"
           cd c:\tools\php\ext
           $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
           $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
