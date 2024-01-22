@@ -10,9 +10,11 @@ use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
+use function func_get_args;
+use function restore_error_handler;
+use function set_error_handler;
 use function sleep;
 
-use const E_ALL;
 use const E_WARNING;
 use const PHP_VERSION_ID;
 
@@ -53,10 +55,21 @@ class TransactionTest extends FunctionalTestCase
         // during the sleep MySQL will close the connection
         sleep(2);
 
-        // prevent the PHPUnit error handler from handling the "MySQL server has gone away" warning
-        $this->iniSet('error_reporting', (string) (E_ALL & ~E_WARNING));
-
         $this->expectException(ConnectionLost::class);
-        $scenario($this->connection);
+
+        // prevent the PHPUnit error handler from handling the "MySQL server has gone away" warning
+        $previous = null;
+        $previous = set_error_handler(static function (int $errno) use (&$previous): bool {
+            if (($errno & ~E_WARNING) === 0) {
+                return true;
+            }
+
+            return $previous !== null && $previous(...func_get_args());
+        });
+        try {
+            $scenario($this->connection);
+        } finally {
+            restore_error_handler();
+        }
     }
 }
