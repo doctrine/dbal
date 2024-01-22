@@ -279,7 +279,7 @@ class TableDiff
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/6080',
-            '%s is deprecated, use `getModifiedColumns()` instead.',
+            '%s is deprecated, use `getChangedColumns()` instead.',
             __METHOD__,
         );
 
@@ -301,7 +301,7 @@ class TableDiff
     }
 
     /**
-     * @deprecated Use {@see getModifiedColumns()} instead.
+     * @deprecated Use {@see getChangedColumns()} instead.
      *
      * @return array<string,Column>
      */
@@ -310,7 +310,7 @@ class TableDiff
         Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/6080',
-            '%s is deprecated, you should use `getModifiedColumns()` instead.',
+            '%s is deprecated, you should use `getChangedColumns()` instead.',
             __METHOD__,
         );
         $renamed = [];
