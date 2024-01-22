@@ -591,6 +591,8 @@ class DB2Platform extends AbstractPlatform
         $tableNameSQL = ($diff->getOldTable() ?? $diff->getName($this))->getQuotedName($this);
 
         $queryParts = [];
+        $needsReorg = false;
+
         foreach ($diff->getAddedColumns() as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
@@ -610,7 +612,8 @@ class DB2Platform extends AbstractPlatform
 
             $queryParts[] = $queryPart;
 
-            $comment = $this->getColumnComment($column);
+            $comment    = $this->getColumnComment($column);
+            $needsReorg = true;
 
             if ($comment === null || $comment === '') {
                 continue;
@@ -623,7 +626,6 @@ class DB2Platform extends AbstractPlatform
             );
         }
 
-        $needsReorg = false;
         foreach ($diff->getDroppedColumns() as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
@@ -660,13 +662,8 @@ class DB2Platform extends AbstractPlatform
                 $columnDiff,
                 $sql,
                 $queryParts,
+                $needsReorg,
             );
-
-            if (empty($columnDiff->changedProperties)) {
-                continue;
-            }
-
-            $needsReorg = true;
         }
 
         $tableSql = [];
@@ -732,11 +729,12 @@ class DB2Platform extends AbstractPlatform
         string $table,
         ColumnDiff $columnDiff,
         array &$sql,
-        array &$queryParts
+        array &$queryParts,
+        bool &$needsReorg
     ): void {
-        $alterColumnClauses = $this->getAlterColumnClausesSQL($columnDiff);
+        $alterColumnClauses = $this->getAlterColumnClausesSQL($columnDiff, $needsReorg);
 
-        if (empty($alterColumnClauses)) {
+        if (count($alterColumnClauses) < 1) {
             return;
         }
 
@@ -760,7 +758,7 @@ class DB2Platform extends AbstractPlatform
      *
      * @return string[]
      */
-    private function getAlterColumnClausesSQL(ColumnDiff $columnDiff): array
+    private function getAlterColumnClausesSQL(ColumnDiff $columnDiff, bool &$needsReorg): array
     {
         $newColumn = $columnDiff->getNewColumn()->toArray();
 
@@ -770,6 +768,8 @@ class DB2Platform extends AbstractPlatform
         $alterClause = 'ALTER COLUMN ' . $newName;
 
         if ($newColumn['columnDefinition'] !== null) {
+            $needsReorg = true;
+
             return [$alterClause . ' ' . $newColumn['columnDefinition']];
         }
 
@@ -786,11 +786,13 @@ class DB2Platform extends AbstractPlatform
             $columnDiff->hasScaleChanged() ||
             $columnDiff->hasFixedChanged()
         ) {
-            $clauses[] = $alterClause . ' SET DATA TYPE ' . $newColumn['type']->getSQLDeclaration($newColumn, $this);
+            $needsReorg = true;
+            $clauses[]  = $alterClause . ' SET DATA TYPE ' . $newColumn['type']->getSQLDeclaration($newColumn, $this);
         }
 
         if ($columnDiff->hasNotNullChanged()) {
-            $clauses[] = $newColumn['notnull'] ? $alterClause . ' SET NOT NULL' : $alterClause . ' DROP NOT NULL';
+            $needsReorg = true;
+            $clauses[]  = $newColumn['notnull'] ? $alterClause . ' SET NOT NULL' : $alterClause . ' DROP NOT NULL';
         }
 
         if ($columnDiff->hasDefaultChanged()) {
@@ -798,10 +800,12 @@ class DB2Platform extends AbstractPlatform
                 $defaultClause = $this->getDefaultValueDeclarationSQL($newColumn);
 
                 if ($defaultClause !== '') {
-                    $clauses[] = $alterClause . ' SET' . $defaultClause;
+                    $needsReorg = true;
+                    $clauses[]  = $alterClause . ' SET' . $defaultClause;
                 }
             } else {
-                $clauses[] = $alterClause . ' DROP DEFAULT';
+                $needsReorg = true;
+                $clauses[]  = $alterClause . ' DROP DEFAULT';
             }
         }
 
