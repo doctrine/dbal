@@ -9,11 +9,12 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Generator;
 
+use function func_get_args;
 use function ini_get;
+use function restore_error_handler;
+use function set_error_handler;
 use function sprintf;
-
-use const E_ALL;
-use const E_WARNING;
+use function str_contains;
 
 /** @requires extension oci8 */
 class ResultTest extends FunctionalTestCase
@@ -56,9 +57,6 @@ class ResultTest extends FunctionalTestCase
         bool $invalidateDataMidFetch,
     ): void {
         if ($invalidateDataMidFetch) {
-            // prevent the PHPUnit error handler from handling the warnings that oci_*() functions may trigger
-            $this->iniSet('error_reporting', (string) (E_ALL & ~E_WARNING));
-
             $this->expectException(DriverException::class);
             $this->expectExceptionCode(4068);
         }
@@ -88,22 +86,37 @@ class ResultTest extends FunctionalTestCase
             // Invalidate the original dataset by changing the pipelined function
             // after the initial prefetch that caches locally the first X results
             $this->createOrReplacePipelinedFunction($expectedTotalRowCount + 10);
+
+            $previous = null;
+            $previous = set_error_handler(static function (int $errno, string $errstr) use (&$previous): bool {
+                if (str_contains($errstr, 'ORA-04061')) {
+                    return true;
+                }
+
+                return $previous !== null && $previous(...func_get_args());
+            });
         }
 
-        while ($result->fetchOne()) {
-            // Attempt to access all remaining rows from the original fetch
-            // The rows locally cached from the default prefetch will first be used
-            // but when the result attempts to get the remaining 10 rows beyond
-            // the first prefetch, nothing will be returned
-            //
-            // PHP oci8 oci_fetch_array will issue a PHP E_WARNING when the 2nd prefetch occurs
-            // oci_fetch_array(): ORA-04068: existing state of packages has been discarded
-            // ORA-04061: existing state of function "ROOT.TEST_ORACLE_FETCH_FAILURE" has been invalidated
-            // ORA-04065: not executed, altered or dropped function "ROOT.TEST_ORACLE_FETCH_FAILURE"
-            //
-            // If there was no issue, this should have returned rows totalling 10
-            // higher than the oci8 default prefetch
-            continue;
+        try {
+            while ($result->fetchOne()) {
+                // Attempt to access all remaining rows from the original fetch
+                // The rows locally cached from the default prefetch will first be used
+                // but when the result attempts to get the remaining 10 rows beyond
+                // the first prefetch, nothing will be returned
+                //
+                // PHP oci8 oci_fetch_array will issue a PHP E_WARNING when the 2nd prefetch occurs
+                // oci_fetch_array(): ORA-04068: existing state of packages has been discarded
+                // ORA-04061: existing state of function "ROOT.TEST_ORACLE_FETCH_FAILURE" has been invalidated
+                // ORA-04065: not executed, altered or dropped function "ROOT.TEST_ORACLE_FETCH_FAILURE"
+                //
+                // If there was no issue, this should have returned rows totalling 10
+                // higher than the oci8 default prefetch
+                continue;
+            }
+        } finally {
+            if ($invalidateDataMidFetch) {
+                restore_error_handler();
+            }
         }
 
         self::assertEquals(
