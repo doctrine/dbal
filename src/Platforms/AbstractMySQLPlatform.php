@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
@@ -683,26 +684,36 @@ SQL
             $queryParts[] =  'DROP ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->getChangedColumns() as $columnDiff) {
+        foreach ($diff->getModifiedColumns() as $columnDiff) {
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
             $newColumn = $columnDiff->getNewColumn();
 
             $newColumnProperties = array_merge($newColumn->toArray(), [
                 'comment' => $this->getColumnComment($newColumn),
             ]);
 
-            $oldColumn     = $columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName();
-            $oldColumnName = $oldColumn->getName();
-
-            if ($columnDiff->hasNameChanged()) {
-                if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
-                    continue;
-                }
-            } elseif ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
-                continue;
-            }
+            $oldColumn = $columnDiff->getOldColumn() ?? $columnDiff->getOldColumnName();
 
             $queryParts[] =  'CHANGE ' . $oldColumn->getQuotedName($this) . ' '
                 . $this->getColumnDeclarationSQL($newColumn->getQuotedName($this), $newColumnProperties);
+        }
+
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $oldColumnName = new Identifier($oldColumnName);
+
+            $columnProperties = array_merge($column->toArray(), [
+                'comment' => $this->getColumnComment($column),
+            ]);
+
+            $queryParts[] = 'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
+                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnProperties);
         }
 
         $addedIndexes    = $this->indexAssetsByLowerCaseName($diff->getAddedIndexes());
@@ -734,7 +745,7 @@ SQL
             $diff = new TableDiff(
                 $diff->name,
                 $diff->getAddedColumns(),
-                $diff->getChangedColumns(),
+                $diff->getModifiedColumns(),
                 $diff->getDroppedColumns(),
                 array_values($addedIndexes),
                 array_values($modifiedIndexes),
@@ -743,6 +754,7 @@ SQL
                 $diff->getAddedForeignKeys(),
                 $diff->getModifiedForeignKeys(),
                 $diff->getDroppedForeignKeys(),
+                $diff->getRenamedColumns(),
                 $diff->getRenamedIndexes(),
             );
         }
