@@ -363,29 +363,7 @@ class Comparator
             );
         }
 
-        $renamedColumnNames = $toTable->getRenamedColumns();
-
-        foreach ($addedColumns as $addedColumnName => $addedColumn) {
-            if (! isset($renamedColumnNames[$addedColumn->getName()])) {
-                continue;
-            }
-
-            $removedColumnName = $renamedColumnNames[$addedColumn->getName()];
-            // Explicitly renamed columns need to be diffed, because their types can also have changed
-            $modifiedColumns[$removedColumnName] = new ColumnDiff(
-                $removedColumnName,
-                $addedColumn,
-                $this->diffColumn($droppedColumns[$removedColumnName], $addedColumn),
-                $droppedColumns[$removedColumnName],
-            );
-
-            unset(
-                $addedColumns[$addedColumnName],
-                $droppedColumns[$removedColumnName],
-            );
-        }
-
-        $this->detectRenamedColumns($modifiedColumns, $addedColumns, $droppedColumns);
+        $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
 
         $fromTableIndexes = $fromTable->getIndexes();
         $toTableIndexes   = $toTable->getIndexes();
@@ -461,6 +439,7 @@ class Comparator
             $addedForeignKeys,
             $modifiedForeignKeys,
             $droppedForeignKeys,
+            $renamedColumns,
             $renamedIndexes,
         );
     }
@@ -469,13 +448,14 @@ class Comparator
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
      *
-     * @param array<string,ColumnDiff> $modifiedColumns
-     * @param array<string,Column>     $addedColumns
-     * @param array<string,Column>     $removedColumns
+     * @param array<string,Column> $addedColumns
+     * @param array<string,Column> $removedColumns
+     *
+     * @return array<string,Column>
      *
      * @throws Exception
      */
-    private function detectRenamedColumns(array &$modifiedColumns, array &$addedColumns, array &$removedColumns): void
+    private function detectRenamedColumns(array &$addedColumns, array &$removedColumns): array
     {
         $candidatesByName = [];
 
@@ -489,6 +469,8 @@ class Comparator
             }
         }
 
+        $renamedColumns = [];
+
         foreach ($candidatesByName as $candidates) {
             if (count($candidates) !== 1) {
                 continue;
@@ -498,22 +480,18 @@ class Comparator
             $removedColumnName             = $removedColumn->getName();
             $addedColumnName               = strtolower($addedColumn->getName());
 
-            if (isset($modifiedColumns[$removedColumnName])) {
+            if (isset($renamedColumns[$removedColumnName])) {
                 continue;
             }
 
-            $modifiedColumns[$removedColumnName] = new ColumnDiff(
-                $removedColumnName,
-                $addedColumn,
-                $this->diffColumn($addedColumn, $removedColumn),
-                $removedColumn,
-            );
-
+            $renamedColumns[$removedColumnName] = $addedColumn;
             unset(
                 $addedColumns[$addedColumnName],
                 $removedColumns[strtolower($removedColumnName)],
             );
         }
+
+        return $renamedColumns;
     }
 
     /**

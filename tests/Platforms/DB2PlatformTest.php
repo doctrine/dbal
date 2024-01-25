@@ -128,8 +128,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return [
             'ALTER TABLE mytable ' .
-            'ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT ' .
-            'RENAME COLUMN bar TO baz',
+            'ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT',
             "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS ''",
@@ -480,9 +479,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             'RENAME COLUMN "create" TO reserved_keyword ' .
             'RENAME COLUMN "table" TO "from" ' .
             'RENAME COLUMN "select" TO "bar" ' .
-            'RENAME COLUMN "quoted1" TO quoted ' .
-            'RENAME COLUMN "quoted2" TO "and" ' .
-            'RENAME COLUMN "quoted3" TO "baz"',
+            'RENAME COLUMN quoted1 TO quoted ' .
+            'RENAME COLUMN quoted2 TO "and" ' .
+            'RENAME COLUMN quoted3 TO "baz"',
         ];
     }
 

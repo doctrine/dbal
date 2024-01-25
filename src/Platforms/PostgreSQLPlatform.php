@@ -569,7 +569,11 @@ SQL
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
         }
 
-        foreach ($diff->getChangedColumns() as $columnDiff) {
+        foreach ($diff->getModifiedColumns() as $columnDiff) {
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
             if ($this->isUnchangedBinaryColumn($columnDiff)) {
                 continue;
             }
@@ -578,20 +582,6 @@ SQL
             $newColumn = $columnDiff->getNewColumn();
 
             $oldColumnName = $oldColumn->getQuotedName($this);
-            $newColumnName = $newColumn->getQuotedName($this);
-
-            if ($columnDiff->hasNameChanged()) {
-                if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $newColumn, $diff, $columnSql)) {
-                    continue;
-                }
-
-                $sql = array_merge(
-                    $sql,
-                    $this->getRenameColumnSQL($tableNameSQL, $oldColumnName, $newColumnName),
-                );
-            } elseif ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
-                continue;
-            }
 
             if (
                 $columnDiff->hasTypeChanged()
@@ -606,7 +596,7 @@ SQL
                 $columnDefinition['autoincrement'] = false;
 
                 // here was a server version check before, but DBAL API does not support this anymore.
-                $query = 'ALTER ' . $newColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
+                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
@@ -615,12 +605,12 @@ SQL
                     ? ' DROP DEFAULT'
                     : ' SET' . $this->getDefaultValueDeclarationSQL($newColumn->toArray());
 
-                $query = 'ALTER ' . $newColumnName . $defaultClause;
+                $query = 'ALTER ' . $oldColumnName . $defaultClause;
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
             if ($columnDiff->hasNotNullChanged()) {
-                $query = 'ALTER ' . $newColumnName . ' ' . ($newColumn->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
+                $query = 'ALTER ' . $oldColumnName . ' ' . ($newColumn->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
@@ -629,16 +619,16 @@ SQL
                     // add autoincrement
                     $seqName = $this->getIdentitySequenceName(
                         $table->getName(),
-                        $newColumnName,
+                        $oldColumnName,
                     );
 
                     $sql[] = 'CREATE SEQUENCE ' . $seqName;
-                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $newColumnName . ') FROM '
+                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ') FROM '
                         . $tableNameSQL . '))';
-                    $query = 'ALTER ' . $newColumnName . " SET DEFAULT nextval('" . $seqName . "')";
+                    $query = 'ALTER ' . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
                 } else {
                     // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
-                    $query = 'ALTER ' . $newColumnName . ' DROP DEFAULT';
+                    $query = 'ALTER ' . $oldColumnName . ' DROP DEFAULT';
                 }
 
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
@@ -665,6 +655,17 @@ SQL
             $query = 'ALTER ' . $oldColumnName . ' TYPE '
                 . $newColumn->getType()->getSQLDeclaration($newColumn->toArray(), $this);
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
+        }
+
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $oldColumnName = new Identifier($oldColumnName);
+
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this)
+                . ' TO ' . $column->getQuotedName($this);
         }
 
         $tableSql = [];

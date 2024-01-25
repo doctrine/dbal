@@ -8,9 +8,6 @@ use Doctrine\Deprecations\Deprecation;
 use function array_filter;
 use function array_values;
 use function count;
-use function current;
-use function func_get_arg;
-use function func_num_args;
 
 /**
  * Table Diff.
@@ -43,7 +40,7 @@ class TableDiff
     /**
      * All modified columns
      *
-     * @internal Use {@see getChangedColumns()} instead.
+     * @internal Use {@see getModifiedColumns()} instead.
      *
      * @var ColumnDiff[]
      */
@@ -57,6 +54,15 @@ class TableDiff
      * @var Column[]
      */
     public $removedColumns = [];
+
+    /**
+     * Columns that are only renamed from key to column instance name.
+     *
+     * @internal Use {@see getRenamedColumns()} instead.
+     *
+     * @var Column[]
+     */
+    public $renamedColumns = [];
 
     /**
      * All added indexes.
@@ -133,6 +139,7 @@ class TableDiff
      *
      * @internal The diff can be only instantiated by a {@see Comparator}.
      *
+     * @param string                            $tableName
      * @param array<Column>                     $addedColumns
      * @param array<ColumnDiff>                 $modifiedColumns
      * @param array<Column>                     $droppedColumns
@@ -142,25 +149,28 @@ class TableDiff
      * @param list<ForeignKeyConstraint>        $addedForeignKeys
      * @param list<ForeignKeyConstraint>        $changedForeignKeys
      * @param list<ForeignKeyConstraint|string> $removedForeignKeys
+     * @param array<string,Column>              $renamedColumns
      * @param array<string,Index>               $renamedIndexes
      */
     public function __construct(
-        string $tableName,
-        array $addedColumns = [],
-        array $modifiedColumns = [],
-        array $droppedColumns = [],
-        array $addedIndexes = [],
-        array $changedIndexes = [],
-        array $removedIndexes = [],
+        $tableName,
+        $addedColumns = [],
+        $modifiedColumns = [],
+        $droppedColumns = [],
+        $addedIndexes = [],
+        $changedIndexes = [],
+        $removedIndexes = [],
         ?Table $fromTable = null,
-        array $addedForeignKeys = [],
-        array $changedForeignKeys = [],
-        array $removedForeignKeys = [],
-        array $renamedIndexes = []
+        $addedForeignKeys = [],
+        $changedForeignKeys = [],
+        $removedForeignKeys = [],
+        $renamedColumns = [],
+        $renamedIndexes = []
     ) {
         $this->name               = $tableName;
         $this->addedColumns       = $addedColumns;
         $this->changedColumns     = $modifiedColumns;
+        $this->renamedColumns     = $renamedColumns;
         $this->removedColumns     = $droppedColumns;
         $this->addedIndexes       = $addedIndexes;
         $this->changedIndexes     = $changedIndexes;
@@ -179,48 +189,7 @@ class TableDiff
             );
         }
 
-        if (func_num_args() > 12 || (count($renamedIndexes) > 0 && current($renamedIndexes) instanceof Column)) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6080',
-                'Passing $renamedColumns to %s is deprecated and will no longer be possible in the next major.',
-                __METHOD__,
-            );
-            /** @var array<string, Column> $renamedColumns */
-            $renamedColumns = $renamedIndexes;
-            $this->convertLegacyRenamedColumn($renamedColumns);
-            $this->renamedIndexes = func_num_args() > 12 ? func_get_arg(12) : [];
-        }
-
         $this->fromTable = $fromTable;
-    }
-
-    /** @param array<string, Column> $renamedColumns */
-    private function convertLegacyRenamedColumn(array $renamedColumns): void
-    {
-        $changedColumns = [];
-        foreach ($this->changedColumns as $key => $column) {
-            $oldName                  = isset($column->fromColumn)
-                ? $column->fromColumn->getName()
-                : $column->oldColumnName;
-            $changedColumns[$oldName] = $key;
-        }
-
-        foreach ($renamedColumns as $oldName => $column) {
-            if (isset($changedColumns[$oldName])) {
-                $i                        = $changedColumns[$oldName];
-                $existingCol              = $this->changedColumns[$changedColumns[$oldName]];
-                $column                   = $existingCol->getNewColumn()->cloneWithName($column->getName());
-                $this->changedColumns[$i] = new ColumnDiff(
-                    $oldName,
-                    $column,
-                    $existingCol->changedProperties,
-                    $existingCol->getOldColumn(),
-                );
-            } else {
-                $this->changedColumns[] = new ColumnDiff($oldName, $column, []);
-            }
-        }
     }
 
     /**
@@ -269,27 +238,8 @@ class TableDiff
         return array_values($this->addedColumns);
     }
 
-    /**
-     * @deprecated Use {@see getChangedColumns()} instead.
-     *
-     * @return list<ColumnDiff>
-     */
+    /** @return list<ColumnDiff> */
     public function getModifiedColumns(): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6080',
-            '%s is deprecated, use `getModifiedColumns()` instead.',
-            __METHOD__,
-        );
-
-        return array_values(array_filter($this->getChangedColumns(), static function (ColumnDiff $diff) {
-            return count($diff->changedProperties) > 0;
-        }));
-    }
-
-    /** @return array<ColumnDiff> */
-    public function getChangedColumns(): array
     {
         return array_values($this->changedColumns);
     }
@@ -300,30 +250,10 @@ class TableDiff
         return array_values($this->removedColumns);
     }
 
-    /**
-     * @deprecated Use {@see getModifiedColumns()} instead.
-     *
-     * @return array<string,Column>
-     */
+    /** @return array<string,Column> */
     public function getRenamedColumns(): array
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6080',
-            '%s is deprecated, you should use `getModifiedColumns()` instead.',
-            __METHOD__,
-        );
-        $renamed = [];
-        foreach ($this->getChangedColumns() as $diff) {
-            if (! $diff->hasNameChanged()) {
-                continue;
-            }
-
-            $oldColumnName           = ($diff->getOldColumn() ?? $diff->getOldColumnName())->getName();
-            $renamed[$oldColumnName] = $diff->getNewColumn();
-        }
-
-        return $renamed;
+        return $this->renamedColumns;
     }
 
     /** @return list<Index> */
@@ -419,6 +349,7 @@ class TableDiff
         return count($this->addedColumns) === 0
             && count($this->changedColumns) === 0
             && count($this->removedColumns) === 0
+            && count($this->renamedColumns) === 0
             && count($this->addedIndexes) === 0
             && count($this->changedIndexes) === 0
             && count($this->removedIndexes) === 0
@@ -426,47 +357,5 @@ class TableDiff
             && count($this->addedForeignKeys) === 0
             && count($this->changedForeignKeys) === 0
             && count($this->removedForeignKeys) === 0;
-    }
-
-    /** Deprecation layer, to be removed in 4.0 */
-    public function __isset(string $name): bool
-    {
-        return $name === 'renamedColumns';
-    }
-
-    /** @param mixed $val */
-    public function __set(string $name, $val): void
-    {
-        if ($name === 'renamedColumns') {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6080',
-                'Modifying $renamedColumns is deprecated, this property will be removed in the next major. ' .
-                'Set $modifiedColumns in the constructor instead',
-                __METHOD__,
-            );
-            $this->convertLegacyRenamedColumn($val);
-        } else {
-            /** @phpstan-ignore-next-line */
-            $this->$name = $val;
-        }
-    }
-
-    /** @return mixed */
-    public function __get(string $name)
-    {
-        if ($name === 'renamedColumns') {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6080',
-                'Property %s is deprecated, you should use `getModifiedColumns()` instead.',
-                $name,
-            );
-
-            return $this->getRenamedColumns();
-        }
-
-        /** @phpstan-ignore-next-line */
-        return $this->$name;
     }
 }
