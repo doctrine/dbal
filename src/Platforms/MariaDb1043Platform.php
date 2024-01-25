@@ -99,9 +99,9 @@ class MariaDb1043Platform extends MariaDb1027Platform
             IF(
                 $tableAlias.COLUMN_TYPE = 'longtext'
                 AND EXISTS(
-                    SELECT * from information_schema.CHECK_CONSTRAINTS 
-                    WHERE CONSTRAINT_SCHEMA = $databaseName
-                    AND TABLE_NAME = $tableAlias.TABLE_NAME
+                    SELECT * from information_schema.CHECK_CONSTRAINTS t
+                    WHERE t.CONSTRAINT_SCHEMA = $databaseName
+                    AND t.TABLE_NAME = $tableAlias.TABLE_NAME
                     AND CHECK_CLAUSE = CONCAT(
                         'json_valid(`',
                             $tableAlias.COLUMN_NAME,
