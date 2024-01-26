@@ -843,6 +843,7 @@
                 <file name="tests/Platforms/DB2PlatformTest.php"/>
                 <file name="tests/Platforms/OraclePlatformTest.php"/>
                 <file name="tests/Platforms/SqlitePlatformTest.php"/>
+                <file name="tests/Functional/Ticket/DBAL6261Test.php"/>
 
                 <!-- See https://github.com/doctrine/dbal/pull/3574 -->
                 <file name="tests/Query/Expression/ExpressionBuilderTest.php"/>
