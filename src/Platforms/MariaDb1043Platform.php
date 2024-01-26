@@ -93,10 +93,8 @@ class MariaDb1043Platform extends MariaDb1027Platform
             );
         }
 
-        // 't' alias is already in use for following query
-        if ($tableAlias === 't') {
-            throw new InvalidArgumentException('Table alias "t" is not allowed, please choose another one.');
-        }
+        // do not collide with $tableAlias
+        $subQueryAlias = $tableAlias === '_t' ? 't' : '_t';
 
         $databaseName = $this->getDatabaseNameSQL($databaseName);
 
@@ -106,9 +104,9 @@ class MariaDb1043Platform extends MariaDb1027Platform
                 $tableAlias.COLUMN_TYPE = 'longtext'
                 AND EXISTS(
                     SELECT * from information_schema.CHECK_CONSTRAINTS t
-                    WHERE t.CONSTRAINT_SCHEMA = $databaseName
-                    AND t.TABLE_NAME = $tableAlias.TABLE_NAME
-                    AND t.CHECK_CLAUSE = CONCAT(
+                    WHERE $subQueryAlias.CONSTRAINT_SCHEMA = $databaseName
+                    AND $subQueryAlias.TABLE_NAME = $tableAlias.TABLE_NAME
+                    AND $subQueryAlias.CHECK_CLAUSE = CONCAT(
                         'json_valid(`',
                             $tableAlias.COLUMN_NAME,
                         '`)'
