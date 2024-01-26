@@ -351,7 +351,7 @@ jobs:
         mysql-version:
           - "5.7"
           - "8.0"
-          - "8.2"
+          - "8.3"
         extension:
           - "mysqli"
           - "pdo_mysql"
