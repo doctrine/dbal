@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Types\JsonType;
 use Doctrine\Deprecations\Deprecation;
 
@@ -92,6 +93,11 @@ class MariaDb1043Platform extends MariaDb1027Platform
             );
         }
 
+        // 't' alias is already in use for following query
+        if ($tableAlias === 't') {
+            throw new InvalidArgumentException('Table alias "t" is not allowed, please choose another one.');
+        }
+
         $databaseName = $this->getDatabaseNameSQL($databaseName);
 
         // The check for `CONSTRAINT_SCHEMA = $databaseName` is mandatory here to prevent performance issues
@@ -102,7 +108,7 @@ class MariaDb1043Platform extends MariaDb1027Platform
                     SELECT * from information_schema.CHECK_CONSTRAINTS t
                     WHERE t.CONSTRAINT_SCHEMA = $databaseName
                     AND t.TABLE_NAME = $tableAlias.TABLE_NAME
-                    AND CHECK_CLAUSE = CONCAT(
+                    AND t.CHECK_CLAUSE = CONCAT(
                         'json_valid(`',
                             $tableAlias.COLUMN_NAME,
                         '`)'
