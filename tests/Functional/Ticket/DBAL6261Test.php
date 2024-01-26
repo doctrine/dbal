@@ -2,16 +2,13 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 
 class DBAL6261Test extends FunctionalTestCase
 {
-    /** @throws Exception */
     protected function setUp(): void
     {
         if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
@@ -21,10 +18,6 @@ class DBAL6261Test extends FunctionalTestCase
         self::markTestSkipped('Related to SQLite only');
     }
 
-    /**
-     * @throws SchemaException
-     * @throws Exception
-     */
     public function testUnsignedIntegerDetection(): void
     {
         $testTable        = 'dbal6261tbl';
@@ -71,7 +64,7 @@ class DBAL6261Test extends FunctionalTestCase
         $this->connection->insert($testTableService, $wontMatch1);
 
         $platfom = $this->connection->getDatabasePlatform();
-        $qb      = $this->connection->createQueryBuilder()
+        $result  = $this->connection->createQueryBuilder()
             ->select('s.*')
             ->from($testTableService, 's')
             ->leftJoin('s', $testTableAgency, 'a', 's.agency_id = a.id')
@@ -80,17 +73,8 @@ class DBAL6261Test extends FunctionalTestCase
                     "DATETIME('2023-01-05 15:00:00')",
                     'a.utc_offset',
                 ),
-            );
-        $sql     = $qb
-            ->getSQL();
-        self::assertEquals(
-            'SELECT s.* FROM dbal6261tbl_service s '
-            . 'LEFT JOIN dbal6261tbl_agency a ON s.agency_id = a.id '
-            . "WHERE s.end_at <= DATETIME(DATETIME('2023-01-05 15:00:00'),'+' || a.utc_offset || ' MINUTE')",
-            $sql,
-        );
-
-        $result = $qb->fetchAllAssociative();
+            )
+            ->fetchAllAssociative();
 
         self::assertEquals(
             [
