@@ -53,6 +53,7 @@
 
                 <!-- TODO for PHPUnit 11 -->
                 <referencedMethod name="PHPUnit\Framework\TestCase::iniSet"/>
+                <referencedMethod name="Doctrine\DBAL\Schema\TableDiff::getRenamedColumns"/>
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>

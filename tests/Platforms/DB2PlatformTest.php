@@ -445,10 +445,11 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         Column $oldColumn,
         Column $newColumn,
         ?string $expectedSQLClause,
+        bool $shouldReorg = true,
     ): void {
-        $tableDiff = new TableDiff(new Table('foo'), [], [
-            new ColumnDiff($oldColumn, $newColumn),
-        ], [], [], [], [], [], [], [], [], []);
+        $tableDiff = new TableDiff(new Table('foo'), changedColumns: [
+            $oldColumn->getName() => new ColumnDiff($oldColumn, $newColumn),
+        ]);
 
         $expectedSQL = [];
 
@@ -456,7 +457,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             $expectedSQL[] = 'ALTER TABLE foo ALTER COLUMN bar ' . $expectedSQLClause;
         }
 
-        $expectedSQL[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE foo')";
+        if ($shouldReorg) {
+            $expectedSQL[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE foo')";
+        }
 
         self::assertSame($expectedSQL, $this->platform->getAlterTableSQL($tableDiff));
     }
@@ -514,6 +517,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
                 new Column('bar', Type::getType(Types::INTEGER)),
                 new Column('bar', Type::getType(Types::INTEGER), ['autoincrement' => true, 'default' => 666]),
                 null,
+                false,
             ],
             [
                 new Column('bar', Type::getType(Types::STRING), ['default' => 'foo']),

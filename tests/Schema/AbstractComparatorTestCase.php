@@ -21,6 +21,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
+use function current;
 
 abstract class AbstractComparatorTestCase extends TestCase
 {
@@ -179,7 +180,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertEquals(['new_datecolumn2'], $this->getAssetNames($tableDiff->getAddedColumns()));
 
         self::assertCount(0, $tableDiff->getDroppedColumns());
-        self::assertCount(0, $tableDiff->getModifiedColumns());
+        self::assertCount(1, $tableDiff->getChangedColumns());
     }
 
     public function testCompareSequences(): void
@@ -355,9 +356,9 @@ abstract class AbstractComparatorTestCase extends TestCase
         $tableB->addIndex(['id'], 'bar_foo_idx');
 
         self::assertEquals(
-            new TableDiff($tableA, [], [], [], [], [], [], [], [
+            new TableDiff($tableA, renamedIndexes: [
                 'foo_bar_idx' => new Index('bar_foo_idx', ['id']),
-            ], [], [], []),
+            ]),
             $this->comparator->compareTables($tableA, $tableB),
         );
     }
@@ -471,9 +472,11 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
-        $modifiedColumns = $tableDiff->getModifiedColumns();
+        $modifiedColumns = $tableDiff->getChangedColumns();
         self::assertCount(1, $modifiedColumns);
-        self::assertEquals('id', $modifiedColumns[0]->getOldColumn()->getName());
+        /** @var ColumnDiff $modifiedColumn */
+        $modifiedColumn = current($modifiedColumns);
+        self::assertEquals('id', $modifiedColumn->getOldColumn()->getName());
     }
 
     public function testDiff(): void
