@@ -103,7 +103,7 @@ class MariaDb1043Platform extends MariaDb1027Platform
             IF(
                 $tableAlias.COLUMN_TYPE = 'longtext'
                 AND EXISTS(
-                    SELECT * from information_schema.CHECK_CONSTRAINTS t
+                    SELECT * from information_schema.CHECK_CONSTRAINTS $subQueryAlias
                     WHERE $subQueryAlias.CONSTRAINT_SCHEMA = $databaseName
                     AND $subQueryAlias.TABLE_NAME = $tableAlias.TABLE_NAME
                     AND $subQueryAlias.CHECK_CLAUSE = CONCAT(
