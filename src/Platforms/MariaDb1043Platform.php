@@ -92,8 +92,7 @@ class MariaDb1043Platform extends MariaDb1027Platform
             );
         }
 
-        // do not collide with $tableAlias
-        $subQueryAlias = $tableAlias === '_t' ? 't' : '_t';
+        $subQueryAlias = 'i_' . $tableAlias;
 
         $databaseName = $this->getDatabaseNameSQL($databaseName);
 
