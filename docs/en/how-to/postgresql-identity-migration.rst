@@ -1,15 +1,15 @@
 Migration to identity columns on PostgreSQL
 ===========================================
 
-As of version 4, the DBAL uses identity columns to implement the `autoincrement`
-behavior on PostgreSQL instead of `SERIAL*` column types.
+As of version 4, the DBAL uses identity columns to implement the ``autoincrement``
+behavior on PostgreSQL instead of ``SERIAL*`` column types.
 
-If you have a database with `autoincrement` columns created using DBAL 3 or earlier,
+If you have a database with ``autoincrement`` columns created using DBAL 3 or earlier,
 you will need to perform the following schema migration before being able to continue managing
 the schema with the DBAL:
 
-1. Identify all `autoincrement` columns and their tables.
-2. Create the `upgrade_serial_to_identity()` function in the database as described in
+1. Identify all ``autoincrement`` columns and their tables.
+2. Create the ``upgrade_serial_to_identity()`` function in the database as described in
    `PostgreSQL 10 identity columns explained <https://www.2ndquadrant.com/en/blog/postgresql-10-identity-columns/>`_:
 
     .. code-block:: sql
@@ -60,8 +60,8 @@ the schema with the DBAL:
       END;
       $$;
 
-3. For each column and their table, run `upgrade_serial_to_identity(<table>, <column>)`.
+3. For each column and their table, run ``upgrade_serial_to_identity(<table>, <column>)``.
 
 Without this migration, next time when DBAL 4 is used to manage the schema, it will perform a similar migration
 but instead of reusing the existing sequence, it will drop it and create a new one. As a result,
-all new sequence numbers will be generated from `1`, which is most likely undesired.
+all new sequence numbers will be generated from ``1``, which is most likely undesired.
