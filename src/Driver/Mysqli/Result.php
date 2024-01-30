@@ -14,6 +14,7 @@ use mysqli_stmt;
 use function array_column;
 use function array_combine;
 use function array_fill;
+use function assert;
 use function count;
 
 final class Result implements ResultInterface
@@ -78,6 +79,11 @@ final class Result implements ResultInterface
         }
     }
 
+    /**
+     * @return non-empty-list<mixed>|false
+     *
+     * @throws StatementError
+     */
     public function fetchNumeric(): array|false
     {
         try {
@@ -93,6 +99,8 @@ final class Result implements ResultInterface
         if ($ret === null) {
             return false;
         }
+
+        assert($this->boundValues !== []);
 
         $values = [];
 
@@ -110,6 +118,8 @@ final class Result implements ResultInterface
         if ($values === false) {
             return false;
         }
+
+        assert($this->columnNames !== []);
 
         return array_combine($this->columnNames, $values);
     }

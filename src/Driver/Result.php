@@ -12,7 +12,7 @@ interface Result
     /**
      * Returns the next row of the result as a numeric array or FALSE if there are no more rows.
      *
-     * @return list<mixed>|false
+     * @return non-empty-list<mixed>|false
      *
      * @throws Exception
      */
@@ -21,7 +21,7 @@ interface Result
     /**
      * Returns the next row of the result as an associative array or FALSE if there are no more rows.
      *
-     * @return array<string,mixed>|false
+     * @return non-empty-array<string,mixed>|false
      *
      * @throws Exception
      */
@@ -37,7 +37,7 @@ interface Result
     /**
      * Returns an array containing all of the result rows represented as numeric arrays.
      *
-     * @return list<list<mixed>>
+     * @return list<non-empty-list<mixed>>
      *
      * @throws Exception
      */
@@ -46,7 +46,7 @@ interface Result
     /**
      * Returns an array containing all of the result rows represented as associative arrays.
      *
-     * @return list<array<string,mixed>>
+     * @return list<non-empty-array<string,mixed>>
      *
      * @throws Exception
      */

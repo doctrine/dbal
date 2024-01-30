@@ -27,6 +27,7 @@ final class Result implements ResultInterface
             return false;
         }
 
+        /** @var non-empty-list<mixed>|false */
         return $this->result->fetchArray(SQLITE3_NUM);
     }
 
@@ -36,6 +37,7 @@ final class Result implements ResultInterface
             return false;
         }
 
+        /** @var non-empty-array<string,mixed>|false */
         return $this->result->fetchArray(SQLITE3_ASSOC);
     }
 
