@@ -92,6 +92,8 @@ class MariaDb1043Platform extends MariaDb1027Platform
             );
         }
 
+        $subQueryAlias = 'i_' . $tableAlias;
+
         $databaseName = $this->getDatabaseNameSQL($databaseName);
 
         // The check for `CONSTRAINT_SCHEMA = $databaseName` is mandatory here to prevent performance issues
@@ -99,10 +101,10 @@ class MariaDb1043Platform extends MariaDb1027Platform
             IF(
                 $tableAlias.COLUMN_TYPE = 'longtext'
                 AND EXISTS(
-                    SELECT * from information_schema.CHECK_CONSTRAINTS 
-                    WHERE CONSTRAINT_SCHEMA = $databaseName
-                    AND TABLE_NAME = $tableAlias.TABLE_NAME
-                    AND CHECK_CLAUSE = CONCAT(
+                    SELECT * from information_schema.CHECK_CONSTRAINTS $subQueryAlias
+                    WHERE $subQueryAlias.CONSTRAINT_SCHEMA = $databaseName
+                    AND $subQueryAlias.TABLE_NAME = $tableAlias.TABLE_NAME
+                    AND $subQueryAlias.CHECK_CLAUSE = CONCAT(
                         'json_valid(`',
                             $tableAlias.COLUMN_NAME,
                         '`)'
