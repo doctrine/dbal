@@ -6,9 +6,27 @@
     "docsSlug": "doctrine-dbal",
     "versions": [
         {
+            "name": "5.0",
+            "branchName": "5.0.x",
+            "slug": "latest",
+            "upcoming": true
+        },
+        {
+            "name": "4.1",
+            "branchName": "4.1.x",
+            "slug": "4.1",
+            "upcoming": true
+        },
+        {
             "name": "4.0",
             "branchName": "4.0.x",
-            "slug": "latest",
+            "slug": "4.0",
+            "upcoming": true
+        },
+        {
+            "name": "3.9",
+            "branchName": "3.9.x",
+            "slug": "3.9",
             "upcoming": true
         },
         {
