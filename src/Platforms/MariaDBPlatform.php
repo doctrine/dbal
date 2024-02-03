@@ -31,6 +31,8 @@ class MariaDBPlatform extends AbstractMySQLPlatform
      */
     public function getColumnTypeSQLSnippet(string $tableAlias, string $databaseName): string
     {
+        $subQueryAlias = 'i_' . $tableAlias;
+
         $databaseName = $this->quoteStringLiteral($databaseName);
 
         // The check for `CONSTRAINT_SCHEMA = $databaseName` is mandatory here to prevent performance issues
@@ -38,10 +40,10 @@ class MariaDBPlatform extends AbstractMySQLPlatform
             IF(
                 $tableAlias.COLUMN_TYPE = 'longtext'
                 AND EXISTS(
-                    SELECT * from information_schema.CHECK_CONSTRAINTS 
-                    WHERE CONSTRAINT_SCHEMA = $databaseName
-                    AND TABLE_NAME = $tableAlias.TABLE_NAME
-                    AND CHECK_CLAUSE = CONCAT(
+                    SELECT * FROM information_schema.CHECK_CONSTRAINTS $subQueryAlias
+                    WHERE $subQueryAlias.CONSTRAINT_SCHEMA = $databaseName
+                    AND $subQueryAlias.TABLE_NAME = $tableAlias.TABLE_NAME
+                    AND $subQueryAlias.CHECK_CLAUSE = CONCAT(
                         'json_valid(`',
                             $tableAlias.COLUMN_NAME,
                         '`)'

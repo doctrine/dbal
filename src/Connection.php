@@ -37,6 +37,7 @@ use function array_merge;
 use function assert;
 use function count;
 use function implode;
+use function is_array;
 use function is_int;
 use function is_string;
 use function key;
@@ -803,6 +804,10 @@ class Connection implements ServerVersionProvider
 
         if ($item->isHit()) {
             $value = $item->get();
+            if (! is_array($value)) {
+                $value = [];
+            }
+
             if (isset($value[$realKey])) {
                 return new Result(new ArrayResult($value[$realKey]), $this);
             }
