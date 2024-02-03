@@ -21,7 +21,7 @@
             "name": "4.0",
             "branchName": "4.0.x",
             "slug": "4.0",
-            "upcoming": true
+            "current": true
         },
         {
             "name": "3.9",
@@ -33,7 +33,7 @@
             "name": "3.8",
             "branchName": "3.8.x",
             "slug": "3.8",
-            "current": true
+            "maintained": true
         },
         {
             "name": "3.7",
