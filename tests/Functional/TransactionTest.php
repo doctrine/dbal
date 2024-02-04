@@ -58,6 +58,7 @@ class TransactionTest extends FunctionalTestCase
         $this->expectException(ConnectionLost::class);
 
         // prevent the PHPUnit error handler from handling the "MySQL server has gone away" warning
+        /** @var callable|null $previous */
         $previous = null;
         $previous = set_error_handler(static function (int $errno) use (&$previous): bool {
             if (($errno & ~E_WARNING) === 0) {
