@@ -772,6 +772,7 @@ class SQLitePlatform extends AbstractPlatform
 
             $type = $definition['type'];
 
+            /** @psalm-suppress RiskyTruthyFalsyComparison */
             switch (true) {
                 case isset($definition['columnDefinition']) || $definition['autoincrement'] || $definition['unique']:
                 case $type instanceof Types\DateTimeType && $definition['default'] === $this->getCurrentTimestampSQL():

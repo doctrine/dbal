@@ -87,6 +87,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->expectException(Exception\InvalidFieldNameException::class);
 
         // prevent the PHPUnit error handler from handling the warning that db2_bind_param() may trigger
+        /** @var callable|null $previous */
         $previous = null;
         $previous = set_error_handler(static function (int $errno) use (&$previous): bool {
             if (($errno & ~E_WARNING) === 0) {
