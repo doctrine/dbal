@@ -22,6 +22,7 @@ use function pg_field_name;
 use function pg_field_type;
 use function pg_free_result;
 use function pg_num_fields;
+use function PHPStan\dumpType;
 use function substr;
 
 use const PGSQL_ASSOC;
@@ -53,6 +54,7 @@ final class Result implements ResultInterface
             return false;
         }
 
+        /** @var non-empty-list<mixed>|false $row */
         $row = pg_fetch_row($this->result);
         if ($row === false) {
             return false;
@@ -68,6 +70,7 @@ final class Result implements ResultInterface
             return false;
         }
 
+        /** @var non-empty-array<string,mixed>|false $row */
         $row = pg_fetch_assoc($this->result);
         if ($row === false) {
             return false;
@@ -93,7 +96,7 @@ final class Result implements ResultInterface
 
         return array_map(
             fn (array $row) => $this->mapNumericRow($row, $types),
-            pg_fetch_all($this->result, PGSQL_NUM),
+            $this->pgFetchAll($this->result, PGSQL_NUM),
         );
     }
 
@@ -108,7 +111,7 @@ final class Result implements ResultInterface
 
         return array_map(
             fn (array $row) => $this->mapAssociativeRow($row, $types),
-            pg_fetch_all($this->result, PGSQL_ASSOC),
+            $this->pgFetchAll($this->result, PGSQL_ASSOC),
         );
     }
 
@@ -184,10 +187,10 @@ final class Result implements ResultInterface
     }
 
     /**
-     * @param list<string|null>  $row
+     * @param non-empty-list<string|null>  $row
      * @param array<int, string> $types
      *
-     * @return list<mixed>
+     * @return non-empty-list<mixed>
      */
     private function mapNumericRow(array $row, array $types): array
     {
@@ -201,10 +204,10 @@ final class Result implements ResultInterface
     }
 
     /**
-     * @param array<string, string|null> $row
-     * @param array<string, string>      $types
+     * @param non-empty-array<string, string|null> $row
+     * @param array<string, string>                $types
      *
-     * @return array<string, mixed>
+     * @return non-empty-array<string, mixed>
      */
     private function mapAssociativeRow(array $row, array $types): array
     {
@@ -236,5 +239,16 @@ final class Result implements ResultInterface
             'int8' => PHP_INT_SIZE >= 8 ? (int) $value : $value,
             default => $value,
         };
+    }
+
+    /**
+     * @return (
+     *     $mode is PGSQL_NUM ? array<non-empty-list<string|null>> : array<non-empty-array<string, mixed>>
+     * )
+     */
+    private function pgFetchAll(PgSqlResult $result, int $mode = PGSQL_ASSOC): array
+    {
+        /** @var array<non-empty-array<string, mixed>> */
+        return pg_fetch_all($result, $mode);
     }
 }

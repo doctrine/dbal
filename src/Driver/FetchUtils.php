@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
+use function PHPStan\dumpType;
+
 /** @internal */
 final class FetchUtils
 {
@@ -20,7 +22,7 @@ final class FetchUtils
     }
 
     /**
-     * @return list<list<mixed>>
+     * @return list<non-empty-list<mixed>>
      *
      * @throws Exception
      */
@@ -36,7 +38,7 @@ final class FetchUtils
     }
 
     /**
-     * @return list<array<string,mixed>>
+     * @return list<non-empty-array<string,mixed>>
      *
      * @throws Exception
      */

@@ -53,7 +53,7 @@ final class Converter
     /**
      * @param array<int,mixed>|false $row
      *
-     * @return list<mixed>|false
+     * @return non-empty-list<mixed>|false
      */
     public function convertNumeric(array|false $row): array|false
     {
@@ -63,7 +63,7 @@ final class Converter
     /**
      * @param array<string,mixed>|false $row
      *
-     * @return array<string,mixed>|false
+     * @return non-empty-array<string, mixed>|false
      */
     public function convertAssociative(array|false $row): array|false
     {
@@ -78,7 +78,7 @@ final class Converter
     /**
      * @param list<list<mixed>> $data
      *
-     * @return list<list<mixed>>
+     * @return list<non-empty-list<mixed>>
      */
     public function convertAllNumeric(array $data): array
     {
@@ -88,7 +88,7 @@ final class Converter
     /**
      * @param list<array<string,mixed>> $data
      *
-     * @return list<array<string,mixed>>
+     * @return list<non-empty-array<string,mixed>>
      */
     public function convertAllAssociative(array $data): array
     {
