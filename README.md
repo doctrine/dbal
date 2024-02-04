@@ -1,6 +1,6 @@
 # Doctrine DBAL
 
-|                   [5.0-dev][5.0]                    |                   [4.1-dev][4.1]                    |                   [4.0-dev][4.0]                    |                   [3.9-dev][3.9]                    |                     [3.8][3.8]                      |
+|                   [5.0-dev][5.0]                    |                   [4.1-dev][4.1]                    |                     [4.0][4.0]                      |                   [3.9-dev][3.9]                    |                     [3.8][3.8]                      |
 |:---------------------------------------------------:|:---------------------------------------------------:|:---------------------------------------------------:|:---------------------------------------------------:|:---------------------------------------------------:|
 |      [![GitHub Actions][GA 5.0 image]][GA 5.0]      |      [![GitHub Actions][GA 4.1 image]][GA 4.1]      |      [![GitHub Actions][GA 4.0 image]][GA 4.0]      |      [![GitHub Actions][GA 3.9 image]][GA 3.9]      |      [![GitHub Actions][GA 3.8 image]][GA 3.8]      |
 |   [![AppVeyor][AppVeyor 5.0 image]][AppVeyor 5.0]   |   [![AppVeyor][AppVeyor 4.1 image]][AppVeyor 4.1]   |   [![AppVeyor][AppVeyor 4.0 image]][AppVeyor 4.0]   |   [![AppVeyor][AppVeyor 3.9 image]][AppVeyor 3.9]   |   [![AppVeyor][AppVeyor 3.8 image]][AppVeyor 3.8]   |
