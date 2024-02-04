@@ -22,7 +22,6 @@ use function pg_field_name;
 use function pg_field_type;
 use function pg_free_result;
 use function pg_num_fields;
-use function PHPStan\dumpType;
 use function substr;
 
 use const PGSQL_ASSOC;
