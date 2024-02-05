@@ -10,8 +10,8 @@ use PHPUnit\Framework\TestCase;
 class ConverterTest extends TestCase
 {
     /**
-     * @param list<mixed>|false $row
-     * @param list<mixed>|false $expected
+     * @param non-empty-list<mixed>|false $row
+     * @param list<mixed>|false           $expected
      *
      * @dataProvider convertNumericProvider
      */
@@ -65,7 +65,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * @param array<string,mixed>|false                        $row
+     * @param non-empty-array<string,mixed>|false              $row
      * @param Converter::CASE_LOWER|Converter::CASE_UPPER|null $case
      * @param array<string,mixed>|false                        $expected
      *
@@ -214,8 +214,8 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * @param list<list<mixed>> $data
-     * @param list<list<mixed>> $expected
+     * @param list<non-empty-list<mixed>> $data
+     * @param list<list<mixed>>           $expected
      *
      * @dataProvider convertAllNumericProvider
      */
@@ -280,7 +280,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * @param list<array<string,mixed>>                        $row
+     * @param list<non-empty-array<string,mixed>>              $row
      * @param Converter::CASE_LOWER|Converter::CASE_UPPER|null $case
      * @param list<array<string,mixed>>                        $expected
      *
