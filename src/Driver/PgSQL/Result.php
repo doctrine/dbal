@@ -93,9 +93,12 @@ final class Result implements ResultInterface
 
         $types = $this->fetchNumericColumnTypes();
 
+        /** @var array<non-empty-list<string|null>> $rows */
+        $rows = pg_fetch_all($this->result, PGSQL_NUM);
+
         return array_map(
             fn (array $row) => $this->mapNumericRow($row, $types),
-            $this->pgFetchAll($this->result, PGSQL_NUM),
+            $rows,
         );
     }
 
@@ -108,9 +111,12 @@ final class Result implements ResultInterface
 
         $types = $this->fetchAssociativeColumnTypes();
 
+        /** @var array<non-empty-array<string, mixed>> $rows */
+        $rows = pg_fetch_all($this->result, PGSQL_ASSOC);
+
         return array_map(
             fn (array $row) => $this->mapAssociativeRow($row, $types),
-            $this->pgFetchAll($this->result, PGSQL_ASSOC),
+            $rows,
         );
     }
 
@@ -238,16 +244,5 @@ final class Result implements ResultInterface
             'int8' => PHP_INT_SIZE >= 8 ? (int) $value : $value,
             default => $value,
         };
-    }
-
-    /**
-     * @return (
-     *     $mode is PGSQL_NUM ? array<non-empty-list<string|null>> : array<non-empty-array<string, mixed>>
-     * )
-     */
-    private function pgFetchAll(PgSqlResult $result, int $mode = PGSQL_ASSOC): array
-    {
-        /** @var array<non-empty-array<string, mixed>> */
-        return pg_fetch_all($result, $mode);
     }
 }
