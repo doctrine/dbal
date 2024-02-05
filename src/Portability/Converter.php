@@ -51,9 +51,13 @@ final class Converter
     }
 
     /**
-     * @param non-empty-list<mixed>|false $row
+     * @param list<mixed>|false $row
      *
-     * @return non-empty-list<mixed>|false
+     * @return list<mixed>|false
+     * @psalm-return (
+     *     $row is non-empty-list<mixed> ? non-empty-list<mixed> :
+     *     ($row is list<mixed> ? list<mixed> : false)
+     * )
      */
     public function convertNumeric(array|false $row): array|false
     {
@@ -61,9 +65,13 @@ final class Converter
     }
 
     /**
-     * @param non-empty-array<string,mixed>|false $row
+     * @param array<string, mixed>|false $row
      *
-     * @return non-empty-array<string, mixed>|false
+     * @return array<string, mixed>|false
+     * @psalm-return (
+     *     $row is non-empty-array<string, mixed> ? non-empty-array<string, mixed> :
+     *     ($row is array<string, mixed> ? array<string, mixed> : false)
+     * )
      */
     public function convertAssociative(array|false $row): array|false
     {
@@ -76,9 +84,14 @@ final class Converter
     }
 
     /**
-     * @param list<non-empty-list<mixed>> $data
+     * @param list<list<mixed>> $data
      *
-     * @return list<non-empty-list<mixed>>
+     * @return list<list<mixed>>
+     * @psalm-return (
+     *     $data is list<non-empty-list<mixed>>
+     *         ? list<non-empty-list<mixed>>
+     *         : list<list<mixed>>
+     * )
      */
     public function convertAllNumeric(array $data): array
     {
@@ -86,9 +99,14 @@ final class Converter
     }
 
     /**
-     * @param list<non-empty-array<string,mixed>> $data
+     * @param list<array<string,mixed>> $data
      *
-     * @return list<non-empty-array<string,mixed>>
+     * @return list<array<string,mixed>>
+     * @psalm-return (
+     *     $data is list<non-empty-array<string,mixed>>
+     *         ? list<non-empty-array<string,mixed>>
+     *         : list<array<string,mixed>>
+     * )
      */
     public function convertAllAssociative(array $data): array
     {
