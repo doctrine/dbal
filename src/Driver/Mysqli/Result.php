@@ -106,7 +106,7 @@ final class Result implements ResultInterface
             $values[] = $v;
         }
 
-        assert([] !== $values);
+        assert($values !== []);
 
         return $values;
     }

@@ -186,8 +186,8 @@ final class Result implements ResultInterface
     }
 
     /**
-     * @param non-empty-list<string|null>  $row
-     * @param array<int, string> $types
+     * @param non-empty-list<string|null> $row
+     * @param array<int, string>          $types
      *
      * @return non-empty-list<mixed>
      */
