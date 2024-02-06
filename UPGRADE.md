@@ -18,7 +18,7 @@ awareness about deprecated code.
 The methods `AbstractPlatform::getReadLockSQL()`, `::getWriteLockSQL()` and `::getForUpdateSQL()` have been removed
 Use `QueryBuilder::forUpdate()` as a replacement for the latter.
 
-## BC BREAK: BIGINT vales are cast to int if possible
+## BC BREAK: BIGINT values are cast to int if possible
 
 `BigIntType` casts values retrieved from the database to int if they're inside
 the integer range of PHP. Previously, those values were always cast to string.
