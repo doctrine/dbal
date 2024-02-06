@@ -69,7 +69,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
         $foreignKey = $table->getForeignKey($name);
 
-        $this->alterTable(new TableDiff($table, modifiedForeignKeys: [$foreignKey]));
+        $this->alterTable(new TableDiff($table, droppedForeignKeys: [$foreignKey]));
     }
 
     /**
