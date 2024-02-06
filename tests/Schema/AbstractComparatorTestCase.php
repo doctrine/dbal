@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Schema;
@@ -395,6 +396,23 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertEquals('bar', $renamedColumns['foo']->getName());
     }
 
+    public function testDetectRenameColumnDisabled(): void
+    {
+        $tableA = new Table('foo');
+        $tableA->addColumn('foo', Types::INTEGER);
+
+        $tableB = new Table('foo');
+        $tableB->addColumn('bar', Types::INTEGER);
+
+        $config = new ComparatorConfig();
+        $config->setDetectRenamedColumns(false);
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB, $config);
+
+        self::assertCount(1, $tableDiff->getAddedColumns());
+        self::assertCount(1, $tableDiff->getDroppedColumns());
+        self::assertCount(0, $tableDiff->getRenamedColumns());
+    }
+
     /**
      * You can easily have ambiguities in the column renaming. If these
      * are detected no renaming should take place, instead adding and dropping
@@ -435,6 +453,26 @@ abstract class AbstractComparatorTestCase extends TestCase
         $renamedIndexes = $tableDiff->getRenamedIndexes();
         self::assertArrayHasKey('idx_foo', $renamedIndexes);
         self::assertEquals('idx_bar', $renamedIndexes['idx_foo']->getName());
+    }
+
+    public function testDetectRenameIndexDisabled(): void
+    {
+        $table1 = new Table('foo');
+        $table1->addColumn('foo', Types::INTEGER);
+
+        $table2 = clone $table1;
+
+        $table1->addIndex(['foo'], 'idx_foo');
+
+        $table2->addIndex(['foo'], 'idx_bar');
+
+        $config = new ComparatorConfig();
+        $config->setDetectRenamedIndexes(false);
+        $tableDiff = $this->comparator->compareTables($table1, $table2, $config);
+
+        self::assertCount(1, $tableDiff->getAddedIndexes());
+        self::assertCount(1, $tableDiff->getDroppedIndexes());
+        self::assertCount(0, $tableDiff->getRenamedIndexes());
     }
 
     /**

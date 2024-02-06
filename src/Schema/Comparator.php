@@ -24,7 +24,7 @@ class Comparator
     /**
      * Returns the differences between the schemas.
      */
-    public function compareSchemas(Schema $oldSchema, Schema $newSchema): SchemaDiff
+    public function compareSchemas(Schema $oldSchema, Schema $newSchema, ?ComparatorConfig $config = null): SchemaDiff
     {
         $createdSchemas   = [];
         $droppedSchemas   = [];
@@ -59,6 +59,7 @@ class Comparator
                 $tableDiff = $this->compareTables(
                     $oldSchema->getTable($newTableName),
                     $newSchema->getTable($newTableName),
+                    $config,
                 );
 
                 if (! $tableDiff->isEmpty()) {
@@ -141,14 +142,18 @@ class Comparator
     /**
      * Compares the tables and returns the difference between them.
      */
-    public function compareTables(Table $oldTable, Table $newTable): TableDiff
+    public function compareTables(Table $oldTable, Table $newTable, ?ComparatorConfig $config = null): TableDiff
     {
+        $config ??= new ComparatorConfig();
+
         $addedColumns        = [];
         $modifiedColumns     = [];
         $droppedColumns      = [];
+        $renamedColumns      = [];
         $addedIndexes        = [];
         $modifiedIndexes     = [];
         $droppedIndexes      = [];
+        $renamedIndexes      = [];
         $addedForeignKeys    = [];
         $modifiedForeignKeys = [];
         $droppedForeignKeys  = [];
@@ -187,7 +192,9 @@ class Comparator
             $modifiedColumns[] = new ColumnDiff($oldColumn, $newColumn);
         }
 
-        $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
+        if ($config->getDetectRenamedColumns()) {
+            $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
+        }
 
         $oldIndexes = $oldTable->getIndexes();
         $newIndexes = $newTable->getIndexes();
@@ -224,7 +231,9 @@ class Comparator
             $modifiedIndexes[] = $newIndex;
         }
 
-        $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
+        if ($config->getDetectRenamedIndexes()) {
+            $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
+        }
 
         $oldForeignKeys = $oldTable->getForeignKeys();
         $newForeignKeys = $newTable->getForeignKeys();

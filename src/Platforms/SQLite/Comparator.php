@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms\SQLite;
 
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
@@ -24,11 +25,12 @@ class Comparator extends BaseComparator
         parent::__construct($platform);
     }
 
-    public function compareTables(Table $oldTable, Table $newTable): TableDiff
+    public function compareTables(Table $oldTable, Table $newTable, ?ComparatorConfig $config = null): TableDiff
     {
         return parent::compareTables(
             $this->normalizeColumns($oldTable),
             $this->normalizeColumns($newTable),
+            $config,
         );
     }
 
