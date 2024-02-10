@@ -1727,6 +1727,17 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Generates the SQL expression which represents the given date interval multiplied by a number
+     *
+     * @param string $interval   SQL expression describing the interval value
+     * @param int    $multiplier Interval multiplier
+     */
+    protected function multiplyInterval(string $interval, int $multiplier): string
+    {
+        return sprintf('(%s * %d)', $interval, $multiplier);
+    }
+
+    /**
      * Returns the SQL bit AND comparison expression.
      *
      * @param string $value1
