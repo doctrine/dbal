@@ -321,9 +321,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals("'1987/05/02' + 12 HOUR", $this->platform->getDateAddHourExpression("'1987/05/02'", 12));
         self::assertEquals("'1987/05/02' + 2 MINUTE", $this->platform->getDateAddMinutesExpression("'1987/05/02'", 2));
         self::assertEquals("'1987/05/02' + 102 MONTH", $this->platform->getDateAddMonthExpression("'1987/05/02'", 102));
-        self::assertEquals("'1987/05/02' + 15 MONTH", $this->platform->getDateAddQuartersExpression("'1987/05/02'", 5));
+        self::assertEquals(
+            "'1987/05/02' + (5 * 3) MONTH",
+            $this->platform->getDateAddQuartersExpression("'1987/05/02'", 5),
+        );
         self::assertEquals("'1987/05/02' + 1 SECOND", $this->platform->getDateAddSecondsExpression("'1987/05/02'", 1));
-        self::assertEquals("'1987/05/02' + 21 DAY", $this->platform->getDateAddWeeksExpression("'1987/05/02'", 3));
+        self::assertEquals("'1987/05/02' + (3 * 7) DAY", $this->platform->getDateAddWeeksExpression("'1987/05/02'", 3));
         self::assertEquals("'1987/05/02' + 10 YEAR", $this->platform->getDateAddYearsExpression("'1987/05/02'", 10));
 
         self::assertEquals(
@@ -335,9 +338,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals("'1987/05/02' - 12 HOUR", $this->platform->getDateSubHourExpression("'1987/05/02'", 12));
         self::assertEquals("'1987/05/02' - 2 MINUTE", $this->platform->getDateSubMinutesExpression("'1987/05/02'", 2));
         self::assertEquals("'1987/05/02' - 102 MONTH", $this->platform->getDateSubMonthExpression("'1987/05/02'", 102));
-        self::assertEquals("'1987/05/02' - 15 MONTH", $this->platform->getDateSubQuartersExpression("'1987/05/02'", 5));
+        self::assertEquals(
+            "'1987/05/02' - (5 * 3) MONTH",
+            $this->platform->getDateSubQuartersExpression("'1987/05/02'", 5),
+        );
         self::assertEquals("'1987/05/02' - 1 SECOND", $this->platform->getDateSubSecondsExpression("'1987/05/02'", 1));
-        self::assertEquals("'1987/05/02' - 21 DAY", $this->platform->getDateSubWeeksExpression("'1987/05/02'", 3));
+        self::assertEquals("'1987/05/02' - (3 * 7) DAY", $this->platform->getDateSubWeeksExpression("'1987/05/02'", 3));
         self::assertEquals("'1987/05/02' - 10 YEAR", $this->platform->getDateSubYearsExpression("'1987/05/02'", 10));
         self::assertEquals(' WITH RR USE AND KEEP UPDATE LOCKS', $this->platform->getForUpdateSQL());
 
