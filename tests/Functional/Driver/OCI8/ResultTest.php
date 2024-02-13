@@ -87,6 +87,7 @@ class ResultTest extends FunctionalTestCase
             // after the initial prefetch that caches locally the first X results
             $this->createOrReplacePipelinedFunction($expectedTotalRowCount + 10);
 
+            /** @var callable|null $previous */
             $previous = null;
             $previous = set_error_handler(static function (int $errno, string $errstr) use (&$previous): bool {
                 if (str_contains($errstr, 'ORA-04061')) {
