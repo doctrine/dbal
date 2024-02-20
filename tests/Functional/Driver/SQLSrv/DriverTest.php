@@ -8,8 +8,9 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\SQLSrv\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
-/** @requires extension sqlsrv */
+#[RequiresPhpExtension('sqlsrv')]
 class DriverTest extends AbstractDriverTestCase
 {
     protected function setUp(): void

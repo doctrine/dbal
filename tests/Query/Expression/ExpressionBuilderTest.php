@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Query\Expression;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ExpressionBuilderTest extends TestCase
@@ -24,11 +25,8 @@ class ExpressionBuilderTest extends TestCase
              ->willReturn($this->expr);
     }
 
-    /**
-     * @param string[]|CompositeExpression[] $parts
-     *
-     * @dataProvider provideDataForAnd
-     */
+    /** @param string[]|CompositeExpression[] $parts */
+    #[DataProvider('provideDataForAnd')]
     public function testAnd(array $parts, string $expected): void
     {
         $composite = $this->expr->and(...$parts);
@@ -79,11 +77,8 @@ class ExpressionBuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @param string[]|CompositeExpression[] $parts
-     *
-     * @dataProvider provideDataForOr
-     */
+    /** @param string[]|CompositeExpression[] $parts */
+    #[DataProvider('provideDataForOr')]
     public function testOr(array $parts, string $expected): void
     {
         $composite = $this->expr->or(...$parts);
@@ -134,7 +129,7 @@ class ExpressionBuilderTest extends TestCase
         ];
     }
 
-    /** @dataProvider provideDataForComparison */
+    #[DataProvider('provideDataForComparison')]
     public function testComparison(string $leftExpr, string $operator, string $rightExpr, string $expected): void
     {
         $part = $this->expr->comparison($leftExpr, $operator, $rightExpr);

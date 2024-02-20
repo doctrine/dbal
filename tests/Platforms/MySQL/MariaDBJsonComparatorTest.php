@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\MySQL\Comparator;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function sprintf;
@@ -88,7 +89,7 @@ class MariaDBJsonComparatorTest extends TestCase
         ];
     }
 
-    /** @dataProvider providerTableComparisons */
+    #[DataProvider('providerTableComparisons')]
     public function testJsonColumnComparison(string $table1, string $table2): void
     {
         self::assertTrue(

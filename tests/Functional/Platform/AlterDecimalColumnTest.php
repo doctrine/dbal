@@ -7,10 +7,11 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class AlterDecimalColumnTest extends FunctionalTestCase
 {
-    /** @dataProvider scaleAndPrecisionProvider */
+    #[DataProvider('scaleAndPrecisionProvider')]
     public function testAlterPrecisionAndScale(int $newPrecision, int $newScale): void
     {
         $table  = new Table('decimal_table');

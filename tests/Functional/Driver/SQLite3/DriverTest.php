@@ -10,8 +10,9 @@ use Doctrine\DBAL\Driver\SQLite3\Driver;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
-/** @requires extension sqlite3 */
+#[RequiresPhpExtension('sqlite3')]
 class DriverTest extends AbstractDriverTestCase
 {
     protected function setUp(): void

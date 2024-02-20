@@ -10,10 +10,11 @@ use Doctrine\DBAL\Driver\PDO\SQLSrv\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use PDO;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
 use function array_merge;
 
-/** @requires extension pdo_sqlsrv */
+#[RequiresPhpExtension('pdo_sqlsrv')]
 class DriverTest extends AbstractDriverTestCase
 {
     protected function setUp(): void

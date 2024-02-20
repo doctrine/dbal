@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ColumnTest extends TestCase
@@ -115,7 +116,7 @@ class ColumnTest extends TestCase
         self::assertEquals('[bar]', $column->getQuotedName($sqlServerPlatform));
     }
 
-    /** @dataProvider getIsQuoted */
+    #[DataProvider('getIsQuoted')]
     public function testIsQuoted(string $columnName, bool $isQuoted): void
     {
         $type   = Type::getType(Types::STRING);

@@ -7,8 +7,9 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\PgSQL;
 use Doctrine\DBAL\Driver\PgSQL\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractPostgreSQLDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
-/** @requires extension pgsql */
+#[RequiresPhpExtension('pgsql')]
 class DriverTest extends AbstractPostgreSQLDriverTestCase
 {
     protected function setUp(): void

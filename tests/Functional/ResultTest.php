@@ -8,10 +8,11 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ResultTest extends FunctionalTestCase
 {
-    /** @dataProvider methodProvider */
+    #[DataProvider('methodProvider')]
     public function testExceptionHandling(callable $method, mixed $expected): void
     {
         $result = $this->connection->executeQuery(

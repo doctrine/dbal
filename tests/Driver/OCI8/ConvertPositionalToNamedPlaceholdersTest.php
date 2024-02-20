@@ -6,15 +6,13 @@ namespace Doctrine\DBAL\Tests\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\ConvertPositionalToNamedPlaceholders;
 use Doctrine\DBAL\SQL\Parser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ConvertPositionalToNamedPlaceholdersTest extends TestCase
 {
-    /**
-     * @param mixed[] $expectedOutputParamsMap
-     *
-     * @dataProvider positionalToNamedPlaceholdersProvider
-     */
+    /** @param mixed[] $expectedOutputParamsMap */
+    #[DataProvider('positionalToNamedPlaceholdersProvider')]
     public function testConvertPositionalToNamedParameters(
         string $inputSQL,
         string $expectedOutputSQL,

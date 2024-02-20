@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Types;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Throwable;
@@ -26,7 +27,7 @@ class ConversionExceptionTest extends TestCase
         self::assertSame($previous, $exception->getPrevious());
     }
 
-    /** @dataProvider scalarsProvider */
+    #[DataProvider('scalarsProvider')]
     public function testConversionFailedInvalidTypeWithScalar(mixed $scalarValue, string $expected): void
     {
         $exception = InvalidType::new($scalarValue, 'foo', ['bar', 'baz']);
@@ -37,7 +38,7 @@ class ConversionExceptionTest extends TestCase
         );
     }
 
-    /** @dataProvider nonScalarsProvider */
+    #[DataProvider('nonScalarsProvider')]
     public function testConversionFailedInvalidTypeWithNonScalar(mixed $nonScalar): void
     {
         $exception = InvalidType::new($nonScalar, 'foo', ['bar', 'baz']);

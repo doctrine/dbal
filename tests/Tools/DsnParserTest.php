@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Tools;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tools\DsnParser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function get_class;
@@ -15,11 +16,8 @@ use function ksort;
 /** @psalm-import-type Params from DriverManager */
 final class DsnParserTest extends TestCase
 {
-    /**
-     * @psalm-param Params $expected
-     *
-     * @dataProvider databaseUrls
-     */
+    /** @psalm-param Params $expected */
+    #[DataProvider('databaseUrls')]
     public function testDatabaseUrl(string $dsn, array $expected): void
     {
         $parser = new DsnParser(['mysql' => 'mysqli', 'sqlite' => 'sqlite3']);

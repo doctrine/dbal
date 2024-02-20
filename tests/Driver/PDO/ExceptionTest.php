@@ -6,9 +6,10 @@ namespace Doctrine\DBAL\Tests\Driver\PDO;
 
 use Doctrine\DBAL\Driver\PDO\Exception;
 use PDOException;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 
-/** @requires extension pdo */
+#[RequiresPhpExtension('pdo')]
 class ExceptionTest extends TestCase
 {
     private const ERROR_CODE = 666;
