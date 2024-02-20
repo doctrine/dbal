@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -35,7 +37,23 @@ class RenameColumnTest extends FunctionalTestCase
         self::assertCount(2, $columns);
         self::assertEqualsIgnoringCase($newColumnName, $columns[0]->getName());
         self::assertEqualsIgnoringCase('c2', $columns[1]->getName());
-        self::assertCount(1, $diff->getRenamedColumns());
+        self::assertCount(1, self::getRenamedColumns($diff));
+    }
+
+    /** @return array<string,Column> */
+    public static function getRenamedColumns(TableDiff $tableDiff): array
+    {
+        $renamed = [];
+        foreach ($tableDiff->getChangedColumns() as $diff) {
+            if (! $diff->hasNameChanged()) {
+                continue;
+            }
+
+            $oldColumnName           = $diff->getOldColumn()->getName();
+            $renamed[$oldColumnName] = $diff->getNewColumn();
+        }
+
+        return $renamed;
     }
 
     /** @dataProvider columnNameProvider */

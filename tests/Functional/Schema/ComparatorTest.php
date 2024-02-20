@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -70,10 +71,11 @@ class ComparatorTest extends FunctionalTestCase
             ->setNotnull(false)
             ->setType(Type::getType(Types::BIGINT));
 
-        $compareResult = $comparator->compareTables($onlineTable, $table);
+        $compareResult  = $comparator->compareTables($onlineTable, $table);
+        $renamedColumns = RenameColumnTest::getRenamedColumns($compareResult);
         self::assertCount(3, $compareResult->getChangedColumns());
-        self::assertCount(2, $compareResult->getRenamedColumns());
-        self::assertArrayHasKey('test2', $compareResult->getRenamedColumns());
+        self::assertCount(2, $renamedColumns);
+        self::assertArrayHasKey('test2', $renamedColumns);
 
         $renamedOnly        = $compareResult->getChangedColumns()['test2'];
         $renamedAndModified = $compareResult->getChangedColumns()['test'];

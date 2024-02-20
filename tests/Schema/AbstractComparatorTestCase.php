@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
@@ -174,7 +175,7 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
-        $renamedColumns = $tableDiff->getRenamedColumns();
+        $renamedColumns = RenameColumnTest::getRenamedColumns($tableDiff);
         self::assertCount(1, $renamedColumns);
         self::assertArrayHasKey('datecolumn1', $renamedColumns);
         self::assertEquals(['new_datecolumn2'], $this->getAssetNames($tableDiff->getAddedColumns()));
@@ -391,7 +392,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertCount(0, $tableDiff->getAddedColumns());
         self::assertCount(0, $tableDiff->getDroppedColumns());
 
-        $renamedColumns = $tableDiff->getRenamedColumns();
+        $renamedColumns = RenameColumnTest::getRenamedColumns($tableDiff);
         self::assertArrayHasKey('foo', $renamedColumns);
         self::assertEquals('bar', $renamedColumns['foo']->getName());
     }
@@ -414,7 +415,7 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         self::assertEquals(['baz'], $this->getAssetNames($tableDiff->getAddedColumns()));
         self::assertEquals(['foo', 'bar'], $this->getAssetNames($tableDiff->getDroppedColumns()));
-        self::assertCount(0, $tableDiff->getRenamedColumns());
+        self::assertCount(0, RenameColumnTest::getRenamedColumns($tableDiff));
     }
 
     public function testDetectRenameIndex(): void
@@ -496,7 +497,7 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $tableDiff = $this->comparator->compareTables($table, $newtable);
 
-        self::assertEquals(['twitterId', 'displayName'], array_keys($tableDiff->getRenamedColumns()));
+        self::assertEquals(['twitterId', 'displayName'], array_keys(RenameColumnTest::getRenamedColumns($tableDiff)));
         self::assertEquals(['logged_in_at'], $this->getAssetNames($tableDiff->getAddedColumns()));
         self::assertCount(0, $tableDiff->getDroppedColumns());
     }

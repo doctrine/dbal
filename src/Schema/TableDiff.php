@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\Deprecations\Deprecation;
-
 use function array_filter;
 use function count;
 
@@ -66,32 +64,6 @@ class TableDiff
     public function getDroppedColumns(): array
     {
         return $this->droppedColumns;
-    }
-
-    /**
-     * @deprecated Use {@see getModifiedColumns()} instead.
-     *
-     * @return array<string,Column>
-     */
-    public function getRenamedColumns(): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6080',
-            '%s is deprecated, you should use `getModifiedColumns()` instead.',
-            __METHOD__,
-        );
-        $renamed = [];
-        foreach ($this->getChangedColumns() as $diff) {
-            if (! $diff->hasNameChanged()) {
-                continue;
-            }
-
-            $oldColumnName           = $diff->getOldColumn()->getName();
-            $renamed[$oldColumnName] = $diff->getNewColumn();
-        }
-
-        return $renamed;
     }
 
     /** @return array<Index> */
