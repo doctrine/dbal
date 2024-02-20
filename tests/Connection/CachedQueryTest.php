@@ -48,7 +48,7 @@ class CachedQueryTest extends TestCase
         )->fetchAllAssociative());
     }
 
-    /** @param list<array<string, mixed>> $data */
+    /** @param list<non-empty-array<string, mixed>> $data */
     private function createConnection(int $expectedQueryCount, array $data): Connection
     {
         $connection = $this->createMock(Driver\Connection::class);

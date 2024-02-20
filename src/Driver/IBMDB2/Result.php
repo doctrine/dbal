@@ -28,6 +28,7 @@ final class Result implements ResultInterface
 
     public function fetchNumeric(): array|false
     {
+        /** @var non-empty-list<mixed>|false $row */
         $row = @db2_fetch_array($this->statement);
 
         if ($row === false && db2_stmt_error($this->statement) !== '02000') {
@@ -39,6 +40,7 @@ final class Result implements ResultInterface
 
     public function fetchAssociative(): array|false
     {
+        /** @var non-empty-array<string,mixed>|false $row */
         $row = @db2_fetch_assoc($this->statement);
 
         if ($row === false && db2_stmt_error($this->statement) !== '02000') {

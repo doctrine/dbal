@@ -583,7 +583,7 @@ class Connection implements ServerVersionProvider
      * @param list<mixed>|array<string, mixed> $params
      * @psalm-param WrapperParameterTypeArray $types
      *
-     * @return list<array<string,mixed>>
+     * @return list<non-empty-array<string,mixed>>
      *
      * @throws Exception
      */

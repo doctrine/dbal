@@ -123,6 +123,11 @@
     <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
         <exclude-pattern>src/Schema/ColumnDiff.php</exclude-pattern>
     </rule>
+    <rule ref="SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration">
+        <properties>
+            <property name="allowDocCommentAboveReturn" value="true" />
+        </properties>
+    </rule>
 
     <!-- The SQLSRV_* functions are defined in the upper case by the sqlsrv extension and violate the standard
          see https://docs.microsoft.com/en-us/sql/connect/php/constants-microsoft-drivers-for-php-for-sql-server -->
