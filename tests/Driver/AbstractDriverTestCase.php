@@ -57,8 +57,7 @@ abstract class AbstractDriverTestCase extends TestCase
 
     abstract protected function createExceptionConverter(): ExceptionConverter;
 
-    /** @return Connection&MockObject */
-    protected function getConnectionMock(): Connection
+    protected function getConnectionMock(): Connection&MockObject
     {
         return $this->createMock(Connection::class);
     }

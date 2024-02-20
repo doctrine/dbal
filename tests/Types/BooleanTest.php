@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class BooleanTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private BooleanType $type;
 
     protected function setUp(): void

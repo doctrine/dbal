@@ -23,8 +23,7 @@ use function hex2bin;
 /** @psalm-import-type WrapperParameterTypeArray from Connection */
 class QueryBuilderTest extends TestCase
 {
-    /** @var Connection&MockObject */
-    protected Connection $conn;
+    protected Connection&MockObject $conn;
 
     protected function setUp(): void
     {

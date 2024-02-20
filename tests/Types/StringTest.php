@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class StringTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private StringType $type;
 
     protected function setUp(): void

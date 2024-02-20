@@ -16,9 +16,7 @@ use function fopen;
 
 class JsonTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    protected AbstractPlatform $platform;
-
+    protected AbstractPlatform&MockObject $platform;
     protected JsonType $type;
 
     protected function setUp(): void

@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class FloatTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private FloatType $type;
 
     protected function setUp(): void
