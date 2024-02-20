@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function rtrim;
 
@@ -22,7 +23,7 @@ final class DecimalTest extends FunctionalTestCase
         ];
     }
 
-    /** @dataProvider dataValuesProvider */
+    #[DataProvider('dataValuesProvider')]
     public function testInsertAndRetrieveDecimal(string $expected): void
     {
         $table = new Table('decimal_table');

@@ -10,6 +10,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Throwable;
 
 use function array_change_key_case;
@@ -213,9 +214,8 @@ class NamedParametersTest extends FunctionalTestCase
      * @param array<string, mixed>       $params
      * @param list<array<string, mixed>> $expected
      * @psalm-param array<string, WrapperParameterType> $types
-     *
-     * @dataProvider ticketProvider
      */
+    #[DataProvider('ticketProvider')]
     public function testTicket(string $query, array $params, array $types, array $expected): void
     {
         $data = $this->connection->fetchAllAssociative($query, $params, $types);

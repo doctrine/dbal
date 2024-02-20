@@ -33,6 +33,7 @@ use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\TimeType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_filter;
 use function array_keys;
@@ -218,7 +219,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertNull($view);
     }
 
-    /** @dataProvider tableFilterProvider */
+    #[DataProvider('tableFilterProvider')]
     public function testListTablesWithFilter(string $prefix, int $expectedCount): void
     {
         $this->createTestTable('filter_test_1');

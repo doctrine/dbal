@@ -11,6 +11,8 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Tools\DsnParser;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -37,7 +39,7 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection(['driver' => 'invalid_driver']);
     }
 
-    /** @requires extension sqlite3 */
+    #[RequiresPhpExtension('sqlite3')]
     public function testCustomWrapper(): void
     {
         $wrapper      = $this->createMock(Connection::class);
@@ -53,7 +55,7 @@ class DriverManagerTest extends TestCase
         self::assertInstanceOf($wrapperClass, $conn);
     }
 
-    /** @requires extension pdo_sqlite */
+    #[RequiresPhpExtension('pdo_sqlite')]
     public function testDefaultWrapper(): void
     {
         $options = [
@@ -66,10 +68,8 @@ class DriverManagerTest extends TestCase
         self::assertSame(Connection::class, $conn::class);
     }
 
-    /**
-     * @requires extension pdo_sqlite
-     * @psalm-suppress InvalidArgument
-     */
+    /** @psalm-suppress InvalidArgument */
+    #[RequiresPhpExtension('pdo_sqlite')]
     public function testInvalidWrapperClass(): void
     {
         $this->expectException(Exception::class);
@@ -104,9 +104,8 @@ class DriverManagerTest extends TestCase
     /**
      * @param Params                     $params
      * @param array<string, mixed>|false $expected
-     *
-     * @dataProvider databaseUrlProvider
      */
+    #[DataProvider('databaseUrlProvider')]
     public function testDatabaseUrl(string $url, array $params, array|false $expected): void
     {
         $parser = new DsnParser(['mysql' => 'pdo_mysql', 'sqlite' => 'pdo_sqlite']);

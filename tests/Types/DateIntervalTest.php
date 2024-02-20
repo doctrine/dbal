@@ -9,6 +9,7 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateIntervalType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -89,7 +90,7 @@ final class DateIntervalTest extends TestCase
         $this->type->convertToPHPValue('', $this->platform);
     }
 
-    /** @dataProvider invalidPHPValuesProvider */
+    #[DataProvider('invalidPHPValuesProvider')]
     public function testInvalidTypeConversionToDatabaseValue(mixed $value): void
     {
         $this->expectException(ConversionException::class);

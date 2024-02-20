@@ -6,11 +6,12 @@ namespace Doctrine\DBAL\Tests\Platforms\MySQL\CollationMetadataProvider;
 
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMetadataProvider;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CachingCollationMetadataProviderTest extends TestCase
 {
-    /** @dataProvider charsetAndCollationProvider */
+    #[DataProvider('charsetAndCollationProvider')]
     public function testCharsetCaching(string $collation, ?string $charset): void
     {
         $underlyingProvider = $this->createMock(CollationMetadataProvider::class);

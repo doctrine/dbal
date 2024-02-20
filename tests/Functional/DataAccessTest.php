@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_change_key_case;
 use function date;
@@ -293,7 +294,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals([[100], [101], [102], [103], [104]], $data);
     }
 
-    /** @dataProvider getTrimExpressionData */
+    #[DataProvider('getTrimExpressionData')]
     public function testTrimExpression(string $value, TrimMode $mode, ?string $char, string $expectedResult): void
     {
         $sql = 'SELECT ' .
@@ -350,7 +351,7 @@ class DataAccessTest extends FunctionalTestCase
         ];
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateAddSeconds(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -364,7 +365,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateSubSeconds(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -378,7 +379,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateAddMinutes(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -392,7 +393,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateSubMinutes(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -406,7 +407,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateAddHours(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -420,7 +421,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateSubHours(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -434,7 +435,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateAddDays(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -448,7 +449,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateSubDays(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -462,7 +463,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateAddWeeks(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -476,7 +477,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateSubWeeks(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -490,7 +491,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateAddMonths(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -504,7 +505,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateSubMonths(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -518,7 +519,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateAddQuarters(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -532,7 +533,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateSubQuarters(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -546,7 +547,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateAddYears(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -560,7 +561,7 @@ class DataAccessTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider modeProvider */
+    #[DataProvider('modeProvider')]
     public function testDateSubYears(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
@@ -694,7 +695,7 @@ class DataAccessTest extends FunctionalTestCase
         ], $row);
     }
 
-    /** @dataProvider substringExpressionProvider */
+    #[DataProvider('substringExpressionProvider')]
     public function testSubstringExpression(string $string, string $start, ?string $length, string $expected): void
     {
         $platform = $this->connection->getDatabasePlatform();
