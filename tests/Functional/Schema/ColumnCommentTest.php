@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_merge;
 use function sprintf;
@@ -34,11 +35,8 @@ class ColumnCommentTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
     }
 
-    /**
-     * @param array<string,mixed> $options
-     *
-     * @dataProvider columnProvider
-     */
+    /** @param array<string,mixed> $options */
+    #[DataProvider('columnProvider')]
     public function testColumnComment(string $name, string $type, array $options): void
     {
         $this->assertColumnComment('column_comments', $name, $options['comment'] ?? '');
@@ -79,7 +77,7 @@ class ColumnCommentTest extends FunctionalTestCase
         }
     }
 
-    /** @dataProvider alterColumnCommentProvider */
+    #[DataProvider('alterColumnCommentProvider')]
     public function testAlterColumnComment(string $comment1, string $comment2): void
     {
         $table1 = new Table('column_comments');

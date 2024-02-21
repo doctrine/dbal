@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class ConcatExpressionTest extends FunctionalTestCase
 {
-    /**
-     * @param list<string> $arguments
-     *
-     * @dataProvider expressionProvider
-     */
+    /** @param list<string> $arguments */
+    #[DataProvider('expressionProvider')]
     public function testConcatExpression(array $arguments, string $expected): void
     {
         $platform = $this->connection->getDatabasePlatform();

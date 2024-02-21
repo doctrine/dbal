@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Portability;
 
 use Doctrine\DBAL\Portability\Converter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ConverterTest extends TestCase
@@ -12,9 +13,8 @@ class ConverterTest extends TestCase
     /**
      * @param list<mixed>|false $row
      * @param list<mixed>|false $expected
-     *
-     * @dataProvider convertNumericProvider
      */
+    #[DataProvider('convertNumericProvider')]
     public function testConvertNumeric(
         array|false $row,
         bool $convertEmptyStringToNull,
@@ -68,9 +68,8 @@ class ConverterTest extends TestCase
      * @param array<string,mixed>|false                        $row
      * @param Converter::CASE_LOWER|Converter::CASE_UPPER|null $case
      * @param array<string,mixed>|false                        $expected
-     *
-     * @dataProvider convertAssociativeProvider
      */
+    #[DataProvider('convertAssociativeProvider')]
     public function testConvertAssociative(
         array|false $row,
         bool $convertEmptyStringToNull,
@@ -184,7 +183,7 @@ class ConverterTest extends TestCase
         yield 'False' => [false, true, true, null, false];
     }
 
-    /** @dataProvider convertOneProvider */
+    #[DataProvider('convertOneProvider')]
     public function testConvertOne(
         mixed $value,
         bool $convertEmptyStringToNull,
@@ -216,9 +215,8 @@ class ConverterTest extends TestCase
     /**
      * @param list<list<mixed>> $data
      * @param list<list<mixed>> $expected
-     *
-     * @dataProvider convertAllNumericProvider
      */
+    #[DataProvider('convertAllNumericProvider')]
     public function testConvertAllNumeric(
         array $data,
         bool $convertEmptyStringToNull,
@@ -283,9 +281,8 @@ class ConverterTest extends TestCase
      * @param list<array<string,mixed>>                        $row
      * @param Converter::CASE_LOWER|Converter::CASE_UPPER|null $case
      * @param list<array<string,mixed>>                        $expected
-     *
-     * @dataProvider convertAllAssociativeProvider
      */
+    #[DataProvider('convertAllAssociativeProvider')]
     public function testConvertAllAssociative(
         array $row,
         bool $convertEmptyStringToNull,
@@ -454,9 +451,8 @@ class ConverterTest extends TestCase
     /**
      * @param list<mixed> $column
      * @param list<mixed> $expected
-     *
-     * @dataProvider convertFirstColumnProvider
      */
+    #[DataProvider('convertFirstColumnProvider')]
     public function testConvertFirstColumn(
         array $column,
         bool $convertEmptyStringToNull,

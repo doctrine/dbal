@@ -6,8 +6,10 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\OCI8;
 
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
-/** @requires extension oci8 */
+#[RequiresPhpExtension('oci8')]
 class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -22,9 +24,8 @@ class StatementTest extends FunctionalTestCase
     /**
      * @param mixed[] $params
      * @param mixed[] $expected
-     *
-     * @dataProvider queryConversionProvider
      */
+    #[DataProvider('queryConversionProvider')]
     public function testQueryConversion(string $query, array $params, array $expected): void
     {
         self::assertEquals(

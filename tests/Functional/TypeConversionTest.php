@@ -10,6 +10,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function str_repeat;
 
@@ -41,7 +42,7 @@ class TypeConversionTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
     }
 
-    /** @dataProvider booleanProvider */
+    #[DataProvider('booleanProvider')]
     public function testIdempotentConversionToBoolean(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
@@ -59,7 +60,7 @@ class TypeConversionTest extends FunctionalTestCase
         ];
     }
 
-    /** @dataProvider integerProvider */
+    #[DataProvider('integerProvider')]
     public function testIdempotentConversionToInteger(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
@@ -76,7 +77,7 @@ class TypeConversionTest extends FunctionalTestCase
         ];
     }
 
-    /** @dataProvider floatProvider */
+    #[DataProvider('floatProvider')]
     public function testIdempotentConversionToFloat(string $type, mixed $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);
@@ -93,7 +94,7 @@ class TypeConversionTest extends FunctionalTestCase
         ];
     }
 
-    /** @dataProvider toStringProvider */
+    #[DataProvider('toStringProvider')]
     public function testIdempotentConversionToString(string $type, mixed $originalValue): void
     {
         if ($type === Types::TEXT && TestUtil::isDriverOneOf('pdo_oci')) {
@@ -122,7 +123,7 @@ class TypeConversionTest extends FunctionalTestCase
         self::assertEquals(['foo' => 'bar'], $this->processValue('json', ['foo' => 'bar']));
     }
 
-    /** @dataProvider toDateTimeProvider */
+    #[DataProvider('toDateTimeProvider')]
     public function testIdempotentConversionToDateTime(string $type, DateTime $originalValue): void
     {
         $dbValue = $this->processValue($type, $originalValue);

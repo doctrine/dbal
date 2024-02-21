@@ -6,12 +6,13 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function key;
 
 class QuotingTest extends FunctionalTestCase
 {
-    /** @dataProvider stringLiteralProvider */
+    #[DataProvider('stringLiteralProvider')]
     public function testQuoteStringLiteral(string $string): void
     {
         $platform = $this->connection->getDatabasePlatform();
@@ -31,7 +32,7 @@ class QuotingTest extends FunctionalTestCase
         ];
     }
 
-    /** @dataProvider identifierProvider */
+    #[DataProvider('identifierProvider')]
     public function testQuoteIdentifier(string $identifier): void
     {
         $platform = $this->connection->getDatabasePlatform();

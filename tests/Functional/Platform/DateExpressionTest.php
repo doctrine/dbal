@@ -7,12 +7,13 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function sprintf;
 
 class DateExpressionTest extends FunctionalTestCase
 {
-    /** @dataProvider differenceProvider */
+    #[DataProvider('differenceProvider')]
     public function testDifference(string $date1, string $date2, int $expected): void
     {
         $table = new Table('date_expr_test');

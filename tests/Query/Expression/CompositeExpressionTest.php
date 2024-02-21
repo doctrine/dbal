@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Query\Expression;
 
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CompositeExpressionTest extends TestCase
@@ -40,7 +41,7 @@ class CompositeExpressionTest extends TestCase
         self::assertCount(3, $expr);
     }
 
-    /** @dataProvider provideDataForConvertToString */
+    #[DataProvider('provideDataForConvertToString')]
     public function testCompositeUsageAndGeneration(CompositeExpression $expr, string $expects): void
     {
         self::assertEquals($expects, (string) $expr);

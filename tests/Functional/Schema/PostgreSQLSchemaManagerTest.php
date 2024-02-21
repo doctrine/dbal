@@ -17,6 +17,7 @@ use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_map;
 use function array_pop;
@@ -428,7 +429,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         ];
     }
 
-    /** @dataProvider serialTypes */
+    #[DataProvider('serialTypes')]
     public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValue(string $type): void
     {
         $tableName = 'test_serial_type_' . $type;
@@ -443,7 +444,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($columns['id']->getDefault());
     }
 
-    /** @dataProvider serialTypes */
+    #[DataProvider('serialTypes')]
     public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValueEvenWhenDefaultIsSet(string $type): void
     {
         $tableName = 'test_serial_type_with_default_' . $type;
@@ -458,7 +459,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($columns['id']->getDefault());
     }
 
-    /** @dataProvider autoIncrementTypeMigrations */
+    #[DataProvider('autoIncrementTypeMigrations')]
     public function testAlterTableAutoIncrementIntToBigInt(string $from, string $to, string $expected): void
     {
         $table  = new Table('autoinc_type_modification');

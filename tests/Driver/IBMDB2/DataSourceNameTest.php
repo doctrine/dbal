@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\IBMDB2\DataSourceName;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class DataSourceNameTest extends TestCase
 {
-    /**
-     * @param mixed[] $params
-     *
-     * @dataProvider connectionParametersProvider
-     */
+    /** @param mixed[] $params */
+    #[DataProvider('connectionParametersProvider')]
     public function testFromConnectionParameters(array $params, string $expected): void
     {
         $dsn = DataSourceName::fromConnectionParameters($params);
