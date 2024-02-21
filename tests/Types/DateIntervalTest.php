@@ -16,9 +16,7 @@ use stdClass;
 
 final class DateIntervalTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private DateIntervalType $type;
 
     protected function setUp(): void
