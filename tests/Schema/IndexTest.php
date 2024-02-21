@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Index;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class IndexTest extends TestCase
@@ -106,9 +107,8 @@ class IndexTest extends TestCase
      * @param string[]     $columns
      * @param int[]|null[] $lengths1
      * @param int[]|null[] $lengths2
-     *
-     * @dataProvider indexLengthProvider
      */
+    #[DataProvider('indexLengthProvider')]
     public function testFulfilledWithLength(array $columns, array $lengths1, array $lengths2, bool $expected): void
     {
         $index1 = new Index('index1', $columns, false, false, [], ['lengths' => $lengths1]);

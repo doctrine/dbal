@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\Types;
 use Error;
 use Generator;
 use PgSql\Connection as PgSqlConnection;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function assert;
 use function chr;
@@ -40,7 +41,7 @@ class ResultTest extends FunctionalTestCase
         parent::tearDown();
     }
 
-    /** @dataProvider typedValueProvider */
+    #[DataProvider('typedValueProvider')]
     public function testTypeConversionFetchAssociative(
         string $postgresType,
         mixed $expectedValue,
@@ -56,7 +57,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame(['my_value' => $expectedValue, 'my_null' => null], $result);
     }
 
-    /** @dataProvider typedValueProvider */
+    #[DataProvider('typedValueProvider')]
     public function testTypeConversionFetchAllAssociative(
         string $postgresType,
         mixed $expectedValue,
@@ -72,7 +73,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame([['my_value' => $expectedValue, 'my_null' => null]], $result);
     }
 
-    /** @dataProvider typedValueProvider */
+    #[DataProvider('typedValueProvider')]
     public function testTypeConversionFetchNumeric(string $postgresType, mixed $expectedValue, string $dbalType): void
     {
         $id = $this->prepareTypesTestTable($postgresType, $expectedValue, $dbalType);
@@ -85,7 +86,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame([$expectedValue, null], $result);
     }
 
-    /** @dataProvider typedValueProvider */
+    #[DataProvider('typedValueProvider')]
     public function testTypeConversionFetchAllNumeric(
         string $postgresType,
         mixed $expectedValue,
@@ -101,7 +102,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame([[$expectedValue, null]], $result);
     }
 
-    /** @dataProvider typedValueProvider */
+    #[DataProvider('typedValueProvider')]
     public function testTypeConversionFetchOne(string $postgresType, mixed $expectedValue, string $dbalType): void
     {
         $id = $this->prepareTypesTestTable($postgresType, $expectedValue, $dbalType);
@@ -114,7 +115,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame($expectedValue, $result);
     }
 
-    /** @dataProvider typedValueProvider */
+    #[DataProvider('typedValueProvider')]
     public function testTypeConversionFetchFirstColumn(
         string $postgresType,
         mixed $expectedValue,

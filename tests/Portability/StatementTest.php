@@ -14,9 +14,7 @@ use PHPUnit\Framework\TestCase;
 class StatementTest extends TestCase
 {
     protected Statement $stmt;
-
-    /** @var DriverStatement&MockObject */
-    protected DriverStatement $wrappedStmt;
+    protected DriverStatement&MockObject $wrappedStmt;
 
     protected function setUp(): void
     {

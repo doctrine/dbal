@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /** @extends AbstractPlatformTestCase<DB2Platform> */
 class DB2PlatformTest extends AbstractPlatformTestCase
@@ -440,7 +441,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /** @dataProvider getGeneratesAlterColumnSQL */
+    #[DataProvider('getGeneratesAlterColumnSQL')]
     public function testGeneratesAlterColumnSQL(
         Column $oldColumn,
         Column $newColumn,

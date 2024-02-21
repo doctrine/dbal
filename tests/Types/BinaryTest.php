@@ -8,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\ConversionException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -19,9 +20,7 @@ use function range;
 
 class BinaryTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    protected AbstractPlatform $platform;
-
+    protected AbstractPlatform&MockObject $platform;
     protected BinaryType $type;
 
     protected function setUp(): void
@@ -64,7 +63,7 @@ class BinaryTest extends TestCase
         return implode(array_map('chr', range(0, 255)));
     }
 
-    /** @dataProvider getInvalidDatabaseValues */
+    #[DataProvider('getInvalidDatabaseValues')]
     public function testThrowsConversionExceptionOnInvalidDatabaseValue(mixed $value): void
     {
         $this->expectException(ConversionException::class);

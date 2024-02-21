@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function sprintf;
 
@@ -30,7 +31,7 @@ class DefaultValueTest extends FunctionalTestCase
         $this->connection->insert('default_value', ['id' => 1]);
     }
 
-    /** @dataProvider columnProvider */
+    #[DataProvider('columnProvider')]
     public function testEscapedDefaultValueCanBeIntrospected(string $name, ?string $expectedDefault): void
     {
         self::assertSame(
@@ -43,7 +44,7 @@ class DefaultValueTest extends FunctionalTestCase
         );
     }
 
-    /** @dataProvider columnProvider */
+    #[DataProvider('columnProvider')]
     public function testEscapedDefaultValueCanBeInserted(string $name, ?string $expectedDefault): void
     {
         $value = $this->connection->fetchOne(

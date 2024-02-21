@@ -13,17 +13,18 @@ use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class VersionAwarePlatformDriverTest extends TestCase
 {
-    /** @dataProvider mySQLVersionProvider */
+    #[DataProvider('mySQLVersionProvider')]
     public function testMySQLi(string $version, string $expectedClass): void
     {
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\Mysqli\Driver(), $version, $expectedClass);
     }
 
-    /** @dataProvider mySQLVersionProvider */
+    #[DataProvider('mySQLVersionProvider')]
     public function testPDOMySQL(string $version, string $expectedClass): void
     {
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\PDO\MySQL\Driver(), $version, $expectedClass);
@@ -45,13 +46,13 @@ class VersionAwarePlatformDriverTest extends TestCase
         ];
     }
 
-    /** @dataProvider postgreSQLVersionProvider */
+    #[DataProvider('postgreSQLVersionProvider')]
     public function testPgSQL(string $version, string $expectedClass): void
     {
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\PgSQL\Driver(), $version, $expectedClass);
     }
 
-    /** @dataProvider postgreSQLVersionProvider */
+    #[DataProvider('postgreSQLVersionProvider')]
     public function testPDOPgSQL(string $version, string $expectedClass): void
     {
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\PDO\PgSQL\Driver(), $version, $expectedClass);

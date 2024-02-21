@@ -13,6 +13,7 @@ use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ComparatorTest extends FunctionalTestCase
 {
@@ -23,7 +24,7 @@ class ComparatorTest extends FunctionalTestCase
         $this->schemaManager = $this->connection->createSchemaManager();
     }
 
-    /** @dataProvider defaultValueProvider */
+    #[DataProvider('defaultValueProvider')]
     public function testDefaultValueComparison(string $type, mixed $value): void
     {
         $platform = $this->connection->getDatabasePlatform();

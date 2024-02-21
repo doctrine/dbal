@@ -12,6 +12,7 @@ use Doctrine\DBAL\ExpandArrayParameters;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function hex2bin;
@@ -359,9 +360,8 @@ class ExpandArrayParametersTest extends TestCase
      * @param array<int, mixed>|array<string, mixed>                                         $expectedParams
      * @param array<int, string|Type|ParameterType>|array<string, string|Type|ParameterType> $expectedTypes
      * @psalm-param WrapperParameterTypeArray $types
-     *
-     * @dataProvider dataExpandListParameters
      */
+    #[DataProvider('dataExpandListParameters')]
     public function testExpandListParameters(
         string $query,
         array $params,
@@ -413,9 +413,8 @@ class ExpandArrayParametersTest extends TestCase
     /**
      * @param array<string, mixed>              $params
      * @param array<string, ArrayParameterType> $types
-     *
-     * @dataProvider missingNamedParameterProvider
      */
+    #[DataProvider('missingNamedParameterProvider')]
     public function testMissingNamedParameter(string $query, array $params, array $types = []): void
     {
         $this->expectException(MissingNamedParameter::class);
@@ -423,11 +422,8 @@ class ExpandArrayParametersTest extends TestCase
         $this->expandArrayParameters($query, $params, $types);
     }
 
-    /**
-     * @param list<mixed> $params
-     *
-     * @dataProvider missingPositionalParameterProvider
-     */
+    /** @param list<mixed> $params */
+    #[DataProvider('missingPositionalParameterProvider')]
     public function testMissingPositionalParameter(string $query, array $params): void
     {
         $this->expectException(MissingPositionalParameter::class);

@@ -15,9 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 class TimeImmutableTypeTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private TimeImmutableType $type;
 
     protected function setUp(): void

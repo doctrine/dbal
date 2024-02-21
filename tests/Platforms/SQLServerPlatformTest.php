@@ -20,6 +20,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /** @extends AbstractPlatformTestCase<SQLServerPlatform> */
 class SQLServerPlatformTest extends AbstractPlatformTestCase
@@ -1073,7 +1074,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    /** @dataProvider getLockHints */
+    #[DataProvider('getLockHints')]
     public function testAppendsLockHint(LockMode $lockMode, string $lockHint): void
     {
         $fromClause     = 'FROM users';

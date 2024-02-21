@@ -7,11 +7,12 @@ namespace Doctrine\DBAL\Tests\Portability;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Portability\Converter;
 use Doctrine\DBAL\Portability\Result;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ResultTest extends TestCase
 {
-    /** @dataProvider fetchProvider */
+    #[DataProvider('fetchProvider')]
     public function testFetch(string $source, callable $fetch, mixed $return): void
     {
         $driverResult = $this->createMock(DriverResult::class);

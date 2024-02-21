@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class IntegerTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private IntegerType $type;
 
     protected function setUp(): void

@@ -15,6 +15,7 @@ use Doctrine\DBAL\Query\QueryException;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -23,8 +24,7 @@ use function hex2bin;
 /** @psalm-import-type WrapperParameterTypeArray from Connection */
 class QueryBuilderTest extends TestCase
 {
-    /** @var Connection&MockObject */
-    protected Connection $conn;
+    protected Connection&MockObject $conn;
 
     protected function setUp(): void
     {
@@ -485,7 +485,7 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }
 
-    /** @dataProvider maxResultsProvider */
+    #[DataProvider('maxResultsProvider')]
     public function testSetMaxResults(?int $maxResults): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -929,9 +929,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAssociative(
         string $select,
         string $from,
@@ -964,9 +963,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchNumeric(
         string $select,
         string $from,
@@ -999,9 +997,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @param WrapperParameterTypeArray        $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchOne(
         string $select,
         string $from,
@@ -1034,9 +1031,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAllAssociative(
         string $select,
         string $from,
@@ -1080,9 +1076,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAllNumeric(
         string $select,
         string $from,
@@ -1126,9 +1121,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAllKeyValue(
         string $select,
         string $from,
@@ -1172,9 +1166,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAllAssociativeIndexed(
         string $select,
         string $from,
@@ -1222,9 +1215,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchFirstColumn(
         string $select,
         string $from,
@@ -1319,9 +1311,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $params
      * @psalm-param WrapperParameterTypeArray $types
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testExecuteQuery(
         string $select,
         string $from,
@@ -1353,9 +1344,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testExecuteQueryWithResultCaching(
         string $select,
         string $from,

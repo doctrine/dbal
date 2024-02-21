@@ -7,12 +7,13 @@ namespace Doctrine\DBAL\Tests\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
 class SQLiteSchemaManagerTest extends TestCase
 {
-    /** @dataProvider getDataColumnCollation */
+    #[DataProvider('getDataColumnCollation')]
     public function testParseColumnCollation(?string $collation, string $column, string $sql): void
     {
         $conn = $this->createMock(Connection::class);
@@ -123,7 +124,7 @@ class SQLiteSchemaManagerTest extends TestCase
         ];
     }
 
-    /** @dataProvider getDataColumnComment */
+    #[DataProvider('getDataColumnComment')]
     public function testParseColumnCommentFromSQL(string $comment, string $column, string $sql): void
     {
         $conn = $this->createMock(Connection::class);

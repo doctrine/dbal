@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
@@ -635,7 +636,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertEquals(['foo'], $diff->getDroppedSchemas());
     }
 
-    /** @dataProvider getCompareColumnComments */
+    #[DataProvider('getCompareColumnComments')]
     public function testCompareColumnComments(string $comment1, string $comment2, bool $equals): void
     {
         $column1 = new Column('foo', Type::getType(Types::INTEGER), ['comment' => $comment1]);

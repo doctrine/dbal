@@ -8,6 +8,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Schema\Table;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 
 abstract class FunctionalTestCase extends TestCase
@@ -35,7 +37,7 @@ abstract class FunctionalTestCase extends TestCase
         $this->isConnectionReusable = false;
     }
 
-    /** @before */
+    #[Before]
     final protected function connect(): void
     {
         if (self::$sharedConnection === null) {
@@ -45,7 +47,7 @@ abstract class FunctionalTestCase extends TestCase
         $this->connection = self::$sharedConnection;
     }
 
-    /** @after */
+    #[After]
     final protected function disconnect(): void
     {
         while ($this->connection->isTransactionActive()) {

@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class RenameColumnTest extends FunctionalTestCase
 {

@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function array_keys;
@@ -782,7 +783,7 @@ class TableTest extends TestCase
         $table->renameIndex('idx_id', 'idx_foo');
     }
 
-    /** @dataProvider getNormalizesAssetNames */
+    #[DataProvider('getNormalizesAssetNames')]
     public function testNormalizesColumnNames(string $assetName): void
     {
         $table = new Table('test');

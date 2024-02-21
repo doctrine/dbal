@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\SQL;
 
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\SQL\Parser\Visitor;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function array_merge;
@@ -17,7 +18,7 @@ class ParserTest extends TestCase implements Visitor
     /** @var list<string> */
     private array $result = [];
 
-    /** @dataProvider statementsWithParametersProvider */
+    #[DataProvider('statementsWithParametersProvider')]
     public function testStatementsWithParameters(bool $mySQLStringEscaping, string $sql, string $expected): void
     {
         $parser = new Parser($mySQLStringEscaping);
@@ -304,7 +305,7 @@ SQL
         ];
     }
 
-    /** @dataProvider statementsWithoutParametersProvider */
+    #[DataProvider('statementsWithoutParametersProvider')]
     public function testStatementsWithoutParameters(bool $mySQLStringEscaping, string $sql): void
     {
         $parser = new Parser($mySQLStringEscaping);
@@ -338,7 +339,7 @@ SQL
         yield 'SELECT @rank := 1';
     }
 
-    /** @dataProvider ansiParametersProvider */
+    #[DataProvider('ansiParametersProvider')]
     public function testAnsiEscaping(string $sql, string $expected): void
     {
         $parser = new Parser(false);
@@ -379,7 +380,7 @@ SQL,
         ];
     }
 
-    /** @dataProvider mySQLParametersProvider */
+    #[DataProvider('mySQLParametersProvider')]
     public function testMySQLEscaping(string $sql, string $expected): void
     {
         $parser = new Parser(true);
