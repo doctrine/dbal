@@ -615,6 +615,26 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
+    public function testGeneratesAlterTableRenameColumnSQLWithSchema(): void
+    {
+        $this->platform->disableSchemaEmulation();
+
+        $table = new Table('main.t');
+        $table->addColumn('a', Types::INTEGER);
+
+        $tableDiff                      = new TableDiff('t');
+        $tableDiff->fromTable           = $table;
+        $tableDiff->renamedColumns['a'] = new Column('b', Type::getType(Types::INTEGER));
+
+        self::assertSame([
+            'CREATE TEMPORARY TABLE __temp__t AS SELECT a FROM main.t',
+            'DROP TABLE main.t',
+            'CREATE TABLE main.t (b INTEGER NOT NULL)',
+            'INSERT INTO main.t (b) SELECT a FROM __temp__t',
+            'DROP TABLE __temp__t',
+        ], $this->platform->getAlterTableSQL($tableDiff));
+    }
+
     /**
      * {@inheritDoc}
      */
