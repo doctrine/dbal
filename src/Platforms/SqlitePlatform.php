@@ -950,11 +950,6 @@ class SqlitePlatform extends AbstractPlatform
         $name    = $index->getQuotedName($this);
         $columns = $index->getColumns();
 
-        if (strpos($table, '.') !== false) {
-            [$schema, $table] = explode('.', $table);
-            $name             = $schema . '.' . $name;
-        }
-
         if (count($columns) === 0) {
             throw new InvalidArgumentException(sprintf(
                 'Incomplete or invalid index definition %s on table %s',
@@ -965,6 +960,11 @@ class SqlitePlatform extends AbstractPlatform
 
         if ($index->isPrimary()) {
             return $this->getCreatePrimaryKeySQL($index, $table);
+        }
+
+        if (strpos($table, '.') !== false) {
+            [$schema, $table] = explode('.', $table, 2);
+            $name             = $schema . '.' . $name;
         }
 
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
