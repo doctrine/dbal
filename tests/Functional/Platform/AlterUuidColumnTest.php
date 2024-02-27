@@ -24,7 +24,7 @@ class AlterUuidColumnTest extends FunctionalTestCase
 
         $this->connection->executeStatement(
             sprintf(
-                'INSERT INTO simple_uuid_table VALUES (%s)',
+                'INSERT INTO simple_uuid_table VALUES ("%s")',
                 static::DEFAULT_UUID4,
             ),
         );
@@ -52,13 +52,15 @@ class AlterUuidColumnTest extends FunctionalTestCase
 
     public function testAlterUuidInForeignRelation(): void
     {
+        $sm = $this->connection->createSchemaManager();
+
         $parentTable = static::prepareLegacyUuidTable('parent_uuid_table', 'id');
         $parentTable->setPrimaryKey(['id']);
         $this->dropAndCreateTable($parentTable);
 
         $this->connection->executeStatement(
             sprintf(
-                'INSERT INTO parent_uuid_table VALUES (%s)',
+                'INSERT INTO parent_uuid_table VALUES ("%s")',
                 static::DEFAULT_UUID4,
             ),
         );
@@ -72,17 +74,20 @@ class AlterUuidColumnTest extends FunctionalTestCase
 
         $this->connection->executeStatement(
             sprintf(
-                'INSERT INTO child_uuid_table VALUE(`parent_uuid_id`) VALUES (%s)',
+                'INSERT INTO child_uuid_table (`parent_uuid_id`) VALUES ("%s")',
                 static::DEFAULT_UUID4,
             ),
         );
 
-        $childTable->dropIndex('fk_parent_uuid_id');
+        $childTable->removeForeignKey('fk_parent_uuid_id');
+        $diff = $sm->createComparator()
+            ->compareTables($sm->introspectTable('child_uuid_table'), $childTable);
+
+        $sm->alterTable($diff);
 
         $parentTable->getColumn('id')
             ->setType(Type::getType(Types::GUID));
 
-        $sm   = $this->connection->createSchemaManager();
         $diff = $sm->createComparator()
             ->compareTables($sm->introspectTable('parent_uuid_table'), $parentTable);
 
@@ -109,7 +114,7 @@ class AlterUuidColumnTest extends FunctionalTestCase
         static::assertEquals(static::DEFAULT_UUID4, $resultUuid);
 
         $resultUuid = $this->connection
-            ->executeQuery('SELECT id from child_uuid_table')
+            ->executeQuery('SELECT parent_uuid_id from child_uuid_table')
             ->fetchOne();
 
         static::assertEquals(static::DEFAULT_UUID4, $resultUuid);
@@ -118,12 +123,13 @@ class AlterUuidColumnTest extends FunctionalTestCase
     /**
      * Create legacy Uuid table.
      */
-    protected static function prepareLegacyUuidTable(string $tableName, string $uuidField): Table
+    protected function prepareLegacyUuidTable(string $tableName, string $uuidField): Table
     {
         $table = new Table($tableName);
-        $table->addColumn($uuidField, 'char', [
-            'length' => 36,
+        $table->addColumn($uuidField, Types::STRING, [
+            'length'  => 36,
             'notnull' => false,
+            'fixed'   => true,
         ]);
 
         return $table;
