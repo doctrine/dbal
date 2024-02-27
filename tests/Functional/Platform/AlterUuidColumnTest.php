@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\Platforms\MariaDB1070Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\GuidType;
@@ -20,8 +21,8 @@ class AlterUuidColumnTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        if (!$this->connection->getDatabasePlatform()->hasDoctrineTypeMappingFor('uuid')) {
-            self::markTestSkipped("This test requires a platform that support native uuid");
+        if (! $this->connection->getDatabasePlatform() instanceof MariaDB1070Platform) {
+            self::markTestSkipped('This test requires MariDB 10.7 or newer');
         }
     }
 
@@ -134,14 +135,18 @@ class AlterUuidColumnTest extends FunctionalTestCase
      */
     protected function prepareLegacyUuidTable(string $tableName, string $uuidField): Table
     {
-        $table = new Table($tableName);
-        $table->addColumn($uuidField, Types::STRING, [
-            'length'  => 36,
-            'notnull' => false,
-            'fixed'   => true,
-        ]);
+        $this->connection
+            ->executeStatement(
+                sprintf(
+                    'CREATE TABLE `%s` (`%s` CHAR(36) NOT NULL)',
+                    $tableName,
+                    $uuidField
+                )
+            );
 
-        return $table;
+        return $this->connection
+            ->createSchemaManager()
+            ->introspectTable($tableName);
     }
 
     protected static function prepareForeignKey(Table $table, string $foreign): Table
