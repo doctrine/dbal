@@ -16,6 +16,15 @@ class AlterUuidColumnTest extends FunctionalTestCase
 {
     public const DEFAULT_UUID4 = '85626c2f-2f63-4120-b814-ecc085eaaba0';
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (!$this->connection->getDatabasePlatform()->hasDoctrineTypeMappingFor('uuid')) {
+            self::markTestSkipped("This test requires a platform that support native uuid");
+        }
+    }
+
     public function testAlterToUuidColumn(): void
     {
         $table = static::prepareLegacyUuidTable('simple_uuid_table', 'id');
