@@ -848,19 +848,8 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
 
 The job of Doctrine-DBAL is to transform your type into an SQL
 declaration. You can modify the SQL declaration Doctrine will produce.
-At first, to enable this feature, you must override the
-``canRequireSQLConversion`` method:
-
-::
-
-    <?php
-    public function canRequireSQLConversion()
-    {
-        return true;
-    }
-
-Then you override the ``convertToPhpValueSQL`` and
-``convertToDatabaseValueSQL`` methods :
+At first, you override the ``convertToPhpValueSQL`` and
+``convertToDatabaseValueSQL`` methods:
 
 ::
 
@@ -875,7 +864,7 @@ Then you override the ``convertToPhpValueSQL`` and
         return 'MyFunction('.$sqlExpr.')';
     }
 
-Now we have to register this type with the Doctrine Type system and
+Then you have to register this type with the Doctrine Type system and
 hook it into the database platform:
 
 ::
