@@ -89,7 +89,9 @@ class AlterUuidColumnTest extends FunctionalTestCase
             ),
         );
 
-        $childTable->removeForeignKey('fk_parent_uuid_id');
+        // Comparator should automatically remove the foreign key.
+        // $childTable->removeForeignKey('fk_parent_uuid_id');
+
         $diff = $sm->createComparator()
             ->compareTables($sm->introspectTable('child_uuid_table'), $childTable);
 
