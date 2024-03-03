@@ -13,12 +13,14 @@ use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Types\Type;
+use LogicException;
 
 use function array_merge;
 use function array_values;
 use function in_array;
 use function is_string;
 use function preg_match;
+use function sprintf;
 use function strtolower;
 
 /**
@@ -31,6 +33,9 @@ class Table extends AbstractAsset
 
     /** @var Index[] */
     private array $implicitIndexes = [];
+
+    /** @var array<string, string> keys are new names, values are old names */
+    protected array $renamedColumns = [];
 
     /** @var Index[] */
     protected array $_indexes = [];
@@ -261,6 +266,48 @@ class Table extends AbstractAsset
         $column = new Column($name, Type::getType($typeName), $options);
 
         $this->_addColumn($column);
+
+        return $column;
+    }
+
+    /** @return array<string, string> */
+    final public function getRenamedColumns(): array
+    {
+        return $this->renamedColumns;
+    }
+
+    /**
+     * @throws LogicException
+     * @throws SchemaException
+     */
+    final public function renameColumn(string $oldName, string $newName): Column
+    {
+        $oldName = $this->normalizeIdentifier($oldName);
+        $newName = $this->normalizeIdentifier($newName);
+
+        if ($oldName === $newName) {
+            throw new LogicException(sprintf(
+                'Attempt to rename column "%s.%s" to the same name.',
+                $this->getName(),
+                $oldName,
+            ));
+        }
+
+        $column = $this->getColumn($oldName);
+        $column->_setName($newName);
+        unset($this->_columns[$oldName]);
+        $this->_addColumn($column);
+
+        // If a column is renamed multiple times, we only want to know the original and last new name
+        if (isset($this->renamedColumns[$oldName])) {
+            $toRemove = $oldName;
+            $oldName  = $this->renamedColumns[$oldName];
+            unset($this->renamedColumns[$toRemove]);
+        }
+
+        if ($newName !== $oldName) {
+            $this->renamedColumns[$newName] = $oldName;
+        }
 
         return $column;
     }

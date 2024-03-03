@@ -10,7 +10,6 @@ use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -335,7 +334,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff): array
     {
-        $columnSql  = [];
         $queryParts = [];
 
         foreach ($diff->getAddedColumns() as $column) {
@@ -353,7 +351,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $queryParts[] =  'DROP ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             $newColumn = $columnDiff->getNewColumn();
 
             $newColumnProperties = array_merge($newColumn->toArray(), [
@@ -364,17 +362,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
             $queryParts[] =  'CHANGE ' . $oldColumn->getQuotedName($this) . ' '
                 . $this->getColumnDeclarationSQL($newColumn->getQuotedName($this), $newColumnProperties);
-        }
-
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            $oldColumnName = new Identifier($oldColumnName);
-
-            $columnProperties = array_merge($column->toArray(), [
-                'comment' => $column->getComment(),
-            ]);
-
-            $queryParts[] = 'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
-                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnProperties);
         }
 
         $addedIndexes    = $this->indexAssetsByLowerCaseName($diff->getAddedIndexes());
@@ -405,35 +392,31 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         if ($diffModified) {
             $diff = new TableDiff(
                 $diff->getOldTable(),
-                $diff->getAddedColumns(),
-                $diff->getModifiedColumns(),
-                $diff->getDroppedColumns(),
-                $diff->getRenamedColumns(),
-                array_values($addedIndexes),
-                array_values($modifiedIndexes),
-                $diff->getDroppedIndexes(),
-                $diff->getRenamedIndexes(),
-                $diff->getAddedForeignKeys(),
-                $diff->getModifiedForeignKeys(),
-                $diff->getDroppedForeignKeys(),
+                addedColumns: $diff->getAddedColumns(),
+                changedColumns: $diff->getChangedColumns(),
+                droppedColumns: $diff->getDroppedColumns(),
+                addedIndexes: array_values($addedIndexes),
+                modifiedIndexes: array_values($modifiedIndexes),
+                droppedIndexes: $diff->getDroppedIndexes(),
+                renamedIndexes: $diff->getRenamedIndexes(),
+                addedForeignKeys: $diff->getAddedForeignKeys(),
+                modifiedForeignKeys: $diff->getModifiedForeignKeys(),
+                droppedForeignKeys: $diff->getDroppedForeignKeys(),
             );
         }
 
-        $sql      = [];
         $tableSql = [];
 
         if (count($queryParts) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->getOldTable()->getQuotedName($this) . ' '
+            $tableSql[] = 'ALTER TABLE ' . $diff->getOldTable()->getQuotedName($this) . ' '
                 . implode(', ', $queryParts);
         }
 
-        $sql = array_merge(
+        return array_merge(
             $this->getPreAlterTableIndexForeignKeySQL($diff),
-            $sql,
+            $tableSql,
             $this->getPostAlterTableIndexForeignKeySQL($diff),
         );
-
-        return array_merge($sql, $tableSql, $columnSql);
     }
 
     /**

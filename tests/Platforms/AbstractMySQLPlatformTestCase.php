@@ -536,11 +536,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->modifyColumn('def_blob', ['default' => null]);
         $diffTable->modifyColumn('def_blob_null', ['default' => null]);
 
-        self::assertTrue(
-            $this->createComparator()
-                ->compareTables($table, $diffTable)
-                ->isEmpty(),
-        );
+        $comparator = $this->createComparator();
+
+        self::assertTrue($comparator->compareTables($table, $diffTable)->isEmpty());
+        self::assertTrue($comparator->compareTables($table, $diffTable)->isEmpty());
     }
 
     public function testReturnsGuidTypeDeclarationSQL(): void
