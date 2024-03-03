@@ -87,9 +87,9 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
-          name: "phpunit-${{ matrix.extension }}-${{ matrix.deps }}-${{ matrix.php-version }}.coverage"
+          name: "phpunit-${{ matrix.extension }}-${{ matrix.dependencies }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
 
   phpunit-oci8:
@@ -144,9 +144,9 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/oci8${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
-          name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
+          name: "${{ github.job }}-${{ matrix.php-version }}-${{ matrix.oracle-version }}.coverage"
           path: "coverage.xml"
 
   phpunit-pdo-oci:
@@ -201,9 +201,9 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
-          name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
+          name: "${{ github.job }}-${{ matrix.php-version }}-${{ matrix.oracle-version }}.coverage"
           path: "coverage.xml"
 
   phpunit-postgres:
@@ -265,7 +265,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.postgres-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -334,7 +334,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.mariadb-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -409,7 +409,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.mysql-version }}-${{ matrix.extension }}-${{ matrix.config-file-suffix }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -476,7 +476,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.extension }}-${{ matrix.php-version }}-${{ matrix.collation }}.coverage"
           path: "coverage.xml"
@@ -547,7 +547,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -601,7 +601,7 @@ jobs:
           fetch-depth: 2
 
       - name: "Download coverage files"
-        uses: "actions/download-artifact@v3"
+        uses: "actions/download-artifact@v4"
         with:
           path: "reports"
 
