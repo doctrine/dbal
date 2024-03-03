@@ -106,6 +106,40 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertEquals(Types::INTEGER, $this->platform->getDoctrineTypeMapping('foo'));
     }
 
+    public function testCaseInsensitiveDoctrineTypeMappingFromType(): void
+    {
+        $type = new class () extends Type {
+            /**
+             * {@inheritDoc}
+             */
+            public function getMappedDatabaseTypes(AbstractPlatform $platform): array
+            {
+                return ['TESTTYPE'];
+            }
+
+            public function getName(): string
+            {
+                return 'testtype';
+            }
+
+            /**
+             * {@inheritDoc}
+             */
+            public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+            {
+                return $platform->getDecimalTypeDeclarationSQL($column);
+            }
+        };
+
+        if (Type::hasType($type->getName())) {
+            Type::overrideType($type->getName(), get_class($type));
+        } else {
+            Type::addType($type->getName(), get_class($type));
+        }
+
+        self::assertSame($type->getName(), $this->platform->getDoctrineTypeMapping('TeStTyPe'));
+    }
+
     public function testRegisterUnknownDoctrineMappingType(): void
     {
         $this->expectException(Exception::class);
