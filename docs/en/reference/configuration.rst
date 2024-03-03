@@ -280,6 +280,8 @@ pdo_pgsql / pgsql
 -  ``sslcrl`` (string): specifies the filename of the SSL certificate
    revocation list (CRL).
    See `https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
+-  ``gssencmode`` (string): Optional GSS-encrypted channel/GSSEncMode configuration.
+   See `https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-GSSENCMODE`
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
 
