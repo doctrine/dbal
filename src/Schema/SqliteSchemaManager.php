@@ -744,7 +744,7 @@ SQL;
                    p.*
               FROM sqlite_master t
               JOIN pragma_foreign_key_list(t.name) p
-                ON p."seq" != "-1"
+                ON p."seq" != '-1'
 SQL;
 
         $conditions = [
