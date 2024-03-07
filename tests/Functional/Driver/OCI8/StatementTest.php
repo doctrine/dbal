@@ -43,6 +43,11 @@ class StatementTest extends FunctionalTestCase
                 [1],
                 ['COL1' => 1],
             ],
+            'positional_not_sorted' => [
+                'SELECT ? COL1, ? COL2 FROM DUAL',
+                [2, 1],
+                ['COL1' => 1, 'COL2' => 2],
+            ],
             'named' => [
                 'SELECT :COL COL1 FROM DUAL',
                 ['COL' => 1],
