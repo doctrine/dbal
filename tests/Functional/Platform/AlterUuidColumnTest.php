@@ -28,7 +28,6 @@ class AlterUuidColumnTest extends FunctionalTestCase
         self::markTestSkipped('This test requires MariDB 10.7 or newer');
     }
 
-
     public function testAlterToUuidColumn(): void
     {
         $table = static::prepareLegacyUuidTable('simple_uuid_table', 'id');
