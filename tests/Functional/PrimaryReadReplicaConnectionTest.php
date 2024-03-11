@@ -52,12 +52,12 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
      */
     private function createPrimaryReadReplicaConnectionParams(bool $keepReplica = false, string $defaultConnection = 'replica'): array
     {
-        $params                 = $this->connection->getParams();
-        $params['primary']      = $params;
-        $params['replica']      = [$params, $params];
-        $params['keepReplica']  = $keepReplica;
+        $params                      = $this->connection->getParams();
+        $params['primary']           = $params;
+        $params['replica']           = [$params, $params];
+        $params['keepReplica']       = $keepReplica;
         $params['defaultConnection'] = $defaultConnection;
-        $params['wrapperClass'] = PrimaryReadReplicaConnection::class;
+        $params['wrapperClass']      = PrimaryReadReplicaConnection::class;
 
         return $params;
     }
@@ -118,7 +118,6 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
         self::assertFalse($conn->isConnectedToPrimary());
     }
-
 
     public function testNoPrimaryOnExecuteQuery(): void
     {
