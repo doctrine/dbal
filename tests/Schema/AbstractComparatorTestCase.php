@@ -406,7 +406,8 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $config = new ComparatorConfig();
         $config->setDetectRenamedColumns(false);
-        $tableDiff = $this->comparator->compareTables($tableA, $tableB, $config);
+        $this->comparator->setConfig($config);
+        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
 
         self::assertCount(1, $tableDiff->getAddedColumns());
         self::assertCount(1, $tableDiff->getDroppedColumns());
@@ -468,7 +469,8 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $config = new ComparatorConfig();
         $config->setDetectRenamedIndexes(false);
-        $tableDiff = $this->comparator->compareTables($table1, $table2, $config);
+        $this->comparator->setConfig($config);
+        $tableDiff = $this->comparator->compareTables($table1, $table2);
 
         self::assertCount(1, $tableDiff->getAddedIndexes());
         self::assertCount(1, $tableDiff->getDroppedIndexes());

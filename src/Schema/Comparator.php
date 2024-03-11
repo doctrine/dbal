@@ -17,14 +17,21 @@ use function strtolower;
 class Comparator
 {
     /** @internal The comparator can be only instantiated by a schema manager. */
-    public function __construct(private readonly AbstractPlatform $platform)
+    public function __construct(
+        private readonly AbstractPlatform $platform,
+        private ComparatorConfig $config = new ComparatorConfig(),
+    ) {
+    }
+
+    public function setConfig(ComparatorConfig $config): void
     {
+        $this->config = $config;
     }
 
     /**
      * Returns the differences between the schemas.
      */
-    public function compareSchemas(Schema $oldSchema, Schema $newSchema, ?ComparatorConfig $config = null): SchemaDiff
+    public function compareSchemas(Schema $oldSchema, Schema $newSchema): SchemaDiff
     {
         $createdSchemas   = [];
         $droppedSchemas   = [];
@@ -59,7 +66,6 @@ class Comparator
                 $tableDiff = $this->compareTables(
                     $oldSchema->getTable($newTableName),
                     $newSchema->getTable($newTableName),
-                    $config,
                 );
 
                 if (! $tableDiff->isEmpty()) {
@@ -142,10 +148,8 @@ class Comparator
     /**
      * Compares the tables and returns the difference between them.
      */
-    public function compareTables(Table $oldTable, Table $newTable, ?ComparatorConfig $config = null): TableDiff
+    public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
-        $config ??= new ComparatorConfig();
-
         $addedColumns        = [];
         $modifiedColumns     = [];
         $droppedColumns      = [];
@@ -192,7 +196,7 @@ class Comparator
             $modifiedColumns[] = new ColumnDiff($oldColumn, $newColumn);
         }
 
-        if ($config->getDetectRenamedColumns()) {
+        if ($this->config->getDetectRenamedColumns()) {
             $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
         }
 
@@ -231,7 +235,7 @@ class Comparator
             $modifiedIndexes[] = $newIndex;
         }
 
-        if ($config->getDetectRenamedIndexes()) {
+        if ($this->config->getDetectRenamedIndexes()) {
             $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
         }
 

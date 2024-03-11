@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Platforms\SQLServer;
 
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
-use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
@@ -23,12 +22,11 @@ class Comparator extends BaseComparator
         parent::__construct($platform);
     }
 
-    public function compareTables(Table $oldTable, Table $newTable, ?ComparatorConfig $config = null): TableDiff
+    public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
         return parent::compareTables(
             $this->normalizeColumns($oldTable),
             $this->normalizeColumns($newTable),
-            $config,
         );
     }
 
