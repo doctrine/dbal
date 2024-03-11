@@ -92,6 +92,8 @@ class PrimaryReadReplicaConnection extends Connection
      */
     protected $keepReplica = false;
 
+    protected string $defaultConnection = 'replica';
+
     /**
      * Creates Primary Replica Connection.
      *
@@ -126,6 +128,7 @@ class PrimaryReadReplicaConnection extends Connection
         }
 
         $this->keepReplica = (bool) ($params['keepReplica'] ?? false);
+        $this->defaultConnection = $params['defaultConnection'] ?? 'replica';
 
         parent::__construct($params, $driver, $config, $eventManager);
     }
@@ -158,7 +161,7 @@ class PrimaryReadReplicaConnection extends Connection
     protected function performConnect(?string $connectionName = null): bool
     {
         $requestedConnectionChange = ($connectionName !== null);
-        $connectionName            = $connectionName ?? 'replica';
+        $connectionName            = $connectionName ?? $this->defaultConnection;
 
         if ($connectionName !== 'replica' && $connectionName !== 'primary') {
             throw new InvalidArgumentException('Invalid option to connect(), only primary or replica allowed.');
