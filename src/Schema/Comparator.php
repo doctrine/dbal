@@ -17,8 +17,15 @@ use function strtolower;
 class Comparator
 {
     /** @internal The comparator can be only instantiated by a schema manager. */
-    public function __construct(private readonly AbstractPlatform $platform)
+    public function __construct(
+        private readonly AbstractPlatform $platform,
+        private ComparatorConfig $config = new ComparatorConfig(),
+    ) {
+    }
+
+    public function setConfig(ComparatorConfig $config): void
     {
+        $this->config = $config;
     }
 
     /**
@@ -146,9 +153,11 @@ class Comparator
         $addedColumns        = [];
         $modifiedColumns     = [];
         $droppedColumns      = [];
+        $renamedColumns      = [];
         $addedIndexes        = [];
         $modifiedIndexes     = [];
         $droppedIndexes      = [];
+        $renamedIndexes      = [];
         $addedForeignKeys    = [];
         $modifiedForeignKeys = [];
         $droppedForeignKeys  = [];
@@ -187,7 +196,9 @@ class Comparator
             $modifiedColumns[] = new ColumnDiff($oldColumn, $newColumn);
         }
 
-        $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
+        if ($this->config->getDetectRenamedColumns()) {
+            $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
+        }
 
         $oldIndexes = $oldTable->getIndexes();
         $newIndexes = $newTable->getIndexes();
@@ -224,7 +235,9 @@ class Comparator
             $modifiedIndexes[] = $newIndex;
         }
 
-        $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
+        if ($this->config->getDetectRenamedIndexes()) {
+            $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
+        }
 
         $oldForeignKeys = $oldTable->getForeignKeys();
         $newForeignKeys = $newTable->getForeignKeys();
