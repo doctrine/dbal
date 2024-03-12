@@ -1750,7 +1750,7 @@ We have been working on phasing out `doctrine/cache`, and 3.2.0 allows to use
 `psr/cache` instead. To help calling our own internal APIs in a unified way, we
 also wrap `doctrine/cache` implementations with a `psr/cache` adapter.
 Using cache keys containing characters reserved by `psr/cache` will result in
-an exception. The characters are the following: `{}()/\@`.
+an exception. The characters are the following: `{}()/\@:`.
 
 ## Deprecated `SQLLogger` and its implementations.
 
