@@ -1734,7 +1734,7 @@ class QueryBuilder
 
     /**
      * Enables caching of the results of this query, for given amount of seconds
-     * and optionally specified witch key to use for the cache entry.
+     * and optionally specified which key to use for the cache entry.
      *
      * @return $this
      */
