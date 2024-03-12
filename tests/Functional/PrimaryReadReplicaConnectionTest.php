@@ -37,9 +37,13 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         $this->connection->insert('primary_replica_table', ['test_int' => 1]);
     }
 
-    private function createPrimaryReadReplicaConnection(bool $keepReplica = false, string $defaultConnection = 'replica'): PrimaryReadReplicaConnection
-    {
-        $connection = DriverManager::getConnection($this->createPrimaryReadReplicaConnectionParams($keepReplica, $defaultConnection));
+    private function createPrimaryReadReplicaConnection(
+        bool $keepReplica = false,
+        string $defaultConnection = 'replica'
+    ): PrimaryReadReplicaConnection {
+        $connection = DriverManager::getConnection(
+            $this->createPrimaryReadReplicaConnectionParams($keepReplica, $defaultConnection),
+        );
 
         self::assertInstanceOf(PrimaryReadReplicaConnection::class, $connection);
 
@@ -50,8 +54,10 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
      * @return mixed[]
      * @psalm-return Params
      */
-    private function createPrimaryReadReplicaConnectionParams(bool $keepReplica = false, string $defaultConnection = 'replica'): array
-    {
+    private function createPrimaryReadReplicaConnectionParams(
+        bool $keepReplica = false,
+        string $defaultConnection = 'replica'
+    ): array {
         $params                      = $this->connection->getParams();
         $params['primary']           = $params;
         $params['replica']           = [$params, $params];
