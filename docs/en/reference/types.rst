@@ -307,6 +307,15 @@ information, you should consider using this type.
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
 
+.. note::
+
+    This type is not supported by all the vendor platforms or by all of their versions. Depending on
+    these variants, the databases that support this type may return the persisted date and time in a
+    different timezone than the one used during the ``INSERT`` or the ``UPDATE`` operation. This means
+    that if you persist a value like `1986-22-03 19:45:30-03:00`, you could have `1986-22-03 22:45:30-00:00`
+    as the result of a ``SELECT`` operation for that record. In these cases, the timezone offset present
+    in the result is usually UTC or the one configured as default in the database server.
+
 .. warning::
 
     Passing instances of ``DateTimeImmutable`` to this type is deprecated since 3.7. Use
