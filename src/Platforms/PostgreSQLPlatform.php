@@ -33,8 +33,10 @@ use function is_bool;
 use function is_numeric;
 use function is_string;
 use function sprintf;
+use function strlen;
 use function strpos;
 use function strtolower;
+use function substr;
 use function trim;
 
 /**
@@ -238,7 +240,13 @@ class PostgreSQLPlatform extends AbstractPlatform
             __METHOD__,
         );
 
-        return $tableName . '_' . $columnName . '_seq';
+        $suffix = '_' . $columnName . '_seq';
+
+        if (strlen($tableName . $suffix) > $this->getMaxIdentifierLength()) {
+            $tableName = substr($tableName, 0, $this->getMaxIdentifierLength() - strlen($suffix));
+        }
+
+        return $tableName . $suffix;
     }
 
     /**
