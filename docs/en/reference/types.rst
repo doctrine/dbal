@@ -91,6 +91,10 @@ Values retrieved from the database are always converted to PHP's ``integer`` typ
 if they are within PHP's integer range or ``string`` if they aren't.
 Otherwise, returns ``null`` if no data is present.
 
+.. versionadded:: 4.0
+
+The mapping to PHP `int` was added in version 4.0
+
 .. note::
 
     Due to architectural differences, 32-bit PHP systems have a smaller
