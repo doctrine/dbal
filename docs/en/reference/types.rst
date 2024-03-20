@@ -93,7 +93,7 @@ Otherwise, returns ``null`` if no data is present.
 
 .. versionadded:: 4.0
 
-The mapping to PHP `int` was added in version 4.0
+The mapping to PHP ``int`` was added in version 4.0
 
 .. note::
 
