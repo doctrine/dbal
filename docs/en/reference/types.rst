@@ -125,6 +125,7 @@ float
 +++++
 
 Maps and converts numeric data with floating-point precision.
+Works only with locale settings that use decimal points as comma separator.
 If you only need an approximate precision for numbers with fractions, you should
 consider using this type.
 Values retrieved from the database are always converted to PHP's
@@ -146,13 +147,13 @@ string
 Maps and converts string data with a maximum length.
 If you know that the data to be stored always fits into the specified length,
 you should consider using this type.
-Values retrieved from the database are always converted to PHP's string type
+Values retrieved from the database are always converted to PHP's ``string`` type
 or ``null`` if no data is present.
 
 .. note::
 
     Database vendors have different limits for the maximum length of a
-    varying string. Doctrine internally maps the ``string`` type to the
+    SQL VARCHAR. Doctrine internally maps the ``string`` type to the
     vendor's ``text`` type if the maximum allowed length is exceeded.
     This can lead to type inconsistencies when reverse engineering the
     type from the database.
@@ -176,7 +177,7 @@ or ``null`` if no data is present.
 guid
 ++++
 
-Maps and converts a "Globally Unique Identifier".
+Maps and converts a "Globally Unique Identifier" (GUID/UUID).
 If you want to store a GUID, you should consider using this type, as some
 database vendors have a native data type for this kind of data which offers
 the most efficient way to store it. For vendors that do not support this
@@ -369,7 +370,7 @@ real arrays or JSON format arrays.
 array
 ^^^^^
 
-Maps and converts array data based on PHP serialization.
+Maps and converts array data using PHP's ``serialize()`` and ``unserialize()``.
 If you need to store an exact representation of your array data,
 you should consider using this type as it uses serialization
 to represent an exact copy of your array as string in the database.
@@ -393,7 +394,8 @@ using deserialization or ``null`` if no data is present.
 simple_array
 ^^^^^^^^^^^^
 
-Maps and converts array data based on PHP comma delimited imploding and exploding.
+Maps and converts array data using PHP's ``implode()`` and ``explode()``, with a comma as delimiter
+(so only use this type if you are sure that your values cannot contain a ``,``).
 If you know that the data to be stored always is a scalar value based one-dimensional
 array, you should consider using this type as it uses simple PHP imploding and
 exploding techniques to serialize and deserialize your data.
@@ -423,7 +425,7 @@ using comma delimited ``explode()`` or ``null`` if no data is present.
 json
 ^^^^
 
-Maps and converts array data based on PHP's JSON encoding functions.
+Maps and converts array data using PHP's ``json_encode()`` and ``json_decode()``.
 If you know that the data to be stored always is in a valid UTF-8
 encoded JSON format string, you should consider using this type.
 Values retrieved from the database are always converted to PHP's
@@ -463,7 +465,7 @@ Types that map to objects such as POPOs.
 object
 ^^^^^^
 
-Maps and converts object data based on PHP serialization.
+Maps and converts object data using PHP's ``serialize()`` and ``unserialize()``.
 If you need to store an exact representation of your object data,
 you should consider using this type as it uses serialization
 to represent an exact copy of your object as string in the database.
