@@ -370,6 +370,10 @@ real arrays or JSON format arrays.
 array
 ^^^^^
 
+.. warning::
+
+    This type is deprecated since 3.4.0, use :ref:`json` instead.
+
 Maps and converts array data using PHP's ``serialize()`` and ``unserialize()``.
 If you need to store an exact representation of your array data,
 you should consider using this type as it uses serialization
@@ -386,10 +390,6 @@ using deserialization or ``null`` if no data is present.
     reverse engineered from the database. Doctrine cannot map back this type
     properly on vendors not supporting column comments and will fall back to
     ``text`` type instead.
-
-.. warning::
-
-    This type is deprecated since 3.4.0, use :ref:`json` instead.
 
 simple_array
 ^^^^^^^^^^^^
