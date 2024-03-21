@@ -296,6 +296,7 @@ jobs:
         php-version:
           - "7.4"
         mariadb-version:
+          # keep in sync with https://mariadb.org/about/#maintenance-policy
           - "10.0"  # Oldest version supported by DBAL
           - "10.4"  # LTS (Jun 2024)
           - "10.5"  # LTS (Jun 2025)
@@ -304,6 +305,7 @@ jobs:
           - "11.0"  # STS (Jun 2024)
           - "11.1"  # STS (Aug 2024)
           - "11.2"  # STS (Nov 2024)
+          - "11.3"  # STS (Feb 2025)
         extension:
           - "mysqli"
           - "pdo_mysql"
