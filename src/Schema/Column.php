@@ -19,6 +19,8 @@ class Column extends AbstractAsset
 
     protected ?int $_length = null;
 
+    protected array $_members = [];
+
     protected ?int $_precision = null;
 
     protected int $_scale = 0;
@@ -219,6 +221,16 @@ class Column extends AbstractAsset
         return $this;
     }
 
+    public function getMembers(): array
+    {
+        return $this->_members;
+    }
+
+    public function setMembers(array $members): void
+    {
+        $this->_members = $members;
+    }
+
     public function setComment(string $comment): self
     {
         $this->_comment = $comment;
@@ -240,6 +252,7 @@ class Column extends AbstractAsset
             'default'       => $this->_default,
             'notnull'       => $this->_notnull,
             'length'        => $this->_length,
+            'members'       => $this->_members,
             'precision'     => $this->_precision,
             'scale'         => $this->_scale,
             'fixed'         => $this->_fixed,
