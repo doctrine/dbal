@@ -908,7 +908,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function canEmulateSchemas()
     {
-        Deprecation::trigger(
+        Deprecation::triggerIfCalledFromOutside(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/4805',
             'SqlitePlatform::canEmulateSchemas() is deprecated.',
