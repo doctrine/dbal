@@ -6,7 +6,7 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
-# Upgrade to 4.0
+# Upgrade to 4.1
 
 ## Deprecated support for MariaDB 10.4 and MySQL 5.7
 
