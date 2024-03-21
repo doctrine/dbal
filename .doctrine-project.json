@@ -82,51 +82,6 @@
             "branchName": "3.0.x",
             "slug": "3.0",
             "maintained": false
-        },
-        {
-            "name": "2.13",
-            "slug": "2.13",
-            "maintained": false
-        },
-        {
-            "name": "2.12",
-            "slug": "2.12",
-            "maintained": false
-        },
-        {
-            "name": "2.11",
-            "slug": "2.11",
-            "maintained": false
-        },
-        {
-            "name": "2.10",
-            "slug": "2.10",
-            "maintained": false
-        },
-        {
-            "name": "2.9",
-            "slug": "2.9",
-            "maintained": false
-        },
-        {
-            "name": "2.8",
-            "slug": "2.8",
-            "maintained": false
-        },
-        {
-            "name": "2.7",
-            "slug": "2.7",
-            "maintained": false
-        },
-        {
-            "name": "2.6",
-            "slug": "2.6",
-            "maintained": false
-        },
-        {
-            "name": "2.5",
-            "slug": "2.5",
-            "maintained": false
         }
     ]
 }
