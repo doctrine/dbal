@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
-class MariaDBKeywords extends MySQLKeywords
+class MariaDBKeywords extends KeywordList
 {
     /**
      * {@inheritDoc}

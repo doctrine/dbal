@@ -281,8 +281,7 @@ jobs:
           - "8.1"
         mariadb-version:
           # keep in sync with https://mariadb.org/about/#maintenance-policy
-          - "10.4"  # Oldest version supported by DBAL, LTS (Jun 2024)
-          - "10.5"  # LTS (Jun 2025)
+          - "10.5"  # Oldest version supported by DBAL, LTS (Jun 2025)
           - "10.6"  # LTS (Jul 2026)
           - "10.11" # LTS (Feb 2028)
           - "11.0"  # STS (Jun 2024)
@@ -351,7 +350,6 @@ jobs:
         php-version:
           - "8.1"
         mysql-version:
-          - "5.7"
           - "8.0"
           - "8.3"
         extension:

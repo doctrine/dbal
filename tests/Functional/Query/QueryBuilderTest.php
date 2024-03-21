@@ -9,7 +9,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\MariaDB1060Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
-use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;
@@ -114,7 +113,7 @@ final class QueryBuilderTest extends FunctionalTestCase
         }
 
         if ($platform instanceof MySQLPlatform) {
-            return $platform instanceof MySQL80Platform;
+            return true;
         }
 
         if ($platform instanceof MariaDBPlatform) {

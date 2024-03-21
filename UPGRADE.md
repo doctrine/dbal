@@ -6,6 +6,13 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 5.0
+
+## BC BREAK: Removed support for MariaDB 10.4 and MySQL 5.7
+
+* Upgrade to MariaDB 10.5 or later.
+* Upgrade to MySQL 8.0 or later.
+
 # Upgrade to 4.1
 
 ## Deprecated support for MariaDB 10.4 and MySQL 5.7
