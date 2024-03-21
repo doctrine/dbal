@@ -153,7 +153,7 @@ or ``null`` if no data is present.
 .. note::
 
     Database vendors have different limits for the maximum length of a
-    SQL VARCHAR. Doctrine internally maps the ``string`` type to the
+    varying string. Doctrine internally maps the ``string`` type to the
     vendor's ``text`` type if the maximum allowed length is exceeded.
     This can lead to type inconsistencies when reverse engineering the
     type from the database.
