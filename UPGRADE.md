@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## Deprecated support for MariaDB 10.4 and MySQL 5.7
+
+* Upgrade to MariaDB 10.5 or later.
+* Upgrade to MySQL 8.0 or later.
+
+# Upgrade to 4.0
+
 ## BC BREAK: removed `AbstractMySQLPlatform` methods.
 
 1. `getColumnTypeSQLSnippets()`,

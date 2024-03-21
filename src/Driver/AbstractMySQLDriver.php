@@ -15,6 +15,7 @@ use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
+use Doctrine\Deprecations\Deprecation;
 
 use function preg_match;
 use function stripos;
@@ -43,12 +44,24 @@ abstract class AbstractMySQLDriver implements Driver
                 return new MariaDB1052Platform();
             }
 
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6343',
+                'Support for MariaDB < 10.5.2 is deprecated and will be removed in DBAL 5',
+            );
+
             return new MariaDBPlatform();
         }
 
         if (version_compare($version, '8.0.0', '>=')) {
             return new MySQL80Platform();
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6343',
+            'Support for MySQL < 8 is deprecated and will be removed in DBAL 5',
+        );
 
         return new MySQLPlatform();
     }
