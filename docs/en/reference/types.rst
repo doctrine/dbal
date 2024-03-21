@@ -147,7 +147,7 @@ string
 Maps and converts string data with a maximum length.
 If you know that the data to be stored always fits into the specified length,
 you should consider using this type.
-Values retrieved from the database are always converted to PHP's ``string`` type
+Values retrieved from the database are always converted to PHP's string type
 or ``null`` if no data is present.
 
 .. note::
