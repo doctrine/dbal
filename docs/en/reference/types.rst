@@ -177,7 +177,7 @@ or ``null`` if no data is present.
 guid
 ++++
 
-Maps and converts a "Globally Unique Identifier" (GUID/UUID).
+Maps and converts a "Globally Unique Identifier" (GUID).
 If you want to store a GUID, you should consider using this type, as some
 database vendors have a native data type for this kind of data which offers
 the most efficient way to store it. For vendors that do not support this
