@@ -6,20 +6,24 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDBKeywords;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\Types\JsonType;
-
-use function array_diff_key;
-use function array_merge;
-use function count;
-use function in_array;
 
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB database platform of the oldest supported version.
  */
 class MariaDBPlatform extends AbstractMySQLPlatform
 {
+    /**
+     * {@inheritDoc}
+     */
+    protected function getRenameIndexSQL(string $oldIndexName, Index $index, $tableName): array
+    {
+        return ['ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];
+    }
+
     /**
      * Generate SQL snippets to reverse the aliasing of JSON to LONGTEXT.
      *
@@ -55,96 +59,6 @@ class MariaDBPlatform extends AbstractMySQLPlatform
         SQL;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
-    {
-        $sql       = [];
-        $tableName = $diff->getOldTable()->getQuotedName($this);
-
-        $modifiedForeignKeys = $diff->getModifiedForeignKeys();
-
-        foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
-            if (in_array($foreignKey, $modifiedForeignKeys, true)) {
-                continue;
-            }
-
-            $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableName);
-        }
-
-        return $sql;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
-    {
-        return array_merge(
-            parent::getPostAlterTableIndexForeignKeySQL($diff),
-            $this->getPostAlterTableRenameIndexForeignKeySQL($diff),
-        );
-    }
-
-    /** @return list<string> */
-    private function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
-    {
-        $sql = [];
-
-        $tableName = $diff->getOldTable()->getQuotedName($this);
-
-        $modifiedForeignKeys = $diff->getModifiedForeignKeys();
-
-        foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
-            if (in_array($foreignKey, $modifiedForeignKeys, true)) {
-                continue;
-            }
-
-            $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
-        }
-
-        return $sql;
-    }
-
-    /**
-     * Returns the remaining foreign key constraints that require one of the renamed indexes.
-     *
-     * "Remaining" here refers to the diff between the foreign keys currently defined in the associated
-     * table and the foreign keys to be removed.
-     *
-     * @param TableDiff $diff The table diff to evaluate.
-     *
-     * @return ForeignKeyConstraint[]
-     */
-    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff): array
-    {
-        $renamedIndexes = $diff->getRenamedIndexes();
-
-        if (count($renamedIndexes) === 0) {
-            return [];
-        }
-
-        $foreignKeys = [];
-
-        $remainingForeignKeys = array_diff_key(
-            $diff->getOldTable()->getForeignKeys(),
-            $diff->getDroppedForeignKeys(),
-        );
-
-        foreach ($remainingForeignKeys as $foreignKey) {
-            foreach ($renamedIndexes as $index) {
-                if ($foreignKey->intersectsIndexColumns($index)) {
-                    $foreignKeys[] = $foreignKey;
-
-                    break;
-                }
-            }
-        }
-
-        return $foreignKeys;
-    }
-
     /** {@inheritDoc} */
     public function getColumnDeclarationSQL(string $name, array $column): string
     {
@@ -156,6 +70,11 @@ class MariaDBPlatform extends AbstractMySQLPlatform
         }
 
         return parent::getColumnDeclarationSQL($name, $column);
+    }
+
+    public function createSelectSQLBuilder(): SelectSQLBuilder
+    {
+        return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', null);
     }
 
     protected function createReservedKeywordsList(): KeywordList

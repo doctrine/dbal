@@ -9,7 +9,7 @@ use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB 10.6 (10.6.0 GA) database platform.
  */
-class MariaDB1060Platform extends MariaDB1052Platform
+class MariaDB1060Platform extends MariaDBPlatform
 {
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {

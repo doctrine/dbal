@@ -42,17 +42,6 @@
                 <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
-        <DeprecatedClass>
-            <errorLevel type="suppress">
-                <!--
-                    See https://github.com/doctrine/dbal/pull/6343
-                    TODO: remove in 5.0.0
-                -->
-                <referencedClass name="Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords" />
-                <referencedClass name="Doctrine\DBAL\Platforms\MariaDB1052Platform" />
-                <referencedClass name="Doctrine\DBAL\Platforms\MySQL80Platform" />
-            </errorLevel>
-        </DeprecatedClass>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!--
