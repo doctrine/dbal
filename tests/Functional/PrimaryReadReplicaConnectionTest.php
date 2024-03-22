@@ -37,9 +37,13 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         $this->connection->insert('primary_replica_table', ['test_int' => 1]);
     }
 
-    private function createPrimaryReadReplicaConnection(bool $keepReplica = false): PrimaryReadReplicaConnection
-    {
-        $connection = DriverManager::getConnection($this->createPrimaryReadReplicaConnectionParams($keepReplica));
+    private function createPrimaryReadReplicaConnection(
+        bool $keepReplica = false,
+        string $defaultConnection = 'replica'
+    ): PrimaryReadReplicaConnection {
+        $connection = DriverManager::getConnection(
+            $this->createPrimaryReadReplicaConnectionParams($keepReplica, $defaultConnection),
+        );
 
         self::assertInstanceOf(PrimaryReadReplicaConnection::class, $connection);
 
@@ -50,13 +54,16 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
      * @return mixed[]
      * @psalm-return Params
      */
-    private function createPrimaryReadReplicaConnectionParams(bool $keepReplica = false): array
-    {
-        $params                 = $this->connection->getParams();
-        $params['primary']      = $params;
-        $params['replica']      = [$params, $params];
-        $params['keepReplica']  = $keepReplica;
-        $params['wrapperClass'] = PrimaryReadReplicaConnection::class;
+    private function createPrimaryReadReplicaConnectionParams(
+        bool $keepReplica = false,
+        string $defaultConnection = 'replica'
+    ): array {
+        $params                      = $this->connection->getParams();
+        $params['primary']           = $params;
+        $params['replica']           = [$params, $params];
+        $params['keepReplica']       = $keepReplica;
+        $params['defaultConnection'] = $defaultConnection;
+        $params['wrapperClass']      = PrimaryReadReplicaConnection::class;
 
         return $params;
     }
@@ -105,7 +112,20 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         self::assertTrue($conn->isConnectedToPrimary());
     }
 
-    public function testNoPrimaryrOnExecuteQuery(): void
+    public function testConnectedToDefault(): void
+    {
+        $conn = $this->createPrimaryReadReplicaConnection(false, 'primary');
+        $conn->connect();
+
+        self::assertTrue($conn->isConnectedToPrimary());
+
+        $conn = $this->createPrimaryReadReplicaConnection(false, 'replica');
+        $conn->connect();
+
+        self::assertFalse($conn->isConnectedToPrimary());
+    }
+
+    public function testNoPrimaryOnExecuteQuery(): void
     {
         $conn = $this->createPrimaryReadReplicaConnection();
 
