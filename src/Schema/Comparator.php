@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-use Infrastructure\Persistence\Doctrine\Types\EnumType;
 use function array_map;
 use function assert;
 use function count;

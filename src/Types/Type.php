@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-use Infrastructure\Persistence\Doctrine\Types\EnumType;
 use function array_map;
 
 /**
@@ -35,6 +34,7 @@ abstract class Type
         Types::DATETIMETZ_MUTABLE   => DateTimeTzType::class,
         Types::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
         Types::DECIMAL              => DecimalType::class,
+        Types::ENUM                 => EnumType::class,
         Types::FLOAT                => FloatType::class,
         Types::GUID                 => GuidType::class,
         Types::INTEGER              => IntegerType::class,
@@ -43,7 +43,6 @@ abstract class Type
         Types::SMALLINT             => SmallIntType::class,
         Types::STRING               => StringType::class,
         Types::TEXT                 => TextType::class,
-        Types::ENUM                 => EnumType::class,
         Types::TIME_MUTABLE         => TimeType::class,
         Types::TIME_IMMUTABLE       => TimeImmutableType::class,
     ];
