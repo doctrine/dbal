@@ -4,12 +4,24 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types;
 
+use BackedEnum;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+use ReflectionClass;
+use Throwable;
+use UnitEnum;
+use ValueError;
+
+use function array_map;
+use function class_exists;
+use function enum_exists;
+use function implode;
+use function is_string;
+use function sprintf;
 
 final class EnumType extends Type
 {
@@ -17,12 +29,11 @@ final class EnumType extends Type
 
     public ?string $enumClassname = null;
 
+    /** @var array<int, string> */
     public array $members = [];
 
     /**
-     * Gets an array of database types that map to this Doctrine type.
-     *
-     * @return string[]
+     * {@inheritDoc}
      */
     public function getMappedDatabaseTypes(AbstractPlatform $platform): array
     {
@@ -30,80 +41,81 @@ final class EnumType extends Type
     }
 
     /**
-     * Gets the SQL declaration snippet for a field of this type.
-     *
-     * @param mixed[]          $column   The field declaration
-     * @param AbstractPlatform $platform The currently used database platform
+     * {@inheritDoc}
      */
-    public function getSqlDeclaration(array $column, AbstractPlatform $platform): string
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        assert($column['type'] instanceof self::class);
-
         $values = implode(
             ', ',
             array_map(
-                static fn (string $value) => "'{$value}'",
-                $column['members'] ?: $column['type']->members
-            )
+                static fn (string $value) => sprintf('\'%s\'', $value),
+                $column['members'] ?: $column['type']->members,
+            ),
         );
 
-        $sqlDeclaration = match (true) {
-            $platform instanceof SqlitePlatform => sprintf('TEXT CHECK(%s IN (%s))', $column['name'], $values),
-            $platform instanceof PostgreSqlPlatform, $platform instanceof SQLServerPlatform => sprintf('VARCHAR(255) CHECK(%s IN (%s))', $column['name'], $values),
+        return match (true) {
+            $platform instanceof SQLitePlatform => sprintf('TEXT CHECK(%s IN (%s))', $column['name'], $values),
+            $platform instanceof PostgreSQLPlatform, $platform instanceof SQLServerPlatform => sprintf('VARCHAR(255) CHECK(%s IN (%s))', $column['name'], $values),
             default => sprintf('ENUM(%s)', $values),
         };
-
-        return $sqlDeclaration;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @return mixed the database representation of the value
-     *
-     * @throws \InvalidArgumentException
+     * {@inheritDoc}
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
-        if (null === $value) {
+        if ($value === null) {
             return null;
+        }
+
+        if ($value instanceof UnitEnum) {
+            if ($value instanceof BackedEnum) {
+                return $value->value;
+            }
+
+            return $value->name;
         }
 
         return (string) $value;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return mixed the PHP representation of the value
-     */
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): mixed
     {
-        if (null === $value) {
+        if ($value === null) {
             return null;
         }
 
-        if (!\is_string($value)) {
+        if (! is_string($value)) {
             throw InvalidType::new($value, $this->name, ['null', 'string']);
         }
 
-        $refl = new \ReflectionClass($this->enumClassname);
+        if ($this->enumClassname) {
+            if (enum_exists($this->enumClassname)) {
+                try {
+                    foreach ($this->enumClassname::cases() as $case) {
+                        if (($case instanceof BackedEnum && $value === $case->value) || $value === $case->name) {
+                            return $case;
+                        }
+                    }
 
-        try {
-            return $refl->newInstance($value);
-        } catch (\Throwable $e) {
-            throw ValueNotConvertible::new($value, $this->name, $e->getMessage(), $e);
+                    throw new ValueError(sprintf("'%s' is not a valid backing value for enum %s", $value, $this->enumClassname));
+                } catch (Throwable $e) {
+                    throw ValueNotConvertible::new($value, $this->name, $e->getMessage(), $e);
+                }
+            }
+
+            if (class_exists($this->enumClassname)) {
+                $refl = new ReflectionClass($this->enumClassname);
+
+                try {
+                    return $refl->newInstance($value);
+                } catch (Throwable $e) {
+                    throw ValueNotConvertible::new($value, $this->name, $e->getMessage(), $e);
+                }
+            }
         }
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function addType(string $name, string $enumClassname): void
-    {
-        self::getTypeRegistry()->register($name, $me = new self());
-        $me->name = $name;
-        $me->enumClassname = $enumClassname;
-        $me->members = $enumClassname::getAllowedValues();
+        return $value;
     }
 }

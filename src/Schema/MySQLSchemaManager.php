@@ -22,6 +22,7 @@ use function explode;
 use function implode;
 use function is_string;
 use function preg_match;
+use function preg_match_all;
 use function str_contains;
 use function strtok;
 use function strtolower;

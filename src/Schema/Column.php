@@ -19,6 +19,7 @@ class Column extends AbstractAsset
 
     protected ?int $_length = null;
 
+    /** @var string[] */
     protected array $_members = [];
 
     protected ?int $_precision = null;
@@ -221,11 +222,13 @@ class Column extends AbstractAsset
         return $this;
     }
 
+    /** @return string[] */
     public function getMembers(): array
     {
         return $this->_members;
     }
 
+    /** @param string[] $members */
     public function setMembers(array $members): void
     {
         $this->_members = $members;
