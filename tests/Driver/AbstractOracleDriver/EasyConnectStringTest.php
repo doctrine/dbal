@@ -30,7 +30,8 @@ class EasyConnectStringTest extends TestCase
                     'port' => 1521,
                     'dbname' => 'XE',
                 ],
-                '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle.example.com)(PORT=1521))(CONNECT_DATA=(SID=XE)))',
+                '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle.example.com)(PORT=1521))'
+                    . '(CONNECT_DATA=(SERVICE_NAME=XE)))',
             ],
             'no-db-name' => [
                 ['host' => 'localhost'],
@@ -55,7 +56,7 @@ class EasyConnectStringTest extends TestCase
                     'pooled' => true,
                 ],
                 '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=41521))'
-                    . '(CONNECT_DATA=(SID=XE)(INSTANCE_NAME=SALES)(SERVER=POOLED)))',
+                    . '(CONNECT_DATA=(SERVICE_NAME=XE)(INSTANCE_NAME=SALES)(SERVER=POOLED)))',
             ],
         ];
     }
