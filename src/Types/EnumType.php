@@ -9,17 +9,19 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use ReflectionClass;
+use StringBackedEnum;
 use Throwable;
 use UnitEnum;
-use ValueError;
 
 use function array_map;
 use function class_exists;
 use function enum_exists;
 use function implode;
+use function is_object;
 use function is_string;
 use function sprintf;
 
@@ -69,12 +71,32 @@ final class EnumType extends Type
             return null;
         }
 
-        if ($value instanceof UnitEnum) {
-            if ($value instanceof BackedEnum) {
+        if ($this->enumClassname === null) {
+            if (! is_string($value)) {
+                throw InvalidType::new($value, $this->name, ['null', 'string']);
+            }
+
+            if (! in_array($value, $this->members)) {
+                throw InvalidType::new($value, $this->name, ['null', 'string']);
+            }
+
+            return $value;
+        }
+
+        if (enum_exists($this->enumClassname)) {
+            if (! $value instanceof UnitEnum) {
+                throw InvalidType::new($value, $this->name, ['null', $this->enumClassname]);
+            }
+
+            if ($value instanceof \BackedEnum) {
                 return $value->value;
             }
 
             return $value->name;
+        }
+
+        if (! (is_object($value) && $value::class === $this->enumClassname)) {
+            throw InvalidType::new($value, $this->name, ['null', $this->enumClassname]);
         }
 
         return (string) $value;
@@ -87,35 +109,46 @@ final class EnumType extends Type
         }
 
         if (! is_string($value)) {
-            throw InvalidType::new($value, $this->name, ['null', 'string']);
+            throw InvalidFormat::new($value, $this->name, ['null', 'string']);
         }
 
+        if ($this->enumClassname === null) {
+            if (! in_array($value, $this->members)) {
+                throw ValueNotConvertible::new($value, $this->name);
+            }
+
+            return $value;
+        }
+
+        if (enum_exists($this->enumClassname)) {
+            foreach ($this->enumClassname::cases() as $case) {
+                if (($case instanceof BackedEnum && $value === $case->value) || $value === $case->name) {
+                    return $case;
+                }
+            }
+
+            throw ValueNotConvertible::new($value, $this->getInternalDocrineType());
+        }
+
+        if (class_exists($this->enumClassname)) {
+            $refl = new ReflectionClass($this->enumClassname);
+
+            try {
+                return $refl->newInstance($value);
+            } catch (Throwable $e) {
+                throw ValueNotConvertible::new($value, $this->getInternalDocrineType(), $e->getMessage(), $e);
+            }
+        }
+
+        throw new ConversionException(sprintf('Class %s does not exists', $this->enumClassname));
+    }
+
+    private function getInternalDocrineType(): string
+    {
         if ($this->enumClassname) {
-            if (enum_exists($this->enumClassname)) {
-                try {
-                    foreach ($this->enumClassname::cases() as $case) {
-                        if (($case instanceof BackedEnum && $value === $case->value) || $value === $case->name) {
-                            return $case;
-                        }
-                    }
-
-                    throw new ValueError(sprintf("'%s' is not a valid backing value for enum %s", $value, $this->enumClassname));
-                } catch (Throwable $e) {
-                    throw ValueNotConvertible::new($value, $this->name, $e->getMessage(), $e);
-                }
-            }
-
-            if (class_exists($this->enumClassname)) {
-                $refl = new ReflectionClass($this->enumClassname);
-
-                try {
-                    return $refl->newInstance($value);
-                } catch (Throwable $e) {
-                    throw ValueNotConvertible::new($value, $this->name, $e->getMessage(), $e);
-                }
-            }
+            return sprintf('%s(%s)', $this->name, $this->enumClassname);
         }
 
-        return $value;
+        return sprintf('%s(%s)', $this->name, 'string');
     }
 }

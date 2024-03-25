@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
@@ -205,6 +206,24 @@ final class ComparatorTest extends FunctionalTestCase
         $table = new Table('mariadb_json_upgrade');
 
         $table->addColumn('json_col', Types::JSON);
+        $this->dropAndCreateTable($table);
+
+        // Revert column to old LONGTEXT declaration
+        $sql = 'ALTER TABLE mariadb_json_upgrade CHANGE json_col json_col LONGTEXT NOT NULL COMMENT \'(DC2Type:json)\'';
+        $this->connection->executeStatement($sql);
+
+        ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
+    }
+
+    public function testNativeEnumUpgradeDetected(): void
+    {
+        if (! $this->platform instanceof MySQLPlatform) {
+            self::markTestSkipped();
+        }
+
+        $table = new Table('mariadb_enum_upgrade');
+
+        $table->addColumn('enum_col', Types::ENUM, ['members' => ['a', 'b']]);
         $this->dropAndCreateTable($table);
 
         // Revert column to old LONGTEXT declaration
