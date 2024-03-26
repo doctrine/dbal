@@ -109,7 +109,7 @@ final class EnumType extends Type
         }
 
         if (! is_string($value)) {
-            throw InvalidFormat::new($value, $this->name, ['null', 'string']);
+            throw InvalidFormat::new($value, $this->name, 'string');
         }
 
         if ($this->enumClassname === null) {

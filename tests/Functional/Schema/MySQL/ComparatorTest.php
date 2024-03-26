@@ -16,6 +16,11 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\Types\EnumObject;
+use Doctrine\DBAL\Tests\Types\EnumNative;
+use Doctrine\DBAL\Tests\Types\EnumNativeBacked;
+use Doctrine\DBAL\Types\EnumType;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -215,19 +220,37 @@ final class ComparatorTest extends FunctionalTestCase
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
 
-    public function testNativeEnumUpgradeDetected(): void
+    public function testEnumDiffEmpty(): void
     {
         if (! $this->platform instanceof MySQLPlatform) {
             self::markTestSkipped();
         }
 
-        $table = new Table('mariadb_enum_upgrade');
+        $table = new Table('enum_test_table');
 
         $table->addColumn('enum_col', Types::ENUM, ['members' => ['a', 'b']]);
         $this->dropAndCreateTable($table);
 
-        // Revert column to old LONGTEXT declaration
-        $sql = 'ALTER TABLE mariadb_json_upgrade CHANGE json_col json_col LONGTEXT NOT NULL COMMENT \'(DC2Type:json)\'';
+        // Revert column to previous ENUM declaration
+        $sql = 'ALTER TABLE enum_test_table CHANGE enum_col enum_col ENUM(\'a\', \'b\') NOT NULL';
+        $this->connection->executeStatement($sql);
+
+        ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
+    }
+
+    public function testEnumDiffDetected(): void
+    {
+        if (! $this->platform instanceof MySQLPlatform) {
+            self::markTestSkipped();
+        }
+
+        $table = new Table('enum_test_table');
+
+        $table->addColumn('enum_col', Types::ENUM, ['members' => ['a', 'b']]);
+        $this->dropAndCreateTable($table);
+
+        // Revert column to previous ENUM declaration
+        $sql = 'ALTER TABLE enum_test_table CHANGE enum_col enum_col ENUM(\'NOT_A_MEMBER_ANYMORE\') NOT NULL';
         $this->connection->executeStatement($sql);
 
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);

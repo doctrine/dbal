@@ -38,28 +38,28 @@ class EnumTest extends TestCase
 
     public function testConvertToPHPEnum(): void
     {
-        $this->type->enumClassname = EnumPhp::class;
+        $this->type->enumClassname = EnumNative::class;
 
         self::assertInstanceOf($this->type->enumClassname, $this->type->convertToPHPValue('A', $this->platform));
-        self::assertSame(EnumPhp::A, $this->type->convertToPHPValue('A', $this->platform));
+        self::assertSame(EnumNative::A, $this->type->convertToPHPValue('A', $this->platform));
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testConvertToPHPEnumBacked(): void
     {
-        $this->type->enumClassname = EnumPhpBacked::class;
+        $this->type->enumClassname = EnumNativeBacked::class;
 
         self::assertInstanceOf($this->type->enumClassname, $this->type->convertToPHPValue('a', $this->platform));
-        self::assertSame(EnumPhpBacked::A, $this->type->convertToPHPValue('a', $this->platform));
+        self::assertSame(EnumNativeBacked::A, $this->type->convertToPHPValue('a', $this->platform));
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testConvertToPHPObject(): void
     {
-        $this->type->enumClassname = EnumClass::class;
+        $this->type->enumClassname = EnumObject::class;
 
         self::assertInstanceOf($this->type->enumClassname, $this->type->convertToPHPValue('a', $this->platform));
-        self::assertEquals(new EnumClass('a'), $this->type->convertToPHPValue('a', $this->platform));
+        self::assertEquals(new EnumObject('a'), $this->type->convertToPHPValue('a', $this->platform));
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
@@ -73,25 +73,25 @@ class EnumTest extends TestCase
 
     public function testConvertEnumToDatabaseValue(): void
     {
-        $this->type->enumClassname = EnumPhp::class;
+        $this->type->enumClassname = EnumNative::class;
 
-        self::assertSame('A', $this->type->convertToDatabaseValue(EnumPhp::A, $this->platform));
+        self::assertSame('A', $this->type->convertToDatabaseValue(EnumNative::A, $this->platform));
         self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
     }
 
     public function testConvertEnumBackedToDatabaseValue(): void
     {
-        $this->type->enumClassname = EnumPhpBacked::class;
+        $this->type->enumClassname = EnumNativeBacked::class;
 
-        self::assertSame('a', $this->type->convertToDatabaseValue(EnumPhpBacked::A, $this->platform));
+        self::assertSame('a', $this->type->convertToDatabaseValue(EnumNativeBacked::A, $this->platform));
         self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
     }
 
     public function testConvertObjectToDatabaseValue(): void
     {
-        $this->type->enumClassname = EnumClass::class;
+        $this->type->enumClassname = EnumObject::class;
 
-        self::assertSame('a', $this->type->convertToDatabaseValue(new EnumClass('a'), $this->platform));
+        self::assertSame('a', $this->type->convertToDatabaseValue(new EnumObject('a'), $this->platform));
         self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
     }
 
@@ -111,22 +111,22 @@ class EnumTest extends TestCase
             'integer' => [17],
             'string' => ['not_in_members'],
             'array' => [['']],
-            'enum' => [EnumPhp::A],
-            'enum backed' => [EnumPhpBacked::A],
+            'enum' => [EnumNative::A],
+            'enum backed' => [EnumNativeBacked::A],
             'object' => [new \stdClass()],
             'stringable' => [new class() { function __toString() { return 'a'; }}],
         ];
     }
 
-    #[DataProvider('provideInvalidDataForEnumPhpToDatabaseValueConversion')]
-    public function testEnumPhpDoesNotSupportInvalidValuesToDatabaseValueConversion($value): void
+    #[DataProvider('provideInvalidDataForEnumNativeToDatabaseValueConversion')]
+    public function testEnumNativeDoesNotSupportInvalidValuesToDatabaseValueConversion($value): void
     {
         $this->expectException(ConversionException::class);
 
         $this->type->convertToDatabaseValue($value, $this->platform);
     }
 
-    public static function provideInvalidDataForEnumPhpToDatabaseValueConversion()
+    public static function provideInvalidDataForEnumNativeToDatabaseValueConversion()
     {
         return [
             'boolean true' => [true],
@@ -134,22 +134,22 @@ class EnumTest extends TestCase
             'integer' => [17],
             'string' => ['a'],
             'array' => [['']],
-            'enum' => [WrongEnumPhp::WRONG],
-            'enum backed' => [EnumPhpBacked::A],
+            'enum' => [WrongEnumNative::WRONG],
+            'enum backed' => [EnumNativeBacked::A],
             'object' => [new \stdClass()],
             'stringable' => [new class() { function __toString() { return 'a'; }}],
         ];
     }
 
-    #[DataProvider('provideInvalidDataForEnumPhpBackedToDatabaseValueConversion')]
-    public function testEnumPhpBackedDoesNotSupportInvalidValuesToDatabaseValueConversion($value): void
+    #[DataProvider('provideInvalidDataForEnumNativeBackedToDatabaseValueConversion')]
+    public function testEnumNativeBackedDoesNotSupportInvalidValuesToDatabaseValueConversion($value): void
     {
         $this->expectException(ConversionException::class);
 
         $this->type->convertToDatabaseValue($value, $this->platform);
     }
 
-    public static function provideInvalidDataForEnumPhpBackedToDatabaseValueConversion()
+    public static function provideInvalidDataForEnumNativeBackedToDatabaseValueConversion()
     {
         return [
             'boolean true' => [true],
@@ -157,8 +157,8 @@ class EnumTest extends TestCase
             'integer' => [17],
             'string' => ['a'],
             'array' => [['']],
-            'enum' => [EnumPhp::A],
-            'enum backed' => [WrongEnumPhpBacked::WRONG],
+            'enum' => [EnumNative::A],
+            'enum backed' => [WrongEnumNativeBacked::WRONG],
             'object' => [new \stdClass()],
             'stringable' => [new class() { function __toString() { return 'a'; }}],
         ];
@@ -180,8 +180,8 @@ class EnumTest extends TestCase
             'integer' => [17],
             'string' => ['a'],
             'array' => [['']],
-            'enum' => [EnumPhp::A],
-            'enum backed' => [EnumPhpBacked::A],
+            'enum' => [EnumNative::A],
+            'enum backed' => [EnumNativeBacked::A],
             'object' => [new \stdClass()],
             'stringable' => [new class() { function __toString() { return 'a'; }}],
         ];
@@ -197,29 +197,29 @@ class EnumTest extends TestCase
     }
 }
 
-enum EnumPhp
+enum EnumNative
 {
     case A;
     case B;
 }
 
-enum WrongEnumPhp
+enum WrongEnumNative
 {
     case WRONG;
 }
 
-enum EnumPhpBacked: string
+enum EnumNativeBacked: string
 {
     case A = 'a';
     case B = 'b';
 }
 
-enum WrongEnumPhpBacked: string
+enum WrongEnumNativeBacked: string
 {
     case WRONG = 'wrong';
 }
 
-final class EnumClass implements Stringable
+final class EnumObject implements Stringable
 {
     public function __construct(
         private string $value,
