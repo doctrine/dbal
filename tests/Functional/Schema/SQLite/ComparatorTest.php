@@ -42,4 +42,20 @@ final class ComparatorTest extends FunctionalTestCase
         $column->setPlatformOption('collation', 'NOCASE');
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
+
+    public function testEnumDiffDetected(): void
+    {
+        $table = new Table('enum_test_table');
+
+        $table->addColumn('enum_col', Types::ENUM, ['members' => ['a', 'b']]);
+        $this->dropAndCreateTable($table);
+
+        ComparatorTestUtils::assertNoDiffDetected($this->connection, $this->comparator, $table);
+
+        // Alter column to previous state and check diff
+        $sql = 'ALTER TABLE enum_test_table ALTER COLUMN enum_col enum_col ENUM(\'NOT_A_MEMBER_ANYMORE\') NOT NULL';
+        $this->connection->executeStatement($sql);
+
+        ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
+    }
 }

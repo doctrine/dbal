@@ -38,6 +38,15 @@ final class ComparatorTestUtils
         );
     }
 
+    public static function assertNoDiffDetected(Connection $connection, Comparator $comparator, Table $table): void
+    {
+        $schemaManager = $connection->createSchemaManager();
+
+        $diff = self::diffFromActualToDesiredTable($schemaManager, $comparator, $table);
+
+        TestCase::assertTrue($diff->isEmpty());
+    }
+
     public static function assertDiffNotEmpty(Connection $connection, Comparator $comparator, Table $table): void
     {
         $schemaManager = $connection->createSchemaManager();

@@ -13,7 +13,6 @@ use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use ReflectionClass;
-use StringBackedEnum;
 use Throwable;
 use UnitEnum;
 
