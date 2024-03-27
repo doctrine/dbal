@@ -42,4 +42,14 @@ final class ComparatorTest extends FunctionalTestCase
         $column->setPlatformOption('collation', 'NOCASE');
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
     }
+
+    public function testEnumColumnIsCreated(): void
+    {
+        $table = new Table('enum_test_table');
+
+        $table->addColumn('enum_col', Types::ENUM, ['members' => ['a', 'b']]);
+        $this->dropAndCreateTable($table);
+
+        ComparatorTestUtils::assertNoDiffDetected($this->connection, $this->comparator, $table);
+    }
 }

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
@@ -209,6 +210,22 @@ final class ComparatorTest extends FunctionalTestCase
 
         // Revert column to old LONGTEXT declaration
         $sql = 'ALTER TABLE mariadb_json_upgrade CHANGE json_col json_col LONGTEXT NOT NULL COMMENT \'(DC2Type:json)\'';
+        $this->connection->executeStatement($sql);
+
+        ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);
+    }
+
+    public function testEnumDiffDetected(): void
+    {
+        $table = new Table('enum_test_table');
+
+        $table->addColumn('enum_col', Types::ENUM, ['members' => ['a', 'b']]);
+        $this->dropAndCreateTable($table);
+
+        ComparatorTestUtils::assertNoDiffDetected($this->connection, $this->comparator, $table);
+
+        // Alter column to previous state and check diff
+        $sql = 'ALTER TABLE enum_test_table CHANGE enum_col enum_col ENUM(\'NOT_A_MEMBER_ANYMORE\') NOT NULL';
         $this->connection->executeStatement($sql);
 
         ComparatorTestUtils::assertDiffNotEmpty($this->connection, $this->comparator, $table);

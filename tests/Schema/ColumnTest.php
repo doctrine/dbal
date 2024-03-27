@@ -45,6 +45,7 @@ class ColumnTest extends TestCase
             'default' => 'baz',
             'notnull' => false,
             'length' => 200,
+            'members' => [],
             'precision' => 5,
             'scale' => 2,
             'fixed' => true,
@@ -147,5 +148,18 @@ class ColumnTest extends TestCase
         $columnArray = $column->toArray();
         self::assertArrayHasKey('comment', $columnArray);
         self::assertEquals('foo', $columnArray['comment']);
+    }
+
+    public function testEnumMembers(): void
+    {
+        $column = new Column('bar', Type::getType(Types::ENUM));
+        self::assertSame([], $column->getMembers());
+
+        $column->setMembers(['a', 'b']);
+        self::assertEquals(['a', 'b'], $column->getMembers());
+
+        $columnArray = $column->toArray();
+        self::assertArrayHasKey('members', $columnArray);
+        self::assertEquals(['a', 'b'], $columnArray['members']);
     }
 }

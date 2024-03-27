@@ -22,6 +22,7 @@ use function explode;
 use function implode;
 use function is_string;
 use function preg_match;
+use function preg_match_all;
 use function str_contains;
 use function strtok;
 use function strtolower;
@@ -210,6 +211,10 @@ class MySQLSchemaManager extends AbstractSchemaManager
             'precision'     => $precision,
             'autoincrement' => str_contains($tableColumn['extra'], 'auto_increment'),
         ];
+
+        if ($dbType === 'enum' && preg_match_all("/'([^']+)'/", $tableColumn['type'], $members) !== false) {
+            $options['members'] = $members[1];
+        }
 
         if (isset($tableColumn['comment'])) {
             $options['comment'] = $tableColumn['comment'];
