@@ -13,6 +13,7 @@ use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use ReflectionClass;
+use Stringable;
 use Throwable;
 use UnitEnum;
 
@@ -20,6 +21,7 @@ use function array_map;
 use function class_exists;
 use function enum_exists;
 use function implode;
+use function in_array;
 use function is_object;
 use function is_string;
 use function sprintf;
@@ -87,15 +89,21 @@ final class EnumType extends Type
                 throw InvalidType::new($value, $this->name, ['null', $this->enumClassname]);
             }
 
-            if ($value instanceof \BackedEnum) {
-                return $value->value;
+            if ($value instanceof BackedEnum) {
+                return (string) $value->value;
             }
 
             return $value->name;
         }
 
-        if (! (is_object($value) && $value::class === $this->enumClassname)) {
-            throw InvalidType::new($value, $this->name, ['null', $this->enumClassname]);
+        if (is_object($value)) {
+            if ($value::class !== $this->enumClassname) {
+                throw InvalidType::new($value, $this->name, ['null', $this->enumClassname]);
+            }
+
+            if (! $value instanceof Stringable) {
+                throw new ConversionException(sprintf('Class %s must implement Stringable interface', $this->enumClassname));
+            }
         }
 
         return (string) $value;

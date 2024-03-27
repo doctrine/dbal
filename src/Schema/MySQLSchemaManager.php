@@ -212,7 +212,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
             'autoincrement' => str_contains($tableColumn['extra'], 'auto_increment'),
         ];
 
-        if ($dbType === 'enum' && false !== preg_match_all("/'([^']+)'/", $tableColumn['type'], $members)) {
+        if ($dbType === 'enum' && preg_match_all("/'([^']+)'/", $tableColumn['type'], $members) !== false) {
             $options['members'] = $members[1];
         }
 

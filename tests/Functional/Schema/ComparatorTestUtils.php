@@ -43,6 +43,7 @@ final class ComparatorTestUtils
         $schemaManager = $connection->createSchemaManager();
 
         $diff = self::diffFromActualToDesiredTable($schemaManager, $comparator, $table);
+        var_dump($diff->getModifiedColumns()[0]);
 
         TestCase::assertTrue($diff->isEmpty());
     }
