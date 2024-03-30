@@ -104,6 +104,7 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
+          - "8.4"
         oracle-version:
           - "18"
           - "21"
@@ -161,6 +162,7 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
+          - "8.4"
         oracle-version:
           - "18"
           - "21"
@@ -300,6 +302,9 @@ jobs:
           - php-version: "8.3"
             mariadb-version: "11.2"
             extension: "pdo_mysql"
+          - php-version: "8.4"
+            mariadb-version: "11.2"
+            extension: "pdo_mysql"
 
     services:
       mariadb:
@@ -371,6 +376,9 @@ jobs:
           - php-version: "8.3"
             mysql-version: "8.0"
             extension: "pdo_mysql"
+          - php-version: "8.4"
+            mysql-version: "8.0"
+            extension: "pdo_mysql"
 
     services:
       mysql:
@@ -428,6 +436,7 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
+          - "8.4"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -495,7 +504,8 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
-
+          - "8.4"
+          
     services:
       ibm_db2:
         image: "icr.io/db2_community/db2:11.5.8.0"
