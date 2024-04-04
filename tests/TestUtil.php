@@ -62,7 +62,7 @@ class TestUtil
      *
      * @return Connection The database connection instance.
      */
-    public static function getConnection(): Connection
+    public static function getConnection(bool $hasHeartBeat = false): Connection
     {
         $params = self::getConnectionParams();
 
@@ -75,7 +75,7 @@ class TestUtil
 
         return DriverManager::getConnection(
             $params,
-            self::createConfiguration($params['driver']),
+            self::createConfiguration($params['driver'], $hasHeartBeat),
         );
     }
 
@@ -153,7 +153,7 @@ class TestUtil
         $privConn->close();
     }
 
-    private static function createConfiguration(string $driver): Configuration
+    private static function createConfiguration(string $driver, bool $hasHearBeat): Configuration
     {
         $configuration = new Configuration();
 
@@ -169,6 +169,10 @@ class TestUtil
         }
 
         $configuration->setSchemaManagerFactory(new DefaultSchemaManagerFactory());
+
+        if ($hasHearBeat) {
+            $configuration->setCheckConnectionTiming(1);
+        }
 
         return $configuration;
     }

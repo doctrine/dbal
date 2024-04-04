@@ -36,6 +36,8 @@ class Configuration
 
     private ?SchemaManagerFactory $schemaManagerFactory = null;
 
+    private ?int $checkConnectionTiming = null;
+
     public function __construct()
     {
         $this->schemaAssetsFilter = static function (): bool {
@@ -152,5 +154,15 @@ class Configuration
         }
 
         return $this;
+    }
+
+    public function setCheckConnectionTiming(int $timing): void
+    {
+        $this->checkConnectionTiming = $timing;
+    }
+
+    public function getCheckConnectionTiming(): ?int
+    {
+        return $this->checkConnectionTiming;
     }
 }

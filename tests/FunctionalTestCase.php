@@ -26,6 +26,8 @@ abstract class FunctionalTestCase extends TestCase
      */
     private bool $isConnectionReusable = true;
 
+    protected static bool $hasHeartBeat = false;
+
     /**
      * Mark shared connection not reusable for subsequent tests.
      *
@@ -37,11 +39,16 @@ abstract class FunctionalTestCase extends TestCase
         $this->isConnectionReusable = false;
     }
 
+    protected static function markConnectionWithHeartBeat(): void
+    {
+        self::$hasHeartBeat = true;
+    }
+
     #[Before]
     final protected function connect(): void
     {
         if (self::$sharedConnection === null) {
-            self::$sharedConnection = TestUtil::getConnection();
+            self::$sharedConnection = TestUtil::getConnection(self::$hasHeartBeat);
         }
 
         $this->connection = self::$sharedConnection;

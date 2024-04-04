@@ -42,6 +42,7 @@ use function is_int;
 use function is_string;
 use function key;
 use function sprintf;
+use function time;
 
 /**
  * A database abstraction-level connection that implements features like transaction isolation levels,
@@ -99,6 +100,12 @@ class Connection implements ServerVersionProvider
 
     private SchemaManagerFactory $schemaManagerFactory;
 
+    private bool $isChecking = false;
+
+    private int $lastCheckedAt = 0;
+
+    private ?int $heartbeat;
+
     /**
      * Initializes a new instance of the Connection class.
      *
@@ -118,6 +125,8 @@ class Connection implements ServerVersionProvider
         $this->_config    = $config ?? new Configuration();
         $this->params     = $params;
         $this->autoCommit = $this->_config->getAutoCommit();
+
+        $this->heartbeat = $this->_config->getCheckConnectionTiming();
 
         $this->schemaManagerFactory = $this->_config->getSchemaManagerFactory()
             ?? new DefaultSchemaManagerFactory();
@@ -210,7 +219,23 @@ class Connection implements ServerVersionProvider
     protected function connect(): DriverConnection
     {
         if ($this->_conn !== null) {
-            return $this->_conn;
+            $isTimeToCheck =  time() - $this->lastCheckedAt >= $this->heartbeat;
+            $noCheckNeeded = $this->heartbeat === null || $this->isChecking;
+
+            if ($noCheckNeeded || ! $isTimeToCheck) {
+                return $this->_conn;
+            }
+
+            $this->isChecking = true;
+
+            $isAvailable = $this->reconnectOnFailure();
+
+            $this->lastCheckedAt = time();
+            $this->isChecking    = false;
+
+            if ($isAvailable) {
+                return $this->_conn;
+            }
         }
 
         try {
@@ -1370,5 +1395,16 @@ class Connection implements ServerVersionProvider
         }
 
         return $exception;
+    }
+
+    private function reconnectOnFailure(): bool
+    {
+        try {
+            $this->executeQuery($this->getDatabasePlatform()->getDummySelectSQL());
+
+            return true;
+        } catch (ConnectionLost) {
+            return false;
+        }
     }
 }
