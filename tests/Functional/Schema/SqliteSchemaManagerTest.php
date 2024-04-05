@@ -12,8 +12,10 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use ReflectionMethod;
 
 use function array_keys;
+use function array_map;
 use function array_shift;
 use function assert;
 use function dirname;
@@ -396,5 +398,56 @@ SQL;
             ],
             $createTableTrackSql,
         );
+    }
+
+    public function testListTableNoSchemaEmulation(): void
+    {
+        $databasePlatform = $this->connection->getDatabasePlatform();
+        assert($databasePlatform instanceof SqlitePlatform);
+        $databasePlatform->disableSchemaEmulation();
+
+        $this->dropTableIfExists('`list_table_no_schema_emulation.test`');
+
+        $this->connection->executeStatement(<<<'DDL'
+            CREATE TABLE `list_table_no_schema_emulation.test` (
+                id INTEGER,
+                parent_id INTEGER,
+                PRIMARY KEY (id),
+                FOREIGN KEY (parent_id) REFERENCES `list_table_no_schema_emulation.test` (id)
+            );
+            DDL);
+
+        $this->connection->executeStatement(<<<'DDL'
+            CREATE INDEX i ON `list_table_no_schema_emulation.test` (parent_id);
+            DDL);
+
+        $schemaManager = $this->schemaManager;
+        $refl          = new ReflectionMethod($schemaManager, 'selectTableColumns');
+        $refl->setAccessible(true);
+        $res = $refl->invoke($schemaManager, 'main', 'list_table_no_schema_emulation.test')
+            ->fetchAllAssociative();
+
+        self::assertSame([
+            ['list_table_no_schema_emulation.test', 'id'],
+            ['list_table_no_schema_emulation.test', 'parent_id'],
+        ], array_map(static fn (array $row) => [$row['table_name'], $row['name']], $res));
+
+        $refl = new ReflectionMethod($schemaManager, 'selectIndexColumns');
+        $refl->setAccessible(true);
+        $res = $refl->invoke($schemaManager, 'main', 'list_table_no_schema_emulation.test')
+            ->fetchAllAssociative();
+
+        self::assertSame([
+            ['list_table_no_schema_emulation.test', 'i'],
+        ], array_map(static fn (array $row) => [$row['table_name'], $row['name']], $res));
+
+        $refl = new ReflectionMethod($schemaManager, 'selectForeignKeyColumns');
+        $refl->setAccessible(true);
+        $res = $refl->invoke($schemaManager, 'main', 'list_table_no_schema_emulation.test')
+            ->fetchAllAssociative();
+
+        self::assertSame([
+            ['list_table_no_schema_emulation.test', 'parent_id', 'id'],
+        ], array_map(static fn (array $row) => [$row['table_name'], $row['from'], $row['to']], $res));
     }
 }
