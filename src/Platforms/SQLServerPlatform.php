@@ -907,10 +907,10 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Name = null
     ) {
         return 'EXEC sp_addextendedproperty ' .
-            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral((string) $value) . ', ' .
-            'N' . $this->quoteStringLiteral((string) $level0Type) . ', ' . $level0Name . ', ' .
-            'N' . $this->quoteStringLiteral((string) $level1Type) . ', ' . $level1Name . ', ' .
-            'N' . $this->quoteStringLiteral((string) $level2Type) . ', ' . $level2Name;
+            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral($value ?? '') . ', ' .
+            'N' . $this->quoteStringLiteral($level0Type ?? '') . ', ' . $level0Name . ', ' .
+            'N' . $this->quoteStringLiteral($level1Type ?? '') . ', ' . $level1Name . ', ' .
+            'N' . $this->quoteStringLiteral($level2Type ?? '') . ', ' . $level2Name;
     }
 
     /**
@@ -941,9 +941,9 @@ class SQLServerPlatform extends AbstractPlatform
     ) {
         return 'EXEC sp_dropextendedproperty ' .
             'N' . $this->quoteStringLiteral($name) . ', ' .
-            'N' . $this->quoteStringLiteral((string) $level0Type) . ', ' . $level0Name . ', ' .
-            'N' . $this->quoteStringLiteral((string) $level1Type) . ', ' . $level1Name . ', ' .
-            'N' . $this->quoteStringLiteral((string) $level2Type) . ', ' . $level2Name;
+            'N' . $this->quoteStringLiteral($level0Type ?? '') . ', ' . $level0Name . ', ' .
+            'N' . $this->quoteStringLiteral($level1Type ?? '') . ', ' . $level1Name . ', ' .
+            'N' . $this->quoteStringLiteral($level2Type ?? '') . ', ' . $level2Name;
     }
 
     /**
@@ -975,10 +975,10 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Name = null
     ) {
         return 'EXEC sp_updateextendedproperty ' .
-            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral((string) $value) . ', ' .
-            'N' . $this->quoteStringLiteral((string) $level0Type) . ', ' . $level0Name . ', ' .
-            'N' . $this->quoteStringLiteral((string) $level1Type) . ', ' . $level1Name . ', ' .
-            'N' . $this->quoteStringLiteral((string) $level2Type) . ', ' . $level2Name;
+            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral($value ?? '') . ', ' .
+            'N' . $this->quoteStringLiteral($level0Type ?? '') . ', ' . $level0Name . ', ' .
+            'N' . $this->quoteStringLiteral($level1Type ?? '') . ', ' . $level1Name . ', ' .
+            'N' . $this->quoteStringLiteral($level2Type ?? '') . ', ' . $level2Name;
     }
 
     /**
@@ -1772,7 +1772,7 @@ class SQLServerPlatform extends AbstractPlatform
                   @level1type=N'TABLE', @level1name=N%s
                 SQL
             ,
-            $this->quoteStringLiteral((string) $comment),
+            $this->quoteStringLiteral($comment ?? ''),
             $this->quoteStringLiteral($tableName),
         );
     }
