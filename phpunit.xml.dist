@@ -22,24 +22,11 @@
     <php>
         <ini name="error_reporting" value="-1" />
 
-        <!-- Test connection parameters -->
-        <!-- Uncomment, otherwise SQLite runs
-        <var name="db_driver" value="pdo_mysql"/>
-        <var name="db_host" value="localhost" />
-        <var name="db_port" value="3306"/>
-        <var name="db_user" value="root" />
-        <var name="db_password" value="" />
-        <var name="db_dbname" value="doctrine_tests" />
+        <!--
+            By default, the tests are run against SQLite.
+            If you want to run them against another DBMS,
+            see https://www.doctrine-project.org/projects/doctrine-dbal/en/stable/reference/testing.html#running-integration-tests-locally
         -->
-        <!--<var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit">-->
-
-        <!-- Privileged user connection parameters. Used to create and drop the test database -->
-        <var name="tmpdb_driver" value="pdo_mysql"/>
-        <var name="tmpdb_host" value="localhost" />
-        <var name="tmpdb_port" value="3306"/>
-        <var name="tmpdb_user" value="root" />
-        <var name="tmpdb_password" value="" />
-        <var name="tmpdb_dbname" value="doctrine_tests_tmp" />
     </php>
 
     <testsuites>

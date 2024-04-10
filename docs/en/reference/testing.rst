@@ -62,6 +62,31 @@ multiple concurrent database connections, transactions, locking, performance-rel
 In such cases, it is still important that a pull request fixing the issues is accompanied by a free-form reproducer
 that demonstrates the issue being fixed.
 
+Running Integration Tests locally
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The default ``phpunit.xml.dist`` configuration file is set up to run the
+integration tests against SQLite, but you need to enable the extension
+``pdo_sqlite`` in your PHP configuration.
+
+To run the integration tests against another platform, you can use one
+of the configuration files used in our continuous integration setup.
+Those are stored under ``ci/github/``.
+
+For instance, to run tests against MySQL using the PDO driver, you
+should spin up a MySQL server, enable the ``pdo_mysql`` extension, and
+then run the following command:
+
+.. code-block:: console
+
+    $ phpunit -c ci/github/pdo_mysql.xml
+
+We do not currently have specific instructions on how to run a Database
+server, but we do recommend Docker as a convenient way to do so.
+We do not recommend running against a particular version of the chosen
+RDBMS either, as long as you pick one of the
+:doc:`officially supported versions <reference/platforms>`.
+
 Recommendations on Writing Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
