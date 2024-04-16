@@ -463,6 +463,7 @@ SQL,
                 $length = null;
                 break;
 
+            case 'json':
             case 'text':
             case '_varchar':
             case 'varchar':
