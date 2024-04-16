@@ -259,6 +259,20 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('foo', $databaseTable->getColumn('def')->getDefault());
     }
 
+    public function testJsonDefaultValue(): void
+    {
+        $testTable = new Table('test_json');
+        $testTable
+            ->addColumn('foo', Types::JSON)
+            ->setDefault('{"key": "value with a single quote \' in string value"}');
+        $this->dropAndCreateTable($testTable);
+
+        $columns = $this->schemaManager->listTableColumns('test_json');
+
+        self::assertSame(Type::getType(Types::JSON), $columns['foo']->getType());
+        self::assertSame('{"key": "value with a single quote \' in string value"}', $columns['foo']->getDefault());
+    }
+
     public function testBooleanDefault(): void
     {
         $table = new Table('ddc2843_bools');
