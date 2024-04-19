@@ -195,18 +195,6 @@ class ConnectionTest extends FunctionalTestCase
         self::assertFalse($this->connection->isTransactionActive());
     }
 
-    public function testSetNestedTransactionsThroughSavepointsNotSupportedThrowsException(): void
-    {
-        if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
-            self::markTestSkipped('This test requires the platform not to support savepoints.');
-        }
-
-        $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
-
-        $this->connection->setNestTransactionsWithSavepoints(true);
-    }
-
     public function testCreateSavepointsNotSupportedThrowsException(): void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
