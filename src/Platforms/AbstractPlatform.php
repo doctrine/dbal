@@ -27,7 +27,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\UnionSQLBuilder;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
@@ -768,6 +770,11 @@ abstract class AbstractPlatform
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {
         return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', 'SKIP LOCKED');
+    }
+
+    public function createUnionSQLBuilder(): UnionSQLBuilder
+    {
+        return new DefaultUnionSQLBuilder($this);
     }
 
     /**
@@ -2208,6 +2215,30 @@ abstract class AbstractPlatform
         }
 
         return $column1->getComment() === $column2->getComment();
+    }
+
+    /**
+     * Returns the union select query part surrounded by parenthesis if possible for platform.
+     */
+    public function getUnionSelectPartSQL(string $subQuery): string
+    {
+        return sprintf('(%s)', $subQuery);
+    }
+
+    /**
+     * Returns the `UNION ALL` keyword.
+     */
+    public function getUnionAllSQL(): string
+    {
+        return 'UNION ALL';
+    }
+
+    /**
+     * Returns the compatible `UNION DISTINCT` keyword.
+     */
+    public function getUnionDistinctSQL(): string
+    {
+        return 'UNION';
     }
 
     /**
