@@ -70,8 +70,20 @@ MySQL
 DateTimeTz
 ~~~~~~~~~~
 
-MySQL does not support saving timezones or offsets. The DateTimeTz
-type therefore behaves like the DateTime type.
+Prior to version 8.0.19, MySQL does not support saving timezones or offsets. The DateTimeTz type therefore
+behaves like the DateTime type on previous versions.
+Starting from version `8.0.19 and later <https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html#date-and-time-string-numeric-literals>`_,
+timezone offsets are supported. MySQL converts the time zone offset to UTC for storage, and back from UTC to the current
+(SYSTEM, SESSION, etc) time zone for retrieval.
+
+MariaDB
+-------
+
+DateTimeTz
+~~~~~~~~~~
+
+MariaDB does not support saving timezone offsets. The DateTimeTz type therefore behaves like the DateTime
+type.
 
 Sqlite
 ------
@@ -86,7 +98,7 @@ breaks the SERIALIZABLE transaction isolation property that SQLite supposedly
 has.
 
 DateTime
-~~~~~~~~~~
+~~~~~~~~
 
 Unlike most database management systems, Sqlite does not convert supplied
 datetime strings to an internal storage format before storage. Instead, Sqlite
@@ -104,8 +116,8 @@ when trying to convert database values to ``\DateTime`` objects using
 DateTimeTz
 ~~~~~~~~~~
 
-Sqlite does not support saving timezones or offsets. The DateTimeTz
-type therefore behaves like the DateTime type.
+Sqlite supports saving timezone offsets, but this feature is not yet implemented in DBAL.
+The DateTimeTz type therefore behaves like the DateTime type.
 
 Reverse engineering primary key order
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -121,10 +133,8 @@ IBM DB2
 DateTimeTz
 ~~~~~~~~~~
 
-DB2 does not save the actual Timezone Name but UTC-Offsets. The
-difference is subtle but can be potentially very nasty. Derick
-Rethans explains it very well
-`in a blog post of his <http://derickrethans.nl/storing-date-time-in-database.html>`_.
+DB2 does not support saving timezone offsets. The DateTimeTz type therefore behaves like the DateTime
+type.
 
 Oracle
 ------
