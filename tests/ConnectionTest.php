@@ -2,12 +2,14 @@
 
 namespace Doctrine\DBAL\Tests;
 
+use BadMethodCallException;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
@@ -79,6 +81,46 @@ class ConnectionTest extends TestCase
     public function testNoTransactionActiveByDefault(): void
     {
         self::assertFalse($this->connection->isTransactionActive());
+    }
+
+    public function testSetNestTransactionsWithSavepointsDoesNotConnect(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $connection = new Connection(
+            [],
+            new class implements VersionAwarePlatformDriver {
+                /** {@inheritDoc} */
+                public function connect(array $params): DriverConnection
+                {
+                    throw new BadMethodCallException('The connection must not be opened');
+                }
+
+                public function getDatabasePlatform(): AbstractPlatform
+                {
+                    throw new BadMethodCallException('The connection must not be opened');
+                }
+
+                public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager
+                {
+                    throw new BadMethodCallException('The connection must not be opened');
+                }
+
+                public function getExceptionConverter(): ExceptionConverter
+                {
+                    throw new BadMethodCallException('The connection must not be opened');
+                }
+
+                /** {@inheritDoc} */
+                public function createDatabasePlatformForVersion($version): AbstractPlatform
+                {
+                    throw new BadMethodCallException('The connection must not be opened');
+                }
+            },
+            new Configuration(),
+        );
+
+        $connection->setNestTransactionsWithSavepoints(true);
     }
 
     public function testCommitWithNoActiveTransactionThrowsException(): void
