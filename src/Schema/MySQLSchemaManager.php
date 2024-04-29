@@ -316,13 +316,15 @@ class MySQLSchemaManager extends AbstractSchemaManager
     /** @throws Exception */
     public function createComparator(): Comparator
     {
+        $useUtf8mb3 = $this->platform->informationSchemaUsesUtf8mb3($this->connection);
+
         return new MySQL\Comparator(
             $this->platform,
             new CachingCharsetMetadataProvider(
-                new ConnectionCharsetMetadataProvider($this->connection),
+                new ConnectionCharsetMetadataProvider($this->connection, $useUtf8mb3),
             ),
             new CachingCollationMetadataProvider(
-                new ConnectionCollationMetadataProvider($this->connection),
+                new ConnectionCollationMetadataProvider($this->connection, $useUtf8mb3),
             ),
             $this->getDefaultTableOptions(),
         );
