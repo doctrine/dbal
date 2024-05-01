@@ -658,3 +658,4 @@ jobs:
         uses: "codecov/codecov-action@v3"
         with:
           directory: reports
+          fail_ci_if_error: true
