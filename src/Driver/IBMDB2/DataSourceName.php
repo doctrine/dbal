@@ -57,9 +57,14 @@ final class DataSourceName
         }
 
         $dsnParams = [];
+        $serverIsIBMi = str_contains(php_uname(), 'OS400');
 
         foreach (
-            [
+            $serverIsIBMi ? [
+                'dbname'   => 'DSN',
+                'user'     => 'UID',
+                'password' => 'PWD',
+            ] : [
                 'host'     => 'HOSTNAME',
                 'port'     => 'PORT',
                 'protocol' => 'PROTOCOL',
