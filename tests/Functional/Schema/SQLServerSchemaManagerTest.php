@@ -97,10 +97,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(666, $columns['df_integer']->getDefault());
     }
 
-    /** @psalm-suppress DeprecatedConstant */
-    public function testColumnComments(): void
+    /**
+     * @dataProvider columnCommentsProvider
+     * @psalm-suppress DeprecatedConstant
+     */
+    public function testColumnComments(string $tableName): void
     {
-        $table = new Table('sqlsrv_column_comment');
+        $table = new Table($tableName);
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('comment_null', Types::INTEGER, ['comment' => null]);
         $table->addColumn('comment_false', Types::INTEGER, ['comment' => false]);
@@ -130,7 +133,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
+        $columns = $this->schemaManager->listTableColumns($tableName);
         self::assertCount(13, $columns);
         self::assertNull($columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
@@ -209,7 +212,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->alterTable($diff);
 
-        $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
+        $columns = $this->schemaManager->listTableColumns($tableName);
         self::assertCount(24, $columns);
         self::assertEquals('primary', $columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
@@ -235,6 +238,16 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($columns['added_commented_type']->getComment());
         self::assertEquals('666', $columns['added_commented_type_with_comment']->getComment());
         self::assertEquals('Some comment', $columns['commented_req_change_column']->getComment());
+    }
+
+    /** @return mixed[][] */
+    public static function columnCommentsProvider(): iterable
+    {
+        return [
+            'Simple table name' => ['sqlsrv_column_comment'],
+            'Quoted table name' => ['[sqlsrv_column_comment quoted]'],
+            'Quoted table name with schema' => ['[dbo].[sqlsrv_column_comment " with_schema]'],
+        ];
     }
 
     public function testPkOrdering(): void
