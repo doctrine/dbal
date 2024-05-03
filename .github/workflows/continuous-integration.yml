@@ -74,7 +74,7 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
           dependency-versions: "${{ matrix.dependencies }}"
@@ -144,7 +144,7 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -203,7 +203,7 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -273,7 +273,7 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -357,7 +357,7 @@ jobs:
           extensions: "${{ matrix.extension }}"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -444,7 +444,7 @@ jobs:
           extensions: "${{ matrix.extension }}"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -515,7 +515,7 @@ jobs:
           extensions: "${{ matrix.extension }}-5.10.0beta1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -586,7 +586,7 @@ jobs:
           IBM_DB2_CONFIGURE_OPTS: "--with-IBM_DB2=/tmp/clidriver"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
 
       - name: "Run PHPUnit"
         run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
@@ -619,7 +619,7 @@ jobs:
         run: "composer config minimum-stability dev"
 
       - name: "Install development dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--prefer-dist"
 
