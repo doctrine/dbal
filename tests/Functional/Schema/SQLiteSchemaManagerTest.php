@@ -18,7 +18,7 @@ use Doctrine\DBAL\Types\Types;
 use function array_keys;
 use function array_shift;
 
-class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
+class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
