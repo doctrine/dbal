@@ -36,6 +36,7 @@ use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtolower;
+use function substr;
 use function trim;
 
 /**
@@ -675,8 +676,9 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         $tableName = $table->getName();
-        if (strpos($tableName, '.') !== false) {
-            [, $tableName] = explode('.', $tableName, 2);
+        $pos       = strpos($tableName, '.');
+        if ($pos !== false) {
+            $tableName = substr($tableName, $pos + 1);
         }
 
         $dataTable = new Table('__temp__' . $tableName);
