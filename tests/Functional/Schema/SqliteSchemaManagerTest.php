@@ -7,12 +7,15 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
+use function array_keys;
 use function array_shift;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -207,24 +210,22 @@ SQL;
         self::assertSame(['name'], $index->getColumns());
     }
 
-    public function testGeneratesAlterTableRenameColumnSQLWithSchema(): void
+    public function testAlterTableWithSchema(): void
     {
-        $this->platform->disableSchemaEmulation();
+        $this->dropTableIfExists('t');
 
         $table = new Table('main.t');
         $table->addColumn('a', Types::INTEGER);
+        $this->schemaManager->createTable($table);
 
-        $tableDiff                      = new TableDiff('t');
-        $tableDiff->fromTable           = $table;
-        $tableDiff->renamedColumns['a'] = new Column('b', Type::getType(Types::INTEGER));
+        self::assertSame(['a'], array_keys($this->schemaManager->listTableColumns('t')));
 
-        self::assertSame([
-            'CREATE TEMPORARY TABLE __temp__t AS SELECT a FROM main.t',
-            'DROP TABLE main.t',
-            'CREATE TABLE main.t (b INTEGER NOT NULL)',
-            'INSERT INTO main.t (b) SELECT a FROM __temp__t',
-            'DROP TABLE __temp__t',
-        ], $this->platform->getAlterTableSQL($tableDiff));
+        $tableDiff = new TableDiff($table, [], [], [], [
+            'a' => new Column('b', Type::getType(Types::INTEGER)),
+        ], [], [], [], [], [], [], []);
+        $this->schemaManager->alterTable($tableDiff);
+
+        self::assertSame(['b'], array_keys($this->schemaManager->listTableColumns('t')));
     }
 
     public function testIntrospectMultipleAnonymousForeignKeyConstraints(): void
