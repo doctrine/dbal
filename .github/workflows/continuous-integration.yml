@@ -383,14 +383,12 @@ jobs:
         mysql-version:
           - "5.7"
           - "8.0"
-          - "8.4"
         extension:
           - "mysqli"
           - "pdo_mysql"
         config-file-suffix:
           - ""
         include:
-          - mysql-version: "5.7"
           - mysql-version: "8.0"
             # https://stackoverflow.com/questions/60902904/how-to-pass-mysql-native-password-to-mysql-service-in-github-actions
             custom-entrypoint: >-
@@ -415,6 +413,26 @@ jobs:
           - php-version: "8.3"
             mysql-version: "8.0"
             extension: "pdo_mysql"
+          - php-version: "7.4"
+            mysql-version: "8.4"
+            extension: "mysqli"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+          - php-version: "7.4"
+            mysql-version: "8.4"
+            extension: "pdo_mysql"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+          - php-version: "8.1"
+            mysql-version: "8.4"
+            extension: "mysqli"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+          - php-version: "8.1"
+            mysql-version: "8.4"
+            extension: "pdo_mysql"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
 
     services:
       mysql:
