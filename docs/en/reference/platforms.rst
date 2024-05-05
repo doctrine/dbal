@@ -36,6 +36,7 @@ MySQL
 -  ``MySQLPlatform`` for version 5.0 and above.
 -  ``MySQL57Platform`` for version 5.7 (5.7.9 GA) and above.
 -  ``MySQL80Platform`` for version 8.0 (8.0 GA) and above.
+-  ``MySQL84Platform`` for version 8.4 (8.4 GA) and above.
 
 MariaDB
 ^^^^^

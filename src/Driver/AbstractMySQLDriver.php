@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\MariaDb1052Platform;
 use Doctrine\DBAL\Platforms\MariaDb1060Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQL84Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -64,6 +65,20 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
             }
         } else {
             $oracleMysqlVersion = $this->getOracleMysqlVersionNumber($version);
+
+            if (version_compare($oracleMysqlVersion, '8.4.0', '>=')) {
+                if (! version_compare($version, '8.4.0', '>=')) {
+                    Deprecation::trigger(
+                        'doctrine/orm',
+                        'https://github.com/doctrine/dbal/pull/5779',
+                        'Version detection logic for MySQL will change in DBAL 4. '
+                            . 'Please specify the version as the server reports it, e.g. "8.4.0" instead of "8.4".',
+                    );
+                }
+
+                return new MySQL84Platform();
+            }
+
             if (version_compare($oracleMysqlVersion, '8', '>=')) {
                 if (! version_compare($version, '8.0.0', '>=')) {
                     Deprecation::trigger(
@@ -130,6 +145,8 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
 
         if ($majorVersion === '5' && $minorVersion === '7') {
             $patchVersion ??= '9';
+        } else {
+            $patchVersion ??= '0';
         }
 
         return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
