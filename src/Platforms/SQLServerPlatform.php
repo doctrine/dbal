@@ -1306,7 +1306,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $length = $column['length'] ?? null;
 
-        if (! isset($column['fixed'])) {
+        if (empty($column['fixed'])) {
             return sprintf('VARCHAR(%d)', $length ?? 255);
         }
 
