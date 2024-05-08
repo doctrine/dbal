@@ -637,7 +637,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $expectedSql = [
             'CREATE TABLE testschema.test (id INT NOT NULL, PRIMARY KEY (id))',
             "EXEC sp_addextendedproperty N'MS_Description', N'This is a comment', "
-                . "N'SCHEMA', 'testschema', N'TABLE', 'test', N'COLUMN', id",
+                . "N'SCHEMA', 'testschema', N'TABLE', 'test', N'COLUMN', 'id'",
         ];
 
         self::assertEquals($expectedSql, $this->platform->getCreateTableSQL($table));
@@ -658,7 +658,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $expectedSql = [
             'ALTER TABLE testschema.mytable ADD quota INT NOT NULL',
             "EXEC sp_addextendedproperty N'MS_Description', N'A comment', "
-                . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota",
+                . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', 'quota'",
         ];
 
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
@@ -676,7 +676,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
         $expectedSql = [
             "EXEC sp_dropextendedproperty N'MS_Description'"
-                . ", N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota",
+                . ", N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', 'quota'",
         ];
 
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
@@ -693,7 +693,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         ], [], [], [], [], [], [], [], [], []);
 
         $expectedSql = ["EXEC sp_updateextendedproperty N'MS_Description', N'B comment', "
-                . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota",
+                . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', 'quota'",
         ];
 
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
