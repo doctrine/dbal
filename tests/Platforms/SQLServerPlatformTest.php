@@ -1826,7 +1826,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'DATETIME2(6)',
-            $this->platform->getStringTypeDeclarationSQL([]),
+            $this->platform->getDateTimeTypeDeclarationSQL([]),
         );
         self::assertEquals(
             'DATETIME2(0)',
@@ -1838,11 +1838,11 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         );
         self::assertEquals(
             'DATETIME2(6)',
-            $this->platform->getStringTypeDeclarationSQL(['precision' => -1]),
+            $this->platform->getDateTimeTypeDeclarationSQL(['precision' => -1]),
         );
         self::assertEquals(
             'DATETIME2(6)',
-            $this->platform->getStringTypeDeclarationSQL(['precision' => 255]),
+            $this->platform->getDateTimeTypeDeclarationSQL(['precision' => 255]),
         );
     }
 
