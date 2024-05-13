@@ -1825,12 +1825,24 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testGeneratesTypeDeclarationsForDateTime(): void
     {
         self::assertEquals(
+            'DATETIME2(6)',
+            $this->platform->getStringTypeDeclarationSQL([]),
+        );
+        self::assertEquals(
+            'DATETIME2(0)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['precision' => 0]),
+        );
+        self::assertEquals(
             'DATETIME2(7)',
-            $this->platform->getDateTimeTypeDeclarationSQL([]),
+            $this->platform->getDateTimeTypeDeclarationSQL(['precision' => 7]),
         );
         self::assertEquals(
             'DATETIME2(6)',
-            $this->platform->getStringTypeDeclarationSQL(['precision' => 6]),
+            $this->platform->getStringTypeDeclarationSQL(['precision' => -1]),
+        );
+        self::assertEquals(
+            'DATETIME2(6)',
+            $this->platform->getStringTypeDeclarationSQL(['precision' => 255]),
         );
     }
 

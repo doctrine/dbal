@@ -1390,7 +1390,10 @@ class SQLServerPlatform extends AbstractPlatform
     {
         // 3 - microseconds precision length
         // https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver16
-        $precision = $column['precision'] ?? 6;
+        $precision = $column['precision'] ?? null;
+        if (is_null($precision) || !is_int($precision) || $precision < 0 || $precision > 7) {
+            $precision = 6;
+        }
         return 'DATETIME2(' + $precision + ')';
     }
 
