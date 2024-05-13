@@ -1389,8 +1389,9 @@ class SQLServerPlatform extends AbstractPlatform
     public function getDateTimeTypeDeclarationSQL(array $column)
     {
         // 3 - microseconds precision length
-        // http://msdn.microsoft.com/en-us/library/ms187819.aspx
-        return 'DATETIME2(6)';
+        // https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver16
+        $precision = $column['precision'] ?? 6;
+        return 'DATETIME2(' + $precision + ')';
     }
 
     /**
