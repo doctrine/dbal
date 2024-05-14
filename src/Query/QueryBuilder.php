@@ -580,8 +580,8 @@ class QueryBuilder
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
-     *         ->delete('users', 'u')
-     *         ->where('u.id = :user_id')
+     *         ->delete('users')
+     *         ->where('users.id = :user_id')
      *         ->setParameter(':user_id', 1);
      * </code>
      *
@@ -606,9 +606,9 @@ class QueryBuilder
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
-     *         ->update('counters', 'c')
-     *         ->set('c.value', 'c.value + 1')
-     *         ->where('c.id = ?');
+     *         ->update('counters')
+     *         ->set('counters.value', 'counters.value + 1')
+     *         ->where('counters.id = ?');
      * </code>
      *
      * @param string $table The table whose rows are subject to the update.
