@@ -77,7 +77,14 @@ EOT);
         $forceFetch = $input->getOption('force-fetch');
         assert(is_bool($forceFetch));
 
-        if (stripos($sql, 'select') === 0 || $forceFetch) {
+        $fetchKeywords = ['select', 'show'];
+        foreach ($fetchKeywords as $fetchKeyword) {
+            if (stripos($sql, $fetchKeyword) === 0) {
+                $forceFetch = true;
+            }
+        }
+
+        if ($forceFetch) {
             $this->runQuery($io, $conn, $sql);
         } else {
             $this->runStatement($io, $conn, $sql);
