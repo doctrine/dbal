@@ -184,7 +184,7 @@ class Result
     }
 
     /**
-     * {@inheritDoc}
+     * @return Traversable<int,list<mixed>>
      *
      * @throws Exception
      */
