@@ -1,15 +1,15 @@
 parameters:
     level: 8
-    phpVersion: 80200
+    phpVersion: 80300
     paths:
         - src
         - static-analysis
         - tests
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
+        - identifier: missingType.generics
+
         # https://github.com/phpstan/phpstan-strict-rules/issues/103
         -
             message: '~^Construct empty\(\) is not allowed. Use more strict comparison\.~'

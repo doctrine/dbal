@@ -59,7 +59,7 @@ class JsonTest extends FunctionalTestCase
         self::assertSame($value2, $res2);
     }
 
-    /** @param array<scalar|array> $value */
+    /** @param array<mixed> $value */
     private function insert(int $id, array $value): void
     {
         $result = $this->connection->insert('json_test_table', [
@@ -73,7 +73,7 @@ class JsonTest extends FunctionalTestCase
         self::assertSame(1, $result);
     }
 
-    /** @return array<scalar|array> */
+    /** @return array<mixed> */
     private function select(int $id): array
     {
         $value = $this->connection->fetchOne(
