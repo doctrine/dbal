@@ -178,7 +178,7 @@ class Result
     }
 
     /**
-     * @return Traversable<mixed,mixed>
+     * @return Traversable<mixed, mixed>
      *
      * @throws Exception
      */
