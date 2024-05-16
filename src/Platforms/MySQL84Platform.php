@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\Deprecations\Deprecation;
 
 /**
- * Provides the behavior, features and SQL dialect of the MySQL 8.4 (8.4 GA) database platform.
+ * Provides the behavior, features and SQL dialect of the MySQL 8.4 database platform.
  */
 class MySQL84Platform extends MySQL80Platform
 {
