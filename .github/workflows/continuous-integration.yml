@@ -353,7 +353,6 @@ jobs:
         mysql-version:
           - "5.7"
           - "8.0"
-          - "8.3"
         extension:
           - "mysqli"
           - "pdo_mysql"
@@ -370,6 +369,16 @@ jobs:
           - php-version: "8.3"
             mysql-version: "8.0"
             extension: "pdo_mysql"
+          - php-version: "8.1"
+            mysql-version: "8.4"
+            extension: "mysqli"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+          - php-version: "8.1"
+            mysql-version: "8.4"
+            extension: "pdo_mysql"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
 
     services:
       mysql:
