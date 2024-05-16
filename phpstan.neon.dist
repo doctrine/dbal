@@ -1,14 +1,14 @@
 parameters:
     level: 8
-    phpVersion: 80200
+    phpVersion: 80300
     paths:
         - src
         - static-analysis
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
+        - identifier: missingType.generics
+
         # https://github.com/doctrine/dbal/pull/3836
         # TODO: remove in 4.0.0
         - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int\|string> given\.\z~'
