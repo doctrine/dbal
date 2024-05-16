@@ -7,12 +7,15 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
+use function array_keys;
 use function array_shift;
 
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -205,6 +208,24 @@ SQL;
         $table = $schemaManager->introspectTable('nodes');
         $index = $table->getIndex('idx_name');
         self::assertSame(['name'], $index->getColumns());
+    }
+
+    public function testAlterTableWithSchema(): void
+    {
+        $this->dropTableIfExists('t');
+
+        $table = new Table('main.t');
+        $table->addColumn('a', Types::INTEGER);
+        $this->schemaManager->createTable($table);
+
+        self::assertSame(['a'], array_keys($this->schemaManager->listTableColumns('t')));
+
+        $tableDiff = new TableDiff($table, [], [], [], [
+            'a' => new Column('b', Type::getType(Types::INTEGER)),
+        ], [], [], [], [], [], [], []);
+        $this->schemaManager->alterTable($tableDiff);
+
+        self::assertSame(['b'], array_keys($this->schemaManager->listTableColumns('t')));
     }
 
     public function testIntrospectMultipleAnonymousForeignKeyConstraints(): void
