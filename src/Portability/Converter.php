@@ -244,7 +244,7 @@ final class Converter
      *
      * @param Closure $function The function that maps each value of the array
      *
-     * @return Closure(array):array
+     * @return Closure(array<mixed>):array<mixed>
      */
     private function createMapper(Closure $function): Closure
     {

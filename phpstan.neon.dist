@@ -9,7 +9,6 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - identifier: missingType.generics
-        - identifier: missingType.iterableValue
 
         # https://github.com/phpstan/phpstan-strict-rules/issues/103
         -
