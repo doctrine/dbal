@@ -184,7 +184,7 @@ class Result
     }
 
     /**
-     * @return Traversable<int,list<mixed>>
+     * @return Traversable<mixed, mixed>
      *
      * @throws Exception
      */
