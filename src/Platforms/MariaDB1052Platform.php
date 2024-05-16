@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 
 /**
- * Provides the behavior, features and SQL dialect of the MariaDB 10.5 (10.5.2 GA) database platform.
+ * Provides the behavior, features and SQL dialect of the MariaDB 10.5 database platform.
  *
  * @deprecated This class will be removed once support for MariaDB 10.4 is dropped.
  */
