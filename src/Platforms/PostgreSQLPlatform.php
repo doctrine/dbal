@@ -391,9 +391,18 @@ class PostgreSQLPlatform extends AbstractPlatform
             $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
+        $temporary = isset($options['temporary']) && $options['temporary'] === true ? ' TEMPORARY' : '';
+
+        $onCommit = $options['temporary'] ?? false ? match ($options['on_commit'] ?? '') {
+            'preserve' => ' ON COMMIT PRESERVE ROWS',
+            'delete' => ' ON COMMIT DELETE ROWS',
+            'drop' => ' ON COMMIT DROP',
+            default => ''
+        } : '';
+
         $unlogged = isset($options['unlogged']) && $options['unlogged'] === true ? ' UNLOGGED' : '';
 
-        $query = 'CREATE' . $unlogged . ' TABLE ' . $name . ' (' . $queryFields . ')';
+        $query = 'CREATE' . $temporary . $unlogged . ' TABLE ' . $name . ' (' . $queryFields . ')' . $onCommit;
 
         $sql = [$query];
 
