@@ -93,7 +93,18 @@ and absolutely not portable.
 -  **engine** (string): The DB engine used for the table. Currently only supported on MySQL.
 
 -  **unlogged** (boolean): Set a PostgreSQL table type as
-  `unlogged <https://www.postgresql.org/docs/current/sql-createtable.htmll>`_
+   `unlogged <https://www.postgresql.org/docs/current/sql-createtable.html#SQL-CREATETABLE-UNLOGGED>`_
+
+-  **temporary** (boolean): Set a PostgreSQL table type as
+   `temporary <https://www.postgresql.org/docs/current/sql-createtable.html#SQL-CREATETABLE-TEMPORARY>`_
+
+-  **on_commit** (string): Set a PostgreSQL table
+   `commit options <https://www.postgresql.org/docs/current/sql-createtable.html#SQL-CREATETABLE-PARMS-ON-COMMIT>`_,
+   only used if **temporary** is true
+   
+   - ``preserve``: preserve rows on commit
+   - ``delete``: delete rows on commit
+   - ``drop``: drop rows on commit
 
 Column
 ~~~~~~
