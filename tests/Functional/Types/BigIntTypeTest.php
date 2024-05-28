@@ -11,6 +11,9 @@ use Doctrine\DBAL\Types\Types;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+use function str_starts_with;
+use function substr;
+
 use const PHP_INT_MAX;
 use const PHP_INT_MIN;
 use const PHP_INT_SIZE;
@@ -38,6 +41,30 @@ class BigIntTypeTest extends FunctionalTestCase
                 Types::BIGINT,
             ),
         );
+
+        if ($expectedValue === null) {
+            return;
+        }
+
+        self::assertSame(
+            $expectedValue,
+            $this->connection->convertToPHPValue(
+                $sqlLiteral . '.00',
+                Types::BIGINT,
+            ),
+        );
+
+        $startsWithSign = str_starts_with($sqlLiteral, '-') || str_starts_with($sqlLiteral, '+');
+
+        self::assertSame(
+            $expectedValue,
+            $this->connection->convertToPHPValue(
+                ($startsWithSign ? substr($sqlLiteral, 0, 1) : '')
+                . '00'
+                . ($startsWithSign ? substr($sqlLiteral, 1) : $sqlLiteral),
+                Types::BIGINT,
+            ),
+        );
     }
 
     /** @return Generator<string, array{string, int|string|null}> */
@@ -53,6 +80,11 @@ class BigIntTypeTest extends FunctionalTestCase
         yield 'large negative number' => [PHP_INT_SIZE === 4 ? '-2147483647' : '-9223372036854775807', PHP_INT_MIN + 1];
         yield 'largest positive number' => [PHP_INT_SIZE === 4 ? '2147483647' : '9223372036854775807', PHP_INT_MAX];
         yield 'largest negative number' => [PHP_INT_SIZE === 4 ? '-2147483648' : '-9223372036854775808', PHP_INT_MIN];
+
+        yield 'plus largest positive number' => [
+            PHP_INT_SIZE === 4 ? '+2147483647' : '+9223372036854775807',
+            PHP_INT_MAX,
+        ];
     }
 
     public function testUnsignedBigIntOnMySQL(): void

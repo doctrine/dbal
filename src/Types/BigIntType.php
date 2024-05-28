@@ -10,9 +10,10 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function assert;
 use function is_int;
 use function is_string;
-
-use const PHP_INT_MAX;
-use const PHP_INT_MIN;
+use function preg_replace;
+use function rtrim;
+use function strpos;
+use function substr;
 
 /**
  * Type that attempts to map a database BIGINT to a PHP int.
@@ -47,17 +48,20 @@ class BigIntType extends Type implements PhpIntegerMappingType
             return $value;
         }
 
-        if (
-            ($value > PHP_INT_MIN && $value < PHP_INT_MAX)
-            || $value === (string) (int) $value
-        ) {
-            return (int) $value;
-        }
-
         assert(
             is_string($value),
             'DBAL assumes values outside of the integer range to be returned as string by the database driver.',
         );
+
+        // workaround https://github.com/php/php-src/issues/14345
+        $dotPos = strpos($value, '.');
+        if ($dotPos !== false && rtrim(substr($value, $dotPos + 1), '0') === '') {
+            $value = substr($value, 0, $dotPos);
+        }
+
+        if (preg_replace('~^(\+|-(?=0+$))|(?<=^|^[+\-])0+(?=\d)~', '', $value) === (string) (int) $value) {
+            return (int) $value;
+        }
 
         return $value;
     }
