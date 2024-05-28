@@ -47,7 +47,10 @@ class BigIntType extends Type implements PhpIntegerMappingType
             return $value;
         }
 
-        if ($value > PHP_INT_MIN && $value < PHP_INT_MAX) {
+        if (
+            ($value > PHP_INT_MIN && $value < PHP_INT_MAX)
+            || $value === (string) (int) $value
+        ) {
             return (int) $value;
         }
 
