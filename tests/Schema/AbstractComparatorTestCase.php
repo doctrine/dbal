@@ -682,9 +682,17 @@ class AbstractComparatorTestCase extends TestCase
         $tableB->addColumn('ID', Types::INTEGER);
         $tableB->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'bar_constraint');
 
-        $tableDiff = $this->comparator->diffTable($tableA, $tableB);
-
-        self::assertFalse($tableDiff);
+        $fkA = new ForeignKeyConstraint(['id'], 'bar', ['id'], 'foo_constraint');
+        $fkA->setLocalTable($tableA);
+        $fkB = new ForeignKeyConstraint(['id'], 'bar', ['id'], 'bar_constraint');
+        $fkB->setLocalTable($tableB);
+        $tableDiff = new TableDiff(
+            tableName: 'foo',
+            fromTable: $tableA,
+            addedForeignKeys: [$fkB],
+            removedForeignKeys: [$fkA],
+        );
+        self::assertEquals($tableDiff, $this->comparator->compareTables($tableA, $tableB));
     }
 
     public function testCompareForeignKeyRestrictNoActionAreTheSame(): void
