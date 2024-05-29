@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\MariaDB1052Platform;
 use Doctrine\DBAL\Platforms\MariaDB1060Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
+use Doctrine\DBAL\Platforms\MySQL8013Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQL84Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
@@ -58,7 +59,17 @@ abstract class AbstractMySQLDriver implements Driver
             return new MySQL84Platform();
         }
 
+        if (version_compare($version, '8.0.13', '>=')) {
+            return new MySQL8013Platform();
+        }
+
         if (version_compare($version, '8.0.0', '>=')) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6343',
+                'Support for MySQL <= 8.0.13 is deprecated and will be removed in DBAL 5',
+            );
+
             return new MySQL80Platform();
         }
 

@@ -743,7 +743,7 @@ class Table extends AbstractAsset
         }
 
         foreach ($columns as $columnName) {
-            if (! $this->hasColumn($columnName)) {
+            if (! $this->hasColumn($columnName) && ! Index::isFunctionalIndex($columnName)) {
                 throw ColumnDoesNotExist::new($columnName, $this->_name);
             }
         }

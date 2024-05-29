@@ -10,7 +10,7 @@ use Doctrine\DBAL\Platforms\Keywords\MySQL84Keywords;
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 8.4 database platform.
  */
-class MySQL84Platform extends MySQL80Platform
+class MySQL84Platform extends MySQL8013Platform
 {
     protected function createReservedKeywordsList(): KeywordList
     {

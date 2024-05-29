@@ -390,10 +390,12 @@ SQL;
             $sql .= ' TABLE_NAME,';
         }
 
-        $sql .= <<<'SQL'
+        $columnName = $this->getColumnNameForIndexFetch();
+
+        $sql .= <<<SQL
         NON_UNIQUE  AS Non_Unique,
         INDEX_NAME  AS Key_name,
-        COLUMN_NAME AS Column_Name,
+        {$columnName},
         SUB_PART    AS Sub_Part,
         INDEX_TYPE  AS Index_Type
 FROM information_schema.STATISTICS
@@ -538,5 +540,18 @@ SQL;
         }
 
         return $this->defaultTableOptions;
+    }
+
+    /**
+     * EXPRESSION
+     *
+     * MySQL 8.0.13 and higher supports functional key parts (see Functional Key Parts), which affects both
+     * the COLUMN_NAME and EXPRESSION columns:
+     * For a nonfunctional key part, COLUMN_NAME indicates the column indexed by the key part and EXPRESSION is NULL.
+     * For a functional key part, COLUMN_NAME column is NULL and EXPRESSION indicates the expression for the key part.
+     */
+    private function getColumnNameForIndexFetch(): string
+    {
+        return $this->platform->getColumnNameForIndexFetch() . ' as Column_Name';
     }
 }

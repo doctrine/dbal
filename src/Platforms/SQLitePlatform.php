@@ -31,6 +31,7 @@ use function array_unique;
 use function array_values;
 use function count;
 use function explode;
+use function get_debug_type;
 use function implode;
 use function sprintf;
 use function str_replace;
@@ -558,6 +559,16 @@ class SQLitePlatform extends AbstractPlatform
                 'Incomplete or invalid index definition %s on table %s',
                 $name,
                 $table,
+            ));
+        }
+
+        if ($index->isFunctional() && ! $this->supportsFunctionalIndex()) {
+            throw new InvalidArgumentException(sprintf(
+                'Index "%s" on table "%s" contains a functional part, ' .
+                'but platform "%s" does not support functional indexes.',
+                $name,
+                $table,
+                get_debug_type($this),
             ));
         }
 
