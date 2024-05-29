@@ -379,6 +379,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $default = null;
         }
 
+        // https://github.com/doctrine/dbal/blob/3.8.4/src/Platforms/SqlitePlatform.php#L271-L274
+        // https://dbfiddle.uk/yyXvHV-6
+        if (strtolower($type) === 'integer' && ($tableColumn['pk'] !== 0 && $tableColumn['pk'] !== '0')) {
+            $type = 'bigint';
+        }
+
         if ($default !== null) {
             // SQLite returns the default value as a literal expression, so we need to parse it
             if (preg_match('/^\'(.*)\'$/s', $default, $matches) === 1) {
