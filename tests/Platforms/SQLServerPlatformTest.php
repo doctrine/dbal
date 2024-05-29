@@ -1822,6 +1822,30 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertEquals('DATETIMEOFFSET(6)', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
     }
 
+    public function testGeneratesTypeDeclarationsForDateTime(): void
+    {
+        self::assertEquals(
+            'DATETIME2(6)',
+            $this->platform->getDateTimeTypeDeclarationSQL([]),
+        );
+        self::assertEquals(
+            'DATETIME2(0)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['precision' => 0]),
+        );
+        self::assertEquals(
+            'DATETIME2(7)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['precision' => 7]),
+        );
+        self::assertEquals(
+            'DATETIME2(6)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['precision' => -1]),
+        );
+        self::assertEquals(
+            'DATETIME2(6)',
+            $this->platform->getDateTimeTypeDeclarationSQL(['precision' => 255]),
+        );
+    }
+
     public function testDropIndexSQLRequiresTable(): void
     {
         $this->expectException(InvalidArgumentException::class);
