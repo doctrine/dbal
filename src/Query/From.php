@@ -10,6 +10,8 @@ final class From
     public function __construct(
         public readonly string $table,
         public readonly ?string $alias = null,
+        public readonly ?string $optimizerHints = null,
+        public readonly ?string $indexHints = null,
     ) {
     }
 }

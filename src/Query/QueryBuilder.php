@@ -666,14 +666,16 @@ class QueryBuilder
      *         ->from('users', 'u')
      * </code>
      *
-     * @param string      $table The table.
-     * @param string|null $alias The alias of the table.
+     * @param string      $table            The table.
+     * @param string|null $alias            The alias of the table.
+     * @param string|null $optimizerHints   Optimizer hints for table (eg `NO_MERGE(dt)`).
+     * @param string|null $indexHints       Index hints for table (eg `USE INDEX(col1)`).
      *
      * @return $this This QueryBuilder instance.
      */
-    public function from(string $table, ?string $alias = null): self
+    public function from(string $table, ?string $alias = null, ?string $optimizerHints = null, ?string $indexHints = null): self
     {
-        $this->from[] = new From($table, $alias);
+        $this->from[] = new From($table, $alias, $optimizerHints, $indexHints);
 
         $this->sql = null;
 
@@ -1244,6 +1246,14 @@ class QueryBuilder
             } else {
                 $tableSql       = $from->table . ' ' . $from->alias;
                 $tableReference = $from->alias;
+            }
+
+            if ($from->optimizerHints !== null) {
+                $tableSql = '/*+ ' . $from->optimizerHints . ' */ ' . $tableSql;
+            }
+
+            if ($from->indexHints !== null) {
+                $tableSql .= ' ' . $from->indexHints;
             }
 
             $knownAliases[$tableReference] = true;

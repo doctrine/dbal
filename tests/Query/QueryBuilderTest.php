@@ -62,6 +62,36 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('SELECT u.id FROM users u', (string) $qb);
     }
 
+    public function testTableOptimizerHints(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.id')
+           ->from('users', 'u', 'MERGE(u)');
+
+        self::assertEquals('SELECT u.id FROM /*+ MERGE(u) */ users u', (string) $qb);
+    }
+
+    public function testTableIndexHints(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.id')
+           ->from('users', 'u', null, 'USE INDEX(u.name)');
+
+        self::assertEquals('SELECT u.id FROM users u USE INDEX(u.name)', (string) $qb);
+    }
+
+    public function testTableHints(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.id')
+           ->from('users', 'u', 'MERGE(u)', 'USE INDEX(u.name)');
+
+        self::assertEquals('SELECT u.id FROM /*+ MERGE(u) */ users u USE INDEX(u.name)', (string) $qb);
+    }
+
     public function testSimpleSelectWithDistinct(): void
     {
         $qb = new QueryBuilder($this->conn);
