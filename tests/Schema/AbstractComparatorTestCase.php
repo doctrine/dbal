@@ -652,7 +652,7 @@ class AbstractComparatorTestCase extends TestCase
         self::assertFalse($tableDiff);
     }
 
-    public function testCompareIndexBasedOnPropertiesNotName(): void
+    public function testDetectIndexNameChange(): void
     {
         $tableA = new Table('foo');
         $tableA->addColumn('id', Types::INTEGER);
@@ -672,7 +672,7 @@ class AbstractComparatorTestCase extends TestCase
         );
     }
 
-    public function testCompareForeignKeyBasedOnPropertiesNotName(): void
+    public function testDetectForeignKeyNameChange(): void
     {
         $tableA = new Table('foo');
         $tableA->addColumn('id', Types::INTEGER);
@@ -683,8 +683,9 @@ class AbstractComparatorTestCase extends TestCase
         $tableB->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'bar_constraint');
 
         $tableDiff = $this->comparator->diffTable($tableA, $tableB);
-
-        self::assertFalse($tableDiff);
+        self::assertNotFalse($tableDiff);
+        self::assertCount(1, $tableDiff->addedForeignKeys);
+        self::assertCount(1, $tableDiff->removedForeignKeys);
     }
 
     public function testCompareForeignKeyRestrictNoActionAreTheSame(): void
