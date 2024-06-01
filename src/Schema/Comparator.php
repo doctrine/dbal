@@ -555,6 +555,10 @@ class Comparator
      */
     public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2)
     {
+        if (strtolower($key1->getName()) !== strtolower($key2->getName())) {
+            return true;
+        }
+
         if (
             array_map('strtolower', $key1->getUnquotedLocalColumns())
             !== array_map('strtolower', $key2->getUnquotedLocalColumns())
