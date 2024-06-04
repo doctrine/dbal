@@ -944,7 +944,7 @@ abstract class AbstractPlatform
      * @param mixed[][] $columns
      * @param mixed[]   $options
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
