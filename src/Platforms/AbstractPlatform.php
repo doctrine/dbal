@@ -816,8 +816,7 @@ abstract class AbstractPlatform
             }
         }
 
-        $columnSql = [];
-        $columns   = [];
+        $columns = [];
 
         foreach ($table->getColumns() as $column) {
             $columnData = $this->columnToArray($column);
@@ -847,7 +846,7 @@ abstract class AbstractPlatform
             }
         }
 
-        return array_merge($sql, $columnSql);
+        return $sql;
     }
 
     /**
@@ -945,7 +944,7 @@ abstract class AbstractPlatform
      * @param mixed[][] $columns
      * @param mixed[]   $options
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
