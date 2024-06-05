@@ -99,6 +99,16 @@ SQL,
                 $length /= 2;
                 break;
 
+            case 'varchar':
+                // keep for backward compatibility
+                // as some fields might come back as VARCHAR(MAX) with a length of -1
+                // and we want them to be mapped to the 'text' type
+                if ($length === -1) {
+                    $dbType = 'text';
+                }
+
+                break;
+
             case 'varbinary':
                 if ($length === -1) {
                     $dbType = 'blob';
