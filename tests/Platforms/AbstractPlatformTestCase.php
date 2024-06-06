@@ -1445,7 +1445,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertSame([], $this->platform->getAlterSchemaSQL($diff));
     }
 
-    public function testColumnComparisonWithDisabledTypeComments(): void
+    public function testColumnComparison(): void
     {
         //Since DATETIME_MUTABLE is a "parent" of DATETIME_IMMUTABLE, they will have the same SQL type declaration.
         $column1 = new Column('foo', Type::getType(Types::DATETIME_MUTABLE));
