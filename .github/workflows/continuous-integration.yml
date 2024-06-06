@@ -337,7 +337,7 @@ jobs:
           MYSQL_DATABASE: "doctrine_tests"
 
         options: >-
-          --health-cmd "mariadb-admin ping --silent || mysqladmin ping --silent"
+          --health-cmd "healthcheck.sh --connect --innodb_initialized || mysqladmin ping --protocol tcp --silent"
 
         ports:
           - "3306:3306"
