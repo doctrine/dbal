@@ -1451,10 +1451,10 @@ abstract class AbstractPlatformTestCase extends TestCase
         $column1 = new Column('foo', Type::getType(Types::DATETIME_MUTABLE));
         $column2 = new Column('foo', Type::getType(Types::DATETIME_IMMUTABLE));
 
-        $this->platform->setDisableTypeComments(true);
-        $result = (new Comparator($this->platform))->columnsEqual($column1, $column2);
+        self::assertFalse($this->platform->columnsEqual($column1, $column2));
 
-        self::assertTrue($result);
+        $this->platform->setDisableTypeComments(true);
+        self::assertTrue($this->platform->columnsEqual($column1, $column2));
     }
 
     public function tearDown(): void
