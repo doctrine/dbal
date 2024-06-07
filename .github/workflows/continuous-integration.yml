@@ -293,6 +293,8 @@ jobs:
 
     strategy:
       matrix:
+        mariadb-base-image:
+          - "mariadb"
         php-version:
           - "7.4"
         mariadb-version:
@@ -312,26 +314,36 @@ jobs:
         include:
           - php-version: "8.2"
             mariadb-version: "10.6"
+            mariadb-base-image: "mariadb"
             extension: "mysqli"
           - php-version: "8.2"
             mariadb-version: "10.6"
+            mariadb-base-image: "mariadb"
             extension: "pdo_mysql"
           - php-version: "8.2"
             mariadb-version: "11.4"
+            mariadb-base-image: "mariadb"
             extension: "mysqli"
           - php-version: "8.2"
             mariadb-version: "11.4"
+            mariadb-base-image: "mariadb"
             extension: "pdo_mysql"
           - php-version: "8.3"
             mariadb-version: "11.4"
+            mariadb-base-image: "mariadb"
             extension: "mysqli"
           - php-version: "8.3"
             mariadb-version: "11.4"
+            mariadb-base-image: "mariadb"
             extension: "pdo_mysql"
+          - php-version: "8.3"
+            mariadb-version: "verylatest" # latest beta branch head
+            mariadb-base-image: "quay.io/mariadb-foundation/mariadb-devel"
+            extension: "mysqli"
 
     services:
       mariadb:
-        image: "mariadb:${{ matrix.mariadb-version }}"
+        image: "${{ matrix.mariadb-base-image}}:${{ matrix.mariadb-version }}"
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: "doctrine_tests"
