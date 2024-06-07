@@ -557,6 +557,11 @@ SQL;
      */
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
+        // MariaDB-10.10.1 added FULL_COLLATION_NAME to the information_schema.COLLATION_CHARACTER_SET_APPLICABILITY.
+        // A base collation like uca1400_ai_ci can refer to multiple character sets. The value in the
+        // information_schema.TABLES.TABLE_COLLATION corresponds to the full collation name.
+        // The MariaDB executable comment syntax with version, /*M!101001, is exclusively executed on
+        // MariaDB-10.10.1+ servers for backwards compatibility, and compatiblity to MySQL servers.
         $sql = <<<'SQL'
     SELECT t.TABLE_NAME,
            t.ENGINE,
@@ -567,7 +572,8 @@ SQL;
            ccsa.CHARACTER_SET_NAME
       FROM information_schema.TABLES t
         INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY ccsa
-            ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
+	     ON /*M!101001 ccsa.FULL_COLLATION_NAME = t.TABLE_COLLATION OR */
+               ccsa.COLLATION_NAME = t.TABLE_COLLATION
 SQL;
 
         $conditions = ['t.TABLE_SCHEMA = ?'];
