@@ -474,6 +474,7 @@ jobs:
         run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml"
 
       - name: "Upload coverage file"
+        if: ${{ github.action_repository == 'doctrine/dbal' }}
         uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.mysql-version }}-${{ matrix.extension }}-${{ matrix.config-file-suffix }}-${{ matrix.php-version }}.coverage"
