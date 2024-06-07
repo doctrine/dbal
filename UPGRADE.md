@@ -13,6 +13,11 @@ awareness about deprecated code.
 * Upgrade to MariaDB 10.5 or later.
 * Upgrade to MySQL 8.0 or later.
 
+## Add `Result::getColumnName()`
+
+Driver and middleware results need to implement a new method `getColumnName()` that gives access to the
+column name. Not doing so is deprecated.
+
 # Upgrade to 4.0
 
 ## BC BREAK: removed `AbstractMySQLPlatform` methods.

@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Driver;
 
 /**
  * Driver-level statement execution result.
+ *
+ * @method string getColumnName(int $index)
  */
 interface Result
 {

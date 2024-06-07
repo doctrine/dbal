@@ -41,6 +41,14 @@ class ArrayStatementTest extends TestCase
         self::assertSame(2, $statement->columnCount());
     }
 
+    public function testColumnNames(): void
+    {
+        $statement = $this->createTestArrayStatement();
+
+        self::assertSame('username', $statement->getColumnName(0));
+        self::assertSame('active', $statement->getColumnName(1));
+    }
+
     public function testRowCount(): void
     {
         $statement = $this->createTestArrayStatement();

@@ -62,6 +62,24 @@ class PortabilityTest extends FunctionalTestCase
         self::assertSame($expected, array_keys($row));
     }
 
+    /** @param list<string> $expected */
+    #[DataProvider('caseProvider')]
+    public function testCaseConversionColumnName(ColumnCase $case, array $expected): void
+    {
+        $this->connectWithPortability(Connection::PORTABILITY_FIX_CASE, $case);
+        $this->createTable();
+
+        $result = $this->connection->executeQuery('SELECT * FROM portability_table');
+
+        $actual = [];
+
+        foreach ($expected as $index => $name) {
+            $actual[$index] = $result->getColumnName($index);
+        }
+
+        self::assertSame($expected, $actual);
+    }
+
     /** @return iterable<string, array{ColumnCase, list<string>}> */
     public static function caseProvider(): iterable
     {
