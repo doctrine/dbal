@@ -84,7 +84,7 @@ jobs:
         if: "${{ matrix.extension == 'sqlite3' }}"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -141,7 +141,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/oci8${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/oci8${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -198,7 +198,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -262,7 +262,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -333,7 +333,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -417,7 +417,7 @@ jobs:
         if: "${{ endsWith(matrix.config-file-suffix, 'tls') }}"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -484,7 +484,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -555,7 +555,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -590,7 +590,7 @@ jobs:
           composer-options: "--prefer-dist"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml --display-warnings"
 
   upload_coverage:
     name: "Upload coverage to Codecov"
