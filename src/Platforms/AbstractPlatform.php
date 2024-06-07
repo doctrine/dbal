@@ -4693,6 +4693,11 @@ abstract class AbstractPlatform
             return false;
         }
 
+        // If disableTypeComments is true, we do not need to check types, all comparison is already done above
+        if ($this->disableTypeComments) {
+            return true;
+        }
+
         return $column1->getType() === $column2->getType();
     }
 
