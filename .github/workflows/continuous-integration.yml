@@ -317,16 +317,16 @@ jobs:
             mariadb-version: "10.6"
             extension: "pdo_mysql"
           - php-version: "8.2"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "mysqli"
           - php-version: "8.2"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "pdo_mysql"
           - php-version: "8.3"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "mysqli"
           - php-version: "8.3"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "pdo_mysql"
 
     services:
@@ -337,7 +337,7 @@ jobs:
           MYSQL_DATABASE: "doctrine_tests"
 
         options: >-
-          --health-cmd "mariadb-admin ping --silent || mysqladmin ping --silent"
+          --health-cmd "healthcheck.sh --connect --innodb_initialized || mysqladmin ping --protocol tcp --silent"
 
         ports:
           - "3306:3306"
