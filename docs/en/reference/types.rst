@@ -125,7 +125,6 @@ float
 +++++
 
 Maps and converts numeric data with floating-point precision.
-Works only with locale settings that use decimal points as comma separator.
 If you only need an approximate precision for numbers with fractions, you should
 consider using this type.
 Values retrieved from the database are always converted to PHP's
