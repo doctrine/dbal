@@ -285,19 +285,19 @@ jobs:
           - "10.5"  # LTS (Jun 2025)
           - "10.6"  # LTS (Jul 2026)
           - "10.11" # LTS (Feb 2028)
-          - "11.0"  # STS (Jun 2024)
           - "11.1"  # STS (Aug 2024)
           - "11.2"  # STS (Nov 2024)
           - "11.3"  # STS (Feb 2025)
+          - "11.4"  # LTS (May 2029)
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - php-version: "8.2"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "mysqli"
           - php-version: "8.3"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "pdo_mysql"
 
     services:
@@ -308,7 +308,7 @@ jobs:
           MYSQL_DATABASE: "doctrine_tests"
 
         options: >-
-          --health-cmd "mariadb-admin ping --silent || mysqladmin ping --silent"
+          --health-cmd "healthcheck.sh --connect --innodb_initialized || mysqladmin ping --protocol tcp --silent"
 
         ports:
           - "3306:3306"
