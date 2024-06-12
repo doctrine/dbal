@@ -51,15 +51,16 @@ Using the following code block in your initialization will:
     <?php
 
     use Doctrine\DBAL\ColumnCase;
+    use Doctrine\DBAL\Configuration;
     use Doctrine\DBAL\Portability\Connection as PortableConnection;
+    use Doctrine\DBAL\Portability\Middleware as PortableMiddleware;
 
-    $params = [
-        // vendor specific configuration
+    $configuration = new Configuration();
+    $configuration->setMiddlewares([
+        // Other middlewares
         //...
-        'wrapperClass' => PortableConnection::class,
-        'portability'  => PortableConnection::PORTABILITY_ALL,
-        'fetch_case'   => ColumnCase::LOWER,
-    ];
+        new PortableMiddleware(PortableConnection::PORTABILITY_ALL, ColumnCase::LOWER),
+    ]);
 
 This sort of portability handling is pretty expensive because all the result
 rows and columns have to be looped inside PHP before being returned to you.
