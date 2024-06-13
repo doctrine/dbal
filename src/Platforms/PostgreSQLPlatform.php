@@ -59,6 +59,8 @@ class PostgreSQLPlatform extends AbstractPlatform
         ],
     ];
 
+    private int $timestampPrecision = 0;
+
     /**
      * PostgreSQL has different behavior with some drivers
      * with regard to how booleans have to be handled.
@@ -68,6 +70,11 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function setUseBooleanTrueFalseStrings(bool $flag): void
     {
         $this->useBooleanTrueFalseStrings = $flag;
+    }
+
+    public function setTimestampPrecision(int $precision): void
+    {
+        $this->timestampPrecision = in_array($precision, [3, 6], true) ? $precision : 0;
     }
 
     public function getRegexpExpression(): string
@@ -595,7 +602,7 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
-        return 'TIMESTAMP(0) WITHOUT TIME ZONE';
+        return sprintf('TIMESTAMP(%d) WITHOUT TIME ZONE', $this->timestampPrecision);
     }
 
     /**
@@ -603,7 +610,7 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
-        return 'TIMESTAMP(0) WITH TIME ZONE';
+        return sprintf('TIMESTAMP(%d) WITH TIME ZONE', $this->timestampPrecision);
     }
 
     /**
@@ -619,7 +626,7 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function getTimeTypeDeclarationSQL(array $column): string
     {
-        return 'TIME(0) WITHOUT TIME ZONE';
+        return sprintf('TIME(%d) WITHOUT TIME ZONE', $this->timestampPrecision);
     }
 
     /**
@@ -665,7 +672,29 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     public function getDateTimeTzFormatString(): string
     {
-        return 'Y-m-d H:i:sO';
+        return match ($this->timestampPrecision) {
+            6 => 'Y-m-d H:i:s.uO',
+            3 => 'Y-m-d H:i:s.vO',
+            default => 'Y-m-d H:i:sO',
+        };
+    }
+
+    public function getDateTimeFormatString(): string
+    {
+        return match ($this->timestampPrecision) {
+            6 => 'Y-m-d H:i:s.u',
+            3 => 'Y-m-d H:i:s.v',
+            default => 'Y-m-d H:i:s',
+        };
+    }
+
+    public function getTimeFormatString(): string
+    {
+        return match ($this->timestampPrecision) {
+            6 => 'H:i:s.u',
+            3 => 'H:i:s.v',
+            default => 'H:i:s',
+        };
     }
 
     public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string

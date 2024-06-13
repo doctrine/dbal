@@ -13,9 +13,11 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use UnexpectedValueException;
 
+use function is_int;
 use function sprintf;
 
 /** @extends AbstractPlatformTestCase<PostgreSQLPlatform> */
@@ -781,5 +783,125 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
                 AND    sequence_schema != 'information_schema'",
             $this->platform->getListSequencesSQL('test_db'),
         );
+    }
+
+    /** @dataProvider dataProviderGetDateTimeTz */
+    public function testGetDateTimeTzTypeDeclarationSQL(string $assert, int|null $precision = null): void
+    {
+        if (is_int($precision)) {
+            $this->platform->setTimestampPrecision($precision);
+        }
+
+        self::assertSame($assert, $this->platform->getDateTimeTzTypeDeclarationSQL([]));
+    }
+
+    public static function dataProviderGetDateTimeTz(): Generator
+    {
+        yield ['TIMESTAMP(0) WITH TIME ZONE', null];
+        yield ['TIMESTAMP(0) WITH TIME ZONE', -5];
+        yield ['TIMESTAMP(0) WITH TIME ZONE', 15];
+        yield ['TIMESTAMP(0) WITH TIME ZONE', 0];
+        yield ['TIMESTAMP(3) WITH TIME ZONE', 3];
+        yield ['TIMESTAMP(6) WITH TIME ZONE', 6];
+    }
+
+    /** @dataProvider dataProviderGetDateTimeTzFormat */
+    public function testGetDateTimeTzFormatString(string $assert, int|null $precision = null): void
+    {
+        if (is_int($precision)) {
+            $this->platform->setTimestampPrecision($precision);
+        }
+
+        self::assertSame($assert, $this->platform->getDateTimeTzFormatString());
+    }
+
+    public static function dataProviderGetDateTimeTzFormat(): Generator
+    {
+        yield ['Y-m-d H:i:sO', null];
+        yield ['Y-m-d H:i:sO', -5];
+        yield ['Y-m-d H:i:sO', 15];
+        yield ['Y-m-d H:i:sO', 0];
+        yield ['Y-m-d H:i:s.vO', 3];
+        yield ['Y-m-d H:i:s.uO', 6];
+    }
+
+    /** @dataProvider dataProviderGetDateTime */
+    public function testGetDateTimeTypeDeclarationSQL(string $assert, int|null $precision = null): void
+    {
+        if (is_int($precision)) {
+            $this->platform->setTimestampPrecision($precision);
+        }
+
+        self::assertSame($assert, $this->platform->getDateTimeTypeDeclarationSQL([]));
+    }
+
+    public static function dataProviderGetDateTime(): Generator
+    {
+        yield ['TIMESTAMP(0) WITHOUT TIME ZONE', null];
+        yield ['TIMESTAMP(0) WITHOUT TIME ZONE', -5];
+        yield ['TIMESTAMP(0) WITHOUT TIME ZONE', 15];
+        yield ['TIMESTAMP(0) WITHOUT TIME ZONE', 0];
+        yield ['TIMESTAMP(3) WITHOUT TIME ZONE', 3];
+        yield ['TIMESTAMP(6) WITHOUT TIME ZONE', 6];
+    }
+
+    /** @dataProvider dataProviderGetDateTimeFormat */
+    public function testGetDateTimeFormatString(string $assert, int|null $precision = null): void
+    {
+        if (is_int($precision)) {
+            $this->platform->setTimestampPrecision($precision);
+        }
+
+        self::assertSame($assert, $this->platform->getDateTimeFormatString());
+    }
+
+    public static function dataProviderGetDateTimeFormat(): Generator
+    {
+        yield ['Y-m-d H:i:s', null];
+        yield ['Y-m-d H:i:s', -5];
+        yield ['Y-m-d H:i:s', 15];
+        yield ['Y-m-d H:i:s', 0];
+        yield ['Y-m-d H:i:s.v', 3];
+        yield ['Y-m-d H:i:s.u', 6];
+    }
+
+    /** @dataProvider dataProviderGetTime */
+    public function testFetTimeTypeDeclarationSQL(string $assert, int|null $precision = null): void
+    {
+        if (is_int($precision)) {
+            $this->platform->setTimestampPrecision($precision);
+        }
+
+        self::assertSame($assert, $this->platform->getTimeTypeDeclarationSQL([]));
+    }
+
+    public static function dataProviderGetTime(): Generator
+    {
+        yield ['TIME(0) WITHOUT TIME ZONE', null];
+        yield ['TIME(0) WITHOUT TIME ZONE', -5];
+        yield ['TIME(0) WITHOUT TIME ZONE', 15];
+        yield ['TIME(0) WITHOUT TIME ZONE', 0];
+        yield ['TIME(3) WITHOUT TIME ZONE', 3];
+        yield ['TIME(6) WITHOUT TIME ZONE', 6];
+    }
+
+    /** @dataProvider dataProviderGetTimeFormat */
+    public function testGetTimeFormatString(string $assert, int|null $precision = null): void
+    {
+        if (is_int($precision)) {
+            $this->platform->setTimestampPrecision($precision);
+        }
+
+        self::assertSame($assert, $this->platform->getTimeFormatString());
+    }
+
+    public static function dataProviderGetTimeFormat(): Generator
+    {
+        yield ['H:i:s', null];
+        yield ['H:i:s', -5];
+        yield ['H:i:s', 15];
+        yield ['H:i:s', 0];
+        yield ['H:i:s.v', 3];
+        yield ['H:i:s.u', 6];
     }
 }
