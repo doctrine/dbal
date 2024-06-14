@@ -315,6 +315,59 @@ user-input:
         ->setParameter(0, $userInputLastLogin)
     ;
 
+UNION-Clause
+~~~~~~~~~~~~
+
+To combine multiple ``SELECT`` queries into one result-set you can pass SQL Part strings
+or QueryBuilder instances to one of the following methods:
+
+* ``union(string|QueryBuilder $part)``
+* ``addUnion(string|QueryBuilder $part, UnionType $type)``
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->union('SELECT 1 AS field')
+        ->addUnion('SELECT 2 AS field', UnionType::DISTINCT)
+        ->addUnion('SELECT 3 AS field', UnionType::DISTINCT)
+        ->addUnion('SELECT 3 as field', UnionType::DISTINCT);
+
+    $queryBuilder
+        ->union('SELECT 1 AS field')
+        ->addUnion('SELECT 2 AS field', UnionType::ALL)
+        ->addUnion('SELECT 3 AS field', UnionType::ALL)
+        ->addUnion('SELECT 3 as field', UnionType::ALL);
+
+    $queryBuilder
+        ->union('SELECT 1 AS field')
+        ->addUnion('SELECT 2 AS field', UnionType::ALL)
+        ->addUnion('SELECT 3 AS field', UnionType::ALL)
+        ->addUnion('SELECT 3 as field', UnionType::DISTINCT);
+
+    $subQueryBuilder1
+        ->select('id AS field')
+        ->from('a_table');
+    $subQueryBuilder2
+        ->select('id AS field')
+        ->from('a_table');
+    $queryBuilder
+        ->union($subQueryBuilder1)
+        ->addUnion($subQueryBuilder2, UnionType::DISTINCT);
+
+    $subQueryBuilder1
+        ->select('id AS field')
+        ->from('a_table');
+    $subQueryBuilder2
+        ->select('id AS field')
+        ->from('a_table');
+    $queryBuilder
+        ->union($subQueryBuilder1)
+        ->addUnion($subQueryBuilder2,UnionType::ALL)
+        ->orderBy('field', 'DESC')
+        ->setMaxResults(100);
+
 Building Expressions
 --------------------
 

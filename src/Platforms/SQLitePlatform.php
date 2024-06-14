@@ -991,4 +991,12 @@ class SQLitePlatform extends AbstractPlatform
     {
         return new SQLiteSchemaManager($connection, $this);
     }
+
+    /**
+     * Returns the union select query part surrounded by parenthesis if possible for platform.
+     */
+    public function getUnionSelectPartSQL(string $subQuery): string
+    {
+        return $subQuery;
+    }
 }
