@@ -542,7 +542,7 @@ class QueryBuilder
      *
      * @return $this
      */
-    public function addUnion(string|QueryBuilder $part, UnionType $type): self
+    public function addUnion(string|QueryBuilder $part, UnionType $type = UnionType::DISTINCT): self
     {
         $this->type = QueryType::UNION;
 

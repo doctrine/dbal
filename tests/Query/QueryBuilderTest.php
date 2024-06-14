@@ -1472,6 +1472,15 @@ class QueryBuilderTest extends TestCase
         self::assertSame('SELECT 1 AS field_one UNION SELECT 2 as field_one', $qb->getSQL());
     }
 
+    public function testUnionIsDistinctByDefault(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->union('SELECT 1 AS field_one')
+            ->addUnion('SELECT 2 as field_one');
+
+        self::assertSame('SELECT 1 AS field_one UNION SELECT 2 as field_one', $qb->getSQL());
+    }
+
     public function testUnionAndOrderByReturnsUnionQueryWithOrderBy(): void
     {
         $qb = new QueryBuilder($this->conn);

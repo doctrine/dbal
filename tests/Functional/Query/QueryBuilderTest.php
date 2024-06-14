@@ -124,7 +124,7 @@ final class QueryBuilderTest extends FunctionalTestCase
         self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
     }
 
-    public function testUnionReturnsExpectedResult(): void
+    public function testUnionDistinctReturnsExpectedResult(): void
     {
         $expectedRows = $this->prepareExpectedRows([['field_one' => 1], ['field_one' => 2]]);
         $platform     = $this->connection->getDatabasePlatform();
@@ -132,6 +132,19 @@ final class QueryBuilderTest extends FunctionalTestCase
         $qb->union($platform->getDummySelectSQL('2 as field_one'))
             ->addUnion($platform->getDummySelectSQL('1 as field_one'), UnionType::DISTINCT)
             ->addUnion($platform->getDummySelectSQL('1 as field_one'), UnionType::DISTINCT)
+            ->orderBy('field_one', 'ASC');
+
+        self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
+    }
+
+    public function testUnionIsDistinctByDefault(): void
+    {
+        $expectedRows = $this->prepareExpectedRows([['field_one' => 1], ['field_one' => 2]]);
+        $platform     = $this->connection->getDatabasePlatform();
+        $qb           = $this->connection->createQueryBuilder();
+        $qb->union($platform->getDummySelectSQL('2 as field_one'))
+            ->addUnion($platform->getDummySelectSQL('1 as field_one'))
+            ->addUnion($platform->getDummySelectSQL('1 as field_one'))
             ->orderBy('field_one', 'ASC');
 
         self::assertSame($expectedRows, $qb->executeQuery()->fetchAllAssociative());
