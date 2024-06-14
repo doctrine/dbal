@@ -51,6 +51,7 @@ use function is_bool;
 use function is_float;
 use function is_int;
 use function is_string;
+use function preg_match;
 use function preg_quote;
 use function preg_replace;
 use function sprintf;
@@ -1453,6 +1454,10 @@ abstract class AbstractPlatform
         }
 
         if (is_int($default) || is_float($default)) {
+            return ' DEFAULT ' . $default;
+        }
+
+        if ((bool) preg_match('/^[a-zA-Z_]+\(\)$/', $default)) {
             return ' DEFAULT ' . $default;
         }
 
