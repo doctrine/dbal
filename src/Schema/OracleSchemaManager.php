@@ -135,6 +135,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         $type = $this->platform->getDoctrineTypeMapping($dbType);
+        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
 
         switch ($dbType) {
             case 'number':

@@ -242,6 +242,8 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         }
 
         $type    = $this->platform->getDoctrineTypeMapping($dbType);
+        $type    = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+
         $default = $tableColumn['dflt_value'];
         if ($default === 'NULL') {
             $default = null;

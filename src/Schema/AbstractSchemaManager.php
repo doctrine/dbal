@@ -130,6 +130,26 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Given a table comment this method tries to extract a typehint for Doctrine Type, or returns
+     * the type given as default.
+     *
+     * @internal This method should be only used from within the AbstractSchemaManager class hierarchy.
+     *
+     * @param string|null $comment
+     * @param string      $currentType
+     *
+     * @return string
+     */
+    public function extractDoctrineTypeFromComment($comment, $currentType)
+    {
+        if ($comment !== null && preg_match('(\(DC2Type:(((?!\)).)+)\))', $comment, $match) === 1) {
+            return $match[1];
+        }
+
+        return $currentType;
+    }
+
+    /**
      * Returns true if all the given tables exist.
      *
      * @param array<int, string> $names
