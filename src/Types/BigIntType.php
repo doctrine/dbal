@@ -8,7 +8,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use function assert;
-use function ctype_digit;
 use function is_int;
 use function is_string;
 use function rtrim;
@@ -54,24 +53,13 @@ class BigIntType extends Type implements PhpIntegerMappingType
             'DBAL assumes values outside of the integer range to be returned as string by the database driver.',
         );
 
-        if (str_starts_with($value, '-') || str_starts_with($value, '+')) {
-            $hasNegativeSign = str_starts_with($value, '-');
-            $value           = substr($value, 1);
-        } else {
-            $hasNegativeSign = false;
-        }
-
-        while (substr($value, 0, 1) === '0' && ctype_digit(substr($value, 1, 1))) {
-            $value = substr($value, 1);
-        }
-
         $dotPos = strpos($value, '.');
         if ($dotPos !== false && rtrim(substr($value, $dotPos + 1), '0') === '') {
             $value = substr($value, 0, $dotPos);
         }
 
-        if ($hasNegativeSign && $value !== '0') {
-            $value = '-' . $value;
+        if (str_starts_with($value, '+') || $value === '-0') {
+            $value = substr($value, 1);
         }
 
         if ($value === (string) (int) $value) {
