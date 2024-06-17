@@ -10,9 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function assert;
 use function is_int;
 use function is_string;
-use function rtrim;
 use function str_starts_with;
-use function strpos;
 use function substr;
 
 /**
@@ -52,11 +50,6 @@ class BigIntType extends Type implements PhpIntegerMappingType
             is_string($value),
             'DBAL assumes values outside of the integer range to be returned as string by the database driver.',
         );
-
-        $dotPos = strpos($value, '.');
-        if ($dotPos !== false && rtrim(substr($value, $dotPos + 1), '0') === '') {
-            $value = substr($value, 0, $dotPos);
-        }
 
         if (str_starts_with($value, '+') || $value === '-0') {
             $value = substr($value, 1);

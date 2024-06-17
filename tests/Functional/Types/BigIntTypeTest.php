@@ -38,18 +38,6 @@ class BigIntTypeTest extends FunctionalTestCase
                 Types::BIGINT,
             ),
         );
-
-        if ($expectedValue === null) {
-            return;
-        }
-
-        self::assertSame(
-            $expectedValue,
-            $this->connection->convertToPHPValue(
-                $sqlLiteral . '.00',
-                Types::BIGINT,
-            ),
-        );
     }
 
     /** @return Generator<string, array{string, int|string|null}> */
