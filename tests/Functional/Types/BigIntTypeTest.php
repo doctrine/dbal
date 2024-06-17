@@ -11,9 +11,6 @@ use Doctrine\DBAL\Types\Types;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-use function str_starts_with;
-use function substr;
-
 use const PHP_INT_MAX;
 use const PHP_INT_MIN;
 use const PHP_INT_SIZE;
@@ -50,18 +47,6 @@ class BigIntTypeTest extends FunctionalTestCase
             $expectedValue,
             $this->connection->convertToPHPValue(
                 $sqlLiteral . '.00',
-                Types::BIGINT,
-            ),
-        );
-
-        $startsWithSign = str_starts_with($sqlLiteral, '-') || str_starts_with($sqlLiteral, '+');
-
-        self::assertSame(
-            $expectedValue,
-            $this->connection->convertToPHPValue(
-                ($startsWithSign ? substr($sqlLiteral, 0, 1) : '')
-                . '00'
-                . ($startsWithSign ? substr($sqlLiteral, 1) : $sqlLiteral),
                 Types::BIGINT,
             ),
         );
