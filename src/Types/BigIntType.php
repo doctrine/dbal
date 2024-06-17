@@ -10,8 +10,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function assert;
 use function is_int;
 use function is_string;
-use function str_starts_with;
-use function substr;
 
 /**
  * Type that attempts to map a database BIGINT to a PHP int.
@@ -50,10 +48,6 @@ class BigIntType extends Type implements PhpIntegerMappingType
             is_string($value),
             'DBAL assumes values outside of the integer range to be returned as string by the database driver.',
         );
-
-        if (str_starts_with($value, '+') || $value === '-0') {
-            $value = substr($value, 1);
-        }
 
         if ($value === (string) (int) $value) {
             return (int) $value;
