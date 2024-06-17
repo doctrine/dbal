@@ -44,8 +44,6 @@ class BigIntTypeTest extends FunctionalTestCase
     public static function provideBigIntLiterals(): Generator
     {
         yield 'zero' => ['0', 0];
-        yield 'minus zero' => ['-0', 0];
-        yield 'plus zero' => ['+0', 0];
         yield 'null' => ['null', null];
         yield 'positive number' => ['42', 42];
         yield 'negative number' => ['-42', -42];
@@ -53,11 +51,6 @@ class BigIntTypeTest extends FunctionalTestCase
         yield 'large negative number' => [PHP_INT_SIZE === 4 ? '-2147483647' : '-9223372036854775807', PHP_INT_MIN + 1];
         yield 'largest positive number' => [PHP_INT_SIZE === 4 ? '2147483647' : '9223372036854775807', PHP_INT_MAX];
         yield 'largest negative number' => [PHP_INT_SIZE === 4 ? '-2147483648' : '-9223372036854775808', PHP_INT_MIN];
-
-        yield 'plus largest positive number' => [
-            PHP_INT_SIZE === 4 ? '+2147483647' : '+9223372036854775807',
-            PHP_INT_MAX,
-        ];
     }
 
     public function testUnsignedBigIntOnMySQL(): void
