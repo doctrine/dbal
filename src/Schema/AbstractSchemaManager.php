@@ -17,8 +17,8 @@ use function array_intersect;
 use function array_map;
 use function array_values;
 use function count;
-use function strtolower;
 use function preg_match;
+use function strtolower;
 
 /**
  * Base class for schema managers. Schema managers are used to inspect and/or
@@ -135,11 +135,6 @@ abstract class AbstractSchemaManager
      * the type given as default.
      *
      * @internal This method should be only used from within the AbstractSchemaManager class hierarchy.
-     *
-     * @param string|null $comment
-     * @param string      $currentType
-     *
-     * @return string
      */
     public function extractDoctrineTypeFromComment(?string $comment, string $currentType): string
     {
