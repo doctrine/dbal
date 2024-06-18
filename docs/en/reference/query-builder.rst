@@ -322,7 +322,7 @@ To combine multiple ``SELECT`` queries into one result-set you can pass SQL Part
 or QueryBuilder instances to one of the following methods:
 
 * ``union(string|QueryBuilder $part)``
-* ``addUnion(string|QueryBuilder $part, UnionType $type)``
+* ``addUnion(string|QueryBuilder $part, UnionType $type = UnionType::DISTINCT)``
 
 .. code-block:: php
 
@@ -330,9 +330,9 @@ or QueryBuilder instances to one of the following methods:
 
     $queryBuilder
         ->union('SELECT 1 AS field')
-        ->addUnion('SELECT 2 AS field', UnionType::DISTINCT)
-        ->addUnion('SELECT 3 AS field', UnionType::DISTINCT)
-        ->addUnion('SELECT 3 as field', UnionType::DISTINCT);
+        ->addUnion('SELECT 2 AS field')
+        ->addUnion('SELECT 3 AS field')
+        ->addUnion('SELECT 3 as field');
 
     $queryBuilder
         ->union('SELECT 1 AS field')
