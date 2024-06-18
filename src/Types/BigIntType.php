@@ -11,6 +11,9 @@ use function assert;
 use function is_int;
 use function is_string;
 
+use const PHP_INT_MAX;
+use const PHP_INT_MIN;
+
 /**
  * Type that attempts to map a database BIGINT to a PHP int.
  *
@@ -49,7 +52,10 @@ class BigIntType extends Type implements PhpIntegerMappingType
             'DBAL assumes values outside of the integer range to be returned as string by the database driver.',
         );
 
-        if ($value === (string) (int) $value) {
+        if (
+            ($value > PHP_INT_MIN && $value < PHP_INT_MAX)
+            || $value === (string) (int) $value
+        ) {
             return (int) $value;
         }
 
