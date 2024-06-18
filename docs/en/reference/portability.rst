@@ -53,7 +53,7 @@ Using the following code block in your initialization will:
     use Doctrine\DBAL\ColumnCase;
     use Doctrine\DBAL\Configuration;
     use Doctrine\DBAL\Portability\Connection as PortableConnection;
-    use Doctrine\DBAL\Portability\Middleware as PotableMiddleware;
+    use Doctrine\DBAL\Portability\Middleware as PortableMiddleware;
 
     $configuration = new Configuration();
     $configuration->setMiddlewares([

@@ -146,5 +146,11 @@ parameters:
         # Ignore the possible false return value of db2_num_rows().
         - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\Connection\:\:exec\(\) should return int but returns int<0, max>\|false\.$~'
         - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\Result\:\:rowCount\(\) should return int but returns int<0, max>\|false\.$~'
+
+        # This is a rather complicated closure setup. We understand this, so PHPStan doesn't have to.
+        -
+            message: '#^Parameter \#2 \$callback of function array_reduce expects callable\(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null, callable\(T\)\: T\)\: \(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null\), Closure\(callable\|null, callable\)\: \(callable\(T\)\: T\) given\.$#'
+            path: src/Portability/Converter.php
+
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
