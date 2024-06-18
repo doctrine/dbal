@@ -18,6 +18,7 @@ use function array_map;
 use function array_values;
 use function count;
 use function strtolower;
+use function preg_match;
 
 /**
  * Base class for schema managers. Schema managers are used to inspect and/or
@@ -140,7 +141,7 @@ abstract class AbstractSchemaManager
      *
      * @return string
      */
-    public function extractDoctrineTypeFromComment($comment, $currentType)
+    public function extractDoctrineTypeFromComment(?string $comment, string $currentType): string
     {
         if ($comment !== null && preg_match('(\(DC2Type:(((?!\)).)+)\))', $comment, $match) === 1) {
             return $match[1];
