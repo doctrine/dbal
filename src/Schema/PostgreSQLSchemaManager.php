@@ -273,7 +273,7 @@ SQL,
         }
 
         $type = $this->platform->getDoctrineTypeMapping($dbType);
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'] ?? null, $type);
 
         switch ($dbType) {
             case 'smallint':
