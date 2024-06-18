@@ -16,7 +16,7 @@ class MariaDb1010Platform extends MariaDb1060Platform
         return AbstractPlatform::createSelectSQLBuilder();
     }
 
-    public function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): string
+    public function fetchTableOptionsByTable(bool $includeTableName): string
     {
         // MariaDB-10.10.1 added FULL_COLLATION_NAME to the information_schema.COLLATION_CHARACTER_SET_APPLICABILITY.
         // A base collation like uca1400_ai_ci can refer to multiple character sets. The value in the
@@ -36,7 +36,7 @@ SQL;
 
         $conditions = ['t.TABLE_SCHEMA = ?'];
 
-        if ($tableName !== null) {
+        if ($includeTableName) {
             $conditions[] = 't.TABLE_NAME = ?';
         }
 

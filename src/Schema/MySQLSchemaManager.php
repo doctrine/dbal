@@ -557,7 +557,7 @@ SQL;
      */
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
-        $sql = $this->_platform->fetchTableOptionsByTable($databaseName, $tableName);
+        $sql = $this->_platform->fetchTableOptionsByTable($tableName !== null);
 
         $params = [$databaseName];
         if ($tableName !== null) {

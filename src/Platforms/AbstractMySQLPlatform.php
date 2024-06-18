@@ -1469,7 +1469,7 @@ SQL
         return $result;
     }
 
-    public function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): string
+    public function fetchTableOptionsByTable(bool $includeTableName): string
     {
         $sql = <<<'SQL'
     SELECT t.TABLE_NAME,
@@ -1486,7 +1486,7 @@ SQL;
 
         $conditions = ['t.TABLE_SCHEMA = ?'];
 
-        if ($tableName !== null) {
+        if ($includeTableName) {
             $conditions[] = 't.TABLE_NAME = ?';
         }
 
