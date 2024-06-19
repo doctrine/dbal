@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use mysqli_sql_exception;
 use mysqli_stmt;
 
@@ -155,6 +156,11 @@ final class Result implements ResultInterface
     public function columnCount(): int
     {
         return $this->statement->field_count;
+    }
+
+    public function getColumnName(int $index): string
+    {
+        return $this->columnNames[$index] ?? throw InvalidColumnIndex::new($index);
     }
 
     public function free(): void

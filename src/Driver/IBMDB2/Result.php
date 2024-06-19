@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 
 use function db2_fetch_array;
 use function db2_fetch_assoc;
@@ -97,6 +98,17 @@ final class Result implements ResultInterface
         }
 
         return 0;
+    }
+
+    public function getColumnName(int $index): string
+    {
+        $name = db2_field_name($this->statement, $index);
+
+        if ($name === false) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        return $name;
     }
 
     public function free(): void
