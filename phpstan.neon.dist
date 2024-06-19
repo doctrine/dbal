@@ -103,6 +103,12 @@ parameters:
 
         # Required for Psalm compatibility
         - '~^Property Doctrine\\DBAL\\Tests\\Types\\BaseDateTypeTestCase\:\:\$currentTimezone \(non-empty-string\) does not accept string\.$~'
+
+        # This is a rather complicated closure setup. We understand this, so PHPStan doesn't have to.
+        -
+            message: '#^Parameter \#2 \$callback of function array_reduce expects callable\(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null, callable\(T\)\: T\)\: \(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null\), Closure\(callable\|null, callable\)\: \(callable\(T\)\: T\) given\.$#'
+            path: src/Portability/Converter.php
+
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

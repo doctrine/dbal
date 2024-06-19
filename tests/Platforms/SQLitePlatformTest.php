@@ -10,11 +10,14 @@ use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+
+use function implode;
 
 /** @extends AbstractPlatformTestCase<SQLitePlatform> */
 class SQLitePlatformTest extends AbstractPlatformTestCase
@@ -174,6 +177,32 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     public function getGenerateUniqueIndexSql(): string
     {
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
+    }
+
+    public function testGeneratesIndexCreationSqlWithSchema(): void
+    {
+        $indexDef = new Index('i', ['a', 'b']);
+
+        self::assertSame(
+            'CREATE INDEX main.i ON mytable (a, b)',
+            $this->platform->getCreateIndexSQL($indexDef, 'main.mytable'),
+        );
+    }
+
+    public function testGeneratesPrimaryIndexCreationSqlWithSchema(): void
+    {
+        $primaryIndexDef = new Index('i2', ['a', 'b'], false, true);
+
+        self::assertSame(
+            'TEST: main.mytable, i2 - a, b',
+            (new class () extends SqlitePlatform {
+                public function getCreatePrimaryKeySQL(Index $index, string $table): string
+                {
+                    return 'TEST: ' . $table . ', ' . $index->getName()
+                        . ' - ' . implode(', ', $index->getColumns());
+                }
+            })->getCreateIndexSQL($primaryIndexDef, 'main.mytable'),
+        );
     }
 
     public function testGeneratesForeignKeyCreationSql(): void

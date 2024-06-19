@@ -41,6 +41,7 @@ MariaDB
 
 -  ``MariaDBPlatform`` for version 10.5.2 and above.
 -  ``MariaDb1060Platform`` for version 10.6 and above.
+-  ``MariaDB1010Platform`` for version 10.10 and above.
 
 Oracle
 ^^^^^^

@@ -373,9 +373,10 @@ abstract class AbstractComparatorTestCase extends TestCase
         $tableB->addColumn('ID', Types::INTEGER);
         $tableB->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'bar_constraint');
 
-        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
-
-        self::assertTrue($tableDiff->isEmpty());
+        self::assertEquals(
+            new TableDiff($tableA, [], [], [], [], [], [], [], [], [], [], []),
+            $this->comparator->compareTables($tableA, $tableB),
+        );
     }
 
     public function testDetectRenameColumn(): void
