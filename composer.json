@@ -46,7 +46,7 @@
         "phpunit/phpunit": "10.5.21",
         "psalm/plugin-phpunit": "0.19.0",
         "slevomat/coding-standard": "8.13.1",
-        "squizlabs/php_codesniffer": "3.9.2",
+        "squizlabs/php_codesniffer": "3.10.1",
         "symfony/cache": "^6.3.8|^7.0",
         "symfony/console": "^5.4|^6.3|^7.0",
         "vimeo/psalm": "5.24.0"
