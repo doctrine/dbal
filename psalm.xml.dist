@@ -282,6 +282,8 @@
         </TypeDoesNotContainNull>
         <TypeDoesNotContainType>
             <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/11008 -->
+                <file name="src/Driver/SQLite3/Result.php"/>
                 <!-- Ignore isset() checks in destructors. -->
                 <file name="src/Driver/PgSQL/Connection.php"/>
                 <file name="src/Driver/PgSQL/Statement.php"/>

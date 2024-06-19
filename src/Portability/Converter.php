@@ -11,6 +11,8 @@ use function array_map;
 use function array_reduce;
 use function is_string;
 use function rtrim;
+use function strtolower;
+use function strtoupper;
 
 use const CASE_LOWER;
 use const CASE_UPPER;
@@ -26,6 +28,7 @@ final class Converter
     private readonly Closure $convertAllNumeric;
     private readonly Closure $convertAllAssociative;
     private readonly Closure $convertFirstColumn;
+    private readonly Closure $convertColumnName;
 
     /**
      * @param bool                                   $convertEmptyStringToNull Whether each empty string should
@@ -48,6 +51,12 @@ final class Converter
         $this->convertAllNumeric     = $this->createConvertAll($convertNumeric);
         $this->convertAllAssociative = $this->createConvertAll($convertAssociative);
         $this->convertFirstColumn    = $this->createConvertAll($convertValue);
+
+        $this->convertColumnName = match ($case) {
+            null => static fn (string $name) => $name,
+            self::CASE_LOWER => strtolower(...),
+            self::CASE_UPPER => strtoupper(...),
+        };
     }
 
     /**
@@ -103,6 +112,11 @@ final class Converter
     public function convertFirstColumn(array $data): array
     {
         return ($this->convertFirstColumn)($data);
+    }
+
+    public function convertColumnName(string $name): string
+    {
+        return ($this->convertColumnName)($name);
     }
 
     /**
