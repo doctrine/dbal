@@ -599,6 +599,11 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         self::assertTrue($this->platform->supportsColumnCollation());
     }
 
+    public function testSupportsVarcharWithoutLength(): void
+    {
+        self::assertTrue($this->platform->supportsVarcharWithoutLength());
+    }
+
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');

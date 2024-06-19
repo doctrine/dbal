@@ -312,6 +312,11 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         return true;
     }
 
+    public function testSupportsVarcharWithoutLength(): void
+    {
+        self::assertTrue($this->platform->supportsVarcharWithoutLength());
+    }
+
     public function testModifyLimitQuery(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 0);

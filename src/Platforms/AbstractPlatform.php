@@ -1981,6 +1981,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Does this platform support VARCHAR type without specifying length?
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     */
+    public function supportsVarcharWithoutLength(): bool
+    {
+        return false;
+    }
+
+    /**
      * Gets the format string, as accepted by the date() function, that describes
      * the format of a stored datetime value of this platform.
      *

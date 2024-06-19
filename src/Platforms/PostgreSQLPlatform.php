@@ -138,6 +138,12 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
+    public function supportsVarcharWithoutLength(): bool
+    {
+        return true;
+    }
+
     /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListDatabasesSQL(): string
     {

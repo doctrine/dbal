@@ -412,6 +412,12 @@ class SQLitePlatform extends AbstractPlatform
         return true;
     }
 
+    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
+    public function supportsVarcharWithoutLength(): bool
+    {
+        return true;
+    }
+
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $tableIdentifier = new Identifier($tableName);
