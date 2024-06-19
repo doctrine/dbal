@@ -557,36 +557,12 @@ SQL;
      */
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
-        // MariaDB-10.10.1 added FULL_COLLATION_NAME to the information_schema.COLLATION_CHARACTER_SET_APPLICABILITY.
-        // A base collation like uca1400_ai_ci can refer to multiple character sets. The value in the
-        // information_schema.TABLES.TABLE_COLLATION corresponds to the full collation name.
-        // The MariaDB executable comment syntax with version, /*M!101001, is exclusively executed on
-        // MariaDB-10.10.1+ servers for backwards compatibility, and compatiblity to MySQL servers.
-        $sql = <<<'SQL'
-    SELECT t.TABLE_NAME,
-           t.ENGINE,
-           t.AUTO_INCREMENT,
-           t.TABLE_COMMENT,
-           t.CREATE_OPTIONS,
-           t.TABLE_COLLATION,
-           ccsa.CHARACTER_SET_NAME
-      FROM information_schema.TABLES t
-        INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY ccsa
-	     ON /*M!101001 ccsa.FULL_COLLATION_NAME = t.TABLE_COLLATION OR */
-               ccsa.COLLATION_NAME = t.TABLE_COLLATION
-SQL;
+        $sql = $this->_platform->fetchTableOptionsByTable($tableName !== null);
 
-        $conditions = ['t.TABLE_SCHEMA = ?'];
-        $params     = [$databaseName];
-
+        $params = [$databaseName];
         if ($tableName !== null) {
-            $conditions[] = 't.TABLE_NAME = ?';
-            $params[]     = $tableName;
+            $params[] = $tableName;
         }
-
-        $conditions[] = "t.TABLE_TYPE = 'BASE TABLE'";
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
         /** @var array<string,array<string,mixed>> $metadata */
         $metadata = $this->_conn->executeQuery($sql, $params)

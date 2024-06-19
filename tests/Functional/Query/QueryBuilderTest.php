@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Query;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\MariaDb1010Platform;
 use Doctrine\DBAL\Platforms\MariaDb1060Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
@@ -117,7 +118,7 @@ final class QueryBuilderTest extends FunctionalTestCase
 
         if ($platform instanceof MySQLPlatform) {
             if ($platform instanceof MariaDBPlatform) {
-                if (! $platform instanceof MariaDb1060Platform) {
+                if (! ($platform instanceof MariaDb1060Platform || $platform instanceof MariaDb1010Platform)) {
                     return false;
                 }
             } elseif (! $platform instanceof MySQL80Platform) {
