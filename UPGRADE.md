@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Add `Result::getColumnName()`
+
+A new method `getColumnName()` has been added to the `Result` interface and must be implemented by
+all drivers and middleware.
+
 ## BC BREAK: Removed support for MariaDB 10.4 and MySQL 5.7
 
 * Upgrade to MariaDB 10.5 or later.

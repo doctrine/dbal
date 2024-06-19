@@ -6,8 +6,6 @@ namespace Doctrine\DBAL\Driver;
 
 /**
  * Driver-level statement execution result.
- *
- * @method string getColumnName(int $index)
  */
 interface Result
 {
@@ -87,6 +85,11 @@ interface Result
      * @throws Exception
      */
     public function columnCount(): int;
+
+    /**
+     * Returns the name of the column in the result set for the given 0-based index.
+     */
+    public function getColumnName(int $index): string;
 
     /**
      * Discards the non-fetched portion of the result, enabling the originating statement to be executed again.
