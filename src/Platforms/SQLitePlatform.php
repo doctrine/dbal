@@ -400,6 +400,11 @@ class SQLitePlatform extends AbstractPlatform
         return true;
     }
 
+    public function supportsVarcharWithoutLength(): bool
+    {
+        return true;
+    }
+
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsColumnCollation(): bool
     {
@@ -408,12 +413,6 @@ class SQLitePlatform extends AbstractPlatform
 
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsInlineColumnComments(): bool
-    {
-        return true;
-    }
-
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function supportsVarcharWithoutLength(): bool
     {
         return true;
     }

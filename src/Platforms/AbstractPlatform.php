@@ -1951,6 +1951,14 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Does this platform support VARCHAR type without specifying length?
+     */
+    public function supportsVarcharWithoutLength(): bool
+    {
+        return false;
+    }
+
+    /**
      * Whether this platform support to add inline column comments as postfix.
      *
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
@@ -1976,16 +1984,6 @@ abstract class AbstractPlatform
      * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function supportsColumnCollation(): bool
-    {
-        return false;
-    }
-
-    /**
-     * Does this platform support VARCHAR type without specifying length?
-     *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     */
-    public function supportsVarcharWithoutLength(): bool
     {
         return false;
     }

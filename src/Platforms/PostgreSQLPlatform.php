@@ -126,6 +126,11 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
+    public function supportsVarcharWithoutLength(): bool
+    {
+        return true;
+    }
+
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsPartialIndexes(): bool
     {
@@ -134,12 +139,6 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsCommentOnStatement(): bool
-    {
-        return true;
-    }
-
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function supportsVarcharWithoutLength(): bool
     {
         return true;
     }
