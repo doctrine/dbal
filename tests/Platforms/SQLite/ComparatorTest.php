@@ -6,13 +6,14 @@ namespace Doctrine\DBAL\Tests\Platforms\SQLite;
 
 use Doctrine\DBAL\Platforms\SQLite\Comparator;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Tests\Schema\AbstractComparatorTestCase;
 
 class ComparatorTest extends AbstractComparatorTestCase
 {
-    protected function setUp(): void
+    protected function createComparator(ComparatorConfig $config): \Doctrine\DBAL\Schema\Comparator
     {
-        $this->comparator = new Comparator(new SQLitePlatform());
+        return new Comparator(new SQLitePlatform(), $config);
     }
 
     public function testCompareChangedBinaryColumn(): void

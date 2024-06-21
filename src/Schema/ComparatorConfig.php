@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-class ComparatorConfig
+final class ComparatorConfig
 {
-    protected bool $detectRenamedColumns = true;
+    public function __construct(
+        private readonly bool $detectRenamedColumns = true,
+        private readonly bool $detectRenamedIndexes = true,
+    ) {
+    }
 
-    protected bool $detectRenamedIndexes = true;
-
-    public function setDetectRenamedColumns(bool $detectRenamedColumns): void
+    public function withDetectRenamedColumns(bool $detectRenamedColumns): self
     {
-        $this->detectRenamedColumns = $detectRenamedColumns;
+        return new self(
+            $detectRenamedColumns,
+            $this->detectRenamedIndexes,
+        );
     }
 
     public function getDetectRenamedColumns(): bool
@@ -20,9 +25,12 @@ class ComparatorConfig
         return $this->detectRenamedColumns;
     }
 
-    public function setDetectRenamedIndexes(bool $detectRenamedIndexes): void
+    public function withDetectRenamedIndexes(bool $detectRenamedIndexes): self
     {
-        $this->detectRenamedIndexes = $detectRenamedIndexes;
+        return new self(
+            $this->detectRenamedColumns,
+            $detectRenamedIndexes,
+        );
     }
 
     public function getDetectRenamedIndexes(): bool

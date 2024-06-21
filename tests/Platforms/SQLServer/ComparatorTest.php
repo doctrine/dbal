@@ -6,12 +6,13 @@ namespace Doctrine\DBAL\Tests\Platforms\SQLServer;
 
 use Doctrine\DBAL\Platforms\SQLServer\Comparator;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Tests\Schema\AbstractComparatorTestCase;
 
 class ComparatorTest extends AbstractComparatorTestCase
 {
-    protected function setUp(): void
+    protected function createComparator(ComparatorConfig $config): \Doctrine\DBAL\Schema\Comparator
     {
-        $this->comparator = new Comparator(new SQLServerPlatform(), '');
+        return new Comparator(new SQLServerPlatform(), '', $config);
     }
 }

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms\MySQL;
 
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
@@ -26,8 +27,9 @@ class Comparator extends BaseComparator
         private readonly CharsetMetadataProvider $charsetMetadataProvider,
         private readonly CollationMetadataProvider $collationMetadataProvider,
         private readonly DefaultTableOptions $defaultTableOptions,
+        ComparatorConfig $config,
     ) {
-        parent::__construct($platform);
+        parent::__construct($platform, $config);
     }
 
     public function compareTables(Table $oldTable, Table $newTable): TableDiff

@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -31,7 +32,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     protected function createComparator(): Comparator
     {
-        return new SQLServer\Comparator($this->platform, '');
+        return new SQLServer\Comparator($this->platform, '', new ComparatorConfig());
     }
 
     public function getGenerateTableSql(): string

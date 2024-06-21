@@ -13,6 +13,8 @@ use Doctrine\DBAL\Types\Type;
 use function array_change_key_case;
 use function assert;
 use function explode;
+use function func_get_arg;
+use function func_num_args;
 use function implode;
 use function is_string;
 use function preg_match;
@@ -261,10 +263,18 @@ SQL,
         return new View($view['name'], $view['definition']);
     }
 
-    /** @throws Exception */
-    public function createComparator(): Comparator
+    /**
+     * @param ComparatorConfig $config
+     *
+     * @throws Exception
+     */
+    public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
-        return new SQLServer\Comparator($this->platform, $this->getDatabaseCollation());
+        return new SQLServer\Comparator(
+            $this->platform,
+            $this->getDatabaseCollation(),
+            func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig(),
+        );
     }
 
     /** @throws Exception */

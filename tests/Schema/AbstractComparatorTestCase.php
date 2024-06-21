@@ -25,7 +25,14 @@ use function array_keys;
 
 abstract class AbstractComparatorTestCase extends TestCase
 {
-    protected Comparator $comparator;
+    private Comparator $comparator;
+
+    abstract protected function createComparator(ComparatorConfig $config): Comparator;
+
+    protected function setUp(): void
+    {
+        $this->comparator = $this->createComparator(new ComparatorConfig());
+    }
 
     public function testCompareSame1(): void
     {
@@ -404,10 +411,8 @@ abstract class AbstractComparatorTestCase extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('bar', Types::INTEGER);
 
-        $config = new ComparatorConfig();
-        $config->setDetectRenamedColumns(false);
-        $this->comparator->setConfig($config);
-        $tableDiff = $this->comparator->compareTables($tableA, $tableB);
+        $this->comparator = $this->createComparator((new ComparatorConfig())->withDetectRenamedColumns(false));
+        $tableDiff        = $this->comparator->compareTables($tableA, $tableB);
 
         self::assertCount(1, $tableDiff->getAddedColumns());
         self::assertCount(1, $tableDiff->getDroppedColumns());
@@ -467,10 +472,8 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $table2->addIndex(['foo'], 'idx_bar');
 
-        $config = new ComparatorConfig();
-        $config->setDetectRenamedIndexes(false);
-        $this->comparator->setConfig($config);
-        $tableDiff = $this->comparator->compareTables($table1, $table2);
+        $this->comparator = $this->createComparator((new ComparatorConfig())->withDetectRenamedIndexes(false));
+        $tableDiff        = $this->comparator->compareTables($table1, $table2);
 
         self::assertCount(1, $tableDiff->getAddedIndexes());
         self::assertCount(1, $tableDiff->getDroppedIndexes());

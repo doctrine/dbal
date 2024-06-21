@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -26,7 +27,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     protected function createComparator(): Comparator
     {
-        return new SQLite\Comparator($this->platform);
+        return new SQLite\Comparator($this->platform, new ComparatorConfig());
     }
 
     public function getGenerateTableSql(): string

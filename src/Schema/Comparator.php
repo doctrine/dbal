@@ -19,13 +19,8 @@ class Comparator
     /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(
         private readonly AbstractPlatform $platform,
-        private ComparatorConfig $config = new ComparatorConfig(),
+        private readonly ComparatorConfig $config,
     ) {
-    }
-
-    public function setConfig(ComparatorConfig $config): void
-    {
-        $this->config = $config;
     }
 
     /**

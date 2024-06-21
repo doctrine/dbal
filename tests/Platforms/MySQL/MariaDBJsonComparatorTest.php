@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\Comparator;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
@@ -39,6 +40,7 @@ class MariaDBJsonComparatorTest extends TestCase
                 }
             },
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),
+            new ComparatorConfig(),
         );
 
         // TableA has collation set at table level and various column collations
