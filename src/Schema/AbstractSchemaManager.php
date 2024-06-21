@@ -842,7 +842,6 @@ abstract class AbstractSchemaManager
         return $database;
     }
 
-    /** @param ComparatorConfig $config */
     public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
         return new Comparator($this->platform, func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig());

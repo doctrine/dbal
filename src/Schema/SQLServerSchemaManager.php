@@ -263,11 +263,7 @@ SQL,
         return new View($view['name'], $view['definition']);
     }
 
-    /**
-     * @param ComparatorConfig $config
-     *
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
         return new SQLServer\Comparator(

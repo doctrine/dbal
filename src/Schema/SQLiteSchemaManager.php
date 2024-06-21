@@ -495,7 +495,6 @@ SQL
         return $details;
     }
 
-    /** @param ComparatorConfig $config */
     public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
         return new SQLite\Comparator($this->platform, func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig());

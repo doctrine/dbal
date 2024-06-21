@@ -315,11 +315,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
         );
     }
 
-    /**
-     * @param ComparatorConfig $config
-     *
-     * @throws Exception
-     */
+    /** @throws Exception */
     public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
         return new MySQL\Comparator(
