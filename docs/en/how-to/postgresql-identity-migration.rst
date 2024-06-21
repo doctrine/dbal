@@ -60,7 +60,11 @@ the schema with the DBAL:
       END;
       $$;
 
-3. For each column and their table, run ``upgrade_serial_to_identity(<table>, <column>)``.
+3. Run the function for each table like this:
+
+    .. code-block:: sql
+
+      SELECT upgrade_serial_to_identity('article', 'id');
 
 Without this migration, next time when DBAL 4 is used to manage the schema, it will perform a similar migration
 but instead of reusing the existing sequence, it will drop it and create a new one. As a result,

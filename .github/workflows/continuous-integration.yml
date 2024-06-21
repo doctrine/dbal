@@ -68,7 +68,7 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
           dependency-versions: "${{ matrix.dependencies }}"
@@ -84,12 +84,12 @@ jobs:
         if: "${{ matrix.extension == 'sqlite3' }}"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
-          name: "phpunit-${{ matrix.extension }}-${{ matrix.deps }}-${{ matrix.php-version }}.coverage"
+          name: "phpunit-${{ matrix.extension }}-${{ matrix.dependencies }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
 
   phpunit-oci8:
@@ -136,17 +136,17 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/oci8${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/oci8${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
-          name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
+          name: "${{ github.job }}-${{ matrix.php-version }}-${{ matrix.oracle-version }}.coverage"
           path: "coverage.xml"
 
   phpunit-pdo-oci:
@@ -193,17 +193,17 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
-          name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
+          name: "${{ github.job }}-${{ matrix.php-version }}-${{ matrix.oracle-version }}.coverage"
           path: "coverage.xml"
 
   phpunit-postgres:
@@ -257,15 +257,15 @@ jobs:
           ini-values: "zend.assertions=1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.postgres-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -280,22 +280,24 @@ jobs:
         php-version:
           - "8.1"
         mariadb-version:
+          # keep in sync with https://mariadb.org/about/#maintenance-policy
           - "10.4"  # Oldest version supported by DBAL, LTS (Jun 2024)
           - "10.5"  # LTS (Jun 2025)
           - "10.6"  # LTS (Jul 2026)
           - "10.11" # LTS (Feb 2028)
-          - "11.0"  # STS (Jun 2024)
           - "11.1"  # STS (Aug 2024)
           - "11.2"  # STS (Nov 2024)
+          - "11.3"  # STS (Feb 2025)
+          - "11.4"  # LTS (May 2029)
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - php-version: "8.2"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "mysqli"
           - php-version: "8.3"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "pdo_mysql"
 
     services:
@@ -306,7 +308,7 @@ jobs:
           MYSQL_DATABASE: "doctrine_tests"
 
         options: >-
-          --health-cmd "mariadb-admin ping --silent || mysqladmin ping --silent"
+          --health-cmd "healthcheck.sh --connect --innodb_initialized || mysqladmin ping --protocol tcp --silent"
 
         ports:
           - "3306:3306"
@@ -326,15 +328,15 @@ jobs:
           extensions: "${{ matrix.extension }}"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.mariadb-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -351,7 +353,6 @@ jobs:
         mysql-version:
           - "5.7"
           - "8.0"
-          - "8.3"
         extension:
           - "mysqli"
           - "pdo_mysql"
@@ -368,6 +369,16 @@ jobs:
           - php-version: "8.3"
             mysql-version: "8.0"
             extension: "pdo_mysql"
+          - php-version: "8.1"
+            mysql-version: "8.4"
+            extension: "mysqli"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+          - php-version: "8.1"
+            mysql-version: "8.4"
+            extension: "pdo_mysql"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
 
     services:
       mysql:
@@ -397,7 +408,7 @@ jobs:
           extensions: "${{ matrix.extension }}"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
@@ -406,10 +417,10 @@ jobs:
         if: "${{ endsWith(matrix.config-file-suffix, 'tls') }}"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.mysql-version }}-${{ matrix.extension }}-${{ matrix.config-file-suffix }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -468,15 +479,15 @@ jobs:
           extensions: "${{ matrix.extension }}-5.10.0beta1"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.extension }}-${{ matrix.php-version }}-${{ matrix.collation }}.coverage"
           path: "coverage.xml"
@@ -539,15 +550,15 @@ jobs:
           IBM_DB2_CONFIGURE_OPTS: "--with-IBM_DB2=/tmp/clidriver"
 
       - name: "Install dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
-        uses: "actions/upload-artifact@v3"
+        uses: "actions/upload-artifact@v4"
         with:
           name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
           path: "coverage.xml"
@@ -574,12 +585,12 @@ jobs:
         run: "composer config minimum-stability dev"
 
       - name: "Install development dependencies with Composer"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--prefer-dist"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml --display-warnings"
 
   upload_coverage:
     name: "Upload coverage to Codecov"
@@ -601,7 +612,7 @@ jobs:
           fetch-depth: 2
 
       - name: "Download coverage files"
-        uses: "actions/download-artifact@v3"
+        uses: "actions/download-artifact@v4"
         with:
           path: "reports"
 
@@ -610,6 +621,9 @@ jobs:
         working-directory: reports
 
       - name: "Upload to Codecov"
-        uses: "codecov/codecov-action@v3"
+        uses: "codecov/codecov-action@v4"
         with:
           directory: reports
+          fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: "${{ secrets.CODECOV_TOKEN }}"

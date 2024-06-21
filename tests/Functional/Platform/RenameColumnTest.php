@@ -7,10 +7,11 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class RenameColumnTest extends FunctionalTestCase
 {
-    /** @dataProvider columnNameProvider */
+    #[DataProvider('columnNameProvider')]
     public function testColumnPositionRetainedAfterRenaming(string $columnName, string $newColumnName): void
     {
         $table = new Table('test_rename');

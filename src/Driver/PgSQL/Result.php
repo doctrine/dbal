@@ -7,7 +7,9 @@ namespace Doctrine\DBAL\Driver\PgSQL;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\PgSQL\Exception\UnexpectedValue;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use PgSql\Result as PgSqlResult;
+use ValueError;
 
 use function array_keys;
 use function array_map;
@@ -143,6 +145,19 @@ final class Result implements ResultInterface
         }
 
         return pg_num_fields($this->result);
+    }
+
+    public function getColumnName(int $index): string
+    {
+        if ($this->result === null) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        try {
+            return pg_field_name($this->result, $index);
+        } catch (ValueError) {
+            throw InvalidColumnIndex::new($index);
+        }
     }
 
     public function free(): void

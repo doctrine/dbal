@@ -6,15 +6,13 @@ namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ForeignKeyConstraintTest extends TestCase
 {
-    /**
-     * @param string[] $indexColumns
-     *
-     * @dataProvider getIntersectsIndexColumnsData
-     */
+    /** @param string[] $indexColumns */
+    #[DataProvider('getIntersectsIndexColumnsData')]
     public function testIntersectsIndexColumns(array $indexColumns, bool $expectedResult): void
     {
         $foreignKey = new ForeignKeyConstraint(['foo', 'bar'], 'foreign_table', ['fk_foo', 'fk_bar']);
@@ -56,7 +54,7 @@ class ForeignKeyConstraintTest extends TestCase
         ];
     }
 
-    /** @dataProvider getUnqualifiedForeignTableNameData */
+    #[DataProvider('getUnqualifiedForeignTableNameData')]
     public function testGetUnqualifiedForeignTableName(
         string $foreignTableName,
         string $expectedUnqualifiedTableName,

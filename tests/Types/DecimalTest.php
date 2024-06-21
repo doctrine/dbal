@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class DecimalTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private DecimalType $type;
 
     protected function setUp(): void

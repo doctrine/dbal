@@ -36,6 +36,7 @@ use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtolower;
+use function substr;
 use function trim;
 
 /**
@@ -547,11 +548,6 @@ class SQLitePlatform extends AbstractPlatform
         $name    = $index->getQuotedName($this);
         $columns = $index->getColumns();
 
-        if (strpos($table, '.') !== false) {
-            [$schema, $table] = explode('.', $table);
-            $name             = $schema . '.' . $name;
-        }
-
         if (count($columns) === 0) {
             throw new InvalidArgumentException(sprintf(
                 'Incomplete or invalid index definition %s on table %s',
@@ -562,6 +558,11 @@ class SQLitePlatform extends AbstractPlatform
 
         if ($index->isPrimary()) {
             return $this->getCreatePrimaryKeySQL($index, $table);
+        }
+
+        if (strpos($table, '.') !== false) {
+            [$schema, $table] = explode('.', $table);
+            $name             = $schema . '.' . $name;
         }
 
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
@@ -674,7 +675,13 @@ class SQLitePlatform extends AbstractPlatform
             $columns[strtolower($column->getName())] = $column;
         }
 
-        $dataTable = new Table('__temp__' . $table->getName());
+        $tableName = $table->getName();
+        $pos       = strpos($tableName, '.');
+        if ($pos !== false) {
+            $tableName = substr($tableName, $pos + 1);
+        }
+
+        $dataTable = new Table('__temp__' . $tableName);
 
         $newTable = new Table(
             $table->getQuotedName($this),
@@ -772,6 +779,7 @@ class SQLitePlatform extends AbstractPlatform
 
             $type = $definition['type'];
 
+            /** @psalm-suppress RiskyTruthyFalsyComparison */
             switch (true) {
                 case isset($definition['columnDefinition']) || $definition['autoincrement'] || $definition['unique']:
                 case $type instanceof Types\DateTimeType && $definition['default'] === $this->getCurrentTimestampSQL():
@@ -982,5 +990,13 @@ class SQLitePlatform extends AbstractPlatform
     public function createSchemaManager(Connection $connection): SQLiteSchemaManager
     {
         return new SQLiteSchemaManager($connection, $this);
+    }
+
+    /**
+     * Returns the union select query part surrounded by parenthesis if possible for platform.
+     */
+    public function getUnionSelectPartSQL(string $subQuery): string
+    {
+        return $subQuery;
     }
 }

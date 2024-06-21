@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use UnexpectedValueException;
 
 use function sprintf;
@@ -211,7 +212,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /** @dataProvider serialTypes */
+    #[DataProvider('serialTypes')]
     public function testGenerateTableWithAutoincrementDoesNotSetDefault(string $type, string $definition): void
     {
         $table  = new Table('autoinc_table_notnull');
@@ -224,7 +225,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals([sprintf('CREATE TABLE autoinc_table_notnull (id %s)', $definition)], $sql);
     }
 
-    /** @dataProvider serialTypes */
+    #[DataProvider('serialTypes')]
     public function testCreateTableWithAutoincrementAndNotNullAddsConstraint(string $type, string $definition): void
     {
         $table  = new Table('autoinc_table_notnull_enabled');
@@ -237,7 +238,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals([sprintf('CREATE TABLE autoinc_table_notnull_enabled (id %s NOT NULL)', $definition)], $sql);
     }
 
-    /** @dataProvider serialTypes */
+    #[DataProvider('serialTypes')]
     public function testGetDefaultValueDeclarationSQLIgnoresTheDefaultKeyWhenTheFieldIsSerial(string $type): void
     {
         $sql = $this->platform->getDefaultValueDeclarationSQL(
@@ -371,7 +372,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /** @dataProvider pgBooleanProvider */
+    #[DataProvider('pgBooleanProvider')]
     public function testConvertBooleanAsLiteralStrings(
         string $databaseValue,
         string $preparedStatementValue,
@@ -390,7 +391,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals(0, $this->platform->convertBooleans('0'));
     }
 
-    /** @dataProvider pgBooleanProvider */
+    #[DataProvider('pgBooleanProvider')]
     public function testConvertBooleanAsDatabaseValueStrings(
         string $databaseValue,
         string $preparedStatementValue,
@@ -408,7 +409,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertSame(0, $this->platform->convertBooleansToDatabaseValue(false));
     }
 
-    /** @dataProvider pgBooleanProvider */
+    #[DataProvider('pgBooleanProvider')]
     public function testConvertFromBoolean(
         string $databaseValue,
         string $prepareStatementValue,
@@ -476,7 +477,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $sql);
     }
 
-    /** @dataProvider dataCreateSequenceWithCache */
+    #[DataProvider('dataCreateSequenceWithCache')]
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
         $sequence = new Sequence('foo', 1, 1, $cacheSize);

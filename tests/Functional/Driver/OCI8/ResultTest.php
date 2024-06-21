@@ -8,6 +8,8 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
 use function func_get_args;
 use function ini_get;
@@ -16,7 +18,7 @@ use function set_error_handler;
 use function sprintf;
 use function str_contains;
 
-/** @requires extension oci8 */
+#[RequiresPhpExtension('oci8')]
 class ResultTest extends FunctionalTestCase
 {
     /**
@@ -50,9 +52,8 @@ class ResultTest extends FunctionalTestCase
      *
      * Note that this test requires 2 separate user connections so that the
      * pipelined function can be changed mid fetch.
-     *
-     * @dataProvider dataProviderForTestTruncatedFetch
      */
+    #[DataProvider('dataProviderForTestTruncatedFetch')]
     public function testTruncatedFetch(
         bool $invalidateDataMidFetch,
     ): void {
@@ -87,6 +88,7 @@ class ResultTest extends FunctionalTestCase
             // after the initial prefetch that caches locally the first X results
             $this->createOrReplacePipelinedFunction($expectedTotalRowCount + 10);
 
+            /** @var callable|null $previous */
             $previous = null;
             $previous = set_error_handler(static function (int $errno, string $errstr) use (&$previous): bool {
                 if (str_contains($errstr, 'ORA-04061')) {

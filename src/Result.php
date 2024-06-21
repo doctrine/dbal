@@ -7,11 +7,15 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Exception\NoKeyValue;
+use LogicException;
 use Traversable;
 
 use function array_shift;
 use function assert;
 use function count;
+use function get_debug_type;
+use function method_exists;
+use function sprintf;
 
 class Result
 {
@@ -178,7 +182,7 @@ class Result
     }
 
     /**
-     * @return Traversable<mixed,mixed>
+     * @return Traversable<mixed, mixed>
      *
      * @throws Exception
      */
@@ -248,6 +252,29 @@ class Result
     {
         try {
             return $this->result->columnCount();
+        } catch (DriverException $e) {
+            throw $this->connection->convertException($e);
+        }
+    }
+
+    /**
+     * Returns the name of the column in the result set for the given 0-based index.
+     *
+     * If the index is not a valid column index ({@see columnCount}), an exception will be thrown.
+     *
+     * @throws Exception
+     */
+    public function getColumnName(int $index): string
+    {
+        if (! method_exists($this->result, 'getColumnName')) {
+            throw new LogicException(sprintf(
+                'The driver result %s does not support accessing the column name.',
+                get_debug_type($this->result),
+            ));
+        }
+
+        try {
+            return $this->result->getColumnName($index);
         } catch (DriverException $e) {
             throw $this->connection->convertException($e);
         }

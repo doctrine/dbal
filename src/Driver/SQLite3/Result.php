@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\SQLite3;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use SQLite3Result;
 
 use const SQLITE3_ASSOC;
@@ -74,6 +75,21 @@ final class Result implements ResultInterface
         }
 
         return $this->result->numColumns();
+    }
+
+    public function getColumnName(int $index): string
+    {
+        if ($this->result === null) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        $name = $this->result->columnName($index);
+
+        if ($name === false) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        return $name;
     }
 
     public function free(): void

@@ -91,6 +91,10 @@ Values retrieved from the database are always converted to PHP's ``integer`` typ
 if they are within PHP's integer range or ``string`` if they aren't.
 Otherwise, returns ``null`` if no data is present.
 
+.. versionadded:: 4.0
+
+The mapping to PHP ``int`` was added in version 4.0
+
 .. note::
 
     Due to architectural differences, 32-bit PHP systems have a smaller
@@ -306,6 +310,15 @@ If you know that the data to be stored always contains date, time and timezone
 information, you should consider using this type.
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
+
+.. note::
+
+    This type is not supported by all the vendor platforms or by all of their versions. Depending on
+    these variants, the databases that support this type may return the persisted date and time in a
+    different timezone than the one used during the ``INSERT`` or the ``UPDATE`` operation. This means
+    that if you persist a value like `1986-22-03 19:45:30-03:00`, you could have `1986-22-03 22:45:30-00:00`
+    as the result of a ``SELECT`` operation for that record. In these cases, the timezone offset present
+    in the result is usually UTC or the one configured as default in the database server.
 
 .. warning::
 
@@ -848,19 +861,8 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
 
 The job of Doctrine-DBAL is to transform your type into an SQL
 declaration. You can modify the SQL declaration Doctrine will produce.
-At first, to enable this feature, you must override the
-``canRequireSQLConversion`` method:
-
-::
-
-    <?php
-    public function canRequireSQLConversion()
-    {
-        return true;
-    }
-
-Then you override the ``convertToPhpValueSQL`` and
-``convertToDatabaseValueSQL`` methods :
+At first, you override the ``convertToPhpValueSQL`` and
+``convertToDatabaseValueSQL`` methods:
 
 ::
 
@@ -875,7 +877,7 @@ Then you override the ``convertToPhpValueSQL`` and
         return 'MyFunction('.$sqlExpr.')';
     }
 
-Now we have to register this type with the Doctrine Type system and
+Then you have to register this type with the Doctrine Type system and
 hook it into the database platform:
 
 ::

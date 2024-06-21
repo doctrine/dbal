@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\ComparatorTestUtils;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class ComparatorTest extends FunctionalTestCase
 {
@@ -37,7 +38,7 @@ final class ComparatorTest extends FunctionalTestCase
         $this->comparator    = $this->schemaManager->createComparator();
     }
 
-    /** @dataProvider lobColumnProvider */
+    #[DataProvider('lobColumnProvider')]
     public function testLobLengthIncrementWithinLimit(string $type, int $length): void
     {
         $table = $this->createLobTable($type, $length - 1);
@@ -56,7 +57,7 @@ final class ComparatorTest extends FunctionalTestCase
         )->isEmpty());
     }
 
-    /** @dataProvider lobColumnProvider */
+    #[DataProvider('lobColumnProvider')]
     public function testLobLengthIncrementOverLimit(string $type, int $length): void
     {
         $table = $this->createLobTable($type, $length);
@@ -131,9 +132,8 @@ final class ComparatorTest extends FunctionalTestCase
     /**
      * @param array<string,string> $tableOptions
      * @param array<string,string> $columnOptions
-     *
-     * @dataProvider tableAndColumnOptionsProvider
      */
+    #[DataProvider('tableAndColumnOptionsProvider')]
     public function testTableAndColumnOptions(array $tableOptions, array $columnOptions): void
     {
         $table = new Table('comparator_test', [], [], [], [], $tableOptions);

@@ -34,8 +34,10 @@ final class Driver extends AbstractOracleDriver
 
         $connectionString = $this->getEasyConnectString($params);
 
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
         $persistent = ! empty($params['persistent']);
-        $exclusive  = ! empty($params['driverOptions']['exclusive']);
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
+        $exclusive = ! empty($params['driverOptions']['exclusive']);
 
         if ($persistent && $exclusive) {
             throw InvalidConfiguration::forPersistentAndExclusive();

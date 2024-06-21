@@ -467,30 +467,12 @@ SQL;
      */
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
-        $sql = <<<'SQL'
-    SELECT t.TABLE_NAME,
-           t.ENGINE,
-           t.AUTO_INCREMENT,
-           t.TABLE_COMMENT,
-           t.CREATE_OPTIONS,
-           t.TABLE_COLLATION,
-           ccsa.CHARACTER_SET_NAME
-      FROM information_schema.TABLES t
-        INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY ccsa
-            ON ccsa.COLLATION_NAME = t.TABLE_COLLATION
-SQL;
+        $sql = $this->platform->fetchTableOptionsByTable($tableName !== null);
 
-        $conditions = ['t.TABLE_SCHEMA = ?'];
-        $params     = [$databaseName];
-
+        $params = [$databaseName];
         if ($tableName !== null) {
-            $conditions[] = 't.TABLE_NAME = ?';
-            $params[]     = $tableName;
+            $params[] = $tableName;
         }
-
-        $conditions[] = "t.TABLE_TYPE = 'BASE TABLE'";
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
         /** @var array<string,array<string,mixed>> $metadata */
         $metadata = $this->connection->executeQuery($sql, $params)

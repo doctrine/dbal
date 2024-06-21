@@ -15,9 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 class DateImmutableTypeTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private DateImmutableType $type;
 
     protected function setUp(): void

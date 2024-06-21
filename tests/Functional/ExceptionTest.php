@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_merge;
 use function chmod;
@@ -87,6 +88,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->expectException(Exception\InvalidFieldNameException::class);
 
         // prevent the PHPUnit error handler from handling the warning that db2_bind_param() may trigger
+        /** @var callable|null $previous */
         $previous = null;
         $previous = set_error_handler(static function (int $errno) use (&$previous): bool {
             if (($errno & ~E_WARNING) === 0) {
@@ -216,9 +218,8 @@ class ExceptionTest extends FunctionalTestCase
      * @param array<string, mixed> $params
      * @psalm-param Params $params
      * @phpstan-param array<string,mixed> $params
-     *
-     * @dataProvider getConnectionParams
      */
+    #[DataProvider('getConnectionParams')]
     private function testConnectionException(array $params): void
     {
         $platform = $this->connection->getDatabasePlatform();

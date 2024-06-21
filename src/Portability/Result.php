@@ -65,4 +65,11 @@ final class Result extends AbstractResultMiddleware
             parent::fetchFirstColumn(),
         );
     }
+
+    public function getColumnName(int $index): string
+    {
+        return $this->converter->convertColumnName(
+            parent::getColumnName($index),
+        );
+    }
 }

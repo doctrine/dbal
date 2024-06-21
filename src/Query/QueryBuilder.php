@@ -154,6 +154,13 @@ class QueryBuilder
     private array $values = [];
 
     /**
+     * The QueryBuilder for the union parts.
+     *
+     * @var Union[]
+     */
+    private array $unionParts = [];
+
+    /**
      * The query cache profile used for caching results.
      */
     private ?QueryCacheProfile $resultCacheProfile = null;
@@ -336,6 +343,7 @@ class QueryBuilder
             QueryType::DELETE => $this->getSQLForDelete(),
             QueryType::UPDATE => $this->getSQLForUpdate(),
             QueryType::SELECT => $this->getSQLForSelect(),
+            QueryType::UNION  => $this->getSQLForUnion(),
         };
     }
 
@@ -502,6 +510,54 @@ class QueryBuilder
     }
 
     /**
+     * Specifies union parts to be used to build a UNION query.
+     * Replaces any previously specified parts.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->union('SELECT 1 AS field1', 'SELECT 2 AS field1');
+     * </code>
+     *
+     * @return $this
+     */
+    public function union(string|QueryBuilder $part): self
+    {
+        $this->type = QueryType::UNION;
+
+        $this->unionParts = [new Union($part)];
+
+        $this->sql = null;
+
+        return $this;
+    }
+
+    /**
+     * Add parts to be used to build a UNION query.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->union('SELECT 1 AS field1')
+     *         ->addUnion('SELECT 2 AS field1', 'SELECT 3 AS field1')
+     * </code>
+     *
+     * @return $this
+     */
+    public function addUnion(string|QueryBuilder $part, UnionType $type = UnionType::DISTINCT): self
+    {
+        $this->type = QueryType::UNION;
+
+        if (count($this->unionParts) === 0) {
+            throw new QueryException('No initial UNION part set, use union() to set one first.');
+        }
+
+        $this->unionParts[] = new Union($part, $type);
+
+        $this->sql = null;
+
+        return $this;
+    }
+
+    /**
      * Specifies an item that is to be returned in the query result.
      * Replaces any previously specified selections, if any.
      *
@@ -580,8 +636,8 @@ class QueryBuilder
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
-     *         ->delete('users', 'u')
-     *         ->where('u.id = :user_id')
+     *         ->delete('users')
+     *         ->where('users.id = :user_id')
      *         ->setParameter(':user_id', 1);
      * </code>
      *
@@ -606,9 +662,9 @@ class QueryBuilder
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
-     *         ->update('counters', 'c')
-     *         ->set('c.value', 'c.value + 1')
-     *         ->where('c.id = ?');
+     *         ->update('counters')
+     *         ->set('counters.value', 'counters.value + 1')
+     *         ->where('counters.id = ?');
      * </code>
      *
      * @param string $table The table whose rows are subject to the update.
@@ -1310,6 +1366,30 @@ class QueryBuilder
     }
 
     /**
+     * Converts this instance into a UNION string in SQL.
+     */
+    private function getSQLForUnion(): string
+    {
+        $countUnions = count($this->unionParts);
+        if ($countUnions < 2) {
+            throw new QueryException(
+                'Insufficient UNION parts give, need at least 2.'
+                . ' Please use union() and addUnion() to set enough UNION parts.',
+            );
+        }
+
+        return $this->connection->getDatabasePlatform()
+            ->createUnionSQLBuilder()
+            ->buildSQL(
+                new UnionQuery(
+                    $this->unionParts,
+                    $this->orderBy,
+                    new Limit($this->maxResults, $this->firstResult),
+                ),
+            );
+    }
+
+    /**
      * Gets a string representation of this QueryBuilder which corresponds to
      * the final SQL query being constructed.
      *
@@ -1454,7 +1534,7 @@ class QueryBuilder
 
     /**
      * Enables caching of the results of this query, for given amount of seconds
-     * and optionally specified witch key to use for the cache entry.
+     * and optionally specified which key to use for the cache entry.
      *
      * @return $this
      */

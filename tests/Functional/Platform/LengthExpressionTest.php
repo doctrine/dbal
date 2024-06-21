@@ -6,14 +6,12 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class LengthExpressionTest extends FunctionalTestCase
 {
-    /**
-     * @link https://docs.microsoft.com/en-us/sql/relational-databases/collations/collation-and-unicode-support
-     *
-     * @dataProvider expressionProvider
-     */
+    /** @link https://docs.microsoft.com/en-us/sql/relational-databases/collations/collation-and-unicode-support */
+    #[DataProvider('expressionProvider')]
     public function testLengthExpression(string $value, int $expected, bool $isMultibyte): void
     {
         $platform = $this->connection->getDatabasePlatform();

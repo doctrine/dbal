@@ -9,7 +9,9 @@ use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 
 /**
- * Provides the behavior, features and SQL dialect of the MySQL 8.0 (8.0 GA) database platform.
+ * Provides the behavior, features and SQL dialect of the MySQL 8.0 database platform.
+ *
+ * @deprecated This class will be removed once support for MySQL 5.7 is dropped.
  */
 class MySQL80Platform extends MySQLPlatform
 {

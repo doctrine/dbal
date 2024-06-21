@@ -6,6 +6,18 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 4.1
+
+## Deprecated support for MariaDB 10.4 and MySQL 5.7
+
+* Upgrade to MariaDB 10.5 or later.
+* Upgrade to MySQL 8.0 or later.
+
+## Add `Result::getColumnName()`
+
+Driver and middleware results need to implement a new method `getColumnName()` that gives access to the
+column name. Not doing so is deprecated.
+
 # Upgrade to 4.0
 
 ## BC BREAK: removed `AbstractMySQLPlatform` methods.
@@ -18,7 +30,7 @@ awareness about deprecated code.
 The methods `AbstractPlatform::getReadLockSQL()`, `::getWriteLockSQL()` and `::getForUpdateSQL()` have been removed
 Use `QueryBuilder::forUpdate()` as a replacement for the latter.
 
-## BC BREAK: BIGINT vales are cast to int if possible
+## BC BREAK: BIGINT values are cast to int if possible
 
 `BigIntType` casts values retrieved from the database to int if they're inside
 the integer range of PHP. Previously, those values were always cast to string.
@@ -1750,7 +1762,7 @@ We have been working on phasing out `doctrine/cache`, and 3.2.0 allows to use
 `psr/cache` instead. To help calling our own internal APIs in a unified way, we
 also wrap `doctrine/cache` implementations with a `psr/cache` adapter.
 Using cache keys containing characters reserved by `psr/cache` will result in
-an exception. The characters are the following: `{}()/\@`.
+an exception. The characters are the following: `{}()/\@:`.
 
 ## Deprecated `SQLLogger` and its implementations.
 

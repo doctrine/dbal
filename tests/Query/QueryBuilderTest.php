@@ -12,9 +12,12 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
+use Doctrine\DBAL\Query\UnionType;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -23,8 +26,7 @@ use function hex2bin;
 /** @psalm-import-type WrapperParameterTypeArray from Connection */
 class QueryBuilderTest extends TestCase
 {
-    /** @var Connection&MockObject */
-    protected Connection $conn;
+    protected Connection&MockObject $conn;
 
     protected function setUp(): void
     {
@@ -36,8 +38,16 @@ class QueryBuilderTest extends TestCase
            ->willReturn($expressionBuilder);
 
         $platform = $this->createMock(AbstractPlatform::class);
+        $platform->method('getUnionSelectPartSQL')
+            ->willReturnArgument(0);
+        $platform->method('getUnionAllSQL')
+            ->willReturn('UNION ALL');
+        $platform->method('getUnionDistinctSQL')
+            ->willReturn('UNION');
         $platform->method('createSelectSQLBuilder')
             ->willReturn(new DefaultSelectSQLBuilder($platform, null, null));
+        $platform->method('createUnionSQLBuilder')
+            ->willReturn(new DefaultUnionSQLBuilder($platform));
 
         $this->conn->method('getDatabasePlatform')
             ->willReturn($platform);
@@ -485,7 +495,7 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }
 
-    /** @dataProvider maxResultsProvider */
+    #[DataProvider('maxResultsProvider')]
     public function testSetMaxResults(?int $maxResults): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -929,9 +939,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAssociative(
         string $select,
         string $from,
@@ -964,9 +973,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchNumeric(
         string $select,
         string $from,
@@ -999,9 +1007,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @param WrapperParameterTypeArray        $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchOne(
         string $select,
         string $from,
@@ -1034,9 +1041,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAllAssociative(
         string $select,
         string $from,
@@ -1080,9 +1086,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAllNumeric(
         string $select,
         string $from,
@@ -1126,9 +1131,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAllKeyValue(
         string $select,
         string $from,
@@ -1172,9 +1176,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchAllAssociativeIndexed(
         string $select,
         string $from,
@@ -1222,9 +1225,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testFetchFirstColumn(
         string $select,
         string $from,
@@ -1319,9 +1321,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $params
      * @psalm-param WrapperParameterTypeArray $types
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testExecuteQuery(
         string $select,
         string $from,
@@ -1353,9 +1354,8 @@ class QueryBuilderTest extends TestCase
     /**
      * @param list<mixed>|array<string, mixed> $parameters
      * @psalm-param WrapperParameterTypeArray $parameterTypes
-     *
-     * @dataProvider fetchProvider
      */
+    #[DataProvider('fetchProvider')]
     public function testExecuteQueryWithResultCaching(
         string $select,
         string $from,
@@ -1417,6 +1417,80 @@ class QueryBuilderTest extends TestCase
         self::assertSame(
             $mockedResult,
             $results,
+        );
+    }
+
+    public function testUnionOnlyThrowException(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->union('SELECT 1 AS field_one');
+
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessage(
+            'Insufficient UNION parts give, need at least 2. '
+            . 'Please use union() and addUnion() to set enough UNION parts.',
+        );
+
+        $qb->getSQL();
+    }
+
+    public function testUnionWAllAndLimitClauseReturnsUnionAllQuery(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->union('SELECT 1 AS field_one')
+            ->addUnion('SELECT 2 as field_one', UnionType::ALL)
+            ->setMaxResults(10)
+            ->setFirstResult(10);
+
+        self::assertSame('SELECT 1 AS field_one UNION ALL SELECT 2 as field_one LIMIT 10 OFFSET 10', $qb->getSQL());
+    }
+
+    public function testUnionAllWithOrderByReturnsUnionAllQueryWithOrderBy(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->union('SELECT 1 AS field_one')
+            ->addUnion('SELECT 2 as field_one', UnionType::ALL)
+            ->orderBy('field_one', 'ASC');
+
+        self::assertSame('SELECT 1 AS field_one UNION ALL SELECT 2 as field_one ORDER BY field_one ASC', $qb->getSQL());
+    }
+
+    public function testOnlyAddUnionThrowQueryException(): void
+    {
+        $this->expectException(QueryException::class);
+
+        $qb = new QueryBuilder($this->conn);
+        $qb->addUnion('SELECT 1 AS field_one', UnionType::DISTINCT);
+    }
+
+    public function testUnionAndAddUnionReturnsUnionQuery(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->union('SELECT 1 AS field_one')
+            ->addUnion('SELECT 2 as field_one', UnionType::DISTINCT);
+
+        self::assertSame('SELECT 1 AS field_one UNION SELECT 2 as field_one', $qb->getSQL());
+    }
+
+    public function testUnionIsDistinctByDefault(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->union('SELECT 1 AS field_one')
+            ->addUnion('SELECT 2 as field_one');
+
+        self::assertSame('SELECT 1 AS field_one UNION SELECT 2 as field_one', $qb->getSQL());
+    }
+
+    public function testUnionAndOrderByReturnsUnionQueryWithOrderBy(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->union('SELECT 1 AS field_one')
+            ->addUnion('SELECT 2 as field_one', UnionType::DISTINCT)
+            ->orderBy('field_one', 'ASC');
+
+        self::assertSame(
+            'SELECT 1 AS field_one UNION SELECT 2 as field_one ORDER BY field_one ASC',
+            $qb->getSQL(),
         );
     }
 }

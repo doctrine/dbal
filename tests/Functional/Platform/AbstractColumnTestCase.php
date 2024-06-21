@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function sprintf;
 
@@ -19,19 +20,19 @@ abstract class AbstractColumnTestCase extends FunctionalTestCase
         $this->assertColumn(Types::STRING, [], 'Test', ParameterType::STRING);
     }
 
-    /** @dataProvider string8Provider */
+    #[DataProvider('string8Provider')]
     public function testVariableLengthStringWithLength(string $value): void
     {
         $this->assertColumn(Types::STRING, ['length' => 8], $value, ParameterType::STRING);
     }
 
-    /** @dataProvider string1Provider */
+    #[DataProvider('string1Provider')]
     public function testFixedLengthStringNoLength(string $value): void
     {
         $this->assertColumn(Types::STRING, ['fixed' => true], $value, ParameterType::STRING);
     }
 
-    /** @dataProvider string8Provider */
+    #[DataProvider('string8Provider')]
     public function testFixedLengthStringWithLength(string $value): void
     {
         $this->assertColumn(Types::STRING, [

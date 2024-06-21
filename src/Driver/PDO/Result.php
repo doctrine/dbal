@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDO;
 
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -68,6 +69,21 @@ final class Result implements ResultInterface
     {
         try {
             return $this->statement->columnCount();
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
+    }
+
+    public function getColumnName(int $index): string
+    {
+        try {
+            $meta = $this->statement->getColumnMeta($index);
+
+            if ($meta === false) {
+                throw InvalidColumnIndex::new($index);
+            }
+
+            return $meta['name'];
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }

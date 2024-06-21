@@ -7,23 +7,26 @@ namespace Doctrine\DBAL\Tests\Driver;
 use Doctrine\DBAL\Connection\StaticServerVersionProvider;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MariaDB1010Platform;
 use Doctrine\DBAL\Platforms\MariaDB1052Platform;
 use Doctrine\DBAL\Platforms\MariaDB1060Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
+use Doctrine\DBAL\Platforms\MySQL84Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class VersionAwarePlatformDriverTest extends TestCase
 {
-    /** @dataProvider mySQLVersionProvider */
+    #[DataProvider('mySQLVersionProvider')]
     public function testMySQLi(string $version, string $expectedClass): void
     {
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\Mysqli\Driver(), $version, $expectedClass);
     }
 
-    /** @dataProvider mySQLVersionProvider */
+    #[DataProvider('mySQLVersionProvider')]
     public function testPDOMySQL(string $version, string $expectedClass): void
     {
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\PDO\MySQL\Driver(), $version, $expectedClass);
@@ -35,23 +38,24 @@ class VersionAwarePlatformDriverTest extends TestCase
         return [
             ['5.7.0', MySQLPlatform::class],
             ['8.0.11', MySQL80Platform::class],
+            ['8.4.0', MySQL84Platform::class],
             ['5.5.40-MariaDB-1~wheezy', MariaDBPlatform::class],
             ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],
             ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],
             ['10.2.8-MariaDB-1~lenny-log', MariaDBPlatform::class],
             ['10.5.2-MariaDB-1~lenny-log', MariaDB1052Platform::class],
             ['10.6.0-MariaDB-1~lenny-log', MariaDB1060Platform::class],
-            ['11.0.2-MariaDB-1:11.0.2+maria~ubu2204', MariaDB1060Platform::class],
+            ['11.0.2-MariaDB-1:11.0.2+maria~ubu2204', MariaDB1010Platform::class],
         ];
     }
 
-    /** @dataProvider postgreSQLVersionProvider */
+    #[DataProvider('postgreSQLVersionProvider')]
     public function testPgSQL(string $version, string $expectedClass): void
     {
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\PgSQL\Driver(), $version, $expectedClass);
     }
 
-    /** @dataProvider postgreSQLVersionProvider */
+    #[DataProvider('postgreSQLVersionProvider')]
     public function testPDOPgSQL(string $version, string $expectedClass): void
     {
         $this->assertDriverInstantiatesDatabasePlatform(new Driver\PDO\PgSQL\Driver(), $version, $expectedClass);

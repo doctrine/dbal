@@ -13,9 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 class VarDateTimeTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private VarDateTimeType $type;
 
     protected function setUp(): void

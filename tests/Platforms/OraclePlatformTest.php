@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function sprintf;
 use function strtoupper;
@@ -142,11 +143,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }
 
-    /**
-     * @param mixed[] $options
-     *
-     * @dataProvider getGeneratesAdvancedForeignKeyOptionsSQLData
-     */
+    /** @param mixed[] $options */
+    #[DataProvider('getGeneratesAdvancedForeignKeyOptionsSQLData')]
     public function testGeneratesAdvancedForeignKeyOptionsSQL(array $options, string $expectedSql): void
     {
         $foreignKey = new ForeignKeyConstraint(['foo'], 'foreign_table', ['bar'], '', $options);
@@ -383,7 +381,7 @@ SQL
         );
     }
 
-    /** @dataProvider dataCreateSequenceWithCache */
+    #[DataProvider('dataCreateSequenceWithCache')]
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
         $sequence = new Sequence('foo', 1, 1, $cacheSize);
@@ -443,11 +441,8 @@ SQL
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
     }
 
-    /**
-     * @param string[] $expectedSql
-     *
-     * @dataProvider getReturnsDropAutoincrementSQL
-     */
+    /** @param string[] $expectedSql */
+    #[DataProvider('getReturnsDropAutoincrementSQL')]
     public function testReturnsDropAutoincrementSQL(string $table, array $expectedSql): void
     {
         self::assertSame($expectedSql, $this->platform->getDropAutoincrementSql($table));

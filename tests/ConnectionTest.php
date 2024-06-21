@@ -19,15 +19,15 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SchemaManagerFactory;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\ServerVersionProvider;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
-/**
- * @requires extension pdo_mysql
- * @psalm-import-type Params from DriverManager
- */
+/** @psalm-import-type Params from DriverManager */
+#[RequiresPhpExtension('pdo_mysql')]
 class ConnectionTest extends TestCase
 {
     private Connection $connection;
@@ -45,8 +45,7 @@ class ConnectionTest extends TestCase
         $this->connection = DriverManager::getConnection(self::CONNECTION_PARAMS);
     }
 
-    /** @return Connection&MockObject */
-    private function getExecuteStatementMockConnection(): Connection
+    private function getExecuteStatementMockConnection(): Connection&MockObject
     {
         $driverMock = $this->createMock(Driver::class);
 
@@ -95,10 +94,8 @@ class ConnectionTest extends TestCase
         self::assertInstanceOf(Driver\PDO\MySQL\Driver::class, $this->connection->getDriver());
     }
 
-    /**
-     * @requires extension pdo_sqlite
-     * @dataProvider getQueryMethods
-     */
+    #[RequiresPhpExtension('pdo_sqlite')]
+    #[DataProvider('getQueryMethods')]
     public function testDriverExceptionIsWrapped(callable $callback): void
     {
         $this->expectException(Exception::class);
@@ -377,7 +374,7 @@ class ConnectionTest extends TestCase
         );
     }
 
-    /** @dataProvider fetchModeProvider */
+    #[DataProvider('fetchModeProvider')]
     public function testFetch(string $method, callable $invoke, mixed $expected): void
     {
         $query  = 'SELECT * FROM foo WHERE bar = ?';

@@ -11,9 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class GuidTypeTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    private AbstractPlatform $platform;
-
+    private AbstractPlatform&MockObject $platform;
     private GuidType $type;
 
     protected function setUp(): void

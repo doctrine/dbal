@@ -8,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -16,9 +17,7 @@ use function fopen;
 
 class JsonTest extends TestCase
 {
-    /** @var AbstractPlatform&MockObject */
-    protected AbstractPlatform $platform;
-
+    protected AbstractPlatform&MockObject $platform;
     protected JsonType $type;
 
     protected function setUp(): void
@@ -62,7 +61,7 @@ class JsonTest extends TestCase
         self::assertEquals($value, $phpValue);
     }
 
-    /** @dataProvider providerFailure */
+    #[DataProvider('providerFailure')]
     public function testConversionFailure(string $data): void
     {
         $this->expectException(ConversionException::class);

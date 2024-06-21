@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ComparatorTest extends FunctionalTestCase
 {
@@ -20,7 +21,7 @@ class ComparatorTest extends FunctionalTestCase
         $this->schemaManager = $this->connection->createSchemaManager();
     }
 
-    /** @dataProvider defaultValueProvider */
+    #[DataProvider('defaultValueProvider')]
     public function testDefaultValueComparison(string $type, mixed $value): void
     {
         $platform = $this->connection->getDatabasePlatform();
