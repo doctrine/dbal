@@ -74,20 +74,34 @@ database vendor and version best. Otherwise it is not guaranteed
 that the compatibility in terms of SQL dialect and feature support
 between Doctrine DBAL and the database server will always be given.
 
-If you want to overwrite parts of your platform you can do so when
-creating a connection. There is a ``platform`` option you can pass
-an instance of the platform you want the connection to use:
+If you want to overwrite parts of your platform you can do so by
+using a middleware:
 
 ::
 
     <?php
-    $myPlatform = new MyPlatform();
-    $options = [
-        'driver' => 'pdo_sqlite',
-        'path' => 'database.sqlite',
-        'platform' => $myPlatform,
-    ];
-    $conn = DriverManager::getConnection($options);
+    class CustomSQLitePlatform extends SqlitePlatform {}
+
+    class CustomDriver extends AbstractDriverMiddleware
+    {
+        public function getDatabasePlatform(ServerVersionProvider $versionProvider)
+        {
+            return new CustomSQLitePlatform();
+        }
+    }
+
+    class CustomMiddleware implements Driver\Middleware
+    {
+        public function wrap(Driver $driver): Driver
+        {
+            return new CustomDriver($driver);
+        }
+    }
+
+    $config = new Doctrine\DBAL\Configuration();
+    $config->setMiddlewares([new CustomMiddleware()]);
+
+    $connection = DriverManager::getConnection($params, $config);
 
 This way you can optimize your schema or generated SQL code with
 features that might not be portable for instance, however are
