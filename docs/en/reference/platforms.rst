@@ -84,7 +84,7 @@ using a middleware:
 
     class CustomDriver extends AbstractDriverMiddleware
     {
-        public function createDatabasePlatformForVersion($version)
+        public function getDatabasePlatform(ServerVersionProvider $versionProvider)
         {
             return new CustomSQLitePlatform();
         }
