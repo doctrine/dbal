@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
-
-use function array_filter;
-use function array_pop;
 
 class FunctionalIndexTest extends FunctionalTestCase
 {
@@ -22,7 +20,7 @@ class FunctionalIndexTest extends FunctionalTestCase
             self::markTestSkipped('Platform does not support functional indexes.');
         }
 
-        $tableName = 'some_table';
+        $tableName = 'functional_index_table';
 
         $table = new Table($tableName);
         $table->addColumn('column1', Types::INTEGER, ['notnull' => false]);
@@ -32,22 +30,16 @@ class FunctionalIndexTest extends FunctionalTestCase
 
         $this->connection->insert($tableName, ['column1' => 1]);
 
-        $tablesFromList = $this->connection->createSchemaManager()->listTables();
+        $functionalIndexTable = $this->connection->createSchemaManager()->introspectTable($tableName);
 
-        $tables    = array_filter($tablesFromList, static fn (Table $table): bool => $table->getName() === $tableName);
-        $someTable = array_pop($tables);
-
-        self::assertInstanceOf(Table::class, $someTable);
-        self::assertEquals($tableName, $someTable->getName());
-
-        $index = $someTable->getIndex('func_idx');
+        $index = $functionalIndexTable->getIndex('func_idx');
 
         self::assertTrue($index->isFunctional());
 
-        if (TestUtil::isDriverOneOf('pdo_pgsql', 'pgsql')) {
+        if ($platform instanceof PostgreSQLPlatform) {
             self::assertEquals(['column1', 'column2', '(column2 IS NOT NULL)'], $index->getColumns());
-        } else {
-            self::assertEquals(['column1', 'column2', '((`column2` is not null))'], $index->getColumns());
+        } elseif ($platform instanceof MySQLPlatform) {
+            self::assertEquals(['column1', 'column2', '(`column2` is not null)'], $index->getColumns());
         }
     }
 

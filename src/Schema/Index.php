@@ -63,9 +63,11 @@ class Index extends AbstractAsset
         foreach ($columns as $column) {
             $this->_addColumn($column);
 
-            $this->_isFunctional = $this->_isFunctional === true
-                ? $this->_isFunctional
-                : self::isFunctionalIndex($column);
+            if ($this->_isFunctional === true) {
+                continue;
+            }
+
+            $this->_isFunctional = self::isColumnNameAnExpression($column);
         }
 
         foreach ($flags as $flag) {
@@ -300,9 +302,9 @@ class Index extends AbstractAsset
         return $this->options;
     }
 
-    public static function isFunctionalIndex(string $name): bool
+    public static function isColumnNameAnExpression(string $columnName): bool
     {
-        return str_starts_with($name, '(') && str_ends_with($name, ')');
+        return str_starts_with($columnName, '(') && str_ends_with($columnName, ')');
     }
 
     /**

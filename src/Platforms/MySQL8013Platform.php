@@ -11,13 +11,16 @@ namespace Doctrine\DBAL\Platforms;
  */
 class MySQL8013Platform extends MySQLPlatform
 {
-    public function getColumnNameForIndexFetch(): string
+    public function getColumnOrExpressionNameForIndexFetching(): string
     {
-        return "COALESCE(COLUMN_NAME, CONCAT('(', REPLACE(EXPRESSION, '\\\''', ''''), ')'))";
-    }
-
-    public function supportsFunctionalIndex(): bool
-    {
-        return true;
+        return <<<'SQL'
+            COALESCE(
+                COLUMN_NAME,
+                (CASE WHEN SUBSTR(EXPRESSION, 1, 1) != '('
+                    THEN CONCAT('(', REPLACE(EXPRESSION, '\'', ''''), ')')
+                    ELSE REPLACE(EXPRESSION, '\'', '''')
+                END)
+            )
+        SQL;
     }
 }

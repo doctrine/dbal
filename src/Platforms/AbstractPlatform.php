@@ -2008,7 +2008,7 @@ abstract class AbstractPlatform
      */
     public function supportsFunctionalIndex(): bool
     {
-        return false;
+        return true;
     }
 
     /**

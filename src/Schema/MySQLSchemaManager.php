@@ -552,6 +552,6 @@ SQL;
      */
     private function getColumnNameForIndexFetch(): string
     {
-        return $this->platform->getColumnNameForIndexFetch() . ' as Column_Name';
+        return $this->platform->getColumnOrExpressionNameForIndexFetching() . ' as Column_Name';
     }
 }

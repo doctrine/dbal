@@ -12,26 +12,19 @@ use PHPUnit\Framework\TestCase;
 
 class MySQL8013SchemaTest extends TestCase
 {
-    private MySQL80Platform $platformMysql;
-    private MySQL8013Platform $platformMysql8013;
-
-    protected function setUp(): void
-    {
-        $this->platformMysql8013 = new MySQL8013Platform();
-        $this->platformMysql     = new MySQL80Platform();
-    }
-
     public function testGenerateFunctionalIndex(): void
     {
         $table = new Table('test');
         $table->addColumn('foo_id', 'integer');
         $table->addIndex(['foo_id', '(CAST(bar AS CHAR(10)))'], 'idx_foo_id');
 
+        $platform = new MySQL8013Platform();
+
         $sqls = [];
         foreach ($table->getIndexes() as $index) {
-            $sqls[] = $this->platformMysql8013->getCreateIndexSQL(
+            $sqls[] = $platform->getCreateIndexSQL(
                 $index,
-                $table->getQuotedName($this->platformMysql8013),
+                $table->getQuotedName($platform),
             );
         }
 
@@ -47,12 +40,14 @@ class MySQL8013SchemaTest extends TestCase
         $table->addColumn('foo_id', 'integer');
         $table->addIndex(['foo_id', '(CAST(bar AS CHAR(10)))'], 'idx_foo_id');
 
+        $platform = new MySQL80Platform();
+
         foreach ($table->getIndexes() as $index) {
             $this->expectException(Exception::class);
 
-            $this->platformMysql->getCreateIndexSQL(
+            $platform->getCreateIndexSQL(
                 $index,
-                $table->getQuotedName($this->platformMysql),
+                $table->getQuotedName($platform),
             );
         }
     }

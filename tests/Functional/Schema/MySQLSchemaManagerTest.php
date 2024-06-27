@@ -251,33 +251,44 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    public function testCreateTableWithFunctionalIndex(): void
+    public function testCreateTableWithFunctionalIndexWithUnsupportedPlatform(): void
     {
-        $tableName = 'table_with_functional_index';
-
-        if (! $this->connection->getDatabasePlatform()->supportsFunctionalIndex()) {
-            $this->expectException(Exception::class);
+        if ($this->connection->getDatabasePlatform()->supportsFunctionalIndex()) {
+            self::markTestSkipped('This test is only for platforms that do not support Functional Indexes');
         }
 
-        $table = new Table($tableName);
-        $table->addColumn('col_string', Types::STRING)
+        $this->expectException(Exception::class);
+
+        $table = new Table('table_with_functional_index');
+        $table->addColumn('string_column', Types::STRING)
             ->setLength(100)
             ->setNotnull(true)
             ->setPlatformOption('charset', 'utf8');
 
-        $table->addIndex(['(LENGTH(col_string))'], 'length_index');
+        $table->addIndex(['(LENGTH(string_column))'], 'length_index');
 
         $this->dropAndCreateTable($table);
+    }
 
-        if (! ($this->connection->getDatabasePlatform()->supportsFunctionalIndex())) {
-            return;
-        }
+    public function testCreateTableWithFunctionalIndex(): void
+    {
+        $tableName = 'table_with_functional_index';
+
+        $table = new Table($tableName);
+        $table->addColumn('string_column', Types::STRING)
+            ->setLength(100)
+            ->setNotnull(true)
+            ->setPlatformOption('charset', 'utf8');
+
+        $table->addIndex(['(LENGTH(string_column))'], 'length_index');
+
+        $this->dropAndCreateTable($table);
 
         $schema = $this->schemaManager->introspectTable($tableName);
         self::assertArrayHasKey('length_index', $schema->getIndexes());
         self::assertTrue($schema->getIndexes()['length_index']->isFunctional());
         self::assertEquals(
-            '(length(`col_string`))',
+            '(length(`string_column`))',
             $schema->getIndexes()['length_index']->getColumns()[0],
         );
     }
