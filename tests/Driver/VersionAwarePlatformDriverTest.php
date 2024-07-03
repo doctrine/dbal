@@ -51,6 +51,8 @@ class VersionAwarePlatformDriverTest extends TestCase
             ['8', MySQL80Platform::class],
             ['8.0', MySQL80Platform::class],
             ['8.0.11', MySQL80Platform::class],
+            ['8.4.1', MySQL80Platform::class],
+            ['9.0.0', MySQL80Platform::class],
             ['6', MySQL57Platform::class],
             ['10.0.15-MariaDB-1~wheezy', MySQLPlatform::class],
             ['5.5.5-10.1.25-MariaDB', MySQLPlatform::class],
