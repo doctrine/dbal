@@ -1150,7 +1150,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('sysname'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('xml'));
-        self::assertSame(Types::Text, $this->platform->getDoctrineTypeMapping('xml'));
+        self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('xml'));
     }
 
     protected function getBinaryMaxLength(): int
