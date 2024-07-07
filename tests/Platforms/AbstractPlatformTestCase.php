@@ -329,7 +329,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGetDefaultValueDeclarationSQLForFunctionDefault(): void
     {
         self::assertEquals(
-            ' DEFAULT gen_random_uuid()',
+            ' DEFAULT (gen_random_uuid())',
             $this->platform->getDefaultValueDeclarationSQL([
                 'type'    => Type::getType(Types::STRING),
                 'default' => 'gen_random_uuid()',

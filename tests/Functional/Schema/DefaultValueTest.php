@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -29,6 +31,35 @@ class DefaultValueTest extends FunctionalTestCase
         $this->dropAndCreateTable($table);
 
         $this->connection->insert('default_value', ['id' => 1]);
+    }
+
+    public function testDefaultValueAsFunction(): void
+    {
+        $platform     = $this->connection->getDatabasePlatform();
+        $defaultValue = 'uuid()';
+        if ($platform instanceof PostgreSQLPlatform) {
+            $defaultValue = 'gen_random_uuid()';
+        }
+
+        if ($platform instanceof SQLServerPlatform) {
+            $defaultValue = 'newid()';
+        }
+
+        $table = new Table('default_value');
+        $table->addColumn('id', Types::STRING, ['default' => $defaultValue, 'length' => 36]);
+
+        $this->dropAndCreateTable($table);
+
+        $sm          = $this->connection->createSchemaManager();
+        $onlineTable = $sm->introspectTable('default_value');
+
+        self::assertSame($defaultValue, $onlineTable->getColumn('id')->getDefault());
+
+        self::assertTrue(
+            $sm->createComparator()
+                ->compareTables($table, $onlineTable)
+                ->isEmpty(),
+        );
     }
 
     #[DataProvider('columnProvider')]

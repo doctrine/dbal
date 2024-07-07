@@ -1458,7 +1458,7 @@ abstract class AbstractPlatform
         }
 
         if ((bool) preg_match('/^[a-zA-Z_]+\(\)$/', $default)) {
-            return ' DEFAULT ' . $default;
+            return ' DEFAULT (' . $default . ')';
         }
 
         return ' DEFAULT ' . $this->quoteStringLiteral($default);
