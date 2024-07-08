@@ -3947,6 +3947,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * @param mixed[] $column
+     *
+     * @return string
+     */
+    public function getRealFloatDeclarationSQL(array $column)
+    {
+        return 'REAL';
+    }
+
+    /**
      * Gets the default transaction isolation level of the platform.
      *
      * @see TransactionIsolationLevel

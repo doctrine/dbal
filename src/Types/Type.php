@@ -36,6 +36,7 @@ abstract class Type
         Types::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
         Types::DECIMAL              => DecimalType::class,
         Types::FLOAT                => FloatType::class,
+        Types::REAL                 => RealFloatType::class,
         Types::GUID                 => GuidType::class,
         Types::INTEGER              => IntegerType::class,
         Types::JSON                 => JsonType::class,

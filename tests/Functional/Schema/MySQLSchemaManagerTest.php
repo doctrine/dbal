@@ -396,6 +396,24 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 
+    public function testListRealFloatTypeColumns(): void
+    {
+        $tableName = 'test_list_real_float_columns';
+        $table     = new Table($tableName);
+
+        $table->addColumn('col', Types::REAL);
+        $table->addColumn('col_unsigned', Types::REAL, ['unsigned' => true]);
+
+        $this->dropAndCreateTable($table);
+
+        $columns = $this->schemaManager->listTableColumns($tableName);
+
+        self::assertArrayHasKey('col', $columns);
+        self::assertArrayHasKey('col_unsigned', $columns);
+        self::assertFalse($columns['col']->getUnsigned());
+        self::assertTrue($columns['col_unsigned']->getUnsigned());
+    }
+
     public function testJsonColumnType(): void
     {
         $table = new Table('test_mysql_json');

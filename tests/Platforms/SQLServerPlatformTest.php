@@ -1102,7 +1102,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('float'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('real'));
-        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('real'));
+        self::assertSame(Types::REAL, $this->platform->getDoctrineTypeMapping('real'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('double'));
         self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('double'));

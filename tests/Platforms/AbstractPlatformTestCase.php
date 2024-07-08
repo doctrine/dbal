@@ -1353,6 +1353,29 @@ abstract class AbstractPlatformTestCase extends TestCase
         ];
     }
 
+    /**
+     * @param mixed[] $column
+     *
+     * @dataProvider getGeneratesRealFloatDeclarationSQL
+     */
+    public function testGeneratesRealFloatDeclarationSQL(array $column, string $expectedSql): void
+    {
+        self::assertSame($expectedSql, $this->platform->getRealFloatDeclarationSQL($column));
+    }
+
+    /** @return mixed[][] */
+    public static function getGeneratesRealFloatDeclarationSQL(): iterable
+    {
+        return [
+            [[], 'REAL'],
+            [['unsigned' => true], 'REAL'],
+            [['unsigned' => false], 'REAL'],
+            [['precision' => 5], 'REAL'],
+            [['scale' => 5], 'REAL'],
+            [['precision' => 4, 'scale' => 2], 'REAL'],
+        ];
+    }
+
     public function testItEscapesStringsForLike(): void
     {
         self::assertSame(

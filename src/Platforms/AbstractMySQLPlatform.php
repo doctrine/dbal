@@ -1111,6 +1111,14 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getRealFloatDeclarationSQL(array $column)
+    {
+        return 'REAL' . $this->getUnsignedDeclaration($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDecimalTypeDeclarationSQL(array $column)
     {
         return parent::getDecimalTypeDeclarationSQL($column) . $this->getUnsignedDeclaration($column);
@@ -1285,7 +1293,7 @@ SQL
             'mediumint'  => Types::INTEGER,
             'mediumtext' => Types::TEXT,
             'numeric'    => Types::DECIMAL,
-            'real'       => Types::FLOAT,
+            'real'       => Types::REAL,
             'set'        => Types::SIMPLE_ARRAY,
             'smallint'   => Types::SMALLINT,
             'string'     => Types::STRING,

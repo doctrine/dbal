@@ -796,7 +796,7 @@ class SqlitePlatform extends AbstractPlatform
             'ntext'            => Types\Types::STRING,
             'numeric'          => Types\Types::DECIMAL,
             'nvarchar'         => Types\Types::STRING,
-            'real'             => Types\Types::FLOAT,
+            'real'             => Types\Types::REAL,
             'serial'           => Types\Types::INTEGER,
             'smallint'         => Types\Types::SMALLINT,
             'text'             => Types\Types::TEXT,

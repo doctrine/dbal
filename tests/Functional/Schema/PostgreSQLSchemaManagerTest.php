@@ -490,6 +490,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_integer', Types::INTEGER, ['default' => -1]);
         $table->addColumn('col_bigint', Types::BIGINT, ['default' => -1]);
         $table->addColumn('col_float', Types::FLOAT, ['default' => -1.1]);
+        $table->addColumn('col_real', Types::REAL, ['default' => -1.1]);
         $table->addColumn('col_decimal', Types::DECIMAL, ['default' => -1.1]);
         $table->addColumn('col_string', Types::STRING, ['default' => '(-1)']);
 
@@ -501,6 +502,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(-1, $columns['col_integer']->getDefault());
         self::assertEquals(-1, $columns['col_bigint']->getDefault());
         self::assertEquals(-1.1, $columns['col_float']->getDefault());
+        self::assertEquals(-1.1, $columns['col_real']->getDefault());
         self::assertEquals(-1.1, $columns['col_decimal']->getDefault());
         self::assertEquals('(-1)', $columns['col_string']->getDefault());
     }
