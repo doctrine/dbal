@@ -871,12 +871,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public static function getGeneratesRealFloatDeclarationSQL(): iterable
     {
         return [
-            [[], 'REAL'],
-            [['unsigned' => true], 'REAL UNSIGNED'],
-            [['unsigned' => false], 'REAL'],
-            [['precision' => 5], 'REAL'],
-            [['scale' => 5], 'REAL'],
-            [['precision' => 4, 'scale' => 2], 'REAL'],
+            [[], 'FLOAT'],
+            [['unsigned' => true], 'FLOAT UNSIGNED'],
+            [['unsigned' => false], 'FLOAT'],
+            [['precision' => 5], 'FLOAT'],
+            [['scale' => 5], 'FLOAT'],
+            [['precision' => 4, 'scale' => 2], 'FLOAT'],
         ];
     }
 

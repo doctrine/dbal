@@ -1113,7 +1113,7 @@ SQL
      */
     public function getRealFloatDeclarationSQL(array $column)
     {
-        return 'REAL' . $this->getUnsignedDeclaration($column);
+        return 'FLOAT' . $this->getUnsignedDeclaration($column);
     }
 
     /**
@@ -1284,7 +1284,7 @@ SQL
             'datetime'   => Types::DATETIME_MUTABLE,
             'decimal'    => Types::DECIMAL,
             'double'     => Types::FLOAT,
-            'float'      => Types::FLOAT,
+            'float'      => Types::REAL,
             'int'        => Types::INTEGER,
             'integer'    => Types::INTEGER,
             'longblob'   => Types::BLOB,
@@ -1293,7 +1293,7 @@ SQL
             'mediumint'  => Types::INTEGER,
             'mediumtext' => Types::TEXT,
             'numeric'    => Types::DECIMAL,
-            'real'       => Types::REAL,
+            'real'       => Types::FLOAT,
             'set'        => Types::SIMPLE_ARRAY,
             'smallint'   => Types::SMALLINT,
             'string'     => Types::STRING,
