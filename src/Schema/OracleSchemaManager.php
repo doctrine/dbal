@@ -200,6 +200,12 @@ class OracleSchemaManager extends AbstractSchemaManager
 
                 break;
 
+            case 'float':
+                if ($precision === 63) {
+                    $type = 'real';
+                }
+                break;
+
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':

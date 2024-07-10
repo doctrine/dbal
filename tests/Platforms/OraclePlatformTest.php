@@ -513,6 +513,9 @@ SQL
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('date'));
         self::assertSame(Types::DATE_MUTABLE, $this->platform->getDoctrineTypeMapping('date'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('real'));
+        self::assertSame(Types::REAL, $this->platform->getDoctrineTypeMapping('real'));
     }
 
     protected function getBinaryMaxLength(): int
