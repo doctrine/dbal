@@ -143,8 +143,10 @@ class ResultTest extends FunctionalTestCase
         yield 'text' => ['TEXT', 'some value', Types::STRING];
         yield 'boolean true' => ['BOOLEAN', true, Types::BOOLEAN];
         yield 'boolean false' => ['BOOLEAN', false, Types::BOOLEAN];
-        yield 'float' => ['REAL', 47.11, Types::FLOAT];
-        yield 'negative float with exponent' => ['REAL', -8.15e10, Types::FLOAT];
+        yield 'float' => ['DOUBLE PRECISION', 47.11, Types::FLOAT];
+        yield 'real' => ['REAL', 47.11, Types::REAL];
+        yield 'negative float with exponent' => ['DOUBLE PRECISION', -8.15e10, Types::FLOAT];
+        yield 'negative real with exponent' => ['REAL', -8.15e5, Types::REAL];
         yield 'double' => ['DOUBLE PRECISION', 47.11, Types::FLOAT];
         yield 'decimal' => ['NUMERIC (6, 2)', '47.11', Types::DECIMAL];
         yield 'binary' => ['BYTEA', chr(0x8b), Types::BINARY];

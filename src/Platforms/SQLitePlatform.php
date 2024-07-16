@@ -459,7 +459,7 @@ class SQLitePlatform extends AbstractPlatform
             'ntext'            => 'string',
             'numeric'          => 'decimal',
             'nvarchar'         => 'string',
-            'real'             => 'float',
+            'real'             => 'real',
             'serial'           => 'integer',
             'smallint'         => 'smallint',
             'string'           => 'string',

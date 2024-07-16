@@ -750,6 +750,7 @@ END;';
             'nvarchar2'      => Types::STRING,
             'pls_integer'    => Types::BOOLEAN,
             'raw'            => Types::BINARY,
+            'real'           => Types::REAL,
             'rowid'          => Types::STRING,
             'timestamp'      => Types::DATETIME_MUTABLE,
             'timestamptz'    => Types::DATETIMETZ_MUTABLE,

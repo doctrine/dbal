@@ -36,6 +36,7 @@ class TypeConversionTest extends FunctionalTestCase
         $table->addColumn('test_text', Types::TEXT, ['notnull' => false]);
         $table->addColumn('test_json', Types::JSON, ['notnull' => false]);
         $table->addColumn('test_float', Types::FLOAT, ['notnull' => false]);
+        $table->addColumn('test_real', Types::REAL, ['notnull' => false]);
         $table->addColumn('test_decimal', Types::DECIMAL, ['notnull' => false, 'scale' => 2, 'precision' => 10]);
         $table->setPrimaryKey(['id']);
 
@@ -91,6 +92,23 @@ class TypeConversionTest extends FunctionalTestCase
     {
         return [
             'float' => [Types::FLOAT, 1.5],
+        ];
+    }
+
+    #[DataProvider('realFloatProvider')]
+    public function testIdempotentConversionToRealFloat(string $type, mixed $originalValue): void
+    {
+        $dbValue = $this->processValue($type, $originalValue);
+
+        self::assertIsFloat($dbValue);
+        self::assertEquals($originalValue, $dbValue);
+    }
+
+    /** @return mixed[][] */
+    public static function realFloatProvider(): iterable
+    {
+        return [
+            'real' => [Types::REAL, 1.5],
         ];
     }
 

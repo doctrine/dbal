@@ -649,6 +649,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getRealFloatDeclarationSQL(array $column): string
+    {
+        return 'FLOAT' . $this->getUnsignedDeclaration($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDecimalTypeDeclarationSQL(array $column): string
     {
         return parent::getDecimalTypeDeclarationSQL($column) . $this->getUnsignedDeclaration($column);
@@ -727,7 +735,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             'datetime'   => Types::DATETIME_MUTABLE,
             'decimal'    => Types::DECIMAL,
             'double'     => Types::FLOAT,
-            'float'      => Types::FLOAT,
+            'float'      => Types::REAL,
             'int'        => Types::INTEGER,
             'integer'    => Types::INTEGER,
             'json'       => Types::JSON,

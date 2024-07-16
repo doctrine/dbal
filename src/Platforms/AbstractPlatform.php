@@ -1877,6 +1877,12 @@ abstract class AbstractPlatform
         return 'DOUBLE PRECISION';
     }
 
+    /** @param mixed[] $column */
+    public function getRealFloatDeclarationSQL(array $column): string
+    {
+        return 'REAL';
+    }
+
     /**
      * Gets the default transaction isolation level of the platform.
      *

@@ -38,6 +38,7 @@ abstract class Type
         Types::GUID                 => GuidType::class,
         Types::INTEGER              => IntegerType::class,
         Types::JSON                 => JsonType::class,
+        Types::REAL                 => RealFloatType::class,
         Types::SIMPLE_ARRAY         => SimpleArrayType::class,
         Types::SMALLINT             => SmallIntType::class,
         Types::STRING               => StringType::class,

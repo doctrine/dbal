@@ -621,6 +621,21 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public static function getGeneratesRealFloatDeclarationSQL(): iterable
+    {
+        return [
+            [[], 'FLOAT'],
+            [['unsigned' => true], 'FLOAT UNSIGNED'],
+            [['unsigned' => false], 'FLOAT'],
+            [['precision' => 5], 'FLOAT'],
+            [['scale' => 5], 'FLOAT'],
+            [['precision' => 4, 'scale' => 2], 'FLOAT'],
+        ];
+    }
+
     public function testQuotesDatabaseNameInListViewsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
