@@ -125,13 +125,21 @@ or ``null`` if no data is present.
     it approximates precision which can lead to false assumptions in
     applications.
 
+real
++++++
+
+Maps and converts single precision floating-point values.
+This type is suitable for storing numeric data with approximate precision, where 4-byte (32-bit) storage is sufficient.
+Single precision values typically have a wide range, accommodating most numerical requirements with a precision of up to 7 decimal digits.
+Values retrieved from the database are always converted to PHP's ``float``/``double`` type or ``null`` if no data is present.
+
 float
 +++++
 
-Maps and converts numeric data with floating-point precision.
-If you only need an approximate precision for numbers with fractions, you should
-consider using this type.
-Values retrieved from the database are always converted to PHP's
+Maps and converts double precision floating-point values.
+This type is suitable for storing numeric data with higher precision, requiring 8-byte (64-bit) storage.
+Double precision values typically offer an extensive range, meeting the demands of more precise calculations
+with a precision of up to 15 decimal digits. Values retrieved from the database are always converted to PHP's
 ``float``/``double`` type or ``null`` if no data is present.
 
 String types
@@ -565,6 +573,16 @@ Please also notice the mapping specific footnotes for additional information.
     | **decimal** [7]   | ``string``    | **MySQL**                | *all*   | ``NUMERIC(p, s)`` ``UNSIGNED`` [10]                      |
     |                   | [9]           +--------------------------+---------+----------------------------------------------------------+
     |                   |               | **PostgreSQL**           | *all*   | ``NUMERIC(p, s)``                                        |
+    |                   |               +--------------------------+         |                                                          |
+    |                   |               | **Oracle**               |         |                                                          |
+    |                   |               +--------------------------+         |                                                          |
+    |                   |               | **SQL Server**           |         |                                                          |
+    |                   |               +--------------------------+         |                                                          |
+    |                   |               | **SQLite**               |         |                                                          |
+    +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+    | **real**          | ``float``     | **MySQL**                | *all*   | ``FLOAT`` ``UNSIGNED`` [10]                              |
+    |                   |               +--------------------------+---------+----------------------------------------------------------+
+    |                   |               | **PostgreSQL**           | *all*   | ``REAL``                                                 |
     |                   |               +--------------------------+         |                                                          |
     |                   |               | **Oracle**               |         |                                                          |
     |                   |               +--------------------------+         |                                                          |
