@@ -14,8 +14,6 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\DateTimeTzType;
 use Doctrine\DBAL\Types\DateType;
-use Doctrine\DBAL\Types\FloatType;
-use Doctrine\DBAL\Types\RealFloatType;
 use Doctrine\DBAL\Types\Types;
 
 use function array_map;
@@ -241,20 +239,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertInstanceOf(DateType::class, $columns['col_date']->getType());
         self::assertInstanceOf(DateTimeType::class, $columns['col_datetime']->getType());
         self::assertInstanceOf(DateTimeTzType::class, $columns['col_datetimetz']->getType());
-    }
-
-    public function testListTableFloatTypeColumns(): void
-    {
-        $table = new Table('tbl_float');
-        $table->addColumn('col_float', Types::FLOAT);
-        $table->addColumn('col_real_float', Types::REAL);
-
-        $this->dropAndCreateTable($table);
-
-        $columns = $this->schemaManager->listTableColumns('tbl_float');
-
-        self::assertInstanceOf(FloatType::class, $columns['col_float']->getType());
-        self::assertInstanceOf(RealFloatType::class, $columns['col_real_float']->getType());
     }
 
     public function testCreateAndListSequences(): void

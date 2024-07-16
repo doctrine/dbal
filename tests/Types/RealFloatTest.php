@@ -22,7 +22,9 @@ class RealFloatTest extends TestCase
 
     public function testFloatConvertsToPHPValue(): void
     {
-        self::assertIsFloat($this->type->convertToPHPValue('5.5', $this->platform));
+        $result = $this->type->convertToPHPValue('5.5', $this->platform);
+        self::assertIsFloat($result);
+        self::assertEquals(5.5, $result);
     }
 
     public function testFloatNullConvertsToPHPValue(): void
