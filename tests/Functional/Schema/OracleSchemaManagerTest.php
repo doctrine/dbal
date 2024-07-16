@@ -246,15 +246,16 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableFloatTypeColumns(): void
     {
         $table = new Table('tbl_float');
-        $table->addColumn('col_float', Types::FLOAT);
-        $table->addColumn('col_real', Types::REAL);
+        //Oracle DB stores float types only with precision values, so we need to simulate this.
+        $table->addColumn('col_float', Types::FLOAT, ['precision' => 126]);
+        $table->addColumn('col_real_float', Types::FLOAT, ['precision' => 63]);
 
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('tbl_float');
 
         self::assertInstanceOf(FloatType::class, $columns['col_float']->getType());
-        self::assertInstanceOf(RealFloatType::class, $columns['col_real']->getType());
+        self::assertInstanceOf(RealFloatType::class, $columns['col_real_float']->getType());
     }
 
     public function testCreateAndListSequences(): void
