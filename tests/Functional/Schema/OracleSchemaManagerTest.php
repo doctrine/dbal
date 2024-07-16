@@ -246,9 +246,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableFloatTypeColumns(): void
     {
         $table = new Table('tbl_float');
-        //Oracle DB stores float types only with precision values, so we need to simulate this.
-        $table->addColumn('col_float', Types::FLOAT, ['precision' => 126]);
-        $table->addColumn('col_real_float', Types::FLOAT, ['precision' => 63]);
+        $table->addColumn('col_float', Types::FLOAT);
+        $table->addColumn('col_real_float', Types::REAL);
 
         $this->dropAndCreateTable($table);
 
