@@ -15,7 +15,9 @@ use Doctrine\DBAL\Tests\Functional\Schema\MySQL\CustomType;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\JsonType;
+use Doctrine\DBAL\Types\RealFloatType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -370,40 +372,22 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 
-    public function testListFloatTypeColumns(): void
+    public function testListUnsignedFloatTypeColumns(): void
     {
-        $tableName = 'test_list_float_columns';
+        $tableName = 'test_unsigned_float_columns';
         $table     = new Table($tableName);
 
-        $table->addColumn('col', Types::FLOAT);
         $table->addColumn('col_unsigned', Types::FLOAT, ['unsigned' => true]);
+        $table->addColumn('col_real_unsigned', Types::REAL, ['unsigned' => true]);
 
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
-        self::assertArrayHasKey('col', $columns);
-        self::assertArrayHasKey('col_unsigned', $columns);
-        self::assertFalse($columns['col']->getUnsigned());
+        self::assertInstanceOf(FloatType::class, $columns['col_unsigned']->getType());
+        self::assertInstanceOf(RealFloatType::class, $columns['col_real_unsigned']->getType());
         self::assertTrue($columns['col_unsigned']->getUnsigned());
-    }
-
-    public function testListRealFloatTypeColumns(): void
-    {
-        $tableName = 'test_list_real_columns';
-        $table     = new Table($tableName);
-
-        $table->addColumn('col', Types::REAL);
-        $table->addColumn('col_unsigned', Types::REAL, ['unsigned' => true]);
-
-        $this->dropAndCreateTable($table);
-
-        $columns = $this->schemaManager->listTableColumns($tableName);
-
-        self::assertArrayHasKey('col', $columns);
-        self::assertArrayHasKey('col_unsigned', $columns);
-        self::assertFalse($columns['col']->getUnsigned());
-        self::assertTrue($columns['col_unsigned']->getUnsigned());
+        self::assertTrue($columns['col_real_unsigned']->getUnsigned());
     }
 
     public function testJsonColumnType(): void

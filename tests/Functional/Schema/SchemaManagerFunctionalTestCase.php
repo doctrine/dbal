@@ -863,16 +863,20 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testListTableFloatTypeColumns(): void
     {
-        $table = new Table('test_float_table');
+        $tableName = 'test_float_columns';
+        $table     = new Table($tableName);
+
         $table->addColumn('col_float', Types::FLOAT);
         $table->addColumn('col_real_float', Types::REAL);
 
         $this->dropAndCreateTable($table);
 
-        $columns = $this->schemaManager->listTableColumns('test_float_table');
+        $columns = $this->schemaManager->listTableColumns($tableName);
 
         self::assertInstanceOf(FloatType::class, $columns['col_float']->getType());
         self::assertInstanceOf(RealFloatType::class, $columns['col_real_float']->getType());
+        self::assertFalse($columns['col_float']->getUnsigned());
+        self::assertFalse($columns['col_real_float']->getUnsigned());
     }
 
     /** @param mixed[] $data */
