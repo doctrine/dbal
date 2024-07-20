@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\RealFloatType;
+use Doctrine\DBAL\Types\SmallFloatType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class RealFloatTest extends TestCase
+class SmallFloatTest extends TestCase
 {
     private AbstractPlatform&MockObject $platform;
-    private RealFloatType $type;
+    private SmallFloatType $type;
 
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = new RealFloatType();
+        $this->type     = new SmallFloatType();
     }
 
     public function testFloatConvertsToPHPValue(): void

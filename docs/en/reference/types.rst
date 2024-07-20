@@ -125,7 +125,7 @@ or ``null`` if no data is present.
     it approximates precision which can lead to false assumptions in
     applications.
 
-real
+smallfloat
 +++++
 
 Maps and converts single precision floating-point values.
@@ -580,7 +580,7 @@ Please also notice the mapping specific footnotes for additional information.
     |                   |               +--------------------------+         |                                                          |
     |                   |               | **SQLite**               |         |                                                          |
     +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-    | **real**          | ``float``     | **MySQL**                | *all*   | ``FLOAT`` ``UNSIGNED`` [10]                              |
+    | **smallfloat**    | ``float``     | **MySQL**                | *all*   | ``FLOAT`` ``UNSIGNED`` [10]                              |
     |                   |               +--------------------------+---------+----------------------------------------------------------+
     |                   |               | **PostgreSQL**           | *all*   | ``REAL``                                                 |
     |                   |               +--------------------------+         |                                                          |

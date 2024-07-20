@@ -152,7 +152,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
             case 'float':
                 if ($precision === 63) {
-                    $type = 'real';
+                    $type = 'smallfloat';
                 }
 
                 break;

@@ -1878,7 +1878,7 @@ abstract class AbstractPlatform
     }
 
     /** @param mixed[] $column */
-    public function getRealFloatDeclarationSQL(array $column): string
+    public function getSmallFloatDeclarationSQL(array $column): string
     {
         return 'REAL';
     }

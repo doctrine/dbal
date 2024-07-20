@@ -624,7 +624,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public static function getGeneratesRealFloatDeclarationSQL(): iterable
+    public static function getGeneratesSmallFloatDeclarationSQL(): iterable
     {
         return [
             [[], 'FLOAT'],

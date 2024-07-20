@@ -52,7 +52,7 @@ class DB2Platform extends AbstractPlatform
             'decimal'   => Types::DECIMAL,
             'double'    => Types::FLOAT,
             'integer'   => Types::INTEGER,
-            'real'      => Types::REAL,
+            'real'      => Types::SMALLFLOAT,
             'smallint'  => Types::SMALLINT,
             'time'      => Types::TIME_MUTABLE,
             'timestamp' => Types::DATETIME_MUTABLE,

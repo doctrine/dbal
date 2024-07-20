@@ -6,14 +6,14 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-final class RealFloatType extends Type
+class SmallFloatType extends Type
 {
     /**
      * {@inheritDoc}
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getRealFloatDeclarationSQL($column);
+        return $platform->getSmallFloatDeclarationSQL($column);
     }
 
     /**

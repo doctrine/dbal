@@ -17,7 +17,7 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\JsonType;
-use Doctrine\DBAL\Types\RealFloatType;
+use Doctrine\DBAL\Types\SmallFloatType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -378,16 +378,16 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table     = new Table($tableName);
 
         $table->addColumn('col_unsigned', Types::FLOAT, ['unsigned' => true]);
-        $table->addColumn('col_real_unsigned', Types::REAL, ['unsigned' => true]);
+        $table->addColumn('col_smallfloat_unsigned', Types::SMALLFLOAT, ['unsigned' => true]);
 
         $this->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
         self::assertInstanceOf(FloatType::class, $columns['col_unsigned']->getType());
-        self::assertInstanceOf(RealFloatType::class, $columns['col_real_unsigned']->getType());
+        self::assertInstanceOf(SmallFloatType::class, $columns['col_smallfloat_unsigned']->getType());
         self::assertTrue($columns['col_unsigned']->getUnsigned());
-        self::assertTrue($columns['col_real_unsigned']->getUnsigned());
+        self::assertTrue($columns['col_smallfloat_unsigned']->getUnsigned());
     }
 
     public function testJsonColumnType(): void

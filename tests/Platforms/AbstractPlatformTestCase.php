@@ -979,14 +979,14 @@ abstract class AbstractPlatformTestCase extends TestCase
     }
 
     /** @param mixed[] $column */
-    #[DataProvider('getGeneratesRealFloatDeclarationSQL')]
-    public function testGeneratesRealFloatDeclarationSQL(array $column, string $expectedSql): void
+    #[DataProvider('getGeneratesSmallFloatDeclarationSQL')]
+    public function testGeneratesSmallFloatDeclarationSQL(array $column, string $expectedSql): void
     {
-        self::assertSame($expectedSql, $this->platform->getRealFloatDeclarationSQL($column));
+        self::assertSame($expectedSql, $this->platform->getSmallFloatDeclarationSQL($column));
     }
 
     /** @return mixed[][] */
-    public static function getGeneratesRealFloatDeclarationSQL(): iterable
+    public static function getGeneratesSmallFloatDeclarationSQL(): iterable
     {
         return [
             [[], 'REAL'],
