@@ -22,7 +22,7 @@ class SmallFloatTest extends TestCase
 
     public function testFloatConvertsToPHPValue(): void
     {
-        self::assertEquals(5.5, $this->type->convertToPHPValue('5.5', $this->platform));
+        self::assertSame(5.5, $this->type->convertToPHPValue('5.5', $this->platform));
     }
 
     public function testFloatNullConvertsToPHPValue(): void
@@ -32,7 +32,7 @@ class SmallFloatTest extends TestCase
 
     public function testFloatConvertToDatabaseValue(): void
     {
-        self::assertIsFloat($this->type->convertToDatabaseValue(5.5, $this->platform));
+        self::assertSame(5.5, $this->type->convertToDatabaseValue(5.5, $this->platform));
     }
 
     public function testFloatNullConvertToDatabaseValue(): void

@@ -126,7 +126,7 @@ or ``null`` if no data is present.
     applications.
 
 smallfloat
-+++++
+++++++++++
 
 Maps and converts single precision floating-point values.
 This type is suitable for storing numeric data with approximate precision, where 4-byte (32-bit) storage is sufficient.
