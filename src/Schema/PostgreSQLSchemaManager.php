@@ -19,14 +19,15 @@ use function explode;
 use function implode;
 use function in_array;
 use function is_string;
+use function json_decode;
 use function preg_match;
-use function sprintf;
 use function str_contains;
 use function str_replace;
 use function strtolower;
 use function trim;
 
 use const CASE_LOWER;
+use const JSON_THROW_ON_ERROR;
 
 /**
  * PostgreSQL Schema Manager.
@@ -161,30 +162,16 @@ SQL,
     {
         $buffer = [];
         foreach ($tableIndexes as $row) {
-            $colNumbers    = array_map('intval', explode(' ', $row['indkey']));
-            $columnNameSql = sprintf(
-                'SELECT attnum, attname FROM pg_attribute WHERE attrelid=%d AND attnum IN (%s) ORDER BY attnum ASC',
-                $row['indrelid'],
-                implode(' ,', $colNumbers),
-            );
+            $indexColumns = json_decode($row['index_columns'], true, flags: JSON_THROW_ON_ERROR);
 
-            $indexColumns = $this->connection->fetchAllAssociative($columnNameSql);
-
-            // required for getting the order of the columns right.
-            foreach ($colNumbers as $colNum) {
-                foreach ($indexColumns as $colRow) {
-                    if ($colNum !== $colRow['attnum']) {
-                        continue;
-                    }
-
-                    $buffer[] = [
-                        'key_name' => $row['relname'],
-                        'column_name' => trim($colRow['attname']),
-                        'non_unique' => ! $row['indisunique'],
-                        'primary' => $row['indisprimary'],
-                        'where' => $row['where'],
-                    ];
-                }
+            foreach ($indexColumns as $colRow) {
+                $buffer[] = [
+                    'key_name' => $row['relname'],
+                    'column_name' => trim($colRow),
+                    'non_unique' => ! $row['indisunique'],
+                    'primary' => $row['indisprimary'],
+                    'where' => $row['where'],
+                ];
             }
         }
 
@@ -468,34 +455,53 @@ SQL;
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
-
+        $tableNameSql = '';
         if ($tableName === null) {
-            $sql .= ' tc.relname AS table_name, tn.nspname AS schema_name,';
+            $tableNameSql = <<<'SQL'
+                tc.relname AS table_name,
+                tn.nspname AS schema_name,
+            SQL;
         }
 
-        $sql .= <<<'SQL'
-                   quote_ident(ic.relname) AS relname,
-                   i.indisunique,
-                   i.indisprimary,
-                   i.indkey,
-                   i.indrelid,
-                   pg_get_expr(indpred, indrelid) AS "where"
-              FROM pg_index i
-                   JOIN pg_class AS tc ON tc.oid = i.indrelid
-                   JOIN pg_namespace tn ON tn.oid = tc.relnamespace
-                   JOIN pg_class AS ic ON ic.oid = i.indexrelid
-             WHERE ic.oid IN (
+        $whereConditions = array_merge(
+            [
+                'c.oid = i.indrelid',
+                'c.relnamespace = n.oid',
+            ],
+            $this->buildQueryConditions($tableName),
+        );
+
+        $whereSql = implode(' AND ', $whereConditions);
+
+        $sql = <<<SQL
+            SELECT
+                {$tableNameSql}
+                quote_ident(ic.relname) AS relname,
+                i.indisunique,
+                i.indisprimary,
+                i.indkey,
+                i.indrelid,
+                pg_get_expr(indpred, indrelid) AS "where",
+                (
+                     SELECT
+                         json_agg(
+                             pg_get_indexdef(i.indexrelid, a.attnum, true)
+                         ) as index_columns
+                     FROM pg_attribute AS a
+                     WHERE a.attrelid = ic.oid
+                )
+            FROM pg_index i
+            JOIN pg_class AS tc ON tc.oid = i.indrelid
+            JOIN pg_namespace tn ON tn.oid = tc.relnamespace
+            JOIN pg_class AS ic ON ic.oid = i.indexrelid
+            WHERE ic.oid IN (
                 SELECT indexrelid
-                FROM pg_index i, pg_class c, pg_namespace n
-SQL;
-
-        $conditions = array_merge([
-            'c.oid = i.indrelid',
-            'c.relnamespace = n.oid',
-        ], $this->buildQueryConditions($tableName));
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ')';
+                FROM pg_index i,
+                     pg_class c,
+                     pg_namespace n
+                WHERE {$whereSql}
+            )
+        SQL;
 
         return $this->connection->executeQuery($sql);
     }

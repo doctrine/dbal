@@ -44,6 +44,7 @@ use function array_values;
 use function assert;
 use function count;
 use function explode;
+use function get_debug_type;
 use function implode;
 use function in_array;
 use function is_array;
@@ -801,6 +802,16 @@ abstract class AbstractPlatform
         $options['primary']           = [];
 
         foreach ($table->getIndexes() as $index) {
+            if ($index->isFunctional() && ! $this->supportsFunctionalIndex()) {
+                throw new InvalidArgumentException(sprintf(
+                    'Index "%s" on table "%s" contains a functional part, ' .
+                    'but platform "%s" does not support functional indexes.',
+                    $index->getName(),
+                    $table->getName(),
+                    get_debug_type($this),
+                ));
+            }
+
             if (! $index->isPrimary()) {
                 $options['indexes'][$index->getQuotedName($this)] = $index;
 
@@ -1085,6 +1096,16 @@ abstract class AbstractPlatform
                 'Incomplete or invalid index definition %s on table %s',
                 $name,
                 $table,
+            ));
+        }
+
+        if ($index->isFunctional() && ! $this->supportsFunctionalIndex()) {
+            throw new InvalidArgumentException(sprintf(
+                'Index "%s" on table "%s" contains a functional part, ' .
+                'but platform "%s" does not support functional indexes.',
+                $name,
+                $table,
+                get_debug_type($this),
             ));
         }
 
@@ -1540,6 +1561,15 @@ abstract class AbstractPlatform
             throw new InvalidArgumentException('Incomplete definition. "columns" required.');
         }
 
+        if ($index->isFunctional() && ! $this->supportsFunctionalIndex()) {
+            throw new InvalidArgumentException(sprintf(
+                'Index "%s" contains a functional part, ' .
+                'but platform "%s" does not support functional indexes.',
+                $index->getName(),
+                get_debug_type($this),
+            ));
+        }
+
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getQuotedName($this)
             . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
     }
@@ -1984,6 +2014,14 @@ abstract class AbstractPlatform
     public function supportsColumnCollation(): bool
     {
         return false;
+    }
+
+    /**
+     * A flag that indicates whether the platform supports functional indexes.
+     */
+    public function supportsFunctionalIndex(): bool
+    {
+        return true;
     }
 
     /**

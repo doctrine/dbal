@@ -43,6 +43,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     final public const LENGTH_LIMIT_BLOB       = 65535;
     final public const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
 
+    public function getColumnOrExpressionNameForIndexFetching(): string
+    {
+        return 'COLUMN_NAME';
+    }
+
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
         if ($limit !== null) {

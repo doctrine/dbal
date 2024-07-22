@@ -781,4 +781,9 @@ class PostgreSQLPlatform extends AbstractPlatform
     {
         return new PostgreSQLSchemaManager($connection, $this);
     }
+
+    public function supportsFunctionalIndex(): bool
+    {
+        return true;
+    }
 }

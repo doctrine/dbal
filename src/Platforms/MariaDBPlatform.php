@@ -162,4 +162,9 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     {
         return new MariaDBKeywords();
     }
+
+    public function supportsFunctionalIndex(): bool
+    {
+        return false;
+    }
 }

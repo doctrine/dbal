@@ -12,6 +12,8 @@ use function array_map;
 use function array_search;
 use function array_shift;
 use function count;
+use function str_ends_with;
+use function str_starts_with;
 use function strtolower;
 
 class Index extends AbstractAsset
@@ -26,6 +28,8 @@ class Index extends AbstractAsset
     protected bool $_isUnique = false;
 
     protected bool $_isPrimary = false;
+
+    protected bool $_isFunctional = false;
 
     /**
      * Platform specific flags for indexes.
@@ -58,6 +62,12 @@ class Index extends AbstractAsset
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
+
+            if ($this->_isFunctional === true) {
+                continue;
+            }
+
+            $this->_isFunctional = self::isColumnNameAnExpression($column);
         }
 
         foreach ($flags as $flag) {
@@ -101,10 +111,14 @@ class Index extends AbstractAsset
         foreach ($this->_columns as $column) {
             $length = array_shift($subParts);
 
-            $quotedColumn = $column->getQuotedName($platform);
+            if ($this->isFunctional()) {
+                $quotedColumn = $column->getName();
+            } else {
+                $quotedColumn = $column->getQuotedName($platform);
 
-            if ($length !== null) {
-                $quotedColumn .= '(' . $length . ')';
+                if ($length !== null) {
+                    $quotedColumn .= '(' . $length . ')';
+                }
             }
 
             $columns[] = $quotedColumn;
@@ -135,6 +149,11 @@ class Index extends AbstractAsset
     public function isPrimary(): bool
     {
         return $this->_isPrimary;
+    }
+
+    public function isFunctional(): bool
+    {
+        return $this->_isFunctional;
     }
 
     public function hasColumnAtPosition(string $name, int $pos = 0): bool
@@ -281,6 +300,11 @@ class Index extends AbstractAsset
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    public static function isColumnNameAnExpression(string $columnName): bool
+    {
+        return str_starts_with($columnName, '(') && str_ends_with($columnName, ')');
     }
 
     /**
