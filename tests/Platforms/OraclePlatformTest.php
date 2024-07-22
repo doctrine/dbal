@@ -320,6 +320,9 @@ SQL
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('date'));
         self::assertSame(Types::DATE_MUTABLE, $this->platform->getDoctrineTypeMapping('date'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('real'));
+        self::assertSame(Types::SMALLFLOAT, $this->platform->getDoctrineTypeMapping('real'));
     }
 
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void

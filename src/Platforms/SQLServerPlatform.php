@@ -1057,7 +1057,7 @@ class SQLServerPlatform extends AbstractPlatform
             'ntext'            => Types::TEXT,
             'numeric'          => Types::DECIMAL,
             'nvarchar'         => Types::STRING,
-            'real'             => Types::FLOAT,
+            'real'             => Types::SMALLFLOAT,
             'smalldatetime'    => Types::DATETIME_MUTABLE,
             'smallint'         => Types::SMALLINT,
             'smallmoney'       => Types::INTEGER,

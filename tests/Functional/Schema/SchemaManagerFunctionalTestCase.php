@@ -27,7 +27,9 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\DateType;
 use Doctrine\DBAL\Types\DecimalType;
+use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\SmallFloatType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\TimeType;
@@ -857,6 +859,24 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         self::assertTrue($created->hasColumn('binarydata'));
         self::assertInstanceOf(BlobType::class, $created->getColumn('binarydata')->getType());
+    }
+
+    public function testListTableFloatTypeColumns(): void
+    {
+        $tableName = 'test_float_columns';
+        $table     = new Table($tableName);
+
+        $table->addColumn('col_float', Types::FLOAT);
+        $table->addColumn('col_smallfloat', Types::SMALLFLOAT);
+
+        $this->dropAndCreateTable($table);
+
+        $columns = $this->schemaManager->listTableColumns($tableName);
+
+        self::assertInstanceOf(FloatType::class, $columns['col_float']->getType());
+        self::assertInstanceOf(SmallFloatType::class, $columns['col_smallfloat']->getType());
+        self::assertFalse($columns['col_float']->getUnsigned());
+        self::assertFalse($columns['col_smallfloat']->getUnsigned());
     }
 
     /** @param mixed[] $data */
