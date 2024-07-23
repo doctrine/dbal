@@ -348,9 +348,10 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.1"
+          - "8.3"
         mysql-version:
           - "8.0"
+          - "9.0"
         extension:
           - "mysqli"
           - "pdo_mysql"
@@ -361,18 +362,19 @@ jobs:
             php-version: "8.1"
             mysql-version: "8.0"
             extension: "mysqli"
-          - php-version: "8.2"
+          - php-version: "8.1"
             mysql-version: "8.0"
             extension: "mysqli"
-          - php-version: "8.3"
+          - php-version: "8.1"
             mysql-version: "8.0"
             extension: "pdo_mysql"
-          - php-version: "8.1"
+          # Workaround for https://bugs.mysql.com/114876
+          - php-version: "8.3"
             mysql-version: "8.4"
             extension: "mysqli"
             custom-entrypoint: >-
               --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
-          - php-version: "8.1"
+          - php-version: "8.3"
             mysql-version: "8.4"
             extension: "pdo_mysql"
             custom-entrypoint: >-
