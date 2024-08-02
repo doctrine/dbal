@@ -494,9 +494,12 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table = new Table('main.t');
         $table->addColumn('a', Types::INTEGER);
 
-        $tableDiff = new TableDiff($table, [], [], [], [
-            'a' => new Column('b', Type::getType(Types::INTEGER)),
-        ], [], [], [], [], [], [], []);
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'a' => new ColumnDiff(
+                new Column('a', Type::getType(Types::INTEGER)),
+                new Column('b', Type::getType(Types::INTEGER)),
+            ),
+        ]);
 
         self::assertSame([
             'CREATE TEMPORARY TABLE __temp__t AS SELECT a FROM main.t',

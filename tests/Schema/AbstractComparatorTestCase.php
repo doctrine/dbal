@@ -376,7 +376,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         $tableB->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'bar_constraint');
 
         self::assertEquals(
-            new TableDiff($tableA, [], [], [], [], [], [], [], [], [], [], []),
+            new TableDiff($tableA),
             $this->comparator->compareTables($tableA, $tableB),
         );
     }
