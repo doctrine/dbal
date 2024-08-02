@@ -184,10 +184,30 @@ class Comparator
                 continue;
             }
 
-            $modifiedColumns[] = new ColumnDiff($oldColumn, $newColumn);
+            $modifiedColumns[$oldColumnName] = new ColumnDiff($oldColumn, $newColumn);
         }
 
-        $renamedColumns = $this->detectRenamedColumns($addedColumns, $droppedColumns);
+        $renamedColumnNames = $newTable->getRenamedColumns();
+
+        foreach ($addedColumns as $addedColumnName => $addedColumn) {
+            if (! isset($renamedColumnNames[$addedColumn->getName()])) {
+                continue;
+            }
+
+            $removedColumnName = strtolower($renamedColumnNames[$addedColumn->getName()]);
+            // Explicitly renamed columns need to be diffed, because their types can also have changed
+            $modifiedColumns[$removedColumnName] = new ColumnDiff(
+                $droppedColumns[$removedColumnName],
+                $addedColumn,
+            );
+
+            unset(
+                $addedColumns[$addedColumnName],
+                $droppedColumns[$removedColumnName],
+            );
+        }
+
+        $this->detectRenamedColumns($modifiedColumns, $addedColumns, $droppedColumns);
 
         $oldIndexes = $oldTable->getIndexes();
         $newIndexes = $newTable->getIndexes();
@@ -253,17 +273,16 @@ class Comparator
 
         return new TableDiff(
             $oldTable,
-            $addedColumns,
-            $modifiedColumns,
-            $droppedColumns,
-            $renamedColumns,
-            $addedIndexes,
-            $modifiedIndexes,
-            $droppedIndexes,
-            $renamedIndexes,
-            $addedForeignKeys,
-            $modifiedForeignKeys,
-            $droppedForeignKeys,
+            addedColumns: $addedColumns,
+            changedColumns: $modifiedColumns,
+            droppedColumns: $droppedColumns,
+            addedIndexes: $addedIndexes,
+            modifiedIndexes: $modifiedIndexes,
+            droppedIndexes: $droppedIndexes,
+            renamedIndexes: $renamedIndexes,
+            addedForeignKeys: $addedForeignKeys,
+            modifiedForeignKeys: $modifiedForeignKeys,
+            droppedForeignKeys: $droppedForeignKeys,
         );
     }
 
@@ -271,13 +290,13 @@ class Comparator
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
      *
-     * @param array<string,Column> $addedColumns
-     * @param array<string,Column> $removedColumns
-     *
-     * @return array<string,Column>
+     * @param array<string,ColumnDiff> $modifiedColumns
+     * @param array<string,Column>     $addedColumns
+     * @param array<string,Column>     $removedColumns
      */
-    private function detectRenamedColumns(array &$addedColumns, array &$removedColumns): array
+    private function detectRenamedColumns(array &$modifiedColumns, array &$addedColumns, array &$removedColumns): void
     {
+        /** @var array<string, array<array<Column>>> $candidatesByName */
         $candidatesByName = [];
 
         foreach ($addedColumns as $addedColumnName => $addedColumn) {
@@ -286,33 +305,32 @@ class Comparator
                     continue;
                 }
 
-                $candidatesByName[$addedColumn->getName()][] = [$removedColumn, $addedColumn, $addedColumnName];
+                $candidatesByName[$addedColumnName][] = [$removedColumn, $addedColumn];
             }
         }
 
-        $renamedColumns = [];
-
-        foreach ($candidatesByName as $candidates) {
+        foreach ($candidatesByName as $addedColumnName => $candidates) {
             if (count($candidates) !== 1) {
                 continue;
             }
 
-            [$removedColumn, $addedColumn] = $candidates[0];
-            $removedColumnName             = $removedColumn->getName();
-            $addedColumnName               = strtolower($addedColumn->getName());
+            [$oldColumn, $newColumn] = $candidates[0];
+            $oldColumnName           = strtolower($oldColumn->getName());
 
-            if (isset($renamedColumns[$removedColumnName])) {
+            if (isset($modifiedColumns[$oldColumnName])) {
                 continue;
             }
 
-            $renamedColumns[$removedColumnName] = $addedColumn;
+            $modifiedColumns[$oldColumnName] = new ColumnDiff(
+                $oldColumn,
+                $newColumn,
+            );
+
             unset(
                 $addedColumns[$addedColumnName],
-                $removedColumns[strtolower($removedColumnName)],
+                $removedColumns[$oldColumnName],
             );
         }
-
-        return $renamedColumns;
     }
 
     /**

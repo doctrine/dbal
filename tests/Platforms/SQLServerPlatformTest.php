@@ -647,13 +647,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff = new TableDiff($table, [
+        $tableDiff = new TableDiff($table, addedColumns: [
             new Column(
                 'quota',
                 Type::getType(Types::INTEGER),
                 ['comment' => 'A comment'],
             ),
-        ], [], [], [], [], [], [], [], [], [], []);
+        ]);
 
         $expectedSql = [
             'ALTER TABLE testschema.mytable ADD quota INT NOT NULL',
@@ -668,11 +668,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff = new TableDiff($table, [], [new ColumnDiff(
-            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
-            new Column('quota', Type::getType(Types::INTEGER), []),
-        ),
-        ], [], [], [], [], [], [], [], [], []);
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'quota' => new ColumnDiff(
+                new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
+                new Column('quota', Type::getType(Types::INTEGER), []),
+            ),
+        ]);
 
         $expectedSql = [
             "EXEC sp_dropextendedproperty N'MS_Description'"
@@ -686,11 +687,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff = new TableDiff($table, [], [new ColumnDiff(
-            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
-            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'B comment']),
-        ),
-        ], [], [], [], [], [], [], [], [], []);
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'quota' => new ColumnDiff(
+                new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
+                new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'B comment']),
+            ),
+        ]);
 
         $expectedSql = ["EXEC sp_updateextendedproperty N'MS_Description', N'B comment', "
                 . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', 'quota'",
@@ -1060,12 +1062,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff = new TableDiff($table, [], [
-            new ColumnDiff(
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'quota' => new ColumnDiff(
                 new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment', 'notnull' => false]),
                 new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment', 'notnull' => true]),
             ),
-        ], [], [], [], [], [], [], [], [], []);
+        ]);
 
         $expectedSql = ['ALTER TABLE testschema.mytable ALTER COLUMN quota INT NOT NULL'];
 
