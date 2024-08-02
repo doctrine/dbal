@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -252,13 +253,13 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('user');
 
-        $diff = new TableDiff($table, [
+        $diff = new TableDiff($table, addedColumns: [
             new Column('foo', Type::getType(Types::STRING)),
             new Column('count', Type::getType(Types::INTEGER), [
                 'notnull' => false,
                 'default' => 1,
             ]),
-        ], [], [], [], [], [], [], [], [], [], []);
+        ]);
 
         $expected = [
             'ALTER TABLE user ADD COLUMN foo VARCHAR NOT NULL',
@@ -273,9 +274,12 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table = new Table('test');
         $table->addColumn('id', Types::INTEGER);
 
-        $tableDiff = new TableDiff($table, [], [], [], [
-            'value' => new Column('data', Type::getType(Types::STRING)),
-        ], [], [], [], [], [], [], []);
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'value' => new ColumnDiff(
+                new Column('data', Type::getType(Types::STRING)),
+                new Column('value', Type::getType(Types::STRING)),
+            ),
+        ]);
 
         $this->expectException(Exception::class);
         $this->platform->getAlterTableSQL($tableDiff);
@@ -325,14 +329,25 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addForeignKeyConstraint('user', ['parent'], ['id'], ['deferrable' => true, 'deferred' => true]);
         $table->addIndex(['article', 'post'], 'index1');
 
-        $diff = new TableDiff($table, [], [], [
-            new Column('parent', Type::getType(Types::INTEGER), []),
-        ], [
-            'id' => new Column('key', Type::getType(Types::INTEGER), []),
-            'post' => new Column('comment', Type::getType(Types::INTEGER), []),
-        ], [], [], [
-            $table->getIndex('index1'),
-        ], [], [], [], []);
+        $diff = new TableDiff(
+            $table,
+            changedColumns: [
+                'id' => new ColumnDiff(
+                    $table->getColumn('id'),
+                    new Column('key', Type::getType(Types::INTEGER)),
+                ),
+                'post' => new ColumnDiff(
+                    $table->getColumn('post'),
+                    new Column('comment', Type::getType(Types::INTEGER)),
+                ),
+            ],
+            droppedColumns: [
+                new Column('parent', Type::getType(Types::INTEGER), []),
+            ],
+            droppedIndexes: [
+                $table->getIndex('index1'),
+            ],
+        );
 
         $sql = [
             'CREATE TEMPORARY TABLE __temp__user AS SELECT id, article, post FROM user',
@@ -479,9 +494,12 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table = new Table('main.t');
         $table->addColumn('a', Types::INTEGER);
 
-        $tableDiff = new TableDiff($table, [], [], [], [
-            'a' => new Column('b', Type::getType(Types::INTEGER)),
-        ], [], [], [], [], [], [], []);
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'a' => new ColumnDiff(
+                new Column('a', Type::getType(Types::INTEGER)),
+                new Column('b', Type::getType(Types::INTEGER)),
+            ),
+        ]);
 
         self::assertSame([
             'CREATE TEMPORARY TABLE __temp__t AS SELECT a FROM main.t',
