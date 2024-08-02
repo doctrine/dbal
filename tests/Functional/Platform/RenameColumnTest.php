@@ -39,6 +39,7 @@ class RenameColumnTest extends FunctionalTestCase
         self::assertEqualsIgnoringCase($newColumnName, $columns[0]->getName());
         self::assertEqualsIgnoringCase('c2', $columns[1]->getName());
         self::assertCount(1, self::getRenamedColumns($diff));
+        self::assertCount(1, $diff->getRenamedColumns());
     }
 
     /** @return array<string,Column> */
@@ -79,6 +80,8 @@ class RenameColumnTest extends FunctionalTestCase
         $columns = $table->getColumns();
 
         self::assertCount(1, $diff->getChangedColumns());
+        self::assertCount(1, $diff->getRenamedColumns());
+        self::assertCount(1, $diff->getModifiedColumns());
         self::assertCount(2, $columns);
         self::assertEqualsIgnoringCase($newColumnName, $columns[0]->getName());
         self::assertEqualsIgnoringCase('c2', $columns[1]->getName());

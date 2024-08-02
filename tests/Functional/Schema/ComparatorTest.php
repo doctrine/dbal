@@ -74,7 +74,9 @@ class ComparatorTest extends FunctionalTestCase
 
         $compareResult  = $comparator->compareTables($onlineTable, $table);
         $renamedColumns = RenameColumnTest::getRenamedColumns($compareResult);
+        self::assertSame($renamedColumns, $compareResult->getRenamedColumns());
         self::assertCount(3, $compareResult->getChangedColumns());
+        self::assertCount(2, $compareResult->getModifiedColumns());
         self::assertCount(2, $renamedColumns);
         self::assertArrayHasKey('test2', $renamedColumns);
 
