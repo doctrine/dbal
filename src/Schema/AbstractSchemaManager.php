@@ -1740,6 +1740,10 @@ abstract class AbstractSchemaManager
      */
     public function extractDoctrineTypeFromComment($comment, $currentType)
     {
+        if ($this->_conn->getConfiguration()->getDisableTypeComments()) {
+            return $currentType;
+        }
+
         if ($comment !== null && preg_match('(\(DC2Type:(((?!\)).)+)\))', $comment, $match) === 1) {
             return $match[1];
         }
@@ -1757,6 +1761,10 @@ abstract class AbstractSchemaManager
      */
     public function removeDoctrineTypeFromComment($comment, $type)
     {
+        if ($this->_conn->getConfiguration()->getDisableTypeComments()) {
+            return $comment;
+        }
+
         if ($comment === null) {
             return null;
         }
