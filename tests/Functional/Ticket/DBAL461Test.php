@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
@@ -14,7 +15,12 @@ class DBAL461Test extends TestCase
 {
     public function testIssue(): void
     {
-        $conn     = $this->createMock(Connection::class);
+        $configuration = $this->createStub(Configuration::class);
+        $configuration->method('getDisableTypeComments')->willReturn(false);
+
+        $conn = $this->createMock(Connection::class);
+        $conn->method('getConfiguration')->willReturn($configuration);
+
         $platform = new SQLServer2012Platform();
         $platform->registerDoctrineTypeMapping('numeric', Types::DECIMAL);
 
