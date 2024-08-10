@@ -1,0 +1,72 @@
+name: "Continuous Integration (Nightly)"
+
+on:
+  schedule:
+    - cron: "12 3 * * *"
+  workflow_dispatch:
+
+env:
+  fail-fast: true
+
+jobs:
+  phpunit-mariadb:
+    name: "PHPUnit with MariaDB"
+    runs-on: "ubuntu-24.04"
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.3"
+        mariadb-version:
+          - "earliest"
+          - "verylatest"
+        extension:
+          - "mysqli"
+          - "pdo_mysql"
+
+    services:
+      mariadb:
+        image: "quay.io/mariadb-foundation/mariadb-devel:${{ matrix.mariadb-version }}"
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: yes
+          MARIADB_DATABASE: "doctrine_tests"
+
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+
+        ports:
+          - "3306:3306"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v4"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
+          extensions: "${{ matrix.extension }}"
+
+      - name: "Install dependencies with Composer"
+        uses: "ramsey/composer-install@v3"
+        with:
+          composer-options: "--ignore-platform-req=php+"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml"
+
+      - name: Tell the MariaDB Folks if it failed
+        if: ${{ failure() }}
+        uses: zulip/github-actions-zulip/send-message@v1
+        with:
+          api-key: ${{ secrets.MARIADB_ZULIP_API_KEY }}
+          email: "doctrine-bot@mariadb.zulipchat.com"
+          organization-url: "https://mariadb.zulipchat.com"
+          to: "Buildbot"
+          type: "stream"
+          topic: "CI - Doctrine/DBAL"
+          content: "There was an error running Doctrine on MariaDB:${{ matrix.mariadb-version }} - URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."

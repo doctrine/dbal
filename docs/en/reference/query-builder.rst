@@ -309,7 +309,7 @@ user-input:
     <?php
 
     $queryBuilder
-        ->update('users', 'u')
+        ->update('users u')
         ->set('u.logins', 'u.logins + 1')
         ->set('u.last_login', '?')
         ->setParameter(0, $userInputLastLogin)

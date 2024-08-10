@@ -24,7 +24,7 @@ use function strtolower;
  * Base class for schema managers. Schema managers are used to inspect and/or
  * modify the database schema/structure.
  *
- * @template T of AbstractPlatform
+ * @template-covariant T of AbstractPlatform
  */
 abstract class AbstractSchemaManager
 {
