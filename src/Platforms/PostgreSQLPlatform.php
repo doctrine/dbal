@@ -33,7 +33,8 @@ use function strtolower;
 use function trim;
 
 /**
- * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4+ database platform.
+ * Provides the behavior, features and SQL dialect of the PostgreSQL database platform
+ * of the oldest supported version.
  */
 class PostgreSQLPlatform extends AbstractPlatform
 {

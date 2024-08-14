@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\ServerVersionProvider;
+use Doctrine\Deprecations\Deprecation;
 
 use function preg_match;
 use function version_compare;
@@ -39,6 +40,12 @@ abstract class AbstractPostgreSQLDriver implements Driver
         if (version_compare($version, '12.0', '>=')) {
             return new PostgreSQL120Platform();
         }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6495',
+            'Support for Postgres < 12 is deprecated and will be removed in DBAL 5',
+        );
 
         return new PostgreSQLPlatform();
     }
