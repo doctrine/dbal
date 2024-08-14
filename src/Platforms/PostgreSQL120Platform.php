@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Platforms;
 
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 12.0 database platform.
+ *
+ * @deprecated This class will be removed once support for Postgres < 12 is dropped.
  */
 class PostgreSQL120Platform extends PostgreSQLPlatform
 {
