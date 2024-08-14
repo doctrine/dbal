@@ -62,12 +62,12 @@ class ComparatorTest extends AbstractComparatorTestCase
             ]),
         ]);
 
-        self::assertEmpty($utf8Comparator->compareTables($table1, $table2)->getModifiedColumns());
-        self::assertEmpty($utf8Comparator->compareTables($table2, $table1)->getModifiedColumns());
-        self::assertNotEmpty($utf8Comparator->compareTables($table1, $table3)->getModifiedColumns());
-        self::assertNotEmpty($utf8Comparator->compareTables($table3, $table1)->getModifiedColumns());
-        self::assertNotEmpty($utf8Comparator->compareTables($table2, $table3)->getModifiedColumns());
-        self::assertNotEmpty($utf8Comparator->compareTables($table3, $table2)->getModifiedColumns());
+        self::assertEmpty($utf8Comparator->compareTables($table1, $table2)->getChangedColumns());
+        self::assertEmpty($utf8Comparator->compareTables($table2, $table1)->getChangedColumns());
+        self::assertNotEmpty($utf8Comparator->compareTables($table1, $table3)->getChangedColumns());
+        self::assertNotEmpty($utf8Comparator->compareTables($table3, $table1)->getChangedColumns());
+        self::assertNotEmpty($utf8Comparator->compareTables($table2, $table3)->getChangedColumns());
+        self::assertNotEmpty($utf8Comparator->compareTables($table3, $table2)->getChangedColumns());
 
         $table4 = new Table('t4', [
             new Column('c', new StringType(), [
@@ -88,12 +88,12 @@ class ComparatorTest extends AbstractComparatorTestCase
             ]),
         ]);
 
-        self::assertEmpty($utf8Comparator->compareTables($table4, $table5)->getModifiedColumns());
-        self::assertEmpty($utf8Comparator->compareTables($table5, $table4)->getModifiedColumns());
-        self::assertNotEmpty($utf8Comparator->compareTables($table4, $table6)->getModifiedColumns());
-        self::assertNotEmpty($utf8Comparator->compareTables($table6, $table4)->getModifiedColumns());
-        self::assertNotEmpty($utf8Comparator->compareTables($table5, $table6)->getModifiedColumns());
-        self::assertNotEmpty($utf8Comparator->compareTables($table6, $table5)->getModifiedColumns());
+        self::assertEmpty($utf8Comparator->compareTables($table4, $table5)->getChangedColumns());
+        self::assertEmpty($utf8Comparator->compareTables($table5, $table4)->getChangedColumns());
+        self::assertNotEmpty($utf8Comparator->compareTables($table4, $table6)->getChangedColumns());
+        self::assertNotEmpty($utf8Comparator->compareTables($table6, $table4)->getChangedColumns());
+        self::assertNotEmpty($utf8Comparator->compareTables($table5, $table6)->getChangedColumns());
+        self::assertNotEmpty($utf8Comparator->compareTables($table6, $table5)->getChangedColumns());
     }
 
     /** @return iterable<array{bool,string}> */
