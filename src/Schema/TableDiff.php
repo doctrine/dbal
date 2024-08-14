@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\Deprecations\Deprecation;
+
 use function array_filter;
+use function array_values;
 use function count;
 
 /**
@@ -58,6 +61,52 @@ class TableDiff
     public function getChangedColumns(): array
     {
         return $this->changedColumns;
+    }
+
+    /**
+     * @deprecated Use {@see getChangedColumns()} instead.
+     *
+     * @return list<ColumnDiff>
+     */
+    public function getModifiedColumns(): array
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6280',
+            '%s is deprecated, use `getChangedColumns()` instead.',
+            __METHOD__,
+        );
+
+        return array_values(array_filter(
+            $this->getChangedColumns(),
+            static fn (ColumnDiff $diff): bool => $diff->countChangedProperties() > ($diff->hasNameChanged() ? 1 : 0),
+        ));
+    }
+
+    /**
+     * @deprecated Use {@see getChangedColumns()} instead.
+     *
+     * @return array<string,Column>
+     */
+    public function getRenamedColumns(): array
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6280',
+            '%s is deprecated, you should use `getChangedColumns()` instead.',
+            __METHOD__,
+        );
+        $renamed = [];
+        foreach ($this->getChangedColumns() as $diff) {
+            if (! $diff->hasNameChanged()) {
+                continue;
+            }
+
+            $oldColumnName           = $diff->getOldColumn()->getName();
+            $renamed[$oldColumnName] = $diff->getNewColumn();
+        }
+
+        return $renamed;
     }
 
     /** @return array<Column> */
