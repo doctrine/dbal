@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
@@ -278,6 +279,31 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table('ddc2843_bools');
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn('checked', Types::BOOLEAN, ['default' => false]);
+
+        $this->dropAndCreateTable($table);
+
+        $databaseTable = $this->schemaManager->introspectTable($table->getName());
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($table, $databaseTable)
+                ->isEmpty(),
+        );
+    }
+
+    public function testGeneratedColumn(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof PostgreSQL120Platform) {
+             self::markTestSkipped('Generated columns are not supported in Postgres 11 and earlier');
+        }
+
+        $table = new Table('ddc6198_generated_always_as');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn(
+            'idIsOdd',
+            Types::BOOLEAN,
+            ['columnDefinition' => 'boolean GENERATED ALWAYS AS (id % 2 = 1) STORED', 'notNull' => false],
+        );
 
         $this->dropAndCreateTable($table);
 

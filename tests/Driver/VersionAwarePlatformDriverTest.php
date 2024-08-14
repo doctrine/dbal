@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQL84Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -69,7 +70,8 @@ class VersionAwarePlatformDriverTest extends TestCase
         return [
             ['10.0', PostgreSQLPlatform::class],
             ['11.0', PostgreSQLPlatform::class],
-            ['13.3', PostgreSQLPlatform::class],
+            ['12.0', PostgreSQL120Platform::class],
+            ['13.3', PostgreSQL120Platform::class],
         ];
     }
 
