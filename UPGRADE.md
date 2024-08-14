@@ -20,6 +20,11 @@ all drivers and middleware.
 
 # Upgrade to 4.1
 
+## Deprecated `TableDiff` methods
+
+The `TableDiff` methods `getModifiedColumns()` and `getRenamedColumns()` have been merged into a single
+method `getChangedColumns()`. Use this method instead.
+
 ## Deprecated support for MariaDB 10.4 and MySQL 5.7
 
 * Upgrade to MariaDB 10.5 or later.

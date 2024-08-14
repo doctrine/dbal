@@ -252,6 +252,7 @@ class PostgreSQLPlatform extends AbstractPlatform
                 || $columnDiff->hasPrecisionChanged()
                 || $columnDiff->hasScaleChanged()
                 || $columnDiff->hasFixedChanged()
+                || $columnDiff->hasLengthChanged()
             ) {
                 $type = $newColumn->getType();
 
