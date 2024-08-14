@@ -17,6 +17,7 @@ use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQL84Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
+use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
@@ -90,6 +91,7 @@ class VersionAwarePlatformDriverTest extends TestCase
             ['9.4.0', PostgreSQL94Platform::class],
             ['9.4.1', PostgreSQL94Platform::class],
             ['10', PostgreSQL100Platform::class],
+            ['12', PostgreSQL120Platform::class],
         ];
     }
 
