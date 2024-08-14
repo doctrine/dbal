@@ -124,13 +124,51 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             $this->platform->getStringTypeDeclarationSQL(['length' => 50]),
         );
         self::assertEquals(
+            'NVARCHAR(50)',
+            $this->platform->getStringTypeDeclarationSQL(
+                ['length' => 50, 'fixed' => false],
+            ),
+        );
+        self::assertEquals(
             'NVARCHAR(255)',
             $this->platform->getStringTypeDeclarationSQL([]),
+        );
+        self::assertEquals(
+            'NVARCHAR(255)',
+            $this->platform->getStringTypeDeclarationSQL(['fixed' => false]),
         );
         self::assertSame('VARCHAR(MAX)', $this->platform->getClobTypeDeclarationSQL([]));
         self::assertSame(
             'VARCHAR(MAX)',
             $this->platform->getClobTypeDeclarationSQL(['length' => 5, 'fixed' => true]),
+        );
+    }
+
+    public function testGeneratesTypeDeclarationsForAsciiStrings(): void
+    {
+        self::assertEquals(
+            'CHAR(10)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(
+                ['length' => 10, 'fixed' => true],
+            ),
+        );
+        self::assertEquals(
+            'VARCHAR(50)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(['length' => 50]),
+        );
+        self::assertEquals(
+            'VARCHAR(50)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(
+                ['length' => 50, 'fixed' => false],
+            ),
+        );
+        self::assertEquals(
+            'VARCHAR(255)',
+            $this->platform->getAsciiStringTypeDeclarationSQL([]),
+        );
+        self::assertEquals(
+            'VARCHAR(255)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(['fixed' => false]),
         );
     }
 
