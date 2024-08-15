@@ -148,7 +148,6 @@ class Comparator
         $addedColumns        = [];
         $modifiedColumns     = [];
         $droppedColumns      = [];
-        $renamedColumns      = [];
         $addedIndexes        = [];
         $modifiedIndexes     = [];
         $droppedIndexes      = [];
