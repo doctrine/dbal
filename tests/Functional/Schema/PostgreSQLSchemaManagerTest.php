@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
@@ -293,10 +292,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testGeneratedColumn(): void
     {
-        if (! $this->connection->getDatabasePlatform() instanceof PostgreSQL120Platform) {
-             self::markTestSkipped('Generated columns are not supported in Postgres 11 and earlier');
-        }
-
         $table = new Table('ddc6198_generated_always_as');
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn(

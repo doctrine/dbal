@@ -677,19 +677,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $sql;
     }
 
-    /**
-     * Get the snippet used to retrieve the default value for a given column
-     */
-    public function getDefaultColumnValueSQLSnippet(): string
-    {
-        return <<<'SQL'
-             SELECT pg_get_expr(adbin, adrelid)
-             FROM pg_attrdef
-             WHERE c.oid = pg_attrdef.adrelid
-                AND pg_attrdef.adnum=a.attnum
-        SQL;
-    }
-
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [

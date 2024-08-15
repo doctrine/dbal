@@ -216,7 +216,7 @@ jobs:
         php-version:
           - "8.1"
         postgres-version:
-          - "10"
+          - "12"
           - "15"
           - "16"
         extension:
