@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -16,7 +15,6 @@ use function set_error_handler;
 use function sleep;
 
 use const E_WARNING;
-use const PHP_VERSION_ID;
 
 class TransactionTest extends FunctionalTestCase
 {
@@ -45,10 +43,6 @@ class TransactionTest extends FunctionalTestCase
 
     private function expectConnectionLoss(callable $scenario): void
     {
-        if (PHP_VERSION_ID < 70413 && $this->connection->getDriver() instanceof PDO\MySQL\Driver) {
-            self::markTestSkipped('See https://bugs.php.net/bug.php?id=66528.');
-        }
-
         $this->connection->executeStatement('SET SESSION wait_timeout=1');
         $this->connection->beginTransaction();
 
