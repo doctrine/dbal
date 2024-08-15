@@ -12,7 +12,6 @@ use Doctrine\DBAL\Platforms\MariaDB1060Platform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL84Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -64,11 +63,9 @@ class VersionAwarePlatformDriverTest extends TestCase
     public static function postgreSQLVersionProvider(): array
     {
         return [
-            ['10.0', PostgreSQLPlatform::class],
-            ['11.0', PostgreSQLPlatform::class],
-            ['12.0', PostgreSQL120Platform::class],
-            ['13.16', PostgreSQL120Platform::class],
-            ['16.4', PostgreSQL120Platform::class],
+            ['12.0', PostgreSQLPlatform::class],
+            ['13.16', PostgreSQLPlatform::class],
+            ['16.4', PostgreSQLPlatform::class],
         ];
     }
 

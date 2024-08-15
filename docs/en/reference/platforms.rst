@@ -56,8 +56,7 @@ Microsoft SQL Server
 PostgreSQL
 ^^^^^^^^^^
 
--  ``PostgreSQLPlatform`` for version 10.0 and above.
--  ``PostgreSQL120Platform`` for version 12.0 and above.
+-  ``PostgreSQLPlatform`` for version 12.0 and above.
 
 IBM DB2
 ^^^^^^^
