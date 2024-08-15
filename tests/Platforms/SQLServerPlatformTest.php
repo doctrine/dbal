@@ -127,6 +127,26 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGeneratesTypeDeclarationsForAsciiStrings(): void
+    {
+        self::assertEquals(
+            'CHAR(10)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(
+                ['length' => 10, 'fixed' => true],
+            ),
+        );
+        self::assertEquals(
+            'VARCHAR(50)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(['length' => 50]),
+        );
+        self::assertEquals(
+            'VARCHAR(50)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(
+                ['length' => 50, 'fixed' => false],
+            ),
+        );
+    }
+
     public function testSupportsIdentityColumns(): void
     {
         self::assertTrue($this->platform->supportsIdentityColumns());
@@ -777,6 +797,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('uniqueidentifier'));
         self::assertSame(Types::GUID, $this->platform->getDoctrineTypeMapping('uniqueidentifier'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('sysname'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('sysname'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('xml'));
+        self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('xml'));
     }
 
     protected function getExpectedFixedLengthStringTypeDeclarationSQLNoLength(): string
