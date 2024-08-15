@@ -537,11 +537,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->modifyColumn('def_blob', ['default' => null]);
         $diffTable->modifyColumn('def_blob_null', ['default' => null]);
 
-        self::assertTrue(
-            $this->createComparator()
-                ->compareTables($table, $diffTable)
-                ->isEmpty(),
-        );
+        $comparator = $this->createComparator();
+
+        self::assertTrue($comparator->compareTables($table, $diffTable)->isEmpty());
+        self::assertTrue($comparator->compareTables($table, $diffTable)->isEmpty());
     }
 
     public function testReturnsGuidTypeDeclarationSQL(): void
@@ -619,6 +618,21 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             [['precision' => 5], 'DOUBLE PRECISION'],
             [['scale' => 5], 'DOUBLE PRECISION'],
             [['precision' => 8, 'scale' => 2], 'DOUBLE PRECISION'],
+        ];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function getGeneratesSmallFloatDeclarationSQL(): iterable
+    {
+        return [
+            [[], 'FLOAT'],
+            [['unsigned' => true], 'FLOAT UNSIGNED'],
+            [['unsigned' => false], 'FLOAT'],
+            [['precision' => 5], 'FLOAT'],
+            [['scale' => 5], 'FLOAT'],
+            [['precision' => 4, 'scale' => 2], 'FLOAT'],
         ];
     }
 

@@ -57,7 +57,7 @@ class CustomIntrospectionTest extends FunctionalTestCase
         $diff        = $schemaManager->createComparator()->compareTables($onlineTable, $table);
         $changedCols = array_map(
             static fn (ColumnDiff $columnDiff): string => $columnDiff->getOldColumn()->getName(),
-            $diff->getModifiedColumns(),
+            $diff->getChangedColumns(),
         );
 
         self::assertTrue($diff->isEmpty(), sprintf(

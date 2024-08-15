@@ -33,7 +33,8 @@ use function strtolower;
 use function trim;
 
 /**
- * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4+ database platform.
+ * Provides the behavior, features and SQL dialect of the PostgreSQL database platform
+ * of the oldest supported version.
  */
 class PostgreSQLPlatform extends AbstractPlatform
 {
@@ -202,7 +203,6 @@ class PostgreSQLPlatform extends AbstractPlatform
     {
         $sql         = [];
         $commentsSQL = [];
-        $columnSql   = [];
 
         $table = $diff->getOldTable();
 
@@ -234,17 +234,26 @@ class PostgreSQLPlatform extends AbstractPlatform
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
         }
 
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             $oldColumn = $columnDiff->getOldColumn();
             $newColumn = $columnDiff->getNewColumn();
 
             $oldColumnName = $oldColumn->getQuotedName($this);
+            $newColumnName = $newColumn->getQuotedName($this);
+
+            if ($columnDiff->hasNameChanged()) {
+                $sql = array_merge(
+                    $sql,
+                    $this->getRenameColumnSQL($tableNameSQL, $oldColumnName, $newColumnName),
+                );
+            }
 
             if (
                 $columnDiff->hasTypeChanged()
                 || $columnDiff->hasPrecisionChanged()
                 || $columnDiff->hasScaleChanged()
                 || $columnDiff->hasFixedChanged()
+                || $columnDiff->hasLengthChanged()
             ) {
                 $type = $newColumn->getType();
 
@@ -253,7 +262,7 @@ class PostgreSQLPlatform extends AbstractPlatform
                 $columnDefinition['autoincrement'] = false;
 
                 // here was a server version check before, but DBAL API does not support this anymore.
-                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
+                $query = 'ALTER ' . $newColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
@@ -262,12 +271,12 @@ class PostgreSQLPlatform extends AbstractPlatform
                     ? ' DROP DEFAULT'
                     : ' SET' . $this->getDefaultValueDeclarationSQL($newColumn->toArray());
 
-                $query = 'ALTER ' . $oldColumnName . $defaultClause;
+                $query = 'ALTER ' . $newColumnName . $defaultClause;
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
             if ($columnDiff->hasNotNullChanged()) {
-                $query = 'ALTER ' . $oldColumnName . ' ' . ($newColumn->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
+                $query = 'ALTER ' . $newColumnName . ' ' . ($newColumn->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
@@ -278,34 +287,18 @@ class PostgreSQLPlatform extends AbstractPlatform
                     $query = 'DROP IDENTITY';
                 }
 
-                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ALTER ' . $oldColumnName . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ALTER ' . $newColumnName . ' ' . $query;
             }
 
-            $newComment = $newColumn->getComment();
-            $oldComment = $columnDiff->getOldColumn()->getComment();
-
-            if ($columnDiff->hasCommentChanged() || $oldComment !== $newComment) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL(
-                    $tableNameSQL,
-                    $newColumn->getQuotedName($this),
-                    $newComment,
-                );
-            }
-
-            if (! $columnDiff->hasLengthChanged()) {
+            if (! $columnDiff->hasCommentChanged()) {
                 continue;
             }
 
-            $query = 'ALTER ' . $oldColumnName . ' TYPE '
-                . $newColumn->getType()->getSQLDeclaration($newColumn->toArray(), $this);
-            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
-        }
-
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            $oldColumnName = new Identifier($oldColumnName);
-
-            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this)
-                . ' TO ' . $column->getQuotedName($this);
+            $commentsSQL[] = $this->getCommentOnColumnSQL(
+                $tableNameSQL,
+                $newColumn->getQuotedName($this),
+                $newColumn->getComment(),
+            );
         }
 
         return array_merge(
@@ -313,7 +306,6 @@ class PostgreSQLPlatform extends AbstractPlatform
             $sql,
             $commentsSQL,
             $this->getPostAlterTableIndexForeignKeySQL($diff),
-            $columnSql,
         );
     }
 
@@ -685,6 +677,19 @@ class PostgreSQLPlatform extends AbstractPlatform
         return $sql;
     }
 
+    /**
+     * Get the snippet used to retrieve the default value for a given column
+     */
+    public function getDefaultColumnValueSQLSnippet(): string
+    {
+        return <<<'SQL'
+             SELECT pg_get_expr(adbin, adrelid)
+             FROM pg_attrdef
+             WHERE c.oid = pg_attrdef.adrelid
+                AND pg_attrdef.adnum=a.attnum
+        SQL;
+    }
+
     protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
@@ -701,7 +706,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'double'           => Types::FLOAT,
             'double precision' => Types::FLOAT,
             'float'            => Types::FLOAT,
-            'float4'           => Types::FLOAT,
+            'float4'           => Types::SMALLFLOAT,
             'float8'           => Types::FLOAT,
             'inet'             => Types::STRING,
             'int'              => Types::INTEGER,
@@ -717,7 +722,7 @@ class PostgreSQLPlatform extends AbstractPlatform
             'serial'           => Types::INTEGER,
             'serial4'          => Types::INTEGER,
             'serial8'          => Types::BIGINT,
-            'real'             => Types::FLOAT,
+            'real'             => Types::SMALLFLOAT,
             'smallint'         => Types::SMALLINT,
             'text'             => Types::TEXT,
             'time'             => Types::TIME_MUTABLE,

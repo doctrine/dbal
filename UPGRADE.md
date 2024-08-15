@@ -8,10 +8,16 @@ awareness about deprecated code.
 
 # Upgrade to 4.1
 
-## Deprecated support for MariaDB 10.4 and MySQL 5.7
+## Deprecated `TableDiff` methods
+
+The `TableDiff` methods `getModifiedColumns()` and `getRenamedColumns()` have been merged into a single
+method `getChangedColumns()`. Use this method instead.
+
+## Deprecated support for MariaDB 10.4, MySQL 5.7 and Postgres 10 + 11
 
 * Upgrade to MariaDB 10.5 or later.
 * Upgrade to MySQL 8.0 or later.
+* Upgrade to Postgres 12 or later.
 
 ## Add `Result::getColumnName()`
 

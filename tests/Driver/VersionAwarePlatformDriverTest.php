@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySQL84Platform;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -38,13 +39,15 @@ class VersionAwarePlatformDriverTest extends TestCase
         return [
             ['5.7.0', MySQLPlatform::class],
             ['8.0.11', MySQL80Platform::class],
-            ['8.4.0', MySQL84Platform::class],
+            ['8.4.1', MySQL84Platform::class],
+            ['9.0.0', MySQL84Platform::class],
             ['5.5.40-MariaDB-1~wheezy', MariaDBPlatform::class],
             ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],
             ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDBPlatform::class],
             ['10.2.8-MariaDB-1~lenny-log', MariaDBPlatform::class],
             ['10.5.2-MariaDB-1~lenny-log', MariaDB1052Platform::class],
             ['10.6.0-MariaDB-1~lenny-log', MariaDB1060Platform::class],
+            ['10.9.3-MariaDB-1~lenny-log', MariaDB1060Platform::class],
             ['11.0.2-MariaDB-1:11.0.2+maria~ubu2204', MariaDB1010Platform::class],
         ];
     }
@@ -67,7 +70,9 @@ class VersionAwarePlatformDriverTest extends TestCase
         return [
             ['10.0', PostgreSQLPlatform::class],
             ['11.0', PostgreSQLPlatform::class],
-            ['13.3', PostgreSQLPlatform::class],
+            ['12.0', PostgreSQL120Platform::class],
+            ['13.16', PostgreSQL120Platform::class],
+            ['16.4', PostgreSQL120Platform::class],
         ];
     }
 

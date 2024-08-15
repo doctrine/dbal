@@ -411,13 +411,13 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
+        $sql = 'SELECT ';
 
         if ($tableName === null) {
-            $sql .= ' c.relname AS table_name, n.nspname AS schema_name,';
+            $sql .= 'c.relname AS table_name, n.nspname AS schema_name,';
         }
 
-        $sql .= <<<'SQL'
+        $sql .= sprintf(<<<'SQL'
             a.attnum,
             quote_ident(a.attname) AS field,
             t.typname AS type,
@@ -434,11 +434,7 @@ SQL;
                 AND pg_index.indkey[0] = a.attnum
                 AND pg_index.indisprimary = 't'
             ) AS pri,
-            (SELECT pg_get_expr(adbin, adrelid)
-             FROM pg_attrdef
-             WHERE c.oid = pg_attrdef.adrelid
-                AND pg_attrdef.adnum=a.attnum
-            ) AS default,
+            (%s) AS default,
             (SELECT pg_description.description
                 FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
             ) AS comment
@@ -453,7 +449,7 @@ SQL;
                     ON d.objid = c.oid
                         AND d.deptype = 'e'
                         AND d.classid = (SELECT oid FROM pg_class WHERE relname = 'pg_class')
-SQL;
+            SQL, $this->platform->getDefaultColumnValueSQLSnippet());
 
         $conditions = array_merge([
             'a.attnum > 0',

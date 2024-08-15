@@ -128,6 +128,26 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGeneratesTypeDeclarationsForAsciiStrings(): void
+    {
+        self::assertEquals(
+            'CHAR(10)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(
+                ['length' => 10, 'fixed' => true],
+            ),
+        );
+        self::assertEquals(
+            'VARCHAR(50)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(['length' => 50]),
+        );
+        self::assertEquals(
+            'VARCHAR(50)',
+            $this->platform->getAsciiStringTypeDeclarationSQL(
+                ['length' => 50, 'fixed' => false],
+            ),
+        );
+    }
+
     public function testSupportsIdentityColumns(): void
     {
         self::assertTrue($this->platform->supportsIdentityColumns());
@@ -648,13 +668,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff = new TableDiff($table, [
+        $tableDiff = new TableDiff($table, addedColumns: [
             new Column(
                 'quota',
                 Type::getType(Types::INTEGER),
                 ['comment' => 'A comment'],
             ),
-        ], [], [], [], [], [], [], [], [], [], []);
+        ]);
 
         $expectedSql = [
             'ALTER TABLE testschema.mytable ADD quota INT NOT NULL',
@@ -669,11 +689,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff = new TableDiff($table, [], [new ColumnDiff(
-            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
-            new Column('quota', Type::getType(Types::INTEGER), []),
-        ),
-        ], [], [], [], [], [], [], [], [], []);
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'quota' => new ColumnDiff(
+                new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
+                new Column('quota', Type::getType(Types::INTEGER), []),
+            ),
+        ]);
 
         $expectedSql = [
             "EXEC sp_dropextendedproperty N'MS_Description'"
@@ -687,11 +708,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff = new TableDiff($table, [], [new ColumnDiff(
-            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
-            new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'B comment']),
-        ),
-        ], [], [], [], [], [], [], [], [], []);
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'quota' => new ColumnDiff(
+                new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment']),
+                new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'B comment']),
+            ),
+        ]);
 
         $expectedSql = ["EXEC sp_updateextendedproperty N'MS_Description', N'B comment', "
                 . "N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', 'quota'",
@@ -733,7 +755,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('float'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('real'));
-        self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('real'));
+        self::assertSame(Types::SMALLFLOAT, $this->platform->getDoctrineTypeMapping('real'));
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('double'));
         self::assertSame(Types::FLOAT, $this->platform->getDoctrineTypeMapping('double'));
@@ -776,6 +798,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('uniqueidentifier'));
         self::assertSame(Types::GUID, $this->platform->getDoctrineTypeMapping('uniqueidentifier'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('sysname'));
+        self::assertSame(Types::STRING, $this->platform->getDoctrineTypeMapping('sysname'));
+
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('xml'));
+        self::assertSame(Types::TEXT, $this->platform->getDoctrineTypeMapping('xml'));
     }
 
     protected function getExpectedFixedLengthStringTypeDeclarationSQLNoLength(): string
@@ -1061,12 +1089,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.mytable');
 
-        $tableDiff = new TableDiff($table, [], [
-            new ColumnDiff(
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'quota' => new ColumnDiff(
                 new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment', 'notnull' => false]),
                 new Column('quota', Type::getType(Types::INTEGER), ['comment' => 'A comment', 'notnull' => true]),
             ),
-        ], [], [], [], [], [], [], [], [], []);
+        ]);
 
         $expectedSql = ['ALTER TABLE testschema.mytable ALTER COLUMN quota INT NOT NULL'];
 

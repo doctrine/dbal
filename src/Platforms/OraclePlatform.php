@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
 
@@ -322,7 +323,7 @@ class OraclePlatform extends AbstractPlatform
             }
 
             if (
-                empty($column['autoincrement'])
+                ! isset($column['autoincrement']) || $column['autoincrement'] === false
             ) {
                 continue;
             }
@@ -523,10 +524,8 @@ END;';
      */
     public function getAlterTableSQL(TableDiff $diff): array
     {
-        $sql         = [];
-        $commentsSQL = [];
-        $columnSql   = [];
-
+        $sql          = [];
+        $commentsSQL  = [];
         $addColumnSQL = [];
 
         $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
@@ -551,23 +550,52 @@ END;';
         }
 
         $modifyColumnSQL = [];
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             $newColumn = $columnDiff->getNewColumn();
             $oldColumn = $columnDiff->getOldColumn();
 
-            $newColumnProperties = $newColumn->toArray();
-            $oldColumnProperties = $oldColumn->toArray();
+            // Column names in Oracle are case insensitive and automatically uppercased on the server.
+            if ($columnDiff->hasNameChanged()) {
+                $newColumnName = $newColumn->getQuotedName($this);
+                $oldColumnName = $oldColumn->getQuotedName($this);
 
-            $oldSQL = $this->getColumnDeclarationSQL('', $oldColumnProperties);
-            $newSQL = $this->getColumnDeclarationSQL('', $newColumnProperties);
+                $sql = array_merge(
+                    $sql,
+                    $this->getRenameColumnSQL($tableNameSQL, $oldColumnName, $newColumnName),
+                );
+            }
 
-            if ($newSQL !== $oldSQL) {
-                if (! $columnDiff->hasNotNullChanged()) {
-                    unset($newColumnProperties['notnull']);
-                    $newSQL = $this->getColumnDeclarationSQL('', $newColumnProperties);
+            $countChangedProperties = $columnDiff->countChangedProperties();
+            // Do not generate column alteration clause if type is binary and only fixed property has changed.
+            // Oracle only supports binary type columns with variable length.
+            // Avoids unnecessary table alteration statements.
+            if (
+                $newColumn->getType() instanceof BinaryType &&
+                $columnDiff->hasFixedChanged() &&
+                $countChangedProperties === 1
+            ) {
+                continue;
+            }
+
+            $columnHasChangedComment = $columnDiff->hasCommentChanged();
+
+            /**
+             * Do not add query part if only comment has changed
+             */
+            if ($countChangedProperties > ($columnHasChangedComment ? 1 : 0)) {
+                $newColumnProperties = $newColumn->toArray();
+
+                $oldSQL = $this->getColumnDeclarationSQL('', $oldColumn->toArray());
+                $newSQL = $this->getColumnDeclarationSQL('', $newColumnProperties);
+
+                if ($newSQL !== $oldSQL) {
+                    if (! $columnDiff->hasNotNullChanged()) {
+                        unset($newColumnProperties['notnull']);
+                        $newSQL = $this->getColumnDeclarationSQL('', $newColumnProperties);
+                    }
+
+                    $modifyColumnSQL[] = $newColumn->getQuotedName($this) . $newSQL;
                 }
-
-                $modifyColumnSQL[] = $newColumn->getQuotedName($this) . $newSQL;
             }
 
             if (! $columnDiff->hasCommentChanged()) {
@@ -585,13 +613,6 @@ END;';
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY (' . implode(', ', $modifyColumnSQL) . ')';
         }
 
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            $oldColumnName = new Identifier($oldColumnName);
-
-            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this)
-                . ' TO ' . $column->getQuotedName($this);
-        }
-
         $dropColumnSQL = [];
         foreach ($diff->getDroppedColumns() as $column) {
             $dropColumnSQL[] = $column->getQuotedName($this);
@@ -606,7 +627,6 @@ END;';
             $sql,
             $commentsSQL,
             $this->getPostAlterTableIndexForeignKeySQL($diff),
-            $columnSql,
         );
     }
 
@@ -750,6 +770,7 @@ END;';
             'nvarchar2'      => Types::STRING,
             'pls_integer'    => Types::BOOLEAN,
             'raw'            => Types::BINARY,
+            'real'           => Types::SMALLFLOAT,
             'rowid'          => Types::STRING,
             'timestamp'      => Types::DATETIME_MUTABLE,
             'timestamptz'    => Types::DATETIMETZ_MUTABLE,
