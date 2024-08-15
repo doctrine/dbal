@@ -59,6 +59,7 @@ install:
           Add-Content php.ini "`n extension_dir=ext"
           Add-Content php.ini "`n memory_limit=1G"
           Add-Content php.ini "`n extension=php_openssl.dll"
+          Add-Content php.ini "`n extension=php_pgsql.dll"
           Add-Content php.ini "`n extension=php_mbstring.dll"
           Add-Content php.ini "`n extension=php_fileinfo.dll"
           Add-Content php.ini "`n extension=php_pdo_sqlite.dll"
