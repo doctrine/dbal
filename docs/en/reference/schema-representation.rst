@@ -100,18 +100,18 @@ and absolutely not portable.
 
    Option values for MySQL, MariaDB, PostgreSQL and SQLite:
 
-   - true (bool)
-   - false (bool)
+   - ``true`` (bool)
+   - ``false`` (bool)
 
    Option values for Oracle:
 
-   - global (string): emits CREATE GLOBAL TEMPORARY TABLE statement
-   - private (string): emits CREATE PRIVATE TEMPORARY TABLE statement, table name must begin with PRIVATE_TEMP_TABLE_PREFIX, default 'ORA$PTT'
+   - ``global`` (string): emits CREATE GLOBAL TEMPORARY TABLE statement
+   - ``private`` (string): emits CREATE PRIVATE TEMPORARY TABLE statement, table name must begin with PRIVATE_TEMP_TABLE_PREFIX, default 'ORA$PTT'
 
    Option values for DB2:
 
-   - created (string): emits CREATE GLOBAL TEMPORARY TABLE statement
-   - declared (string): emits DECLARE GLOBAL TEMPORARY TABLE statement
+   - ``created`` (string): emits CREATE GLOBAL TEMPORARY TABLE statement
+   - ``declared`` (string): emits DECLARE GLOBAL TEMPORARY TABLE statement
 
 -  **on_commit** (string): declare table's commit options, only used if option **temporary** is set.
    Supported on Oracle and PostgreSQL
