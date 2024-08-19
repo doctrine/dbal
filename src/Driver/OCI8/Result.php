@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 
 use function oci_cancel;
 use function oci_error;
@@ -93,6 +94,18 @@ final class Result implements ResultInterface
         }
 
         return 0;
+    }
+
+    public function getColumnName(int $index): string
+    {
+        // OCI expects a 1-based index while DBAL works with a O-based index.
+        $name = @oci_field_name($this->statement, $index + 1);
+
+        if ($name === false) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        return $name;
     }
 
     public function free(): void

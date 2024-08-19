@@ -27,7 +27,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\UnionSQLBuilder;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
@@ -770,6 +772,11 @@ abstract class AbstractPlatform
         return new DefaultSelectSQLBuilder($this, 'FOR UPDATE', 'SKIP LOCKED');
     }
 
+    public function createUnionSQLBuilder(): UnionSQLBuilder
+    {
+        return new DefaultUnionSQLBuilder($this);
+    }
+
     /**
      * @internal
      *
@@ -816,8 +823,7 @@ abstract class AbstractPlatform
             }
         }
 
-        $columnSql = [];
-        $columns   = [];
+        $columns = [];
 
         foreach ($table->getColumns() as $column) {
             $columnData = $this->columnToArray($column);
@@ -847,7 +853,7 @@ abstract class AbstractPlatform
             }
         }
 
-        return array_merge($sql, $columnSql);
+        return $sql;
     }
 
     /**
@@ -945,7 +951,7 @@ abstract class AbstractPlatform
      * @param mixed[][] $columns
      * @param mixed[]   $options
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
@@ -962,7 +968,7 @@ abstract class AbstractPlatform
         }
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $index => $definition) {
+            foreach ($options['indexes'] as $definition) {
                 $columnListSql .= ', ' . $this->getIndexDeclarationSQL($definition);
             }
         }
@@ -1289,6 +1295,20 @@ abstract class AbstractPlatform
             $this->getDropIndexSQL($oldIndexName, $tableName),
             $this->getCreateIndexSQL($index, $tableName),
         ];
+    }
+
+    /**
+     * Returns the SQL for renaming a column
+     *
+     * @param string $tableName     The table to rename the column on.
+     * @param string $oldColumnName The name of the column we want to rename.
+     * @param string $newColumnName The name we should rename it to.
+     *
+     * @return list<string> The sequence of SQL statements for renaming the given column.
+     */
+    protected function getRenameColumnSQL(string $tableName, string $oldColumnName, string $newColumnName): array
+    {
+        return [sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s', $tableName, $oldColumnName, $newColumnName)];
     }
 
     /**
@@ -1871,6 +1891,12 @@ abstract class AbstractPlatform
         return 'DOUBLE PRECISION';
     }
 
+    /** @param mixed[] $column */
+    public function getSmallFloatDeclarationSQL(array $column): string
+    {
+        return 'REAL';
+    }
+
     /**
      * Gets the default transaction isolation level of the platform.
      *
@@ -2209,6 +2235,30 @@ abstract class AbstractPlatform
         }
 
         return $column1->getComment() === $column2->getComment();
+    }
+
+    /**
+     * Returns the union select query part surrounded by parenthesis if possible for platform.
+     */
+    public function getUnionSelectPartSQL(string $subQuery): string
+    {
+        return sprintf('(%s)', $subQuery);
+    }
+
+    /**
+     * Returns the `UNION ALL` keyword.
+     */
+    public function getUnionAllSQL(): string
+    {
+        return 'UNION ALL';
+    }
+
+    /**
+     * Returns the compatible `UNION DISTINCT` keyword.
+     */
+    public function getUnionDistinctSQL(): string
+    {
+        return 'UNION';
     }
 
     /**

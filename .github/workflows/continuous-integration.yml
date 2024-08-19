@@ -84,7 +84,7 @@ jobs:
         if: "${{ matrix.extension == 'sqlite3' }}"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -141,7 +141,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/oci8${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/oci8${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -198,7 +198,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci${{ matrix.oracle-version < 23 && '-21' || ''  }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -262,7 +262,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -285,19 +285,19 @@ jobs:
           - "10.5"  # LTS (Jun 2025)
           - "10.6"  # LTS (Jul 2026)
           - "10.11" # LTS (Feb 2028)
-          - "11.0"  # STS (Jun 2024)
           - "11.1"  # STS (Aug 2024)
           - "11.2"  # STS (Nov 2024)
           - "11.3"  # STS (Feb 2025)
+          - "11.4"  # LTS (May 2029)
         extension:
           - "mysqli"
           - "pdo_mysql"
         include:
           - php-version: "8.2"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "mysqli"
           - php-version: "8.3"
-            mariadb-version: "11.2"
+            mariadb-version: "11.4"
             extension: "pdo_mysql"
 
     services:
@@ -308,7 +308,7 @@ jobs:
           MYSQL_DATABASE: "doctrine_tests"
 
         options: >-
-          --health-cmd "mariadb-admin ping --silent || mysqladmin ping --silent"
+          --health-cmd "healthcheck.sh --connect --innodb_initialized || mysqladmin ping --protocol tcp --silent"
 
         ports:
           - "3306:3306"
@@ -333,7 +333,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -349,10 +349,11 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.1"
+          - "8.3"
         mysql-version:
           - "5.7"
           - "8.0"
+          - "9.0"
         extension:
           - "mysqli"
           - "pdo_mysql"
@@ -363,18 +364,19 @@ jobs:
             php-version: "8.1"
             mysql-version: "8.0"
             extension: "mysqli"
-          - php-version: "8.2"
+          - php-version: "8.1"
             mysql-version: "8.0"
             extension: "mysqli"
-          - php-version: "8.3"
+          - php-version: "8.1"
             mysql-version: "8.0"
             extension: "pdo_mysql"
-          - php-version: "8.1"
+          # Workaround for https://bugs.mysql.com/114876
+          - php-version: "8.3"
             mysql-version: "8.4"
             extension: "mysqli"
             custom-entrypoint: >-
               --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
-          - php-version: "8.1"
+          - php-version: "8.3"
             mysql-version: "8.4"
             extension: "pdo_mysql"
             custom-entrypoint: >-
@@ -417,7 +419,7 @@ jobs:
         if: "${{ endsWith(matrix.config-file-suffix, 'tls') }}"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -458,7 +460,7 @@ jobs:
           MSSQL_COLLATION: "${{ matrix.collation }}"
 
         options: >-
-          --health-cmd "echo quit | /opt/mssql-tools/bin/sqlcmd -S 127.0.0.1 -l 1 -U sa -P Doctrine2018"
+          --health-cmd "echo quit | /opt/mssql-tools18/bin/sqlcmd -C -S 127.0.0.1 -l 1 -U sa -P Doctrine2018"
 
         ports:
           - "1433:1433"
@@ -484,7 +486,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -555,7 +557,7 @@ jobs:
           composer-options: "--ignore-platform-req=php+"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml --display-warnings"
 
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
@@ -590,7 +592,7 @@ jobs:
           composer-options: "--prefer-dist"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_sqlite.xml --display-warnings"
 
   upload_coverage:
     name: "Upload coverage to Codecov"
@@ -626,4 +628,4 @@ jobs:
           directory: reports
           fail_ci_if_error: true
         env:
-          CODECOV_TOKEN: "${{ secrets.CODECOV_TOKEN }}"
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

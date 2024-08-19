@@ -27,6 +27,7 @@ final class Types
     public const INTEGER              = 'integer';
     public const JSON                 = 'json';
     public const SIMPLE_ARRAY         = 'simple_array';
+    public const SMALLFLOAT           = 'smallfloat';
     public const SMALLINT             = 'smallint';
     public const STRING               = 'string';
     public const TEXT                 = 'text';

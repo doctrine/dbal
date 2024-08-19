@@ -6,6 +6,24 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 4.1
+
+## Deprecated `TableDiff` methods
+
+The `TableDiff` methods `getModifiedColumns()` and `getRenamedColumns()` have been merged into a single
+method `getChangedColumns()`. Use this method instead.
+
+## Deprecated support for MariaDB 10.4, MySQL 5.7 and Postgres 10 + 11
+
+* Upgrade to MariaDB 10.5 or later.
+* Upgrade to MySQL 8.0 or later.
+* Upgrade to Postgres 12 or later.
+
+## Add `Result::getColumnName()`
+
+Driver and middleware results need to implement a new method `getColumnName()` that gives access to the
+column name. Not doing so is deprecated.
+
 # Upgrade to 4.0
 
 ## BC BREAK: removed `AbstractMySQLPlatform` methods.

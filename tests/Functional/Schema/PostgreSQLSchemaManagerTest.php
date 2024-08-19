@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
@@ -290,6 +291,31 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
+    public function testGeneratedColumn(): void
+    {
+        if (! $this->connection->getDatabasePlatform() instanceof PostgreSQL120Platform) {
+             self::markTestSkipped('Generated columns are not supported in Postgres 11 and earlier');
+        }
+
+        $table = new Table('ddc6198_generated_always_as');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn(
+            'idIsOdd',
+            Types::BOOLEAN,
+            ['columnDefinition' => 'boolean GENERATED ALWAYS AS (id % 2 = 1) STORED', 'notNull' => false],
+        );
+
+        $this->dropAndCreateTable($table);
+
+        $databaseTable = $this->schemaManager->introspectTable($table->getName());
+
+        self::assertTrue(
+            $this->schemaManager->createComparator()
+                ->compareTables($table, $databaseTable)
+                ->isEmpty(),
+        );
+    }
+
     /**
      * PostgreSQL stores BINARY columns as BLOB
      */
@@ -415,6 +441,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_integer', Types::INTEGER, ['default' => -1]);
         $table->addColumn('col_bigint', Types::BIGINT, ['default' => -1]);
         $table->addColumn('col_float', Types::FLOAT, ['default' => -1.1]);
+        $table->addColumn('col_smallfloat', Types::SMALLFLOAT, ['default' => -1.1]);
         $table->addColumn('col_decimal', Types::DECIMAL, [
             'precision' => 2,
             'scale' => 1,
@@ -430,6 +457,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(-1, $columns['col_integer']->getDefault());
         self::assertEquals(-1, $columns['col_bigint']->getDefault());
         self::assertEquals(-1.1, $columns['col_float']->getDefault());
+        self::assertEquals(-1.1, $columns['col_smallfloat']->getDefault());
         self::assertEquals(-1.1, $columns['col_decimal']->getDefault());
         self::assertEquals('(-1)', $columns['col_string']->getDefault());
     }

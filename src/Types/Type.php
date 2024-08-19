@@ -39,6 +39,7 @@ abstract class Type
         Types::INTEGER              => IntegerType::class,
         Types::JSON                 => JsonType::class,
         Types::SIMPLE_ARRAY         => SimpleArrayType::class,
+        Types::SMALLFLOAT           => SmallFloatType::class,
         Types::SMALLINT             => SmallIntType::class,
         Types::STRING               => StringType::class,
         Types::TEXT                 => TextType::class,

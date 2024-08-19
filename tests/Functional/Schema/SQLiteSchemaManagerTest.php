@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -220,9 +221,12 @@ SQL;
 
         self::assertSame(['a'], array_keys($this->schemaManager->listTableColumns('t')));
 
-        $tableDiff = new TableDiff($table, [], [], [], [
-            'a' => new Column('b', Type::getType(Types::INTEGER)),
-        ], [], [], [], [], [], [], []);
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'a' => new ColumnDiff(
+                new Column('a', Type::getType(Types::INTEGER)),
+                new Column('b', Type::getType(Types::INTEGER)),
+            ),
+        ]);
         $this->schemaManager->alterTable($tableDiff);
 
         self::assertSame(['b'], array_keys($this->schemaManager->listTableColumns('t')));

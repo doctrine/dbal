@@ -42,12 +42,26 @@
                 <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
+        <DeprecatedClass>
+            <errorLevel type="suppress">
+                <!--
+                    See https://github.com/doctrine/dbal/pull/6343
+                    TODO: remove in 5.0.0
+                -->
+                <referencedClass name="Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords" />
+                <referencedClass name="Doctrine\DBAL\Platforms\MariaDB1052Platform" />
+                <referencedClass name="Doctrine\DBAL\Platforms\MySQL80Platform" />
+                <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL120Platform" />
+            </errorLevel>
+        </DeprecatedClass>
         <DeprecatedMethod>
             <errorLevel type="suppress">
                 <!--
                     See https://github.com/doctrine/dbal/pull/6202
                     TODO: remove in 4.0.0
                 -->
+                <referencedMethod name="Doctrine\DBAL\Schema\TableDiff::getModifiedColumns" />
+                <referencedMethod name="Doctrine\DBAL\Schema\TableDiff::getRenamedColumns" />
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractMySQLPlatform::getColumnTypeSQLSnippets" />
                 <referencedMethod name="Doctrine\DBAL\Platforms\AbstractMySQLPlatform::getDatabaseNameSQL" />
 
@@ -271,6 +285,8 @@
         </TypeDoesNotContainNull>
         <TypeDoesNotContainType>
             <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/11008 -->
+                <file name="src/Driver/SQLite3/Result.php"/>
                 <!-- Ignore isset() checks in destructors. -->
                 <file name="src/Driver/PgSQL/Connection.php"/>
                 <file name="src/Driver/PgSQL/Statement.php"/>
