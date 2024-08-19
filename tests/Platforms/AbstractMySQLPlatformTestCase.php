@@ -201,28 +201,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         yield 'non temporary' => [false, 'CREATE TABLE mytable (foo VARCHAR(255) NOT NULL)'];
     }
 
-    #[DataProvider('mysqlInvalidTemporaryProvider')]
-    public function testInvalidTemporaryTableOptions(
-        string $table,
-        mixed $temporary,
-        string $expectedException,
-        string $expectedMessage,
-    ): void {
-        $this->expectException($expectedException);
-        $this->expectExceptionMessage($expectedMessage);
+    public function testInvalidTemporaryTableOptions(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid temporary specification for table mytable');
 
-        $table = new Table($table);
-        $table->addOption('temporary', $temporary);
+        $table = new Table('mytable');
+        $table->addOption('temporary', 'invalid');
 
         $table->addColumn('foo', Types::STRING, ['length' => 255]);
 
         $this->platform->getCreateTableSQL($table);
-    }
-
-    public static function mysqlInvalidTemporaryProvider(): Generator
-    {
-        yield 'invalid temporary specification' =>
-        ['mytable', 'invalid', InvalidArgumentException::class, 'invalid temporary specification for table mytable'];
     }
 
     /** @return string[] */

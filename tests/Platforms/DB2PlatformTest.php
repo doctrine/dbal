@@ -478,10 +478,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             $table->addOption('temporary', $temporary);
         }
 
-        if ($onCommit !== null) {
-            $table->addOption('on_commit', $onCommit);
-        }
-
         $table->addColumn('foo', Types::INTEGER);
 
         self::assertEquals(
@@ -502,33 +498,18 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ['declared', 'mytable', 'DECLARE GLOBAL TEMPORARY TABLE mytable (foo INTEGER NOT NULL)'];
     }
 
-    #[DataProvider('db2InvalidTemporaryProvider')]
-    public function testInvalidTemporaryTableOptions(
-        string $table,
-        mixed $temporary,
-        string|null $onCommit,
-        string $expectedException,
-        string $expectedMessage,
-    ): void {
-        $this->expectException($expectedException);
-        $this->expectExceptionMessage($expectedMessage);
+    public function testInvalidTemporaryTableOptions(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid temporary specification for table mytable');
 
-        $table = new Table($table);
-        $table->addOption('temporary', $temporary);
-        if ($onCommit !== null) {
-            $table->addOption('on_commit', $onCommit);
-        }
+        $table = new Table('mytable');
+        $table->addOption('temporary', 'invalid');
 
         $table->addColumn('foo', Types::INTEGER);
 
         $this->platform->getCreateTableSQL($table);
     }
-
-    public static function db2InvalidTemporaryProvider(): Generator
-    {
-        yield 'invalid temporary specification' =>
-        ['mytable', 'invalid', '', InvalidArgumentException::class, 'invalid temporary specification for table mytable'];
-	}
 
     /** @return mixed[][] */
     public static function getGeneratesAlterColumnSQL(): iterable
