@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -219,9 +220,6 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         yield 'temporary, empty on commit option' =>
         [true, '', 'CREATE TEMPORARY TABLE mytable (foo VARCHAR NOT NULL)'];
 
-        yield 'temporary, invalid on commit option' =>
-        [true, 'invalid', 'CREATE TEMPORARY TABLE mytable (foo VARCHAR NOT NULL)'];
-
         yield 'non temporary' => [false, null, 'CREATE TABLE mytable (foo VARCHAR NOT NULL)'];
 
         yield 'temporary, preserve rows on commit' =>
@@ -241,6 +239,37 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
         yield 'non temporary, drop on commit omitted' =>
         [false, 'drop', 'CREATE TABLE mytable (foo VARCHAR NOT NULL)'];
+    }
+
+    #[DataProvider('pgInvalidTemporaryProvider')]
+    public function testInvalidTemporaryTableOptions(
+        string $table,
+        mixed $temporary,
+        string|null $onCommit,
+        string $expectedException,
+        string $expectedMessage,
+    ): void {
+        $this->expectException($expectedException);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $table = new Table($table);
+        $table->addOption('temporary', $temporary);
+        if ($onCommit !== null) {
+            $table->addOption('on_commit', $onCommit);
+        }
+
+        $table->addColumn('foo', 'string');
+
+        $this->platform->getCreateTableSQL($table);
+    }
+
+    public static function pgInvalidTemporaryProvider(): Generator
+    {
+        yield 'valid temporary specification, invalid on commit option' =>
+        ['mytable', true, 'invalid', InvalidArgumentException::class, 'invalid on commit clause on table mytable'];
+
+        yield 'invalid temporary specification' =>
+        ['mytable', 'invalid', '', InvalidArgumentException::class, 'invalid temporary specification for table mytable'];
     }
 
     public function testGenerateUnloggedTable(): void
