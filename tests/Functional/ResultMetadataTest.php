@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use PHPUnit\Framework\Attributes\TestWith;
 
 use function strtolower;
 
@@ -36,7 +37,9 @@ class ResultMetadataTest extends FunctionalTestCase
         self::assertEquals('alternate_name', strtolower($result->getColumnName(1)));
     }
 
-    public function testColumnNameWithInvalidIndex(): void
+    #[TestWith([2])]
+    #[TestWith([-1])]
+    public function testColumnNameWithInvalidIndex(int $index): void
     {
         $sql = 'SELECT test_int, test_int AS alternate_name FROM result_metadata_table';
 
@@ -47,7 +50,7 @@ class ResultMetadataTest extends FunctionalTestCase
 
         $this->expectException(InvalidColumnIndex::class);
 
-        $result->getColumnName(2);
+        $result->getColumnName($index);
     }
 
     public function testColumnNameWithoutResults(): void

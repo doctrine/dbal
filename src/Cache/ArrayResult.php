@@ -88,11 +88,8 @@ final class ArrayResult implements Result
 
     public function getColumnName(int $index): string
     {
-        if ($this->data === [] || $index > count($this->data[0])) {
-            throw InvalidColumnIndex::new($index);
-        }
-
-        return array_keys($this->data[0])[$index];
+        return array_keys($this->data[0] ?? [])[$index]
+            ?? throw InvalidColumnIndex::new($index);
     }
 
     public function free(): void
