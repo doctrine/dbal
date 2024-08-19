@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
@@ -14,6 +15,8 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 use function array_shift;
 
@@ -174,6 +177,52 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL(['version' => false]));
         self::assertEquals('TIMESTAMP', $this->platform->getDateTimeTypeDeclarationSQL(['version' => true]));
         self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL([]));
+    }
+
+    #[DataProvider('mysqlTemporaryProvider')]
+    public function testGenerateTemporaryTable(
+        bool $temporary,
+        string $expectedSQL,
+    ): void {
+        $table = new Table('mytable');
+        $table->addOption('temporary', $temporary);
+
+        $table->addColumn('foo', Types::STRING, ['length' => 255]);
+
+        self::assertEquals(
+            [$expectedSQL],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
+    public static function mysqlTemporaryProvider(): Generator
+    {
+        yield 'temporary' => [true, 'CREATE TEMPORARY TABLE mytable (foo VARCHAR(255) NOT NULL)'];
+        yield 'non temporary' => [false, 'CREATE TABLE mytable (foo VARCHAR(255) NOT NULL)'];
+    }
+
+    #[DataProvider('mysqlInvalidTemporaryProvider')]
+    public function testInvalidTemporaryTableOptions(
+        string $table,
+        mixed $temporary,
+        string $expectedException,
+        string $expectedMessage,
+    ): void {
+        $this->expectException($expectedException);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $table = new Table($table);
+        $table->addOption('temporary', $temporary);
+
+        $table->addColumn('foo', Types::STRING, ['length' => 255]);
+
+        $this->platform->getCreateTableSQL($table);
+    }
+
+    public static function mysqlInvalidTemporaryProvider(): Generator
+    {
+        yield 'invalid temporary specification' =>
+        ['mytable', 'invalid', InvalidArgumentException::class, 'invalid temporary specification for table mytable'];
     }
 
     /** @return string[] */

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Schema\AbstractAsset;
@@ -24,6 +25,7 @@ use function array_values;
 use function count;
 use function implode;
 use function in_array;
+use function is_bool;
 use function is_numeric;
 use function sprintf;
 use function str_replace;
@@ -254,7 +256,15 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         $sql = ['CREATE'];
 
-        if (! empty($options['temporary'])) {
+        $temporary = $options['temporary'] ?? false;
+        if (! is_bool($temporary)) {
+            throw new InvalidArgumentException(sprintf(
+                'invalid temporary specification for table %s',
+                $name,
+            ));
+        }
+
+        if ($temporary === true) {
             $sql[] = 'TEMPORARY';
         }
 
