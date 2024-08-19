@@ -51,6 +51,7 @@
                 <referencedClass name="Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords" />
                 <referencedClass name="Doctrine\DBAL\Platforms\MariaDB1052Platform" />
                 <referencedClass name="Doctrine\DBAL\Platforms\MySQL80Platform" />
+                <referencedClass name="Doctrine\DBAL\Platforms\PostgreSQL120Platform" />
             </errorLevel>
         </DeprecatedClass>
         <DeprecatedMethod>

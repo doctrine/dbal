@@ -71,7 +71,8 @@ class VersionAwarePlatformDriverTest extends TestCase
             ['10.0', PostgreSQLPlatform::class],
             ['11.0', PostgreSQLPlatform::class],
             ['12.0', PostgreSQL120Platform::class],
-            ['13.3', PostgreSQL120Platform::class],
+            ['13.16', PostgreSQL120Platform::class],
+            ['16.4', PostgreSQL120Platform::class],
         ];
     }
 
