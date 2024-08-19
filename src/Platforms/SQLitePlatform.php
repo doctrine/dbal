@@ -32,6 +32,7 @@ use function array_values;
 use function count;
 use function explode;
 use function implode;
+use function is_bool;
 use function sprintf;
 use function str_replace;
 use function strpos;
@@ -293,7 +294,17 @@ class SQLitePlatform extends AbstractPlatform
             $tableComment = $this->getInlineTableCommentSQL($comment);
         }
 
-        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')'];
+        $temporary = $options['temporary'] ?? false;
+        if (! is_bool($temporary)) {
+            throw new \Doctrine\DBAL\Exception\InvalidArgumentException(sprintf(
+                'invalid temporary specification for table %s',
+                $name,
+            ));
+        }
+
+        $temporary = $temporary ? 'TEMPORARY ' : '';
+
+        $query = ['CREATE ' . $temporary . 'TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')'];
 
         if (isset($options['alter']) && $options['alter'] === true) {
             return $query;
