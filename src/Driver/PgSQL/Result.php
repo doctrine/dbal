@@ -55,6 +55,7 @@ final class Result implements ResultInterface
             return false;
         }
 
+        /** @var non-empty-list<mixed>|false $row */
         $row = pg_fetch_row($this->result);
         if ($row === false) {
             return false;
@@ -70,6 +71,7 @@ final class Result implements ResultInterface
             return false;
         }
 
+        /** @var non-empty-array<string,mixed>|false $row */
         $row = pg_fetch_assoc($this->result);
         if ($row === false) {
             return false;
@@ -93,9 +95,12 @@ final class Result implements ResultInterface
 
         $types = $this->fetchNumericColumnTypes();
 
+        /** @var array<non-empty-list<string|null>> $rows */
+        $rows = pg_fetch_all($this->result, PGSQL_NUM);
+
         return array_map(
             fn (array $row) => $this->mapNumericRow($row, $types),
-            pg_fetch_all($this->result, PGSQL_NUM),
+            $rows,
         );
     }
 
@@ -108,9 +113,12 @@ final class Result implements ResultInterface
 
         $types = $this->fetchAssociativeColumnTypes();
 
+        /** @var array<non-empty-array<string, mixed>> $rows */
+        $rows = pg_fetch_all($this->result, PGSQL_ASSOC);
+
         return array_map(
             fn (array $row) => $this->mapAssociativeRow($row, $types),
-            pg_fetch_all($this->result, PGSQL_ASSOC),
+            $rows,
         );
     }
 
@@ -199,10 +207,10 @@ final class Result implements ResultInterface
     }
 
     /**
-     * @param list<string|null>  $row
-     * @param array<int, string> $types
+     * @param non-empty-list<string|null> $row
+     * @param array<int, string>          $types
      *
-     * @return list<mixed>
+     * @return non-empty-list<mixed>
      */
     private function mapNumericRow(array $row, array $types): array
     {
@@ -216,10 +224,10 @@ final class Result implements ResultInterface
     }
 
     /**
-     * @param array<string, string|null> $row
-     * @param array<string, string>      $types
+     * @param non-empty-array<string, string|null> $row
+     * @param array<string, string>                $types
      *
-     * @return array<string, mixed>
+     * @return non-empty-array<string, mixed>
      */
     private function mapAssociativeRow(array $row, array $types): array
     {

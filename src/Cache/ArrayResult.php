@@ -19,7 +19,7 @@ final class ArrayResult implements Result
     private readonly int $columnCount;
     private int $num = 0;
 
-    /** @param list<array<string, mixed>> $data */
+    /** @param list<non-empty-array<string, mixed>> $data */
     public function __construct(private array $data)
     {
         $this->columnCount = $data === [] ? 0 : count($data[0]);
@@ -100,7 +100,7 @@ final class ArrayResult implements Result
         $this->data = [];
     }
 
-    /** @return array<string, mixed>|false */
+    /** @return non-empty-array<string,mixed>|false */
     private function fetch(): array|false
     {
         if (! isset($this->data[$this->num])) {
