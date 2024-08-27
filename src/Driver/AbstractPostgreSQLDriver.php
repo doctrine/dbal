@@ -29,7 +29,7 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
      */
     public function createDatabasePlatformForVersion($version)
     {
-        if (preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts) === 0) {
+        if (preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts) !== 1) {
             throw Exception::invalidPlatformVersionSpecified(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>',

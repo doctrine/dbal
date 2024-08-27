@@ -136,7 +136,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
                 '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
                 $versionString,
                 $versionParts,
-            ) === 0
+            ) !== 1
         ) {
             throw Exception::invalidPlatformVersionSpecified(
                 $versionString,
@@ -182,7 +182,7 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
                 '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
                 $versionString,
                 $versionParts,
-            ) === 0
+            ) !== 1
         ) {
             throw Exception::invalidPlatformVersionSpecified(
                 $versionString,
