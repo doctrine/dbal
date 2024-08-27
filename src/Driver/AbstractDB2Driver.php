@@ -87,7 +87,7 @@ abstract class AbstractDB2Driver implements VersionAwarePlatformDriver
                 '/^(?:[^\s]+\s)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
                 $versionString,
                 $versionParts,
-            ) === 0
+            ) !== 1
         ) {
             throw DBALException::invalidPlatformVersionSpecified(
                 $versionString,
