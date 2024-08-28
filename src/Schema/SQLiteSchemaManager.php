@@ -221,19 +221,22 @@ class SQLiteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
-        preg_match('/^([^()]*)\\s*(\\(((\\d+)(,\\s*(\\d+))?)\\))?/', $tableColumn['type'], $matches);
+        $matchResult = preg_match('/^([^()]*)\\s*(\\(((\\d+)(,\\s*(\\d+))?)\\))?/', $tableColumn['type'], $matches);
+        assert($matchResult === 1);
 
         $dbType = trim(strtolower($matches[1]));
 
-        $length = $precision = $unsigned = null;
+        $length = $precision = null;
         $fixed  = $unsigned = false;
         $scale  = 0;
 
-        if (count($matches) >= 6) {
-            $precision = (int) $matches[4];
-            $scale     = (int) $matches[6];
-        } elseif (count($matches) >= 4) {
-            $length = (int) $matches[4];
+        if (isset($matches[4])) {
+            if (isset($matches[6])) {
+                $precision = (int) $matches[4];
+                $scale     = (int) $matches[6];
+            } else {
+                $length = (int) $matches[4];
+            }
         }
 
         if (str_contains($dbType, ' unsigned')) {
