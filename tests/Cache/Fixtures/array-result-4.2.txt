@@ -1,0 +1,1 @@
+O:31:"Doctrine\DBAL\Cache\ArrayResult":2:{i:0;a:2:{i:0;s:8:"username";i:1;s:6:"active";}i:1;a:2:{i:0;a:2:{i:0;s:5:"jwage";i:1;b:1;}i:1;a:2:{i:0;s:6:"romanb";i:1;b:0;}}}

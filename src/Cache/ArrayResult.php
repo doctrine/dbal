@@ -9,6 +9,9 @@ use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
 
 use function array_combine;
+use function array_keys;
+use function array_map;
+use function array_values;
 use function count;
 
 /** @internal The class is internal to the caching layer implementation. */
@@ -21,8 +24,10 @@ final class ArrayResult implements Result
      * @param list<list<mixed>> $rows        The rows of the result. Each row must have the same number of columns
      *                                       as the number of column names.
      */
-    public function __construct(private readonly array $columnNames, private array $rows)
-    {
+    public function __construct(
+        private readonly array $columnNames,
+        private array $rows,
+    ) {
     }
 
     public function fetchNumeric(): array|false
@@ -94,6 +99,29 @@ final class ArrayResult implements Result
     public function free(): void
     {
         $this->rows = [];
+    }
+
+    /** @return array{list<string>, list<list<mixed>>} */
+    public function __serialize(): array
+    {
+        return [$this->columnNames, $this->rows];
+    }
+
+    /** @param mixed[] $data */
+    public function __unserialize(array $data): void
+    {
+        // Handle objects serialized with DBAL 4.1 and earlier.
+        if (isset($data["\0" . self::class . "\0data"])) {
+            /** @var list<array<string, mixed>> $legacyData */
+            $legacyData = $data["\0" . self::class . "\0data"];
+
+            $this->columnNames = array_keys($legacyData[0] ?? []);
+            $this->rows        = array_map(array_values(...), $legacyData);
+
+            return;
+        }
+
+        [$this->columnNames, $this->rows] = $data;
     }
 
     /** @return list<mixed>|false */
