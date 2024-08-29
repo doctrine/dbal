@@ -8,24 +8,29 @@ use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
 
-use function array_keys;
-use function array_values;
+use function array_combine;
 use function count;
-use function reset;
 
 /** @internal The class is internal to the caching layer implementation. */
 final class ArrayResult implements Result
 {
-    private readonly int $columnCount;
     private int $num = 0;
 
-    /** @param list<array<string, mixed>> $data */
-    public function __construct(private array $data)
+    /**
+     * @param list<string>      $columnNames The names of the result columns. Must be non-empty.
+     * @param list<list<mixed>> $rows        The rows of the result. Each row must have the same number of columns
+     *                                       as the number of column names.
+     */
+    public function __construct(private readonly array $columnNames, private array $rows)
     {
-        $this->columnCount = $data === [] ? 0 : count($data[0]);
     }
 
     public function fetchNumeric(): array|false
+    {
+        return $this->fetch();
+    }
+
+    public function fetchAssociative(): array|false
     {
         $row = $this->fetch();
 
@@ -33,12 +38,7 @@ final class ArrayResult implements Result
             return false;
         }
 
-        return array_values($row);
-    }
-
-    public function fetchAssociative(): array|false
-    {
-        return $this->fetch();
+        return array_combine($this->columnNames, $row);
     }
 
     public function fetchOne(): mixed
@@ -49,7 +49,7 @@ final class ArrayResult implements Result
             return false;
         }
 
-        return reset($row);
+        return $row[0];
     }
 
     /**
@@ -78,32 +78,31 @@ final class ArrayResult implements Result
 
     public function rowCount(): int
     {
-        return count($this->data);
+        return count($this->rows);
     }
 
     public function columnCount(): int
     {
-        return $this->columnCount;
+        return count($this->columnNames);
     }
 
     public function getColumnName(int $index): string
     {
-        return array_keys($this->data[0] ?? [])[$index]
-            ?? throw InvalidColumnIndex::new($index);
+        return $this->columnNames[$index] ?? throw InvalidColumnIndex::new($index);
     }
 
     public function free(): void
     {
-        $this->data = [];
+        $this->rows = [];
     }
 
-    /** @return array<string, mixed>|false */
+    /** @return list<mixed>|false */
     private function fetch(): array|false
     {
-        if (! isset($this->data[$this->num])) {
+        if (! isset($this->rows[$this->num])) {
             return false;
         }
 
-        return $this->data[$this->num++];
+        return $this->rows[$this->num++];
     }
 }

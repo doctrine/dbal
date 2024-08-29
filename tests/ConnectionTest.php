@@ -569,7 +569,7 @@ class ConnectionTest extends TestCase
     {
         $cacheItemMock = $this->createMock(CacheItemInterface::class);
         $cacheItemMock->method('isHit')->willReturn(true);
-        $cacheItemMock->method('get')->willReturn(['realKey' => []]);
+        $cacheItemMock->method('get')->willReturn(['realKey' => [[], []]]);
 
         $resultCacheMock = $this->createMock(CacheItemPoolInterface::class);
 

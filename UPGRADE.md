@@ -6,6 +6,14 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 4.2
+
+## Minor BC break: incompatible query cache format
+
+The query cache format has been changed to address the issue where a cached result with no rows would miss the metadata.
+This change is not backwards compatible. If you are using the query cache, you should clear the cache before the
+upgrade.
+
 # Upgrade to 4.1
 
 ## Deprecated `TableDiff` methods
