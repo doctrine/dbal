@@ -19,6 +19,14 @@ all drivers and middleware.
 * Upgrade to MySQL 8.0 or later.
 * Upgrade to Postgres 12 or later.
 
+# Upgrade to 4.2
+
+## Minor BC break: incompatible query cache format
+
+The query cache format has been changed to address the issue where a cached result with no rows would miss the metadata.
+This change is not backwards compatible. If you are using the query cache, you should clear the cache before the
+upgrade.
+
 # Upgrade to 4.1
 
 ## Deprecated `TableDiff` methods

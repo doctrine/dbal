@@ -19,9 +19,7 @@ use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
 use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 
-use function array_keys;
 use function array_map;
-use function array_values;
 use function assert;
 use function extension_loaded;
 use function file_exists;
@@ -265,11 +263,13 @@ class TestUtil
     /**
      * Generates a query that will return the given rows without the need to create a temporary table.
      *
-     * @param array<int,array<string,mixed>> $rows
+     * @param list<string>      $columnNames The names of the result columns. Must be non-empty.
+     * @param list<list<mixed>> $rows        The rows of the result. Each row must have the same number of columns
+     *                                       as the number of column names.
      */
-    public static function generateResultSetQuery(array $rows, AbstractPlatform $platform): string
+    public static function generateResultSetQuery(array $columnNames, array $rows, AbstractPlatform $platform): string
     {
-        return implode(' UNION ALL ', array_map(static function (array $row) use ($platform): string {
+        return implode(' UNION ALL ', array_map(static function (array $row) use ($columnNames, $platform): string {
             return $platform->getDummySelectSQL(
                 implode(', ', array_map(static function (string $column, $value) use ($platform): string {
                     if (is_string($value)) {
@@ -277,7 +277,7 @@ class TestUtil
                     }
 
                     return $value . ' ' . $platform->quoteIdentifier($column);
-                }, array_keys($row), array_values($row))),
+                }, $columnNames, $row)),
             );
         }, $rows));
     }
