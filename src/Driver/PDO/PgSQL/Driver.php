@@ -7,9 +7,12 @@ namespace Doctrine\DBAL\Driver\PDO\PgSQL;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
+use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
 use PDO;
 use PDOException;
 use SensitiveParameter;
+
+use function is_string;
 
 final class Driver extends AbstractPostgreSQLDriver
 {
@@ -24,6 +27,12 @@ final class Driver extends AbstractPostgreSQLDriver
 
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
+        }
+
+        foreach (['user', 'password'] as $key) {
+            if (isset($params[$key]) && ! is_string($params[$key])) {
+                throw InvalidConfiguration::notAStringOrNull($key, $params[$key]);
+            }
         }
 
         $safeParams = $params;

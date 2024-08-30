@@ -9,10 +9,12 @@ use Doctrine\DBAL\Driver\AbstractSQLServerDriver\Exception\PortWithoutHost;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\Driver\PDO\Exception as PDOException;
+use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
 use PDO;
 use SensitiveParameter;
 
 use function is_int;
+use function is_string;
 use function sprintf;
 
 final class Driver extends AbstractSQLServerDriver
@@ -38,6 +40,12 @@ final class Driver extends AbstractSQLServerDriver
 
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
+        }
+
+        foreach (['user', 'password'] as $key) {
+            if (isset($params[$key]) && ! is_string($params[$key])) {
+                throw InvalidConfiguration::notAStringOrNull($key, $params[$key]);
+            }
         }
 
         $safeParams = $params;

@@ -63,6 +63,9 @@ parameters:
         -
             message: '~^Parameter #1 \$driverOptions of method Doctrine\\DBAL\\Tests\\Functional\\Driver\\Mysqli\\ConnectionTest\:\:getConnection\(\) expects array<string, mixed>, .* given\.$~'
             path: tests/Functional/Driver/Mysqli/ConnectionTest.php
+        -
+            message: '~^Parameter #1 \$params of method Doctrine\\DBAL\\Driver\:\:connect\(\) expects array~'
+            path: tests/Driver/PDO/*/DriverTest.php
 
         # DriverManagerTest::testDatabaseUrl() should be refactored as it's too dynamic.
         -
