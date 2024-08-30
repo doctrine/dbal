@@ -6,8 +6,14 @@ namespace Doctrine\DBAL\Tests\Cache;
 
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
+
+use function assert;
+use function file_get_contents;
+use function serialize;
+use function unserialize;
 
 class ArrayResultTest extends TestCase
 {
@@ -104,5 +110,65 @@ class ArrayResultTest extends TestCase
         self::assertSame('a', $result->getColumnName(1));
 
         self::assertEquals([1, 2], $result->fetchNumeric());
+    }
+
+    public function testSerialize(): void
+    {
+        $result = unserialize(serialize($this->result));
+
+        self::assertSame([
+            [
+                'username' => 'jwage',
+                'active' => true,
+            ],
+            [
+                'username' => 'romanb',
+                'active' => false,
+            ],
+        ], $result->fetchAllAssociative());
+
+        self::assertSame(2, $result->columnCount());
+        self::assertSame('username', $result->getColumnName(0));
+    }
+
+    public function testRowPointerIsNotSerialized(): void
+    {
+        $this->result->fetchAssociative();
+        $result = unserialize(serialize($this->result));
+
+        self::assertSame([
+            'username' => 'jwage',
+            'active' => true,
+        ], $result->fetchAssociative());
+    }
+
+    #[DataProvider('provideSerializedResultFiles')]
+    public function testUnserialize(string $file): void
+    {
+        $serialized = file_get_contents($file);
+        assert($serialized !== false);
+        $result = unserialize($serialized);
+
+        self::assertInstanceOf(ArrayResult::class, $result);
+        self::assertSame([
+            [
+                'username' => 'jwage',
+                'active' => true,
+            ],
+            [
+                'username' => 'romanb',
+                'active' => false,
+            ],
+        ], $result->fetchAllAssociative());
+
+        self::assertSame(2, $result->columnCount());
+        self::assertSame('username', $result->getColumnName(0));
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function provideSerializedResultFiles(): iterable
+    {
+        yield '4.1 format' => [__DIR__ . '/Fixtures/array-result-4.1.txt'];
+        yield '4.2 format' => [__DIR__ . '/Fixtures/array-result-4.2.txt'];
     }
 }
