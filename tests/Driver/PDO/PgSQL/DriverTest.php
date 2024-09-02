@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Driver\PDO\PgSQL;
 
-use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDO;
+use Doctrine\DBAL\Driver\PDO\Exception\InvalidConfiguration;
 use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractPostgreSQLDriverTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -60,7 +60,25 @@ class DriverTest extends AbstractPostgreSQLDriverTestCase
         );
     }
 
-    protected function createDriver(): DriverInterface
+    public function testUserIsFalse(): void
+    {
+        $this->expectException(InvalidConfiguration::class);
+        $this->expectExceptionMessage(
+            'The user configuration parameter is expected to be either a string or null, got bool.',
+        );
+        $this->driver->connect(['user' => false]);
+    }
+
+    public function testPasswordIsFalse(): void
+    {
+        $this->expectException(InvalidConfiguration::class);
+        $this->expectExceptionMessage(
+            'The password configuration parameter is expected to be either a string or null, got bool.',
+        );
+        $this->driver->connect(['password' => false]);
+    }
+
+    protected function createDriver(): Driver
     {
         return new Driver();
     }
