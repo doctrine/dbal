@@ -122,6 +122,7 @@
         <InvalidArgument>
             <errorLevel type="suppress">
                 <!-- We're testing with invalid input here. -->
+                <file name="tests/Driver/PDO/*/DriverTest.php"/>
                 <file name="tests/Functional/Driver/Mysqli/ConnectionTest.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
             </errorLevel>
