@@ -409,7 +409,7 @@ Connect to your Postgres server and run the ``SHOW server_version`` query::
     (1 row)
 
 In the example above, ``15.2 (Debian 15.2-1.pgdg110+1)`` is the correct value for
-``server Version``.
+``serverVersion``.
 
 Other Platforms
 ^^^^^^^^^^^^^^^

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -592,6 +593,56 @@ SQL;
             'int->bigint' => ['integer', 'bigint', 'BIGINT'],
             'bigint->int' => ['bigint', 'integer', 'INT'],
         ];
+    }
+
+    public function testPartitionTable(): void
+    {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS partitioned_table');
+        $this->connection->executeStatement(
+            'CREATE TABLE partitioned_table (id INT) PARTITION BY LIST (id);',
+        );
+        $this->connection->executeStatement('CREATE TABLE partition PARTITION OF partitioned_table FOR VALUES IN (1);');
+        try {
+            $this->schemaManager->introspectTable('partition');
+        } catch (TableDoesNotExist $e) {
+        }
+
+        self::assertNotNull($e ?? null, 'Partition table should not be introspected');
+
+        $tableFrom = $this->schemaManager->introspectTable('partitioned_table');
+
+        $tableTo = $this->schemaManager->introspectTable('partitioned_table');
+        $tableTo->addColumn('foo', Types::INTEGER);
+
+        $platform = $this->connection->getDatabasePlatform();
+        $diff     = $this->schemaManager->createComparator()->compareTables($tableFrom, $tableTo);
+
+        $sql = $platform->getAlterTableSQL($diff);
+        self::assertSame(['ALTER TABLE partitioned_table ADD foo INT NOT NULL'], $sql);
+
+        $this->schemaManager->alterTable($diff);
+
+        $tableFinal = $this->schemaManager->introspectTable('partitioned_table');
+        self::assertTrue($tableFinal->hasColumn('id'));
+        self::assertTrue($tableFinal->hasColumn('foo'));
+
+        $partitionedTableCount = (int) ($this->connection->fetchOne(
+            "select count(*) as count from pg_class where relname = 'partitioned_table' and relkind = 'p'",
+        ));
+        self::assertSame(1, $partitionedTableCount);
+
+        $partitionsCount = (int) ($this->connection->fetchOne(
+            <<<'SQL'
+            select count(*) as count
+            from pg_class parent
+            inner join pg_inherits on pg_inherits.inhparent = parent.oid
+            inner join pg_class child on pg_inherits.inhrelid = child.oid 
+                and child.relkind = 'r'
+                and child.relname = 'partition'
+            where parent.relname = 'partitioned_table' and parent.relkind = 'p';
+            SQL,
+        ));
+        self::assertSame(1, $partitionsCount);
     }
 }
 
