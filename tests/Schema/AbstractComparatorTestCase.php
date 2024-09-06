@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -28,6 +29,13 @@ use function current;
 abstract class AbstractComparatorTestCase extends TestCase
 {
     protected Comparator $comparator;
+
+    protected function setUp(): void
+    {
+        $this->comparator = $this->createComparator();
+    }
+
+    abstract protected function createComparator(?Configuration $configuration = null): Comparator;
 
     public function testCompareSame1(): void
     {
@@ -365,7 +373,7 @@ abstract class AbstractComparatorTestCase extends TestCase
         );
     }
 
-    public function testCompareForeignKeyBasedOnPropertiesNotName(): void
+    public function testDetectForeignKeyNameChange(): void
     {
         $tableA = new Table('foo');
         $tableA->addColumn('id', Types::INTEGER);
@@ -378,6 +386,20 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertEquals(
             new TableDiff($tableA),
             $this->comparator->compareTables($tableA, $tableB),
+        );
+
+        // With enabled name comparison:
+        $configWithEnabledFkNames = new Configuration();
+        $configWithEnabledFkNames->setCompareForeignKeyNames(true);
+        $comparatorEnabledNameComparison = $this->createComparator($configWithEnabledFkNames);
+
+        self::assertEquals(
+            new TableDiff(
+                oldTable: $tableA,
+                addedForeignKeys: [new ForeignKeyConstraint(['id'], 'bar', ['id'], 'bar_constraint')],
+                droppedForeignKeys: [new ForeignKeyConstraint(['id'], 'bar', ['id'], 'foo_constraint')],
+            ),
+            $comparatorEnabledNameComparison->compareTables($tableA, $tableB),
         );
     }
 

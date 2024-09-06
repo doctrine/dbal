@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\LockMode;
@@ -32,7 +33,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     protected function createComparator(): Comparator
     {
-        return new SQLServer\Comparator($this->platform, '');
+        return new SQLServer\Comparator($this->platform, new Configuration(), '');
     }
 
     public function getGenerateTableSql(): string

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms\MySQL;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\Table;
@@ -23,11 +24,12 @@ class Comparator extends BaseComparator
     /** @internal The comparator can be only instantiated by a schema manager. */
     public function __construct(
         AbstractMySQLPlatform $platform,
+        Configuration $configuration,
         private readonly CharsetMetadataProvider $charsetMetadataProvider,
         private readonly CollationMetadataProvider $collationMetadataProvider,
         private readonly DefaultTableOptions $defaultTableOptions,
     ) {
-        parent::__construct($platform);
+        parent::__construct($platform, $configuration);
     }
 
     public function compareTables(Table $oldTable, Table $newTable): TableDiff

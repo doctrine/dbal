@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -40,7 +41,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     protected function createComparator(): Comparator
     {
-        return new Comparator($this->platform);
+        return new Comparator($this->platform, new Configuration());
     }
 
     public function testQuoteIdentifier(): void

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms\SQLServer;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Comparator as BaseComparator;
 use Doctrine\DBAL\Schema\Table;
@@ -17,9 +18,12 @@ use Doctrine\DBAL\Schema\TableDiff;
 class Comparator extends BaseComparator
 {
     /** @internal The comparator can be only instantiated by a schema manager. */
-    public function __construct(SQLServerPlatform $platform, private readonly string $databaseCollation)
-    {
-        parent::__construct($platform);
+    public function __construct(
+        SQLServerPlatform $platform,
+        Configuration $configuration,
+        private readonly string $databaseCollation,
+    ) {
+        parent::__construct($platform, $configuration);
     }
 
     public function compareTables(Table $oldTable, Table $newTable): TableDiff

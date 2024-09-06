@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
@@ -498,7 +499,7 @@ SQL
 
     public function createComparator(): Comparator
     {
-        return new SQLite\Comparator($this->platform);
+        return new SQLite\Comparator($this->platform, new Configuration());
     }
 
     protected function selectTableNames(string $databaseName): Result

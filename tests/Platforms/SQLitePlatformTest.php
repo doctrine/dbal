@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLite;
@@ -30,7 +31,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     protected function createComparator(): Comparator
     {
-        return new SQLite\Comparator($this->platform);
+        return new SQLite\Comparator($this->platform, new Configuration());
     }
 
     public function getGenerateTableSql(): string

@@ -842,7 +842,7 @@ abstract class AbstractSchemaManager
 
     public function createComparator(): Comparator
     {
-        return new Comparator($this->platform);
+        return new Comparator($this->platform, $this->connection->getConfiguration());
     }
 
     /**

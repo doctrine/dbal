@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MySQL;
@@ -689,6 +690,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         return new MySQL\Comparator(
             $this->platform,
+            new Configuration(),
             self::createStub(CharsetMetadataProvider::class),
             self::createStub(CollationMetadataProvider::class),
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),

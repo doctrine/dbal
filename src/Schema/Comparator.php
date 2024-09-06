@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use function array_map;
@@ -17,8 +18,10 @@ use function strtolower;
 class Comparator
 {
     /** @internal The comparator can be only instantiated by a schema manager. */
-    public function __construct(private readonly AbstractPlatform $platform)
-    {
+    public function __construct(
+        private readonly AbstractPlatform $platform,
+        private readonly Configuration $configuration,
+    ) {
     }
 
     /**
@@ -389,6 +392,13 @@ class Comparator
 
     protected function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2): bool
     {
+        if (
+            $this->configuration->getCompareForeignKeyNames()
+            && strtolower($key1->getName()) !== strtolower($key2->getName())
+        ) {
+            return true;
+        }
+
         if (
             array_map('strtolower', $key1->getUnquotedLocalColumns())
             !== array_map('strtolower', $key2->getUnquotedLocalColumns())

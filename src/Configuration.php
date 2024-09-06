@@ -36,6 +36,15 @@ class Configuration
 
     private ?SchemaManagerFactory $schemaManagerFactory = null;
 
+    /**
+     * Whether changes in the foreign key names should be compared.
+     * If you opt-out of this, you need to handle name changes of foreign keys yourself.
+     * Databases created based on the current schema might have different foreign key names
+     * than those migrated from older schemas if you turn this off.
+     * This could lead to incompatible migrations that try to drop non-existent foreign keys.
+     */
+    private bool $compareForeignKeyNames = false;
+
     public function __construct()
     {
         $this->schemaAssetsFilter = static function (): bool {
@@ -152,5 +161,15 @@ class Configuration
         }
 
         return $this;
+    }
+
+    public function getCompareForeignKeyNames(): bool
+    {
+        return $this->compareForeignKeyNames;
+    }
+
+    public function setCompareForeignKeyNames(bool $compareForeignKeyNames): void
+    {
+        $this->compareForeignKeyNames = $compareForeignKeyNames;
     }
 }

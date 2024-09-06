@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
@@ -264,7 +265,7 @@ SQL,
     /** @throws Exception */
     public function createComparator(): Comparator
     {
-        return new SQLServer\Comparator($this->platform, $this->getDatabaseCollation());
+        return new SQLServer\Comparator($this->platform, new Configuration(), $this->getDatabaseCollation());
     }
 
     /** @throws Exception */

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -53,7 +54,7 @@ class ComparatorTest extends FunctionalTestCase
     public function testRenameColumnComparison(): void
     {
         $platform   = $this->connection->getDatabasePlatform();
-        $comparator = new Comparator($platform);
+        $comparator = new Comparator($platform, new Configuration());
 
         $table = new Table('rename_table');
         $table->addColumn('test', Types::STRING, ['default' => 'baz', 'length' => 20]);
