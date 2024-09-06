@@ -107,10 +107,24 @@ abstract class AbstractPlatform
 
     private bool $disableTypeComments = false;
 
+    private bool $compareForeignKeyNames = true;
+
     /** @internal */
     final public function setDisableTypeComments(bool $value): void
     {
         $this->disableTypeComments = $value;
+    }
+
+    /** @internal */
+    final public function setCompareForeignKeyNames(bool $compare): void
+    {
+        $this->compareForeignKeyNames = $compare;
+    }
+
+    /** @internal */
+    public function getCompareForeignKeyNames(): bool
+    {
+        return $this->compareForeignKeyNames;
     }
 
     /**

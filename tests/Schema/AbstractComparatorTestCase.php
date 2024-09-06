@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -686,13 +687,23 @@ class AbstractComparatorTestCase extends TestCase
         $fkA->setLocalTable($tableA);
         $fkB = new ForeignKeyConstraint(['id'], 'bar', ['id'], 'bar_constraint');
         $fkB->setLocalTable($tableB);
-        $tableDiff = new TableDiff(
-            tableName: 'foo',
-            fromTable: $tableA,
-            addedForeignKeys: [$fkB],
-            removedForeignKeys: [$fkA],
-        );
+        $tableDiff = new TableDiff('foo', [], [], [], [], [], [], $tableA, [$fkB], [], [$fkA]);
         self::assertEquals($tableDiff, $this->comparator->compareTables($tableA, $tableB));
+    }
+
+    public function testCompareForeignKeyNameChangeDisabled(): void
+    {
+        $fk1 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1');
+        $fk2 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk2');
+
+        //Not disabled:
+        self::assertTrue($this->comparator->diffForeignKey($fk1, $fk2));
+
+        //Disabled foreign key name comparison:
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform->method('getCompareForeignKeyNames')->willReturn(false);
+        $comparatorDisabledFkName = new Comparator($platform);
+        self::assertFalse($comparatorDisabledFkName->diffForeignKey($fk1, $fk2));
     }
 
     public function testCompareForeignKeyRestrictNoActionAreTheSame(): void

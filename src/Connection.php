@@ -211,6 +211,7 @@ class Connection
             $this->platform = $params['platform'];
             $this->platform->setEventManager($this->_eventManager);
             $this->platform->setDisableTypeComments($config->getDisableTypeComments());
+            $this->platform->setCompareForeignKeyNames($config->getCompareForeignKeyNames());
         }
 
         $this->_expr = $this->createExpressionBuilder();
@@ -318,6 +319,7 @@ class Connection
             $this->platform = $this->detectDatabasePlatform();
             $this->platform->setEventManager($this->_eventManager);
             $this->platform->setDisableTypeComments($this->_config->getDisableTypeComments());
+            $this->platform->setCompareForeignKeyNames($this->_config->getCompareForeignKeyNames());
         }
 
         return $this->platform;

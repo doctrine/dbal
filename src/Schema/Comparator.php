@@ -555,7 +555,10 @@ class Comparator
      */
     public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2)
     {
-        if (strtolower($key1->getName()) !== strtolower($key2->getName())) {
+        if (
+            (!$this->platform || $this->platform->getCompareForeignKeyNames())
+            && strtolower($key1->getName()) !== strtolower($key2->getName())
+        ) {
             return true;
         }
 
