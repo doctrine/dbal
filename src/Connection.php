@@ -179,6 +179,10 @@ class Connection implements ServerVersionProvider
      */
     public function getDatabasePlatform(): AbstractPlatform
     {
+        if (isset($this->params['platform'])) {
+            return $this->platform = $this->params['platform'];
+        }
+
         if ($this->platform === null) {
             $versionProvider = $this;
 

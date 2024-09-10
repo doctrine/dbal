@@ -15,6 +15,7 @@ use Doctrine\DBAL\Exception\DriverRequired;
 use Doctrine\DBAL\Exception\InvalidDriverClass;
 use Doctrine\DBAL\Exception\InvalidWrapperClass;
 use Doctrine\DBAL\Exception\UnknownDriver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use SensitiveParameter;
 
 use function array_keys;
@@ -57,6 +58,7 @@ use function is_a;
  *     password?: string,
  *     path?: string,
  *     persistent?: bool,
+ *     platform?: AbstractPlatform,
  *     port?: int,
  *     primary?: OverrideParams,
  *     replica?: array<OverrideParams>,
