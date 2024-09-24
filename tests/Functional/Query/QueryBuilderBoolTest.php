@@ -49,8 +49,27 @@ final class QueryBuilderBoolTest extends FunctionalTestCase
 
         $qb2 = $this->connection->createQueryBuilder();
         $qb2->select('id')
-            ->from('for_update')
-            ->forUpdate();
+            ->from('for_update');
+
+        self::assertEquals([2], $qb2->fetchFirstColumn());
+    }
+
+    public function testDeleteBooleanTrueWithWrongType(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SQLitePlatform) {
+            self::markTestSkipped('Skipping on SQLite');
+        }
+
+        $qb1 = $this->connection->createQueryBuilder();
+        $qb1->delete('for_update')
+            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(true, Types::BOOLEAN)))
+            ->executeStatement();
+
+        $qb2 = $this->connection->createQueryBuilder();
+        $qb2->select('id')
+            ->from('for_update');
 
         self::assertEquals([2], $qb2->fetchFirstColumn());
     }
@@ -70,8 +89,27 @@ final class QueryBuilderBoolTest extends FunctionalTestCase
 
         $qb2 = $this->connection->createQueryBuilder();
         $qb2->select('id')
-            ->from('for_update')
-            ->forUpdate();
+            ->from('for_update');
+
+        self::assertEquals([1], $qb2->fetchFirstColumn());
+    }
+
+    public function testDeleteBooleanFalseWithWrongType(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SQLitePlatform) {
+            self::markTestSkipped('Skipping on SQLite');
+        }
+
+        $qb1 = $this->connection->createQueryBuilder();
+        $qb1->delete('for_update')
+            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(false, Types::BOOLEAN)))
+            ->executeStatement();
+
+        $qb2 = $this->connection->createQueryBuilder();
+        $qb2->select('id')
+            ->from('for_update');
 
         self::assertEquals([1], $qb2->fetchFirstColumn());
     }
