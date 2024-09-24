@@ -21,8 +21,8 @@ final class QueryBuilderBoolTest extends FunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $this->connection->insert('for_update', ['id' => 1, 'b1' => true]);
-        $this->connection->insert('for_update', ['id' => 2, 'b1' => false]);
+        $this->connection->insert('for_update', ['id' => 1, 'b1' => 1]);
+        $this->connection->insert('for_update', ['id' => 2, 'b1' => 0]);
     }
 
     protected function tearDown(): void
