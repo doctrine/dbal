@@ -44,7 +44,7 @@ final class QueryBuilderBoolTest extends FunctionalTestCase
 
         $qb1 = $this->connection->createQueryBuilder();
         $qb1->delete('for_update')
-            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(true, ParameterType::BOOLEAN)))
+            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(1, ParameterType::BOOLEAN)))
             ->executeStatement();
 
         $qb2 = $this->connection->createQueryBuilder();
@@ -64,7 +64,7 @@ final class QueryBuilderBoolTest extends FunctionalTestCase
 
         $qb1 = $this->connection->createQueryBuilder();
         $qb1->delete('for_update')
-            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(true, Types::BOOLEAN)))
+            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(1, Types::BOOLEAN)))
             ->executeStatement();
 
         $qb2 = $this->connection->createQueryBuilder();
@@ -84,7 +84,7 @@ final class QueryBuilderBoolTest extends FunctionalTestCase
 
         $qb1 = $this->connection->createQueryBuilder();
         $qb1->delete('for_update')
-            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(false, ParameterType::BOOLEAN)))
+            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(0, ParameterType::BOOLEAN)))
             ->executeStatement();
 
         $qb2 = $this->connection->createQueryBuilder();
@@ -104,7 +104,7 @@ final class QueryBuilderBoolTest extends FunctionalTestCase
 
         $qb1 = $this->connection->createQueryBuilder();
         $qb1->delete('for_update')
-            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(false, Types::BOOLEAN)))
+            ->where($qb1->expr()->eq('b1', $qb1->createNamedParameter(0, Types::BOOLEAN)))
             ->executeStatement();
 
         $qb2 = $this->connection->createQueryBuilder();
