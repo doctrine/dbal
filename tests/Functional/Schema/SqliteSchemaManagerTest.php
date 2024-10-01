@@ -7,12 +7,12 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use ReflectionMethod;
 
 use function array_keys;
 use function array_map;
@@ -421,33 +421,58 @@ SQL;
             CREATE INDEX i ON `list_table_no_schema_emulation.test` (parent_id);
             DDL);
 
-        $schemaManager = $this->schemaManager;
-        $refl          = new ReflectionMethod($schemaManager, 'selectTableColumns');
-        $refl->setAccessible(true);
-        $res = $refl->invoke($schemaManager, 'main', 'list_table_no_schema_emulation.test')
-            ->fetchAllAssociative();
+        $customSqliteSchemaManager = new class ($this->connection, $databasePlatform) extends SqliteSchemaManager {
+            /** @return list<array<string, mixed>> */
+            public function selectTableColumnsWithSchema(): array
+            {
+                return $this->selectTableColumns('main', 'list_table_no_schema_emulation.test')
+                    ->fetchAllAssociative();
+            }
 
-        self::assertSame([
-            ['list_table_no_schema_emulation.test', 'id'],
-            ['list_table_no_schema_emulation.test', 'parent_id'],
-        ], array_map(static fn (array $row) => [$row['table_name'], $row['name']], $res));
+            /** @return list<array<string, mixed>> */
+            public function selectIndexColumnsWithSchema(): array
+            {
+                return $this->selectIndexColumns('main', 'list_table_no_schema_emulation.test')
+                    ->fetchAllAssociative();
+            }
 
-        $refl = new ReflectionMethod($schemaManager, 'selectIndexColumns');
-        $refl->setAccessible(true);
-        $res = $refl->invoke($schemaManager, 'main', 'list_table_no_schema_emulation.test')
-            ->fetchAllAssociative();
+            /** @return list<array<string, mixed>> */
+            public function selectForeignKeyColumnsWithSchema(): array
+            {
+                return $this->selectForeignKeyColumns('main', 'list_table_no_schema_emulation.test')
+                    ->fetchAllAssociative();
+            }
+        };
 
-        self::assertSame([
-            ['list_table_no_schema_emulation.test', 'i'],
-        ], array_map(static fn (array $row) => [$row['table_name'], $row['name']], $res));
+        self::assertSame(
+            [
+                ['list_table_no_schema_emulation.test', 'id'],
+                ['list_table_no_schema_emulation.test', 'parent_id'],
+            ],
+            array_map(
+                static fn (array $row) => [$row['table_name'], $row['name']],
+                $customSqliteSchemaManager->selectTableColumnsWithSchema(),
+            ),
+        );
 
-        $refl = new ReflectionMethod($schemaManager, 'selectForeignKeyColumns');
-        $refl->setAccessible(true);
-        $res = $refl->invoke($schemaManager, 'main', 'list_table_no_schema_emulation.test')
-            ->fetchAllAssociative();
+        self::assertSame(
+            [
+                ['list_table_no_schema_emulation.test', 'i'],
+            ],
+            array_map(
+                static fn (array $row) => [$row['table_name'], $row['name']],
+                $customSqliteSchemaManager->selectIndexColumnsWithSchema(),
+            ),
+        );
 
-        self::assertSame([
-            ['list_table_no_schema_emulation.test', 'parent_id', 'id'],
-        ], array_map(static fn (array $row) => [$row['table_name'], $row['from'], $row['to']], $res));
+        self::assertSame(
+            [
+                ['list_table_no_schema_emulation.test', 'parent_id', 'id'],
+            ],
+            array_map(
+                static fn (array $row) => [$row['table_name'], $row['from'], $row['to']],
+                $customSqliteSchemaManager->selectForeignKeyColumnsWithSchema(),
+            ),
+        );
     }
 }
