@@ -204,6 +204,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return true;
     }
 
+    public function supportsSchemas(): bool
+    {
+        return true;
+    }
+
     /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
     public function supportsInlineColumnComments(): bool
     {

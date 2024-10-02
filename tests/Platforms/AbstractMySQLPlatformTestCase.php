@@ -217,6 +217,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
+    public function testGetCreateSchemaSQL(): void
+    {
+        $schemaName = 'schema';
+        $sql        = $this->platform->getCreateSchemaSQL($schemaName);
+        self::assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
+    }
+
     public function testCreateTableWithFulltextIndex(): void
     {
         $table = new Table('fulltext_table');
