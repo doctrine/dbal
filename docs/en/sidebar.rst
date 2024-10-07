@@ -19,6 +19,7 @@
    /reference/portability
    /reference/caching
    /reference/known-vendor-issues
+   /reference/cli-tools
    /reference/testing
 
 
