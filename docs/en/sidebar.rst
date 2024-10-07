@@ -1,3 +1,4 @@
+:orphan:
 .. toc::
 
    .. tocheader:: Reference
