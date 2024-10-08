@@ -15,12 +15,8 @@ use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use function array_map;
 use function assert;
 use function count;
-use function crc32;
-use function dechex;
 use function implode;
 use function str_replace;
-use function strtoupper;
-use function substr;
 
 /**
  * The abstract asset allows to reset the name of all assets without publishing this to the public userland.
@@ -127,26 +123,5 @@ abstract class AbstractAsset
             static fn (Identifier $identifier): string => $identifier->getValue(),
             $this->identifiers,
         ));
-    }
-
-    /**
-     * Generates an identifier from a list of column names obeying a certain string length.
-     *
-     * This is especially important for Oracle, since it does not allow identifiers larger than 30 chars,
-     * however building idents automatically for foreign keys, composite keys or such can easily create
-     * very long names.
-     *
-     * @param array<int, string> $columnNames
-     * @param positive-int       $maxSize
-     *
-     * @return non-empty-string
-     */
-    protected function _generateIdentifierName(array $columnNames, string $prefix = '', int $maxSize = 30): string
-    {
-        $hash = implode('', array_map(static function ($column): string {
-            return dechex(crc32($column));
-        }, $columnNames));
-
-        return strtoupper(substr($prefix . '_' . $hash, 0, $maxSize));
     }
 }
