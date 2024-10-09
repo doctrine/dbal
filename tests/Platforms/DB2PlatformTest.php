@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
@@ -14,6 +15,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /** @extends AbstractPlatformTestCase<DB2Platform> */
@@ -463,6 +465,50 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         }
 
         self::assertSame($expectedSQL, $this->platform->getAlterTableSQL($tableDiff));
+    }
+
+    #[DataProvider('db2TemporaryProvider')]
+    public function testGenerateTemporaryTable(
+        string|null $temporary,
+        string $table,
+        string $expectedSQL,
+    ): void {
+        $table = new Table($table);
+        if ($temporary !== null) {
+            $table->addOption('temporary', $temporary);
+        }
+
+        $table->addColumn('foo', Types::INTEGER);
+
+        self::assertEquals(
+            [$expectedSQL],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
+    public static function db2TemporaryProvider(): Generator
+    {
+        yield 'null temporary' => [null, 'mytable', 'CREATE TABLE mytable (foo INTEGER NOT NULL)'];
+        yield 'empty temporary' => ['', 'mytable', 'CREATE TABLE mytable (foo INTEGER NOT NULL)'];
+
+        yield 'created temporary' =>
+        ['created', 'mytable', 'CREATE GLOBAL TEMPORARY TABLE mytable (foo INTEGER NOT NULL)'];
+
+        yield 'declared temporary' =>
+        ['declared', 'mytable', 'DECLARE GLOBAL TEMPORARY TABLE mytable (foo INTEGER NOT NULL)'];
+    }
+
+    public function testInvalidTemporaryTableOptions(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('invalid temporary specification for table mytable');
+
+        $table = new Table('mytable');
+        $table->addOption('temporary', 'invalid');
+
+        $table->addColumn('foo', Types::INTEGER);
+
+        $this->platform->getCreateTableSQL($table);
     }
 
     /** @return mixed[][] */

@@ -93,7 +93,32 @@ and absolutely not portable.
 -  **engine** (string): The DB engine used for the table. Currently only supported on MySQL.
 
 -  **unlogged** (boolean): Set a PostgreSQL table type as
-  `unlogged <https://www.postgresql.org/docs/current/sql-createtable.htmll>`_
+   `unlogged <https://www.postgresql.org/docs/current/sql-createtable.html#SQL-CREATETABLE-UNLOGGED>`_
+
+-  **temporary** (boolean or string): Set table type as temporary
+   Supported on DB2, MySQL, MariaDB, Oracle, PostgreSQL and SQLite.  SQL Server does not have a specific DML for temporary tables.
+
+   Option values for MySQL, MariaDB, PostgreSQL and SQLite:
+
+   - ``true`` (bool)
+   - ``false`` (bool)
+
+   Option values for Oracle:
+
+   - ``global`` (string): emits CREATE GLOBAL TEMPORARY TABLE statement
+   - ``private`` (string): emits CREATE PRIVATE TEMPORARY TABLE statement, table name must begin with PRIVATE_TEMP_TABLE_PREFIX, default 'ORA$PTT'
+
+   Option values for DB2:
+
+   - ``created`` (string): emits CREATE GLOBAL TEMPORARY TABLE statement
+   - ``declared`` (string): emits DECLARE GLOBAL TEMPORARY TABLE statement
+
+-  **on_commit** (string): declare table's commit options, only used if option **temporary** is set.
+   Supported on Oracle and PostgreSQL
+   
+   - ``preserve``: preserve rows on commit
+   - ``delete``: delete rows on commit
+   - ``drop``: drop table on commit - only supported by PostgreSQL
 
 Column
 ~~~~~~

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
@@ -20,6 +21,8 @@ use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\Types;
 
 use function array_merge;
+use function array_unique;
+use function array_values;
 use function count;
 use function current;
 use function explode;
@@ -241,20 +244,50 @@ class DB2Platform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
-        $indexes = [];
-        if (isset($options['indexes'])) {
-            $indexes = $options['indexes'];
+        $columnListSql = $this->getColumnDeclarationListSQL($columns);
+
+        if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
+            foreach ($options['uniqueConstraints'] as $definition) {
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
+            }
         }
 
-        $options['indexes'] = [];
-
-        $sqls = parent::_getCreateTableSQL($name, $columns, $options);
-
-        foreach ($indexes as $definition) {
-            $sqls[] = $this->getCreateIndexSQL($definition, $name);
+        if (isset($options['primary']) && ! empty($options['primary'])) {
+            $columnListSql .= ', PRIMARY KEY(' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
-        return $sqls;
+        $statement = match ($options['temporary'] ?? '') {
+            '' => 'CREATE TABLE ',
+            'created' => 'CREATE GLOBAL TEMPORARY TABLE ',
+            'declared' => 'DECLARE GLOBAL TEMPORARY TABLE ',
+            default => throw new InvalidArgumentException(sprintf(
+                'invalid temporary specification for table %s',
+                $name,
+            ))
+        };
+
+        $query = $statement . $name . ' (' . $columnListSql;
+        $check = $this->getCheckDeclarationSQL($columns);
+
+        if (! empty($check)) {
+            $query .= ', ' . $check;
+        }
+
+        $query .= ')';
+
+        $sql = [$query];
+
+        if (isset($options['foreignKeys'])) {
+            foreach ($options['foreignKeys'] as $definition) {
+                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
+            }
+        }
+
+        foreach ($options['indexes'] ?? [] as $definition) {
+            $sql[] = $this->getCreateIndexSQL($definition, $name);
+        }
+
+        return $sql;
     }
 
     /**

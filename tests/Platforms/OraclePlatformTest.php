@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -15,6 +16,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 use function sprintf;
@@ -121,6 +123,100 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function testSupportsSavePoints(): void
     {
         self::assertTrue($this->platform->supportsSavepoints());
+    }
+
+    #[DataProvider('oraTemporaryProvider')]
+    public function testGenerateTemporaryTable(
+        string|null $temporary,
+        string|null $onCommit,
+        string $table,
+        string $expectedSQL,
+    ): void {
+        $table = new Table($table);
+        if ($temporary !== null) {
+            $table->addOption('temporary', $temporary);
+        }
+
+        if ($onCommit !== null) {
+            $table->addOption('on_commit', $onCommit);
+        }
+
+        $table->addColumn('foo', Types::INTEGER);
+
+        self::assertEquals(
+            [$expectedSQL],
+            $this->platform->getCreateTableSQL($table),
+        );
+    }
+
+    public static function oraTemporaryProvider(): Generator
+    {
+        yield 'null temporary' => [null, null, 'mytable', 'CREATE TABLE mytable (foo NUMBER(10) NOT NULL)'];
+        yield 'empty temporary' => ['', null, 'mytable', 'CREATE TABLE mytable (foo NUMBER(10) NOT NULL)'];
+
+        yield 'global temporary, no on commit option' =>
+        ['global', null, 'mytable', 'CREATE GLOBAL TEMPORARY TABLE mytable (foo NUMBER(10) NOT NULL)'];
+
+        yield 'global temporary, empty on commit option' =>
+        ['global', '', 'mytable', 'CREATE GLOBAL TEMPORARY TABLE mytable (foo NUMBER(10) NOT NULL)'];
+
+        yield 'global temporary, preserve rows on commit' =>
+        ['global', 'preserve', 'mytable', 'CREATE GLOBAL TEMPORARY TABLE mytable (foo NUMBER(10) NOT NULL) ON COMMIT PRESERVE ROWS'];
+
+        yield 'global temporary, delete rows on commit' =>
+        ['global', 'delete', 'mytable', 'CREATE GLOBAL TEMPORARY TABLE mytable (foo NUMBER(10) NOT NULL) ON COMMIT DELETE ROWS'];
+
+        yield 'private temporary, no on commit option' =>
+        ['private', null, 'ORA$PTT', 'CREATE PRIVATE TEMPORARY TABLE ORA$PTT (foo NUMBER(10) NOT NULL)'];
+
+        yield 'private temporary, empty on commit option' =>
+        ['private', '', 'ORA$PTT', 'CREATE PRIVATE TEMPORARY TABLE ORA$PTT (foo NUMBER(10) NOT NULL)'];
+
+        yield 'private temporary, preserve rows on commit' =>
+        ['private', 'preserve', 'ORA$PTT', 'CREATE PRIVATE TEMPORARY TABLE ORA$PTT (foo NUMBER(10) NOT NULL) ON COMMIT PRESERVE ROWS'];
+
+        yield 'private temporary, delete rows on commit' =>
+        ['private', 'delete', 'ORA$PTT', 'CREATE PRIVATE TEMPORARY TABLE ORA$PTT (foo NUMBER(10) NOT NULL) ON COMMIT DELETE ROWS'];
+
+        yield 'non temporary, preserve rows on commit omitted' =>
+        [null, 'preserve', 'mytable', 'CREATE TABLE mytable (foo NUMBER(10) NOT NULL)'];
+
+        yield 'non temporary, delete rows on commit omitted' =>
+        [null, 'delete', 'mytable', 'CREATE TABLE mytable (foo NUMBER(10) NOT NULL)'];
+    }
+
+    #[DataProvider( 'oraInvalidTemporaryProvider' )]
+    public function testInvalidTemporaryTableOptions(
+        string $table,
+        mixed $temporary,
+        string|null $onCommit,
+        string $expectedException,
+        string $expectedMessage,
+    ): void {
+        $this->expectException($expectedException);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $table = new Table($table);
+        $table->addOption('temporary', $temporary);
+        if ($onCommit !== null) {
+            $table->addOption('on_commit', $onCommit);
+        }
+
+        $table->addColumn('foo', Types::INTEGER);
+
+        $this->platform->getCreateTableSQL($table);
+    }
+
+    public static function oraInvalidTemporaryProvider(): Generator
+    {
+        yield 'valid temporary specification, invalid on commit option' =>
+        ['mytable', 'global', 'invalid', InvalidArgumentException::class, 'invalid on commit clause on table mytable'];
+
+        yield 'invalid temporary specification' =>
+        ['mytable', 'invalid', '', InvalidArgumentException::class, 'invalid temporary specification for table mytable'];
+
+        yield 'invalid table name for private temporary table' =>
+        ['mytable', 'private', '', InvalidArgumentException::class, 'invalid name "mytable" for private temporary table'];
     }
 
     protected function supportsCommentOnStatement(): bool

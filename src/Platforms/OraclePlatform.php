@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
@@ -17,15 +18,18 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
-use InvalidArgumentException;
 
 use function array_merge;
+use function array_unique;
+use function array_values;
 use function count;
 use function explode;
 use function implode;
 use function sprintf;
 use function str_contains;
+use function str_starts_with;
 use function strlen;
+use function strtolower;
 use function strtoupper;
 use function substr;
 
@@ -313,9 +317,62 @@ class OraclePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
-        $indexes            = $options['indexes'] ?? [];
-        $options['indexes'] = [];
-        $sql                = parent::_getCreateTableSQL($name, $columns, $options);
+        $columnListSql = $this->getColumnDeclarationListSQL($columns);
+
+        if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
+            foreach ($options['uniqueConstraints'] as $definition) {
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
+            }
+        }
+
+        if (isset($options['primary']) && ! empty($options['primary'])) {
+            $columnListSql .= ', PRIMARY KEY(' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+        }
+
+        $temporary = match ($options['temporary'] ?? '') {
+            '' => '',
+            'global' => 'GLOBAL TEMPORARY ',
+            'private' => 'PRIVATE TEMPORARY ',
+            default => throw new InvalidArgumentException(sprintf(
+                'invalid temporary specification for table %s',
+                $name,
+            ))
+        };
+
+        if (($options['temporary'] ?? '') === 'private' && str_starts_with('ora$ptt_', strtolower($name)) === false) {
+            throw new InvalidArgumentException(sprintf(
+                'invalid name "%s" for private temporary table',
+                $name,
+            ));
+        }
+
+        $onCommit = $temporary !== ''
+            ? match ($options['on_commit'] ?? '') {
+                '' => '',
+                'preserve' => ' ON COMMIT PRESERVE ROWS',
+                'delete' => ' ON COMMIT DELETE ROWS',
+                default =>             throw new InvalidArgumentException(sprintf(
+                    'invalid on commit clause on table %s',
+                    $name,
+                ))
+            } : '';
+
+        $query = 'CREATE ' . $temporary . 'TABLE ' . $name . ' (' . $columnListSql;
+        $check = $this->getCheckDeclarationSQL($columns);
+
+        if (! empty($check)) {
+            $query .= ', ' . $check;
+        }
+
+        $query .= ')' . $onCommit;
+
+        $sql = [$query];
+
+        if (isset($options['foreignKeys'])) {
+            foreach ($options['foreignKeys'] as $definition) {
+                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
+            }
+        }
 
         foreach ($columns as $column) {
             if (isset($column['sequence'])) {
@@ -331,7 +388,7 @@ class OraclePlatform extends AbstractPlatform
             $sql = array_merge($sql, $this->getCreateAutoincrementSql($column['name'], $name));
         }
 
-        foreach ($indexes as $index) {
+        foreach ($options['indexes'] as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $name);
         }
 

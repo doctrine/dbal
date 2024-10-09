@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -383,9 +384,31 @@ class PostgreSQLPlatform extends AbstractPlatform
             $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
+        $temporary = $options['temporary'] ?? false;
+        if (! is_bool($temporary)) {
+            throw new InvalidArgumentException(sprintf(
+                'invalid temporary specification for table %s',
+                $name,
+            ));
+        }
+
+        $onCommit = $temporary
+            ? match ($options['on_commit'] ?? '') {
+            '' => '',
+            'preserve' => ' ON COMMIT PRESERVE ROWS',
+            'delete' => ' ON COMMIT DELETE ROWS',
+            'drop' => ' ON COMMIT DROP',
+            default =>             throw new InvalidArgumentException(sprintf(
+                'invalid on commit clause on table %s',
+                $name,
+            ))
+            } : '';
+
+        $temporary = $temporary ? ' TEMPORARY' : '';
+
         $unlogged = isset($options['unlogged']) && $options['unlogged'] === true ? ' UNLOGGED' : '';
 
-        $query = 'CREATE' . $unlogged . ' TABLE ' . $name . ' (' . $queryFields . ')';
+        $query = 'CREATE' . $temporary . $unlogged . ' TABLE ' . $name . ' (' . $queryFields . ')' . $onCommit;
 
         $sql = [$query];
 
