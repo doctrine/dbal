@@ -12,6 +12,7 @@ use Doctrine\DBAL\Exception\InvalidColumnType;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnPrecisionRequired;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnScaleRequired;
+use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
@@ -51,6 +52,8 @@ use function is_bool;
 use function is_float;
 use function is_int;
 use function is_string;
+use function max;
+use function mb_strlen;
 use function preg_quote;
 use function preg_replace;
 use function sprintf;
@@ -188,6 +191,25 @@ abstract class AbstractPlatform
         } catch (InvalidColumnType $e) {
             throw InvalidColumnDeclaration::fromInvalidColumnType($column['name'], $e);
         }
+    }
+
+    /**
+     * Returns the SQL snippet to declare an ENUM column.
+     *
+     * Enum is a non-standard type that is especially popular in MySQL and MariaDB. By default, this method map to
+     * a simple VARCHAR field which allows us to deploy it on any platform, e.g. SQLite.
+     *
+     * @param array<string, mixed> $column
+     *
+     * @throws ColumnValuesRequired If the column definition does not contain any values.
+     */
+    public function getEnumDeclarationSQL(array $column): string
+    {
+        if (! isset($column['values']) || ! is_array($column['values']) || $column['values'] === []) {
+            throw ColumnValuesRequired::new($this, 'ENUM');
+        }
+
+        return $this->getStringTypeDeclarationSQL(['length' => max(...array_map(mb_strlen(...), $column['values']))]);
     }
 
     /**

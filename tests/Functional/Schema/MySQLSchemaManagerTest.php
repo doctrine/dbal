@@ -561,7 +561,10 @@ SQL;
         $doctrineTypes = array_keys(Type::getTypesMap());
 
         foreach ($doctrineTypes as $type) {
-            $table->addColumn('col_' . $type, $type, ['length' => 8, 'precision' => 8, 'scale' => 2]);
+            $table->addColumn('col_' . $type, $type, match ($type) {
+                Types::ENUM => ['values' => ['foo', 'bar']],
+                default => ['length' => 8, 'precision' => 8, 'scale' => 2],
+            });
         }
 
         $this->dropAndCreateTable($table);
