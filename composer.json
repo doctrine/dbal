@@ -40,7 +40,7 @@
         "doctrine/coding-standard": "12.0.0",
         "fig/log-test": "^1",
         "jetbrains/phpstorm-stubs": "2023.2",
-        "phpstan/phpstan": "1.12.0",
+        "phpstan/phpstan": "1.12.6",
         "phpstan/phpstan-phpunit": "1.4.0",
         "phpstan/phpstan-strict-rules": "^1.6",
         "phpunit/phpunit": "10.5.30",
