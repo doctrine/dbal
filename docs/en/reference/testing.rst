@@ -85,7 +85,7 @@ We do not currently have specific instructions on how to run a Database
 server, but we do recommend Docker as a convenient way to do so.
 We do not recommend running against a particular version of the chosen
 RDBMS either, as long as you pick one of the
-:doc:`officially supported versions <reference/platforms>`.
+:doc:`officially supported versions <platforms>`.
 
 Recommendations on Writing Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
