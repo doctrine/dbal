@@ -293,6 +293,14 @@
                 <file name="src/Driver/PgSQL/Statement.php"/>
             </errorLevel>
         </TypeDoesNotContainType>
+        <UndefinedClass>
+            <errorLevel type="suppress">
+                <!-- New PDO classes introduced in PHP 8.4 -->
+                <referencedClass name="Pdo\Mysql"/>
+                <referencedClass name="Pdo\Pgsql"/>
+                <referencedClass name="Pdo\Sqlite"/>
+            </errorLevel>
+        </UndefinedClass>
         <UndefinedDocblockClass>
             <errorLevel type="suppress">
                 <!-- See https://github.com/vimeo/psalm/issues/5472 -->
@@ -304,6 +312,12 @@
                 <referencedClass name="OCILob"/>
             </errorLevel>
         </UndefinedDocblockClass>
+        <UndefinedMethod>
+            <errorLevel type="suppress">
+                <!-- New PDO static constructor introduced in PHP 8.4 -->
+                <referencedMethod name="PDO::connect"/>
+            </errorLevel>
+        </UndefinedMethod>
         <UnsupportedPropertyReferenceUsage>
             <errorLevel type="suppress">
                 <!-- This code is valid -->
