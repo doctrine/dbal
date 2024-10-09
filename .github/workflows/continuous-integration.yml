@@ -239,7 +239,6 @@ jobs:
           - php-version: "8.4"
             postgres-version: "16"
             extension: "pgsql"
-            extension: "pdo_pgsql"
           - php-version: "8.4"
             postgres-version: "16"
             extension: "pdo_pgsql"
