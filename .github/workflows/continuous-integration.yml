@@ -40,6 +40,7 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
+          - "8.4"
         dependencies:
           - "highest"
         extension:
@@ -107,6 +108,9 @@ jobs:
           - "18"
           - "21"
           - "23"
+        include:
+          - php-version: "8.4"
+            oracle-version: "23"
 
     services:
       oracle:
@@ -164,6 +168,9 @@ jobs:
           - "18"
           - "21"
           - "23"
+        include:
+          - php-version: "8.4"
+            oracle-version: "23"
 
     services:
       oracle:
@@ -227,6 +234,13 @@ jobs:
             postgres-version: "16"
             extension: "pgsql"
           - php-version: "8.3"
+            postgres-version: "16"
+            extension: "pgsql"
+          - php-version: "8.4"
+            postgres-version: "16"
+            extension: "pgsql"
+            extension: "pdo_pgsql"
+          - php-version: "8.4"
             postgres-version: "16"
             extension: "pdo_pgsql"
 
@@ -297,6 +311,12 @@ jobs:
             mariadb-version: "11.4"
             extension: "mysqli"
           - php-version: "8.3"
+            mariadb-version: "11.4"
+            extension: "pdo_mysql"
+          - php-version: "8.4"
+            mariadb-version: "11.4"
+            extension: "mysqli"
+          - php-version: "8.4"
             mariadb-version: "11.4"
             extension: "pdo_mysql"
 
@@ -381,6 +401,12 @@ jobs:
             extension: "pdo_mysql"
             custom-entrypoint: >-
               --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
+          - php-version: "8.4"
+            mysql-version: "9.0"
+            extension: "mysqli"
+          - php-version: "8.4"
+            mysql-version: "9.0"
+            extension: "pdo_mysql"
 
     services:
       mysql:
@@ -438,6 +464,7 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
+          - "8.4"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -505,6 +532,7 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
+          - "8.4"
 
     services:
       ibm_db2:
