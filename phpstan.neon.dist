@@ -111,6 +111,10 @@ parameters:
         -
             message: '#^Parameter \#2 \$callback of function array_reduce expects callable\(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null, callable\(T\)\: T\)\: \(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null\), Closure\(callable\|null, callable\)\: \(callable\(T\)\: T\) given\.$#'
             path: src/Portability/Converter.php
+
+        # PHPStan does not know the new PDO classes yet.
+        - '~^Class Pdo\\\w+ not found\.$~'
+        - '~^Call to an undefined static method PDO\:\:connect\(\)\.$~'
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
