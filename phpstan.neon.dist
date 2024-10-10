@@ -115,6 +115,10 @@ parameters:
         # Type check for legacy implementations of the Result interface
         # TODO: remove in 5.0.0
         - '~^Call to function method_exists\(\) with Doctrine\\DBAL\\Driver\\Result and ''getColumnName'' will always evaluate to true\.$~'
+
+        # PHPStan does not know the new PDO classes yet.
+        - '~^Class Pdo\\\w+ not found\.$~'
+        - '~^Call to an undefined static method PDO\:\:connect\(\)\.$~'
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
