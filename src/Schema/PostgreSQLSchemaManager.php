@@ -154,8 +154,6 @@ SQL,
 
     /**
      * {@inheritDoc}
-     *
-     * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
     protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
     {
