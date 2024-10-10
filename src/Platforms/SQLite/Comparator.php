@@ -20,7 +20,7 @@ use function strcasecmp;
 class Comparator extends BaseComparator
 {
     /** @internal The comparator can be only instantiated by a schema manager. */
-    public function __construct(SQLitePlatform $platform, ComparatorConfig $config)
+    public function __construct(SQLitePlatform $platform, ComparatorConfig $config = new ComparatorConfig())
     {
         parent::__construct($platform, $config);
     }

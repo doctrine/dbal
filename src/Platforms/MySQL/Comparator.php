@@ -27,7 +27,7 @@ class Comparator extends BaseComparator
         private readonly CharsetMetadataProvider $charsetMetadataProvider,
         private readonly CollationMetadataProvider $collationMetadataProvider,
         private readonly DefaultTableOptions $defaultTableOptions,
-        ComparatorConfig $config,
+        ComparatorConfig $config = new ComparatorConfig(),
     ) {
         parent::__construct($platform, $config);
     }

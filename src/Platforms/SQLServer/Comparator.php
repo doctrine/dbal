@@ -21,7 +21,7 @@ class Comparator extends BaseComparator
     public function __construct(
         SQLServerPlatform $platform,
         private readonly string $databaseCollation,
-        ComparatorConfig $config,
+        ComparatorConfig $config = new ComparatorConfig(),
     ) {
         parent::__construct($platform, $config);
     }
