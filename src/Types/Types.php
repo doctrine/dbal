@@ -23,6 +23,7 @@ final class Types
     public const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
     public const DECIMAL              = 'decimal';
     public const FLOAT                = 'float';
+    public const ENUM                 = 'enum';
     public const GUID                 = 'guid';
     public const INTEGER              = 'integer';
     public const JSON                 = 'json';

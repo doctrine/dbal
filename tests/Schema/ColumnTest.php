@@ -52,6 +52,7 @@ class ColumnTest extends TestCase
             'autoincrement' => false,
             'columnDefinition' => null,
             'comment' => '',
+            'values' => [],
             'foo' => 'bar',
         ];
 
