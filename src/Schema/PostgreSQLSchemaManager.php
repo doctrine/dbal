@@ -453,8 +453,21 @@ SQL;
 
         $conditions = array_merge([
             'a.attnum > 0',
-            "c.relkind = 'r'",
             'd.refobjid IS NULL',
+
+            // 'r' for regular tables - 'p' for partitioned tables
+            "c.relkind IN('r', 'p')",
+
+            // exclude partitions (tables that inherit from partitioned tables)
+            <<<'SQL'
+            NOT EXISTS (
+                SELECT 1 
+                FROM pg_inherits 
+                INNER JOIN pg_class parent on pg_inherits.inhparent = parent.oid 
+                    AND parent.relkind = 'p' 
+                WHERE inhrelid = c.oid
+            )
+            SQL,
         ], $this->buildQueryConditions($tableName));
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY a.attnum';

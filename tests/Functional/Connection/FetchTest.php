@@ -17,19 +17,10 @@ class FetchTest extends FunctionalTestCase
 
     public function setUp(): void
     {
-        $this->query = TestUtil::generateResultSetQuery([
-            [
-                'a' => 'foo',
-                'b' => 1,
-            ],
-            [
-                'a' => 'bar',
-                'b' => 2,
-            ],
-            [
-                'a' => 'baz',
-                'b' => 3,
-            ],
+        $this->query = TestUtil::generateResultSetQuery(['a', 'b'], [
+            ['foo', 1],
+            ['bar', 2],
+            ['baz', 3],
         ], $this->connection->getDatabasePlatform());
     }
 

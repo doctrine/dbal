@@ -17,6 +17,7 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
+use function array_map;
 use function assert;
 use function explode;
 use function func_get_arg;
@@ -24,6 +25,7 @@ use function func_num_args;
 use function implode;
 use function is_string;
 use function preg_match;
+use function preg_match_all;
 use function str_contains;
 use function strtok;
 use function strtolower;
@@ -136,6 +138,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
         $type = $this->platform->getDoctrineTypeMapping($dbType);
 
+        $values = [];
+
         switch ($dbType) {
             case 'char':
             case 'binary':
@@ -194,6 +198,10 @@ class MySQLSchemaManager extends AbstractSchemaManager
             case 'year':
                 $length = null;
                 break;
+
+            case 'enum':
+                $values = $this->parseEnumExpression($tableColumn['type']);
+                break;
         }
 
         if ($this->platform instanceof MariaDBPlatform) {
@@ -211,6 +219,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
             'scale'         => $scale,
             'precision'     => $precision,
             'autoincrement' => str_contains($tableColumn['extra'], 'auto_increment'),
+            'values'        => $values,
         ];
 
         if (isset($tableColumn['comment'])) {
@@ -228,6 +237,18 @@ class MySQLSchemaManager extends AbstractSchemaManager
         }
 
         return $column;
+    }
+
+    /** @return list<string> */
+    private function parseEnumExpression(string $expression): array
+    {
+        $result = preg_match_all("/'([^']*(?:''[^']*)*)'/", $expression, $matches);
+        assert($result !== false);
+
+        return array_map(
+            static fn (string $match): string => strtr($match, ["''" => "'"]),
+            $matches[1],
+        );
     }
 
     /**

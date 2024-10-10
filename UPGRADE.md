@@ -6,6 +6,22 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 4.2
+
+## Support for new PDO subclasses on PHP 8.4
+
+On PHP 8.4, if you call `getNativeConnection()` on a connection established through one of the PDO drivers,
+you will get an instance of the new PDO subclasses, e.g. `Pdo\Mysql` or `Pdo\Ppgsql` instead of just `PDO`.
+
+However, this currently does not apply to persistent connections.
+See https://github.com/php/php-src/issues/16314 for details.
+
+## Minor BC break: incompatible query cache format
+
+The query cache format has been changed to address the issue where a cached result with no rows would miss the metadata.
+This change is not backwards compatible. If you are using the query cache, you should clear the cache before the
+upgrade.
+
 # Upgrade to 4.1
 
 ## Deprecated `TableDiff` methods

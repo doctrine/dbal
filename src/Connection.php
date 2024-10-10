@@ -810,16 +810,23 @@ class Connection implements ServerVersionProvider
                 $value = [];
             }
 
-            if (isset($value[$realKey])) {
-                return new Result(new ArrayResult($value[$realKey]), $this);
+            if (isset($value[$realKey]) && $value[$realKey] instanceof ArrayResult) {
+                return new Result($value[$realKey], $this);
             }
         } else {
             $value = [];
         }
 
-        $data = $this->fetchAllAssociative($sql, $params, $types);
+        $result = $this->executeQuery($sql, $params, $types);
 
-        $value[$realKey] = $data;
+        $columnNames = [];
+        for ($i = 0; $i < $result->columnCount(); $i++) {
+            $columnNames[] = $result->getColumnName($i);
+        }
+
+        $rows = $result->fetchAllNumeric();
+
+        $value[$realKey] = new ArrayResult($columnNames, $rows);
 
         $item->set($value);
 
@@ -830,7 +837,7 @@ class Connection implements ServerVersionProvider
 
         $resultCache->save($item);
 
-        return new Result(new ArrayResult($data), $this);
+        return new Result($value[$realKey], $this);
     }
 
     /**

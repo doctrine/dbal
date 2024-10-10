@@ -96,7 +96,7 @@ abstract class AbstractMySQLDriver implements Driver
                 '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
                 $versionString,
                 $versionParts,
-            ) === 0
+            ) !== 1
         ) {
             throw InvalidPlatformVersion::new(
                 $versionString,

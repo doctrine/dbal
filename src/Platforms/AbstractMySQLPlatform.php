@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Schema\AbstractAsset;
@@ -18,12 +19,14 @@ use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
 
+use function array_map;
 use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
 use function implode;
 use function in_array;
+use function is_array;
 use function is_numeric;
 use function sprintf;
 use function str_replace;
@@ -646,6 +649,21 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getEnumDeclarationSQL(array $column): string
+    {
+        if (! isset($column['values']) || ! is_array($column['values']) || $column['values'] === []) {
+            throw ColumnValuesRequired::new($this, 'ENUM');
+        }
+
+        return sprintf('ENUM(%s)', implode(', ', array_map(
+            $this->quoteStringLiteral(...),
+            $column['values'],
+        )));
+    }
+
+    /**
      * Get unsigned declaration for a column.
      *
      * @param mixed[] $columnDef
@@ -718,6 +736,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             'datetime'   => Types::DATETIME_MUTABLE,
             'decimal'    => Types::DECIMAL,
             'double'     => Types::FLOAT,
+            'enum'       => Types::ENUM,
             'float'      => Types::SMALLFLOAT,
             'int'        => Types::INTEGER,
             'integer'    => Types::INTEGER,

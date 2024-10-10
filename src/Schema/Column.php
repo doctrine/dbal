@@ -33,6 +33,9 @@ class Column extends AbstractAsset
 
     protected bool $_autoincrement = false;
 
+    /** @var list<string> */
+    protected array $_values = [];
+
     /** @var array<string, mixed> */
     protected array $_platformOptions = [];
 
@@ -231,22 +234,41 @@ class Column extends AbstractAsset
         return $this->_comment;
     }
 
+    /**
+     * @param list<string> $values
+     *
+     * @return $this
+     */
+    public function setValues(array $values): static
+    {
+        $this->_values = $values;
+
+        return $this;
+    }
+
+    /** @return list<string> */
+    public function getValues(): array
+    {
+        return $this->_values;
+    }
+
     /** @return array<string, mixed> */
     public function toArray(): array
     {
         return array_merge([
-            'name'          => $this->_name,
-            'type'          => $this->_type,
-            'default'       => $this->_default,
-            'notnull'       => $this->_notnull,
-            'length'        => $this->_length,
-            'precision'     => $this->_precision,
-            'scale'         => $this->_scale,
-            'fixed'         => $this->_fixed,
-            'unsigned'      => $this->_unsigned,
-            'autoincrement' => $this->_autoincrement,
+            'name'             => $this->_name,
+            'type'             => $this->_type,
+            'default'          => $this->_default,
+            'notnull'          => $this->_notnull,
+            'length'           => $this->_length,
+            'precision'        => $this->_precision,
+            'scale'            => $this->_scale,
+            'fixed'            => $this->_fixed,
+            'unsigned'         => $this->_unsigned,
+            'autoincrement'    => $this->_autoincrement,
             'columnDefinition' => $this->_columnDefinition,
-            'comment' => $this->_comment,
+            'comment'          => $this->_comment,
+            'values'           => $this->_values,
         ], $this->_platformOptions);
     }
 }
