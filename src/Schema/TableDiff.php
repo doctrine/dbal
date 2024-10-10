@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\Deprecations\Deprecation;
+
 use function array_filter;
+use function array_values;
 use function count;
 
 /**
@@ -19,9 +22,8 @@ class TableDiff
      *
      * @param array<ForeignKeyConstraint> $droppedForeignKeys
      * @param array<Column>               $addedColumns
-     * @param array<ColumnDiff>           $modifiedColumns
+     * @param array<string, ColumnDiff>   $changedColumns
      * @param array<Column>               $droppedColumns
-     * @param array<string, Column>       $renamedColumns
      * @param array<Index>                $addedIndexes
      * @param array<Index>                $modifiedIndexes
      * @param array<Index>                $droppedIndexes
@@ -31,17 +33,16 @@ class TableDiff
      */
     public function __construct(
         private readonly Table $oldTable,
-        private readonly array $addedColumns,
-        private readonly array $modifiedColumns,
-        private readonly array $droppedColumns,
-        private readonly array $renamedColumns,
-        private array $addedIndexes,
-        private readonly array $modifiedIndexes,
-        private array $droppedIndexes,
-        private readonly array $renamedIndexes,
-        private readonly array $addedForeignKeys,
-        private readonly array $modifiedForeignKeys,
-        private readonly array $droppedForeignKeys,
+        private readonly array $addedColumns = [],
+        private readonly array $changedColumns = [],
+        private readonly array $droppedColumns = [],
+        private array $addedIndexes = [],
+        private readonly array $modifiedIndexes = [],
+        private array $droppedIndexes = [],
+        private readonly array $renamedIndexes = [],
+        private readonly array $addedForeignKeys = [],
+        private readonly array $modifiedForeignKeys = [],
+        private readonly array $droppedForeignKeys = [],
     ) {
     }
 
@@ -56,22 +57,62 @@ class TableDiff
         return $this->addedColumns;
     }
 
-    /** @return array<ColumnDiff> */
+    /** @return array<string, ColumnDiff> */
+    public function getChangedColumns(): array
+    {
+        return $this->changedColumns;
+    }
+
+    /**
+     * @deprecated Use {@see getChangedColumns()} instead.
+     *
+     * @return list<ColumnDiff>
+     */
     public function getModifiedColumns(): array
     {
-        return $this->modifiedColumns;
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6280',
+            '%s is deprecated, use `getChangedColumns()` instead.',
+            __METHOD__,
+        );
+
+        return array_values(array_filter(
+            $this->getChangedColumns(),
+            static fn (ColumnDiff $diff): bool => $diff->countChangedProperties() > ($diff->hasNameChanged() ? 1 : 0),
+        ));
+    }
+
+    /**
+     * @deprecated Use {@see getChangedColumns()} instead.
+     *
+     * @return array<string,Column>
+     */
+    public function getRenamedColumns(): array
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6280',
+            '%s is deprecated, you should use `getChangedColumns()` instead.',
+            __METHOD__,
+        );
+        $renamed = [];
+        foreach ($this->getChangedColumns() as $diff) {
+            if (! $diff->hasNameChanged()) {
+                continue;
+            }
+
+            $oldColumnName           = $diff->getOldColumn()->getName();
+            $renamed[$oldColumnName] = $diff->getNewColumn();
+        }
+
+        return $renamed;
     }
 
     /** @return array<Column> */
     public function getDroppedColumns(): array
     {
         return $this->droppedColumns;
-    }
-
-    /** @return array<string,Column> */
-    public function getRenamedColumns(): array
-    {
-        return $this->renamedColumns;
     }
 
     /** @return array<Index> */
@@ -150,9 +191,8 @@ class TableDiff
     public function isEmpty(): bool
     {
         return count($this->addedColumns) === 0
-            && count($this->modifiedColumns) === 0
+            && count($this->changedColumns) === 0
             && count($this->droppedColumns) === 0
-            && count($this->renamedColumns) === 0
             && count($this->addedIndexes) === 0
             && count($this->modifiedIndexes) === 0
             && count($this->droppedIndexes) === 0

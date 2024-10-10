@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Cache;
 
 use Doctrine\DBAL\Cache\ArrayResult;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 use function array_values;
@@ -39,6 +41,24 @@ class ArrayStatementTest extends TestCase
         $statement = $this->createTestArrayStatement();
 
         self::assertSame(2, $statement->columnCount());
+    }
+
+    public function testColumnNames(): void
+    {
+        $statement = $this->createTestArrayStatement();
+
+        self::assertSame('username', $statement->getColumnName(0));
+        self::assertSame('active', $statement->getColumnName(1));
+    }
+
+    #[TestWith([2])]
+    #[TestWith([-1])]
+    public function testColumnNameWithInvalidIndex(int $index): void
+    {
+        $statement = $this->createTestArrayStatement();
+        $this->expectException(InvalidColumnIndex::class);
+
+        $statement->getColumnName($index);
     }
 
     public function testRowCount(): void

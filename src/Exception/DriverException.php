@@ -18,8 +18,6 @@ use function assert;
 class DriverException extends \Exception implements Exception, Driver\Exception
 {
     /**
-     * @internal
-     *
      * @param Driver\Exception $driverException The DBAL driver exception to chain.
      * @param Query|null       $query           The SQL query that triggered the exception, if any.
      */

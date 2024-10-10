@@ -459,7 +459,7 @@ class SQLitePlatform extends AbstractPlatform
             'ntext'            => 'string',
             'numeric'          => 'decimal',
             'nvarchar'         => 'string',
-            'real'             => 'float',
+            'real'             => 'smallfloat',
             'serial'           => 'integer',
             'smallint'         => 'smallint',
             'string'           => 'string',
@@ -615,7 +615,6 @@ class SQLitePlatform extends AbstractPlatform
         $columns        = [];
         $oldColumnNames = [];
         $newColumnNames = [];
-        $columnSql      = [];
 
         foreach ($table->getColumns() as $column) {
             $columnName                  = strtolower($column->getName());
@@ -636,24 +635,7 @@ class SQLitePlatform extends AbstractPlatform
             );
         }
 
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            $oldColumnName = strtolower($oldColumnName);
-
-            $columns = $this->replaceColumn(
-                $table->getName(),
-                $columns,
-                $oldColumnName,
-                $column,
-            );
-
-            if (! isset($newColumnNames[$oldColumnName])) {
-                continue;
-            }
-
-            $newColumnNames[$oldColumnName] = $column->getQuotedName($this);
-        }
-
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             $oldColumnName = strtolower($columnDiff->getOldColumn()->getName());
             $newColumn     = $columnDiff->getNewColumn();
 
@@ -714,7 +696,7 @@ class SQLitePlatform extends AbstractPlatform
         );
         $sql[] = $this->getDropTableSQL($dataTable->getQuotedName($this));
 
-        return array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff), $columnSql);
+        return array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff));
     }
 
     /**
@@ -751,9 +733,8 @@ class SQLitePlatform extends AbstractPlatform
     private function getSimpleAlterTableSQL(TableDiff $diff): array|false
     {
         if (
-            count($diff->getModifiedColumns()) > 0
+            count($diff->getChangedColumns()) > 0
             || count($diff->getDroppedColumns()) > 0
-            || count($diff->getRenamedColumns()) > 0
             || count($diff->getAddedIndexes()) > 0
             || count($diff->getModifiedIndexes()) > 0
             || count($diff->getDroppedIndexes()) > 0
@@ -767,8 +748,7 @@ class SQLitePlatform extends AbstractPlatform
 
         $table = $diff->getOldTable();
 
-        $sql       = [];
-        $columnSql = [];
+        $sql = [];
 
         foreach ($diff->getAddedColumns() as $column) {
             $definition = array_merge([
@@ -794,7 +774,7 @@ class SQLitePlatform extends AbstractPlatform
                 . $this->getColumnDeclarationSQL($definition['name'], $definition);
         }
 
-        return array_merge($sql, $columnSql);
+        return $sql;
     }
 
     /** @return string[] */
@@ -816,13 +796,7 @@ class SQLitePlatform extends AbstractPlatform
             unset($columns[$columnName]);
         }
 
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
-            $columnName                          = $column->getName();
-            $columns[strtolower($oldColumnName)] = $columnName;
-            $columns[strtolower($columnName)]    = $columnName;
-        }
-
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             $oldColumnName                       = $columnDiff->getOldColumn()->getName();
             $newColumnName                       = $columnDiff->getNewColumn()->getName();
             $columns[strtolower($oldColumnName)] = $newColumnName;
@@ -990,5 +964,13 @@ class SQLitePlatform extends AbstractPlatform
     public function createSchemaManager(Connection $connection): SQLiteSchemaManager
     {
         return new SQLiteSchemaManager($connection, $this);
+    }
+
+    /**
+     * Returns the union select query part surrounded by parenthesis if possible for platform.
+     */
+    public function getUnionSelectPartSQL(string $subQuery): string
+    {
+        return $subQuery;
     }
 }

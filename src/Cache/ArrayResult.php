@@ -6,7 +6,9 @@ namespace Doctrine\DBAL\Cache;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 
+use function array_keys;
 use function array_values;
 use function count;
 use function reset;
@@ -82,6 +84,12 @@ final class ArrayResult implements Result
     public function columnCount(): int
     {
         return $this->columnCount;
+    }
+
+    public function getColumnName(int $index): string
+    {
+        return array_keys($this->data[0] ?? [])[$index]
+            ?? throw InvalidColumnIndex::new($index);
     }
 
     public function free(): void

@@ -36,6 +36,7 @@ class TypeConversionTest extends FunctionalTestCase
         $table->addColumn('test_text', Types::TEXT, ['notnull' => false]);
         $table->addColumn('test_json', Types::JSON, ['notnull' => false]);
         $table->addColumn('test_float', Types::FLOAT, ['notnull' => false]);
+        $table->addColumn('test_smallfloat', Types::SMALLFLOAT, ['notnull' => false]);
         $table->addColumn('test_decimal', Types::DECIMAL, ['notnull' => false, 'scale' => 2, 'precision' => 10]);
         $table->setPrimaryKey(['id']);
 
@@ -91,6 +92,7 @@ class TypeConversionTest extends FunctionalTestCase
     {
         return [
             'float' => [Types::FLOAT, 1.5],
+            'smallfloat' => [Types::SMALLFLOAT, 1.5],
         ];
     }
 

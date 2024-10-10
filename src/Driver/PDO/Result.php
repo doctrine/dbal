@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDO;
 
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use PDO;
 use PDOException;
 use PDOStatement;
+use ValueError;
 
 final class Result implements ResultInterface
 {
@@ -71,6 +73,23 @@ final class Result implements ResultInterface
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
+    }
+
+    public function getColumnName(int $index): string
+    {
+        try {
+            $meta = $this->statement->getColumnMeta($index);
+        } catch (ValueError $exception) {
+            throw InvalidColumnIndex::new($index, $exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
+
+        if ($meta === false) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        return $meta['name'];
     }
 
     public function free(): void

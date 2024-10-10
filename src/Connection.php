@@ -330,6 +330,8 @@ class Connection implements ServerVersionProvider
 
     /**
      * Whether an actual connection to the database is established.
+     *
+     * @psalm-assert-if-true !null $this->_conn
      */
     public function isConnected(): bool
     {

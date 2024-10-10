@@ -35,13 +35,15 @@ MySQL
 
 -  ``MySQLPlatform`` for version 5.7.9 and above.
 -  ``MySQL80Platform`` for version 8.0 and above.
+-  ``MySQL84Platform`` for version 8.4 and above.
 
 MariaDB
 ^^^^^
 
 -  ``MariaDBPlatform`` for version 10.4.3 and above.
--  ``MariaDb1052Platform`` for version 10.5.2 and above.
--  ``MariaDb1060Platform`` for version 10.6 and above.
+-  ``MariaDB1052Platform`` for version 10.5.2 and above.
+-  ``MariaDB1060Platform`` for version 10.6 and above.
+-  ``MariaDB1010Platform`` for version 10.10 and above.
 
 Oracle
 ^^^^^^
@@ -56,8 +58,8 @@ Microsoft SQL Server
 PostgreSQL
 ^^^^^^^^^^
 
--  ``PostgreSQLPlatform`` for version 9.4 and above.
--  ``PostgreSQL100Platform`` for version 10.0 and above.
+-  ``PostgreSQLPlatform`` for version 10.0 and above.
+-  ``PostgreSQL120Platform`` for version 12.0 and above.
 
 IBM DB2
 ^^^^^^^

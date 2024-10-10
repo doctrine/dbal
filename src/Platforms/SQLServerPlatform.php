@@ -365,7 +365,6 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $queryParts  = [];
         $sql         = [];
-        $columnSql   = [];
         $commentsSql = [];
 
         $table = $diff->getOldTable();
@@ -404,16 +403,31 @@ class SQLServerPlatform extends AbstractPlatform
             $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->getModifiedColumns() as $columnDiff) {
+        $tableNameSQL = $table->getQuotedName($this);
+
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             $newColumn     = $columnDiff->getNewColumn();
+            $newColumnName = $newColumn->getQuotedName($this);
+
+            $oldColumn     = $columnDiff->getOldColumn();
+            $oldColumnName = $oldColumn->getQuotedName($this);
+            $nameChanged   = $columnDiff->hasNameChanged();
+
+            // Column names in SQL server are case insensitive and automatically uppercased on the server.
+            if ($nameChanged) {
+                $sql = array_merge(
+                    $sql,
+                    $this->getRenameColumnSQL($tableNameSQL, $oldColumnName, $newColumnName),
+                );
+            }
+
             $newComment    = $newColumn->getComment();
             $hasNewComment = $newComment !== '';
 
-            $oldColumn     = $columnDiff->getOldColumn();
-            $oldComment    = $oldColumn->getComment();
-            $hasOldComment = $oldComment !== '';
+                $oldComment    = $oldColumn->getComment();
+                $hasOldComment = $oldComment !== '';
 
-            if ($hasOldComment && $hasNewComment && $newComment !== $oldComment) {
+            if ($hasOldComment && $hasNewComment && $oldComment !== $newComment) {
                 $commentsSql[] = $this->getAlterColumnCommentSQL(
                     $tableName,
                     $newColumn->getQuotedName($this),
@@ -432,19 +446,19 @@ class SQLServerPlatform extends AbstractPlatform
                 );
             }
 
-                $columnNameSQL = $newColumn->getQuotedName($this);
+            $columnNameSQL = $newColumn->getQuotedName($this);
 
-                $oldDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $oldColumn->toArray());
-                $newDeclarationSQL = $this->getColumnDeclarationSQL($columnNameSQL, $newColumn->toArray());
+            $newDeclarationSQL     = $this->getColumnDeclarationSQL($columnNameSQL, $newColumn->toArray());
+            $oldDeclarationSQL     = $this->getColumnDeclarationSQL($columnNameSQL, $oldColumn->toArray());
+            $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
 
-                $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
-                $defaultChanged        = $columnDiff->hasDefaultChanged();
+            $defaultChanged = $columnDiff->hasDefaultChanged();
 
-            if (! $declarationSQLChanged && ! $defaultChanged) {
+            if (! $declarationSQLChanged && ! $defaultChanged && ! $nameChanged) {
                 continue;
             }
 
-                $requireDropDefaultConstraint = $this->alterColumnRequiresDropDefaultConstraint($columnDiff);
+            $requireDropDefaultConstraint = $this->alterColumnRequiresDropDefaultConstraint($columnDiff);
 
             if ($requireDropDefaultConstraint) {
                 $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($oldColumn);
@@ -461,20 +475,7 @@ class SQLServerPlatform extends AbstractPlatform
                 continue;
             }
 
-                $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
-        }
-
-        $tableNameSQL = $table->getQuotedName($this);
-
-        foreach ($diff->getRenamedColumns() as $oldColumnName => $newColumn) {
-            $oldColumnName = new Identifier($oldColumnName);
-
-            $sql[] = sprintf(
-                "sp_rename '%s.%s', '%s', 'COLUMN'",
-                $tableNameSQL,
-                $oldColumnName->getQuotedName($this),
-                $newColumn->getQuotedName($this),
-            );
+            $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
         }
 
         foreach ($queryParts as $query) {
@@ -486,7 +487,6 @@ class SQLServerPlatform extends AbstractPlatform
             $sql,
             $commentsSql,
             $this->getPostAlterTableIndexForeignKeySQL($diff),
-            $columnSql,
         );
     }
 
@@ -635,6 +635,25 @@ class SQLServerPlatform extends AbstractPlatform
             $tableName,
             $oldIndexName,
             $index->getQuotedName($this),
+        ),
+        ];
+    }
+
+    /**
+     * Returns the SQL for renaming a column
+     *
+     * @param string $tableName     The table to rename the column on.
+     * @param string $oldColumnName The name of the column we want to rename.
+     * @param string $newColumnName The name we should rename it to.
+     *
+     * @return list<string> The sequence of SQL statements for renaming the given column.
+     */
+    protected function getRenameColumnSQL(string $tableName, string $oldColumnName, string $newColumnName): array
+    {
+        return [sprintf(
+            "EXEC sp_rename %s, %s, 'COLUMN'",
+            $this->quoteStringLiteral($tableName . '.' . $oldColumnName),
+            $this->quoteStringLiteral($newColumnName),
         ),
         ];
     }
@@ -1057,16 +1076,18 @@ class SQLServerPlatform extends AbstractPlatform
             'ntext'            => Types::TEXT,
             'numeric'          => Types::DECIMAL,
             'nvarchar'         => Types::STRING,
-            'real'             => Types::FLOAT,
+            'real'             => Types::SMALLFLOAT,
             'smalldatetime'    => Types::DATETIME_MUTABLE,
             'smallint'         => Types::SMALLINT,
             'smallmoney'       => Types::INTEGER,
+            'sysname'          => Types::STRING,
             'text'             => Types::TEXT,
             'time'             => Types::TIME_MUTABLE,
             'tinyint'          => Types::SMALLINT,
             'uniqueidentifier' => Types::GUID,
             'varbinary'        => Types::BINARY,
             'varchar'          => Types::STRING,
+            'xml'              => Types::TEXT,
         ];
     }
 
