@@ -1004,6 +1004,27 @@ class ConnectionTest extends TestCase
         $connection = DriverManager::getConnection(['driver' => 'sqlite3', 'memory' => true]);
         self::assertInstanceOf(SqliteSchemaManager::class, $connection->createSchemaManager());
     }
+
+    public function testItPreservesTheOriginalExceptionOnRollbackFailure(): void
+    {
+        $connection = new class (['memory' => true], new Driver\SQLite3\Driver()) extends Connection {
+            public function rollBack(): void
+            {
+                throw new Exception('Rollback exception');
+            }
+        };
+
+        try {
+            $connection->transactional(static function (): void {
+                throw new Exception('Original exception');
+            });
+            self::fail('Exception expected');
+        } catch (Exception $e) {
+            self::assertSame('Rollback exception', $e->getMessage());
+            self::assertNotNull($e->getPrevious());
+            self::assertSame('Original exception', $e->getPrevious()->getMessage());
+        }
+    }
 }
 
 interface ConnectDispatchEventListener

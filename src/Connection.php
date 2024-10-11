@@ -1278,15 +1278,20 @@ class Connection
     public function transactional(Closure $func)
     {
         $this->beginTransaction();
+
+        $successful = false;
+
         try {
             $res = $func($this);
             $this->commit();
 
-            return $res;
-        } catch (Throwable $e) {
-            $this->rollBack();
+            $successful = true;
 
-            throw $e;
+            return $res;
+        } finally {
+            if (! $successful) {
+                $this->rollBack();
+            }
         }
     }
 
