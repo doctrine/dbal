@@ -246,7 +246,7 @@ To create a comparator that can be used to compare two schemas use the
     $comparator = $sm->createComparator();
     $schemaDiff = $comparator->compareSchemas($fromSchema, $toSchema);
 
-To change the configuration of the comparator, you can pass as
+To change the configuration of the comparator, you can pass a
 ``Doctrine\DBAL\Schema\ComparatorConfig`` object to the method:
 
 .. code-block:: php

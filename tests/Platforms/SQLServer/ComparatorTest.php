@@ -11,7 +11,7 @@ use Doctrine\DBAL\Tests\Schema\AbstractComparatorTestCase;
 
 class ComparatorTest extends AbstractComparatorTestCase
 {
-    protected function createComparator(ComparatorConfig $config): \Doctrine\DBAL\Schema\Comparator
+    protected function createComparator(ComparatorConfig $config): Comparator
     {
         return new Comparator(new SQLServerPlatform(), '', $config);
     }
