@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
@@ -692,6 +693,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             self::createStub(CharsetMetadataProvider::class),
             self::createStub(CollationMetadataProvider::class),
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),
+            new ComparatorConfig(),
         );
     }
 }

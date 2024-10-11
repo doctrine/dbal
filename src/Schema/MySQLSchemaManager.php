@@ -20,6 +20,8 @@ use function array_change_key_case;
 use function array_map;
 use function assert;
 use function explode;
+use function func_get_arg;
+use function func_num_args;
 use function implode;
 use function is_string;
 use function preg_match;
@@ -335,7 +337,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     }
 
     /** @throws Exception */
-    public function createComparator(): Comparator
+    public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
         return new MySQL\Comparator(
             $this->platform,
@@ -346,6 +348,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 new ConnectionCollationMetadataProvider($this->connection),
             ),
             $this->getDefaultTableOptions(),
+            func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig(),
         );
     }
 

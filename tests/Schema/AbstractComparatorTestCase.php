@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Schema;
@@ -27,7 +28,14 @@ use function current;
 
 abstract class AbstractComparatorTestCase extends TestCase
 {
-    protected Comparator $comparator;
+    private Comparator $comparator;
+
+    abstract protected function createComparator(ComparatorConfig $config): Comparator;
+
+    protected function setUp(): void
+    {
+        $this->comparator = $this->createComparator(new ComparatorConfig());
+    }
 
     public function testCompareSame1(): void
     {
@@ -399,6 +407,22 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertEquals('bar', $renamedColumns['foo']->getName());
     }
 
+    public function testDetectRenameColumnDisabled(): void
+    {
+        $tableA = new Table('foo');
+        $tableA->addColumn('foo', Types::INTEGER);
+
+        $tableB = new Table('foo');
+        $tableB->addColumn('bar', Types::INTEGER);
+
+        $this->comparator = $this->createComparator((new ComparatorConfig())->withDetectRenamedColumns(false));
+        $tableDiff        = $this->comparator->compareTables($tableA, $tableB);
+
+        self::assertCount(1, $tableDiff->getAddedColumns());
+        self::assertCount(1, $tableDiff->getDroppedColumns());
+        self::assertCount(0, $tableDiff->getRenamedColumns());
+    }
+
     /**
      * You can easily have ambiguities in the column renaming. If these
      * are detected no renaming should take place, instead adding and dropping
@@ -439,6 +463,25 @@ abstract class AbstractComparatorTestCase extends TestCase
         $renamedIndexes = $tableDiff->getRenamedIndexes();
         self::assertArrayHasKey('idx_foo', $renamedIndexes);
         self::assertEquals('idx_bar', $renamedIndexes['idx_foo']->getName());
+    }
+
+    public function testDetectRenameIndexDisabled(): void
+    {
+        $table1 = new Table('foo');
+        $table1->addColumn('foo', Types::INTEGER);
+
+        $table2 = clone $table1;
+
+        $table1->addIndex(['foo'], 'idx_foo');
+
+        $table2->addIndex(['foo'], 'idx_bar');
+
+        $this->comparator = $this->createComparator((new ComparatorConfig())->withDetectRenamedIndexes(false));
+        $tableDiff        = $this->comparator->compareTables($table1, $table2);
+
+        self::assertCount(1, $tableDiff->getAddedIndexes());
+        self::assertCount(1, $tableDiff->getDroppedIndexes());
+        self::assertCount(0, $tableDiff->getRenamedIndexes());
     }
 
     /**

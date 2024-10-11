@@ -17,8 +17,10 @@ use function strtolower;
 class Comparator
 {
     /** @internal The comparator can be only instantiated by a schema manager. */
-    public function __construct(private readonly AbstractPlatform $platform)
-    {
+    public function __construct(
+        private readonly AbstractPlatform $platform,
+        private readonly ComparatorConfig $config = new ComparatorConfig(),
+    ) {
     }
 
     /**
@@ -149,6 +151,7 @@ class Comparator
         $addedIndexes        = [];
         $modifiedIndexes     = [];
         $droppedIndexes      = [];
+        $renamedIndexes      = [];
         $addedForeignKeys    = [];
         $modifiedForeignKeys = [];
         $droppedForeignKeys  = [];
@@ -207,7 +210,9 @@ class Comparator
             );
         }
 
-        $this->detectRenamedColumns($modifiedColumns, $addedColumns, $droppedColumns);
+        if ($this->config->getDetectRenamedColumns()) {
+            $this->detectRenamedColumns($modifiedColumns, $addedColumns, $droppedColumns);
+        }
 
         $oldIndexes = $oldTable->getIndexes();
         $newIndexes = $newTable->getIndexes();
@@ -244,7 +249,9 @@ class Comparator
             $modifiedIndexes[] = $newIndex;
         }
 
-        $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
+        if ($this->config->getDetectRenamedIndexes()) {
+            $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
+        }
 
         $oldForeignKeys = $oldTable->getForeignKeys();
         $newForeignKeys = $newTable->getForeignKeys();

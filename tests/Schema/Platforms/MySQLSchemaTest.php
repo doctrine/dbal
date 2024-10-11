@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
@@ -71,6 +72,7 @@ class MySQLSchemaTest extends TestCase
             self::createStub(CharsetMetadataProvider::class),
             self::createStub(CollationMetadataProvider::class),
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),
+            new ComparatorConfig(),
         );
     }
 }
