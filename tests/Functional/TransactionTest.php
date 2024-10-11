@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use PDOException;
 
 use function sleep;
 
@@ -29,8 +28,8 @@ class TransactionTest extends FunctionalTestCase
         sleep(2); // during the sleep mysql will close the connection
 
         try {
-            self::assertFalse(@$this->connection->commit()); // we will ignore `MySQL server has gone away` warnings
-        } catch (PDOException $e) {
+            @$this->connection->commit(); // we will ignore `Packets out of order.` error
+        } catch (\Doctrine\DBAL\Exception\DriverException $e) {
             self::assertInstanceOf(DriverException::class, $e);
 
             /* For PDO, we are using ERRMODE EXCEPTION, so this catch should be

@@ -53,4 +53,25 @@ class ExceptionTest extends TestCase
     {
         self::assertSame($this->wrappedException, $this->exception->getPrevious());
     }
+
+    public function testExposesUnderlyingErrorOnOracle(): void
+    {
+        $pdoException = new PDOException(<<<'TEXT'
+OCITransCommit: ORA-02091: transaction rolled back
+ORA-00001: unique constraint (DOCTRINE.C1_UNIQUE) violated
+ (/private/tmp/php-20211003-35441-1sggrmq/php-8.0.11/ext/pdo_oci/oci_driver.c:410)
+TEXT);
+
+        $pdoException->errorInfo = [self::SQLSTATE, 2091,
+
+        ];
+
+        $exception = Exception::new($pdoException);
+
+        self::assertSame(1, $exception->getCode());
+        self::assertStringContainsString(
+            'unique constraint (DOCTRINE.C1_UNIQUE) violated',
+            $exception->getMessage(),
+        );
+    }
 }
