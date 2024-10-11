@@ -926,15 +926,20 @@ class Connection implements ServerVersionProvider
     public function transactional(Closure $func): mixed
     {
         $this->beginTransaction();
+
+        $successful = false;
+
         try {
             $res = $func($this);
             $this->commit();
 
-            return $res;
-        } catch (Throwable $e) {
-            $this->rollBack();
+            $successful = true;
 
-            throw $e;
+            return $res;
+        } finally {
+            if (! $successful) {
+                $this->rollBack();
+            }
         }
     }
 
