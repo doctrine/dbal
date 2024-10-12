@@ -10,6 +10,9 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 use function fopen;
+use function fseek;
+use function ftell;
+use function fwrite;
 use function str_repeat;
 use function stream_get_contents;
 
@@ -196,6 +199,28 @@ class BlobTest extends FunctionalTestCase
         }
 
         self::assertEquals(['test1', 'test2'], $actual);
+    }
+
+    public function testBindValueResetsStream(): void
+    {
+        if (TestUtil::isDriverOneOf('oci8')) {
+            self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
+        }
+
+        $stmt = $this->connection->prepare(
+            "INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)",
+        );
+
+        $stream = fopen('php://temp', 'rb+');
+        fwrite($stream, 'a test');
+        fseek($stream, 2);
+        $stmt->bindValue(1, $stream, ParameterType::LARGE_OBJECT);
+
+        $stmt->execute();
+
+        self::assertEquals(2, ftell($stream), 'Resource parameter should be reset to position before execute.');
+
+        $this->assertBlobContains('test');
     }
 
     private function assertBlobContains(string $text): void
