@@ -18,6 +18,11 @@ final class CachingCharsetMetadataProvider implements CharsetMetadataProvider
     {
     }
 
+    public function normalizeCharset(string $charset): string
+    {
+        return $this->charsetMetadataProvider->normalizeCharset($charset);
+    }
+
     public function getDefaultCharsetCollation(string $charset): ?string
     {
         if (array_key_exists($charset, $this->cache)) {
