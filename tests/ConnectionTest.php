@@ -623,4 +623,25 @@ class ConnectionTest extends TestCase
         $connection = DriverManager::getConnection(['driver' => 'sqlite3', 'memory' => true]);
         self::assertInstanceOf(SQLiteSchemaManager::class, $connection->createSchemaManager());
     }
+
+    public function testItPreservesTheOriginalExceptionOnRollbackFailure(): void
+    {
+        $connection = new class (['memory' => true], new Driver\SQLite3\Driver()) extends Connection {
+            public function rollBack(): void
+            {
+                throw new ConnectionException('Rollback exception');
+            }
+        };
+
+        try {
+            $connection->transactional(static function (): void {
+                throw new ConnectionException('Original exception');
+            });
+            self::fail('Exception expected'); // @phpstan-ignore deadCode.unreachable
+        } catch (ConnectionException $e) {
+            self::assertSame('Rollback exception', $e->getMessage());
+            self::assertNotNull($e->getPrevious());
+            self::assertSame('Original exception', $e->getPrevious()->getMessage());
+        }
+    }
 }
