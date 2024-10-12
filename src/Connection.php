@@ -1291,7 +1291,13 @@ class Connection
             }
         }
 
-        $this->commit();
+        try {
+            $this->commit();
+        } finally {
+            if ($this->isTransactionActive()) {
+                $this->rollBack();
+            }
+        }
 
         return $res;
     }
