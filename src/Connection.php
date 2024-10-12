@@ -9,14 +9,19 @@ use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Event\TransactionBeginEventArgs;
 use Doctrine\DBAL\Event\TransactionCommitEventArgs;
 use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Exception\ConnectionLost;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Exception\TransactionRolledBack;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -1283,16 +1288,36 @@ class Connection
 
         try {
             $res = $func($this);
-            $this->commit();
 
             $successful = true;
-
-            return $res;
         } finally {
             if (! $successful) {
                 $this->rollBack();
             }
         }
+
+        $shouldRollback = true;
+        try {
+            $this->commit();
+
+            $shouldRollback = false;
+        } catch (TheDriverException $t) {
+            $convertedException = $this->handleDriverException($t, null);
+            $shouldRollback     = ! (
+                $convertedException instanceof TransactionRolledBack
+                || $convertedException instanceof UniqueConstraintViolationException
+                || $convertedException instanceof ForeignKeyConstraintViolationException
+                || $convertedException instanceof DeadlockException
+            );
+
+            throw $t;
+        } finally {
+            if ($shouldRollback) {
+                $this->rollBack();
+            }
+        }
+
+        return $res;
     }
 
     /**
@@ -1424,12 +1449,21 @@ class Connection
 
         $connection = $this->getWrappedConnection();
 
-        if ($this->transactionNestingLevel === 1) {
-            $result = $this->doCommit($connection);
-        } elseif ($this->nestTransactionsWithSavepoints) {
-            $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
+        try {
+            if ($this->transactionNestingLevel === 1) {
+                $result = $this->doCommit($connection);
+            } elseif ($this->nestTransactionsWithSavepoints) {
+                $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
+            }
+        } finally {
+            $this->updateTransactionStateAfterCommit();
         }
 
+        return $result;
+    }
+
+    private function updateTransactionStateAfterCommit(): void
+    {
         --$this->transactionNestingLevel;
 
         $eventManager = $this->getEventManager();
@@ -1446,12 +1480,10 @@ class Connection
         }
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
-            return $result;
+            return;
         }
 
         $this->beginTransaction();
-
-        return $result;
     }
 
     /**
