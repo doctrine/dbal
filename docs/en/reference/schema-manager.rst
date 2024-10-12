@@ -217,7 +217,7 @@ the changes on the database:
 .. code-block:: php
 
     <?php
-    $sql = $fromSchema->getMigrateToSql($toSchema, $conn->getDatabasePlatform());
+    $sql = $sm->createComparator()->compareSchemas($fromSchema, $toSchema)->toSql($conn->getDatabasePlatform());
 
 The ``$sql`` array should give you a SQL query to drop the user
 table:
@@ -232,6 +232,29 @@ table:
       0 => 'DROP TABLE user'
     )
     */
+
+createComparator()
+------------------
+
+To create a comparator that can be used to compare two schemas use the
+``createComparator()`` method which returns an instance of
+``Doctrine\DBAL\Schema\Comparator``.
+
+.. code-block:: php
+
+    <?php
+    $comparator = $sm->createComparator();
+    $schemaDiff = $comparator->compareSchemas($fromSchema, $toSchema);
+
+To change the configuration of the comparator, you can pass a
+``Doctrine\DBAL\Schema\ComparatorConfig`` object to the method:
+
+.. code-block:: php
+
+    <?php
+    $config = (new ComparatorConfig())->withDetectRenamedColumns(false);
+    $comparator = $sm->createComparator($config);
+    $schemaDiff = $comparator->compareSchemas($fromSchema, $toSchema);
 
 Overriding the schema manager
 -----------------------------

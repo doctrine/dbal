@@ -16,6 +16,8 @@ use function array_change_key_case;
 use function array_merge;
 use function assert;
 use function count;
+use function func_get_arg;
+use function func_num_args;
 use function implode;
 use function is_string;
 use function preg_match;
@@ -494,9 +496,9 @@ SQL
         return $details;
     }
 
-    public function createComparator(): Comparator
+    public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator
     {
-        return new SQLite\Comparator($this->platform);
+        return new SQLite\Comparator($this->platform, func_num_args() > 0 ? func_get_arg(0) : new ComparatorConfig());
     }
 
     protected function selectTableNames(string $databaseName): Result

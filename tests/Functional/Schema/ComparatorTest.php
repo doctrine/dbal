@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Platform\RenameColumnTest;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -53,7 +54,7 @@ class ComparatorTest extends FunctionalTestCase
     public function testRenameColumnComparison(): void
     {
         $platform   = $this->connection->getDatabasePlatform();
-        $comparator = new Comparator($platform);
+        $comparator = new Comparator($platform, new ComparatorConfig());
 
         $table = new Table('rename_table');
         $table->addColumn('test', Types::STRING, ['default' => 'baz', 'length' => 20]);

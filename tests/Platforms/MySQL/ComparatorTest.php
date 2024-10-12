@@ -9,17 +9,19 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\Comparator;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Tests\Schema\AbstractComparatorTestCase;
 
 class ComparatorTest extends AbstractComparatorTestCase
 {
-    protected function setUp(): void
+    protected function createComparator(ComparatorConfig $config): Comparator
     {
-        $this->comparator = new Comparator(
+        return new Comparator(
             new MySQLPlatform(),
             self::createStub(CharsetMetadataProvider::class),
             self::createStub(CollationMetadataProvider::class),
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),
+            $config,
         );
     }
 }

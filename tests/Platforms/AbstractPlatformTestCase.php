@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -40,7 +41,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     protected function createComparator(): Comparator
     {
-        return new Comparator($this->platform);
+        return new Comparator($this->platform, new ComparatorConfig());
     }
 
     public function testQuoteIdentifier(): void
