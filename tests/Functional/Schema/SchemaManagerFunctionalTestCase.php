@@ -25,6 +25,7 @@ use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\ArrayType;
+use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DateIntervalType;
@@ -298,7 +299,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertArrayHasKey('id', $columns);
         self::assertEquals(0, array_search('id', $columnsKeys, true));
         self::assertEquals('id', strtolower($columns['id']->getName()));
-        self::assertInstanceOf(IntegerType::class, $columns['id']->getType());
+        self::assertInstanceOf(
+            $this->connection->getDatabasePlatform() instanceof SqlitePlatform
+                ? BigIntType::class
+                : IntegerType::class,
+            $columns['id']->getType(),
+        );
         self::assertEquals(false, $columns['id']->getUnsigned());
         self::assertEquals(true, $columns['id']->getNotnull());
         self::assertEquals(null, $columns['id']->getDefault());
@@ -361,6 +367,33 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(true, $columns['baz3']->getnotnull());
         self::assertEquals(null, $columns['baz3']->getdefault());
         self::assertIsArray($columns['baz3']->getPlatformOptions());
+    }
+
+    public function testListTableColumnsWithBigintColumnsAndAutoincrement(): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
+            self::markTestSkipped('This test is only supported on platforms that have autoincrement');
+        }
+
+        $tableName = 'test_list_table_bigint';
+
+        $table = new Table($tableName);
+        $table->addColumn('id_with_ai', Types::BIGINT, ['autoincrement' => true]);
+        $table->setPrimaryKey(['id_with_ai']);
+        $table->addColumn('foo', Types::BIGINT);
+        $table->addColumn('bar', Types::INTEGER);
+
+        $this->schemaManager->createTable($table);
+
+        $columns = $this->schemaManager->listTableColumns($tableName);
+
+        self::assertCount(3, $columns);
+        self::assertArrayHasKey('id_with_ai', $columns);
+        self::assertInstanceOf(BigIntType::class, $columns['id_with_ai']->getType());
+        self::assertArrayHasKey('foo', $columns);
+        self::assertInstanceOf(BigIntType::class, $columns['foo']->getType());
+        self::assertArrayHasKey('bar', $columns);
+        self::assertInstanceOf(IntegerType::class, $columns['bar']->getType());
     }
 
     public function testListTableColumnsWithFixedStringColumn(): void
@@ -457,6 +490,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         $offlineTable = $this->createListTableColumns();
+
+        if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            $offlineTable->getColumn('id')->setType(Type::getType(Types::BIGINT));
+        }
+
         $this->dropAndCreateTable($offlineTable);
         $onlineTable = $this->schemaManager->introspectTable('list_table_columns');
 
