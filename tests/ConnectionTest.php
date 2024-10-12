@@ -644,4 +644,26 @@ class ConnectionTest extends TestCase
             self::assertSame('Original exception', $e->getPrevious()->getMessage());
         }
     }
+
+    /**
+     * We are not sure if this can happen in real life scenario
+     */
+    public function testItFailsDuringCommitBeforeTouchingDb(): void
+    {
+        $connection = new class (['memory' => true], new Driver\SQLite3\Driver()) extends Connection {
+            public function commit(): void
+            {
+                throw new \Exception('Fail before touching the db');
+            }
+
+            public function rollBack(): void
+            {
+                throw new \Exception('Rollback got triggered');
+            }
+        };
+
+        $this->expectExceptionMessage('Rollback got triggered');
+        $connection->transactional(static function (): void {
+        });
+    }
 }

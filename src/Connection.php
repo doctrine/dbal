@@ -12,6 +12,7 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection\StaticServerVersionProvider;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
@@ -939,7 +940,20 @@ class Connection implements ServerVersionProvider
             }
         }
 
-        $this->commit();
+        $shouldRollback = true;
+        try {
+            $this->commit();
+
+            $shouldRollback = false;
+        } catch (TheDriverException $t) {
+            $shouldRollback = false;
+
+            throw $t;
+        } finally {
+            if ($shouldRollback) {
+                $this->rollBack();
+            }
+        }
 
         return $res;
     }
