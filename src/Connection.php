@@ -1279,19 +1279,9 @@ class Connection
     {
         $this->beginTransaction();
 
-        $successful = false;
-
         try {
             $res = $func($this);
 
-            $successful = true;
-        } finally {
-            if (! $successful) {
-                $this->rollBack();
-            }
-        }
-
-        try {
             $this->commit();
         } finally {
             if ($this->isTransactionActive()) {
