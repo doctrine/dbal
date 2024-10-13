@@ -9,6 +9,7 @@ use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Event\TransactionBeginEventArgs;
@@ -1279,12 +1280,29 @@ class Connection
     {
         $this->beginTransaction();
 
+        $successful = false;
+
         try {
             $res = $func($this);
 
-            $this->commit();
+            $successful = true;
         } finally {
-            if ($this->isTransactionActive()) {
+            if (! $successful) {
+                $this->rollBack();
+            }
+        }
+
+        $shouldRollback = true;
+        try {
+            $this->commit();
+
+            $shouldRollback = false;
+        } catch (TheDriverException $t) {
+            $shouldRollback = false;
+
+            throw $t;
+        } finally {
+            if ($shouldRollback) {
                 $this->rollBack();
             }
         }
