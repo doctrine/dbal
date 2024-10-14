@@ -16,8 +16,10 @@ use Doctrine\DBAL\Event\TransactionBeginEventArgs;
 use Doctrine\DBAL\Event\TransactionCommitEventArgs;
 use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Exception\ConnectionLost;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -1298,7 +1300,11 @@ class Connection
 
             $shouldRollback = false;
         } catch (TheDriverException $t) {
-            $shouldRollback = false;
+            $convertedException = $this->handleDriverException($t, null);
+            $shouldRollback     = ! (
+                $convertedException instanceof UniqueConstraintViolationException
+                || $convertedException instanceof DeadlockException
+            );
 
             throw $t;
         } finally {
