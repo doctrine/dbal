@@ -18,6 +18,7 @@ use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -1303,6 +1304,7 @@ class Connection
             $convertedException = $this->handleDriverException($t, null);
             $shouldRollback     = ! (
                 $convertedException instanceof UniqueConstraintViolationException
+                || $convertedException instanceof ForeignKeyConstraintViolationException
                 || $convertedException instanceof DeadlockException
             );
 
