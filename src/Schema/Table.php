@@ -18,7 +18,6 @@ use LogicException;
 use function array_merge;
 use function array_values;
 use function in_array;
-use function is_string;
 use function preg_match;
 use function sprintf;
 use function strtolower;
@@ -757,13 +756,7 @@ class Table extends AbstractAsset
             throw IndexNameInvalid::new($indexName);
         }
 
-        foreach ($columns as $index => $value) {
-            if (is_string($index)) {
-                $columnName = $index;
-            } else {
-                $columnName = $value;
-            }
-
+        foreach ($columns as $columnName) {
             if (! $this->hasColumn($columnName)) {
                 throw ColumnDoesNotExist::new($columnName, $this->_name);
             }
