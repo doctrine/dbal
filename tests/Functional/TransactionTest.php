@@ -2,8 +2,11 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PDOException;
 
@@ -11,17 +14,12 @@ use function sleep;
 
 class TransactionTest extends FunctionalTestCase
 {
-    protected function setUp(): void
-    {
-        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
-            return;
-        }
-
-        $this->markTestSkipped('Restricted to MySQL.');
-    }
-
     public function testCommitFalse(): void
     {
+        if (! $this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
+            $this->markTestSkipped('Restricted to MySQL.');
+        }
+
         $this->connection->executeStatement('SET SESSION wait_timeout=1');
 
         self::assertTrue($this->connection->beginTransaction());
@@ -39,5 +37,25 @@ class TransactionTest extends FunctionalTestCase
         } finally {
             $this->connection->close();
         }
+    }
+
+    public function testNestedTransactionWalkthrough(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        if ($platform instanceof OraclePlatform) {
+            $query = 'SELECT 1 FROM DUAL';
+        } elseif ($platform instanceof DB2Platform) {
+            $query = 'SELECT 1 FROM sysibm.sysdummy1';
+        } else {
+            $query = 'SELECT 1';
+        }
+
+        $result = $this->connection->transactional(
+            static fn (Connection $connection) => $connection->transactional(
+                static fn (Connection $connection) => $connection->fetchOne($query),
+            ),
+        );
+
+        self::assertSame('1', (string) $result);
     }
 }

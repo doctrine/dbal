@@ -142,7 +142,7 @@ final class Connection implements ServerInfoAwareConnection
 
     public function commit(): bool
     {
-        if (! oci_commit($this->connection)) {
+        if (! @oci_commit($this->connection)) {
             throw Error::new($this->connection);
         }
 
