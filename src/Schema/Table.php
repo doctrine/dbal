@@ -11,13 +11,13 @@ use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
+use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Types\Type;
 use LogicException;
 
 use function array_merge;
 use function array_values;
-use function in_array;
 use function preg_match;
 use function sprintf;
 use function strtolower;
@@ -30,14 +30,19 @@ class Table extends AbstractAsset
     /** @var Column[] */
     protected array $_columns = [];
 
-    /** @var Index[] */
-    private array $implicitIndexes = [];
-
     /** @var array<string, string> keys are new names, values are old names */
     protected array $renamedColumns = [];
 
     /** @var Index[] */
     protected array $_indexes = [];
+
+    /**
+     * The keys of this array are the names of the indexes that were implicitly created as backing for foreign key
+     * constraints. The values are not used but must be non-null for {@link isset()} to work correctly.
+     *
+     * @var array<string,true>
+     */
+    private array $implicitIndexNames = [];
 
     protected ?string $_primaryKeyName = null;
 
@@ -606,36 +611,41 @@ class Table extends AbstractAsset
     /**
      * Adds an index to the table.
      */
-    protected function _addIndex(Index $indexCandidate): self
+    protected function _addIndex(Index $index): self
     {
-        $indexName               = $indexCandidate->getName();
-        $indexName               = $this->normalizeIdentifier($indexName);
-        $replacedImplicitIndexes = [];
+        $indexName = $this->normalizeIdentifier($index->getName());
 
-        foreach ($this->implicitIndexes as $name => $implicitIndex) {
-            if (! $implicitIndex->isFulfilledBy($indexCandidate) || ! isset($this->_indexes[$name])) {
+        $replacedImplicitIndexNames = [];
+
+        foreach ($this->implicitIndexNames as $implicitIndexName => $_) {
+            if (! isset($this->_indexes[$implicitIndexName])) {
                 continue;
             }
 
-            $replacedImplicitIndexes[] = $name;
+            if (! $this->_indexes[$implicitIndexName]->isFulfilledBy($index)) {
+                continue;
+            }
+
+            $replacedImplicitIndexNames[$implicitIndexName] = true;
         }
 
-        if (
-            (isset($this->_indexes[$indexName]) && ! in_array($indexName, $replacedImplicitIndexes, true)) ||
-            ($this->_primaryKeyName !== null && $indexCandidate->isPrimary())
-        ) {
+        if (isset($this->_indexes[$indexName]) && ! isset($replacedImplicitIndexNames[$indexName])) {
             throw IndexAlreadyExists::new($indexName, $this->_name);
         }
 
-        foreach ($replacedImplicitIndexes as $name) {
-            unset($this->_indexes[$name], $this->implicitIndexes[$name]);
+        if ($this->_primaryKeyName !== null && $index->isPrimary()) {
+            throw PrimaryKeyAlreadyExists::new($this->_name);
         }
 
-        if ($indexCandidate->isPrimary()) {
+        foreach ($replacedImplicitIndexNames as $name => $_) {
+            unset($this->_indexes[$name], $this->implicitIndexNames[$name]);
+        }
+
+        if ($index->isPrimary()) {
             $this->_primaryKeyName = $indexName;
         }
 
-        $this->_indexes[$indexName] = $indexCandidate;
+        $this->_indexes[$indexName] = $index;
 
         return $this;
     }
@@ -671,7 +681,7 @@ class Table extends AbstractAsset
             }
         }
 
-        $this->implicitIndexes[$this->normalizeIdentifier($indexName)] = $indexCandidate;
+        $this->implicitIndexNames[$this->normalizeIdentifier($indexName)] = true;
 
         return $this;
     }
@@ -709,7 +719,7 @@ class Table extends AbstractAsset
         }
 
         $this->_addIndex($indexCandidate);
-        $this->implicitIndexes[$this->normalizeIdentifier($indexName)] = $indexCandidate;
+        $this->implicitIndexNames[$this->normalizeIdentifier($indexName)] = true;
 
         return $this;
     }
