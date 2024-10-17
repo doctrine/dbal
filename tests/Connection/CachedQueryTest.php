@@ -91,14 +91,12 @@ class CachedQueryTest extends TestCase
         return new Connection([], $driver);
     }
 
-    /**
-     * @return list<list<callable():CacheItemPoolInterface>>
-     */
+    /** @return array<non-empty-string, list<callable():CacheItemPoolInterface>> */
     public static function providePsrCacheImplementations(): array
     {
         return [
-            'serialized' => [fn() => new ArrayAdapter(0, true)],
-            'by-reference' => [fn() => new ArrayAdapter(0, false)],
+            'serialized' => [static fn () => new ArrayAdapter(0, true)],
+            'by-reference' => [static fn () => new ArrayAdapter(0, false)],
         ];
     }
 }
