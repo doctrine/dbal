@@ -21,7 +21,7 @@ Powerful ***D***ata***B***ase ***A***bstraction ***L***ayer with many features f
   [AppVeyor 5.0]: https://ci.appveyor.com/project/doctrine/dbal/branch/5.0.x
   [AppVeyor 5.0 image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/5.0.x?svg=true
   [GA 5.0]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A5.0.x
-  [GA 5.0 image]: https://github.com/doctrine/dbal/workflows/Continuous%20Integration/badge.svg?branch=5.0.x
+  [GA 5.0 image]: https://github.com/doctrine/dbal/actions/workflows/continuous-integration.yml/badge.svg?branch=5.0.x
 
   [Coverage 4.3 image]: https://codecov.io/gh/doctrine/dbal/branch/4.3.x/graph/badge.svg
   [4.3]: https://github.com/doctrine/dbal/tree/4.3.x
@@ -29,7 +29,7 @@ Powerful ***D***ata***B***ase ***A***bstraction ***L***ayer with many features f
   [AppVeyor 4.3]: https://ci.appveyor.com/project/doctrine/dbal/branch/4.3.x
   [AppVeyor 4.3 image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/4.3.x?svg=true
   [GA 4.3]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A4.3.x
-  [GA 4.3 image]: https://github.com/doctrine/dbal/workflows/Continuous%20Integration/badge.svg?branch=4.3.x
+  [GA 4.3 image]: https://github.com/doctrine/dbal/actions/workflows/continuous-integration.yml/badge.svg?branch=4.3.x
 
   [Coverage 4.2 image]: https://codecov.io/gh/doctrine/dbal/branch/4.2.x/graph/badge.svg
   [4.2]: https://github.com/doctrine/dbal/tree/4.2.x
@@ -37,7 +37,7 @@ Powerful ***D***ata***B***ase ***A***bstraction ***L***ayer with many features f
   [AppVeyor 4.2]: https://ci.appveyor.com/project/doctrine/dbal/branch/4.2.x
   [AppVeyor 4.2 image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/4.2.x?svg=true
   [GA 4.2]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A4.2.x
-  [GA 4.2 image]: https://github.com/doctrine/dbal/workflows/Continuous%20Integration/badge.svg?branch=4.2.x
+  [GA 4.2 image]: https://github.com/doctrine/dbal/actions/workflows/continuous-integration.yml/badge.svg?branch=4.2.x
   [TypeCov]: https://shepherd.dev/github/doctrine/dbal
   [TypeCov image]: https://shepherd.dev/github/doctrine/dbal/coverage.svg
 
@@ -47,7 +47,7 @@ Powerful ***D***ata***B***ase ***A***bstraction ***L***ayer with many features f
   [AppVeyor 3.10]: https://ci.appveyor.com/project/doctrine/dbal/branch/3.10.x
   [AppVeyor 3.10 image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/3.10.x?svg=true
   [GA 3.10]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A3.10.x
-  [GA 3.10 image]: https://github.com/doctrine/dbal/workflows/Continuous%20Integration/badge.svg?branch=3.10.x
+  [GA 3.10 image]: https://github.com/doctrine/dbal/actions/workflows/continuous-integration.yml/badge.svg?branch=3.10.x
 
   [Coverage 3.9 image]: https://codecov.io/gh/doctrine/dbal/branch/3.9.x/graph/badge.svg
   [3.9]: https://github.com/doctrine/dbal/tree/3.9.x
@@ -55,4 +55,4 @@ Powerful ***D***ata***B***ase ***A***bstraction ***L***ayer with many features f
   [AppVeyor 3.9]: https://ci.appveyor.com/project/doctrine/dbal/branch/3.9.x
   [AppVeyor 3.9 image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/3.9.x?svg=true
   [GA 3.9]: https://github.com/doctrine/dbal/actions?query=workflow%3A%22Continuous+Integration%22+branch%3A3.9.x
-  [GA 3.9 image]: https://github.com/doctrine/dbal/workflows/Continuous%20Integration/badge.svg?branch=3.9.x
+  [GA 3.9 image]: https://github.com/doctrine/dbal/actions/workflows/continuous-integration.yml/badge.svg?branch=3.9.x
