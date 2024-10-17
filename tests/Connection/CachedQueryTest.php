@@ -27,6 +27,10 @@ class CachedQueryTest extends TestCase
         self::assertSame([['foo' => 'bar']], $firstResult
             ->fetchAllAssociative());
         $firstResult->free();
+        $secondResult = $connection->executeCacheQuery('SELECT 1', [], [], $qcp);
+        self::assertSame([['foo' => 'bar']], $secondResult
+            ->fetchAllAssociative());
+        $secondResult->free();
         self::assertSame([['foo' => 'bar']], $connection->executeCacheQuery('SELECT 1', [], [], $qcp)
             ->fetchAllAssociative());
 
