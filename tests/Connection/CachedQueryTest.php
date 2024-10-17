@@ -8,27 +8,37 @@ use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 class CachedQueryTest extends TestCase
 {
-    public function testCachedQuery(): void
+    #[DataProvider('providePsrCacheImplementations')]
+    public function testCachedQuery(callable $psrCacheProvider): void
     {
-        $cache = new ArrayAdapter();
+        $cache = $psrCacheProvider();
 
         $connection = $this->createConnection(1, ['foo'], [['bar']]);
         $qcp        = new QueryCacheProfile(0, __FUNCTION__, $cache);
 
-        self::assertSame([['foo' => 'bar']], $connection->executeCacheQuery('SELECT 1', [], [], $qcp)
+        $firstResult = $connection->executeCacheQuery('SELECT 1', [], [], $qcp);
+        self::assertSame([['foo' => 'bar']], $firstResult
             ->fetchAllAssociative());
+        $firstResult->free();
+        $secondResult = $connection->executeCacheQuery('SELECT 1', [], [], $qcp);
+        self::assertSame([['foo' => 'bar']], $secondResult
+            ->fetchAllAssociative());
+        $secondResult->free();
         self::assertSame([['foo' => 'bar']], $connection->executeCacheQuery('SELECT 1', [], [], $qcp)
             ->fetchAllAssociative());
 
         self::assertCount(1, $cache->getItem(__FUNCTION__)->get());
     }
 
-    public function testCachedQueryWithChangedImplementationIsExecutedTwice(): void
+    #[DataProvider('providePsrCacheImplementations')]
+    public function testCachedQueryWithChangedImplementationIsExecutedTwice(callable $psrCacheProvider): void
     {
         $connection = $this->createConnection(2, ['baz'], [['qux']]);
 
@@ -36,21 +46,22 @@ class CachedQueryTest extends TestCase
             'SELECT 1',
             [],
             [],
-            new QueryCacheProfile(0, __FUNCTION__, new ArrayAdapter()),
+            new QueryCacheProfile(0, __FUNCTION__, $psrCacheProvider()),
         )->fetchAllAssociative());
 
         self::assertSame([['baz' => 'qux']], $connection->executeCacheQuery(
             'SELECT 1',
             [],
             [],
-            new QueryCacheProfile(0, __FUNCTION__, new ArrayAdapter()),
+            new QueryCacheProfile(0, __FUNCTION__, $psrCacheProvider()),
         )->fetchAllAssociative());
     }
 
-    public function testOldCacheFormat(): void
+    #[DataProvider('providePsrCacheImplementations')]
+    public function testOldCacheFormat(callable $psrCacheProvider): void
     {
         $connection = $this->createConnection(1, ['foo'], [['bar']]);
-        $cache      = new ArrayAdapter();
+        $cache      = $psrCacheProvider();
         $qcp        = new QueryCacheProfile(0, __FUNCTION__, $cache);
 
         [$cacheKey, $realKey] = $qcp->generateCacheKeys('SELECT 1', [], [], []);
@@ -82,5 +93,14 @@ class CachedQueryTest extends TestCase
             ->willReturn($connection);
 
         return new Connection([], $driver);
+    }
+
+    /** @return array<non-empty-string, list<callable():CacheItemPoolInterface>> */
+    public static function providePsrCacheImplementations(): array
+    {
+        return [
+            'serialized' => [static fn () => new ArrayAdapter(0, true)],
+            'by-reference' => [static fn () => new ArrayAdapter(0, false)],
+        ];
     }
 }
