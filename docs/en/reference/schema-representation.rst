@@ -93,7 +93,7 @@ and absolutely not portable.
 -  **engine** (string): The DB engine used for the table. Currently only supported on MySQL.
 
 -  **unlogged** (boolean): Set a PostgreSQL table type as
-  `unlogged <https://www.postgresql.org/docs/current/sql-createtable.htmll>`_
+  `unlogged <https://www.postgresql.org/docs/current/sql-createtable.html>`_
 
 Column
 ~~~~~~
