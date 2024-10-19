@@ -67,6 +67,10 @@ class TransactionTest extends FunctionalTestCase
 
     public function testNestedTransactionWalkthrough(): void
     {
+        if (! $this->connection->getDatabasePlatform()->supportsSavepoints()) {
+            self::markTestIncomplete('Broken when savepoints are not supported.');
+        }
+
         $table = new Table('storage');
         $table->addColumn('test_int', Types::INTEGER);
         $table->setPrimaryKey(['test_int']);
