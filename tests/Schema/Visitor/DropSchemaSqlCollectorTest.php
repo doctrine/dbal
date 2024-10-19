@@ -43,15 +43,15 @@ class DropSchemaSqlCollectorTest extends TestCase
     {
         $constraint = $this->createMock(ForeignKeyConstraint::class);
 
-        $constraint->expects(self::any())
+        $constraint
             ->method('getName')
             ->willReturn($name);
 
-        $constraint->expects(self::any())
+        $constraint
             ->method('getForeignColumns')
             ->willReturn([]);
 
-        $constraint->expects(self::any())
+        $constraint
             ->method('getColumns')
             ->willReturn([]);
 
