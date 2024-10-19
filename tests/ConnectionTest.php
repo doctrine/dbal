@@ -396,6 +396,46 @@ class ConnectionTest extends TestCase
         self::assertTrue($conn->isTransactionActive());
     }
 
+    public function testTransactionIsNotActiveAfterTransactionalInAutoCommitMode(): void
+    {
+        $driverMock = $this->createStub(Driver::class);
+        $driverMock
+            ->method('connect')
+            ->willReturn(
+                $this->createMock(DriverConnection::class),
+            );
+
+        $conn = new Connection([], $driverMock);
+
+        $conn->setAutoCommit(true);
+
+        self::assertFalse($conn->isTransactionActive());
+
+        $conn->transactional(static function (Connection $connection): void {
+        });
+
+        self::assertFalse($conn->isTransactionActive());
+    }
+
+    public function testTransactionIsActiveAfterTransactionalInNoAutoCommitMode(): void
+    {
+        $driverMock = $this->createMock(Driver::class);
+        $driverMock
+            ->method('connect')
+            ->willReturn(
+                $this->createMock(DriverConnection::class),
+            );
+
+        $conn = new Connection([], $driverMock);
+
+        $conn->setAutoCommit(false);
+
+        $conn->transactional(static function (Connection $connection): void {
+        });
+
+        self::assertTrue($conn->isTransactionActive());
+    }
+
     public function testCommitStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
