@@ -19,6 +19,9 @@ use LogicException;
 
 use function array_merge;
 use function array_values;
+use function count;
+use function implode;
+use function in_array;
 use function preg_match;
 use function sprintf;
 use function strtolower;
@@ -332,6 +335,30 @@ class Table extends AbstractAsset
     public function dropColumn(string $name): self
     {
         $name = $this->normalizeIdentifier($name);
+
+        $foreignKeyConstraintNames = $this->getForeignKeyConstraintNamesByLocalColumnName($name);
+        $uniqueConstraintNames     = $this->getUniqueConstraintNamesByColumnName($name);
+
+        if (count($foreignKeyConstraintNames) > 0 || count($uniqueConstraintNames) > 0) {
+            $constraints = [];
+
+            if (count($foreignKeyConstraintNames) > 0) {
+                $constraints[] = 'foreign key constraints: ' . implode(', ', $foreignKeyConstraintNames);
+            }
+
+            if (count($uniqueConstraintNames) > 0) {
+                $constraints[] = 'unique constraints: ' . implode(', ', $uniqueConstraintNames);
+            }
+
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6559',
+                'Dropping columns referenced by constraints is deprecated.'
+                    . ' Column %s is used by the following constraints: %s ',
+                $name,
+                implode('; ', $constraints),
+            );
+        }
 
         unset($this->_columns[$name]);
 
@@ -832,5 +859,37 @@ class Table extends AbstractAsset
         }
 
         return new Index($indexName, $columns, $isUnique, $isPrimary, $flags, $options);
+    }
+
+    /** @return list<string> */
+    private function getForeignKeyConstraintNamesByLocalColumnName(string $columnName): array
+    {
+        $names = [];
+
+        foreach ($this->_fkConstraints as $name => $constraint) {
+            if (! in_array($columnName, $constraint->getLocalColumns(), true)) {
+                continue;
+            }
+
+            $names[] = $name;
+        }
+
+        return $names;
+    }
+
+    /** @return list<string> */
+    private function getUniqueConstraintNamesByColumnName(string $columnName): array
+    {
+        $names = [];
+
+        foreach ($this->uniqueConstraints as $name => $constraint) {
+            if (! in_array($columnName, $constraint->getColumns(), true)) {
+                continue;
+            }
+
+            $names[] = $name;
+        }
+
+        return $names;
     }
 }
