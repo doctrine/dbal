@@ -67,6 +67,13 @@
 
                 <!-- TODO for PHPUnit 11 -->
                 <referencedMethod name="PHPUnit\Framework\TestCase::iniSet"/>
+
+                <!--
+                    https://github.com/doctrine/dbal/pull/6560
+                    TODO: remove in 5.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\Table::removeForeignKey" />
+                <referencedMethod name="Doctrine\DBAL\Schema\Table::removeUniqueConstraint" />
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>

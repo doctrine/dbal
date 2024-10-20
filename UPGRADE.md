@@ -6,6 +6,13 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 4.3
+
+## Deprecated `Table::removeForeignKey()` and `::removeUniqueConstraint()`
+
+The usage of `Table::removeForeignKey()` and `::removeUniqueConstraint()` is deprecated. Use `Table::dropForeignKey()`
+and `::dropUniqueConstraint()` respectively instead.
+
 # Upgrade to 4.2
 
 ## Support for new PDO subclasses on PHP 8.4
