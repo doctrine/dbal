@@ -6,6 +6,12 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 4.3
+
+## Deprecated dropping columns referenced by constraints
+
+Dropping columns that are referenced by constraints is deprecated. The constraints should be dropped first.
+
 # Upgrade to 4.2
 
 ## Support for new PDO subclasses on PHP 8.4
