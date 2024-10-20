@@ -36,11 +36,11 @@ class StatementTest extends TestCase
             ->getMock();
 
         $this->configuration = $this->createMock(Configuration::class);
-        $this->conn->expects(self::any())
+        $this->conn
                 ->method('getConfiguration')
                 ->willReturn($this->configuration);
 
-        $this->conn->expects(self::any())
+        $this->conn
             ->method('getDriver')
             ->willReturn($driver);
     }
