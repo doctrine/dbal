@@ -32,6 +32,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use RuntimeException;
 use stdClass;
 
 /** @requires extension pdo_mysql */
@@ -396,6 +397,48 @@ class ConnectionTest extends TestCase
         self::assertTrue($conn->isTransactionActive());
     }
 
+    public function testTransactionIsNotActiveAfterTransactionalInAutoCommitMode(): void
+    {
+        $driverMock = $this->createStub(Driver::class);
+        $driverMock
+            ->method('connect')
+            ->willReturn(
+                $this->createMock(DriverConnection::class),
+            );
+
+        $conn = new Connection([], $driverMock);
+
+        $conn->setAutoCommit(true);
+
+        self::assertFalse($conn->isTransactionActive());
+
+        $conn->transactional(static function (Connection $connection): void {
+        });
+
+        self::assertFalse($conn->isTransactionActive());
+    }
+
+    public function testTransactionIsActiveAfterTransactionalInNoAutoCommitMode(): void
+    {
+        $driverMock = $this->createMock(Driver::class);
+        $driverMock
+            ->method('connect')
+            ->willReturn(
+                $this->createMock(DriverConnection::class),
+            );
+
+        $conn = new Connection([], $driverMock);
+
+        $conn->setAutoCommit(false);
+
+        self::assertFalse($conn->isTransactionActive());
+
+        $conn->transactional(static function (Connection $connection): void {
+        });
+
+        self::assertTrue($conn->isTransactionActive());
+    }
+
     public function testCommitStartsTransactionInNoAutoCommitMode(): void
     {
         $driver = $this->createStub(Driver::class);
@@ -409,6 +452,35 @@ class ConnectionTest extends TestCase
         $conn->setAutoCommit(false);
         $conn->connect();
         $conn->commit();
+
+        self::assertTrue($conn->isTransactionActive());
+    }
+
+    public function testBeginTransactionFailureAfterCommitInNoAutoCommitMode(): void
+    {
+        $driverConnectionMock = $this->createMock(DriverConnection::class);
+        $driverConnectionMock->expects(self::exactly(2))
+            ->method('beginTransaction')
+            ->willReturnOnConsecutiveCalls(
+                true,
+                self::throwException(new RuntimeException()),
+            );
+
+        $driverMock = $this->createMock(Driver::class);
+        $driverMock
+            ->method('connect')
+            ->willReturn(
+                $driverConnectionMock,
+            );
+        $conn = new Connection([], $driverMock);
+
+        $conn->setAutoCommit(false);
+
+        $conn->connect();
+        try {
+            $conn->commit();
+        } catch (RuntimeException $e) {
+        }
 
         self::assertTrue($conn->isTransactionActive());
     }
@@ -1024,6 +1096,28 @@ class ConnectionTest extends TestCase
             self::assertNotNull($e->getPrevious());
             self::assertSame('Original exception', $e->getPrevious()->getMessage());
         }
+    }
+
+    /**
+     * We are not sure if this can happen in real life scenario
+     */
+    public function testItFailsDuringCommitBeforeTouchingDb(): void
+    {
+        $connection = new class (['memory' => true], new Driver\SQLite3\Driver()) extends Connection {
+            public function commit(): void
+            {
+                throw new \Exception('Fail before touching the db');
+            }
+
+            public function rollBack(): void
+            {
+                throw new \Exception('Rollback got triggered');
+            }
+        };
+
+        $this->expectExceptionMessage('Rollback got triggered');
+        $connection->transactional(static function (): void {
+        });
     }
 }
 
