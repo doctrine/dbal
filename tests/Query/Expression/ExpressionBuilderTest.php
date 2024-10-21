@@ -13,7 +13,7 @@ class ExpressionBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $conn = $this->createMock(Connection::class);
+        $conn = $this->createStub(Connection::class);
 
         $this->expr = new ExpressionBuilder($conn);
 
