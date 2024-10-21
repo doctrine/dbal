@@ -32,6 +32,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use RuntimeException;
 use stdClass;
 
 /** @requires extension pdo_mysql */
@@ -409,6 +410,35 @@ class ConnectionTest extends TestCase
         $conn->setAutoCommit(false);
         $conn->connect();
         $conn->commit();
+
+        self::assertTrue($conn->isTransactionActive());
+    }
+
+    public function testBeginTransactionFailureAfterCommitInNoAutoCommitMode(): void
+    {
+        $driverConnectionMock = $this->createMock(DriverConnection::class);
+        $driverConnectionMock->expects(self::exactly(2))
+            ->method('beginTransaction')
+            ->willReturnOnConsecutiveCalls(
+                true,
+                self::throwException(new RuntimeException()),
+            );
+
+        $driver = $this->createStub(Driver::class);
+        $driver
+            ->method('connect')
+            ->willReturn(
+                $driverConnectionMock,
+            );
+        $conn = new Connection([], $driver);
+
+        $conn->setAutoCommit(false);
+
+        $conn->connect();
+        try {
+            $conn->commit();
+        } catch (RuntimeException $e) {
+        }
 
         self::assertTrue($conn->isTransactionActive());
     }
