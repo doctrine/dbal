@@ -90,7 +90,7 @@ class DateTimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeStringWithMicrosecondsToPHPValue(): void
     {
-        $this->platform->expects(self::any())
+        $this->platform
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
 

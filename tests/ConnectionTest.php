@@ -47,11 +47,11 @@ class ConnectionTest extends TestCase
 
     private function getExecuteStatementMockConnection(): Connection&MockObject
     {
-        $driverMock = $this->createMock(Driver::class);
+        $driver = self::createStub(Driver::class);
 
         return $this->getMockBuilder(Connection::class)
             ->onlyMethods(['executeStatement'])
-            ->setConstructorArgs([[], $driverMock])
+            ->setConstructorArgs([[], $driver])
             ->getMock();
     }
 
@@ -146,9 +146,9 @@ class ConnectionTest extends TestCase
 
     public function testConnectStartsTransactionInNoAutoCommitMode(): void
     {
-        $driverMock = $this->createMock(Driver::class);
+        $driver = self::createStub(Driver::class);
 
-        $conn = new Connection([], $driverMock);
+        $conn = new Connection([], $driver);
 
         $conn->setAutoCommit(false);
 
@@ -161,9 +161,9 @@ class ConnectionTest extends TestCase
 
     public function testCommitStartsTransactionInNoAutoCommitMode(): void
     {
-        $driverMock = $this->createMock(Driver::class);
+        $driver = self::createStub(Driver::class);
 
-        $conn = new Connection([], $driverMock);
+        $conn = new Connection([], $driver);
 
         $conn->setAutoCommit(false);
         $conn->executeQuery('SELECT 1');
@@ -180,9 +180,9 @@ class ConnectionTest extends TestCase
 
     public function testRollBackStartsTransactionInNoAutoCommitMode(): void
     {
-        $driverMock = $this->createMock(Driver::class);
+        $driver = self::createStub(Driver::class);
 
-        $conn = new Connection([], $driverMock);
+        $conn = new Connection([], $driver);
 
         $conn->setAutoCommit(false);
         $conn->executeQuery('SELECT 1');
@@ -198,12 +198,12 @@ class ConnectionTest extends TestCase
             ->method('supportsSavepoints')
             ->willReturn(true);
 
-        $driverMock = $this->createMock(Driver::class);
-        $driverMock
+        $driver = self::createStub(Driver::class);
+        $driver
             ->method('getDatabasePlatform')
             ->willReturn($platform);
 
-        $conn = new Connection([], $driverMock);
+        $conn = new Connection([], $driver);
 
         $conn->beginTransaction();
         $conn->beginTransaction();

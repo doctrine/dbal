@@ -90,7 +90,7 @@ class TimeImmutableTypeTest extends TestCase
 
     public function testResetDateFractionsWhenConvertingToPHPValue(): void
     {
-        $this->platform->expects(self::any())
+        $this->platform
             ->method('getTimeFormatString')
             ->willReturn('H:i:s');
 

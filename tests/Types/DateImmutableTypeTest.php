@@ -90,7 +90,7 @@ class DateImmutableTypeTest extends TestCase
 
     public function testResetTimeFractionsWhenConvertingToPHPValue(): void
     {
-        $this->platform->expects(self::any())
+        $this->platform
             ->method('getDateFormatString')
             ->willReturn('Y-m-d');
 
