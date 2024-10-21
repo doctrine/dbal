@@ -82,10 +82,20 @@ class Comparator extends BaseComparator
      */
     private function normalizeOptions(array $options): array
     {
-        if (isset($options['charset']) && ! isset($options['collation'])) {
-            $options['collation'] = $this->charsetMetadataProvider->getDefaultCharsetCollation($options['charset']);
-        } elseif (isset($options['collation']) && ! isset($options['charset'])) {
-            $options['charset'] = $this->collationMetadataProvider->getCollationCharset($options['collation']);
+        if (isset($options['charset'])) {
+            $options['charset'] = $this->charsetMetadataProvider->normalizeCharset($options['charset']);
+
+            if (! isset($options['collation'])) {
+                $options['collation'] = $this->charsetMetadataProvider->getDefaultCharsetCollation($options['charset']);
+            }
+        }
+
+        if (isset($options['collation'])) {
+            $options['collation'] = $this->collationMetadataProvider->normalizeCollation($options['collation']);
+
+            if (! isset($options['charset'])) {
+                $options['charset'] = $this->collationMetadataProvider->getCollationCharset($options['collation']);
+            }
         }
 
         return $options;
