@@ -811,7 +811,7 @@ class Connection implements ServerVersionProvider
             }
 
             if (isset($value[$realKey]) && $value[$realKey] instanceof ArrayResult) {
-                return new Result($value[$realKey], $this);
+                return new Result(clone $value[$realKey], $this);
             }
         } else {
             $value = [];
@@ -837,7 +837,7 @@ class Connection implements ServerVersionProvider
 
         $resultCache->save($item);
 
-        return new Result($value[$realKey], $this);
+        return new Result(clone $value[$realKey], $this);
     }
 
     /**
