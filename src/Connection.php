@@ -12,6 +12,7 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection\StaticServerVersionProvider;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
@@ -931,16 +932,30 @@ class Connection implements ServerVersionProvider
 
         try {
             $res = $func($this);
-            $this->commit();
 
             $successful = true;
-
-            return $res;
         } finally {
             if (! $successful) {
                 $this->rollBack();
             }
         }
+
+        $shouldRollback = true;
+        try {
+            $this->commit();
+
+            $shouldRollback = false;
+        } catch (TheDriverException $t) {
+            $shouldRollback = false;
+
+            throw $t;
+        } finally {
+            if ($shouldRollback) {
+                $this->rollBack();
+            }
+        }
+
+        return $res;
     }
 
     /**
@@ -1019,17 +1034,26 @@ class Connection implements ServerVersionProvider
 
         $connection = $this->connect();
 
-        if ($this->transactionNestingLevel === 1) {
-            try {
-                $connection->commit();
-            } catch (Driver\Exception $e) {
-                throw $this->convertException($e);
+        try {
+            if ($this->transactionNestingLevel === 1) {
+                try {
+                    $connection->commit();
+                } catch (Driver\Exception $e) {
+                    throw $this->convertException($e);
+                }
+            } else {
+                $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
             }
-        } else {
-            $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
+        } finally {
+            $this->updateTransactionStateAfterCommit();
         }
+    }
 
-        --$this->transactionNestingLevel;
+    private function updateTransactionStateAfterCommit(): void
+    {
+        if ($this->transactionNestingLevel !== 0) {
+            --$this->transactionNestingLevel;
+        }
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
             return;
