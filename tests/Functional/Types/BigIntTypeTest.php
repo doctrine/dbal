@@ -10,8 +10,6 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Types;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Constraint\IsIdentical;
-use PHPUnit\Framework\Constraint\LogicalOr;
 
 use const PHP_INT_MAX;
 use const PHP_INT_MIN;
@@ -49,44 +47,10 @@ class BigIntTypeTest extends FunctionalTestCase
         yield 'null' => ['null', null];
         yield 'positive number' => ['42', 42];
         yield 'negative number' => ['-42', -42];
-
-        if (PHP_INT_SIZE < 8) {
-            // The following tests only work on 64bit systems.
-            return;
-        }
-
-        yield 'large positive number' => ['9223372036854775806', PHP_INT_MAX - 1];
-        yield 'large negative number' => ['-9223372036854775807', PHP_INT_MIN + 1];
-    }
-
-    #[DataProvider('provideBigIntEdgeLiterals')]
-    public function testSelectBigIntEdge(int $value): void
-    {
-        $table = new Table('bigint_type_test');
-        $table->addColumn('id', Types::SMALLINT, ['notnull' => true]);
-        $table->addColumn('my_integer', Types::BIGINT, ['notnull' => false]);
-        $table->setPrimaryKey(['id']);
-        $this->dropAndCreateTable($table);
-
-        $this->connection->executeStatement(<<<SQL
-            INSERT INTO bigint_type_test (id, my_integer)
-            VALUES (42, $value)
-            SQL);
-
-        self::assertThat(
-            $this->connection->convertToPHPValue(
-                $this->connection->fetchOne('SELECT my_integer from bigint_type_test WHERE id = 42'),
-                Types::BIGINT,
-            ),
-            LogicalOr::fromConstraints(new IsIdentical($value), new IsIdentical((string) $value)),
-        );
-    }
-
-    /** @return Generator<string, array{int}> */
-    public static function provideBigIntEdgeLiterals(): Generator
-    {
-        yield 'max int' => [PHP_INT_MAX];
-        yield 'min int' => [PHP_INT_MIN];
+        yield 'large positive number' => [PHP_INT_SIZE === 4 ? '2147483646' : '9223372036854775806', PHP_INT_MAX - 1];
+        yield 'large negative number' => [PHP_INT_SIZE === 4 ? '-2147483647' : '-9223372036854775807', PHP_INT_MIN + 1];
+        yield 'largest positive number' => [PHP_INT_SIZE === 4 ? '2147483647' : '9223372036854775807', PHP_INT_MAX];
+        yield 'largest negative number' => [PHP_INT_SIZE === 4 ? '-2147483648' : '-9223372036854775808', PHP_INT_MIN];
     }
 
     public function testUnsignedBigIntOnMySQL(): void
