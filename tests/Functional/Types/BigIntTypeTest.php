@@ -28,13 +28,13 @@ class BigIntTypeTest extends FunctionalTestCase
 
         $this->connection->executeStatement(<<<SQL
             INSERT INTO bigint_type_test (id, my_integer)
-            VALUES (1, $sqlLiteral)
+            VALUES (42, $sqlLiteral)
             SQL);
 
         self::assertSame(
             $expectedValue,
             $this->connection->convertToPHPValue(
-                $this->connection->fetchOne('SELECT my_integer from bigint_type_test'),
+                $this->connection->fetchOne('SELECT my_integer from bigint_type_test WHERE id = 42'),
                 Types::BIGINT,
             ),
         );
@@ -68,13 +68,13 @@ class BigIntTypeTest extends FunctionalTestCase
         // Insert (2 ** 64) - 1
         $this->connection->executeStatement(<<<'SQL'
             INSERT INTO bigint_type_test (id, my_integer)
-            VALUES (1, 0xFFFFFFFFFFFFFFFF)
+            VALUES (42, 0xFFFFFFFFFFFFFFFF)
             SQL);
 
         self::assertSame(
             '18446744073709551615',
             $this->connection->convertToPHPValue(
-                $this->connection->fetchOne('SELECT my_integer from bigint_type_test'),
+                $this->connection->fetchOne('SELECT my_integer from bigint_type_test WHERE id = 42'),
                 Types::BIGINT,
             ),
         );
