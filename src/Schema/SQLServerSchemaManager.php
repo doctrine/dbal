@@ -89,7 +89,9 @@ SQL,
                 break;
 
             case 'nvarchar':
+                // TEXT type is returned as NVARCHAR(MAX) with a length of -1
                 if ($length === -1) {
+                    $dbType = 'text';
                     break;
                 }
 
@@ -98,7 +100,9 @@ SQL,
                 break;
 
             case 'varchar':
-                // TEXT type is returned as VARCHAR(MAX) with a length of -1
+                // keep for backward compatibility
+                // as some fields might come back as VARCHAR(MAX) with a length of -1
+                // and we want them to be mapped to the 'text' type
                 if ($length === -1) {
                     $dbType = 'text';
                 }

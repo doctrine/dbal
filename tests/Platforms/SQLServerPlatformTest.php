@@ -120,9 +120,9 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesTypeDeclarationsForStrings(): void
     {
-        self::assertSame('VARCHAR(MAX)', $this->platform->getClobTypeDeclarationSQL([]));
+        self::assertSame('NVARCHAR(MAX)', $this->platform->getClobTypeDeclarationSQL([]));
         self::assertSame(
-            'VARCHAR(MAX)',
+            'NVARCHAR(MAX)',
             $this->platform->getClobTypeDeclarationSQL(['length' => 5, 'fixed' => true]),
         );
     }
