@@ -16,11 +16,11 @@ class ExpressionBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $conn = $this->createMock(Connection::class);
+        $conn = self::createStub(Connection::class);
 
         $this->expr = new ExpressionBuilder($conn);
 
-        $conn->expects(self::any())
+        $conn
              ->method('createExpressionBuilder')
              ->willReturn($this->expr);
     }
