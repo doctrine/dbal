@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 use LogicException;
 
 use function array_merge;
@@ -409,8 +410,24 @@ class Table extends AbstractAsset
 
     /**
      * Removes the foreign key constraint with the given name.
+     *
+     * @deprecated Use {@link dropForeignKey()} instead.
      */
     public function removeForeignKey(string $name): void
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6560',
+            'Table::removeForeignKey() is deprecated. Use Table::removeForeignKey() instead.',
+        );
+
+        $this->dropForeignKey($name);
+    }
+
+    /**
+     * Drops the foreign key constraint with the given name.
+     */
+    public function dropForeignKey(string $name): void
     {
         $name = $this->normalizeIdentifier($name);
 
@@ -447,8 +464,24 @@ class Table extends AbstractAsset
 
     /**
      * Removes the unique constraint with the given name.
+     *
+     * @deprecated Use {@link dropUniqueConstraint()} instead.
      */
     public function removeUniqueConstraint(string $name): void
+    {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6560',
+            'Table::removeUniqueConstraint() is deprecated. Use Table::dropUniqueConstraint() instead.',
+        );
+
+        $this->dropUniqueConstraint($name);
+    }
+
+    /**
+     * Drops the unique constraint with the given name.
+     */
+    public function dropUniqueConstraint(string $name): void
     {
         $name = $this->normalizeIdentifier($name);
 
