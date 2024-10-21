@@ -41,7 +41,7 @@ class DropSchemaSqlCollectorTest extends TestCase
 
     private function getStubKeyConstraint(string $name): ForeignKeyConstraint
     {
-        $constraint = $this->createMock(ForeignKeyConstraint::class);
+        $constraint = $this->createStub(ForeignKeyConstraint::class);
 
         $constraint
             ->method('getName')
