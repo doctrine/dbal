@@ -702,7 +702,9 @@ SQL;
 
         if ($tableName !== null) {
             $conditions[] = 't.name = ?';
-            $params[]     = str_replace('.', '__', $tableName);
+            $params[]     = $this->_platform->canEmulateSchemas()
+                ? str_replace('.', '__', $tableName)
+                : $tableName;
         }
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, c.cid';
@@ -727,7 +729,9 @@ SQL;
 
         if ($tableName !== null) {
             $conditions[] = 't.name = ?';
-            $params[]     = str_replace('.', '__', $tableName);
+            $params[]     = $this->_platform->canEmulateSchemas()
+                ? str_replace('.', '__', $tableName)
+                : $tableName;
         }
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, i.seq';
@@ -753,7 +757,9 @@ SQL;
 
         if ($tableName !== null) {
             $conditions[] = 't.name = ?';
-            $params[]     = str_replace('.', '__', $tableName);
+            $params[]     = $this->_platform->canEmulateSchemas()
+                ? str_replace('.', '__', $tableName)
+                : $tableName;
         }
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, p.id DESC, p.seq';
