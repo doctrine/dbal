@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Driver\API\OCI;
 
 use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Driver\OCI8\Exception\Error;
+use Doctrine\DBAL\Driver\PDO\PDOException;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DatabaseDoesNotExist;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
@@ -17,8 +19,12 @@ use Doctrine\DBAL\Exception\NotNullConstraintViolationException;
 use Doctrine\DBAL\Exception\SyntaxErrorException;
 use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
+use Doctrine\DBAL\Exception\TransactionRolledBack;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
+
+use function explode;
+use function str_replace;
 
 /** @internal */
 final class ExceptionConverter implements ExceptionConverterInterface
@@ -26,7 +32,17 @@ final class ExceptionConverter implements ExceptionConverterInterface
     /** @link http://www.dba-oracle.com/t_error_code_list.htm */
     public function convert(Exception $exception, ?Query $query): DriverException
     {
-        switch ($exception->getCode()) {
+        /** @psalm-var int|'HY000' $code */
+        $code = $exception->getCode();
+        /** @psalm-suppress NoInterfaceProperties */
+        if ($code === 'HY000' && isset($exception->errorInfo[1], $exception->errorInfo[2])) {
+            $errorInfo            = $exception->errorInfo;
+            $exception            = new PDOException($errorInfo[2], $errorInfo[1]);
+            $exception->errorInfo = $errorInfo;
+            $code                 = $exception->getCode();
+        }
+
+        switch ($code) {
             case 1:
             case 2299:
             case 38911:
@@ -57,6 +73,22 @@ final class ExceptionConverter implements ExceptionConverterInterface
 
             case 1918:
                 return new DatabaseDoesNotExist($exception, $query);
+
+            case 2091:
+                //ORA-02091: transaction rolled back
+                //ORA-00001: unique constraint (DOCTRINE.GH3423_UNIQUE) violated
+                [, $causeError] = explode("\n", $exception->getMessage(), 2);
+
+                [$causeCode] = explode(': ', $causeError, 2);
+                $code        = (int) str_replace('ORA-', '', $causeCode);
+
+                if ($exception instanceof PDOException) {
+                    $why = $this->convert(new PDOException($causeError, $code, $exception), $query);
+                } else {
+                    $why = $this->convert(new Error($causeError, null, $code), $query);
+                }
+
+                return new TransactionRolledBack($why, $exception, $query);
 
             case 2289:
             case 2443:
