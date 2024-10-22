@@ -19,11 +19,16 @@ use function assert;
 use function count;
 use function feof;
 use function fread;
+use function fseek;
+use function ftell;
 use function func_num_args;
 use function get_resource_type;
 use function is_int;
 use function is_resource;
 use function str_repeat;
+use function stream_get_meta_data;
+
+use const SEEK_SET;
 
 final class Statement implements StatementInterface
 {
@@ -213,15 +218,26 @@ final class Statement implements StatementInterface
     private function sendLongData(array $streams): void
     {
         foreach ($streams as $paramNr => $stream) {
-            while (! feof($stream)) {
-                $chunk = fread($stream, 8192);
+            $resetTo = false;
+            if (stream_get_meta_data($stream)['seekable']) {
+                $resetTo = ftell($stream);
+            }
 
-                if ($chunk === false) {
-                    throw FailedReadingStreamOffset::new($paramNr);
+            try {
+                while (! feof($stream)) {
+                    $chunk = fread($stream, 8192);
+
+                    if ($chunk === false) {
+                        throw FailedReadingStreamOffset::new($paramNr);
+                    }
+
+                    if (! $this->stmt->send_long_data($paramNr - 1, $chunk)) {
+                        throw StatementError::new($this->stmt);
+                    }
                 }
-
-                if (! $this->stmt->send_long_data($paramNr - 1, $chunk)) {
-                    throw StatementError::new($this->stmt);
+            } finally {
+                if ($resetTo !== false) {
+                    fseek($stream, $resetTo, SEEK_SET);
                 }
             }
         }

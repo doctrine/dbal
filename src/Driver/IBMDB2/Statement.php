@@ -10,12 +10,15 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Deprecations\Deprecation;
+use Throwable;
 
 use function assert;
 use function db2_bind_param;
 use function db2_execute;
 use function error_get_last;
 use function fclose;
+use function fseek;
+use function ftell;
 use function func_num_args;
 use function is_int;
 use function is_resource;
@@ -28,6 +31,7 @@ use const DB2_CHAR;
 use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
+use const SEEK_SET;
 
 final class Statement implements StatementInterface
 {
@@ -213,8 +217,28 @@ final class Statement implements StatementInterface
      */
     private function copyStreamToStream($source, $target): void
     {
-        if (@stream_copy_to_stream($source, $target) === false) {
-            throw CannotCopyStreamToStream::new(error_get_last());
+        $resetTo = false;
+        if (stream_get_meta_data($source)['seekable']) {
+            $resetTo = ftell($source);
         }
+
+        if (@stream_copy_to_stream($source, $target) === false) {
+            $copyToStreamError = error_get_last();
+            if ($resetTo !== false) {
+                try {
+                    fseek($source, $resetTo, SEEK_SET);
+                } catch (Throwable $e) {
+                    // Swallow, we want the original exception from stream_copy_to_stream
+                }
+            }
+
+            throw CannotCopyStreamToStream::new($copyToStreamError);
+        }
+
+        if ($resetTo === false) {
+            return;
+        }
+
+        fseek($source, $resetTo, SEEK_SET);
     }
 }
