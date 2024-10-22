@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -24,6 +25,8 @@ use function array_shift;
 
 class TableTest extends TestCase
 {
+    use VerifyDeprecations;
+
     public function testCreateWithInvalidTableName(): void
     {
         $this->expectException(Exception::class);
@@ -904,5 +907,34 @@ class TableTest extends TestCase
         $table->addColumn('bar', Types::INTEGER);
 
         $table->removeUniqueConstraint('unique_constraint');
+    }
+
+    public function testDropColumnWithForeignKeyConstraint(): void
+    {
+        $table = new Table('t1');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addForeignKeyConstraint('t2', ['id'], ['id']);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6559');
+        $table->dropColumn('id');
+    }
+
+    public function testDropColumnWithUniqueConstraint(): void
+    {
+        $table = new Table('t');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addUniqueConstraint(['id']);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6559');
+        $table->dropColumn('id');
+    }
+
+    public function testDropColumnWithoutConstraints(): void
+    {
+        $table = new Table('t');
+        $table->addColumn('id', Types::INTEGER);
+
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6559');
+        $table->dropColumn('id');
     }
 }

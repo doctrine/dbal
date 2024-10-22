@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.3
 
+## Deprecated dropping columns referenced by constraints
+
+Dropping columns that are referenced by constraints is deprecated. The constraints should be dropped first.
+
 ## Deprecated `Table::removeForeignKey()` and `::removeUniqueConstraint()`
 
 The usage of `Table::removeForeignKey()` and `::removeUniqueConstraint()` is deprecated. Use `Table::dropForeignKey()`
