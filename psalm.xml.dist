@@ -519,6 +519,9 @@
 
                 <!-- TODO: remove in 4.0.0 -->
                 <referencedMethod name="Doctrine\DBAL\Platforms\DB2Platform::getForUpdateSQL"/>
+
+                <!-- TODO: remove in 4.0.0 -->
+                <referencedMethod name="Doctrine\DBAL\Platforms\SqlitePlatform::canEmulateSchemas"/>
             </errorLevel>
         </DeprecatedMethod>
         <DeprecatedProperty>
