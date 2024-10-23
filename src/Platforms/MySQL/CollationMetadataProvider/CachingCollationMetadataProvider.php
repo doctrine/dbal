@@ -18,6 +18,11 @@ final class CachingCollationMetadataProvider implements CollationMetadataProvide
     {
     }
 
+    public function normalizeCollation(string $collation): string
+    {
+        return $this->collationMetadataProvider->normalizeCollation($collation);
+    }
+
     public function getCollationCharset(string $collation): ?string
     {
         if (array_key_exists($collation, $this->cache)) {
