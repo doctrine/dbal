@@ -131,6 +131,12 @@
                 <file name="tests/Types/DateIntervalTest.php"/>
             </errorLevel>
         </InaccessibleProperty>
+        <InvalidCast>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/10995 -->
+                <file name="src/Types/BigIntType.php"/>
+            </errorLevel>
+        </InvalidCast>
         <InvalidArgument>
             <errorLevel type="suppress">
                 <!-- We're testing with invalid input here. -->
@@ -185,6 +191,8 @@
         </MoreSpecificReturnType>
         <NoValue>
             <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/10995 -->
+                <file name="src/Types/BigIntType.php"/>
                 <!--
                     This error looks bogus.
                 -->
@@ -291,6 +299,8 @@
                 <!-- Ignore isset() checks in destructors. -->
                 <file name="src/Driver/PgSQL/Connection.php"/>
                 <file name="src/Driver/PgSQL/Statement.php"/>
+                <!-- See https://github.com/vimeo/psalm/issues/10995 -->
+                <file name="src/Types/BigIntType.php"/>
             </errorLevel>
         </TypeDoesNotContainType>
         <UndefinedClass>

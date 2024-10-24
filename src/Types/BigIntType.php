@@ -47,14 +47,17 @@ class BigIntType extends Type implements PhpIntegerMappingType
             return $value;
         }
 
-        if ($value > PHP_INT_MIN && $value < PHP_INT_MAX) {
-            return (int) $value;
-        }
-
         assert(
             is_string($value),
             'DBAL assumes values outside of the integer range to be returned as string by the database driver.',
         );
+
+        if (
+            ($value > PHP_INT_MIN && $value < PHP_INT_MAX)
+            || $value === (string) (int) $value
+        ) {
+            return (int) $value;
+        }
 
         return $value;
     }
