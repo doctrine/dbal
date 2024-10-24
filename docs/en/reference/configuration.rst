@@ -249,7 +249,7 @@ mysqli
 -  ``ssl_ca`` (string): The path name to the certificate authority file to use for SSL encryption.
 -  ``ssl_capath`` (string): The pathname to a directory that contains trusted SSL CA certificates in PEM format.
 -  ``ssl_cipher`` (string): A list of allowable ciphers to use for SSL encryption.
--  ``driverOptions`` Any supported flags for mysqli found on `http://www.php.net/manual/en/mysqli.real-connect.php`
+-  ``driverOptions`` Any supported flags for mysqli found on `www.php.net/manual/en/mysqli.real-connect.php <https://www.php.net/manual/en/mysqli.real-connect.php>`_
 
 pdo_pgsql / pgsql
 ^^^^^^^^^^^^^^^^^
@@ -266,22 +266,22 @@ pdo_pgsql / pgsql
 -  ``sslmode`` (string): Determines whether or with what priority
    a SSL TCP/IP connection will be negotiated with the server.
    See the list of available modes:
-   `https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLMODE`
+   `www.postgresql.org/docs/9.4/libpq-connect.html#LIBPQ-CONNECT-SSLMODE <https://www.postgresql.org/docs/9.4/libpq-connect.html#LIBPQ-CONNECT-SSLMODE>`_
 -  ``sslrootcert`` (string): specifies the name of a file containing
    SSL certificate authority (CA) certificate(s). If the file exists,
    the server's certificate will be verified to be signed by one of these
    authorities.
-   See https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
+   See `www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT <https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT>`_
 -  ``sslcert`` (string): specifies the filename of the client SSL certificate.
-   See `https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT`
+   See `www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT <https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT>`_
 -  ``sslkey`` (string): specifies the location for the secret key used for the
    client certificate.
-   See `https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY`
+   See `www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY <https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY>`_
 -  ``sslcrl`` (string): specifies the filename of the SSL certificate
    revocation list (CRL).
-   See `https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
+   See `www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL <https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL>`_
 -  ``gssencmode`` (string): Optional GSS-encrypted channel/GSSEncMode configuration.
-   See `https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-GSSENCMODE`
+   See `www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-GSSENCMODE <https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNECT-GSSENCMODE>`_
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
 
@@ -316,7 +316,7 @@ pdo_oci / oci8
    add the INSTANCE_NAME parameter in the connection. It is generally used
    to connect to an Oracle RAC server to select the name of a particular instance.
 -  ``connectstring`` (string): Complete Easy Connect connection descriptor,
-   see https://docs.oracle.com/database/121/NETAG/naming.htm. When using this option,
+   see `docs.oracle.com/en/database/oracle/oracle-database/23/netag/configuring-naming-methods.html <https://docs.oracle.com/en/database/oracle/oracle-database/23/netag/configuring-naming-methods.html>`_. When using this option,
    you will still need to provide the ``user`` and ``password`` parameters, but the other
    parameters will no longer be used. Note that when using this parameter, the ``getHost``
    and ``getPort`` methods from ``Doctrine\DBAL\Connection`` will no longer function as expected.
@@ -335,7 +335,7 @@ pdo_sqlsrv / sqlsrv
 -  ``host`` (string): Hostname of the database to connect to.
 -  ``port`` (integer): Port of the database to connect to.
 -  ``dbname`` (string): Name of the database/schema to connect to.
--  ``driverOptions`` (array): Any supported options found on `https://learn.microsoft.com/en-us/sql/connect/php/connection-options`
+-  ``driverOptions`` (array): Any supported options found on `learn.microsoft.com/en-us/sql/connect/php/connection-options <https://learn.microsoft.com/en-us/sql/connect/php/connection-options>`_
 
 ibm_db2
 ^^^^^^^
@@ -347,7 +347,7 @@ ibm_db2
 -  ``host`` (string): Hostname of the database to connect to.
 -  ``port`` (integer): Port of the database to connect to.
 -  ``persistent`` (boolean): Whether to establish a persistent connection.
--  ``driverOptions`` (array): Any supported options found on `https://www.php.net/manual/en/function.db2-connect.php#refsect1-function.db2-connect-parameters`
+-  ``driverOptions`` (array): Any supported options found on `www.php.net/manual/en/function.db2-connect.php#refsect1-function.db2-connect-parameters <https://www.php.net/manual/en/function.db2-connect.php#refsect1-function.db2-connect-parameters>`_
 
 Automatic platform version detection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
