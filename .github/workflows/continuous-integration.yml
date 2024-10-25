@@ -234,6 +234,7 @@ jobs:
           - "9.4"
           - "15"
           - "16"
+          - "17"
         extension:
           - "pgsql"
           - "pdo_pgsql"
@@ -255,6 +256,12 @@ jobs:
             extension: "pdo_pgsql"
           - php-version: "8.4"
             postgres-version: "16"
+            extension: "pdo_pgsql"
+          - php-version: "8.4"
+            postgres-version: "17"
+            extension: "pgsql"
+          - php-version: "8.4"
+            postgres-version: "17"
             extension: "pdo_pgsql"
 
     services:
