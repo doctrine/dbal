@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
+use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -1028,6 +1029,40 @@ abstract class AbstractPlatformTestCase extends TestCase
         return [
             ['VARCHAR(12)', ['length' => 12]],
             ['CHAR(12)', ['length' => 12, 'fixed' => true]],
+        ];
+    }
+
+    /** @param array<string> $values */
+    #[DataProvider('getEnumDeclarationSQLProvider')]
+    public function testGetEnumDeclarationSQL(array $values, string $expectedSQL): void
+    {
+        self::assertSame($expectedSQL, $this->platform->getEnumDeclarationSQL(['values' => $values]));
+    }
+
+    /** @return array<string, array{array<string>, string}> */
+    public static function getEnumDeclarationSQLProvider(): array
+    {
+        return [
+            'single value' => [['foo'], 'VARCHAR(3)'],
+            'multiple values' => [['foo', 'bar1'], 'VARCHAR(4)'],
+        ];
+    }
+
+    /** @param array<mixed> $column */
+    #[DataProvider('getEnumDeclarationSQLWithInvalidValuesProvider')]
+    public function testGetEnumDeclarationSQLWithInvalidValues(array $column): void
+    {
+        self::expectException(ColumnValuesRequired::class);
+        $this->platform->getEnumDeclarationSQL($column);
+    }
+
+    /** @return array<string, array{array<mixed>}> */
+    public static function getEnumDeclarationSQLWithInvalidValuesProvider(): array
+    {
+        return [
+            "field 'values' does not exist" => [[]],
+            "field 'values' is not an array" => [['values' => 'foo']],
+            "field 'values' is an empty array" => [['values' => []]],
         ];
     }
 }

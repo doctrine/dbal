@@ -52,6 +52,7 @@ use function is_bool;
 use function is_float;
 use function is_int;
 use function is_string;
+use function key;
 use function max;
 use function mb_strlen;
 use function preg_quote;
@@ -209,7 +210,11 @@ abstract class AbstractPlatform
             throw ColumnValuesRequired::new($this, 'ENUM');
         }
 
-        return $this->getStringTypeDeclarationSQL(['length' => max(...array_map(mb_strlen(...), $column['values']))]);
+        $length = count($column['values']) > 1
+            ? max(...array_map(mb_strlen(...), $column['values']))
+            : mb_strlen($column['values'][key($column['values'])]);
+
+        return $this->getStringTypeDeclarationSQL(['length' => $length]);
     }
 
     /**

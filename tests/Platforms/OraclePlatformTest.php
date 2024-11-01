@@ -595,4 +595,13 @@ EOD;
             ['CHAR(12)', ['length' => 12, 'fixed' => true]],
         ];
     }
+
+    /** @return array<string, array{array<string>, string}> */
+    public static function getEnumDeclarationSQLProvider(): array
+    {
+        return [
+            'single value' => [['foo'], 'VARCHAR2(3)'],
+            'multiple values' => [['foo', 'bar1'], 'VARCHAR2(4)'],
+        ];
+    }
 }

@@ -694,4 +694,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             new DefaultTableOptions('utf8mb4', 'utf8mb4_general_ci'),
         );
     }
+
+    /** @return array<string, array{array<string>, string}> */
+    public static function getEnumDeclarationSQLProvider(): array
+    {
+        return [
+            'single value' => [['foo'], "ENUM('foo')"],
+            'multiple values' => [['foo', 'bar1'], "ENUM('foo', 'bar1')"],
+        ];
+    }
 }
