@@ -71,15 +71,13 @@ class SchemaTest extends TestCase
 
     public function testRenameTable(): void
     {
-        $tableName = 'foo';
-        $table     = new Table($tableName);
-        $schema    = new Schema([$table]);
+        $table  = new Table('foo');
+        $schema = new Schema([$table]);
 
         self::assertTrue($schema->hasTable('foo'));
         $schema->renameTable('foo', 'bar');
         self::assertFalse($schema->hasTable('foo'));
         self::assertTrue($schema->hasTable('bar'));
-        self::assertSame($table, $schema->getTable('bar'));
     }
 
     public function testDropTable(): void

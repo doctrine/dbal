@@ -300,13 +300,10 @@ class Schema extends AbstractOptionallyNamedObject
      */
     public function renameTable(string $oldName, string $newName): self
     {
-        $table = $this->getTable($oldName);
-
-        $identifier = new Identifier($newName);
-
-        $table->_name      = $identifier->_name;
-        $table->_namespace = $identifier->_namespace;
-        $table->_quoted    = $identifier->_quoted;
+        $table = $this->getTable($oldName)
+            ->edit()
+            ->setName($newName)
+            ->create();
 
         $this->dropTable($oldName);
         $this->_addTable($table);
