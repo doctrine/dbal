@@ -107,17 +107,17 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "7.4"
-          - "8.2"
           - "8.3"
         oracle-version:
           - "21"
           - "23"
         include:
+          - php-version: "7.4"
+            oracle-version: "23"
+          - php-version: "8.2"
+            oracle-version: "23"
           - php-version: "8.4"
             oracle-version: "23"
-          - php-version: "7.4"
-            oracle-version: "11"
 
     services:
       oracle:
@@ -168,17 +168,17 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "7.4"
-          - "8.2"
           - "8.3"
         oracle-version:
           - "21"
           - "23"
         include:
+          - php-version: "7.4"
+            oracle-version: "23"
+          - php-version: "8.2"
+            oracle-version: "23"
           - php-version: "8.4"
             oracle-version: "23"
-          - php-version: "7.4"
-            oracle-version: "11"
 
     services:
       oracle:
@@ -229,7 +229,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "7.4"
+          - "8.3"
         postgres-version:
           - "9.4"
           - "16"
@@ -238,19 +238,19 @@ jobs:
           - "pgsql"
           - "pdo_pgsql"
         include:
-          - php-version: "8.2"
+          - php-version: "7.4"
             postgres-version: "17"
             extension: "pgsql"
-          - php-version: "8.3"
+          - php-version: "8.2"
             postgres-version: "17"
             extension: "pgsql"
           - php-version: "8.4"
             postgres-version: "17"
             extension: "pgsql"
-          - php-version: "8.2"
+          - php-version: "7.4"
             postgres-version: "17"
             extension: "pdo_pgsql"
-          - php-version: "8.3"
+          - php-version: "8.2"
             postgres-version: "17"
             extension: "pdo_pgsql"
           - php-version: "8.4"
@@ -305,7 +305,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "7.4"
+          - "8.3"
         mariadb-version:
           # keep in sync with https://mariadb.org/about/#maintenance-policy
           - "10.0"  # Oldest version supported by DBAL
@@ -321,27 +321,21 @@ jobs:
           - "mysqli"
           - "pdo_mysql"
         include:
-          - php-version: "8.2"
-            mariadb-version: "10.6"
-            extension: "mysqli"
-          - php-version: "8.2"
-            mariadb-version: "10.6"
-            extension: "pdo_mysql"
-          - php-version: "8.2"
+          - php-version: "7.4"
             mariadb-version: "11.4"
             extension: "mysqli"
           - php-version: "8.2"
             mariadb-version: "11.4"
-            extension: "pdo_mysql"
-          - php-version: "8.3"
-            mariadb-version: "11.4"
             extension: "mysqli"
-          - php-version: "8.3"
-            mariadb-version: "11.4"
-            extension: "pdo_mysql"
           - php-version: "8.4"
             mariadb-version: "11.4"
             extension: "mysqli"
+          - php-version: "7.4"
+            mariadb-version: "11.4"
+            extension: "pdo_mysql"
+          - php-version: "8.2"
+            mariadb-version: "11.4"
+            extension: "pdo_mysql"
           - php-version: "8.4"
             mariadb-version: "11.4"
             extension: "pdo_mysql"
@@ -408,13 +402,25 @@ jobs:
         include:
           - config-file-suffix: "-tls"
             php-version: "7.4"
-            mysql-version: "8.0"
+            mysql-version: "9.1"
             extension: "mysqli"
           - php-version: "7.4"
-            mysql-version: "8.0"
+            mysql-version: "9.1"
+            extension: "mysqli"
+          - php-version: "8.2"
+            mysql-version: "9.1"
+            extension: "mysqli"
+          - php-version: "8.4"
+            mysql-version: "9.1"
             extension: "mysqli"
           - php-version: "7.4"
-            mysql-version: "8.0"
+            mysql-version: "9.1"
+            extension: "pdo_mysql"
+          - php-version: "8.2"
+            mysql-version: "9.1"
+            extension: "pdo_mysql"
+          - php-version: "8.4"
+            mysql-version: "9.1"
             extension: "pdo_mysql"
           # Workaround for https://bugs.mysql.com/114876
           - php-version: "8.3"
@@ -427,12 +433,6 @@ jobs:
             extension: "pdo_mysql"
             custom-entrypoint: >-
               --entrypoint sh mysql:8.4 -c "exec docker-entrypoint.sh mysqld --mysql-native-password=ON"
-          - php-version: "8.4"
-            mysql-version: "9.1"
-            extension: "mysqli"
-          - php-version: "8.4"
-            mysql-version: "9.1"
-            extension: "pdo_mysql"
 
     services:
       mysql:
