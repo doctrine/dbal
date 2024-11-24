@@ -18,8 +18,7 @@ trait PDOConnect
         string $password,
         array $options,
     ): PDO {
-        // see https://github.com/php/php-src/issues/16314
-        if (PHP_VERSION_ID < 80400 || ($options[PDO::ATTR_PERSISTENT] ?? false) === true) {
+        if (PHP_VERSION_ID < 80400) {
             return new PDO($dsn, $username, $password, $options);
         }
 
