@@ -9,9 +9,10 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
+use function array_map;
+use function assert;
 use function fopen;
 use function fseek;
-use function ftell;
 use function fwrite;
 use function str_repeat;
 use function stream_get_contents;
@@ -208,19 +209,36 @@ class BlobTest extends FunctionalTestCase
         }
 
         $stmt = $this->connection->prepare(
-            "INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)",
+            "INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (?, 'ignored', ?)",
         );
 
         $stream = fopen('php://temp', 'rb+');
+        assert($stream !== false);
+
         fwrite($stream, 'a test');
         fseek($stream, 2);
-        $stmt->bindValue(1, $stream, ParameterType::LARGE_OBJECT);
+        $stmt->bindValue(1, 1, ParameterType::INTEGER);
+        $stmt->bindValue(2, $stream, ParameterType::LARGE_OBJECT);
 
-        $stmt->execute();
+        $stmt->executeStatement();
 
-        self::assertEquals(2, ftell($stream), 'Resource parameter should be reset to position before execute.');
+        $stmt->bindValue(1, 2, ParameterType::INTEGER);
+        $stmt->executeStatement();
 
-        $this->assertBlobContains('test');
+        $stmt->bindValue(1, 3, ParameterType::INTEGER);
+        $stmt->executeStatement();
+
+        $rows = array_map(
+            function (array $row): array {
+                $row[0] = $this->connection->convertToPHPValue($row[0], Types::INTEGER);
+                $row[1] = $this->connection->convertToPHPValue($row[1], Types::STRING);
+
+                return $row;
+            },
+            $this->connection->fetchAllNumeric('SELECT id, blobcolumn FROM blob_table'),
+        );
+
+        self::assertSame([[1, 'test'], [2, 'test'], [3, 'test']], $rows);
     }
 
     private function assertBlobContains(string $text): void
