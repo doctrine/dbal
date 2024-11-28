@@ -34,13 +34,13 @@ use const PREG_NO_ERROR;
  */
 final class Parser
 {
-    private const SPECIAL_CHARS = ':\?\'"`\\[\\-\\/';
+    private const SPECIAL_CHARS = ':\?\'"`\\[\\-\\/$';
 
     private const BACKTICK_IDENTIFIER  = '`[^`]*`';
     private const BRACKET_IDENTIFIER   = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
     private const MULTICHAR            = ':{2,}';
     private const NAMED_PARAMETER      = ':[a-zA-Z0-9_]+';
-    private const POSITIONAL_PARAMETER = '(?<!\\?)\\?(?!\\?)';
+    private const POSITIONAL_PARAMETER = '((?<!\\?)\\?(?!\\?)|\\$\d+)';
     private const ONE_LINE_COMMENT     = '--[^\r\n]*';
     private const MULTI_LINE_COMMENT   = '/\*([^*]+|\*+[^/*])*\**\*/';
     private const SPECIAL              = '[' . self::SPECIAL_CHARS . ']';

@@ -46,8 +46,18 @@ class ParserTest extends TestCase implements Visitor
         ];
 
         yield [
+            'SELECT $1',
+            'SELECT {$1}',
+        ];
+
+        yield [
             'SELECT * FROM Foo WHERE bar IN (?, ?, ?)',
             'SELECT * FROM Foo WHERE bar IN ({?}, {?}, {?})',
+        ];
+
+        yield [
+            'SELECT * FROM Foo WHERE bar IN ($1, $2, $1)',
+            'SELECT * FROM Foo WHERE bar IN ({$1}, {$2}, {$1})',
         ];
 
         yield [
@@ -56,8 +66,18 @@ class ParserTest extends TestCase implements Visitor
         ];
 
         yield [
+            'SELECT $1 FROM $2',
+            'SELECT {$1} FROM {$2}',
+        ];
+
+        yield [
             'SELECT "?" FROM foo WHERE bar = ?',
             'SELECT "?" FROM foo WHERE bar = {?}',
+        ];
+
+        yield [
+            'SELECT "$1" FROM foo WHERE bar = $1',
+            'SELECT "$1" FROM foo WHERE bar = {$1}',
         ];
 
         yield [
@@ -66,8 +86,18 @@ class ParserTest extends TestCase implements Visitor
         ];
 
         yield [
+            "SELECT '$1' FROM foo WHERE bar = $1",
+            "SELECT '$1' FROM foo WHERE bar = {\$1}",
+        ];
+
+        yield [
             'SELECT `?` FROM foo WHERE bar = ?',
             'SELECT `?` FROM foo WHERE bar = {?}',
+        ];
+
+        yield [
+            'SELECT `$1` FROM foo WHERE bar = $1',
+            'SELECT `$1` FROM foo WHERE bar = {$1}',
         ];
 
         yield [
@@ -76,8 +106,18 @@ class ParserTest extends TestCase implements Visitor
         ];
 
         yield [
+            'SELECT [$1] FROM foo WHERE bar = $1',
+            'SELECT [$1] FROM foo WHERE bar = {$1}',
+        ];
+
+        yield [
             'SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[?])',
             'SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[{?}])',
+        ];
+
+        yield [
+            'SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[$1])',
+            'SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[{$1}])',
         ];
 
         yield [
@@ -86,8 +126,18 @@ class ParserTest extends TestCase implements Visitor
         ];
 
         yield [
+            "SELECT 'Doctrine\DBAL$1' FROM foo WHERE bar = $1",
+            "SELECT 'Doctrine\DBAL$1' FROM foo WHERE bar = {\$1}",
+        ];
+
+        yield [
             'SELECT "Doctrine\DBAL?" FROM foo WHERE bar = ?',
             'SELECT "Doctrine\DBAL?" FROM foo WHERE bar = {?}',
+        ];
+
+        yield [
+            'SELECT "Doctrine\DBAL$1" FROM foo WHERE bar = $1',
+            'SELECT "Doctrine\DBAL$1" FROM foo WHERE bar = {$1}',
         ];
 
         yield [
@@ -96,8 +146,18 @@ class ParserTest extends TestCase implements Visitor
         ];
 
         yield [
+            'SELECT `Doctrine\DBAL$1` FROM foo WHERE bar = $1',
+            'SELECT `Doctrine\DBAL$1` FROM foo WHERE bar = {$1}',
+        ];
+
+        yield [
             'SELECT [Doctrine\DBAL?] FROM foo WHERE bar = ?',
             'SELECT [Doctrine\DBAL?] FROM foo WHERE bar = {?}',
+        ];
+
+        yield [
+            'SELECT [Doctrine\DBAL?] FROM foo WHERE bar = $1',
+            'SELECT [Doctrine\DBAL?] FROM foo WHERE bar = {$1}',
         ];
 
         yield [
@@ -289,6 +349,31 @@ SELECT dummy as "dummy?"
  WHERE '?' = '?'
 -- AND dummy <> ?
    AND dummy = {?}
+SQL
+,
+        ];
+
+        yield 'Postgres placeholders inside comments' => [
+            <<<'SQL'
+/*
+ * test placeholder $1
+ */
+SELECT dummy as "dummy$1"
+  FROM DUAL
+ WHERE '$1' = '$1'
+-- AND dummy <> $1
+   AND dummy = $1
+SQL
+,
+            <<<'SQL'
+/*
+ * test placeholder $1
+ */
+SELECT dummy as "dummy$1"
+  FROM DUAL
+ WHERE '$1' = '$1'
+-- AND dummy <> $1
+   AND dummy = {$1}
 SQL
 ,
         ];
