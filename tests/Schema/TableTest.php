@@ -8,8 +8,10 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
@@ -966,5 +968,32 @@ class TableTest extends TestCase
 
         $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6559');
         $table->dropColumn('id');
+    }
+
+    public function testOverqualifiedName(): void
+    {
+        $this->expectException(InvalidName::class);
+
+        new Table('warehouse.inventory.products');
+    }
+
+    /** @throws Exception */
+    public function testGetUnqualifiedObjectName(): void
+    {
+        $table = new Table('products');
+        $name  = $table->getObjectName();
+
+        self::assertEquals(Identifier::unquoted('products'), $name->getUnqualifiedName());
+        self::assertNull($name->getQualifier());
+    }
+
+    /** @throws Exception */
+    public function testGetQualifiedObjectName(): void
+    {
+        $table = new Table('inventory.products');
+        $name  = $table->getObjectName();
+
+        self::assertEquals(Identifier::unquoted('products'), $name->getUnqualifiedName());
+        self::assertEquals(Identifier::unquoted('inventory'), $name->getQualifier());
     }
 }

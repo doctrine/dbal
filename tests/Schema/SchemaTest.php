@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\TestCase;
 
 use function array_shift;
@@ -17,6 +21,8 @@ use function strlen;
 
 class SchemaTest extends TestCase
 {
+    use VerifyDeprecations;
+
     public function testAddTable(): void
     {
         $tableName = 'public.foo';
@@ -328,5 +334,28 @@ class SchemaTest extends TestCase
 
         self::assertTrue($schema->hasNamespace('baz'));
         self::assertFalse($schema->hasNamespace('moo'));
+    }
+
+    public function testQualifiedName(): void
+    {
+        $schemaConfig = new SchemaConfig();
+        $schemaConfig->setName('warehouse.inventory');
+
+        $this->expectException(InvalidName::class);
+
+        new Schema([], [], $schemaConfig);
+    }
+
+    /** @throws Exception */
+    public function testGetObjectName(): void
+    {
+        $schemaConfig = new SchemaConfig();
+        $schemaConfig->setName('public');
+
+        $schema = new Schema([], [], $schemaConfig);
+        $name   = $schema->getObjectName();
+
+        self::assertNotNull($name);
+        self::assertEquals(Identifier::unquoted('public'), $name->getIdentifier());
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -170,5 +172,23 @@ class IndexTest extends TestCase
         self::assertSame('name IS NULL', $idx2->getOption('where'));
         self::assertSame('name IS NULL', $idx2->getOption('WHERE'));
         self::assertSame(['where' => 'name IS NULL'], $idx2->getOptions());
+    }
+
+    /** @throws Exception */
+    public function testGetNonNullObjectName(): void
+    {
+        $index = new Index('idx_user_id', ['user_id']);
+        $name  = $index->getObjectName();
+
+        self::assertNotNull($name);
+        self::assertEquals(Identifier::unquoted('idx_user_id'), $name->getIdentifier());
+    }
+
+    /** @throws Exception */
+    public function testGetNullObjectName(): void
+    {
+        $index = new Index(null, ['user_id']);
+
+        self::assertNull($index->getObjectName());
     }
 }

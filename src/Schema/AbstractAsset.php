@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Exception\InvalidObjectName;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Exception\NotImplemented;
+use Doctrine\DBAL\Schema\Name\GenericName;
+use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
-use Doctrine\DBAL\Schema\Name\Parser\Identifier;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function array_map;
 use function assert;
@@ -26,10 +30,19 @@ use function substr;
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables
  * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure this does not get
  * recreated during schema migration.
+ *
+ * @internal This class should be extended only by DBAL itself.
+ *
+ * @template N of Name
  */
 abstract class AbstractAsset
 {
     protected string $_name = '';
+
+    /**
+     * Indicates whether the object name has been initialized.
+     */
+    protected bool $isNameInitialized = false;
 
     /**
      * Namespace of the asset. If none isset the default namespace is assumed.
@@ -43,16 +56,37 @@ abstract class AbstractAsset
 
     public function __construct(string $name)
     {
-        if ($name === '') {
+        if ($name !== '') {
+            try {
+                $parsedName = $this->getNameParser()->parse($name);
+            } catch (Parser\Exception $e) {
+                throw InvalidName::fromParserException($name, $e);
+            }
+        } else {
+            $parsedName = null;
+        }
+
+        $this->setName($parsedName);
+
+        $this->isNameInitialized = true;
+
+        if ($parsedName === null) {
             return;
         }
 
-        $parser = new Parser();
+        if ($parsedName instanceof UnqualifiedName) {
+            $identifiers = [$parsedName->getIdentifier()];
+        } elseif ($parsedName instanceof OptionallyQualifiedName) {
+            $unqualifiedName = $parsedName->getUnqualifiedName();
+            $qualifier       = $parsedName->getQualifier();
 
-        try {
-            $identifiers = $parser->parse($name);
-        } catch (Parser\Exception $e) {
-            throw InvalidObjectName::fromParserException($name, $e);
+            $identifiers = $qualifier !== null
+                ? [$qualifier, $unqualifiedName]
+                : [$unqualifiedName];
+        } elseif ($parsedName instanceof GenericName) {
+            $identifiers = $parsedName->getIdentifiers();
+        } else {
+            return;
         }
 
         $count = count($identifiers);
@@ -70,13 +104,39 @@ abstract class AbstractAsset
                 break;
 
             default:
-                throw InvalidObjectName::tooManyQualifiers($name, $count - 1);
+                $namespace = null;
+                $name      = $identifiers[$count - 1];
+                break;
         }
 
         $this->_name       = $name->getValue();
         $this->_quoted     = $name->isQuoted();
         $this->_namespace  = $namespace?->getValue();
         $this->identifiers = $identifiers;
+    }
+
+    /**
+     * Returns a parser for parsing the object name.
+     *
+     * @deprecated Parse the name in the constructor instead.
+     *
+     * @return Parser<N>
+     */
+    protected function getNameParser(): Parser
+    {
+        throw NotImplemented::fromMethod(static::class, __FUNCTION__);
+    }
+
+    /**
+     * Sets the object name.
+     *
+     * @deprecated Set the name in the constructor instead.
+     *
+     * @param ?N $name
+     */
+    protected function setName(?Name $name): void
+    {
+        throw NotImplemented::fromMethod(static::class, __FUNCTION__);
     }
 
     /**

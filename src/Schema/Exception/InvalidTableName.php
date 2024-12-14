@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Schema\Exception;
 use function sprintf;
 
 /** @psalm-immutable */
-final class InvalidTableName extends InvalidObjectName
+final class InvalidTableName extends InvalidName
 {
     public static function new(string $tableName): self
     {

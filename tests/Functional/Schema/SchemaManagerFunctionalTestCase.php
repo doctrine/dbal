@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\SchemaException;
@@ -107,7 +108,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($this->hasElementWithName($this->schemaManager->listSequences(), $name));
     }
 
-    /** @param AbstractAsset[] $items */
+    /** @param AbstractAsset<OptionallyQualifiedName>[] $items */
     private function hasElementWithName(array $items, string $name): bool
     {
         $filteredList = $this->filterElementsByName($items, $name);
@@ -120,7 +121,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
      *
      * @return T[]
      *
-     * @template T of AbstractAsset
+     * @template T of AbstractAsset<OptionallyQualifiedName>
      */
     private function filterElementsByName(array $items, string $name): array
     {

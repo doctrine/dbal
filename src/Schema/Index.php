@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
+use Doctrine\DBAL\Schema\Name\Parsers;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function array_filter;
 use function array_keys;
@@ -14,7 +17,8 @@ use function array_shift;
 use function count;
 use function strtolower;
 
-class Index extends AbstractAsset
+/** @extends AbstractOptionallyNamedObject<UnqualifiedName> */
+class Index extends AbstractOptionallyNamedObject
 {
     /**
      * Asset identifier instances of the column names the index is associated with.
@@ -47,7 +51,7 @@ class Index extends AbstractAsset
         array $flags = [],
         private readonly array $options = [],
     ) {
-        parent::__construct($name ?? '');
+        parent::__construct($name);
 
         $this->_isUnique  = $isUnique || $isPrimary;
         $this->_isPrimary = $isPrimary;
@@ -59,6 +63,11 @@ class Index extends AbstractAsset
         foreach ($flags as $flag) {
             $this->addFlag($flag);
         }
+    }
+
+    protected function getNameParser(): UnqualifiedNameParser
+    {
+        return Parsers::getUnqualifiedNameParser();
     }
 
     protected function _addColumn(string $column): void

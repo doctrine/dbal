@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\SchemaDiff;
@@ -810,7 +811,7 @@ abstract class AbstractComparatorTestCase extends TestCase
     }
 
     /**
-     * @param array<AbstractAsset> $assets
+     * @param array<AbstractAsset<UnqualifiedName>> $assets
      *
      * @return array<string>
      */

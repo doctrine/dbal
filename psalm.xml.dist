@@ -55,6 +55,13 @@
 
                 <!-- TODO for PHPUnit 11 -->
                 <referencedMethod name="PHPUnit\Framework\TestCase::iniSet"/>
+
+                <!--
+                    https://github.com/doctrine/dbal/pull/6646
+                    TODO: remove in 5.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getNameParser" />
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::setName" />
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
@@ -131,6 +138,14 @@
                 <file name="tests/Driver/PDO/*/DriverTest.php"/>
                 <file name="tests/Functional/Driver/Mysqli/ConnectionTest.php"/>
                 <file name="tests/Platforms/AbstractPlatformTestCase.php"/>
+
+                <!--
+                    https://github.com/doctrine/dbal/pull/6646
+                    TODO: remove in 5.0.0
+
+                    This looks like a Psalm bug.
+                -->
+                <referencedFunction name="Doctrine\DBAL\Schema\AbstractAsset::setName"/>
             </errorLevel>
         </InvalidArgument>
         <InvalidArrayOffset>
@@ -237,6 +252,21 @@
         </PossiblyFalseReference>
         <PropertyNotSetInConstructor>
             <errorLevel type="suppress">
+                <!--
+                    https://github.com/doctrine/dbal/pull/6646
+                    TODO: remove in 5.0.0
+                -->
+                <referencedProperty name="Doctrine\DBAL\Schema\AbstractAsset::$name"/>
+
+                <!--
+                    https://github.com/doctrine/dbal/pull/6646
+                    TODO: remove in 5.0.0
+
+                    For some reason, referencing the property name doesn't work. Furthermore,
+                    the class doesn't reference the property.
+                -->
+                <file name="src/Schema/Table.php"/>
+
                 <!-- See https://github.com/psalm/psalm-plugin-phpunit/issues/107 -->
                 <!-- See https://github.com/sebastianbergmann/phpunit/pull/4610 -->
                 <directory name="tests"/>

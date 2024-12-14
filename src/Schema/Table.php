@@ -13,6 +13,9 @@ use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
+use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
@@ -28,8 +31,10 @@ use function strtolower;
 
 /**
  * Object Representation of a table.
+ *
+ * @extends AbstractNamedObject<OptionallyQualifiedName>
  */
-class Table extends AbstractAsset
+class Table extends AbstractNamedObject
 {
     /** @var Column[] */
     protected array $_columns = [];
@@ -106,6 +111,11 @@ class Table extends AbstractAsset
         }
 
         $this->_options = array_merge($this->_options, $options);
+    }
+
+    protected function getNameParser(): OptionallyQualifiedNameParser
+    {
+        return Parsers::getOptionallyQualifiedNameParser();
     }
 
     /**

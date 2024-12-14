@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
+use Doctrine\DBAL\Schema\Name\Parsers;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function array_keys;
 use function array_map;
@@ -12,8 +15,10 @@ use function strtolower;
 
 /**
  * Class for a unique constraint.
+ *
+ * @extends AbstractOptionallyNamedObject<UnqualifiedName>
  */
-class UniqueConstraint extends AbstractAsset
+class UniqueConstraint extends AbstractOptionallyNamedObject
 {
     /**
      * Asset identifier instances of the column names the unique constraint is associated with.
@@ -49,6 +54,11 @@ class UniqueConstraint extends AbstractAsset
         foreach ($flags as $flag) {
             $this->addFlag($flag);
         }
+    }
+
+    protected function getNameParser(): UnqualifiedNameParser
+    {
+        return Parsers::getUnqualifiedNameParser();
     }
 
     /**

@@ -76,6 +76,7 @@
     <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2099 -->
     <rule ref="Squiz.Commenting.FunctionComment.InvalidNoReturn">
         <exclude-pattern>src/Platforms/AbstractPlatform.php</exclude-pattern>
+        <exclude-pattern>src/Schema/AbstractAsset.php</exclude-pattern>
         <exclude-pattern>src/Schema/AbstractSchemaManager.php</exclude-pattern>
         <exclude-pattern>tests/Platforms/AbstractPlatformTestCase.php</exclude-pattern>
     </rule>
@@ -128,13 +129,14 @@
         <exclude-pattern>src/Driver/SQLSrv/Statement.php</exclude-pattern>
     </rule>
 
-    <!-- This could be considered a bug in the sniff or the shortcoming of the Platform API design
+    <!-- False positives caused by the limitation of PHP_CodeSniffer
          see https://github.com/squizlabs/PHP_CodeSniffer/issues/3035 -->
     <rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
-        <exclude-pattern>src/Platforms/SQLitePlatform.php</exclude-pattern>
         <exclude-pattern>src/Platforms/*/Comparator.php</exclude-pattern>
         <exclude-pattern>src/Driver/PDO/SQLSrv/Connection.php</exclude-pattern>
         <exclude-pattern>src/Driver/PDO/SQLSrv/Statement.php</exclude-pattern>
+        <exclude-pattern>src/Schema/AbstractNamedObject.php</exclude-pattern>
+        <exclude-pattern>src/Schema/Name/UnqualifiedName.php</exclude-pattern>
     </rule>
 
     <!-- This issue is likely fixed in Slevomat Coding Standard 8.0.0 -->

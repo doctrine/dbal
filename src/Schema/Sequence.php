@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
+use Doctrine\DBAL\Schema\Name\Parsers;
+
 use function count;
 use function sprintf;
 
 /**
  * Sequence structure.
+ *
+ * @extends AbstractNamedObject<OptionallyQualifiedName>
  */
-class Sequence extends AbstractAsset
+class Sequence extends AbstractNamedObject
 {
     protected int $allocationSize = 1;
 
@@ -26,6 +32,11 @@ class Sequence extends AbstractAsset
 
         $this->setAllocationSize($allocationSize);
         $this->setInitialValue($initialValue);
+    }
+
+    protected function getNameParser(): OptionallyQualifiedNameParser
+    {
+        return Parsers::getOptionallyQualifiedNameParser();
     }
 
     public function getAllocationSize(): int

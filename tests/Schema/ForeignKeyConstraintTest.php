@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ForeignKeyConstraintTest extends TestCase
 {
+    use VerifyDeprecations;
+
     /** @param string[] $indexColumns */
     #[DataProvider('getIntersectsIndexColumnsData')]
     public function testIntersectsIndexColumns(array $indexColumns, bool $expectedResult): void
@@ -79,5 +85,30 @@ class ForeignKeyConstraintTest extends TestCase
         $fk2 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'RESTRICT']);
 
         self::assertSame($fk1->onDelete(), $fk2->onDelete());
+    }
+
+    public function testQualifiedName(): void
+    {
+        $this->expectException(InvalidName::class);
+
+        new ForeignKeyConstraint(['user_id'], 'users', ['id'], 'auth.fk_user_id');
+    }
+
+    /** @throws Exception */
+    public function testGetNonNullObjectName(): void
+    {
+        $foreignKey = new ForeignKeyConstraint(['user_id'], 'users', ['id'], 'fk_user_id');
+        $name       = $foreignKey->getObjectName();
+
+        self::assertNotNull($name);
+        self::assertEquals(Identifier::unquoted('fk_user_id'), $name->getIdentifier());
+    }
+
+    /** @throws Exception */
+    public function testGetNullObjectName(): void
+    {
+        $foreignKey = new ForeignKeyConstraint(['user_id'], 'users', ['id']);
+
+        self::assertNull($foreignKey->getObjectName());
     }
 }

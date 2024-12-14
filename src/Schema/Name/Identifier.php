@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\DBAL\Schema\Name\Parser;
+namespace Doctrine\DBAL\Schema\Name;
+
+use Doctrine\DBAL\Schema\Exception\InvalidIdentifier;
+
+use function sprintf;
+use function str_replace;
+use function strlen;
 
 /**
  * Represents an SQL identifier.
- *
- * @internal
  */
 final class Identifier
 {
@@ -15,6 +19,9 @@ final class Identifier
         private readonly string $value,
         private readonly bool $isQuoted,
     ) {
+        if (strlen($this->value) === 0) {
+            throw InvalidIdentifier::fromEmpty();
+        }
     }
 
     public function getValue(): string
@@ -25,6 +32,15 @@ final class Identifier
     public function isQuoted(): bool
     {
         return $this->isQuoted;
+    }
+
+    public function toString(): string
+    {
+        if (! $this->isQuoted) {
+            return $this->value;
+        }
+
+        return sprintf('"%s"', str_replace('"', '""', $this->value));
     }
 
     /**

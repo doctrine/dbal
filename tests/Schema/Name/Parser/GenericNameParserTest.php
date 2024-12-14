@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\DBAL\Tests\Schema\Name;
+namespace Doctrine\DBAL\Tests\Schema\Name\Parser;
 
-use Doctrine\DBAL\Schema\Name\Parser;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\Parser\Exception;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedDot;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\ExpectedNextIdentifier;
 use Doctrine\DBAL\Schema\Name\Parser\Exception\UnableToParseIdentifier;
-use Doctrine\DBAL\Schema\Name\Parser\Identifier;
+use Doctrine\DBAL\Schema\Name\Parser\GenericNameParser;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class ParserTest extends TestCase
+class GenericNameParserTest extends TestCase
 {
-    private Parser $parser;
+    private GenericNameParser $parser;
 
     protected function setUp(): void
     {
-        $this->parser = new Parser();
+        $this->parser = new GenericNameParser();
     }
 
     /**
@@ -31,13 +31,12 @@ class ParserTest extends TestCase
     public function testValidInput(string $input, array $expected): void
     {
         $name = $this->parser->parse($input);
-        self::assertEquals($expected, $name);
+        self::assertEquals($expected, $name->getIdentifiers());
     }
 
     /** @return iterable<array{string, list<Identifier>}> */
     public static function validInputProvider(): iterable
     {
-        yield ['', []];
         yield ['table', [Identifier::unquoted('table')]];
         yield ['schema.table', [Identifier::unquoted('schema'), Identifier::unquoted('table')]];
 
@@ -124,6 +123,8 @@ class ParserTest extends TestCase
     /** @return iterable<array{string, class-string<Exception>}> */
     public static function invalidInputProvider(): iterable
     {
+        yield ['', ExpectedNextIdentifier::class];
+
         yield ['"example.com', UnableToParseIdentifier::class];
         yield ['`example.com', UnableToParseIdentifier::class];
         yield ['[example.com', UnableToParseIdentifier::class];

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
+use Doctrine\DBAL\Schema\Name\Parsers;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function array_keys;
 use function array_map;
@@ -15,8 +18,10 @@ use function substr;
 
 /**
  * An abstraction class for a foreign key constraint.
+ *
+ * @extends AbstractOptionallyNamedObject<UnqualifiedName>
  */
-class ForeignKeyConstraint extends AbstractAsset
+class ForeignKeyConstraint extends AbstractOptionallyNamedObject
 {
     /**
      * Asset identifier instances of the referencing table column names the foreign key constraint is associated with.
@@ -59,6 +64,11 @@ class ForeignKeyConstraint extends AbstractAsset
         $this->_foreignTableName = new Identifier($foreignTableName);
 
         $this->_foreignColumnNames = $this->createIdentifierMap($foreignColumnNames);
+    }
+
+    protected function getNameParser(): UnqualifiedNameParser
+    {
+        return Parsers::getUnqualifiedNameParser();
     }
 
     /**

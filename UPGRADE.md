@@ -64,6 +64,18 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated using invalid database object names
+
+Using the following objects with an empty name is deprecated: `Column`, `View`, `Sequence`, `Identifier`.
+
+Using the following objects with a qualified name is deprecated: `Column`, `ForeignKeyConstraint`, `Index`, `Schema`,
+`UniqueConstraint`. If the object name contains a dot, the name should be quoted.
+
+Using the following objects with a name that has more than one qualifier is deprecated: `Sequence`, `Table`, `View`.
+The name should be unqualified or contain one qualifier.
+
+The `AbstractAsset` class has been marked as internal.
+
 ## Deprecated configuration-related `Table` methods
 
 The `Table::setSchemaConfig()` method and `$_schemaConfig` property have been deprecated. Pass a `TableConfiguration`

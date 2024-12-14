@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Schema\Exception;
 use function sprintf;
 
 /** @psalm-immutable */
-final class IndexNameInvalid extends InvalidObjectName
+final class IndexNameInvalid extends InvalidName
 {
     public static function new(string $indexName): self
     {

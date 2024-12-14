@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
+use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
+use Doctrine\DBAL\Schema\Name\Parsers;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
 
 use function array_merge;
@@ -12,8 +15,10 @@ use function method_exists;
 
 /**
  * Object representation of a database column.
+ *
+ * @extends AbstractNamedObject<UnqualifiedName>
  */
-class Column extends AbstractAsset
+class Column extends AbstractNamedObject
 {
     protected Type $_type;
 
@@ -54,6 +59,11 @@ class Column extends AbstractAsset
 
         $this->setType($type);
         $this->setOptions($options);
+    }
+
+    protected function getNameParser(): UnqualifiedNameParser
+    {
+        return Parsers::getUnqualifiedNameParser();
     }
 
     /** @param array<string, mixed> $options */

@@ -4,18 +4,24 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ColumnTest extends TestCase
 {
+    use VerifyDeprecations;
+
     public function testGet(): void
     {
         $column = $this->createColumn();
@@ -148,5 +154,29 @@ class ColumnTest extends TestCase
         $columnArray = $column->toArray();
         self::assertArrayHasKey('comment', $columnArray);
         self::assertEquals('foo', $columnArray['comment']);
+    }
+
+    /** @throws Exception */
+    public function testEmptyName(): void
+    {
+        $this->expectException(InvalidName::class);
+
+        new Column('', Type::getType(Types::INTEGER));
+    }
+
+    /** @throws Exception */
+    public function testQualifiedName(): void
+    {
+        $this->expectException(InvalidName::class);
+
+        new Column('t.id', Type::getType(Types::INTEGER));
+    }
+
+    /** @throws Exception */
+    public function testGetObjectName(): void
+    {
+        $column = new Column('id', Type::getType(Types::INTEGER));
+
+        self::assertEquals(Identifier::unquoted('id'), $column->getObjectName()->getIdentifier());
     }
 }
