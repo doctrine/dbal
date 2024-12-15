@@ -104,42 +104,53 @@ class Schema extends AbstractOptionallyNamedObject
 
     protected function _addTable(Table $table): void
     {
-        $namespaceName = $table->getNamespaceName();
-        $tableName     = $this->normalizeName($table);
+        $name = $table->getObjectName();
 
-        if (isset($this->_tables[$tableName])) {
-            throw TableAlreadyExists::new($tableName);
+        $normalizedName = $this->normalizeName($name);
+
+        if (isset($this->_tables[$normalizedName])) {
+            throw TableAlreadyExists::new($normalizedName);
         }
 
-        if (
-            $namespaceName !== null
-            && ! $table->isInDefaultNamespace($this->getName())
-            && ! $this->hasNamespace($namespaceName)
-        ) {
-            $this->createNamespace($namespaceName);
-        }
+        $this->ensureNamespaceExists($name);
 
-        $this->_tables[$tableName] = $table;
+        $this->_tables[$normalizedName] = $table;
     }
 
     protected function _addSequence(Sequence $sequence): void
     {
-        $namespaceName = $sequence->getNamespaceName();
-        $seqName       = $this->normalizeName($sequence);
+        $name = $sequence->getObjectName();
 
-        if (isset($this->_sequences[$seqName])) {
-            throw SequenceAlreadyExists::new($seqName);
+        $normalizedName = $this->normalizeName($name);
+
+        if (isset($this->_sequences[$normalizedName])) {
+            throw SequenceAlreadyExists::new($normalizedName);
         }
 
-        if (
-            $namespaceName !== null
-            && ! $sequence->isInDefaultNamespace($this->getName())
-            && ! $this->hasNamespace($namespaceName)
-        ) {
-            $this->createNamespace($namespaceName);
+        $this->ensureNamespaceExists($name);
+
+        $this->_sequences[$normalizedName] = $sequence;
+    }
+
+    private function ensureNamespaceExists(OptionallyQualifiedName $name): void
+    {
+        $qualifier = $name->getQualifier();
+
+        if ($qualifier === null) {
+            return;
         }
 
-        $this->_sequences[$seqName] = $sequence;
+        $namespaceName = $qualifier->getValue();
+
+        if ($namespaceName === $this->getName()) {
+            return;
+        }
+
+        if ($this->hasNamespace($namespaceName)) {
+            return;
+        }
+
+        $this->createNamespace($namespaceName);
     }
 
     /**
@@ -190,16 +201,13 @@ class Schema extends AbstractOptionallyNamedObject
      * Foo) then you will NOT be able to use Doctrine Schema abstraction.
      *
      * Every non-namespaced element is prefixed with this schema name.
-     *
-     * @param AbstractAsset<OptionallyQualifiedName> $asset
      */
-    private function normalizeName(AbstractAsset $asset): string
+    private function normalizeName(OptionallyQualifiedName $name): string
     {
-        $name = $asset->getName();
+        $namespaceName = $name->getQualifier()?->getValue()
+            ?? $this->getName();
 
-        if ($asset->getNamespaceName() === null) {
-            $name = $this->getName() . '.' . $name;
-        }
+        $name = $namespaceName . '.' . $name->getUnqualifiedName()->getValue();
 
         return strtolower($name);
     }
