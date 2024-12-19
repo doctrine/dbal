@@ -56,11 +56,11 @@ class Comparator
         foreach ($newSchema->getTables() as $newTable) {
             $newTableName = $newTable->getShortestName($newSchema->getName());
             if (! $oldSchema->hasTable($newTableName)) {
-                $createdTables[] = $newSchema->getTable($newTableName);
+                $createdTables[] = $newTable;
             } else {
                 $tableDiff = $this->compareTables(
                     $oldSchema->getTable($newTableName),
-                    $newSchema->getTable($newTableName),
+                    $newTable,
                 );
 
                 if (! $tableDiff->isEmpty()) {
@@ -87,7 +87,7 @@ class Comparator
                 $createdSequences[] = $newSequence;
             } else {
                 if ($this->diffSequence($newSequence, $oldSchema->getSequence($newSequenceName))) {
-                    $alteredSequences[] = $newSchema->getSequence($newSequenceName);
+                    $alteredSequences[] = $newSequence;
                 }
             }
         }
