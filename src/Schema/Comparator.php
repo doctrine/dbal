@@ -54,7 +54,7 @@ class Comparator
         }
 
         foreach ($newSchema->getTables() as $newTable) {
-            $newTableName = $newTable->getShortestName($newSchema->getName());
+            $newTableName = $newTable->getName();
             if (! $oldSchema->hasTable($newTableName)) {
                 $createdTables[] = $newTable;
             } else {
@@ -71,7 +71,7 @@ class Comparator
 
         // Check if there are tables removed
         foreach ($oldSchema->getTables() as $oldTable) {
-            $oldTableName = $oldTable->getShortestName($oldSchema->getName());
+            $oldTableName = $oldTable->getName();
 
             $oldTable = $oldSchema->getTable($oldTableName);
             if ($newSchema->hasTable($oldTableName)) {
@@ -82,7 +82,7 @@ class Comparator
         }
 
         foreach ($newSchema->getSequences() as $newSequence) {
-            $newSequenceName = $newSequence->getShortestName($newSchema->getName());
+            $newSequenceName = $newSequence->getName();
             if (! $oldSchema->hasSequence($newSequenceName)) {
                 $createdSequences[] = $newSequence;
             } else {
@@ -93,7 +93,7 @@ class Comparator
         }
 
         foreach ($oldSchema->getSequences() as $oldSequence) {
-            $oldSequenceName = $oldSequence->getShortestName($oldSchema->getName());
+            $oldSequenceName = $oldSequence->getName();
 
             if ($newSchema->hasSequence($oldSequenceName)) {
                 continue;

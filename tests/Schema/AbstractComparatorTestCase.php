@@ -600,23 +600,6 @@ abstract class AbstractComparatorTestCase extends TestCase
         self::assertCount(2, $diff->getCreatedTables());
     }
 
-    public function testFqnSchemaComparisonDifferentSchemaNameButSameTableNoDiff(): void
-    {
-        $config = new SchemaConfig();
-        $config->setName('foo');
-
-        $oldSchema = new Schema([], [], $config);
-        $oldSchema->createTable('foo.bar');
-
-        $newSchema = new Schema();
-        $newSchema->createTable('bar');
-
-        self::assertEquals(
-            new SchemaDiff([], [], [], [], [], [], [], []),
-            $this->comparator->compareSchemas($oldSchema, $newSchema),
-        );
-    }
-
     public function testFqnSchemaComparisonNoSchemaSame(): void
     {
         $config = new SchemaConfig();
