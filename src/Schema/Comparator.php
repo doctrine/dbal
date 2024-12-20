@@ -84,9 +84,7 @@ class Comparator
         foreach ($newSchema->getSequences() as $newSequence) {
             $newSequenceName = $newSequence->getShortestName($newSchema->getName());
             if (! $oldSchema->hasSequence($newSequenceName)) {
-                if (! $this->isAutoIncrementSequenceInSchema($oldSchema, $newSequence)) {
-                    $createdSequences[] = $newSequence;
-                }
+                $createdSequences[] = $newSequence;
             } else {
                 if ($this->diffSequence($newSequence, $oldSchema->getSequence($newSequenceName))) {
                     $alteredSequences[] = $newSchema->getSequence($newSequenceName);
@@ -95,10 +93,6 @@ class Comparator
         }
 
         foreach ($oldSchema->getSequences() as $oldSequence) {
-            if ($this->isAutoIncrementSequenceInSchema($newSchema, $oldSequence)) {
-                continue;
-            }
-
             $oldSequenceName = $oldSequence->getShortestName($oldSchema->getName());
 
             if ($newSchema->hasSequence($oldSequenceName)) {
@@ -118,17 +112,6 @@ class Comparator
             $alteredSequences,
             $droppedSequences,
         );
-    }
-
-    private function isAutoIncrementSequenceInSchema(Schema $schema, Sequence $sequence): bool
-    {
-        foreach ($schema->getTables() as $table) {
-            if ($sequence->isAutoIncrementsFor($table)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public function diffSequence(Sequence $sequence1, Sequence $sequence2): bool

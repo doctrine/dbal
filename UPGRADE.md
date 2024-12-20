@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `Sequence::isAutoIncrementsFor()`
+
+The `Sequence::isAutoIncrementsFor()` method has been removed.
+
 ## BC BREAK: Removed support for altering `Table` configuration
 
 The `Table::setSchemaConfig()` and `::_getMaxIdentifierLength()` methods and the `Table::$_schemaConfig` property have
