@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
+use Doctrine\Deprecations\Deprecation;
 
 use function count;
 use function sprintf;
@@ -80,9 +81,18 @@ class Sequence extends AbstractNamedObject
      *
      * This is used inside the comparator to not report sequences as missing,
      * when the "from" schema implicitly creates the sequences.
+     *
+     * @deprecated
      */
     public function isAutoIncrementsFor(Table $table): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6654',
+            '%s is deprecated and will be removed in 5.0.',
+            __METHOD__,
+        );
+
         $primaryKey = $table->getPrimaryKey();
 
         if ($primaryKey === null) {
