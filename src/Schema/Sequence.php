@@ -7,10 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
-use Doctrine\Deprecations\Deprecation;
-
-use function count;
-use function sprintf;
 
 /**
  * Sequence structure.
@@ -74,47 +70,5 @@ class Sequence extends AbstractNamedObject
         $this->cache = $cache;
 
         return $this;
-    }
-
-    /**
-     * Checks if this sequence is an autoincrement sequence for a given table.
-     *
-     * This is used inside the comparator to not report sequences as missing,
-     * when the "from" schema implicitly creates the sequences.
-     *
-     * @deprecated
-     */
-    public function isAutoIncrementsFor(Table $table): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6654',
-            '%s is deprecated and will be removed in 5.0.',
-            __METHOD__,
-        );
-
-        $primaryKey = $table->getPrimaryKey();
-
-        if ($primaryKey === null) {
-            return false;
-        }
-
-        $pkColumns = $primaryKey->getColumns();
-
-        if (count($pkColumns) !== 1) {
-            return false;
-        }
-
-        $column = $table->getColumn($pkColumns[0]);
-
-        if (! $column->getAutoincrement()) {
-            return false;
-        }
-
-        $sequenceName      = $this->getShortestName($table->getNamespaceName());
-        $tableName         = $table->getShortestName($table->getNamespaceName());
-        $tableSequenceName = sprintf('%s_%s_seq', $tableName, $column->getShortestName($table->getNamespaceName()));
-
-        return $tableSequenceName === $sequenceName;
     }
 }

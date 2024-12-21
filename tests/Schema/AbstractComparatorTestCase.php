@@ -633,45 +633,6 @@ abstract class AbstractComparatorTestCase extends TestCase
         );
     }
 
-    public function testAutoIncrementSequences(): void
-    {
-        $oldSchema = new Schema();
-        $table     = $oldSchema->createTable('foo');
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->setPrimaryKey(['id']);
-        $oldSchema->createSequence('foo_id_seq');
-
-        $newSchema = new Schema();
-        $table     = $newSchema->createTable('foo');
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->setPrimaryKey(['id']);
-
-        $diff = $this->comparator->compareSchemas($oldSchema, $newSchema);
-
-        self::assertCount(0, $diff->getDroppedSequences());
-    }
-
-    /**
-     * Check that added autoincrement sequence is not populated in newSequences
-     */
-    public function testAutoIncrementNoSequences(): void
-    {
-        $oldSchema = new Schema();
-        $table     = $oldSchema->createTable('foo');
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->setPrimaryKey(['id']);
-
-        $newSchema = new Schema();
-        $table     = $newSchema->createTable('foo');
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->setPrimaryKey(['id']);
-        $newSchema->createSequence('foo_id_seq');
-
-        $diff = $this->comparator->compareSchemas($oldSchema, $newSchema);
-
-        self::assertCount(0, $diff->getCreatedSequences());
-    }
-
     public function testComparesNamespaces(): void
     {
         $oldSchema = new Schema([], [], null, ['foo', 'bar']);
