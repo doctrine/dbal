@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `AbstractAsset::getShortestName()`
+
+The `AbstractAsset::getShortestName()` method has been removed.
+
 ## BC BREAK: Removed `Sequence::isAutoIncrementsFor()`
 
 The `Sequence::isAutoIncrementsFor()` method has been removed.

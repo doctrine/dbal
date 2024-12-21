@@ -135,7 +135,13 @@ SQL,
      */
     protected function _getPortableViewDefinition(array $view): View
     {
-        return new View($view['schemaname'] . '.' . $view['viewname'], $view['definition']);
+        if ($view['schemaname'] === $this->getCurrentSchema()) {
+            $name = $view['viewname'];
+        } else {
+            $name = $view['schemaname'] . '.' . $view['viewname'];
+        }
+
+        return new View($name, $view['definition']);
     }
 
     /**
@@ -202,7 +208,7 @@ SQL,
      */
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
-        if ($sequence['schemaname'] !== 'public') {
+        if ($sequence['schemaname'] !== $this->getCurrentSchema()) {
             $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
         } else {
             $sequenceName = $sequence['relname'];

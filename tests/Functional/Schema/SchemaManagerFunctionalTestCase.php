@@ -128,7 +128,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         return array_filter(
             $items,
             static function (AbstractAsset $item) use ($name): bool {
-                return $item->getShortestName($item->getNamespaceName()) === $name;
+                return strtolower($item->getName()) === $name;
             },
         );
     }
