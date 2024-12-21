@@ -62,6 +62,12 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getNameParser" />
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::setName" />
+
+                <!--
+                    https://github.com/doctrine/dbal/pull/6657
+                    TODO: remove in 5.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getShortestName" />
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>
