@@ -282,12 +282,13 @@ class Schema extends AbstractOptionallyNamedObject
      */
     public function createTable(string $name): Table
     {
-        $table = new Table($name, [], [], [], [], [], $this->_schemaConfig->toTableConfiguration());
-        $this->_addTable($table);
+        $table = Table::editor()
+            ->setName($name)
+            ->setOptions($this->_schemaConfig->getDefaultTableOptions())
+            ->setConfiguration($this->_schemaConfig->toTableConfiguration())
+            ->create();
 
-        foreach ($this->_schemaConfig->getDefaultTableOptions() as $option => $value) {
-            $table->addOption($option, $value);
-        }
+        $this->_addTable($table);
 
         return $table;
     }

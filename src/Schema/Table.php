@@ -69,6 +69,9 @@ class Table extends AbstractNamedObject
     private readonly int $maxIdentifierLength;
 
     /**
+     * @internal Use {@link Table::editor()} to instantiate an editor and {@link TableEditor::create()}
+     *           to create a table.
+     *
      * @param array<Column>               $columns
      * @param array<Index>                $indexes
      * @param array<UniqueConstraint>     $uniqueConstraints
@@ -786,6 +789,31 @@ class Table extends AbstractNamedObject
     public function getComment(): ?string
     {
         return $this->_options['comment'] ?? null;
+    }
+
+    /**
+     * Instantiates a new table editor.
+     */
+    public static function editor(): TableEditor
+    {
+        return new TableEditor();
+    }
+
+    /**
+     * Instantiates a new table editor and initializes it with the table's properties.
+     */
+    public function edit(): TableEditor
+    {
+        return self::editor()
+            ->setName($this->getObjectName()->toString())
+            ->setColumns($this->_columns)
+            ->setIndexes($this->_indexes)
+            ->setUniqueConstraints($this->uniqueConstraints)
+            ->setForeignKeyConstraints($this->_fkConstraints)
+            ->setOptions($this->_options)
+            ->setConfiguration(
+                new TableConfiguration($this->maxIdentifierLength),
+            );
     }
 
     /**

@@ -210,15 +210,26 @@ abstract class AbstractSchemaManager
                 continue;
             }
 
-            $tables[] = new Table(
-                $tableName,
-                $this->_getPortableTableColumnList($tableName, $database, $tableColumns),
-                $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName),
-                [],
-                $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName] ?? []),
-                $tableOptionsByTable[$tableName] ?? [],
-                $configuration,
-            );
+            $editor = Table::editor()
+                ->setName($tableName)
+                ->setColumns($this->_getPortableTableColumnList($tableName, $database, $tableColumns))
+                ->setIndexes(
+                    $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName),
+                );
+
+            if (isset($foreignKeyColumnsByTable[$tableName])) {
+                $editor->setForeignKeyConstraints(
+                    $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName]),
+                );
+            }
+
+            if (isset($tableOptionsByTable[$tableName])) {
+                $editor->setOptions($tableOptionsByTable[$tableName]);
+            }
+
+            $tables[] = $editor
+                ->setConfiguration($configuration)
+                ->create();
         }
 
         return $tables;
@@ -328,14 +339,13 @@ abstract class AbstractSchemaManager
             throw TableDoesNotExist::new($name);
         }
 
-        return new Table(
-            $name,
-            $columns,
-            $this->listTableIndexes($name),
-            [],
-            $this->listTableForeignKeys($name),
-            $this->getTableOptions($name),
-        );
+        return Table::editor()
+            ->setName($name)
+            ->setColumns($columns)
+            ->setIndexes($this->listTableIndexes($name))
+            ->setForeignKeyConstraints($this->listTableForeignKeys($name))
+            ->setOptions($this->getTableOptions($name))
+            ->create();
     }
 
     /**
