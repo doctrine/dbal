@@ -72,6 +72,23 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated `AbstractAsset` namespace-related methods and property
+
+The following namespace-related methods and property have been deprecated:
+
+- `AbstractAsset::getNamespaceName()`
+- `AbstractAsset::isInDefaultNamespace()`
+- `AbstractAsset::$_namespace`
+
+In order to identify the namespace of an object, use the following methods instead:
+
+```php
+$qualifier = $table->getObjectName()->getQualifier();
+```
+
+If the return value is not null, then it will contain the identifier representing the namespace name – its value and
+whether it's quoted.
+
 ## `Table::__construct()` marked as internal
 
 The `Table::__construct()` method has been marked as internal. Use `Table::editor()` to instantiate an editor and

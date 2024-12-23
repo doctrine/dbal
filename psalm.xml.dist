@@ -62,8 +62,25 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getNameParser" />
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::setName" />
+
+                <!--
+                    https://github.com/doctrine/dbal/pull/6664
+                    TODO: remove in 5.0.0
+                -->
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getNamespaceName" />
+                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::isInDefaultNamespace" />
             </errorLevel>
         </DeprecatedMethod>
+        <DeprecatedProperty>
+            <errorLevel type="suppress">
+                <!--
+                    https://github.com/doctrine/dbal/pull/6664
+                    TODO: remove in 5.0.0
+                -->
+                <referencedProperty name="Doctrine\DBAL\Schema\AbstractAsset::$_namespace" />
+                <referencedProperty name="Doctrine\DBAL\Schema\Table::$_namespace" />
+            </errorLevel>
+        </DeprecatedProperty>
         <DocblockTypeContradiction>
             <errorLevel type="suppress">
                 <!--
