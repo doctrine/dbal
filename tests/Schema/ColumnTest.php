@@ -112,15 +112,15 @@ class ColumnTest extends TestCase
         $sqlitePlatform = new SQLitePlatform();
 
         self::assertEquals('bar', $column->getName());
-        self::assertEquals('`bar`', $column->getQuotedName($mysqlPlatform));
-        self::assertEquals('"bar"', $column->getQuotedName($sqlitePlatform));
+        self::assertEquals('`bar`', $column->getObjectName()->toSQL($mysqlPlatform));
+        self::assertEquals('"bar"', $column->getObjectName()->toSQL($sqlitePlatform));
 
         $column = new Column('[bar]', $string);
 
         $sqlServerPlatform = new SQLServerPlatform();
 
         self::assertEquals('bar', $column->getName());
-        self::assertEquals('[bar]', $column->getQuotedName($sqlServerPlatform));
+        self::assertEquals('[bar]', $column->getObjectName()->toSQL($sqlServerPlatform));
     }
 
     #[DataProvider('getIsQuoted')]

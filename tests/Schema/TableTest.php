@@ -636,8 +636,8 @@ class TableTest extends TestCase
         $sqlitePlatform = new SQLitePlatform();
 
         self::assertEquals('bar', $table->getName());
-        self::assertEquals('`bar`', $table->getQuotedName($mysqlPlatform));
-        self::assertEquals('"bar"', $table->getQuotedName($sqlitePlatform));
+        self::assertEquals('`bar`', $table->getObjectName()->toSQL($mysqlPlatform));
+        self::assertEquals('"bar"', $table->getObjectName()->toSQL($sqlitePlatform));
     }
 
     public function testTableHasPrimaryKey(): void
@@ -676,7 +676,7 @@ class TableTest extends TestCase
     {
         $table = new Table('`test`.`test`');
         self::assertEquals('test.test', $table->getName());
-        self::assertEquals('`test`.`test`', $table->getQuotedName(new MySQLPlatform()));
+        self::assertEquals('`test`.`test`', $table->getObjectName()->toSQL(new MySQLPlatform()));
     }
 
     public function testDropIndex(): void

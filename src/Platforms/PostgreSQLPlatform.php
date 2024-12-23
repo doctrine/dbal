@@ -203,11 +203,11 @@ class PostgreSQLPlatform extends AbstractPlatform
 
         $table = $diff->getOldTable();
 
-        $tableNameSQL = $table->getQuotedName($this);
+        $tableNameSQL = $table->getObjectName()->toSQL($this);
 
         foreach ($diff->getAddedColumns() as $addedColumn) {
             $query = 'ADD ' . $this->getColumnDeclarationSQL(
-                $addedColumn->getQuotedName($this),
+                $addedColumn->getObjectName()->toSQL($this),
                 $addedColumn->toArray(),
             );
 
@@ -221,13 +221,13 @@ class PostgreSQLPlatform extends AbstractPlatform
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $tableNameSQL,
-                $addedColumn->getQuotedName($this),
+                $addedColumn->getObjectName()->toSQL($this),
                 $comment,
             );
         }
 
         foreach ($diff->getDroppedColumns() as $droppedColumn) {
-            $query = 'DROP ' . $droppedColumn->getQuotedName($this);
+            $query = 'DROP ' . $droppedColumn->getObjectName()->toSQL($this);
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
         }
 
@@ -235,8 +235,8 @@ class PostgreSQLPlatform extends AbstractPlatform
             $oldColumn = $columnDiff->getOldColumn();
             $newColumn = $columnDiff->getNewColumn();
 
-            $oldColumnName = $oldColumn->getQuotedName($this);
-            $newColumnName = $newColumn->getQuotedName($this);
+            $oldColumnName = $oldColumn->getObjectName()->toSQL($this);
+            $newColumnName = $newColumn->getObjectName()->toSQL($this);
 
             if ($columnDiff->hasNameChanged()) {
                 $sql = array_merge(
@@ -293,7 +293,7 @@ class PostgreSQLPlatform extends AbstractPlatform
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $tableNameSQL,
-                $newColumn->getQuotedName($this),
+                $newColumn->getObjectName()->toSQL($this),
                 $newColumn->getComment(),
             );
         }
@@ -316,12 +316,12 @@ class PostgreSQLPlatform extends AbstractPlatform
             $oldIndexName = $schema . '.' . $oldIndexName;
         }
 
-        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
+        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getObjectName()->toSQL($this)];
     }
 
     public function getCreateSequenceSQL(Sequence $sequence): string
     {
-        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
+        return 'CREATE SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
             ' INCREMENT BY ' . $sequence->getAllocationSize() .
             ' MINVALUE ' . $sequence->getInitialValue() .
             ' START ' . $sequence->getInitialValue() .
@@ -330,7 +330,7 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     public function getAlterSequenceSQL(Sequence $sequence): string
     {
-        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
+        return 'ALTER SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
             ' INCREMENT BY ' . $sequence->getAllocationSize() .
             $this->getSequenceCacheSQL($sequence);
     }
@@ -669,7 +669,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $tableIdentifier = new Identifier($tableName);
-        $sql             = 'TRUNCATE ' . $tableIdentifier->getQuotedName($this);
+        $sql             = 'TRUNCATE ' . $tableIdentifier->getObjectName()->toSQL($this);
 
         if ($cascade) {
             $sql .= ' CASCADE';

@@ -35,6 +35,9 @@ class MySQLPlatform extends AbstractMySQLPlatform
      */
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
-        return ['ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];
+        return [
+            'ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName
+                . ' TO ' . $index->getObjectName()->toSQL($this),
+        ];
     }
 }

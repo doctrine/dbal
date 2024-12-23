@@ -192,7 +192,7 @@ class DB2Platform extends AbstractPlatform
     {
         $tableIdentifier = new Identifier($tableName);
 
-        return 'TRUNCATE ' . $tableIdentifier->getQuotedName($this) . ' IMMEDIATE';
+        return 'TRUNCATE ' . $tableIdentifier->getObjectName()->toSQL($this) . ' IMMEDIATE';
     }
 
     public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level): string
@@ -261,12 +261,15 @@ class DB2Platform extends AbstractPlatform
         $sql         = [];
         $commentsSQL = [];
 
-        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
 
         $queryParts = [];
         foreach ($diff->getAddedColumns() as $column) {
             $columnDef = $column->toArray();
-            $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
+            $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL(
+                $column->getObjectName()->toSQL($this),
+                $columnDef,
+            );
 
             // Adding non-nullable columns to a table requires a default value to be specified.
             if (
@@ -287,14 +290,14 @@ class DB2Platform extends AbstractPlatform
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $tableNameSQL,
-                $column->getQuotedName($this),
+                $column->getObjectName()->toSQL($this),
                 $comment,
             );
         }
 
         $needsReorg = false;
         foreach ($diff->getDroppedColumns() as $column) {
-            $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
+            $queryParts[] =  'DROP COLUMN ' . $column->getObjectName()->toSQL($this);
             $needsReorg   = true;
         }
 
@@ -303,7 +306,7 @@ class DB2Platform extends AbstractPlatform
                 $newColumn     = $columnDiff->getNewColumn();
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $tableNameSQL,
-                    $newColumn->getQuotedName($this),
+                    $newColumn->getObjectName()->toSQL($this),
                     $newColumn->getComment(),
                 );
             }
@@ -385,8 +388,8 @@ class DB2Platform extends AbstractPlatform
         $newColumn   = $columnDiff->getNewColumn();
         $columnArray = $newColumn->toArray();
 
-        $newName = $columnDiff->getNewColumn()->getQuotedName($this);
-        $oldName = $columnDiff->getOldColumn()->getQuotedName($this);
+        $newName = $columnDiff->getNewColumn()->getObjectName()->toSQL($this);
+        $oldName = $columnDiff->getOldColumn()->getObjectName()->toSQL($this);
 
         $alterClause = 'ALTER COLUMN ' . $newName;
 
@@ -443,7 +446,7 @@ class DB2Platform extends AbstractPlatform
     {
         $sql = [];
 
-        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
 
         foreach ($diff->getDroppedIndexes() as $droppedIndex) {
             foreach ($diff->getAddedIndexes() as $addedIndex) {
@@ -454,9 +457,10 @@ class DB2Platform extends AbstractPlatform
                 if ($droppedIndex->isPrimary()) {
                     $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP PRIMARY KEY';
                 } elseif ($droppedIndex->isUnique()) {
-                    $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP UNIQUE ' . $droppedIndex->getQuotedName($this);
+                    $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP UNIQUE '
+                        . $droppedIndex->getObjectName()->toSQL($this);
                 } else {
-                    $sql[] = $this->getDropIndexSQL($droppedIndex->getQuotedName($this), $tableNameSQL);
+                    $sql[] = $this->getDropIndexSQL($droppedIndex->getObjectName()->toSQL($this), $tableNameSQL);
                 }
 
                 $sql[] = $this->getCreateIndexSQL($addedIndex, $tableNameSQL);
@@ -481,7 +485,7 @@ class DB2Platform extends AbstractPlatform
             $oldIndexName = $schema . '.' . $oldIndexName;
         }
 
-        return ['RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];
+        return ['RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getObjectName()->toSQL($this)];
     }
 
     /**

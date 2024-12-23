@@ -18,9 +18,11 @@ use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -801,7 +803,7 @@ abstract class AbstractPlatform
             throw NoColumnsSpecifiedForTable::new($table->getName());
         }
 
-        $tableName                    = $table->getQuotedName($this);
+        $tableName                    = $table->getObjectName()->toSQL($this);
         $options                      = $table->getOptions();
         $options['uniqueConstraints'] = [];
         $options['indexes']           = [];
@@ -856,7 +858,7 @@ abstract class AbstractPlatform
                     continue;
                 }
 
-                $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getQuotedName($this), $comment);
+                $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getObjectName()->toSQL($this), $comment);
             }
         }
 
@@ -880,7 +882,7 @@ abstract class AbstractPlatform
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL(
                     $foreignKey,
-                    $table->getQuotedName($this),
+                    $table->getObjectName()->toSQL($this),
                 );
             }
         }
@@ -900,14 +902,14 @@ abstract class AbstractPlatform
         foreach ($tables as $table) {
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL(
-                    $foreignKey->getQuotedName($this),
-                    $table->getQuotedName($this),
+                    $this->getConstraintName($foreignKey)->toSQL($this),
+                    $table->getObjectName()->toSQL($this),
                 );
             }
         }
 
         foreach ($tables as $table) {
-            $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
+            $sql[] = $this->getDropTableSQL($table->getObjectName()->toSQL($this));
         }
 
         return $sql;
@@ -919,7 +921,7 @@ abstract class AbstractPlatform
 
         return sprintf(
             'COMMENT ON TABLE %s IS %s',
-            $tableName->getQuotedName($this),
+            $tableName->getObjectName()->toSQL($this),
             $this->quoteStringLiteral($comment),
         );
     }
@@ -931,8 +933,8 @@ abstract class AbstractPlatform
 
         return sprintf(
             'COMMENT ON COLUMN %s.%s IS %s',
-            $tableName->getQuotedName($this),
-            $columnName->getQuotedName($this),
+            $tableName->getObjectName()->toSQL($this),
+            $columnName->getObjectName()->toSQL($this),
             $this->quoteStringLiteral($comment),
         );
     }
@@ -1023,7 +1025,7 @@ abstract class AbstractPlatform
             }
 
             foreach ($diff->getDroppedSequences() as $sequence) {
-                $sql[] = $this->getDropSequenceSQL($sequence->getQuotedName($this));
+                $sql[] = $this->getDropSequenceSQL($sequence->getObjectName()->toSQL($this));
             }
 
             foreach ($diff->getCreatedSequences() as $sequence) {
@@ -1081,7 +1083,7 @@ abstract class AbstractPlatform
      */
     public function getCreateIndexSQL(Index $index, string $table): string
     {
-        $name    = $index->getQuotedName($this);
+        $name    = $index->getObjectName()->toSQL($this);
         $columns = $index->getColumns();
 
         if (count($columns) === 0) {
@@ -1149,8 +1151,9 @@ abstract class AbstractPlatform
     {
         $sql = 'ALTER TABLE ' . $tableName . ' ADD';
 
-        if ($constraint->getName() !== '') {
-            $sql .= ' CONSTRAINT ' . $constraint->getQuotedName($this);
+        $name = $constraint->getObjectName();
+        if ($name !== null) {
+            $sql .= ' CONSTRAINT ' . $name->toSQL($this);
         }
 
         return $sql . ' UNIQUE (' . implode(', ', $constraint->getQuotedColumns($this)) . ')';
@@ -1204,24 +1207,24 @@ abstract class AbstractPlatform
     /** @return list<string> */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
-        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
 
         $sql = [];
 
         foreach ($diff->getDroppedForeignKeys() as $foreignKey) {
-            $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableNameSQL);
+            $sql[] = $this->getDropForeignKeySQL($this->getConstraintName($foreignKey)->toSQL($this), $tableNameSQL);
         }
 
         foreach ($diff->getModifiedForeignKeys() as $foreignKey) {
-            $sql[] = $this->getDropForeignKeySQL($foreignKey->getQuotedName($this), $tableNameSQL);
+            $sql[] = $this->getDropForeignKeySQL($this->getConstraintName($foreignKey)->toSQL($this), $tableNameSQL);
         }
 
         foreach ($diff->getDroppedIndexes() as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableNameSQL);
+            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
         }
 
         foreach ($diff->getModifiedIndexes() as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getQuotedName($this), $tableNameSQL);
+            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
         }
 
         return $sql;
@@ -1232,7 +1235,7 @@ abstract class AbstractPlatform
     {
         $sql = [];
 
-        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
 
         foreach ($diff->getAddedForeignKeys() as $foreignKey) {
             $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
@@ -1254,7 +1257,7 @@ abstract class AbstractPlatform
             $oldIndexName = new Identifier($oldIndexName);
             $sql          = array_merge(
                 $sql,
-                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableNameSQL),
+                $this->getRenameIndexSQL($oldIndexName->getObjectName()->toSQL($this), $index, $tableNameSQL),
             );
         }
 
@@ -1498,9 +1501,10 @@ abstract class AbstractPlatform
 
         $chunks = [];
 
-        if ($constraint->getName() !== '') {
+        $name = $constraint->getObjectName();
+        if ($name !== null) {
             $chunks[] = 'CONSTRAINT';
-            $chunks[] = $constraint->getQuotedName($this);
+            $chunks[] = $name->toSQL($this);
         }
 
         $chunks[] = 'UNIQUE';
@@ -1530,7 +1534,7 @@ abstract class AbstractPlatform
             throw new InvalidArgumentException('Incomplete definition. "columns" required.');
         }
 
-        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getQuotedName($this)
+        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getObjectName()->toSQL($this)
             . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
     }
 
@@ -1602,9 +1606,11 @@ abstract class AbstractPlatform
      */
     public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {
+        $name = $foreignKey->getObjectName();
+
         $sql = '';
-        if ($foreignKey->getName() !== '') {
-            $sql .= 'CONSTRAINT ' . $foreignKey->getQuotedName($this) . ' ';
+        if ($name !== null) {
+            $sql .= 'CONSTRAINT ' . $name->toSQL($this) . ' ';
         }
 
         $sql .= 'FOREIGN KEY (';
@@ -2059,7 +2065,7 @@ abstract class AbstractPlatform
     {
         $tableIdentifier = new Identifier($tableName);
 
-        return 'TRUNCATE ' . $tableIdentifier->getQuotedName($this);
+        return 'TRUNCATE ' . $tableIdentifier->getObjectName()->toSQL($this);
     }
 
     /**
@@ -2137,7 +2143,7 @@ abstract class AbstractPlatform
     private function columnToArray(Column $column): array
     {
         return array_merge($column->toArray(), [
-            'name' => $column->getQuotedName($this),
+            'name' => $column->getObjectName()->toSQL($this),
             'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
             'comment' => $column->getComment(),
         ]);
@@ -2222,4 +2228,15 @@ abstract class AbstractPlatform
      * database schema according to the dialect of the platform.
      */
     abstract public function createSchemaManager(Connection $connection): AbstractSchemaManager;
+
+    private function getConstraintName(ForeignKeyConstraint $constraint): UnqualifiedName
+    {
+        $name = $constraint->getObjectName();
+
+        if ($name === null) {
+            throw UnspecifiedConstraintName::new();
+        }
+
+        return $name;
+    }
 }

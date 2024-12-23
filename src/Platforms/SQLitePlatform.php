@@ -410,7 +410,7 @@ class SQLitePlatform extends AbstractPlatform
     {
         $tableIdentifier = new Identifier($tableName);
 
-        return 'DELETE FROM ' . $tableIdentifier->getQuotedName($this);
+        return 'DELETE FROM ' . $tableIdentifier->getObjectName()->toSQL($this);
     }
 
     protected function getInlineColumnCommentSQL(string $comment): string
@@ -488,7 +488,7 @@ class SQLitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = $this->getCreateIndexSQL($index, $table->getQuotedName($this));
+            $sql[] = $this->getCreateIndexSQL($index, $table->getObjectName()->toSQL($this));
         }
 
         return $sql;
@@ -533,7 +533,7 @@ class SQLitePlatform extends AbstractPlatform
     /** {@inheritDoc} */
     public function getCreateIndexSQL(Index $index, string $table): string
     {
-        $name    = $index->getQuotedName($this);
+        $name    = $index->getObjectName()->toSQL($this);
         $columns = $index->getColumns();
 
         if (count($columns) === 0) {
@@ -567,7 +567,7 @@ class SQLitePlatform extends AbstractPlatform
         $sql = [];
 
         foreach ($tables as $table) {
-            $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
+            $sql[] = $this->getDropTableSQL($table->getObjectName()->toSQL($this));
         }
 
         return $sql;
@@ -607,7 +607,7 @@ class SQLitePlatform extends AbstractPlatform
         foreach ($table->getColumns() as $column) {
             $columnName                  = strtolower($column->getName());
             $columns[$columnName]        = $column;
-            $oldColumnNames[$columnName] = $newColumnNames[$columnName] = $column->getQuotedName($this);
+            $oldColumnNames[$columnName] = $newColumnNames[$columnName] = $column->getObjectName()->toSQL($this);
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
@@ -638,7 +638,7 @@ class SQLitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $newColumnNames[$oldColumnName] = $newColumn->getQuotedName($this);
+            $newColumnNames[$oldColumnName] = $newColumn->getObjectName()->toSQL($this);
         }
 
         foreach ($diff->getAddedColumns() as $column) {
@@ -654,7 +654,7 @@ class SQLitePlatform extends AbstractPlatform
         $dataTable = new Table('__temp__' . $tableName);
 
         $newTable = new Table(
-            $table->getQuotedName($this),
+            $table->getObjectName()->toSQL($this),
             $columns,
             $this->getPrimaryIndexInAlteredTable($diff, $table),
             [],
@@ -668,21 +668,21 @@ class SQLitePlatform extends AbstractPlatform
 
         $sql[] = sprintf(
             'CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s',
-            $dataTable->getQuotedName($this),
+            $dataTable->getObjectName()->toSQL($this),
             implode(', ', $oldColumnNames),
-            $table->getQuotedName($this),
+            $table->getObjectName()->toSQL($this),
         );
-        $sql[] = $this->getDropTableSQL($table->getQuotedName($this));
+        $sql[] = $this->getDropTableSQL($table->getObjectName()->toSQL($this));
 
         $sql   = array_merge($sql, $this->getCreateTableSQL($newTable));
         $sql[] = sprintf(
             'INSERT INTO %s (%s) SELECT %s FROM %s',
-            $newTable->getQuotedName($this),
+            $newTable->getObjectName()->toSQL($this),
             implode(', ', $newColumnNames),
             implode(', ', $oldColumnNames),
-            $dataTable->getQuotedName($this),
+            $dataTable->getObjectName()->toSQL($this),
         );
-        $sql[] = $this->getDropTableSQL($dataTable->getQuotedName($this));
+        $sql[] = $this->getDropTableSQL($dataTable->getObjectName()->toSQL($this));
 
         return array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff));
     }
@@ -756,9 +756,9 @@ class SQLitePlatform extends AbstractPlatform
                     return false;
             }
 
-            $definition['name'] = $column->getQuotedName($this);
+            $definition['name'] = $column->getObjectName()->toSQL($this);
 
-            $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' ADD COLUMN '
+            $sql[] = 'ALTER TABLE ' . $table->getObjectName()->toSQL($this) . ' ADD COLUMN '
                 . $this->getColumnDeclarationSQL($definition['name'], $definition);
         }
 

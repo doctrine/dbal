@@ -1371,8 +1371,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $platform = $this->connection->getDatabasePlatform();
 
-        $this->dropTableIfExists($user->getQuotedName($platform));
-        $this->dropTableIfExists($group->getQuotedName($platform));
+        $this->dropTableIfExists($user->getObjectName()->toSQL($platform));
+        $this->dropTableIfExists($group->getObjectName()->toSQL($platform));
 
         $schemaManager = $this->connection->createSchemaManager();
         $schemaManager->createSchemaObjects($schema);
