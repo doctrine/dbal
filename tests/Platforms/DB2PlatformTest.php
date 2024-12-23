@@ -544,16 +544,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return 'TRUNCATE "SELECT" IMMEDIATE';
     }
 
-    protected function supportsInlineIndexDeclaration(): bool
-    {
-        return false;
-    }
-
-    protected function supportsCommentOnStatement(): bool
-    {
-        return true;
-    }
-
     /**
      * {@inheritDoc}
      */

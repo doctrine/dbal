@@ -654,27 +654,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    public function testColumnCharsetDeclarationSQL(): void
-    {
-        self::assertSame(
-            'CHARACTER SET ascii',
-            $this->platform->getColumnCharsetDeclarationSQL('ascii'),
-        );
-    }
-
-    public function testSupportsColumnCollation(): void
-    {
-        self::assertTrue($this->platform->supportsColumnCollation());
-    }
-
-    public function testColumnCollationDeclarationSQL(): void
-    {
-        self::assertSame(
-            'COLLATE `ascii_general_ci`',
-            $this->platform->getColumnCollationDeclarationSQL('ascii_general_ci'),
-        );
-    }
-
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');

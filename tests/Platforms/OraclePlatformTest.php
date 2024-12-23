@@ -9,7 +9,6 @@ use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -124,11 +123,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertTrue($this->platform->supportsSavepoints());
     }
 
-    protected function supportsCommentOnStatement(): bool
-    {
-        return true;
-    }
-
     public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX "MY_IDX" ON mytable ("USER_NAME", "LAST_LOGIN")';
@@ -142,28 +136,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     protected function getGenerateForeignKeySql(): string
     {
         return 'ALTER TABLE test ADD FOREIGN KEY ("FK_NAME_ID") REFERENCES "OTHER_TABLE" ("ID")';
-    }
-
-    /** @param mixed[] $options */
-    #[DataProvider('getGeneratesAdvancedForeignKeyOptionsSQLData')]
-    public function testGeneratesAdvancedForeignKeyOptionsSQL(array $options, string $expectedSql): void
-    {
-        $foreignKey = new ForeignKeyConstraint(['foo'], 'foreign_table', ['bar'], '', $options);
-
-        self::assertSame($expectedSql, $this->platform->getAdvancedForeignKeyOptionsSQL($foreignKey));
-    }
-
-    /** @return mixed[][] */
-    public static function getGeneratesAdvancedForeignKeyOptionsSQLData(): iterable
-    {
-        return [
-            [[], ''],
-            [['onUpdate' => 'CASCADE'], ''],
-            [['onDelete' => 'CASCADE'], ' ON DELETE CASCADE'],
-            [['onDelete' => 'NO ACTION'], ''],
-            [['onDelete' => 'RESTRICT'], ''],
-            [['onUpdate' => 'SET NULL', 'onDelete' => 'SET NULL'], ' ON DELETE SET NULL'],
-        ];
     }
 
     /**

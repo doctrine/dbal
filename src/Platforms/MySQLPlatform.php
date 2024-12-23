@@ -19,11 +19,9 @@ class MySQLPlatform extends AbstractMySQLPlatform
      *
      * Oracle MySQL does not support default values on TEXT/BLOB columns until 8.0.13.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @link https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-13.html#mysqld-8-0-13-data-types
      */
-    public function getDefaultValueDeclarationSQL(array $column): string
+    protected function getDefaultValueDeclarationSQL(array $column): string
     {
         if ($column['type'] instanceof TextType || $column['type'] instanceof BlobType) {
             unset($column['default']);
