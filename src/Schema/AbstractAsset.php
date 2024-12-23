@@ -39,11 +39,6 @@ abstract class AbstractAsset
     protected string $_name = '';
 
     /**
-     * Indicates whether the object name has been initialized.
-     */
-    protected bool $isNameInitialized = false;
-
-    /**
      * Namespace of the asset. If none isset the default namespace is assumed.
      */
     protected ?string $_namespace = null;
@@ -66,8 +61,6 @@ abstract class AbstractAsset
         }
 
         $this->setName($parsedName);
-
-        $this->isNameInitialized = true;
 
         if ($parsedName === null) {
             return;
