@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function assert;
@@ -38,13 +37,6 @@ use function substr;
 abstract class AbstractAsset
 {
     protected string $_name = '';
-
-    /**
-     * Namespace of the asset. If none isset the default namespace is assumed.
-     *
-     * @deprecated Use {@see NamedObject::getObjectName()} and {@see OptionallyQualifiedName::getQualifier()} instead.
-     */
-    protected ?string $_namespace = null;
 
     protected bool $_quoted = false;
 
@@ -87,26 +79,10 @@ abstract class AbstractAsset
         $count = count($identifiers);
         assert($count > 0);
 
-        switch ($count) {
-            case 1:
-                $namespace = null;
-                $name      = $identifiers[0];
-                break;
-
-            case 2:
-                /** @psalm-suppress PossiblyUndefinedArrayOffset */
-                [$namespace, $name] = $identifiers;
-                break;
-
-            default:
-                $namespace = null;
-                $name      = $identifiers[$count - 1];
-                break;
-        }
+        $name = $identifiers[$count - 1];
 
         $this->_name       = $name->getValue();
         $this->_quoted     = $name->isQuoted();
-        $this->_namespace  = $namespace?->getValue();
         $this->identifiers = $identifiers;
     }
 
@@ -132,43 +108,6 @@ abstract class AbstractAsset
     protected function setName(?Name $name): void
     {
         throw NotImplemented::fromMethod(static::class, __FUNCTION__);
-    }
-
-    /**
-     * Is this asset in the default namespace?
-     *
-     * @deprecated
-     */
-    public function isInDefaultNamespace(string $defaultNamespaceName): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6664',
-            '%s is deprecated and will be removed in 5.0.',
-            __METHOD__,
-        );
-
-        return $this->_namespace === $defaultNamespaceName || $this->_namespace === null;
-    }
-
-    /**
-     * Gets the namespace name of this asset.
-     *
-     * If NULL is returned this means the default namespace is used.
-     *
-     * @deprecated Use {@see NamedObject::getObjectName()} and {@see OptionallyQualifiedName::getQualifier()} instead.
-     */
-    public function getNamespaceName(): ?string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6664',
-            '%s is deprecated and will be removed in 5.0. Use NamedObject::getObjectName()'
-                . ' and OptionallyQualifiedName::getQualifier() instead.',
-            __METHOD__,
-        );
-
-        return $this->_namespace;
     }
 
     /**
@@ -200,11 +139,10 @@ abstract class AbstractAsset
      */
     public function getName(): string
     {
-        if ($this->_namespace !== null) {
-            return $this->_namespace . '.' . $this->_name;
-        }
-
-        return $this->_name;
+        return implode('.', array_map(
+            static fn (Identifier $identifier): string => $identifier->getValue(),
+            $this->identifiers,
+        ));
     }
 
     /**
