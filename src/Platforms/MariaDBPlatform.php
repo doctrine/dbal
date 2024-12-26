@@ -58,7 +58,7 @@ class MariaDBPlatform extends AbstractMySQLPlatform
     }
 
     /** {@inheritDoc} */
-    public function getColumnDeclarationSQL(string $name, array $column): string
+    protected function getColumnDeclarationSQL(string $name, array $column): string
     {
         // MariaDb forces column collation to utf8mb4_bin where the column was declared as JSON so ignore
         // collation and character set for json columns as attempting to set them can cause an error.

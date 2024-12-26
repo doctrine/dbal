@@ -745,8 +745,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to drop a constraint.
-     *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     protected function getDropConstraintSQL(string $name, string $table): string
     {
@@ -790,11 +788,7 @@ abstract class AbstractPlatform
         return new DefaultUnionSQLBuilder($this);
     }
 
-    /**
-     * @internal
-     *
-     * @return list<string>
-     */
+    /** @return list<string> */
     final protected function getCreateTableWithoutForeignKeysSQL(Table $table): array
     {
         return $this->buildCreateTableSQL($table, false);
@@ -930,8 +924,7 @@ abstract class AbstractPlatform
         );
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function getCommentOnColumnSQL(string $tableName, string $columnName, string $comment): string
+    protected function getCommentOnColumnSQL(string $tableName, string $columnName, string $comment): string
     {
         $tableName  = new Identifier($tableName);
         $columnName = new Identifier($columnName);
@@ -946,10 +939,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create inline comment on a column.
-     *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
-    public function getInlineColumnCommentSQL(string $comment): string
+    protected function getInlineColumnCommentSQL(string $comment): string
     {
         if (! $this->supportsInlineColumnComments()) {
             throw NotSupported::new(__METHOD__);
@@ -1334,8 +1325,6 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to declare a generic type
      * column to be used in statements like CREATE TABLE.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @param string  $name   The name the column to be declared.
      * @param mixed[] $column An associative array with the name of the properties
      *                        of the column being declared as array indexes. Currently, the types
@@ -1359,7 +1348,7 @@ abstract class AbstractPlatform
      *
      * @return string DBMS specific SQL code portion that should be used to declare the column.
      */
-    public function getColumnDeclarationSQL(string $name, array $column): string
+    protected function getColumnDeclarationSQL(string $name, array $column): string
     {
         if (isset($column['columnDefinition'])) {
             $declaration = $column['columnDefinition'];
@@ -1411,13 +1400,11 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a default value
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @param mixed[] $column The column definition array.
      *
      * @return string DBMS specific SQL code portion needed to set a default value.
      */
-    public function getDefaultValueDeclarationSQL(array $column): string
+    protected function getDefaultValueDeclarationSQL(array $column): string
     {
         if (! isset($column['default'])) {
             return empty($column['notnull']) ? ' DEFAULT NULL' : '';
@@ -1525,13 +1512,11 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @param Index $index The index definition.
      *
      * @return string DBMS specific SQL code portion needed to set an index.
      */
-    public function getIndexDeclarationSQL(Index $index): string
+    protected function getIndexDeclarationSQL(Index $index): string
     {
         $columns = $index->getColumns();
 
@@ -1555,12 +1540,10 @@ abstract class AbstractPlatform
      * Obtain DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      * of a column declaration to be used in statements like CREATE TABLE.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @return string DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      *                of a column declaration.
      */
-    public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey): string
+    protected function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {
         $sql  = $this->getForeignKeyBaseDeclarationSQL($foreignKey);
         $sql .= $this->getAdvancedForeignKeyOptionsSQL($foreignKey);
@@ -1572,11 +1555,9 @@ abstract class AbstractPlatform
      * Returns the FOREIGN KEY query section dealing with non-standard options
      * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @param ForeignKeyConstraint $foreignKey The foreign key definition.
      */
-    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
+    protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';
         if ($foreignKey->hasOption('onUpdate')) {
@@ -1593,11 +1574,9 @@ abstract class AbstractPlatform
     /**
      * Returns the given referential action in uppercase if valid, otherwise throws an exception.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @param string $action The foreign key referential action.
      */
-    public function getForeignKeyReferentialActionSQL(string $action): string
+    protected function getForeignKeyReferentialActionSQL(string $action): string
     {
         $upper = strtoupper($action);
 
@@ -1646,14 +1625,12 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set the CHARACTER SET
      * of a column declaration to be used in statements like CREATE TABLE.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @param string $charset The name of the charset.
      *
      * @return string DBMS specific SQL code portion needed to set the CHARACTER SET
      *                of a column declaration.
      */
-    public function getColumnCharsetDeclarationSQL(string $charset): string
+    protected function getColumnCharsetDeclarationSQL(string $charset): string
     {
         return '';
     }
@@ -1662,14 +1639,12 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set the COLLATION
      * of a column declaration to be used in statements like CREATE TABLE.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @param string $collation The name of the collation.
      *
      * @return string DBMS specific SQL code portion needed to set the COLLATION
      *                of a column declaration.
      */
-    public function getColumnCollationDeclarationSQL(string $collation): string
+    protected function getColumnCollationDeclarationSQL(string $collation): string
     {
         return $this->supportsColumnCollation() ? 'COLLATE ' . $this->quoteSingleIdentifier($collation) : '';
     }
@@ -1915,10 +1890,8 @@ abstract class AbstractPlatform
 
     /**
      * Whether the platform supports partial indexes.
-     *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
-    public function supportsPartialIndexes(): bool
+    protected function supportsPartialIndexes(): bool
     {
         return false;
     }
@@ -1957,30 +1930,24 @@ abstract class AbstractPlatform
 
     /**
      * Whether this platform support to add inline column comments as postfix.
-     *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
-    public function supportsInlineColumnComments(): bool
+    protected function supportsInlineColumnComments(): bool
     {
         return false;
     }
 
     /**
      * Whether this platform support the proprietary syntax "COMMENT ON asset".
-     *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
-    public function supportsCommentOnStatement(): bool
+    protected function supportsCommentOnStatement(): bool
     {
         return false;
     }
 
     /**
      * Does this platform support column collation?
-     *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
-    public function supportsColumnCollation(): bool
+    protected function supportsColumnCollation(): bool
     {
         return false;
     }

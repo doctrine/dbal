@@ -203,14 +203,12 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return true;
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function supportsInlineColumnComments(): bool
+    protected function supportsInlineColumnComments(): bool
     {
         return true;
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function supportsColumnCollation(): bool
+    protected function supportsColumnCollation(): bool
     {
         return true;
     }
@@ -677,14 +675,12 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $this->getUnsignedDeclaration($column) . $autoinc;
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function getColumnCharsetDeclarationSQL(string $charset): string
+    protected function getColumnCharsetDeclarationSQL(string $charset): string
     {
         return 'CHARACTER SET ' . $charset;
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
+    protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';
         if ($foreignKey->hasOption('match')) {

@@ -1026,33 +1026,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $sql);
     }
 
-    public function testGetDefaultValueDeclarationSQLForDateType(): void
-    {
-        $currentDateSql = $this->platform->getCurrentDateSQL();
-        foreach ([Types::DATE_MUTABLE, Types::DATE_IMMUTABLE] as $type) {
-            self::assertSame(
-                ' DEFAULT CONVERT(date, GETDATE())',
-                $this->platform->getDefaultValueDeclarationSQL([
-                    'type' => Type::getType($type),
-                    'default' => $currentDateSql,
-                ]),
-            );
-        }
-    }
-
-    public function testSupportsColumnCollation(): void
-    {
-        self::assertTrue($this->platform->supportsColumnCollation());
-    }
-
-    public function testColumnCollationDeclarationSQL(): void
-    {
-        self::assertSame(
-            'COLLATE Latin1_General_CS_AS_KS_WS',
-            $this->platform->getColumnCollationDeclarationSQL('Latin1_General_CS_AS_KS_WS'),
-        );
-    }
-
     public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');

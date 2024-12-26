@@ -251,8 +251,7 @@ class SQLitePlatform extends AbstractPlatform
         return ! empty($column['unsigned']) ? ' UNSIGNED' : '';
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey): string
+    protected function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {
         return parent::getForeignKeyDeclarationSQL(new ForeignKeyConstraint(
             $foreignKey->getQuotedLocalColumns($this),
@@ -372,8 +371,7 @@ class SQLitePlatform extends AbstractPlatform
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
+    protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
 
@@ -398,14 +396,12 @@ class SQLitePlatform extends AbstractPlatform
         return true;
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function supportsColumnCollation(): bool
+    protected function supportsColumnCollation(): bool
     {
         return true;
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function supportsInlineColumnComments(): bool
+    protected function supportsInlineColumnComments(): bool
     {
         return true;
     }
@@ -417,8 +413,7 @@ class SQLitePlatform extends AbstractPlatform
         return 'DELETE FROM ' . $tableIdentifier->getQuotedName($this);
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function getInlineColumnCommentSQL(string $comment): string
+    protected function getInlineColumnCommentSQL(string $comment): string
     {
         if ($comment === '') {
             return '';

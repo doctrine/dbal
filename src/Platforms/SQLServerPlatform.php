@@ -117,8 +117,7 @@ class SQLServerPlatform extends AbstractPlatform
         return true;
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function supportsColumnCollation(): bool
+    protected function supportsColumnCollation(): bool
     {
         return true;
     }
@@ -1103,8 +1102,7 @@ class SQLServerPlatform extends AbstractPlatform
         return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
 
-    /** @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy. */
-    public function getForeignKeyReferentialActionSQL(string $action): string
+    protected function getForeignKeyReferentialActionSQL(string $action): string
     {
         // RESTRICT is not supported, therefore falling back to NO ACTION.
         if (strtoupper($action) === 'RESTRICT') {
@@ -1146,10 +1144,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
-    public function getColumnDeclarationSQL(string $name, array $column): string
+    protected function getColumnDeclarationSQL(string $name, array $column): string
     {
         if (isset($column['columnDefinition'])) {
             $declaration = $column['columnDefinition'];
@@ -1169,7 +1165,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * SQL Server does not support quoting collation identifiers.
      */
-    public function getColumnCollationDeclarationSQL(string $collation): string
+    protected function getColumnCollationDeclarationSQL(string $collation): string
     {
         return 'COLLATE ' . $collation;
     }
