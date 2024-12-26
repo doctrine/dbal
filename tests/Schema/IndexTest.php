@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class IndexTest extends TestCase
 {
+    use VerifyDeprecations;
+
     /** @param mixed[] $options */
     private function createIndex(bool $unique = false, bool $primary = false, array $options = []): Index
     {
@@ -174,21 +177,24 @@ class IndexTest extends TestCase
         self::assertSame(['where' => 'name IS NULL'], $idx2->getOptions());
     }
 
-    /** @throws Exception */
-    public function testGetNonNullObjectName(): void
+    public function testEmptyName(): void
     {
-        $index = new Index('idx_user_id', ['user_id']);
-        $name  = $index->getObjectName();
+        $this->expectException(InvalidName::class);
 
-        self::assertNotNull($name);
-        self::assertEquals(Identifier::unquoted('idx_user_id'), $name->getIdentifier());
+        new Index(null, ['user_id']);
     }
 
-    /** @throws Exception */
-    public function testGetNullObjectName(): void
+    public function testQualifiedName(): void
     {
-        $index = new Index(null, ['user_id']);
+        $this->expectException(InvalidName::class);
 
-        self::assertNull($index->getObjectName());
+        new Index('auth.idx_user_id', ['user_id']);
+    }
+
+    public function testGetObjectName(): void
+    {
+        $index = new Index('idx_user_id', ['user_id']);
+
+        self::assertEquals(Identifier::unquoted('idx_user_id'), $index->getObjectName()->getIdentifier());
     }
 }

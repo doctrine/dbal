@@ -112,7 +112,8 @@ The `Sequence::isAutoIncrementsFor()` method has been deprecated.
 
 ## Deprecated using invalid database object names
 
-Using the following objects with an empty name is deprecated: `Column`, `View`, `Sequence`, `Identifier`.
+Using the following objects with an empty name is deprecated: `Table`, `Column`, `Index`, `View`, `Sequence`,
+`Identifier`.
 
 Using the following objects with a qualified name is deprecated: `Column`, `ForeignKeyConstraint`, `Index`, `Schema`,
 `UniqueConstraint`. If the object name contains a dot, the name should be quoted.

@@ -17,8 +17,8 @@ use function array_shift;
 use function count;
 use function strtolower;
 
-/** @extends AbstractOptionallyNamedObject<UnqualifiedName> */
-class Index extends AbstractOptionallyNamedObject
+/** @extends AbstractNamedObject<UnqualifiedName> */
+class Index extends AbstractNamedObject
 {
     /**
      * Asset identifier instances of the column names the index is associated with.
@@ -51,7 +51,7 @@ class Index extends AbstractOptionallyNamedObject
         array $flags = [],
         private readonly array $options = [],
     ) {
-        parent::__construct($name);
+        parent::__construct($name ?? '');
 
         $this->_isUnique  = $isUnique || $isPrimary;
         $this->_isPrimary = $isPrimary;
