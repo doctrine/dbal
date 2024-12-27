@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema\Name;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Name;
 
 use function array_map;
@@ -25,11 +26,19 @@ abstract class AbstractName implements Name
         $this->identifiers = array_merge([$firstIdentifier], array_values($otherIdentifiers));
     }
 
+    public function toSQL(AbstractPlatform $platform): string
+    {
+        return $this->joinIdentifiers(static fn (Identifier $identifier): string => $identifier->toSql($platform));
+    }
+
     public function toString(): string
     {
-        return implode('.', array_map(
-            static fn (Identifier $identifier): string => $identifier->toString(),
-            $this->identifiers,
-        ));
+        return $this->joinIdentifiers(static fn (Identifier $identifier): string => $identifier->toString());
+    }
+
+    /** @param callable(Identifier): string $mapper */
+    private function joinIdentifiers(callable $mapper): string
+    {
+        return implode('.', array_map($mapper, $this->identifiers));
     }
 }

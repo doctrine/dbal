@@ -80,6 +80,11 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated `AbstractAsset::getQuotedName()`
+
+The `AbstractAsset::getQuotedName()` method has been deprecated. Use `NamedObject::getObjectName()` or
+`OptionallyQualifiedName::getObjectName()` followed by `Name::toSQL()` instead.
+
 ## Deprecated `AbstractAsset` namespace-related methods and property
 
 The following namespace-related methods and property have been deprecated:

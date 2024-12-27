@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function assert;
@@ -148,9 +149,19 @@ abstract class AbstractAsset
     /**
      * Returns the quoted representation of this asset's name. If the name is unquoted, it is normalized according to
      * the platform's unquoted name normalization rules.
+     *
+     * @deprecated Use {@see NamedObject::getObjectName()} or {@see OptionallyQualifiedName::getObjectName()} followed
+     * by {@see Name::toSQL()} instead.
      */
     public function getQuotedName(AbstractPlatform $platform): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6674',
+            '%s is deprecated and will be removed in 5.0.',
+            __METHOD__,
+        );
+
         $parts = array_map(static function (Identifier $identifier) use ($platform): string {
             $value = $identifier->getValue();
 
