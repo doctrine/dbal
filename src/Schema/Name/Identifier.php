@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema\Name;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Exception\InvalidIdentifier;
 
 use function sprintf;
@@ -32,6 +33,17 @@ final class Identifier
     public function isQuoted(): bool
     {
         return $this->isQuoted;
+    }
+
+    public function toSql(AbstractPlatform $platform): string
+    {
+        if (! $this->isQuoted) {
+            $value = $platform->normalizeUnquotedIdentifier($this->value);
+        } else {
+            $value = $this->value;
+        }
+
+        return $platform->quoteSingleIdentifier($value);
     }
 
     public function toString(): string
