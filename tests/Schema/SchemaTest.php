@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Schema;
@@ -13,7 +14,6 @@ use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\TestCase;
 
 use function array_shift;
@@ -21,8 +21,6 @@ use function strlen;
 
 class SchemaTest extends TestCase
 {
-    use VerifyDeprecations;
-
     public function testAddTable(): void
     {
         $tableName = 'public.foo';
@@ -345,18 +343,14 @@ class SchemaTest extends TestCase
 
     public function testAddObjectWithQualifiedNameAfterUnqualifiedName(): void
     {
-        $this->expectDeprecationWithIdentifier(
-            'https://github.com/doctrine/dbal/pull/6677#user-content-qualified-names',
-        );
+        $this->expectException(ImproperlyQualifiedName::class);
 
         new Schema([new Table('t'), new Table('public.t')]);
     }
 
     public function testAddObjectWithUnqualifiedNameAfterQualifiedName(): void
     {
-        $this->expectDeprecationWithIdentifier(
-            'https://github.com/doctrine/dbal/pull/6677#user-content-unqualified-names',
-        );
+        $this->expectException(ImproperlyQualifiedName::class);
 
         new Schema([new Table('public.t'), new Table('t')]);
     }
@@ -365,9 +359,7 @@ class SchemaTest extends TestCase
     {
         $schema = new Schema([new Table('t')]);
 
-        $this->expectDeprecationWithIdentifier(
-            'https://github.com/doctrine/dbal/pull/6677#user-content-qualified-names',
-        );
+        $this->expectException(ImproperlyQualifiedName::class);
 
         $schema->hasTable('public.t');
     }
@@ -376,9 +368,7 @@ class SchemaTest extends TestCase
     {
         $schema = new Schema([new Table('public.t')]);
 
-        $this->expectDeprecationWithIdentifier(
-            'https://github.com/doctrine/dbal/pull/6677#user-content-unqualified-names',
-        );
+        $this->expectException(ImproperlyQualifiedName::class);
 
         $schema->hasTable('t');
     }
@@ -388,11 +378,10 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $this->expectNoDeprecationWithIdentifier(
-            'https://github.com/doctrine/dbal/pull/6677#user-content-qualified-names',
-        );
+        $schema = new Schema([new Table('t'), new Table('public.s')], [], $schemaConfig);
 
-        new Schema([new Table('t'), new Table('public.s')], [], $schemaConfig);
+        self::assertTrue($schema->hasTable('t'));
+        self::assertTrue($schema->hasTable('public.s'));
     }
 
     public function testAddObjectWithUnqualifiedNameAfterQualifiedNameWithDefaultNamespace(): void
@@ -400,11 +389,10 @@ class SchemaTest extends TestCase
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setName('public');
 
-        $this->expectNoDeprecationWithIdentifier(
-            'https://github.com/doctrine/dbal/pull/6677#user-content-unqualified-names',
-        );
+        $schema = new Schema([new Table('public.t'), new Table('s')], [], $schemaConfig);
 
-        new Schema([new Table('public.t'), new Table('s')], [], $schemaConfig);
+        self::assertTrue($schema->hasTable('public.t'));
+        self::assertTrue($schema->hasTable('s'));
     }
 
     public function testReferencingByUnqualifiedNameAmongQualifiedNamesWithDefaultNamespace(): void

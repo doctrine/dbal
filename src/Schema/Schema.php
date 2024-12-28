@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\NamespaceAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\SequenceAlreadyExists;
@@ -20,7 +21,6 @@ use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_values;
 use function count;
@@ -217,22 +217,12 @@ class Schema extends AbstractOptionallyNamedObject
 
         if ($qualifier !== null) {
             if ($this->usesUnqualifiedNames) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/6677#user-content-qualified-names',
-                    'Using qualified names to create or reference objects in a schema that uses unqualified '
-                        . 'names is deprecated.',
-                );
+                throw ImproperlyQualifiedName::fromQualifiedName($name);
             }
 
             $key = $qualifier->getValue() . '.' . $key;
         } elseif (count($this->namespaces) > 0) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6677#user-content-unqualified-names',
-                'Using unqualified names to create or reference objects in a schema that uses qualified '
-                    . 'names and lacks a default namespace configuration is deprecated.',
-            );
+            throw ImproperlyQualifiedName::fromUnqualifiedName($name);
         }
 
         return strtolower($key);
@@ -272,25 +262,13 @@ class Schema extends AbstractOptionallyNamedObject
     }
 
     /**
-     * Returns the unquoted representation of a given asset name.
-     */
-    private function getUnquotedAssetName(string $assetName): string
-    {
-        if ($this->isIdentifierQuoted($assetName)) {
-            return $this->trimQuotes($assetName);
-        }
-
-        return $assetName;
-    }
-
-    /**
      * Does this schema have a namespace with the given name?
      */
     public function hasNamespace(string $name): bool
     {
-        $name = strtolower($this->getUnquotedAssetName($name));
+        $key = $this->getNamespaceKey($name);
 
-        return isset($this->namespaces[$name]);
+        return isset($this->namespaces[$key]);
     }
 
     /**
@@ -333,15 +311,31 @@ class Schema extends AbstractOptionallyNamedObject
      */
     public function createNamespace(string $name): self
     {
-        $unquotedName = strtolower($this->getUnquotedAssetName($name));
+        $key = $this->getNamespaceKey($name);
 
-        if (isset($this->namespaces[$unquotedName])) {
-            throw NamespaceAlreadyExists::new($unquotedName);
+        if (isset($this->namespaces[$key])) {
+            throw NamespaceAlreadyExists::new($name);
         }
 
-        $this->namespaces[$unquotedName] = $name;
+        $this->namespaces[$key] = $name;
 
         return $this;
+    }
+
+    /**
+     * Returns the key that will be used to store the given namespace name in the collection of namespaces.
+     */
+    private function getNamespaceKey(string $name): string
+    {
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        try {
+            $parsedName = $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+
+        return strtolower($parsedName->getIdentifier()->getValue());
     }
 
     /**
