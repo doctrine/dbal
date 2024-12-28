@@ -46,7 +46,7 @@ final class DropSchemaObjectsSQLBuilder
         $statements = [];
 
         foreach ($sequences as $sequence) {
-            $statements[] = $this->platform->getDropSequenceSQL($sequence->getQuotedName($this->platform));
+            $statements[] = $this->platform->getDropSequenceSQL($sequence->getObjectName()->toSQL($this->platform));
         }
 
         return $statements;

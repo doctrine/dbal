@@ -129,13 +129,13 @@ class SQLServerPlatform extends AbstractPlatform
 
     public function getAlterSequenceSQL(Sequence $sequence): string
     {
-        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
+        return 'ALTER SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
             ' INCREMENT BY ' . $sequence->getAllocationSize();
     }
 
     public function getCreateSequenceSQL(Sequence $sequence): string
     {
-        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
+        return 'CREATE SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
             ' START WITH ' . $sequence->getInitialValue() .
             ' INCREMENT BY ' . $sequence->getAllocationSize() .
             ' MINVALUE ' . $sequence->getInitialValue();
@@ -312,7 +312,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         $columnName = new Identifier($column['name']);
 
-        return $this->getDefaultValueDeclarationSQL($column) . ' FOR ' . $columnName->getQuotedName($this);
+        return $this->getDefaultValueDeclarationSQL($column) . ' FOR ' . $columnName->getObjectName()->toSQL($this);
     }
 
     public function getCreateIndexSQL(Index $index, string $table): string
@@ -372,7 +372,10 @@ class SQLServerPlatform extends AbstractPlatform
         foreach ($diff->getAddedColumns() as $column) {
             $columnProperties = $column->toArray();
 
-            $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnProperties);
+            $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL(
+                $column->getObjectName()->toSQL($this),
+                $columnProperties,
+            );
 
             if (isset($columnProperties['default'])) {
                 $addColumnSql .= $this->getDefaultValueDeclarationSQL($columnProperties);
@@ -388,7 +391,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $commentsSql[] = $this->getCreateColumnCommentSQL(
                 $tableName,
-                $column->getQuotedName($this),
+                $column->getObjectName()->toSQL($this),
                 $comment,
             );
         }
@@ -398,10 +401,10 @@ class SQLServerPlatform extends AbstractPlatform
                 $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($column);
             }
 
-            $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
+            $queryParts[] = 'DROP COLUMN ' . $column->getObjectName()->toSQL($this);
         }
 
-        $tableNameSQL = $table->getQuotedName($this);
+        $tableNameSQL = $table->getObjectName()->toSQL($this);
 
         foreach ($diff->getChangedColumns() as $columnDiff) {
             $newColumn   = $columnDiff->getNewColumn();
@@ -410,7 +413,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             if ($nameChanged) {
                 // sp_rename accepts the old name as a qualified name, so it should be quoted.
-                $oldColumnNameSQL = $oldColumn->getQuotedName($this);
+                $oldColumnNameSQL = $oldColumn->getObjectName()->toSQL($this);
 
                 // sp_rename accepts the new name as a literal value, so it cannot be quoted.
                 $newColumnName = $newColumn->getName();
@@ -430,23 +433,23 @@ class SQLServerPlatform extends AbstractPlatform
             if ($hasOldComment && $hasNewComment && $oldComment !== $newComment) {
                 $commentsSql[] = $this->getAlterColumnCommentSQL(
                     $tableName,
-                    $newColumn->getQuotedName($this),
+                    $newColumn->getObjectName()->toSQL($this),
                     $newComment,
                 );
             } elseif ($hasOldComment && ! $hasNewComment) {
                 $commentsSql[] = $this->getDropColumnCommentSQL(
                     $tableName,
-                    $newColumn->getQuotedName($this),
+                    $newColumn->getObjectName()->toSQL($this),
                 );
             } elseif (! $hasOldComment && $hasNewComment) {
                 $commentsSql[] = $this->getCreateColumnCommentSQL(
                     $tableName,
-                    $newColumn->getQuotedName($this),
+                    $newColumn->getObjectName()->toSQL($this),
                     $newComment,
                 );
             }
 
-            $columnNameSQL = $newColumn->getQuotedName($this);
+            $columnNameSQL = $newColumn->getObjectName()->toSQL($this);
 
             $newDeclarationSQL     = $this->getColumnDeclarationSQL($columnNameSQL, $newColumn->toArray());
             $oldDeclarationSQL     = $this->getColumnDeclarationSQL($columnNameSQL, $oldColumn->toArray());
@@ -504,7 +507,7 @@ class SQLServerPlatform extends AbstractPlatform
     private function getAlterTableAddDefaultConstraintClause(string $tableName, Column $column): string
     {
         $columnDef         = $column->toArray();
-        $columnDef['name'] = $column->getQuotedName($this);
+        $columnDef['name'] = $column->getObjectName()->toSQL($this);
 
         return 'ADD' . $this->getDefaultConstraintDeclarationSQL($columnDef);
     }
@@ -1131,7 +1134,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $tableIdentifier = new Identifier($tableName);
 
-        return 'TRUNCATE TABLE ' . $tableIdentifier->getQuotedName($this);
+        return 'TRUNCATE TABLE ' . $tableIdentifier->getObjectName()->toSQL($this);
     }
 
     /**

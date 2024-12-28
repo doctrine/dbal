@@ -121,7 +121,7 @@ class OraclePlatform extends AbstractPlatform
 
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
-        return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $index->getQuotedName($this)
+        return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $index->getObjectName()->toSQL($this)
             . ' PRIMARY KEY (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }
 
@@ -134,7 +134,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getCreateSequenceSQL(Sequence $sequence): string
     {
-        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
+        return 'CREATE SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
                ' START WITH ' . $sequence->getInitialValue() .
                ' MINVALUE ' . $sequence->getInitialValue() .
                ' INCREMENT BY ' . $sequence->getAllocationSize() .
@@ -143,7 +143,7 @@ class OraclePlatform extends AbstractPlatform
 
     public function getAlterSequenceSQL(Sequence $sequence): string
     {
-        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
+        return 'ALTER SEQUENCE ' . $sequence->getObjectName()->toSQL($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize()
                . $this->getSequenceCacheSQL($sequence);
     }
@@ -346,11 +346,11 @@ class OraclePlatform extends AbstractPlatform
     protected function getCreateAutoincrementSql(string $name, string $table, int $start = 1): array
     {
         $tableIdentifier   = $this->normalizeIdentifier($table);
-        $quotedTableName   = $tableIdentifier->getQuotedName($this);
+        $quotedTableName   = $tableIdentifier->getObjectName()->toSQL($this);
         $unquotedTableName = $tableIdentifier->getName();
 
         $nameIdentifier = $this->normalizeIdentifier($name);
-        $quotedName     = $nameIdentifier->getQuotedName($this);
+        $quotedName     = $nameIdentifier->getObjectName()->toSQL($this);
         $unquotedName   = $nameIdentifier->getName();
 
         $sql = [];
@@ -416,13 +416,13 @@ END;';
         $table                       = $this->normalizeIdentifier($table);
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);
         $identitySequenceName        = $this->getIdentitySequenceName(
-            $table->isQuoted() ? $table->getQuotedName($this) : $table->getName(),
+            $table->isQuoted() ? $table->getObjectName()->toSQL($this) : $table->getName(),
         );
 
         return [
             'DROP TRIGGER ' . $autoincrementIdentifierName,
             $this->getDropSequenceSQL($identitySequenceName),
-            $this->getDropConstraintSQL($autoincrementIdentifierName, $table->getQuotedName($this)),
+            $this->getDropConstraintSQL($autoincrementIdentifierName, $table->getObjectName()->toSQL($this)),
         ];
     }
 
@@ -524,11 +524,15 @@ END;';
         $commentsSQL  = [];
         $addColumnSQL = [];
 
-        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
 
         foreach ($diff->getAddedColumns() as $column) {
-            $addColumnSQL[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-            $comment        = $column->getComment();
+            $addColumnSQL[] = $this->getColumnDeclarationSQL(
+                $column->getObjectName()->toSQL($this),
+                $column->toArray(),
+            );
+
+            $comment = $column->getComment();
 
             if ($comment === '') {
                 continue;
@@ -536,7 +540,7 @@ END;';
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $tableNameSQL,
-                $column->getQuotedName($this),
+                $column->getObjectName()->toSQL($this),
                 $comment,
             );
         }
@@ -552,8 +556,8 @@ END;';
 
             // Column names in Oracle are case insensitive and automatically uppercased on the server.
             if ($columnDiff->hasNameChanged()) {
-                $newColumnName = $newColumn->getQuotedName($this);
-                $oldColumnName = $oldColumn->getQuotedName($this);
+                $newColumnName = $newColumn->getObjectName()->toSQL($this);
+                $oldColumnName = $oldColumn->getObjectName()->toSQL($this);
 
                 $sql = array_merge(
                     $sql,
@@ -590,7 +594,7 @@ END;';
                         $newSQL = $this->getColumnDeclarationSQL('', $newColumnProperties);
                     }
 
-                    $modifyColumnSQL[] = $newColumn->getQuotedName($this) . $newSQL;
+                    $modifyColumnSQL[] = $newColumn->getObjectName()->toSQL($this) . $newSQL;
                 }
             }
 
@@ -600,7 +604,7 @@ END;';
 
             $commentsSQL[] = $this->getCommentOnColumnSQL(
                 $tableNameSQL,
-                $newColumn->getQuotedName($this),
+                $newColumn->getObjectName()->toSQL($this),
                 $newColumn->getComment(),
             );
         }
@@ -611,7 +615,7 @@ END;';
 
         $dropColumnSQL = [];
         foreach ($diff->getDroppedColumns() as $column) {
-            $dropColumnSQL[] = $column->getQuotedName($this);
+            $dropColumnSQL[] = $column->getObjectName()->toSQL($this);
         }
 
         if (count($dropColumnSQL) > 0) {
@@ -659,7 +663,7 @@ END;';
             $oldIndexName = $schema . '.' . $oldIndexName;
         }
 
-        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
+        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getObjectName()->toSQL($this)];
     }
 
     protected function getIdentitySequenceName(string $tableName): string
@@ -675,7 +679,7 @@ END;';
 
         $identitySequenceIdentifier = $this->normalizeIdentifier($identitySequenceName);
 
-        return $identitySequenceIdentifier->getQuotedName($this);
+        return $identitySequenceIdentifier->getObjectName()->toSQL($this);
     }
 
     protected function supportsCommentOnStatement(): bool
@@ -735,7 +739,7 @@ END;';
     {
         $tableIdentifier = new Identifier($tableName);
 
-        return 'TRUNCATE TABLE ' . $tableIdentifier->getQuotedName($this);
+        return 'TRUNCATE TABLE ' . $tableIdentifier->getObjectName()->toSQL($this);
     }
 
     public function getDummySelectSQL(string $expression = '1'): string

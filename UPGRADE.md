@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `AbstractAsset::getQuotedName()`
+
+The `AbstractAsset::getQuotedName()` method has been removed.
+
 ## BC BREAK: Removed `AbstractAsset` namespace-related methods and property
 
 The following namespace-related methods and property have been removed:

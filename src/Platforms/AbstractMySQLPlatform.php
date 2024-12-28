@@ -334,13 +334,13 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             ]);
 
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL(
-                $column->getQuotedName($this),
+                $column->getObjectName()->toSQL($this),
                 $columnProperties,
             );
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
-            $queryParts[] =  'DROP ' . $column->getQuotedName($this);
+            $queryParts[] = 'DROP ' . $column->getObjectName()->toSQL($this);
         }
 
         foreach ($diff->getChangedColumns() as $columnDiff) {
@@ -352,8 +352,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
             $oldColumn = $columnDiff->getOldColumn();
 
-            $queryParts[] =  'CHANGE ' . $oldColumn->getQuotedName($this) . ' '
-                . $this->getColumnDeclarationSQL($newColumn->getQuotedName($this), $newColumnProperties);
+            $queryParts[] = 'CHANGE ' . $oldColumn->getObjectName()->toSQL($this) . ' '
+                . $this->getColumnDeclarationSQL($newColumn->getObjectName()->toSQL($this), $newColumnProperties);
         }
 
         $addedIndexes    = $this->indexAssetsByLowerCaseName($diff->getAddedIndexes());
@@ -400,7 +400,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $tableSql = [];
 
         if (count($queryParts) > 0) {
-            $tableSql[] = 'ALTER TABLE ' . $diff->getOldTable()->getQuotedName($this) . ' '
+            $tableSql[] = 'ALTER TABLE ' . $diff->getOldTable()->getObjectName()->toSQL($this) . ' '
                 . implode(', ', $queryParts);
         }
 
@@ -418,7 +418,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     {
         $sql = [];
 
-        $tableNameSQL = $diff->getOldTable()->getQuotedName($this);
+        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
 
         foreach ($diff->getModifiedIndexes() as $changedIndex) {
             $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $changedIndex));
@@ -476,7 +476,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         $sql = [];
 
-        $tableNameSQL = $table->getQuotedName($this);
+        $tableNameSQL = $table->getObjectName()->toSQL($this);
 
         // Dropping primary keys requires to unset autoincrement attribute on the particular column first.
         foreach ($index->getColumns() as $columnName) {
@@ -493,7 +493,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $column->setAutoincrement(false);
 
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                $this->getColumnDeclarationSQL($column->getObjectName()->toSQL($this), $column->toArray());
 
             // original autoincrement information might be needed later on by other parts of the table alteration
             $column->setAutoincrement(true);
@@ -535,7 +535,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         $sql = [];
 
-        $tableNameSQL = $table->getQuotedName($this);
+        $tableNameSQL = $table->getObjectName()->toSQL($this);
 
         foreach ($diff->getModifiedIndexes() as $changedIndex) {
             // Changed primary key
@@ -554,7 +554,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 $column->setAutoincrement(false);
 
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                    $this->getColumnDeclarationSQL($column->getObjectName()->toSQL($this), $column->toArray());
 
                 // Restore the autoincrement attribute as it might be needed later on
                 // by other parts of the table alteration.

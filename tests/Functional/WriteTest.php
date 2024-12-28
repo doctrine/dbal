@@ -280,7 +280,7 @@ class WriteTest extends FunctionalTestCase
         $table->setPrimaryKey(['id']);
 
         try {
-            $this->connection->createSchemaManager()->dropTable($table->getQuotedName($platform));
+            $this->connection->createSchemaManager()->dropTable($table->getObjectName()->toSQL($platform));
         } catch (Throwable) {
         }
 

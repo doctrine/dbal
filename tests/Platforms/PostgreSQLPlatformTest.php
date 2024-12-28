@@ -191,7 +191,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         );
         self::assertEquals(
             'DROP SEQUENCE "myseq" CASCADE',
-            $this->platform->getDropSequenceSQL($sequence->getQuotedName($this->platform)),
+            $this->platform->getDropSequenceSQL($sequence->getObjectName()->toSQL($this->platform)),
         );
         self::assertEquals(
             "SELECT NEXTVAL('myseq')",

@@ -106,7 +106,7 @@ class Index extends AbstractNamedObject
         foreach ($this->_columns as $column) {
             $length = array_shift($subParts);
 
-            $quotedColumn = $column->getQuotedName($platform);
+            $quotedColumn = $column->getObjectName()->toSQL($platform);
 
             if ($length !== null) {
                 $quotedColumn .= '(' . $length . ')';

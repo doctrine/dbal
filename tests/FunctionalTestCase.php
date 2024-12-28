@@ -97,7 +97,7 @@ abstract class FunctionalTestCase extends TestCase
     {
         $schemaManager = $this->connection->createSchemaManager();
         $platform      = $this->connection->getDatabasePlatform();
-        $tableName     = $table->getQuotedName($platform);
+        $tableName     = $table->getObjectName()->toSQL($platform);
 
         $this->dropTableIfExists($tableName);
         $schemaManager->createTable($table);

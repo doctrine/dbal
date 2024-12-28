@@ -114,10 +114,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         // Primary table assertions
-        self::assertSame($primaryTableName, $onlinePrimaryTable->getQuotedName($platform));
+        self::assertSame($primaryTableName, $onlinePrimaryTable->getObjectName()->toSQL($platform));
 
         self::assertTrue($onlinePrimaryTable->hasColumn('"Id"'));
-        self::assertSame('"Id"', $onlinePrimaryTable->getColumn('"Id"')->getQuotedName($platform));
+        self::assertSame('"Id"', $onlinePrimaryTable->getColumn('"Id"')->getObjectName()->toSQL($platform));
 
         $onlinePrimaryTablePrimaryKey = $onlinePrimaryTable->getPrimaryKey();
         self::assertNotNull($onlinePrimaryTablePrimaryKey);

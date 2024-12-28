@@ -489,7 +489,7 @@ SQL
         // assert tabel
         self::assertTrue($table->isQuoted());
         self::assertEquals('test', $table->getName());
-        self::assertEquals('"test"', $table->getQuotedName($this->platform));
+        self::assertEquals('"test"', $table->getObjectName()->toSQL($this->platform));
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals('CREATE TABLE "test" ("id" NUMBER(10) NOT NULL)', $sql[0]);

@@ -280,7 +280,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $foreignTable->addColumn('`foo-bar`', Types::STRING);
 
         $table->addForeignKeyConstraint(
-            $foreignTable->getQuotedName($this->platform),
+            $foreignTable->getObjectName()->toSQL($this->platform),
             ['create', 'foo', '`bar`'],
             ['create', 'bar', '`foo-bar`'],
             [],
@@ -300,7 +300,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $foreignTable->addColumn('`foo-bar`', Types::STRING);
 
         $table->addForeignKeyConstraint(
-            $foreignTable->getQuotedName($this->platform),
+            $foreignTable->getObjectName()->toSQL($this->platform),
             ['create', 'foo', '`bar`'],
             ['create', 'bar', '`foo-bar`'],
             [],
@@ -320,7 +320,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $foreignTable->addColumn('`foo-bar`', Types::STRING);
 
         $table->addForeignKeyConstraint(
-            $foreignTable->getQuotedName($this->platform),
+            $foreignTable->getObjectName()->toSQL($this->platform),
             ['create', 'foo', '`bar`'],
             ['create', 'bar', '`foo-bar`'],
             [],
