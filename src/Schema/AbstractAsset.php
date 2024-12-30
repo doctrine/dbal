@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function assert;
@@ -119,9 +120,19 @@ abstract class AbstractAsset
 
     /**
      * Checks if this identifier is quoted.
+     *
+     * @deprecated Parse the name and introspect its identifiers individually using {@see Identifier::isQuoted()}
+     *             instead.
      */
     protected function isIdentifierQuoted(string $identifier): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6677',
+            '%s is deprecated and will be removed in 5.0.',
+            __METHOD__,
+        );
+
         return isset($identifier[0]) && ($identifier[0] === '`' || $identifier[0] === '"' || $identifier[0] === '[');
     }
 

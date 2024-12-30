@@ -273,6 +273,15 @@ SQL,
         );
     }
 
+    public function createSchemaConfig(): SchemaConfig
+    {
+        $config = parent::createSchemaConfig();
+
+        $config->setName($this->getCurrentSchemaName());
+
+        return $config;
+    }
+
     /** @throws Exception */
     private function getDatabaseCollation(): string
     {
@@ -289,6 +298,15 @@ SQL,
         }
 
         return $this->databaseCollation;
+    }
+
+    /** @throws Exception */
+    private function getCurrentSchemaName(): ?string
+    {
+        $schemaName = $this->connection->fetchOne('SELECT SCHEMA_NAME()');
+        assert($schemaName !== false);
+
+        return $schemaName;
     }
 
     protected function selectTableNames(string $databaseName): Result

@@ -6,20 +6,24 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\NamespaceAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\SequenceAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\TableAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_values;
-use function str_contains;
+use function count;
 use function strtolower;
 
 /**
@@ -35,10 +39,16 @@ use function strtolower;
  * Every asset in the doctrine schema has a name. A name consists of either a
  * namespace.local name pair or just a local unqualified name.
  *
- * The abstraction layer that covers a PostgreSQL schema is the namespace of an
+ * Objects in a schema can be referenced by unqualified names or qualified
+ * names but not both. Whether a given schema uses qualified or unqualified
+ * names is determined at runtime by the presence of objects with unqualified
+ * names and namespaces.
+ *
+ * The abstraction layer that covers a PostgreSQL schema is the namespace of a
  * database object (asset). A schema can have a name, which will be used as
  * default namespace for the unqualified database objects that are created in
- * the schema.
+ * the schema. If a schema uses qualified names and has a name, unqualified
+ * names will be resolved against the corresponding namespace.
  *
  * In the case of MySQL where cross-database queries are allowed this leads to
  * databases being "misinterpreted" as namespaces. This is intentional, however
@@ -64,6 +74,12 @@ class Schema extends AbstractOptionallyNamedObject
     protected array $_sequences = [];
 
     protected SchemaConfig $_schemaConfig;
+
+    /**
+     * Indicates whether the schema uses unqualified names for its objects. Once this flag is set to true, it won't be
+     * unset even after the objects with unqualified names have been dropped from the schema.
+     */
+    private bool $usesUnqualifiedNames = false;
 
     /**
      * @param array<Table>    $tables
@@ -104,39 +120,39 @@ class Schema extends AbstractOptionallyNamedObject
 
     protected function _addTable(Table $table): void
     {
-        $name = $table->getObjectName();
+        $resolvedName = $this->resolveName($table->getObjectName());
 
-        $normalizedName = $this->normalizeName($name);
+        $key = $this->getKeyFromResolvedName($resolvedName);
 
-        if (isset($this->_tables[$normalizedName])) {
-            throw TableAlreadyExists::new($normalizedName);
+        if (isset($this->_tables[$key])) {
+            throw TableAlreadyExists::new($resolvedName->toString());
         }
 
-        $this->ensureNamespaceExists($name);
+        $this->registerQualifier($resolvedName->getQualifier());
 
-        $this->_tables[$normalizedName] = $table;
+        $this->_tables[$key] = $table;
     }
 
     protected function _addSequence(Sequence $sequence): void
     {
-        $name = $sequence->getObjectName();
+        $resolvedName = $this->resolveName($sequence->getObjectName());
 
-        $normalizedName = $this->normalizeName($name);
+        $key = $this->getKeyFromResolvedName($resolvedName);
 
-        if (isset($this->_sequences[$normalizedName])) {
-            throw SequenceAlreadyExists::new($normalizedName);
+        if (isset($this->_sequences[$key])) {
+            throw SequenceAlreadyExists::new($resolvedName->toString());
         }
 
-        $this->ensureNamespaceExists($name);
+        $this->registerQualifier($resolvedName->getQualifier());
 
-        $this->_sequences[$normalizedName] = $sequence;
+        $this->_sequences[$key] = $sequence;
     }
 
-    private function ensureNamespaceExists(OptionallyQualifiedName $name): void
+    private function registerQualifier(?Identifier $qualifier): void
     {
-        $qualifier = $name->getQualifier();
-
         if ($qualifier === null) {
+            $this->usesUnqualifiedNames = true;
+
             return;
         }
 
@@ -175,41 +191,84 @@ class Schema extends AbstractOptionallyNamedObject
 
     public function getTable(string $name): Table
     {
-        $name = $this->getFullQualifiedAssetName($name);
-        if (! isset($this->_tables[$name])) {
+        $key = $this->getKeyFromName($name);
+        if (! isset($this->_tables[$key])) {
             throw TableDoesNotExist::new($name);
         }
 
-        return $this->_tables[$name];
-    }
-
-    private function getFullQualifiedAssetName(string $name): string
-    {
-        $name = $this->getUnquotedAssetName($name);
-
-        if (! str_contains($name, '.')) {
-            $name = $this->getName() . '.' . $name;
-        }
-
-        return strtolower($name);
+        return $this->_tables[$key];
     }
 
     /**
-     * The normalized name is qualified and lower-cased. Lower-casing is
+     * Returns the key that will be used to store the given object in a collection of such objects based on its name.
+     *
+     * If the schema uses unqualified names, the object name must be unqualified. If the schema uses qualified names,
+     * the object name must be qualified.
+     *
+     * The resulting key is the lower-cased full object name. Lower-casing is
      * actually wrong, but we have to do it to keep our sanity. If you are
      * using database objects that only differentiate in the casing (FOO vs
      * Foo) then you will NOT be able to use Doctrine Schema abstraction.
-     *
-     * Every non-namespaced element is prefixed with this schema name.
      */
-    private function normalizeName(OptionallyQualifiedName $name): string
+    private function getKeyFromResolvedName(OptionallyQualifiedName $name): string
     {
-        $namespaceName = $name->getQualifier()?->getValue()
-            ?? $this->getName();
+        $key       = $name->getUnqualifiedName()->getValue();
+        $qualifier = $name->getQualifier();
 
-        $name = $namespaceName . '.' . $name->getUnqualifiedName()->getValue();
+        if ($qualifier !== null) {
+            if ($this->usesUnqualifiedNames) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/6677#user-content-qualified-names',
+                    'Using qualified names to create or reference objects in a schema that uses unqualified '
+                        . 'names is deprecated.',
+                );
+            }
 
-        return strtolower($name);
+            $key = $qualifier->getValue() . '.' . $key;
+        } elseif (count($this->namespaces) > 0) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6677#user-content-unqualified-names',
+                'Using unqualified names to create or reference objects in a schema that uses qualified '
+                    . 'names and lacks a default namespace configuration is deprecated.',
+            );
+        }
+
+        return strtolower($key);
+    }
+
+    /**
+     * Returns the key that will be used to store the given object with the given name in a collection of such objects.
+     *
+     * If the schema configuration has the default namespace, an unqualified name will be resolved to qualified against
+     * that namespace.
+     */
+    private function getKeyFromName(string $input): string
+    {
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            $name = $parser->parse($input);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($input, $e);
+        }
+
+        return $this->getKeyFromResolvedName(
+            $this->resolveName($name),
+        );
+    }
+
+    /**
+     * Resolves the qualified or unqualified name against the current schema name and returns a qualified name.
+     */
+    private function resolveName(OptionallyQualifiedName $name): OptionallyQualifiedName
+    {
+        if ($name->getQualifier() === null && $this->name !== null) {
+            return new OptionallyQualifiedName($name->getUnqualifiedName(), $this->name->getIdentifier());
+        }
+
+        return $name;
     }
 
     /**
@@ -239,26 +298,26 @@ class Schema extends AbstractOptionallyNamedObject
      */
     public function hasTable(string $name): bool
     {
-        $name = $this->getFullQualifiedAssetName($name);
+        $key = $this->getKeyFromName($name);
 
-        return isset($this->_tables[$name]);
+        return isset($this->_tables[$key]);
     }
 
     public function hasSequence(string $name): bool
     {
-        $name = $this->getFullQualifiedAssetName($name);
+        $key = $this->getKeyFromName($name);
 
-        return isset($this->_sequences[$name]);
+        return isset($this->_sequences[$key]);
     }
 
     public function getSequence(string $name): Sequence
     {
-        $name = $this->getFullQualifiedAssetName($name);
-        if (! $this->hasSequence($name)) {
+        $key = $this->getKeyFromName($name);
+        if (! isset($this->_sequences[$key])) {
             throw SequenceDoesNotExist::new($name);
         }
 
-        return $this->_sequences[$name];
+        return $this->_sequences[$key];
     }
 
     /** @return list<Sequence> */
@@ -326,9 +385,12 @@ class Schema extends AbstractOptionallyNamedObject
      */
     public function dropTable(string $name): self
     {
-        $name = $this->getFullQualifiedAssetName($name);
-        $this->getTable($name);
-        unset($this->_tables[$name]);
+        $key = $this->getKeyFromName($name);
+        if (! isset($this->_tables[$key])) {
+            throw TableDoesNotExist::new($name);
+        }
+
+        unset($this->_tables[$key]);
 
         return $this;
     }
@@ -347,8 +409,8 @@ class Schema extends AbstractOptionallyNamedObject
     /** @return $this */
     public function dropSequence(string $name): self
     {
-        $name = $this->getFullQualifiedAssetName($name);
-        unset($this->_sequences[$name]);
+        $key = $this->getKeyFromName($name);
+        unset($this->_sequences[$key]);
 
         return $this;
     }
