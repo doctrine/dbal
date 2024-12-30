@@ -62,18 +62,6 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getNameParser" />
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::setName" />
-
-                <!--
-                    https://github.com/doctrine/dbal/pull/6674
-                    TODO: remove in 5.0.0
-                -->
-                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getQuotedName" />
-
-                <!--
-                    https://github.com/doctrine/dbal/pull/6677
-                    TODO: remove in 5.0.0
-                -->
-                <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::isIdentifierQuoted" />
             </errorLevel>
         </DeprecatedMethod>
         <DocblockTypeContradiction>

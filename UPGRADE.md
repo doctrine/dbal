@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `AbstractAsset::isIdentifierQuoted()`
+
+The `AbstractAsset::isIdentifierQuoted()` method has been removed.
+
 ## BC BREAK: Disallowed mixing unqualified and qualified names in a schema without a default namespace
 
 If a schema lacks a default namespace configuration and has at least one object with an unqualified name, adding or
