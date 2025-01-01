@@ -513,11 +513,6 @@ class SQLitePlatform extends AbstractPlatform
         return 'BLOB';
     }
 
-    public function getTemporaryTableName(string $tableName): string
-    {
-        return $tableName;
-    }
-
     /**
      * {@inheritDoc}
      */
