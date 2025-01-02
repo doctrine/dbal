@@ -61,6 +61,11 @@ final class Statement implements StatementInterface
         $this->boundValues = array_fill(1, $paramCount, null);
     }
 
+    public function __destruct()
+    {
+        @$this->stmt->close();
+    }
+
     /**
      * @deprecated Use {@see bindValue()} instead.
      *
@@ -159,7 +164,7 @@ final class Statement implements StatementInterface
             throw StatementError::new($this->stmt);
         }
 
-        return new Result($this->stmt);
+        return new Result($this->stmt, $this);
     }
 
     /**

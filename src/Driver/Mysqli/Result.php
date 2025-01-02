@@ -21,6 +21,15 @@ final class Result implements ResultInterface
     private mysqli_stmt $statement;
 
     /**
+     * Maintains a reference to the Statement that generated this result. This ensures that the lifetime of the
+     * Statement is managed in conjunction with its associated results, so they are destroyed together
+     * at the appropriate time {@see Statement::__destruct()}.
+     *
+     * @phpstan-ignore property.onlyWritten
+     */
+    private ?Statement $statementReference = null;
+
+    /**
      * Whether the statement result has columns. The property should be used only after the result metadata
      * has been fetched ({@see $metadataFetched}). Otherwise, the property value is undetermined.
      */
@@ -42,9 +51,12 @@ final class Result implements ResultInterface
      *
      * @throws Exception
      */
-    public function __construct(mysqli_stmt $statement)
-    {
-        $this->statement = $statement;
+    public function __construct(
+        mysqli_stmt $statement,
+        ?Statement $statementReference = null
+    ) {
+        $this->statement          = $statement;
+        $this->statementReference = $statementReference;
 
         $meta = $statement->result_metadata();
 
