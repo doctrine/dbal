@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -22,8 +24,12 @@ final class UniqueConstraintTest extends FunctionalTestCase
             new Column('username', Type::getType(Types::STRING), ['length' => 32]),
             new Column('email', Type::getType(Types::STRING), ['length' => 255]),
         ], [], [
-            new UniqueConstraint('', ['username']),
-            new UniqueConstraint('', ['email']),
+            UniqueConstraint::editor()
+                ->setColumnNames(new UnqualifiedName(Identifier::unquoted('username')))
+                ->create(),
+            UniqueConstraint::editor()
+                ->setColumnNames(new UnqualifiedName(Identifier::unquoted('email')))
+                ->create(),
         ], []);
 
         $sm = $this->connection->createSchemaManager();

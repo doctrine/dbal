@@ -569,7 +569,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
     {
-        return 'CONSTRAINT "select" UNIQUE (foo)';
+        return 'CONSTRAINT "select" UNIQUE ("foo")';
     }
 
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string

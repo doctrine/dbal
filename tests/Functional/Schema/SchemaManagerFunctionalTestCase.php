@@ -12,7 +12,9 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\SchemaException;
@@ -435,7 +437,15 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addColumn('id', Types::INTEGER);
         $this->dropAndCreateTable($table);
 
-        $uniqueConstraint = new UniqueConstraint('uniq_id', ['id']);
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setName(
+                new UnqualifiedName(Identifier::unquoted('uniq_id')),
+            )
+            ->setColumnNames(
+                new UnqualifiedName(Identifier::unquoted('id')),
+            )
+            ->create();
+
         $this->schemaManager->createUniqueConstraint($uniqueConstraint, $table->getName());
 
         // there's currently no API for introspecting unique constraints,

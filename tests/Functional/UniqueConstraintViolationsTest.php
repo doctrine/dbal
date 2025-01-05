@@ -13,6 +13,8 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -33,8 +35,6 @@ final class UniqueConstraintViolationsTest extends FunctionalTestCase
 
         if ($platform instanceof OraclePlatform) {
             $constraintName = 'C1_UNIQUE';
-        } elseif ($platform instanceof PostgreSQLPlatform) {
-            $constraintName = 'c1_unique';
         } else {
             $constraintName = 'c1_unique';
         }
@@ -47,13 +47,7 @@ final class UniqueConstraintViolationsTest extends FunctionalTestCase
         $table->addColumn('unique_field', 'integer', ['notnull' => true]);
         $schemaManager->createTable($table);
 
-        if ($platform instanceof OraclePlatform) {
-            $createConstraint = sprintf(
-                'ALTER TABLE unique_constraint_violations ' .
-                'ADD CONSTRAINT %s UNIQUE (unique_field) DEFERRABLE INITIALLY IMMEDIATE',
-                $constraintName,
-            );
-        } elseif ($platform instanceof PostgreSQLPlatform) {
+        if ($platform instanceof OraclePlatform || $platform instanceof PostgreSQLPlatform) {
             $createConstraint = sprintf(
                 'ALTER TABLE unique_constraint_violations ' .
                 'ADD CONSTRAINT %s UNIQUE (unique_field) DEFERRABLE INITIALLY IMMEDIATE',
@@ -65,7 +59,10 @@ final class UniqueConstraintViolationsTest extends FunctionalTestCase
                 $constraintName,
             );
         } else {
-            $createConstraint = new UniqueConstraint($constraintName, ['unique_field']);
+            $createConstraint = UniqueConstraint::editor()
+                ->setName(new UnqualifiedName(Identifier::unquoted($constraintName)))
+                ->setColumnNames(new UnqualifiedName(Identifier::unquoted('unique_field')))
+                ->create();
         }
 
         if ($createConstraint instanceof UniqueConstraint) {
