@@ -32,6 +32,7 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\UnionSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
 use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
@@ -788,6 +789,11 @@ abstract class AbstractPlatform
     public function createUnionSQLBuilder(): UnionSQLBuilder
     {
         return new DefaultUnionSQLBuilder($this);
+    }
+
+    public function createWithSQLBuilder(): WithSQLBuilder
+    {
+        return new WithSQLBuilder();
     }
 
     /** @return list<string> */

@@ -16,6 +16,7 @@ use Doctrine\DBAL\Query\UnionType;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder;
+use Doctrine\DBAL\SQL\Builder\WithSQLBuilder;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -48,6 +49,8 @@ class QueryBuilderTest extends TestCase
             ->willReturn(new DefaultSelectSQLBuilder($platform, null, null));
         $platform->method('createUnionSQLBuilder')
             ->willReturn(new DefaultUnionSQLBuilder($platform));
+        $platform->method('createWithSQLBuilder')
+            ->willReturn(new WithSQLBuilder());
 
         $this->conn->method('getDatabasePlatform')
             ->willReturn($platform);
@@ -848,6 +851,43 @@ class QueryBuilderTest extends TestCase
             ->from('users');
 
         self::assertEquals('SELECT * FROM users', (string) $qb);
+    }
+
+    public function testSelectWithCTE(): void
+    {
+        $cteQueryBuilder1 = new QueryBuilder($this->conn);
+        $cteQueryBuilder1->select('ta.id', 'ta.name', 'ta.table_b_id')
+            ->from('table_a', 'ta')
+            ->where('ta.name LIKE :name');
+
+        $cteQueryBuilder2 = new QueryBuilder($this->conn);
+        $cteQueryBuilder2->select('ca.id AS virtual_id, ca.name AS virtual_name')
+            ->from('cte_a', 'ca')
+            ->join('ca', 'table_b', 'tb', 'ca.table_b_id = tb.id');
+
+        $qb = new QueryBuilder($this->conn);
+        $qb->with('cte_a', $cteQueryBuilder1)
+            ->with('cte_b', $cteQueryBuilder2, ['virtual_id', 'virtual_name'])
+            ->select('cb.*')
+            ->from('cte_b', 'cb');
+
+        self::assertEquals(
+            'WITH cte_a AS (SELECT ta.id, ta.name, ta.table_b_id FROM table_a ta WHERE ta.name LIKE :name)'
+            . ', cte_b (virtual_id, virtual_name) AS '
+            . '(SELECT ca.id AS virtual_id, ca.name AS virtual_name '
+            . 'FROM cte_a ca INNER JOIN table_b tb ON ca.table_b_id = tb.id) '
+            . 'SELECT cb.* FROM cte_b cb',
+            (string) $qb,
+        );
+    }
+
+    public function testSelectWithCTEAndEmptyColumns(): void
+    {
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessage('Columns defined in CTE "cte_a" should not be an empty array.');
+
+        $qb = new QueryBuilder($this->conn);
+        $qb->with('cte_a', 'SELECT 1 as id', []);
     }
 
     public function testGetParameterType(): void
