@@ -1492,12 +1492,6 @@ abstract class AbstractPlatform
      */
     protected function getUniqueConstraintDeclarationSQL(UniqueConstraint $constraint): string
     {
-        $columns = $constraint->getQuotedColumns($this);
-
-        if (count($columns) === 0) {
-            throw new InvalidArgumentException('Incomplete definition. "columns" required.');
-        }
-
         $chunks = [];
 
         $name = $constraint->getObjectName();
@@ -1508,11 +1502,14 @@ abstract class AbstractPlatform
 
         $chunks[] = 'UNIQUE';
 
-        if ($constraint->hasFlag('clustered')) {
+        if ($constraint->isClustered()) {
             $chunks[] = 'CLUSTERED';
         }
 
-        $chunks[] = sprintf('(%s)', implode(', ', $columns));
+        $chunks[] = sprintf('(%s)', implode(', ', array_map(
+            fn (UnqualifiedName $columnName) => $columnName->toSQL($this),
+            $constraint->getColumnNames(),
+        )));
 
         return implode(' ', $chunks);
     }

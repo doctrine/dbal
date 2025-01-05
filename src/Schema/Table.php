@@ -10,16 +10,21 @@ use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
+use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
 
+use function array_map;
 use function array_merge;
 use function array_values;
 use function count;
@@ -145,13 +150,11 @@ class Table extends AbstractNamedObject
     /**
      * @param non-empty-list<string> $columnNames
      * @param array<int, string>     $flags
-     * @param array<string, mixed>   $options
      */
     public function addUniqueConstraint(
         array $columnNames,
         ?string $indexName = null,
         array $flags = [],
-        array $options = [],
     ): self {
         $indexName ??= $this->_generateIdentifierName(
             array_merge([$this->getName()], $columnNames),
@@ -159,7 +162,9 @@ class Table extends AbstractNamedObject
             $this->maxIdentifierLength,
         );
 
-        return $this->_addUniqueConstraint($this->_createUniqueConstraint($columnNames, $indexName, $flags, $options));
+        $isClustered = in_array('clustered', $flags, true);
+
+        return $this->_addUniqueConstraint($this->_createUniqueConstraint($columnNames, $indexName, $isClustered));
     }
 
     /**
@@ -692,13 +697,11 @@ class Table extends AbstractNamedObject
 
     protected function _addUniqueConstraint(UniqueConstraint $constraint): self
     {
+        $columnNames = $constraint->getColumnNames();
+
         $name = $constraint->getName() !== ''
             ? $constraint->getName()
-            : $this->_generateIdentifierName(
-                array_merge((array) $this->getName(), $constraint->getColumns()),
-                'fk',
-                $this->maxIdentifierLength,
-            );
+            : $this->generateName('fk', $columnNames);
 
         $name = $this->normalizeIdentifier($name);
 
@@ -707,13 +710,12 @@ class Table extends AbstractNamedObject
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
-        $indexName = $this->_generateIdentifierName(
-            array_merge([$this->getName()], $constraint->getColumns()),
-            'idx',
-            $this->maxIdentifierLength,
-        );
+        $indexName = $this->generateName('idx', $columnNames);
 
-        $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, true, false);
+        $indexCandidate = $this->_createIndex(array_map(
+            static fn (UnqualifiedName $columnName): string => $columnName->toString(),
+            $columnNames,
+        ), $indexName, true, false);
 
         foreach ($this->_indexes as $existingIndex) {
             if ($indexCandidate->isFulfilledBy($existingIndex)) {
@@ -816,28 +818,43 @@ class Table extends AbstractNamedObject
             );
     }
 
-    /**
-     * @param non-empty-list<string> $columns
-     * @param array<int, string>     $flags
-     * @param array<string, mixed>   $options
-     */
+    /** @param non-empty-list<string> $columns */
     private function _createUniqueConstraint(
         array $columns,
         string $indexName,
-        array $flags = [],
-        array $options = [],
+        bool $isClustered,
     ): UniqueConstraint {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw IndexNameInvalid::new($indexName);
         }
 
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        try {
+            $constraintName = $parser->parse($indexName);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($indexName, $e);
+        }
+
+        $columnNames = [];
+
         foreach ($columns as $columnName) {
             if (! $this->hasColumn($columnName)) {
                 throw ColumnDoesNotExist::new($columnName, $this->_name);
             }
+
+            try {
+                $columnNames[] = $parser->parse($columnName);
+            } catch (Parser\Exception $e) {
+                throw InvalidName::fromParserException($indexName, $e);
+            }
         }
 
-        return new UniqueConstraint($indexName, $columns, $flags, $options);
+        return UniqueConstraint::editor()
+            ->setName($constraintName)
+            ->setColumnNames(...$columnNames)
+            ->setIsClustered($isClustered)
+            ->create();
     }
 
     /**
@@ -864,6 +881,22 @@ class Table extends AbstractNamedObject
         }
 
         return new Index($indexName, $columns, $isUnique, $isPrimary, $flags, $options);
+    }
+
+    /**
+     * Generates a name from a prefix and a list of column names obeying the configured maximum identifier length.
+     *
+     * @param non-empty-list<UnqualifiedName> $columnNames
+     */
+    private function generateName(string $prefix, array $columnNames): string
+    {
+        return $this->_generateIdentifierName(
+            array_merge([$this->getName()], array_map(static function (UnqualifiedName $columnName): string {
+                return $columnName->getIdentifier()->getValue();
+            }, $columnNames)),
+            $prefix,
+            $this->maxIdentifierLength,
+        );
     }
 
     private function renameColumnInIndexes(string $oldName, string $newName): void
@@ -926,14 +959,14 @@ class Table extends AbstractNamedObject
     private function renameColumnInUniqueConstraints(string $oldName, string $newName): void
     {
         foreach ($this->uniqueConstraints as $key => $constraint) {
-            $modified = false;
-            $columns  = [];
-            foreach ($constraint->getColumns() as $columnName) {
-                if ($columnName === $oldName) {
-                    $columns[] = $newName;
-                    $modified  = true;
+            $modified    = false;
+            $columnNames = [];
+            foreach ($constraint->getColumnNames() as $columnName) {
+                if ($columnName->getIdentifier()->getValue() === $oldName) {
+                    $columnNames[] = new UnqualifiedName(Identifier::unquoted($newName));
+                    $modified      = true;
                 } else {
-                    $columns[] = $columnName;
+                    $columnNames[] = $columnName;
                 }
             }
 
@@ -941,13 +974,9 @@ class Table extends AbstractNamedObject
                 continue;
             }
 
-            /** @psalm-suppress InvalidArgument */
-            $this->uniqueConstraints[$key] = new UniqueConstraint(
-                $constraint->getName(),
-                $columns, // @phpstan-ignore argument.type
-                $constraint->getFlags(),
-                $constraint->getOptions(),
-            );
+            $this->uniqueConstraints[$key] = $constraint->edit()
+                ->setColumnNames(...$columnNames)
+                ->create();
         }
     }
 
@@ -970,16 +999,17 @@ class Table extends AbstractNamedObject
     /** @return list<string> */
     private function getUniqueConstraintNamesByColumnName(string $columnName): array
     {
-        $names = [];
+        $constraintNames = [];
 
-        foreach ($this->uniqueConstraints as $name => $constraint) {
-            if (! in_array($columnName, $constraint->getColumns(), true)) {
-                continue;
+        foreach ($this->uniqueConstraints as $constraintName => $constraint) {
+            foreach ($constraint->getColumnNames() as $constraintColumnName) {
+                if ($constraintColumnName->getIdentifier()->getValue() === $columnName) {
+                    $constraintNames[] = $constraintName;
+                    break;
+                }
             }
-
-            $names[] = $name;
         }
 
-        return $names;
+        return $constraintNames;
     }
 }

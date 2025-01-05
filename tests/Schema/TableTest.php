@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
@@ -133,7 +134,11 @@ class TableTest extends TestCase
         $table->addColumn('c2', Types::INTEGER);
         $table->addUniqueConstraint(['c1', 'c2'], 'uq_c1_c2');
         $table->renameColumn('c1', 'c1a');
-        self::assertSame(['c1a', 'c2'], $table->getUniqueConstraint('uq_c1_c2')->getColumns());
+
+        self::assertEquals([
+            new UnqualifiedName(Identifier::unquoted('c1a')),
+            new UnqualifiedName(Identifier::unquoted('c2')),
+        ], $table->getUniqueConstraint('uq_c1_c2')->getColumnNames());
     }
 
     public function testColumnsCaseInsensitive(): void
@@ -893,16 +898,20 @@ class TableTest extends TestCase
 
     public function testUniqueConstraintWithEmptyName(): void
     {
-        $columns = [
-            new Column('column1', Type::getType(Types::STRING)),
-            new Column('column2', Type::getType(Types::STRING)),
-            new Column('column3', Type::getType(Types::STRING)),
-            new Column('column4', Type::getType(Types::STRING)),
-        ];
+        $column1 = new Column('column1', Type::getType(Types::STRING));
+        $column2 = new Column('column2', Type::getType(Types::STRING));
+        $column3 = new Column('column3', Type::getType(Types::STRING));
+        $column4 = new Column('column4', Type::getType(Types::STRING));
+
+        $columns = [$column1, $column2, $column3, $column4];
 
         $uniqueConstraints = [
-            new UniqueConstraint('', ['column1', 'column2']),
-            new UniqueConstraint('', ['column3', 'column4']),
+            UniqueConstraint::editor()
+                ->setColumnNames($column1->getObjectName(), $column2->getObjectName())
+                ->create(),
+            UniqueConstraint::editor()
+                ->setColumnNames($column3->getObjectName(), $column4->getObjectName())
+                ->create(),
         ];
 
         $table = new Table('test', $columns, [], $uniqueConstraints);

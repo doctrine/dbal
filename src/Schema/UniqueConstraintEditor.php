@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
-use function array_map;
 use function array_merge;
 use function array_values;
 use function count;
@@ -53,10 +52,6 @@ final class UniqueConstraintEditor
             throw InvalidUniqueConstraintDefinition::columnNamesAreNotSet();
         }
 
-        return new UniqueConstraint(
-            $this->name?->toString() ?? '',
-            array_map(static fn (UnqualifiedName $columnName) => $columnName->toString(), $this->columnNames),
-            $this->isClustered ? ['clustered'] : [],
-        );
+        return new UniqueConstraint($this->name, $this->columnNames, $this->isClustered);
     }
 }
