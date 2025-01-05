@@ -531,7 +531,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
     {
-        return 'CONSTRAINT "SELECT" UNIQUE (foo)';
+        return 'CONSTRAINT "SELECT" UNIQUE ("FOO")';
     }
 
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string

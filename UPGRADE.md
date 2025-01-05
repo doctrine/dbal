@@ -99,6 +99,27 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated `UniqueConstraint` methods, property and behavior
+
+The following `UniqueConstraint` methods and property have been deprecated:
+
+- `UniqueConstraint::addColumn()` – the constraint should not be modified once instantiated.
+- `UniqueConstraint::addFlag()`, `UniqueConstraint::getFlags()`, `UniqueConstraint::hasFlag()`,
+  `UniqueConstraint::removeFlag()`, `UniqueConstraint::$flags` – the only supported flag is "is clustered". Use
+  `UniqueConstraintEditor::setIsClustered()` to set the flag and `UniqueConstraint::isClustered()` to check it instead.
+- `UniqueConstraint::getColumns()`, `UniqueConstraint::getQuotedColumns()`, `UniqueConstraint::getUnquotedColumns()`,
+  `UniqueConstraint::$columns` – use `UniqueConstraint::getColumnNames()` instead.
+- `UniqueConstraint::getOption()`, `UniqueConstraint::getOptions()`, `UniqueConstraint::hasOption()` – DBAL doesn't
+  support any options for unique constraints. Passing non-empty options to the `UniqueConstraint` constructor is
+  deprecated as well.
+
+Additionally,
+1. Extending the `UniqueConstraint` class has been deprecated. Use the `UniqueConstraint` class directly.
+2. Instantiation of a unique constraint without columns is deprecated.
+3. The `UniqueConstraint` constructor has been marked as internal. Use `UniqueConstraint::editor()` to instantiate an
+   editor and `UniqueConstraintEditor::create()` to create a unique constraint.
+4. The `AbstractPlatform::getUniqueConstraintDeclarationSQL()` method has been marked as internal.
+
 ## Deprecated `AbstractAsset::isIdentifierQuoted()`
 
 The `AbstractAsset::isIdentifierQuoted()` method has been deprecated. Parse the name and introspect its identifiers
