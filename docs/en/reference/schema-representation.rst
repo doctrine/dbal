@@ -118,11 +118,11 @@ The following options are considered to be fully portable across all database pl
    in the platform.
 -  **fixed** (boolean): Whether a ``string`` or ``binary`` Doctrine type column has
    a fixed length. Defaults to ``false``.
--  **precision** (integer): The precision of a Doctrine ``decimal`` or ``float`` type
-   column that determines the overall maximum number of digits to be stored (including scale).
+-  **precision** (integer): The precision of a Doctrine ``decimal``, ``number`` or ``float``
+   type column that determines the overall maximum number of digits to be stored (including scale).
    Defaults to ``10``.
 -  **scale** (integer): The exact number of decimal digits to be stored in a Doctrine
-   ``decimal`` or ``float`` type column. Defaults to ``0``.
+   ``decimal``, ``number`` or ``float`` type column. Defaults to ``0``.
 -  **customSchemaOptions** (array): Additional options for the column that are
    supported by all vendors:
 
