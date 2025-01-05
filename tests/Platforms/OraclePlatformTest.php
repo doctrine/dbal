@@ -521,11 +521,6 @@ EOD;
         self::assertEquals($createTriggerStatement, $sql[3]);
     }
 
-    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
-    {
-        return 'CONSTRAINT "SELECT" UNIQUE ("FOO")';
-    }
-
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return 'INDEX "SELECT" ("FOO")';

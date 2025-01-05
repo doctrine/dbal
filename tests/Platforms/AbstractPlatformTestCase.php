@@ -16,7 +16,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -330,18 +329,6 @@ abstract class AbstractPlatformTestCase extends TestCase
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
     }
-
-    public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): void
-    {
-        $constraint = new UniqueConstraint('select', ['foo'], [], []);
-
-        self::assertSame(
-            $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(),
-            $this->platform->getUniqueConstraintDeclarationSQL($constraint),
-        );
-    }
-
-    abstract protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string;
 
     public function testQuotesReservedKeywordInTruncateTableSQL(): void
     {

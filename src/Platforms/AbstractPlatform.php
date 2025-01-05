@@ -1486,13 +1486,11 @@ abstract class AbstractPlatform
      * Obtains DBMS specific DDL fragment that defines a unique constraint to be used in statements like <code>CREATE
      * TABLE</code> or <code>ALTER TABLE</code>.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @param UniqueConstraint $constraint The unique constraint definition.
      *
      * @return string DBMS specific DDL fragment that defines the constraint.
      */
-    public function getUniqueConstraintDeclarationSQL(UniqueConstraint $constraint): string
+    protected function getUniqueConstraintDeclarationSQL(UniqueConstraint $constraint): string
     {
         $columns = $constraint->getQuotedColumns($this);
 

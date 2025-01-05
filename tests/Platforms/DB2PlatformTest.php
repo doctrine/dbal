@@ -529,11 +529,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
-    {
-        return 'CONSTRAINT "SELECT" UNIQUE ("FOO")';
-    }
-
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return ''; // not supported by this platform
