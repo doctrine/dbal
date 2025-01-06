@@ -67,12 +67,6 @@ parameters:
             message: '~^Parameter #1 \$params of method Doctrine\\DBAL\\Driver\:\:connect\(\) expects array~'
             path: tests/Driver/PDO/*/DriverTest.php
 
-        # DriverManagerTest::testDatabaseUrl() should be refactored as it's too dynamic.
-        -
-            message: '~^Offset string does not exist on array{.+}\.$~'
-            paths:
-                - tests/DriverManagerTest.php
-
         # There is no way to make this assertion in the code,
         # and the API doesn't support parametrization of returned column types.
         -
@@ -87,30 +81,8 @@ parameters:
         - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapAssociativeRow\(\) expects array<string, string\|null>, array<int\|string, string\|null> given\.$~'
         - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapNumericRow\(\) expects list<string\|null>, .* given\.$~'
 
-        # https://github.com/phpstan/phpstan-src/pull/2224
-        -
-            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\Connection\:\:exec\(\) should return int\|numeric\-string but returns int\|string\.$~'
-            count: 1
-            path: src/Driver/Mysqli/Connection.php
-
-        # https://github.com/phpstan/phpstan/issues/9429
-        -
-            message: '~^Strict comparison using === between int<0, max> and false will always evaluate to false.$~'
-            paths:
-                - src/Driver/IBMDB2/Connection.php
-                - src/Driver/IBMDB2/Result.php
-
-        # Ignore the possible false return value of db2_num_rows().
-        - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\Connection\:\:exec\(\) should return int but returns int<0, max>\|false\.$~'
-        - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\Result\:\:rowCount\(\) should return int but returns int<0, max>\|false\.$~'
-
         # Required for Psalm compatibility
         - '~^Property Doctrine\\DBAL\\Tests\\Types\\BaseDateTypeTestCase\:\:\$currentTimezone \(non-empty-string\) does not accept string\.$~'
-
-        # This is a rather complicated closure setup. We understand this, so PHPStan doesn't have to.
-        -
-            message: '#^Parameter \#2 \$callback of function array_reduce expects callable\(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null, callable\(T\)\: T\)\: \(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null\), Closure\(callable\|null, callable\)\: \(callable\(T\)\: T\) given\.$#'
-            path: src/Portability/Converter.php
 
         # The @throws annotations are part of a contract. Even if the default implementation doen't throw those
         # exceptions, the child implementations might do so.
@@ -124,10 +96,6 @@ parameters:
         # Type check for legacy implementations of the Result interface
         # TODO: remove in 5.0.0
         - '~^Call to function method_exists\(\) with Doctrine\\DBAL\\Driver\\Result and ''getColumnName'' will always evaluate to true\.$~'
-
-        # PHPStan does not know the new PDO classes yet.
-        - '~^Class Pdo\\\w+ not found\.$~'
-        - '~^Call to an undefined static method PDO\:\:connect\(\)\.$~'
 
         # TODO: Review these errors and fix them.
         - identifier: phpunit.assertEquals
