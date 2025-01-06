@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
@@ -481,32 +483,27 @@ END;';
     {
         $sql = '';
 
-        if ($foreignKey->hasOption('onDelete')) {
-            $referentialAction = $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onDelete'));
-
-            if ($referentialAction !== '') {
-                $sql .= ' ON DELETE ' . $referentialAction;
-            }
+        $onDeleteAction = $foreignKey->getOnDeleteAction();
+        if ($onDeleteAction !== ReferentialAction::NO_ACTION) {
+            $sql = ' ON DELETE ' . $this->getForeignKeyReferentialActionSQL($onDeleteAction);
         }
 
-        $deferrabilitySQL = $this->getConstraintDeferrabilitySQL($foreignKey);
-
-        if ($deferrabilitySQL !== '') {
-            $sql .= $deferrabilitySQL;
+        $deferrability = $foreignKey->getDeferrability();
+        if ($deferrability !== Deferrability::NOT_DEFERRABLE) {
+            $sql = ' ' . $deferrability->toSQL();
         }
 
         return $sql;
     }
 
-    protected function getForeignKeyReferentialActionSQL(string $action): string
+    protected function getForeignKeyReferentialActionSQL(ReferentialAction $action): string
     {
-        $action = strtoupper($action);
-
         return match ($action) {
-            'NO ACTION' => '',
-            'CASCADE',
-            'SET NULL' => $action,
-            default => throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $action)),
+            ReferentialAction::CASCADE,
+            ReferentialAction::SET_NULL => parent::getForeignKeyReferentialActionSQL($action),
+            default => throw new InvalidArgumentException(
+                sprintf('Unsupported foreign key action "%s".', $action->value),
+            ),
         };
     }
 

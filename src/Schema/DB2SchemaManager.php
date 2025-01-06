@@ -129,20 +129,6 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
-    {
-        return new ForeignKeyConstraint(
-            $tableForeignKey['local_columns'],
-            $tableForeignKey['foreign_table'],
-            $tableForeignKey['foreign_columns'],
-            $tableForeignKey['name'],
-            $tableForeignKey['options'],
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
     {
         $foreignKeys = [];
@@ -152,18 +138,16 @@ class DB2SchemaManager extends AbstractSchemaManager
 
             if (! isset($foreignKeys[$tableForeignKey['index_name']])) {
                 $foreignKeys[$tableForeignKey['index_name']] = [
-                    'local_columns'   => [$tableForeignKey['local_column']],
-                    'foreign_table'   => $tableForeignKey['foreign_table'],
-                    'foreign_columns' => [$tableForeignKey['foreign_column']],
-                    'name'            => $tableForeignKey['index_name'],
-                    'options'         => [
-                        'onUpdate' => $tableForeignKey['on_update'],
-                        'onDelete' => $tableForeignKey['on_delete'],
-                    ],
+                    'local' => [$tableForeignKey['local_column']],
+                    'foreignTable' => $tableForeignKey['foreign_table'],
+                    'foreign' => [$tableForeignKey['foreign_column']],
+                    'name' => $tableForeignKey['index_name'],
+                    'onUpdate' => $tableForeignKey['on_update'],
+                    'onDelete' => $tableForeignKey['on_delete'],
                 ];
             } else {
-                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][]   = $tableForeignKey['local_column'];
-                $foreignKeys[$tableForeignKey['index_name']]['foreign_columns'][] = $tableForeignKey['foreign_column'];
+                $foreignKeys[$tableForeignKey['index_name']]['local'][]   = $tableForeignKey['local_column'];
+                $foreignKeys[$tableForeignKey['index_name']]['foreign'][] = $tableForeignKey['foreign_column'];
             }
         }
 

@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
@@ -170,16 +172,16 @@ class PostgreSQLPlatform extends AbstractPlatform
     {
         $query = '';
 
-        if ($foreignKey->hasOption('match')) {
-            $query .= ' MATCH ' . $foreignKey->getOption('match');
+        $matchType = $foreignKey->getMatchType();
+        if ($matchType !== MatchType::SIMPLE) {
+            $query .= ' MATCH ' . $matchType->toSQL();
         }
 
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
 
-        $deferrabilitySQL = $this->getConstraintDeferrabilitySQL($foreignKey);
-
-        if ($deferrabilitySQL !== '') {
-            $query .= $deferrabilitySQL;
+        $deferrability = $foreignKey->getDeferrability();
+        if ($deferrability !== Deferrability::NOT_DEFERRABLE) {
+            $query = ' ' . $deferrability->toSQL();
         }
 
         return $query;

@@ -10,6 +10,7 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
@@ -36,7 +37,6 @@ use function str_contains;
 use function str_ends_with;
 use function str_replace;
 use function str_starts_with;
-use function strtoupper;
 use function substr;
 use function substr_count;
 
@@ -1105,11 +1105,11 @@ class SQLServerPlatform extends AbstractPlatform
         return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
 
-    protected function getForeignKeyReferentialActionSQL(string $action): string
+    protected function getForeignKeyReferentialActionSQL(ReferentialAction $action): string
     {
-        if (strtoupper($action) === 'RESTRICT') {
+        if ($action === ReferentialAction::RESTRICT) {
             throw new InvalidArgumentException(
-                sprintf('Unsupported foreign key action "%s".', $action),
+                sprintf('Unsupported foreign key action "%s".', $action->value),
             );
         }
 

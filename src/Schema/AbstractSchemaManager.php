@@ -11,6 +11,10 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function array_filter;
 use function array_intersect;
@@ -780,8 +784,52 @@ abstract class AbstractSchemaManager
         return $list;
     }
 
-    /** @param array<string, mixed> $tableForeignKey */
-    abstract protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint;
+    /**
+     * This method acts as a temporary adapter between the shape of the elements of the list returned by
+     * {@see _getPortableTableForeignKeysList()} and the API of {@see ForeignKeyConstraintEditor}. The intermediate
+     * array representation of the foreign key properties is redundant and will be removed in a future release.
+     *
+     * @param array<string, mixed> $properties
+     */
+    protected function _getPortableTableForeignKeyDefinition(array $properties): ForeignKeyConstraint
+    {
+        $editor = ForeignKeyConstraint::editor()
+            ->setReferencedTableName(
+                OptionallyQualifiedName::quoted($properties['foreignTable'], $properties['foreignSchema'] ?? null),
+            )
+            ->setReferencingColumnNames(...array_map(
+                static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
+                $properties['local'],
+            ))
+            ->setReferencedColumnNames(...array_map(
+                static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
+                $properties['foreign'],
+            ));
+
+        if ($properties['name'] !== '') {
+            $editor->setName(UnqualifiedName::quoted($properties['name']));
+        }
+
+        if (isset($properties['onUpdate'])) {
+            $editor->setOnUpdateAction(ReferentialAction::from($properties['onUpdate']));
+        }
+
+        if (isset($properties['onDelete'])) {
+            $editor->setOnDeleteAction(ReferentialAction::from($properties['onDelete']));
+        }
+
+        $deferrability = ! empty($properties['deferred'])
+            ? Deferrability::DEFERRED
+            : (
+            ! empty($properties['deferrable'])
+                ? Deferrability::DEFERRABLE
+                : Deferrability::NOT_DEFERRABLE
+            );
+
+        $editor->setDeferrability($deferrability);
+
+        return $editor->create();
+    }
 
     /**
      * @param array<int, string> $sql

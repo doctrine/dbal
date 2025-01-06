@@ -10,8 +10,10 @@ use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -364,20 +366,13 @@ class SQLitePlatform extends AbstractPlatform
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
 
-        if (! $foreignKey->hasOption('deferrable') || $foreignKey->getOption('deferrable') === false) {
-            $query .= ' NOT';
-        }
+        $deferrability = $foreignKey->getDeferrability();
 
-        $query .= ' DEFERRABLE';
-        $query .= ' INITIALLY';
-
-        if ($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false) {
-            $query .= ' DEFERRED';
-        } else {
-            $query .= ' IMMEDIATE';
-        }
-
-        return $query;
+        return $query . match ($deferrability) {
+            Deferrability::NOT_DEFERRABLE => '',
+            Deferrability::DEFERRABLE => ' ' . $deferrability->toSQL(),
+            Deferrability::DEFERRED => ' DEFERRABLE INITIALLY DEFERRED',
+        };
     }
 
     public function supportsIdentityColumns(): bool
@@ -868,17 +863,20 @@ class SQLitePlatform extends AbstractPlatform
         $columnNames = $this->getColumnNamesInAlteredTable($diff, $oldTable);
 
         foreach ($foreignKeys as $key => $constraint) {
-            $changed      = false;
-            $localColumns = [];
-            foreach ($constraint->getLocalColumns() as $columnName) {
-                $normalizedColumnName = strtolower($columnName);
+            $changed = false;
+
+            $referencingColumnNames = [];
+            foreach ($constraint->getReferencingColumnNames() as $columnName) {
+                $originalColumnName   = $columnName->getIdentifier()->getValue();
+                $normalizedColumnName = strtolower($originalColumnName);
                 if (! isset($columnNames[$normalizedColumnName])) {
                     unset($foreignKeys[$key]);
                     continue 2;
                 }
 
-                $localColumns[] = $columnNames[$normalizedColumnName];
-                if ($columnName === $columnNames[$normalizedColumnName]) {
+                $referencingColumnNames[] = UnqualifiedName::unquoted($columnNames[$normalizedColumnName]);
+
+                if ($originalColumnName === $columnNames[$normalizedColumnName]) {
                     continue;
                 }
 
@@ -889,13 +887,9 @@ class SQLitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $foreignKeys[$key] = new ForeignKeyConstraint(
-                $localColumns, // @phpstan-ignore argument.type
-                $constraint->getForeignTableName(),
-                $constraint->getForeignColumns(), // @phpstan-ignore argument.type
-                $constraint->getName(),
-                $constraint->getOptions(),
-            );
+            $foreignKeys[$key] = $constraint->edit()
+                ->setReferencingColumnNames(...$referencingColumnNames)
+                ->create();
         }
 
         foreach ($diff->getDroppedForeignKeys() as $constraint) {

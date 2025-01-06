@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\Types\JsonType;
+
+use function sprintf;
 
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB database platform of the oldest supported version.
@@ -58,6 +61,23 @@ class MariaDBPlatform extends AbstractMySQLPlatform
                 $tableAlias.COLUMN_TYPE
             )
         SQL;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Unlike other platforms, the default referential action on MariaDB is <code>RESTRICT</code>, so we cannot use the
+     * default implementation which assumes <code>NO_ACTION</code> as the default.
+     *
+     * @link https://mariadb.com/kb/en/foreign-keys/#constraints
+     */
+    protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
+    {
+        return sprintf(
+            ' ON UPDATE %s ON DELETE %s',
+            $foreignKey->getOnUpdateAction()->toSQL(),
+            $foreignKey->getOnDeleteAction()->toSQL(),
+        );
     }
 
     /** {@inheritDoc} */

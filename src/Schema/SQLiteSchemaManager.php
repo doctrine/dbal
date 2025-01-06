@@ -28,10 +28,12 @@ use function preg_quote;
 use function preg_replace;
 use function rtrim;
 use function str_contains;
+use function str_ends_with;
 use function str_replace;
 use function str_starts_with;
 use function strcasecmp;
 use function strtolower;
+use function substr;
 use function trim;
 use function usort;
 
@@ -300,14 +302,6 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             $value = array_change_key_case($value, CASE_LOWER);
             $id    = $value['id'];
             if (! isset($list[$id])) {
-                if (! isset($value['on_delete']) || $value['on_delete'] === 'RESTRICT') {
-                    $value['on_delete'] = null;
-                }
-
-                if (! isset($value['on_update']) || $value['on_update'] === 'RESTRICT') {
-                    $value['on_update'] = null;
-                }
-
                 $list[$id] = [
                     'name' => $value['constraint_name'],
                     'local' => [],
@@ -349,25 +343,6 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         }
 
         return parent::_getPortableTableForeignKeysList($list);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
-    {
-        return new ForeignKeyConstraint(
-            $tableForeignKey['local'],
-            $tableForeignKey['foreignTable'],
-            $tableForeignKey['foreign'],
-            $tableForeignKey['name'],
-            [
-                'onDelete' => $tableForeignKey['onDelete'],
-                'onUpdate' => $tableForeignKey['onUpdate'],
-                'deferrable' => $tableForeignKey['deferrable'],
-                'deferred' => $tableForeignKey['deferred'],
-            ],
-        );
     }
 
     private function parseColumnCollationFromSQL(string $column, string $sql): ?string
@@ -511,13 +486,22 @@ SQL
 
         for ($i = 0, $count = count($match[0]); $i < $count; $i++) {
             $details[] = [
-                'constraint_name' => $names[$i] ?? '',
+                'constraint_name' => isset($names[$i]) ? $this->parseOptionallyQuotedName($names[$i]) : '',
                 'deferrable'      => isset($deferrable[$i]) && strcasecmp($deferrable[$i], 'deferrable') === 0,
                 'deferred'        => isset($deferred[$i]) && strcasecmp($deferred[$i], 'deferred') === 0,
             ];
         }
 
         return $details;
+    }
+
+    private function parseOptionallyQuotedName(string $sql): string
+    {
+        if (str_starts_with($sql, '"') && str_ends_with($sql, '"')) {
+            return str_replace('""', '"', substr($sql, 1, -1));
+        }
+
+        return $sql;
     }
 
     public function createComparator(/* ComparatorConfig $config = new ComparatorConfig() */): Comparator

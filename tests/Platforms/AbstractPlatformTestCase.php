@@ -14,6 +14,8 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -167,7 +169,11 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesForeignKeyCreationSql(): void
     {
-        $fk = new ForeignKeyConstraint(['fk_name_id'], 'other_table', ['id']);
+        $fk = ForeignKeyConstraint::editor()
+            ->setReferencingColumnNames(UnqualifiedName::unquoted('fk_name_id'))
+            ->setReferencedTableName(OptionallyQualifiedName::unquoted('other_table'))
+            ->setReferencedColumnNames(UnqualifiedName::unquoted('id'))
+            ->create();
 
         $sql = $this->platform->getCreateForeignKeySQL($fk, 'test');
         self::assertEquals($this->getGenerateForeignKeySql(), $sql);
@@ -205,16 +211,6 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function getGenerateConstraintPrimaryIndexSql(): string
     {
         return 'ALTER TABLE test ADD CONSTRAINT constraint_name PRIMARY KEY (test)';
-    }
-
-    public function getGenerateConstraintForeignKeySql(ForeignKeyConstraint $fk): string
-    {
-        $quotedForeignTable = $fk->getQuotedForeignTableName($this->platform);
-
-        return sprintf(
-            'ALTER TABLE test ADD CONSTRAINT constraint_fk FOREIGN KEY (fk_name) REFERENCES %s (id)',
-            $quotedForeignTable,
-        );
     }
 
     public function testQuotedColumnInPrimaryKeyPropagation(): void

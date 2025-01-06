@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 
@@ -36,11 +37,11 @@ use const CASE_LOWER;
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
     private const REFERENTIAL_ACTIONS = [
-        'a' => 'NO ACTION',
-        'c' => 'CASCADE',
-        'd' => 'SET DEFAULT',
-        'n' => 'SET NULL',
-        'r' => 'RESTRICT',
+        'a' => ReferentialAction::NO_ACTION,
+        'c' => ReferentialAction::CASCADE,
+        'd' => ReferentialAction::SET_DEFAULT,
+        'n' => ReferentialAction::SET_NULL,
+        'r' => ReferentialAction::RESTRICT,
     ];
 
     private ?string $currentSchema = null;
@@ -116,25 +117,6 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
-    {
-        return new ForeignKeyConstraint(
-            $tableForeignKey['local'],
-            $tableForeignKey['foreignTable'],
-            $tableForeignKey['foreign'],
-            $tableForeignKey['name'],
-            [
-                'onUpdate' => $tableForeignKey['onUpdate'],
-                'onDelete' => $tableForeignKey['onDelete'],
-                'deferrable' => $tableForeignKey['deferrable'],
-                'deferred' => $tableForeignKey['deferred'],
-            ],
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     protected function _getPortableViewDefinition(array $view): View
     {
         if ($view['schemaname'] === $this->getCurrentSchema()) {
@@ -155,18 +137,18 @@ SQL,
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value);
             if (! isset($list[$value['conname']])) {
-                $foreignTable = $value['fk_relname'];
-                if ($value['fk_nspname'] !== $this->getCurrentSchema()) {
-                    $foreignTable = $value['fk_nspname'] . '.' . $foreignTable;
+                if ($value['fk_nspname'] === $this->getCurrentSchema()) {
+                    $value['fk_nspname'] = null;
                 }
 
                 $list[$value['conname']] = [
                     'name' => $value['conname'],
                     'local' => [],
                     'foreign' => [],
-                    'foreignTable' => $foreignTable,
-                    'onUpdate' => self::REFERENTIAL_ACTIONS[$value['confupdtype']],
-                    'onDelete' => self::REFERENTIAL_ACTIONS[$value['confdeltype']],
+                    'foreignTable' => $value['fk_relname'],
+                    'foreignSchema' => $value['fk_nspname'],
+                    'onUpdate' => self::REFERENTIAL_ACTIONS[$value['confupdtype']]->value,
+                    'onDelete' => self::REFERENTIAL_ACTIONS[$value['confdeltype']]->value,
                     'deferrable' => $value['condeferrable'],
                     'deferred' => $value['condeferred'],
                 ];

@@ -8,6 +8,32 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Changes in `ForeignKeyConstraint` API and behavior
+
+The following `ForeignKeyConstraint` methods and properties have been removed:
+
+- `ForeignKeyConstraint::getForeignColumns()`
+- `ForeignKeyConstraint::getForeignTableName()`
+- `ForeignKeyConstraint::getLocalColumns()`
+- `ForeignKeyConstraint::getOption()`
+- `ForeignKeyConstraint::getOptions()`
+- `ForeignKeyConstraint::getQuotedForeignColumns()`
+- `ForeignKeyConstraint::getQuotedForeignTableName()`
+- `ForeignKeyConstraint::getQuotedLocalColumns()`
+- `ForeignKeyConstraint::getUnqualifiedForeignTableName()`
+- `ForeignKeyConstraint::getUnquotedForeignColumns()`
+- `ForeignKeyConstraint::getUnquotedLocalColumns()`
+- `ForeignKeyConstraint::hasOption()`
+- `ForeignKeyConstraint::intersectsIndexColumns()`
+- `ForeignKeyConstraint::onDelete()`
+- `ForeignKeyConstraint::onUpdate()`
+- `ForeignKeyConstraint::$_foreignColumnNames`
+- `ForeignKeyConstraint::$_foreignTableName`
+- `ForeignKeyConstraint::$_localColumnNames`
+- `ForeignKeyConstraint::$options`
+
+Additionally, the `ForeignKeyConstraint` class has been declared as final.
+
 ## BC BREAK: removed support for introspection of SQLite foreign key constraints with omitted referenced column names in an incomplete schema
 
 If the SQLite schema manager fails to introspect the columns referenced by a foreign key constraint, instead of

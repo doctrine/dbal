@@ -11,7 +11,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
-use function array_map;
 use function array_merge;
 use function array_values;
 use function count;
@@ -119,25 +118,14 @@ final class ForeignKeyConstraintEditor
         }
 
         return new ForeignKeyConstraint(
-            array_map(
-                static fn (UnqualifiedName $columnName) => $columnName->toString(),
-                $this->referencingColumnNames,
-            ),
-            $this->referencedTableName->toString(),
-            array_map(
-                static fn (UnqualifiedName $columnName) => $columnName->toString(),
-                $this->referencedColumnNames,
-            ),
-            $this->name?->toString() ?? '',
-            array_merge([
-                'match' => $this->matchType->value,
-                'onUpdate' => $this->onUpdateAction->value,
-                'onDelete' => $this->onDeleteAction->value,
-            ], match ($this->deferrability) {
-                Deferrability::NOT_DEFERRABLE => [],
-                Deferrability::DEFERRABLE => ['deferrable' => true],
-                Deferrability::DEFERRED => ['deferrable' => true, 'deferred' => true],
-            }),
+            $this->name,
+            $this->referencingColumnNames,
+            $this->referencedTableName,
+            $this->referencedColumnNames,
+            $this->matchType,
+            $this->onUpdateAction,
+            $this->onDeleteAction,
+            $this->deferrability,
         );
     }
 }

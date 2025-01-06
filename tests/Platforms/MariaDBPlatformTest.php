@@ -74,4 +74,25 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
     {
         self::markTestSkipped('MariaDB supports default values for BLOB and TEXT columns');
     }
+
+    protected function getGenerateForeignKeySql(): string
+    {
+        return 'ALTER TABLE test ADD FOREIGN KEY (`fk_name_id`) REFERENCES `other_table` (`id`)'
+            . ' ON UPDATE NO ACTION ON DELETE NO ACTION';
+    }
+
+    /** {@inheritDoc} */
+    protected function getQuotedColumnInForeignKeySQL(): array
+    {
+        return [
+            'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, `foo` VARCHAR(255) NOT NULL, '
+                . '`bar` VARCHAR(255) NOT NULL, INDEX `IDX_22660D028FD6E0FB8C73652176FF8CAA` (`create`, `foo`, `bar`))',
+            'ALTER TABLE `quoted` ADD CONSTRAINT `FK_WITH_RESERVED_KEYWORD` FOREIGN KEY (`create`, `foo`, `bar`)'
+                . ' REFERENCES `foreign` (`create`, `bar`, `foo-bar`) ON UPDATE NO ACTION ON DELETE NO ACTION',
+            'ALTER TABLE `quoted` ADD CONSTRAINT `FK_WITH_NON_RESERVED_KEYWORD` FOREIGN KEY (`create`, `foo`, `bar`)'
+                . ' REFERENCES `foo` (`create`, `bar`, `foo-bar`) ON UPDATE NO ACTION ON DELETE NO ACTION',
+            'ALTER TABLE `quoted` ADD CONSTRAINT `FK_WITH_INTENDED_QUOTATION` FOREIGN KEY (`create`, `foo`, `bar`)'
+                . ' REFERENCES `foo-bar` (`create`, `bar`, `foo-bar`) ON UPDATE NO ACTION ON DELETE NO ACTION',
+        ];
+    }
 }

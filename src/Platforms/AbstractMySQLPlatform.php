@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -683,8 +684,10 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';
-        if ($foreignKey->hasOption('match')) {
-            $query .= ' MATCH ' . $foreignKey->getOption('match');
+
+        $matchType = $foreignKey->getMatchType();
+        if ($matchType !== MatchType::SIMPLE) {
+            $query .= ' MATCH ' . $matchType->toSQL();
         }
 
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);

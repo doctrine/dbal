@@ -10,10 +10,14 @@ use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
+use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
@@ -32,6 +36,7 @@ use function in_array;
 use function preg_match;
 use function sprintf;
 use function strtolower;
+use function strtoupper;
 
 /**
  * Object Representation of a table.
@@ -375,40 +380,141 @@ class Table extends AbstractNamedObject
     /**
      * Adds a foreign key constraint.
      *
-     * Name is inferred from the local columns.
+     * Name is inferred from the referencing columns.
      *
-     * @param non-empty-list<string> $localColumnNames
-     * @param non-empty-list<string> $foreignColumnNames
+     * @param non-empty-list<string> $referencingColumnNames
+     * @param non-empty-list<string> $referencedColumnNames
      * @param array<string, mixed>   $options
      */
     public function addForeignKeyConstraint(
-        string $foreignTableName,
-        array $localColumnNames,
-        array $foreignColumnNames,
+        string $referencedTableName,
+        array $referencingColumnNames,
+        array $referencedColumnNames,
         array $options = [],
         ?string $name = null,
     ): self {
-        $name ??= $this->_generateIdentifierName(
-            array_merge([$this->getName()], $localColumnNames),
-            'fk',
-            $this->maxIdentifierLength,
-        );
-
-        foreach ($localColumnNames as $columnName) {
+        foreach ($referencingColumnNames as $columnName) {
             if (! $this->hasColumn($columnName)) {
                 throw ColumnDoesNotExist::new($columnName, $this->_name);
             }
         }
 
-        $constraint = new ForeignKeyConstraint(
-            $localColumnNames,
-            $foreignTableName,
-            $foreignColumnNames,
-            $name,
-            $options,
-        );
+        $referencingColumnNames = $this->parseUnqualifiedNames($referencingColumnNames);
+        $referencedTableName    = $this->parseOptionallyQualifiedName($referencedTableName);
+        $referencedColumnNames  = $this->parseUnqualifiedNames($referencedColumnNames);
+
+        $matchType      = $this->parseMatchType($options);
+        $onUpdateAction = $this->parseReferentialAction($options, 'onUpdate');
+        $onDeleteAction = $this->parseReferentialAction($options, 'onDelete');
+
+        $deferrability = $this->parseDeferrability($options);
+
+        if ($name !== null) {
+            $constraintName = $this->parseUnqualifiedName($name);
+        } else {
+            $constraintName = UnqualifiedName::unquoted(
+                $this->generateName('fk', $referencingColumnNames),
+            );
+        }
+
+        $constraint = ForeignKeyConstraint::editor()
+            ->setName($constraintName)
+            ->setReferencingColumnNames(...$referencingColumnNames)
+            ->setReferencedTableName($referencedTableName)
+            ->setReferencedColumnNames(...$referencedColumnNames)
+            ->setMatchType($matchType)
+            ->setOnUpdateAction($onUpdateAction)
+            ->setOnDeleteAction($onDeleteAction)
+            ->setDeferrability($deferrability)
+            ->create();
 
         return $this->_addForeignKeyConstraint($constraint);
+    }
+
+    private function parseUnqualifiedName(string $name): UnqualifiedName
+    {
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        try {
+            return $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+    }
+
+    /**
+     * @param non-empty-list<string> $names
+     *
+     * @return non-empty-list<UnqualifiedName>
+     */
+    private function parseUnqualifiedNames(array $names): array
+    {
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        return array_map(
+            static function (string $name) use ($parser): UnqualifiedName {
+                try {
+                    return $parser->parse($name);
+                } catch (Parser\Exception $e) {
+                    throw InvalidName::fromParserException($name, $e);
+                }
+            },
+            $names,
+        );
+    }
+
+    private function parseOptionallyQualifiedName(string $name): OptionallyQualifiedName
+    {
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            return $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+    }
+
+    /** @param array<string, mixed> $options */
+    private function parseMatchType(array $options): MatchType
+    {
+        if (isset($options['match'])) {
+            return MatchType::from(strtoupper($options['match']));
+        }
+
+        return MatchType::SIMPLE;
+    }
+
+    /** @param array<string, mixed> $options */
+    private function parseReferentialAction(array $options, string $option): ReferentialAction
+    {
+        if (isset($options[$option])) {
+            return ReferentialAction::from(strtoupper($options[$option]));
+        }
+
+        return ReferentialAction::NO_ACTION;
+    }
+
+    /** @param array<string, mixed> $options */
+    private function parseDeferrability(array $options): Deferrability
+    {
+        // a constraint is INITIALLY IMMEDIATE unless explicitly declared as INITIALLY DEFERRED
+        $isDeferred = isset($options['deferred']) && $options['deferred'] !== false;
+
+        // a constraint is NOT DEFERRABLE unless explicitly declared as DEFERRABLE or is explicitly or implicitly
+        // INITIALLY DEFERRED
+        $isDeferrable = isset($options['deferrable'])
+            ? $options['deferrable'] !== false
+            : $isDeferred;
+
+        if ($isDeferred) {
+            if (! $isDeferrable) {
+                throw InvalidForeignKeyConstraintDefinition::nonDeferrableInitiallyDeferred();
+            }
+
+            return Deferrability::DEFERRED;
+        }
+
+        return $isDeferrable ? Deferrability::DEFERRABLE : Deferrability::NOT_DEFERRABLE;
     }
 
     public function addOption(string $name, mixed $value): self
@@ -715,11 +821,7 @@ class Table extends AbstractNamedObject
     {
         $name = $constraint->getName() !== ''
             ? $constraint->getName()
-            : $this->_generateIdentifierName(
-                array_merge((array) $this->getName(), $constraint->getLocalColumns()),
-                'fk',
-                $this->maxIdentifierLength,
-            );
+            : $this->generateName('fk', $constraint->getReferencingColumnNames());
 
         $name = $this->normalizeIdentifier($name);
 
@@ -729,13 +831,12 @@ class Table extends AbstractNamedObject
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
-        $indexName = $this->_generateIdentifierName(
-            array_merge([$this->getName()], $constraint->getLocalColumns()),
-            'idx',
-            $this->maxIdentifierLength,
-        );
+        $indexName = $this->generateName('idx', $constraint->getReferencingColumnNames());
 
-        $indexCandidate = $this->_createIndex($constraint->getLocalColumns(), $indexName, false, false);
+        $indexCandidate = $this->_createIndex(array_map(
+            static fn (UnqualifiedName $columnName): string => $columnName->toString(),
+            $constraint->getReferencingColumnNames(),
+        ), $indexName, false, false);
 
         foreach ($this->_indexes as $existingIndex) {
             if ($indexCandidate->isFulfilledBy($existingIndex)) {
@@ -807,31 +908,15 @@ class Table extends AbstractNamedObject
         string $indexName,
         bool $isClustered,
     ): UniqueConstraint {
-        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
-            throw IndexNameInvalid::new($indexName);
-        }
-
-        $parser = Parsers::getUnqualifiedNameParser();
-
-        try {
-            $constraintName = $parser->parse($indexName);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($indexName, $e);
-        }
-
-        $columnNames = [];
+        $constraintName = $this->parseUnqualifiedName($indexName);
 
         foreach ($columns as $columnName) {
             if (! $this->hasColumn($columnName)) {
                 throw ColumnDoesNotExist::new($columnName, $this->_name);
             }
-
-            try {
-                $columnNames[] = $parser->parse($columnName);
-            } catch (Parser\Exception $e) {
-                throw InvalidName::fromParserException($indexName, $e);
-            }
         }
+
+        $columnNames = $this->parseUnqualifiedNames($columns);
 
         return UniqueConstraint::editor()
             ->setName($constraintName)
@@ -914,14 +999,14 @@ class Table extends AbstractNamedObject
     private function renameColumnInForeignKeyConstraints(string $oldName, string $newName): void
     {
         foreach ($this->_fkConstraints as $key => $constraint) {
-            $modified     = false;
-            $localColumns = [];
-            foreach ($constraint->getLocalColumns() as $columnName) {
-                if ($columnName === $oldName) {
-                    $localColumns[] = $newName;
-                    $modified       = true;
+            $modified    = false;
+            $columnNames = [];
+            foreach ($constraint->getReferencingColumnNames() as $columnName) {
+                if ($columnName->getIdentifier()->getValue() === $oldName) {
+                    $columnNames[] = UnqualifiedName::unquoted($newName);
+                    $modified      = true;
                 } else {
-                    $localColumns[] = $columnName;
+                    $columnNames[] = $columnName;
                 }
             }
 
@@ -929,13 +1014,9 @@ class Table extends AbstractNamedObject
                 continue;
             }
 
-            $this->_fkConstraints[$key] = new ForeignKeyConstraint(
-                $localColumns, // @phpstan-ignore argument.type
-                $constraint->getForeignTableName(),
-                $constraint->getForeignColumns(), // @phpstan-ignore argument.type
-                $constraint->getName(),
-                $constraint->getOptions(),
-            );
+            $this->_fkConstraints[$key] = $constraint->edit()
+                ->setReferencingColumnNames(...$columnNames)
+                ->create();
         }
     }
 
@@ -969,11 +1050,12 @@ class Table extends AbstractNamedObject
         $names = [];
 
         foreach ($this->_fkConstraints as $name => $constraint) {
-            if (! in_array($columnName, $constraint->getLocalColumns(), true)) {
-                continue;
+            foreach ($constraint->getReferencingColumnNames() as $referencingColumnName) {
+                if ($referencingColumnName->getIdentifier()->getValue() === $columnName) {
+                    $names[] = $name;
+                    break;
+                }
             }
-
-            $names[] = $name;
         }
 
         return $names;
