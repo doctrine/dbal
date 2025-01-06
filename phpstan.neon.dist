@@ -1,6 +1,6 @@
 parameters:
     level: 8
-    phpVersion: 80300
+    phpVersion: 80402
     paths:
         - src
         - static-analysis
@@ -8,10 +8,6 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - identifier: missingType.generics
-
-        # https://github.com/doctrine/dbal/pull/3836
-        # TODO: remove in 4.0.0
-        - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int\|string> given\.\z~'
 
         # some drivers actually do accept 2nd parameter...
         - '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::getListTableForeignKeysSQL\(\) invoked with \d+ parameters, 1 required\.\z~'
@@ -131,7 +127,7 @@ parameters:
 
         # PHPStan does not understand the array shapes returned by pg_fetch_*() methods.
         - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapAssociativeRow\(\) expects array<string, string\|null>, array<int\|string, string\|null> given\.$~'
-        - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapNumericRow\(\) expects array<int, string\|null>, array<int\|string, string\|null> given\.$~'
+        - '~^Parameter #1 \$row of method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:mapNumericRow\(\) expects list<string\|null>, .* given\.$~'
 
         # Ignore isset() checks in destructors.
         - '~^Property Doctrine\\DBAL\\Driver\\PgSQL\\Connection\:\:\$connection \(PgSql\\Connection\|resource\) in isset\(\) is not nullable\.$~'
@@ -152,5 +148,19 @@ parameters:
             message: '#^Parameter \#2 \$callback of function array_reduce expects callable\(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null, callable\(T\)\: T\)\: \(\(callable&TIn\)\|Closure\(mixed \$value\)\: mixed\|null\), Closure\(callable\|null, callable\)\: \(callable\(T\)\: T\) given\.$#'
             path: src/Portability/Converter.php
 
+        # The @throws annotations are part of a contract. Even if the default implementation doen't throw those
+        # exceptions, the child implementations might do so.
+        -
+            identifier: throws.unusedType
+            path: src/Types/Type.php
+
+        # We don't narrow the return type of lastInsertId() yet.
+        - '/^Method Doctrine\\DBAL\\Driver\\.+\\Connection\:\:lastInsertId\(\) never returns (int|false) so it can be removed from the return type\.$/'
+
+        # Unnecessarily strict type narrowing
+        - '~^Method Doctrine\\DBAL\\Driver\\PDO\\ParameterTypeMap\:\:convertParamType\(\) never returns \d+ so it can be removed from the return type\.$~'
+
 includes:
+    - phpstan-baseline.neon
+    - phar://phpstan.phar/conf/bleedingEdge.neon
     - vendor/phpstan/phpstan-strict-rules/rules.neon

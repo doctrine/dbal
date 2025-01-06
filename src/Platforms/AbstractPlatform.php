@@ -2226,7 +2226,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param list<Table> $tables
+     * @param Table[] $tables
      *
      * @return list<string>
      *

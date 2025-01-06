@@ -32,9 +32,9 @@ final class ExceptionConverter implements ExceptionConverterInterface
     /** @link http://www.dba-oracle.com/t_error_code_list.htm */
     public function convert(Exception $exception, ?Query $query): DriverException
     {
-        /** @psalm-var int|'HY000' $code */
+        /** @psalm-var int|'HY000' $code */ // @phpstan-ignore varTag.type
         $code = $exception->getCode();
-        /** @psalm-suppress NoInterfaceProperties */
+        /** @psalm-suppress NoInterfaceProperties */ // @phpstan-ignore property.notFound, property.notFound
         if ($code === 'HY000' && isset($exception->errorInfo[1], $exception->errorInfo[2])) {
             $errorInfo            = $exception->errorInfo;
             $exception            = new PDOException($errorInfo[2], $errorInfo[1]);

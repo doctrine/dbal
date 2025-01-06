@@ -1,0 +1,181 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^@readonly property cannot have a default value\.$#'
+			identifier: property.readOnlyByPhpDocDefaultValue
+			count: 1
+			path: src/Driver/AbstractException.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\OCI8\\Result\:\:fetchAllAssociative\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/OCI8/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\OCI8\\Result\:\:fetchAllNumeric\(\) should return list\<list\<mixed\>\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/OCI8/Result.php
+
+		-
+			message: '#^@readonly property Doctrine\\DBAL\\Driver\\PDO\\PDOException\:\:\$sqlState is assigned outside of the constructor\.$#'
+			identifier: property.readOnlyByPhpDocAssignNotInConstructor
+			count: 1
+			path: src/Driver/PDO/PDOException.php
+
+		-
+			message: '#^@readonly property cannot have a default value\.$#'
+			identifier: property.readOnlyByPhpDocDefaultValue
+			count: 1
+			path: src/Driver/PDO/PDOException.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\PDO\\Result\:\:fetchAll\(\) should return list\<mixed\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/PDO/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:fetchAllAssociative\(\) should return list\<array\<string, mixed\>\> but returns array\<int, array\<string, mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/PgSQL/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:fetchAllNumeric\(\) should return list\<list\<mixed\>\> but returns array\<int, list\<mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/PgSQL/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:fetchFirstColumn\(\) should return list\<mixed\> but returns array\<int, bool\|float\|int\|string\|null\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/PgSQL/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\SQLite3\\Result\:\:fetchNumeric\(\) should return list\<mixed\>\|false but returns array\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/SQLite3/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Platforms\\AbstractMySQLPlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Platforms/AbstractMySQLPlatform.php
+
+		-
+			message: '#^Parameter \#1 \$assets of method Doctrine\\DBAL\\Platforms\\AbstractMySQLPlatform\:\:indexAssetsByLowerCaseName\(\) expects list\<Doctrine\\DBAL\\Schema\\Index\>, array\<Doctrine\\DBAL\\Schema\\Index\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Platforms/AbstractMySQLPlatform.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:buildCreateTableSQL\(\) should return list\<string\> but returns array\<string\>\.$#'
+			identifier: return.type
+			count: 2
+			path: src/Platforms/AbstractPlatform.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Platforms\\DB2Platform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Platforms/DB2Platform.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Platforms\\OraclePlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Platforms/OraclePlatform.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Platforms\\PostgreSQLPlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Platforms/PostgreSQLPlatform.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Platforms\\SQLServerPlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 2
+			path: src/Platforms/SQLServerPlatform.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Platforms\\SqlitePlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Platforms/SqlitePlatform.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Platforms\\SqlitePlatform\:\:getAlterTableSQL\(\) should return list\<string\> but returns array\<string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Platforms/SqlitePlatform.php
+
+		-
+			message: '#^Parameter &\$knownAliases by\-ref type of method Doctrine\\DBAL\\Query\\QueryBuilder\:\:getSQLForJoins\(\) expects array\<string, true\>, non\-empty\-array\<true\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/Query/QueryBuilder.php
+
+		-
+			message: '#^Property Doctrine\\DBAL\\Query\\QueryBuilder\:\:\$params \(array\<int\<0, max\>\|string, mixed\>\) does not accept non\-empty\-array\<int\|string, mixed\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Query/QueryBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$sequences of method Doctrine\\DBAL\\SQL\\Builder\\DropSchemaObjectsSQLBuilder\:\:buildSequenceStatements\(\) expects list\<Doctrine\\DBAL\\Schema\\Sequence\>, array\<Doctrine\\DBAL\\Schema\\Sequence\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/SQL/Builder/DropSchemaObjectsSQLBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$tables of method Doctrine\\DBAL\\SQL\\Builder\\DropSchemaObjectsSQLBuilder\:\:buildTableStatements\(\) expects list\<Doctrine\\DBAL\\Schema\\Table\>, array\<Doctrine\\DBAL\\Schema\\Table\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/SQL/Builder/DropSchemaObjectsSQLBuilder.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Schema\\AbstractSchemaManager\:\:doListTableNames\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Schema/AbstractSchemaManager.php
+
+		-
+			message: '#^Template type T is declared as covariant, but occurs in invariant position in property Doctrine\\DBAL\\Schema\\AbstractSchemaManager\:\:\$_platform\.$#'
+			identifier: generics.variance
+			count: 1
+			path: src/Schema/AbstractSchemaManager.php
+
+		-
+			message: '#^Parameter \#1 \$tables of method Doctrine\\DBAL\\Platforms\\AbstractPlatform\:\:getDropTablesSQL\(\) expects list\<Doctrine\\DBAL\\Schema\\Table\>, array\<Doctrine\\DBAL\\Schema\\Table\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Schema/SchemaDiff.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Schema\\SqliteSchemaManager\:\:addDetailsToTableForeignKeyColumns\(\) should return list\<array\<string, mixed\>\> but returns array\<int\<0, max\>, array\<string, mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Schema/SqliteSchemaManager.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Schema\\TableDiff\:\:getAddedForeignKeys\(\) should return list\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\> but returns array\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Schema/TableDiff.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Schema\\TableDiff\:\:getDroppedForeignKeys\(\) should return list\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|string\> but returns array\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\|string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Schema/TableDiff.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Schema\\TableDiff\:\:getModifiedForeignKeys\(\) should return list\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\> but returns array\<Doctrine\\DBAL\\Schema\\ForeignKeyConstraint\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Schema/TableDiff.php
