@@ -45,7 +45,7 @@
         "jetbrains/phpstorm-stubs": "2023.1",
         "phpstan/phpstan": "1.12.6",
         "phpstan/phpstan-strict-rules": "^1.6",
-        "phpunit/phpunit": "9.6.20",
+        "phpunit/phpunit": "9.6.22",
         "psalm/plugin-phpunit": "0.18.4",
         "slevomat/coding-standard": "8.13.1",
         "squizlabs/php_codesniffer": "3.10.2",
