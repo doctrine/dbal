@@ -13,6 +13,8 @@ class AbstractAssetTest extends TestCase
     public function testInvalidName(): void
     {
         $this->expectException(InvalidName::class);
+
+        // @phpstan-ignore expr.resultUnused
         new Identifier(' ');
     }
 }

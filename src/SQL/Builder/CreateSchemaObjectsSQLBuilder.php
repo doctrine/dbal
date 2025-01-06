@@ -28,7 +28,7 @@ final class CreateSchemaObjectsSQLBuilder
     }
 
     /**
-     * @param list<string> $namespaces
+     * @param string[] $namespaces
      *
      * @return list<string>
      */
@@ -46,7 +46,7 @@ final class CreateSchemaObjectsSQLBuilder
     }
 
     /**
-     * @param list<Table> $tables
+     * @param Table[] $tables
      *
      * @return list<string>
      */
@@ -56,7 +56,7 @@ final class CreateSchemaObjectsSQLBuilder
     }
 
     /**
-     * @param list<Sequence> $sequences
+     * @param Sequence[] $sequences
      *
      * @return list<string>
      */

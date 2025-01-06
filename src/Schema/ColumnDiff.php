@@ -28,6 +28,7 @@ class ColumnDiff
             + (int) $this->hasNotNullChanged()
             + (int) $this->hasNameChanged()
             + (int) $this->hasTypeChanged()
+            + (int) $this->hasPlatformOptionsChanged()
             + (int) $this->hasCommentChanged();
     }
 
@@ -121,6 +122,13 @@ class ColumnDiff
     {
         return $this->hasPropertyChanged(static function (Column $column): string {
             return $column->getComment();
+        });
+    }
+
+    public function hasPlatformOptionsChanged(): bool
+    {
+        return $this->hasPropertyChanged(static function (Column $column): array {
+            return $column->getPlatformOptions();
         });
     }
 

@@ -7,8 +7,10 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -674,6 +676,48 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
                 AND    sequence_schema NOT LIKE 'pg\_%'
                 AND    sequence_schema != 'information_schema'",
             $this->platform->getListSequencesSQL('test_db'),
+        );
+    }
+
+    public function testAlterTableChangeJsonToJsonb(): void
+    {
+        $table = new Table('mytable');
+        $table->addColumn('payload', Types::JSON);
+
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'payload' => new ColumnDiff(
+                $table->getColumn('payload'),
+                (new Column(
+                    'payload',
+                    Type::getType(Types::JSON),
+                ))->setPlatformOption('jsonb', true),
+            ),
+        ]);
+
+        self::assertSame(
+            ['ALTER TABLE "mytable" ALTER "payload" TYPE JSONB'],
+            $this->platform->getAlterTableSQL($tableDiff),
+        );
+    }
+
+    public function testAlterTableChangeJsonbToJson(): void
+    {
+        $table = new Table('mytable');
+        $table->addColumn('payload', Types::JSON)->setPlatformOption('jsonb', true);
+
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'payload' => new ColumnDiff(
+                $table->getColumn('payload'),
+                (new Column(
+                    'payload',
+                    Type::getType(Types::JSON),
+                )),
+            ),
+        ]);
+
+        self::assertSame(
+            ['ALTER TABLE "mytable" ALTER "payload" TYPE JSON'],
+            $this->platform->getAlterTableSQL($tableDiff),
         );
     }
 }
