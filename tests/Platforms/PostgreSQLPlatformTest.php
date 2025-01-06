@@ -810,16 +810,29 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         ]);
 
         self::assertSame(
-            $this->getAlterTableAddJsonbPlatformOptionSQL(),
+            ['ALTER TABLE mytable ALTER payload TYPE JSONB'],
             $this->platform->getAlterTableSQL($tableDiff),
         );
     }
 
-    /** @return string[] */
-    protected function getAlterTableAddJsonbPlatformOptionSQL(): array
+    public function testAlterTableChangeJsonbToJson(): void
     {
-        return [
-            'ALTER TABLE mytable ALTER payload TYPE JSONB',
-        ];
+        $table = new Table('mytable');
+        $table->addColumn('payload', Types::JSON)->setPlatformOption('jsonb', true);
+
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'payload' => new ColumnDiff(
+                $table->getColumn('payload'),
+                (new Column(
+                    'payload',
+                    Type::getType(Types::JSON),
+                )),
+            ),
+        ]);
+
+        self::assertSame(
+            ['ALTER TABLE mytable ALTER payload TYPE JSON'],
+            $this->platform->getAlterTableSQL($tableDiff),
+        );
     }
 }
