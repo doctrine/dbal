@@ -7,9 +7,11 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -790,5 +792,34 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
                 AND    sequence_schema != 'information_schema'",
             $this->platform->getListSequencesSQL('test_db'),
         );
+    }
+
+    public function testAlterTableChangeJsonToJsonb(): void
+    {
+        $table = new Table('mytable');
+        $table->addColumn('payload', Types::JSON);
+
+        $tableDiff = new TableDiff($table, changedColumns: [
+            'payload' => new ColumnDiff(
+                $table->getColumn('payload'),
+                (new Column(
+                    'payload',
+                    Type::getType(Types::JSON),
+                ))->setPlatformOption('jsonb', true),
+            ),
+        ]);
+
+        self::assertSame(
+            $this->getAlterTableAddJsonbPlatformOptionSQL(),
+            $this->platform->getAlterTableSQL($tableDiff),
+        );
+    }
+
+    /** @return string[] */
+    protected function getAlterTableAddJsonbPlatformOptionSQL(): array
+    {
+        return [
+            'ALTER TABLE mytable ALTER payload TYPE JSONB',
+        ];
     }
 }

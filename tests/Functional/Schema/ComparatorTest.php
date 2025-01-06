@@ -104,6 +104,28 @@ class ComparatorTest extends FunctionalTestCase
         self::assertEquals(3, $modifiedOnly->countChangedProperties());
     }
 
+    public function testPlatformOptionsChangedColumnComparison(): void
+    {
+        $platform   = $this->connection->getDatabasePlatform();
+        $comparator = new Comparator($platform);
+
+        $table = new Table('update_json_to_jsonb_table');
+        $table->addColumn('test', Types::JSON);
+
+        $onlineTable = clone $table;
+        $table->getColumn('test')
+            ->setPlatformOption('jsonb', true);
+
+        $compareResult  = $comparator->compareTables($onlineTable, $table);
+        self::assertCount(1, $compareResult->getChangedColumns());
+        self::assertCount(1, $compareResult->getModifiedColumns());
+
+        $changedColumn = $compareResult->getChangedColumns()['test'];
+
+        self::assertTrue($changedColumn->hasPlatformOptionsChanged());
+        self::assertEquals(1, $changedColumn->countChangedProperties());
+    }
+
     /** @return iterable<mixed[]> */
     public static function defaultValueProvider(): iterable
     {
