@@ -397,30 +397,6 @@ Array types
 Types that map array data in different variations such as simple arrays,
 real arrays or JSON format arrays.
 
-array
-^^^^^
-
-Maps and converts array data based on PHP serialization.
-If you need to store an exact representation of your array data,
-you should consider using this type as it uses serialization
-to represent an exact copy of your array as string in the database.
-Values retrieved from the database are always converted to PHP's ``array`` type
-using deserialization or ``null`` if no data is present.
-
-.. note::
-
-    This type will always be mapped to the database vendor's ``text`` type
-    internally as there is no way of storing a PHP array representation
-    natively in the database.
-    Furthermore this type requires an SQL column comment hint so that it can be
-    reverse engineered from the database. Doctrine cannot map back this type
-    properly on vendors not supporting column comments and will fall back to
-    ``text`` type instead.
-
-.. warning::
-
-    This type is deprecated since 3.4.0, use :ref:`json` instead.
-
 simple_array
 ^^^^^^^^^^^^
 
@@ -485,50 +461,6 @@ JSON objects are always converted to PHP associative arrays.
     You should never rely on the order of your JSON object keys, as some vendors
     like MySQL sort the keys of its native JSON type using an internal order
     which is also subject to change.
-
-Object types
-~~~~~~~~~~~~
-
-Types that map to objects such as POPOs.
-
-object
-^^^^^^
-
-Maps and converts object data based on PHP serialization.
-If you need to store an exact representation of your object data,
-you should consider using this type as it uses serialization
-to represent an exact copy of your object as string in the database.
-Values retrieved from the database are always converted to PHP's ``object`` type
-using deserialization or ``null`` if no data is present.
-
-.. note::
-
-    This type will always be mapped to the database vendor's ``text`` type
-    internally as there is no way of storing a PHP object representation
-    natively in the database.
-    Furthermore this type requires an SQL column comment hint so that it can be
-    reverse engineered from the database. Doctrine cannot map back this type
-    properly on vendors not supporting column comments and will fall back to
-    ``text`` type instead.
-
-.. warning::
-
-    While the built-in ``text`` type of MySQL and MariaDB can store binary data,
-    ``mysqldump`` cannot properly export ``text`` fields containing binary data.
-    This will cause creating and restoring of backups fail silently. A workaround is
-    to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()``
-    PHP objects and store them into a ``text`` field manually.
-
-.. warning::
-
-    Because the built-in ``text`` type of PostgreSQL does not support NULL bytes,
-    the object type will cause deserialization errors on PostgreSQL. A workaround is
-    to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()`` PHP objects and store
-    them into a ``text`` field manually.
-
-.. warning::
-
-    This type is deprecated since 3.4.0, use :ref:`json` instead.
 
 .. _mappingMatrix:
 
@@ -729,10 +661,10 @@ Please also notice the mapping specific footnotes for additional information.
     |                   |               +--------------------------+---------+----------------------------------------------------------+
     |                   |               | **SQL Server**           | "all"   | ``TIME(0)``                                              |
     +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-    | **array** [1]     | ``array``     | **MySQL**                | *all*   | ``TINYTEXT`` [16]                                        |
-    +-------------------+               |                          |         +----------------------------------------------------------+
-    | **simple array**  |               |                          |         | ``TEXT`` [17]                                            |
+    | **simple array**  | ``array``     | **MySQL**                | *all*   | ``TINYTEXT`` [16]                                        |
     | [1]               |               |                          |         +----------------------------------------------------------+
+    |                   |               |                          |         | ``TEXT`` [17]                                            |
+    |                   |               |                          |         +----------------------------------------------------------+
     |                   |               |                          |         | ``MEDIUMTEXT`` [18]                                      |
     |                   |               |                          |         +----------------------------------------------------------+
     |                   |               |                          |         | ``LONGTEXT`` [19]                                        |
@@ -756,22 +688,6 @@ Please also notice the mapping specific footnotes for additional information.
     |                   |               | **SQLite**               |         |                                                          |
     |                   |               +--------------------------+---------+----------------------------------------------------------+
     |                   |               | **SQL Server**           | *all*   | ``VARCHAR(MAX)`` [1]                                     |
-    +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-    | **object** [1]    | ``object``    | **MySQL**                | *all*   | ``TINYTEXT`` [16]                                        |
-    |                   |               |                          |         +----------------------------------------------------------+
-    |                   |               |                          |         | ``TEXT`` [17]                                            |
-    |                   |               |                          |         +----------------------------------------------------------+
-    |                   |               |                          |         | ``MEDIUMTEXT`` [18]                                      |
-    |                   |               |                          |         +----------------------------------------------------------+
-    |                   |               |                          |         | ``LONGTEXT`` [19]                                        |
-    |                   |               +--------------------------+---------+----------------------------------------------------------+
-    |                   |               | **PostgreSQL**           | *all*   | ``TEXT``                                                 |
-    |                   |               +--------------------------+         |                                                          |
-    |                   |               | **Oracle**               | *all*   | ``CLOB``                                                 |
-    |                   |               +--------------------------+         |                                                          |
-    |                   |               | **SQLite**               |         |                                                          |
-    |                   |               +--------------------------+---------+----------------------------------------------------------+
-    |                   |               | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
     +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
 
 **Notes**
