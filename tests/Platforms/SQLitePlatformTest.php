@@ -554,11 +554,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         return '';
     }
 
-    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
-    {
-        return 'CONSTRAINT "select" UNIQUE ("foo")';
-    }
-
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return 'INDEX "select" ("foo")';

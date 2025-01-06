@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\InvalidState;
+use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\UniqueConstraint;
@@ -45,55 +44,45 @@ class UniqueConstraintTest extends TestCase
         self::assertNull($uniqueConstraint->getObjectName());
     }
 
-    public function testInstantiateWithOptions(): void
-    {
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6685');
-
-        new UniqueConstraint('', ['user_id'], [], ['option' => 'value']);
-    }
-
     public function testGetColumnNames(): void
     {
-        $uniqueConstraint = new UniqueConstraint('', ['user_id']);
+        $columnName = new UnqualifiedName(Identifier::unquoted('user_id'));
 
-        self::assertEquals([
-            new UnqualifiedName(Identifier::unquoted('user_id')),
-        ], $uniqueConstraint->getColumnNames());
-    }
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setColumnNames($columnName)
+            ->create();
 
-    public function testInvalidColumnNames(): void
-    {
-        $this->expectException(InvalidName::class);
-        new UniqueConstraint('', ['']);
+        self::assertEquals([$columnName], $uniqueConstraint->getColumnNames());
     }
 
     public function testEmptyColumnNames(): void
     {
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6685');
+        $this->expectException(InvalidUniqueConstraintDefinition::class);
 
         /**
          * @psalm-suppress ArgumentTypeCoercion
          * @phpstan-ignore argument.type
          */
-        $uniqueConstraint = new UniqueConstraint('', []);
-
-        $this->expectException(InvalidState::class);
-        $uniqueConstraint->getColumnNames();
+        new UniqueConstraint(null, [], false);
     }
 
-    /** @param array<string> $flags */
-    #[DataProvider('clusteredFlagsProvider')]
-    public function testIsClustered(array $flags, bool $expected): void
+    #[DataProvider('isClusteredProvider')]
+    public function testIsClustered(bool $isClustered): void
     {
-        $uniqueConstraint = new UniqueConstraint('', ['user_id'], $flags);
+        $uniqueConstraint = UniqueConstraint::editor()
+            ->setColumnNames(
+                new UnqualifiedName(Identifier::unquoted('user_id')),
+            )
+            ->setIsClustered($isClustered)
+            ->create();
 
-        self::assertSame($expected, $uniqueConstraint->isClustered());
+        self::assertSame($isClustered, $uniqueConstraint->isClustered());
     }
 
-    /** @return iterable<array{array<string>, bool}> $flags */
-    public static function clusteredFlagsProvider(): iterable
+    /** @return iterable<array{bool}> $flags */
+    public static function isClusteredProvider(): iterable
     {
-        yield 'clustered' => [['clustered'], true];
-        yield 'not clustered' => [[], false];
+        yield 'clustered' => [true];
+        yield 'not clustered' => [false];
     }
 }

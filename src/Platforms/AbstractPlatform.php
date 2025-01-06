@@ -1486,20 +1486,12 @@ abstract class AbstractPlatform
      * Obtains DBMS specific DDL fragment that defines a unique constraint to be used in statements like <code>CREATE
      * TABLE</code> or <code>ALTER TABLE</code>.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
-     *
      * @param UniqueConstraint $constraint The unique constraint definition.
      *
      * @return string DBMS specific DDL fragment that defines the constraint.
      */
-    public function getUniqueConstraintDeclarationSQL(UniqueConstraint $constraint): string
+    protected function getUniqueConstraintDeclarationSQL(UniqueConstraint $constraint): string
     {
-        $columns = $constraint->getQuotedColumns($this);
-
-        if (count($columns) === 0) {
-            throw new InvalidArgumentException('Incomplete definition. "columns" required.');
-        }
-
         $chunks = [];
 
         $name = $constraint->getObjectName();
@@ -1510,11 +1502,14 @@ abstract class AbstractPlatform
 
         $chunks[] = 'UNIQUE';
 
-        if ($constraint->hasFlag('clustered')) {
+        if ($constraint->isClustered()) {
             $chunks[] = 'CLUSTERED';
         }
 
-        $chunks[] = sprintf('(%s)', implode(', ', $columns));
+        $chunks[] = sprintf('(%s)', implode(', ', array_map(
+            fn (UnqualifiedName $columnName) => $columnName->toSQL($this),
+            $constraint->getColumnNames(),
+        )));
 
         return implode(' ', $chunks);
     }

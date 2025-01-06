@@ -8,6 +8,26 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Changes in `UniqueConstraint` API and behavior
+
+The following `UniqueConstraint` methods and properties have been removed:
+
+- `UniqueConstraint::addColumn()`
+- `UniqueConstraint::addFlag()`
+- `UniqueConstraint::getColumns()`
+- `UniqueConstraint::getFlags()`
+- `UniqueConstraint::getOption()`
+- `UniqueConstraint::getOptions()`
+- `UniqueConstraint::getQuotedColumns()`
+- `UniqueConstraint::getUnquotedColumns()`
+- `UniqueConstraint::hasFlag()`
+- `UniqueConstraint::hasOption()`
+- `UniqueConstraint::removeFlag()`
+- `UniqueConstraint::$columns`
+- `UniqueConstraint::$flags`
+
+Additionally, the `UniqueConstraint` class has been declared as final.
+
 ## BC BREAK: Removed `AbstractAsset::isIdentifierQuoted()`
 
 The `AbstractAsset::isIdentifierQuoted()` method has been removed.

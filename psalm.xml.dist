@@ -62,30 +62,8 @@
                 -->
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::getNameParser" />
                 <referencedMethod name="Doctrine\DBAL\Schema\AbstractAsset::setName" />
-
-                <!--
-                    https://github.com/doctrine/dbal/pull/6685
-                    TODO: remove in 5.0.0
-                -->
-                <referencedMethod name="Doctrine\DBAL\Schema\UniqueConstraint::addColumn" />
-                <referencedMethod name="Doctrine\DBAL\Schema\UniqueConstraint::addFlag" />
-                <referencedMethod name="Doctrine\DBAL\Schema\UniqueConstraint::getColumns" />
-                <referencedMethod name="Doctrine\DBAL\Schema\UniqueConstraint::getFlags" />
-                <referencedMethod name="Doctrine\DBAL\Schema\UniqueConstraint::getOptions" />
-                <referencedMethod name="Doctrine\DBAL\Schema\UniqueConstraint::getQuotedColumns" />
-                <referencedMethod name="Doctrine\DBAL\Schema\UniqueConstraint::hasFlag" />
             </errorLevel>
         </DeprecatedMethod>
-        <DeprecatedProperty>
-            <errorLevel type="suppress">
-                <!--
-                    https://github.com/doctrine/dbal/pull/6685
-                    TODO: remove in 5.0.0
-                -->
-                <referencedProperty name="Doctrine\DBAL\Schema\UniqueConstraint::$columns" />
-                <referencedProperty name="Doctrine\DBAL\Schema\UniqueConstraint::$flags" />
-            </errorLevel>
-        </DeprecatedProperty>
         <DocblockTypeContradiction>
             <errorLevel type="suppress">
                 <!--
