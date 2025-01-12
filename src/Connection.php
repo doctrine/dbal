@@ -370,9 +370,14 @@ class Connection implements ServerVersionProvider
                 continue;
             }
 
-            $columns[]    = $columnName;
-            $values[]     = $value;
-            $conditions[] = $columnName . ' = ?';
+            if (is_array($value)) {
+                $conditions[] = $columnName . ' IN (?)';
+            } else {
+                $conditions[] = $columnName . ' = ?';
+            }
+
+            $columns[] = $columnName;
+            $values[]  = $value;
         }
 
         return [$columns, $values, $conditions];
@@ -383,8 +388,8 @@ class Connection implements ServerVersionProvider
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param array<string, mixed>                                                                  $criteria
-     * @param array<int<0,max>, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
+     * @param array<string, mixed>                                                        $criteria
+     * @param array<int<0,max>, WrapperParameterType>|array<string, WrapperParameterType> $types
      *
      * @return int|numeric-string The number of affected rows.
      *
@@ -447,9 +452,9 @@ class Connection implements ServerVersionProvider
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param array<string, mixed>                                                                  $data
-     * @param array<string, mixed>                                                                  $criteria
-     * @param array<int<0,max>, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
+     * @param array<string, mixed>                                                        $data
+     * @param array<string, mixed>                                                        $criteria
+     * @param array<int<0,max>, WrapperParameterType>|array<string, WrapperParameterType> $types
      *
      * @return int|numeric-string The number of affected rows.
      *
@@ -523,10 +528,10 @@ class Connection implements ServerVersionProvider
     /**
      * Extract ordered type list from an ordered column list and type map.
      *
-     * @param array<int, string>                                                             $columns
-     * @param array<int, string|ParameterType|Type>|array<string, string|ParameterType|Type> $types
+     * @param array<int, string>                                                   $columns
+     * @param array<int, WrapperParameterType>|array<string, WrapperParameterType> $types
      *
-     * @return array<int<0, max>, string|ParameterType|Type>
+     * @return array<int<0, max>, WrapperParameterType>
      */
     private function extractTypeValues(array $columns, array $types): array
     {

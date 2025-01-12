@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
@@ -431,6 +432,41 @@ class ConnectionTest extends TestCase
         );
     }
 
+    public function testUpdateWithInArray(): void
+    {
+        $conn = $this->getExecuteStatementMockConnection();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'UPDATE TestTable SET text = ? WHERE id IN (?) AND name = ?',
+                [
+                    'some text',
+                    [1, 2],
+                    'foo',
+                ],
+                [
+                    'string',
+                    ArrayParameterType::STRING,
+                    'string',
+                ],
+            );
+
+        $conn->update(
+            'TestTable',
+            ['text' => 'some text'],
+            [
+                'id' => [1, 2],
+                'name' => 'foo',
+            ],
+            [
+                'text' => 'string',
+                'id' => ArrayParameterType::STRING,
+                'name' => 'string',
+            ],
+        );
+    }
+
     public function testDeleteWithIsNull(): void
     {
         $conn = $this->getExecuteStatementMockConnection();
@@ -451,6 +487,37 @@ class ConnectionTest extends TestCase
             ],
             [
                 'id' => 'integer',
+                'name' => 'string',
+            ],
+        );
+    }
+
+    public function testDeleteWithInArray(): void
+    {
+        $conn = $this->getExecuteStatementMockConnection();
+
+        $conn->expects(self::once())
+            ->method('executeStatement')
+            ->with(
+                'DELETE FROM TestTable WHERE id IN (?) AND name = ?',
+                [
+                    [1, 2],
+                    'foo',
+                ],
+                [
+                    ArrayParameterType::STRING,
+                    'string',
+                ],
+            );
+
+        $conn->delete(
+            'TestTable',
+            [
+                'id' => [1, 2],
+                'name' => 'foo',
+            ],
+            [
+                'id' => ArrayParameterType::STRING,
                 'name' => 'string',
             ],
         );
