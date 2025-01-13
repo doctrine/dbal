@@ -34,7 +34,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.3"
+          - "8.4"
 
     steps:
       - name: "Checkout code"
@@ -49,6 +49,8 @@ jobs:
 
       - name: "Install dependencies with Composer"
         uses: "ramsey/composer-install@v3"
+        with:
+          composer-options: "--ignore-platform-req=php+"
 
       - name: "Run a static analysis with phpstan/phpstan"
         run: "vendor/bin/phpstan --error-format=checkstyle | cs2pr"
@@ -60,7 +62,7 @@ jobs:
     strategy:
       matrix:
         php-version:
-          - "8.3"
+          - "8.4"
 
     steps:
       - name: Checkout code
@@ -75,6 +77,8 @@ jobs:
 
       - name: Install dependencies with Composer
         uses: ramsey/composer-install@v3
+        with:
+          composer-options: "--ignore-platform-req=php+"
 
       - name: Run static analysis with Vimeo Psalm
         run: vendor/bin/psalm --shepherd

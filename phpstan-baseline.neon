@@ -1,0 +1,91 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\IBMDB2\\Connection\:\:exec\(\) never returns numeric\-string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Driver/IBMDB2/Connection.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\OCI8\\Connection\:\:exec\(\) never returns numeric\-string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Driver/OCI8/Connection.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\OCI8\\Result\:\:fetchAllAssociative\(\) should return list\<array\<string, mixed\>\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/OCI8/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\OCI8\\Result\:\:fetchAllNumeric\(\) should return list\<list\<mixed\>\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/OCI8/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\PDO\\Result\:\:fetchAll\(\) should return list\<mixed\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/PDO/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:fetchAllAssociative\(\) should return list\<array\<string, mixed\>\> but returns array\<int, array\<string, mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/PgSQL/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:fetchAllNumeric\(\) should return list\<list\<mixed\>\> but returns array\<int, list\<mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/PgSQL/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\PgSQL\\Result\:\:fetchFirstColumn\(\) should return list\<mixed\> but returns array\<int, bool\|float\|int\|string\|null\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/PgSQL/Result.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Driver\\SQLite3\\Result\:\:fetchNumeric\(\) should return list\<mixed\>\|false but returns array\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Driver/SQLite3/Result.php
+
+		-
+			message: '#^Template type T is declared as covariant, but occurs in invariant position in property Doctrine\\DBAL\\Schema\\AbstractSchemaManager\:\:\$platform\.$#'
+			identifier: generics.variance
+			count: 1
+			path: src/Schema/AbstractSchemaManager.php
+
+		-
+			message: '#^Loose comparison via "\!\=" is not allowed\.$#'
+			identifier: notEqual.notAllowed
+			count: 1
+			path: src/Schema/ColumnDiff.php
+
+		-
+			message: '#^Method Doctrine\\DBAL\\Schema\\SQLiteSchemaManager\:\:addDetailsToTableForeignKeyColumns\(\) should return list\<array\<string, mixed\>\> but returns array\<int\<0, max\>, array\<string, mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Schema/SQLiteSchemaManager.php
+
+		-
+			message: '#^Offset string might not exist on array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, host\?\: string, \.\.\.\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: tests/DriverManagerTest.php
+
+		-
+			message: '#^Call to new Doctrine\\DBAL\\Driver\\PgSQL\\Result\(\) on a separate line has no effect\.$#'
+			identifier: new.resultUnused
+			count: 1
+			path: tests/Functional/Driver/PgSQL/ResultTest.php
+
+		-
+			message: '#^Call to function array_filter\(\) requires parameter \#2 to be passed to avoid loose comparison semantics\.$#'
+			identifier: arrayFilter.strict
+			count: 1
+			path: tests/Functional/Schema/MySQL/JsonCollationTest.php

@@ -18,6 +18,7 @@ class AbstractNamedObjectTest extends TestCase
     {
         $this->expectException(InvalidName::class);
 
+        // @phpstan-ignore expr.resultUnused
         new /** @extends AbstractNamedObject<Name> */
         class ('') extends AbstractNamedObject {
         };

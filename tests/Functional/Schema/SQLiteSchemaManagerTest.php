@@ -15,12 +15,15 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 use function array_keys;
 use function array_shift;
 
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    use VerifyDeprecations;
+
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof SQLitePlatform;
@@ -51,9 +54,7 @@ class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
-    parent INTEGER REFERENCES user(id) ON DELETE CASCADE,
-    log INTEGER,
-    CONSTRAINT FK_3 FOREIGN KEY (log) REFERENCES log ON UPDATE SET NULL NOT DEFERRABLE
+    parent INTEGER REFERENCES user(id) ON DELETE CASCADE
 )
 EOS);
 
@@ -72,16 +73,37 @@ EOS);
                 '',
                 ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false],
             ),
+        ];
+
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6701');
+
+        self::assertEquals($expected, $this->schemaManager->listTableForeignKeys('user'));
+    }
+
+    public function testListForeignKeysWithImplicitColumnsFromIncompleteSchema(): void
+    {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS t1');
+        $this->connection->executeStatement(<<<'EOS'
+CREATE TABLE t1 (
+    id INTEGER,
+    t2_id INTEGER,
+    FOREIGN KEY (t2_id) REFERENCES t2
+)
+EOS);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6701');
+
+        $expected = [
             new ForeignKeyConstraint(
-                ['log'],
-                'log',
+                ['t2_id'],
+                't2',
                 [],
-                'FK_3',
-                ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false],
+                '',
+                ['onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false],
             ),
         ];
 
-        self::assertEquals($expected, $this->schemaManager->listTableForeignKeys('user'));
+        self::assertEquals($expected, $this->schemaManager->listTableForeignKeys('t1'));
     }
 
     public function testColumnCollation(): void
