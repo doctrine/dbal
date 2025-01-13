@@ -119,6 +119,25 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated `Table::columnsAreIndexed()`
+
+The `Table::columnsAreIndexed()` method has been deprecated.
+
+## Deprecated usage of `RESTRICT` with Oracle and SQL Server
+
+Relying on automatic conversion of the `RESTRICT` constraint referential action to `NO ACTION` on Oracle and SQL Server
+is deprecated. Use `NO ACTION` instead.
+
+## Deprecated introspection of SQLite foreign key constraints with omitted referenced column names in an incomplete schema
+
+If the referenced column names are omitted in a foreign key constraint declaration, it implies that the constraint
+references the primary key columns of the referenced table. If the referenced table is not present in the schema, the
+constraint cannot be properly introspected, and the referenced column names are introspected as an empty list.
+This behavior is deprecated.
+
+In order to mitigate this issue, either ensure that the referenced table is present in the schema when introspecting
+foreign constraints, or provide the referenced column names explicitly in the constraint declaration.
+
 ## Deprecated `UniqueConstraint` methods, property and behavior
 
 The following `UniqueConstraint` methods and property have been deprecated:

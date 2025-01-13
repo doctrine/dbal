@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
+use BcMath\Number;
 use DateTime;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -11,6 +12,8 @@ use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhp;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
 use function str_repeat;
 
@@ -38,6 +41,7 @@ class TypeConversionTest extends FunctionalTestCase
         $table->addColumn('test_float', Types::FLOAT, ['notnull' => false]);
         $table->addColumn('test_smallfloat', Types::SMALLFLOAT, ['notnull' => false]);
         $table->addColumn('test_decimal', Types::DECIMAL, ['notnull' => false, 'scale' => 2, 'precision' => 10]);
+        $table->addColumn('test_number', Types::NUMBER, ['notnull' => false, 'scale' => 2, 'precision' => 10]);
         $table->setPrimaryKey(['id']);
 
         $this->dropAndCreateTable($table);
@@ -152,6 +156,21 @@ class TypeConversionTest extends FunctionalTestCase
             'date' => [Types::DATE_MUTABLE, new DateTime('2010-04-05')],
             'time' => [Types::TIME_MUTABLE, new DateTime('1970-01-01 10:10:10')],
         ];
+    }
+
+    public function testDecimal(): void
+    {
+        self::assertSame('13.37', $this->processValue(Types::DECIMAL, '13.37'));
+    }
+
+    #[RequiresPhp('8.4')]
+    #[RequiresPhpExtension('bcmath')]
+    public function testNumber(): void
+    {
+        $originalValue = new Number('13.37');
+        $dbValue       = $this->processValue(Types::NUMBER, $originalValue);
+
+        self::assertSame(0, $originalValue <=> $dbValue);
     }
 
     private function processValue(string $type, mixed $originalValue): mixed
