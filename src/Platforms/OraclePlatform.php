@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -497,17 +496,7 @@ END;';
     {
         $action = strtoupper($action);
 
-        if ($action === 'RESTRICT') {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6707',
-                'Relying on automatic conversion of RESTRICT to NO ACTION for Oracle is deprecated.'
-                    . ' Use NO ACTION explicitly instead.',
-            );
-        }
-
         return match ($action) {
-            'RESTRICT',
             'NO ACTION' => '',
             'CASCADE',
             'SET NULL' => $action,

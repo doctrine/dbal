@@ -18,7 +18,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_map;
@@ -1108,16 +1107,10 @@ class SQLServerPlatform extends AbstractPlatform
 
     protected function getForeignKeyReferentialActionSQL(string $action): string
     {
-        // RESTRICT is not supported, therefore falling back to NO ACTION.
         if (strtoupper($action) === 'RESTRICT') {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6707',
-                'Relying on automatic conversion of RESTRICT to NO ACTION for SQL Server is deprecated.'
-                    . ' Use NO ACTION explicitly instead.',
+            throw new InvalidArgumentException(
+                sprintf('Unsupported foreign key action "%s".', $action),
             );
-
-            return 'NO ACTION';
         }
 
         return parent::getForeignKeyReferentialActionSQL($action);
