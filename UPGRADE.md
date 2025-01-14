@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: removed `Table::columnsAreIndexed()`
+
+The `Table::columnsAreIndexed()` method has been removed.
+
 ## BC BREAK: removed support for `RESTRICT` on Oracle and SQL Server
 
 The `RESTRICT` constraint referential action is no longer supported on Oracle and SQL Server.

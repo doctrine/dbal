@@ -657,16 +657,6 @@ class TableTest extends TestCase
         self::assertNotNull($table->getPrimaryKey());
     }
 
-    public function testAddIndexWithQuotedColumns(): void
-    {
-        $table = new Table('test');
-        $table->addColumn('"foo"', Types::INTEGER);
-        $table->addColumn('bar', Types::INTEGER);
-        $table->addIndex(['"foo"', '"bar"']);
-
-        self::assertTrue($table->columnsAreIndexed(['"foo"', '"bar"']));
-    }
-
     public function testAddForeignKeyWithQuotedColumnsAndTable(): void
     {
         $table = new Table('test');
