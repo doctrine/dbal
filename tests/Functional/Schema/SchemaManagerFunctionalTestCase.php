@@ -485,8 +485,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals('test_foreign', strtolower($fkConstraint->getForeignTableName()));
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkConstraint->getLocalColumns()));
         self::assertEquals(['id'], array_map('strtolower', $fkConstraint->getForeignColumns()));
-
-        self::assertTrue($fkTable->columnsAreIndexed($fkConstraint->getLocalColumns()));
     }
 
     public function testListForeignKeys(): void

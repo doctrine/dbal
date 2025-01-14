@@ -270,31 +270,6 @@ class Table extends AbstractNamedObject
         return $this->addIndex($oldIndex->getColumns(), $newName, $oldIndex->getFlags(), $oldIndex->getOptions());
     }
 
-    /**
-     * Checks if an index begins in the order of the given columns.
-     *
-     * @deprecated
-     *
-     * @param array<int, string> $columnNames
-     */
-    public function columnsAreIndexed(array $columnNames): bool
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6710',
-            '%s is deprecated.',
-            __METHOD__,
-        );
-
-        foreach ($this->getIndexes() as $index) {
-            if ($index->spansColumns($columnNames)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /** @param array<string, mixed> $options */
     public function addColumn(string $name, string $typeName, array $options = []): Column
     {
