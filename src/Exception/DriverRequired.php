@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class DriverRequired extends InvalidArgumentException
 {
     /** @param string|null $url The URL that was provided in the connection parameters (if any). */

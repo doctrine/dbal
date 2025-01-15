@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\AbstractException;
 use function get_debug_type;
 use function sprintf;
 
-/** @psalm-immutable */
 final class InvalidConfiguration extends AbstractException
 {
     public static function notAStringOrNull(string $key, mixed $value): self

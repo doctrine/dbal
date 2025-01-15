@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\AbstractException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class UnknownParameter extends AbstractException
 {
     public static function new(string $param): self

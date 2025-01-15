@@ -31,7 +31,7 @@ use function unlink;
 use const E_WARNING;
 use const PHP_OS_FAMILY;
 
-/** @psalm-import-type Params from DriverManager */
+/** @phpstan-import-type Params from DriverManager */
 class ExceptionTest extends FunctionalTestCase
 {
     public function testPrimaryConstraintViolationException(): void
@@ -216,8 +216,7 @@ class ExceptionTest extends FunctionalTestCase
 
     /**
      * @param array<string, mixed> $params
-     * @psalm-param Params $params
-     * @phpstan-param array<string,mixed> $params
+     * @phpstan-param Params $params
      */
     #[DataProvider('getConnectionParams')]
     private function testConnectionException(array $params): void

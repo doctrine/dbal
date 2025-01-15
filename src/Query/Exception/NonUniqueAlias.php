@@ -9,7 +9,6 @@ use Doctrine\DBAL\Query\QueryException;
 use function implode;
 use function sprintf;
 
-/** @psalm-immutable */
 final class NonUniqueAlias extends QueryException
 {
     /** @param string[] $registeredAliases */

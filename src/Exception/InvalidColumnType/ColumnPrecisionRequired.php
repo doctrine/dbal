@@ -6,11 +6,7 @@ namespace Doctrine\DBAL\Exception\InvalidColumnType;
 
 use Doctrine\DBAL\Exception\InvalidColumnType;
 
-/**
- * @internal
- *
- * @psalm-immutable
- */
+/** @internal */
 final class ColumnPrecisionRequired extends InvalidColumnType
 {
     public static function new(): self

@@ -7,11 +7,7 @@ namespace Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\AbstractException;
 use Throwable;
 
-/**
- * @internal
- *
- * @psalm-immutable
- */
+/** @internal */
 final class NoIdentityValue extends AbstractException
 {
     public static function new(?Throwable $previous = null): self

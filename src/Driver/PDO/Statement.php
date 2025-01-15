@@ -63,7 +63,7 @@ final class Statement implements StatementInterface
     /**
      * Converts DBAL parameter type to PDO parameter type
      *
-     * @psalm-return PDO::PARAM_*
+     * @phpstan-return PDO::PARAM_*
      */
     private function convertParamType(ParameterType $type): int
     {

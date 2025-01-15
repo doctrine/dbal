@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema\Exception;
 use Doctrine\DBAL\Schema\SchemaException;
 use InvalidArgumentException;
 
-/** @psalm-immutable */
 final class InvalidIdentifier extends InvalidArgumentException implements SchemaException
 {
     public static function fromEmpty(): self

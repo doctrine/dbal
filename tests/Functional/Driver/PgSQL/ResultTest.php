@@ -131,7 +131,7 @@ class ResultTest extends FunctionalTestCase
         self::assertSame([$expectedValue], $result);
     }
 
-    /** @psalm-return Generator<string, array{string, mixed, (Types::*)}> */
+    /** @phpstan-return Generator<string, array{string, mixed, (Types::*)}> */
     public static function typedValueProvider(): Generator
     {
         yield 'integer' => ['INTEGER', 4711, Types::INTEGER];

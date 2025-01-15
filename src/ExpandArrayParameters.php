@@ -15,7 +15,7 @@ use function count;
 use function implode;
 use function substr;
 
-/** @psalm-import-type WrapperParameterTypeArray from Connection */
+/** @phpstan-import-type WrapperParameterTypeArray from Connection */
 final class ExpandArrayParameters implements Visitor
 {
     private int $originalParameterIndex = 0;
@@ -31,7 +31,7 @@ final class ExpandArrayParameters implements Visitor
 
     /**
      * @param array<int, mixed>|array<string, mixed> $parameters
-     * @psalm-param WrapperParameterTypeArray $types
+     * @phpstan-param WrapperParameterTypeArray $types
      */
     public function __construct(
         private readonly array $parameters,

@@ -48,7 +48,7 @@ final class Statement implements StatementInterface
         return new Result($result, $this->connection->changes());
     }
 
-    /** @psalm-return self::TYPE_* */
+    /** @phpstan-return self::TYPE_* */
     private function convertParamType(ParameterType $type): int
     {
         return match ($type) {

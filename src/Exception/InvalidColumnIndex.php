@@ -10,7 +10,6 @@ use Throwable;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class InvalidColumnIndex extends LogicException implements Exception
 {
     public static function new(int $index, ?Throwable $previous = null): self

@@ -23,7 +23,7 @@ class DateTimeTzImmutableType extends Type implements PhpDateTimeMappingType
     }
 
     /**
-     * @psalm-param T $value
+     * @phpstan-param T $value
      *
      * @return (T is null ? null : string)
      *

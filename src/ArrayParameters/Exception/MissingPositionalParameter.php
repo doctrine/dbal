@@ -9,11 +9,7 @@ use LogicException;
 
 use function sprintf;
 
-/**
- * @internal
- *
- * @psalm-immutable
- */
+/** @internal */
 class MissingPositionalParameter extends LogicException implements Exception
 {
     public static function new(int $index): self

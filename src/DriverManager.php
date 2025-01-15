@@ -23,7 +23,7 @@ use function is_a;
 /**
  * Factory for creating {@see Connection} instances.
  *
- * @psalm-type OverrideParams = array{
+ * @phpstan-type OverrideParams = array{
  *     application_name?: string,
  *     charset?: string,
  *     dbname?: string,
@@ -43,7 +43,7 @@ use function is_a;
  *     unix_socket?: string,
  *     wrapperClass?: class-string<Connection>,
  * }
- * @psalm-type Params = array{
+ * @phpstan-type Params = array{
  *     application_name?: string,
  *     charset?: string,
  *     dbname?: string,
@@ -128,9 +128,9 @@ final class DriverManager
      * The driver class to use.
      *
      * @param Configuration|null $config The configuration to use.
-     * @psalm-param Params $params
+     * @phpstan-param Params $params
      *
-     * @psalm-return ($params is array{wrapperClass: class-string<T>} ? T : Connection)
+     * @phpstan-return ($params is array{wrapperClass: class-string<T>} ? T : Connection)
      *
      * @template T of Connection
      */
@@ -159,7 +159,7 @@ final class DriverManager
      * Returns the list of supported drivers.
      *
      * @return string[]
-     * @psalm-return list<key-of<self::DRIVER_MAP>>
+     * @phpstan-return list<key-of<self::DRIVER_MAP>>
      */
     public static function getAvailableDrivers(): array
     {

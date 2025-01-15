@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema\Exception;
 use Doctrine\DBAL\Schema\SchemaException;
 use InvalidArgumentException;
 
-/** @psalm-immutable */
 final class UnspecifiedConstraintName extends InvalidArgumentException implements SchemaException
 {
     public static function new(): self

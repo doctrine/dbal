@@ -7,11 +7,7 @@ namespace Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\AbstractException;
 use PDOException;
 
-/**
- * @internal
- *
- * @psalm-immutable
- */
+/** @internal */
 final class Exception extends AbstractException
 {
     public static function new(PDOException $exception): self

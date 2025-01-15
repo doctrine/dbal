@@ -17,11 +17,11 @@ use function array_change_key_case;
 
 use const CASE_LOWER;
 
-/** @psalm-import-type WrapperParameterType from Connection */
+/** @phpstan-import-type WrapperParameterType from Connection */
 class NamedParametersTest extends FunctionalTestCase
 {
     /**
-     * @psalm-return iterable<int, array{
+     * @phpstan-return iterable<int, array{
      *                   string,
      *                   array<string, mixed>,
      *                   array<string, WrapperParameterType>,
@@ -213,7 +213,7 @@ class NamedParametersTest extends FunctionalTestCase
     /**
      * @param array<string, mixed>       $params
      * @param list<array<string, mixed>> $expected
-     * @psalm-param array<string, WrapperParameterType> $types
+     * @phpstan-param array<string, WrapperParameterType> $types
      */
     #[DataProvider('ticketProvider')]
     public function testTicket(string $query, array $params, array $types, array $expected): void

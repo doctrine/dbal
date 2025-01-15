@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class InvalidWrapperClass extends InvalidArgumentException
 {
     public static function new(string $wrapperClass): self

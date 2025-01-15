@@ -15,8 +15,6 @@ use function var_export;
 
 /**
  * Thrown when the PHP value passed to the converter was not of the expected type.
- *
- * @psalm-immutable
  */
 final class InvalidType extends ConversionException implements TypesException
 {

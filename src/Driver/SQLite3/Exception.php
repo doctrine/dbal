@@ -6,11 +6,7 @@ namespace Doctrine\DBAL\Driver\SQLite3;
 
 use Doctrine\DBAL\Driver\AbstractException;
 
-/**
- * @internal
- *
- * @psalm-immutable
- */
+/** @internal */
 final class Exception extends AbstractException
 {
     public static function new(\Exception $exception): self

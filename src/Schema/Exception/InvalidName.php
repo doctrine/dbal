@@ -10,7 +10,6 @@ use InvalidArgumentException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 class InvalidName extends InvalidArgumentException implements SchemaException
 {
     public static function fromEmpty(): self

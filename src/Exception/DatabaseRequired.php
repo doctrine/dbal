@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/** @psalm-immutable */
 class DatabaseRequired extends \Exception implements Exception
 {
     public static function new(string $methodName): self

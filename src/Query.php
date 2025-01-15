@@ -7,16 +7,13 @@ namespace Doctrine\DBAL;
 /**
  * An SQL query together with its bound parameters.
  *
- * @psalm-immutable
- * @psalm-import-type WrapperParameterType from Connection
+ * @phpstan-import-type WrapperParameterType from Connection
  */
 final class Query
 {
     /**
      * @param array<mixed> $params
-     * @psalm-param array<WrapperParameterType> $types
-     *
-     * @psalm-suppress ImpurePropertyAssignment
+     * @phpstan-param array<WrapperParameterType> $types
      */
     public function __construct(
         private readonly string $sql,
@@ -36,7 +33,7 @@ final class Query
         return $this->params;
     }
 
-    /** @psalm-return array<WrapperParameterType> */
+    /** @phpstan-return array<WrapperParameterType> */
     public function getTypes(): array
     {
         return $this->types;

@@ -17,11 +17,11 @@ use PHPUnit\Framework\TestCase;
 
 use function hex2bin;
 
-/** @psalm-import-type WrapperParameterTypeArray from Connection */
+/** @phpstan-import-type WrapperParameterTypeArray from Connection */
 class ExpandArrayParametersTest extends TestCase
 {
     /**
-     * @psalm-return iterable<array{
+     * @phpstan-return iterable<array{
      *                   string,
      *                   array<string, mixed>|array<int, mixed>,
      *                   WrapperParameterTypeArray,
@@ -387,7 +387,7 @@ class ExpandArrayParametersTest extends TestCase
      * @param array<int, mixed>|array<string, mixed>                                         $params
      * @param array<int, mixed>|array<string, mixed>                                         $expectedParams
      * @param array<int, string|Type|ParameterType>|array<string, string|Type|ParameterType> $expectedTypes
-     * @psalm-param WrapperParameterTypeArray $types
+     * @phpstan-param WrapperParameterTypeArray $types
      */
     #[DataProvider('dataExpandListParameters')]
     public function testExpandListParameters(
@@ -476,7 +476,7 @@ class ExpandArrayParametersTest extends TestCase
 
     /**
      * @param array<int, mixed>|array<string, mixed> $params
-     * @psalm-param WrapperParameterTypeArray $types
+     * @phpstan-param WrapperParameterTypeArray $types
      *
      * @return array{string, list<mixed>, array<string|ParameterType|Type>}
      */

@@ -9,7 +9,6 @@ use LogicException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class UniqueConstraintDoesNotExist extends LogicException implements SchemaException
 {
     public static function new(string $constraintName, string $table): self

@@ -34,7 +34,7 @@ use function unlink;
 /**
  * TestUtil is a class with static utility methods used during tests.
  *
- * @psalm-import-type Params from DriverManager
+ * @phpstan-import-type Params from DriverManager
  */
 class TestUtil
 {

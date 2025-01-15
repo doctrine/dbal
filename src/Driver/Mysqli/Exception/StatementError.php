@@ -9,11 +9,7 @@ use mysqli_sql_exception;
 use mysqli_stmt;
 use ReflectionProperty;
 
-/**
- * @internal
- *
- * @psalm-immutable
- */
+/** @internal */
 final class StatementError extends AbstractException
 {
     public static function new(mysqli_stmt $statement): self

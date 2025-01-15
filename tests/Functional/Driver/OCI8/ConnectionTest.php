@@ -46,7 +46,6 @@ SQL,
         );
 
         self::assertNotFalse($row);
-        /** @psalm-suppress PossiblyUndefinedArrayOffset */
         [$sid, $serialNumber] = $row;
 
         self::assertNotNull($sid, 'SID is missing.');

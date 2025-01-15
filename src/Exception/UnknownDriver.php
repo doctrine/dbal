@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Exception;
 use function implode;
 use function sprintf;
 
-/** @psalm-immutable */
 final class UnknownDriver extends InvalidArgumentException
 {
     /** @param string[] $knownDrivers */

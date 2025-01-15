@@ -8,7 +8,6 @@ use Exception;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class InvalidPlatformVersion extends Exception implements PlatformException
 {
     /**

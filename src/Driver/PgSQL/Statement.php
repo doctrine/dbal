@@ -26,7 +26,7 @@ final class Statement implements StatementInterface
     /** @var array<int, mixed> */
     private array $parameters = [];
 
-    /** @psalm-var array<int, ParameterType> */
+    /** @phpstan-var array<int, ParameterType> */
     private array $parameterTypes = [];
 
     /** @param array<array-key, int> $parameterMap */

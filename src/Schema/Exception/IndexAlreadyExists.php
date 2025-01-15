@@ -9,7 +9,6 @@ use LogicException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class IndexAlreadyExists extends LogicException implements SchemaException
 {
     public static function new(string $indexName, string $table): self

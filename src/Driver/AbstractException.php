@@ -9,8 +9,6 @@ use Throwable;
 
 /**
  * Abstract base implementation of the {@see DriverException} interface.
- *
- * @psalm-immutable
  */
 abstract class AbstractException extends BaseException implements Exception
 {

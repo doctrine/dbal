@@ -14,7 +14,7 @@ use SensitiveParameter;
  * Driver interface.
  * Interface that all DBAL drivers must implement.
  *
- * @psalm-import-type Params from DriverManager
+ * @phpstan-import-type Params from DriverManager
  */
 interface Driver
 {
@@ -22,7 +22,7 @@ interface Driver
      * Attempts to create a connection with the database.
      *
      * @param array<string, mixed> $params All connection parameters.
-     * @psalm-param Params $params All connection parameters.
+     * @phpstan-param Params $params All connection parameters.
      *
      * @return DriverConnection The database connection.
      *

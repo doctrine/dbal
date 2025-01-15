@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Cache\Exception;
 
 use Doctrine\DBAL\Cache\CacheException;
 
-/** @psalm-immutable */
 final class NoResultDriverConfigured extends CacheException
 {
     public static function new(): self

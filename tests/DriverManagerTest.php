@@ -19,7 +19,7 @@ use stdClass;
 use function array_merge;
 use function in_array;
 
-/** @psalm-import-type Params from DriverManager */
+/** @phpstan-import-type Params from DriverManager */
 class DriverManagerTest extends TestCase
 {
     use VerifyDeprecations;
@@ -31,7 +31,6 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection([]);
     }
 
-    /** @psalm-suppress InvalidArgument */
     public function testInvalidDriver(): void
     {
         $this->expectException(Exception::class);
@@ -68,7 +67,6 @@ class DriverManagerTest extends TestCase
         self::assertSame(Connection::class, $conn::class);
     }
 
-    /** @psalm-suppress InvalidArgument */
     #[RequiresPhpExtension('pdo_sqlite')]
     public function testInvalidWrapperClass(): void
     {
@@ -83,7 +81,6 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection($options);
     }
 
-    /** @psalm-suppress InvalidArgument */
     public function testInvalidDriverClass(): void
     {
         $this->expectException(Exception::class);
@@ -129,11 +126,11 @@ class DriverManagerTest extends TestCase
         }
     }
 
-    /** @psalm-return array<string, array{
-     *                    string,
-     *                    array<string, mixed>,
-     *                    array<string, mixed>|false,
-     *                }>
+    /** @return array<string, array{
+     *            string,
+     *            array<string, mixed>,
+     *            array<string, mixed>|false,
+     *        }>
      */
     public static function databaseUrlProvider(): iterable
     {

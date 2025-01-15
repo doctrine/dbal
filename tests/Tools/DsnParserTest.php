@@ -13,10 +13,10 @@ use PHPUnit\Framework\TestCase;
 use function get_class;
 use function ksort;
 
-/** @psalm-import-type Params from DriverManager */
+/** @phpstan-import-type Params from DriverManager */
 final class DsnParserTest extends TestCase
 {
-    /** @psalm-param Params $expected */
+    /** @phpstan-param Params $expected */
     #[DataProvider('databaseUrls')]
     public function testDatabaseUrl(string $dsn, array $expected): void
     {
@@ -31,7 +31,7 @@ final class DsnParserTest extends TestCase
         self::assertSame($expected, $actual);
     }
 
-    /** @psalm-return iterable<string, array{string, Params}> */
+    /** @phpstan-return iterable<string, array{string, Params}> */
     public static function databaseUrls(): iterable
     {
         return [

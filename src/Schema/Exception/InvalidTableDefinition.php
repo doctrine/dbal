@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Schema\Exception;
 use Doctrine\DBAL\Schema\SchemaException;
 use LogicException;
 
-/** @psalm-immutable */
 final class InvalidTableDefinition extends LogicException implements SchemaException
 {
     public static function nameNotSet(): self

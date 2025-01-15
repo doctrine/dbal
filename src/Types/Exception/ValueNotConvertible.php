@@ -14,8 +14,6 @@ use function substr;
 
 /**
  * Thrown when a Database to Doctrine Type Conversion fails.
- *
- * @psalm-immutable
  */
 final class ValueNotConvertible extends ConversionException implements TypesException
 {

@@ -10,7 +10,6 @@ use InvalidArgumentException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 class ImproperlyQualifiedName extends InvalidArgumentException implements SchemaException
 {
     public static function fromUnqualifiedName(OptionallyQualifiedName $name): self

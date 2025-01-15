@@ -9,7 +9,6 @@ use InvalidArgumentException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class UnknownColumnOption extends InvalidArgumentException implements SchemaException
 {
     public static function new(string $name): self

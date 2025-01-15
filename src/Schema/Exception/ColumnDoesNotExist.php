@@ -9,7 +9,6 @@ use LogicException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class ColumnDoesNotExist extends LogicException implements SchemaException
 {
     public static function new(string $columnName, string $table): self

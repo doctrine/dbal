@@ -59,10 +59,7 @@ class UniqueConstraintTest extends TestCase
     {
         $this->expectException(InvalidUniqueConstraintDefinition::class);
 
-        /**
-         * @psalm-suppress ArgumentTypeCoercion
-         * @phpstan-ignore argument.type
-         */
+        /** @phpstan-ignore argument.type */
         new UniqueConstraint(null, [], false);
     }
 

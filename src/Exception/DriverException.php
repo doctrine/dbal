@@ -12,8 +12,6 @@ use function assert;
 
 /**
  * Base class for all errors detected in the driver.
- *
- * @psalm-immutable
  */
 class DriverException extends \Exception implements Exception, Driver\Exception
 {

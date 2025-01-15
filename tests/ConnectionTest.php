@@ -27,7 +27,7 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use RuntimeException;
 
-/** @psalm-import-type Params from DriverManager */
+/** @phpstan-import-type Params from DriverManager */
 #[RequiresPhpExtension('pdo_mysql')]
 class ConnectionTest extends TestCase
 {

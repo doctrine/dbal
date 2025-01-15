@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\ConnectionException;
 
-/** @psalm-immutable */
 final class CommitFailedRollbackOnly extends ConnectionException
 {
     public static function new(): self

@@ -9,7 +9,6 @@ use LogicException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class TableAlreadyExists extends LogicException implements SchemaException
 {
     public static function new(string $tableName): self

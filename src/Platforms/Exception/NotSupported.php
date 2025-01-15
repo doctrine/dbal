@@ -8,7 +8,6 @@ use LogicException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class NotSupported extends LogicException implements PlatformException
 {
     public static function new(string $method): self

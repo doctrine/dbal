@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class InvalidDriverClass extends InvalidArgumentException
 {
     public static function new(string $driverClass): self

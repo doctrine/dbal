@@ -10,11 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function get_debug_type;
 use function sprintf;
 
-/**
- * @internal
- *
- * @psalm-immutable
- */
+/** @internal */
 final class ColumnLengthRequired extends InvalidColumnType
 {
     /**

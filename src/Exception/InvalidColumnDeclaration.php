@@ -9,7 +9,6 @@ use LogicException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class InvalidColumnDeclaration extends LogicException implements Exception
 {
     public static function fromInvalidColumnType(string $columnName, InvalidColumnType $e): self

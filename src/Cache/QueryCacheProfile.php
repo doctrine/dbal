@@ -17,7 +17,7 @@ use function sha1;
  *
  * It is a value object, setter methods return NEW instances.
  *
- * @psalm-import-type WrapperParameterType from Connection
+ * @phpstan-import-type WrapperParameterType from Connection
  */
 class QueryCacheProfile
 {
@@ -53,7 +53,7 @@ class QueryCacheProfile
      *
      * @param list<mixed>|array<string, mixed> $params
      * @param array<string, mixed>             $connectionParams
-     * @psalm-param array<int, WrapperParameterType>|array<string, WrapperParameterType> $types
+     * @phpstan-param array<int, WrapperParameterType>|array<string, WrapperParameterType> $types
      *
      * @return array{string, string}
      */

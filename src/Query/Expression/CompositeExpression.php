@@ -69,7 +69,7 @@ class CompositeExpression implements Countable
     /**
      * Retrieves the amount of expressions on composite expression.
      *
-     * @psalm-return int<0, max>
+     * @phpstan-return int<0, max>
      */
     public function count(): int
     {

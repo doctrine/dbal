@@ -21,7 +21,7 @@ use function str_replace;
 use function strpos;
 use function substr;
 
-/** @psalm-import-type Params from DriverManager */
+/** @phpstan-import-type Params from DriverManager */
 final class DsnParser
 {
     /** @param array<string, string|class-string<Driver>> $schemeMapping An array used to map DSN schemes to DBAL drivers */
@@ -31,7 +31,7 @@ final class DsnParser
     }
 
     /**
-     * @psalm-return Params
+     * @phpstan-return Params
      *
      * @throws MalformedDsnException
      */

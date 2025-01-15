@@ -16,7 +16,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
-/** @psalm-import-type Params from DriverManager */
+/** @phpstan-import-type Params from DriverManager */
 class MySQLInheritCharsetTest extends TestCase
 {
     public function testInheritTableOptionsFromDatabase(): void
@@ -58,8 +58,7 @@ class MySQLInheritCharsetTest extends TestCase
 
     /**
      * @param array<string,mixed> $params
-     * @psalm-param Params $params
-     * @phpstan-param array<string,mixed> $params
+     * @phpstan-param Params $params
      *
      * @return string[]
      */

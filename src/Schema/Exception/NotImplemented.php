@@ -9,7 +9,6 @@ use LogicException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class NotImplemented extends LogicException implements SchemaException
 {
     public static function fromMethod(string $class, string $method): self

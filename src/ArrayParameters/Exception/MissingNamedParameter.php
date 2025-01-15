@@ -9,7 +9,6 @@ use LogicException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 class MissingNamedParameter extends LogicException implements Exception
 {
     public static function new(string $name): self
