@@ -28,7 +28,7 @@ abstract class AbstractName implements Name
 
     public function toSQL(AbstractPlatform $platform): string
     {
-        return $this->joinIdentifiers(static fn (Identifier $identifier): string => $identifier->toSql($platform));
+        return $this->joinIdentifiers(static fn (Identifier $identifier): string => $identifier->toSQL($platform));
     }
 
     public function toString(): string
