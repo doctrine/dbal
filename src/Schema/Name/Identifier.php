@@ -35,7 +35,7 @@ final class Identifier
         return $this->isQuoted;
     }
 
-    public function toSql(AbstractPlatform $platform): string
+    public function toSQL(AbstractPlatform $platform): string
     {
         if (! $this->isQuoted) {
             $value = $platform->normalizeUnquotedIdentifier($this->value);

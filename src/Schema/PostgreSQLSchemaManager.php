@@ -126,7 +126,12 @@ SQL,
             $foreignTable,
             $foreignColumns,
             $tableForeignKey['conname'],
-            ['onUpdate' => $onUpdate, 'onDelete' => $onDelete],
+            [
+                'onUpdate' => $onUpdate,
+                'onDelete' => $onDelete,
+                'deferrable' => $tableForeignKey['condeferrable'],
+                'deferred' => $tableForeignKey['condeferred'],
+            ],
         );
     }
 
@@ -530,7 +535,9 @@ SQL;
 
         $sql .= <<<'SQL'
                   quote_ident(r.conname) as conname,
-                  pg_get_constraintdef(r.oid, true) as condef
+                  pg_get_constraintdef(r.oid, true) as condef,
+                  r.condeferrable,
+                  r.condeferred
                   FROM pg_constraint r
                       JOIN pg_class AS tc ON tc.oid = r.conrelid
                       JOIN pg_namespace tn ON tn.oid = tc.relnamespace

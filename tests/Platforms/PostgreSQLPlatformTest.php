@@ -51,8 +51,7 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
 
     protected function getGenerateForeignKeySql(): string
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY ("fk_name_id")'
-            . ' REFERENCES "other_table" ("id") NOT DEFERRABLE INITIALLY IMMEDIATE';
+        return 'ALTER TABLE test ADD FOREIGN KEY ("fk_name_id") REFERENCES "other_table" ("id")';
     }
 
     public function testGeneratesSqlSnippets(): void
@@ -268,11 +267,11 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
             . '"foo" VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL)',
             'CREATE INDEX "idx_22660d028fd6e0fb8c736521d79164e3" ON "quoted" ("create", "foo", "bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT "fk_with_reserved_keyword" FOREIGN KEY ("create", "foo", "bar")'
-            . ' REFERENCES "foreign" ("create", "bar", "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
+            . ' REFERENCES "foreign" ("create", "bar", "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT "fk_with_non_reserved_keyword" FOREIGN KEY ("create", "foo", "bar")'
-            . ' REFERENCES "foo" ("create", "bar", "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
+            . ' REFERENCES "foo" ("create", "bar", "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT "fk_with_intended_quotation" FOREIGN KEY ("create", "foo", "bar")'
-            . ' REFERENCES "foo-bar" ("create", "bar", "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
+            . ' REFERENCES "foo-bar" ("create", "bar", "foo-bar")',
         ];
     }
 
