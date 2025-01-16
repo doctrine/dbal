@@ -49,6 +49,11 @@ final class Statement implements StatementInterface
         $this->boundValues = array_fill(1, $paramCount, null);
     }
 
+    public function __destruct()
+    {
+        @$this->stmt->close();
+    }
+
     public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         assert(is_int($param));
@@ -72,7 +77,7 @@ final class Statement implements StatementInterface
             throw StatementError::upcast($e);
         }
 
-        return new Result($this->stmt);
+        return new Result($this->stmt, $this);
     }
 
     /**
