@@ -31,9 +31,9 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    public function listTableNames()
+    public function listTableNames(bool $filterAssetNames = true)
     {
-        return $this->doListTableNames();
+        return $this->doListTableNames($filterAssetNames);
     }
 
     /**

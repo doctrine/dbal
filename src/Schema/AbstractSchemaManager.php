@@ -309,7 +309,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function tablesExist($names)
+    public function tablesExist($names, bool $filterAssetNames = true)
     {
         if (is_string($names)) {
             Deprecation::trigger(
@@ -322,7 +322,12 @@ abstract class AbstractSchemaManager
 
         $names = array_map('strtolower', (array) $names);
 
-        return count($names) === count(array_intersect($names, array_map('strtolower', $this->listTableNames())));
+        return count($names) === count(
+            array_intersect(
+                $names,
+                array_map('strtolower', $this->listTableNames($filterAssetNames)),
+            ),
+        );
     }
 
     /**
@@ -332,14 +337,14 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function listTableNames()
+    public function listTableNames(bool $filterAssetNames = true)
     {
         $sql = $this->_platform->getListTablesSQL();
 
         $tables     = $this->_conn->fetchAllAssociative($sql);
         $tableNames = $this->_getPortableTablesList($tables);
 
-        return $this->filterAssetNames($tableNames);
+        return $filterAssetNames ? $this->filterAssetNames($tableNames) : $tableNames;
     }
 
     /**
@@ -347,16 +352,16 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    protected function doListTableNames(): array
+    protected function doListTableNames(bool $filterAssetNames = true): array
     {
         $database = $this->getDatabase(__METHOD__);
 
-        return $this->filterAssetNames(
-            $this->_getPortableTablesList(
-                $this->selectTableNames($database)
-                    ->fetchAllAssociative(),
-            ),
+        $tableNames = $this->_getPortableTablesList(
+            $this->selectTableNames($database)
+                ->fetchAllAssociative(),
         );
+
+        return $filterAssetNames ? $this->filterAssetNames($tableNames) : $tableNames;
     }
 
     /**
