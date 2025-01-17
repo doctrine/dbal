@@ -9,21 +9,19 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Exception\UnsupportedSchema;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 use function array_keys;
 use function array_shift;
 
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    use VerifyDeprecations;
-
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
         return $platform instanceof SQLitePlatform;
@@ -75,8 +73,6 @@ EOS);
             ),
         ];
 
-        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6701');
-
         self::assertEquals($expected, $this->schemaManager->listTableForeignKeys('user'));
     }
 
@@ -91,19 +87,9 @@ CREATE TABLE t1 (
 )
 EOS);
 
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6701');
+        $this->expectException(UnsupportedSchema::class);
 
-        $expected = [
-            new ForeignKeyConstraint(
-                ['t2_id'],
-                't2',
-                [],
-                '',
-                ['onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false],
-            ),
-        ];
-
-        self::assertEquals($expected, $this->schemaManager->listTableForeignKeys('t1'));
+        $this->schemaManager->listTableForeignKeys('t1');
     }
 
     public function testColumnCollation(): void

@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: removed support for introspection of SQLite foreign key constraints with omitted referenced column names in an incomplete schema
+
+If the SQLite schema manager fails to introspect the columns referenced by a foreign key constraint, instead of
+producing a constraint with empty referenced columns, it will throw an exception.
+
 ## BC BREAK: removed `Table::columnsAreIndexed()`
 
 The `Table::columnsAreIndexed()` method has been removed.
