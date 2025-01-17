@@ -35,7 +35,20 @@ use const CASE_LOWER;
  */
 class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
+    private const REFERENTIAL_ACTIONS = [
+        'a' => 'NO ACTION',
+        'c' => 'CASCADE',
+        'd' => 'SET DEFAULT',
+        'n' => 'SET NULL',
+        'r' => 'RESTRICT',
+    ];
+
     private ?string $currentSchema = null;
+
+    /**
+     * The maximum number of columns that can be included in an index.
+     */
+    private ?int $maxIndexKeys = null;
 
     /**
      * {@inheritDoc}
@@ -85,52 +98,36 @@ SQL,
     }
 
     /**
+     * Returns the maximum number of columns that can be included in an index.
+     *
+     * @link https://www.postgresql.org/docs/current/runtime-config-preset.html#GUC-MAX-INDEX-KEYS
+     *
+     * @throws Exception
+     */
+    private function getMaxIndexKeys(): int
+    {
+        return $this->maxIndexKeys ??= (int) $this->connection->fetchOne(
+            <<<'SQL'
+            SELECT setting FROM pg_settings WHERE name = 'max_index_keys'
+            SQL,
+        );
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
-        $onUpdate = null;
-        $onDelete = null;
-
-        if (
-            preg_match(
-                '(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
-                $tableForeignKey['condef'],
-                $match,
-            ) === 1
-        ) {
-            $onUpdate = $match[1];
-        }
-
-        if (
-            preg_match(
-                '(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
-                $tableForeignKey['condef'],
-                $match,
-            ) === 1
-        ) {
-            $onDelete = $match[1];
-        }
-
-        $result = preg_match('/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/', $tableForeignKey['condef'], $values);
-        assert($result === 1);
-
-        // PostgreSQL returns identifiers that are keywords with quotes, we need them later, don't get
-        // the idea to trim them here.
-        $localColumns   = array_map('trim', explode(',', $values[1]));
-        $foreignColumns = array_map('trim', explode(',', $values[3]));
-        $foreignTable   = $values[2];
-
         return new ForeignKeyConstraint(
-            $localColumns,
-            $foreignTable,
-            $foreignColumns,
-            $tableForeignKey['conname'],
+            $tableForeignKey['local'],
+            $tableForeignKey['foreignTable'],
+            $tableForeignKey['foreign'],
+            $tableForeignKey['name'],
             [
-                'onUpdate' => $onUpdate,
-                'onDelete' => $onDelete,
-                'deferrable' => $tableForeignKey['condeferrable'],
-                'deferred' => $tableForeignKey['condeferred'],
+                'onUpdate' => $tableForeignKey['onUpdate'],
+                'onDelete' => $tableForeignKey['onDelete'],
+                'deferrable' => $tableForeignKey['deferrable'],
+                'deferred' => $tableForeignKey['deferred'],
             ],
         );
     }
@@ -147,6 +144,39 @@ SQL,
         }
 
         return new View($name, $view['definition']);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
+    {
+        $list = [];
+        foreach ($tableForeignKeys as $value) {
+            $value = array_change_key_case($value);
+            if (! isset($list[$value['conname']])) {
+                $foreignTable = $value['fk_relname'];
+                if ($value['fk_nspname'] !== $this->getCurrentSchema()) {
+                    $foreignTable = $value['fk_nspname'] . '.' . $foreignTable;
+                }
+
+                $list[$value['conname']] = [
+                    'name' => $value['conname'],
+                    'local' => [],
+                    'foreign' => [],
+                    'foreignTable' => $foreignTable,
+                    'onUpdate' => self::REFERENTIAL_ACTIONS[$value['confupdtype']],
+                    'onDelete' => self::REFERENTIAL_ACTIONS[$value['confdeltype']],
+                    'deferrable' => $value['condeferrable'],
+                    'deferred' => $value['condeferred'],
+                ];
+            }
+
+            $list[$value['conname']]['local'][]   = $value['pk_attname'];
+            $list[$value['conname']]['foreign'][] = $value['fk_attname'];
+        }
+
+        return parent::_getPortableTableForeignKeysList($list);
     }
 
     /**
@@ -527,31 +557,50 @@ SQL;
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
+        $sql = 'SELECT r.conname';
 
         if ($tableName === null) {
-            $sql .= ' tc.relname AS table_name, tn.nspname AS schema_name,';
+            $sql .= ', pkn.nspname AS schema_name, pkc.relname AS table_name';
         }
 
         $sql .= <<<'SQL'
-                  quote_ident(r.conname) as conname,
-                  pg_get_constraintdef(r.oid, true) as condef,
-                  r.condeferrable,
-                  r.condeferred
-                  FROM pg_constraint r
-                      JOIN pg_class AS tc ON tc.oid = r.conrelid
-                      JOIN pg_namespace tn ON tn.oid = tc.relnamespace
-                  WHERE r.conrelid IN
-                  (
-                      SELECT c.oid
-                      FROM pg_class c, pg_namespace n
-SQL;
+        ,
+               pka.attname AS pk_attname,
+               fkn.nspname AS fk_nspname,
+               fkc.relname AS fk_relname,
+               fka.attname AS fk_attname,
+               r.confupdtype,
+               r.confdeltype,
+               r.condeferrable,
+               r.condeferred
+        FROM pg_constraint r
+                 JOIN
+             pg_class fkc ON fkc.oid = r.confrelid
+                 JOIN
+             pg_namespace fkn ON fkn.oid = fkc.relnamespace
+                 JOIN
+             pg_attribute fka ON fkc.oid = fka.attrelid
+                 JOIN
+             pg_class pkc ON pkc.oid = r.conrelid
+                 JOIN
+             pg_namespace pkn ON pkn.oid = pkc.relnamespace
+                 JOIN
+             pg_attribute pka ON pkc.oid = pka.attrelid
+                 JOIN
+             generate_series(1, ?) pos(n)
+             ON fka.attnum = r.confkey[pos.n]
+                 AND pka.attnum = r.conkey[pos.n]
+                          WHERE r.conrelid IN
+                          (
+                              SELECT c.oid
+                              FROM pg_class c, pg_namespace n
+        SQL;
 
         $conditions = array_merge(['n.oid = c.relnamespace'], $this->buildQueryConditions($tableName));
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions) . ") AND r.contype = 'f'";
 
-        return $this->connection->executeQuery($sql);
+        return $this->connection->executeQuery($sql, [$this->getMaxIndexKeys()]);
     }
 
     /**
