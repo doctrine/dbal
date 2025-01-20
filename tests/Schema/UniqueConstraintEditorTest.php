@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
-use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +21,7 @@ class UniqueConstraintEditorTest extends TestCase
 
     public function testSetIsClustered(): void
     {
-        $columnName = new UnqualifiedName(Identifier::unquoted('user_id'));
+        $columnName = UnqualifiedName::unquoted('user_id');
 
         $editor = UniqueConstraint::editor()
             ->setColumnNames($columnName);

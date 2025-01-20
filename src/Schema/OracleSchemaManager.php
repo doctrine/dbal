@@ -12,7 +12,6 @@ use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function array_key_exists;
-use function array_values;
 use function assert;
 use function implode;
 use function is_string;
@@ -208,14 +207,16 @@ class OracleSchemaManager extends AbstractSchemaManager
                     'foreign' => [],
                     'foreignTable' => $value['references_table'],
                     'onDelete' => $value['delete_rule'],
+                    'deferrable' => $value['deferrable'] === 'DEFERRABLE',
+                    'deferred' => $value['deferred'] === 'DEFERRED',
                 ];
             }
 
             $localColumn   = $this->getQuotedIdentifierName($value['local_column']);
             $foreignColumn = $this->getQuotedIdentifierName($value['foreign_column']);
 
-            $list[$value['constraint_name']]['local'][$value['position']]   = $localColumn;
-            $list[$value['constraint_name']]['foreign'][$value['position']] = $foreignColumn;
+            $list[$value['constraint_name']]['local'][]   = $localColumn;
+            $list[$value['constraint_name']]['foreign'][] = $foreignColumn;
         }
 
         return parent::_getPortableTableForeignKeysList($list);
@@ -227,11 +228,15 @@ class OracleSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
         return new ForeignKeyConstraint(
-            array_values($tableForeignKey['local']),
+            $tableForeignKey['local'],
             $this->getQuotedIdentifierName($tableForeignKey['foreignTable']),
-            array_values($tableForeignKey['foreign']),
+            $tableForeignKey['foreign'],
             $this->getQuotedIdentifierName($tableForeignKey['name']),
-            ['onDelete' => $tableForeignKey['onDelete']],
+            [
+                'onDelete' => $tableForeignKey['onDelete'],
+                'deferrable' => $tableForeignKey['deferrable'],
+                'deferred' => $tableForeignKey['deferred'],
+            ],
         );
     }
 
@@ -413,6 +418,8 @@ SQL;
         $sql .= <<<'SQL'
                  ALC.CONSTRAINT_NAME,
                  ALC.DELETE_RULE,
+                 ALC.DEFERRABLE,
+                 ALC.DEFERRED,
                  COLS.COLUMN_NAME LOCAL_COLUMN,
                  COLS.POSITION,
                  R_COLS.TABLE_NAME REFERENCES_TABLE,

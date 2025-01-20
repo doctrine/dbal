@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\View;
@@ -20,9 +19,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-use function array_map;
 use function array_pop;
-use function count;
 use function sprintf;
 use function strtolower;
 use function version_compare;
@@ -192,40 +189,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column = $table->getColumn('table');
 
         self::assertTrue($column->isQuoted());
-    }
-
-    public function testListForeignKeys(): void
-    {
-        $fkOptions   = ['SET NULL', 'SET DEFAULT', 'NO ACTION', 'CASCADE', 'RESTRICT'];
-        $foreignKeys = [];
-        $fkTable     = $this->getTestTable('test_create_fk1');
-        foreach ($fkOptions as $i => $fkOption) {
-            $fkTable->addColumn('foreign_key_test' . $i, Types::INTEGER);
-            $foreignKeys[] = new ForeignKeyConstraint(
-                ['foreign_key_test' . $i],
-                'test_create_fk2',
-                ['id'],
-                'foreign_key_test' . $i . '_fk',
-                ['onDelete' => $fkOption],
-            );
-        }
-
-        $this->dropAndCreateTable($fkTable);
-        $this->createTestTable('test_create_fk2');
-
-        foreach ($foreignKeys as $foreignKey) {
-            $this->schemaManager->createForeignKey($foreignKey, 'test_create_fk1');
-        }
-
-        $fkeys = $this->schemaManager->listTableForeignKeys('test_create_fk1');
-        self::assertEquals(count($foreignKeys), count($fkeys));
-
-        for ($i = 0; $i < count($fkeys); $i++) {
-            self::assertEquals(['foreign_key_test' . $i], array_map('strtolower', $fkeys[$i]->getLocalColumns()));
-            self::assertEquals(['id'], array_map('strtolower', $fkeys[$i]->getForeignColumns()));
-            self::assertEquals('test_create_fk2', strtolower($fkeys[0]->getForeignTableName()));
-            self::assertEquals($foreignKeys[$i]->getOption('onDelete'), $fkeys[$i]->getOption('onDelete'));
-        }
     }
 
     public function testDefaultValueCharacterVarying(): void

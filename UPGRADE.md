@@ -132,6 +132,34 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated `ForeignKeyConstraint` methods, properties and behavior
+
+The following `ForeignKeyConstraint` methods and property have been deprecated:
+
+- `ForeignKeyConstraint::getForeignTableName()`, `ForeignKeyConstraint::getQuotedForeignTableName()`,
+  `ForeignKeyConstraint::getUnqualifiedForeignTableName()`, `ForeignKeyConstraint::$_foreignTableName` – use
+  `ForeignKeyConstraint::getReferencedTableName()` instead.
+- `ForeignKeyConstraint::getLocalColumns()`, `ForeignKeyConstraint::getQuotedLocalColumns()`,
+  `ForeignKeyConstraint::getUnquotedLocalColumns()`, `ForeignKeyConstraint::$_localColumnNames` – use
+  `ForeignKeyConstraint::getReferencingColumnNames()` instead.
+- `ForeignKeyConstraint::getForeignColumns()`, `ForeignKeyConstraint::getQuotedForeignColumns()`,
+  `ForeignKeyConstraint::getUnquotedForeignColumns()`, `ForeignKeyConstraint::$_foreignColumnNames` – use
+  `ForeignKeyConstraint::getReferencedColumnNames()` instead.
+- `ForeignKeyConstraint::getOption()`, `ForeignKeyConstraint::getOptions()`, `ForeignKeyConstraint::hasOption()`,
+  `ForeignKeyConstraint::onUpdate()`, `ForeignKeyConstraint::onDelete()`, `ForeignKeyConstraint::$options` – use
+  `ForeignKeyConstraint::getMatchType()`, `ForeignKeyConstraint::getOnUpdateAction()`,
+  `ForeignKeyConstraint::getOnDeleteAction()` and `ForeignKeyConstraint::getDeferrability()` instead.
+- `ForeignKeyConstraint::intersectsIndexColumns()`.
+
+Additionally,
+1. Extending the `ForeignKeyConstraint` class has been deprecated. Use the `ForeignKeyConstraint` class directly.
+2. Instantiation of a foreign key constraint without referencing or referenced columns is deprecated.
+3. Instantiation of a foreign key constraint with a non-matching number of referencing and referenced columns is
+   deprecated.
+4. The `ForeignKeyConstraint` constructor has been marked as internal. Use `ForeignKeyConstraint::editor()` to
+   instantiate an editor and `ForeignKeyConstraintEditor::create()` to create a foreign key constraint.
+5. The `AbstractPlatform::getForeignKeyBaseDeclarationSQL()` method has been marked as internal.
+
 ## Deprecated `Table::columnsAreIndexed()`
 
 The `Table::columnsAreIndexed()` method has been deprecated.
@@ -151,7 +179,7 @@ This behavior is deprecated.
 In order to mitigate this issue, either ensure that the referenced table is present in the schema when introspecting
 foreign constraints, or provide the referenced column names explicitly in the constraint declaration.
 
-## Deprecated `UniqueConstraint` methods, property and behavior
+## Deprecated `UniqueConstraint` methods, properties and behavior
 
 The following `UniqueConstraint` methods and property have been deprecated:
 

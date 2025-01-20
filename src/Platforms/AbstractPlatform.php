@@ -1578,6 +1578,32 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL fragment representing the deferrability of a constraint.
+     */
+    protected function getConstraintDeferrabilitySQL(ForeignKeyConstraint $foreignKey): string
+    {
+        $sql = '';
+
+        if ($foreignKey->hasOption('deferrable')) {
+            if ($foreignKey->getOption('deferrable') !== false) {
+                $sql .= ' DEFERRABLE';
+            } else {
+                $sql .= ' NOT DEFERRABLE';
+            }
+        }
+
+        if ($foreignKey->hasOption('deferred')) {
+            if ($foreignKey->getOption('deferred') !== false) {
+                $sql .= ' INITIALLY DEFERRED';
+            } else {
+                $sql .= ' INITIALLY IMMEDIATE';
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
      * Returns the given referential action in uppercase if valid, otherwise throws an exception.
      *
      * @param string $action The foreign key referential action.
@@ -1599,6 +1625,8 @@ abstract class AbstractPlatform
     /**
      * Obtains DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      * of a column declaration to be used in statements like CREATE TABLE.
+     *
+     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
     public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {

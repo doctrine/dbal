@@ -176,20 +176,10 @@ class PostgreSQLPlatform extends AbstractPlatform
 
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
 
-        if ($foreignKey->hasOption('deferrable')) {
-            if ($foreignKey->getOption('deferrable') !== false) {
-                $query .= ' DEFERRABLE';
-            } else {
-                $query .= ' NOT DEFERRABLE';
-            }
-        }
+        $deferrabilitySQL = $this->getConstraintDeferrabilitySQL($foreignKey);
 
-        if ($foreignKey->hasOption('deferred')) {
-            if ($foreignKey->getOption('deferred') !== false) {
-                $query .= ' INITIALLY DEFERRED';
-            } else {
-                $query .= ' INITIALLY IMMEDIATE';
-            }
+        if ($deferrabilitySQL !== '') {
+            $query .= $deferrabilitySQL;
         }
 
         return $query;

@@ -474,7 +474,7 @@ SQL;
 
         $conditions[] = 'k.REFERENCED_COLUMN_NAME IS NOT NULL';
 
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY k.ORDINAL_POSITION';
+        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY k.CONSTRAINT_NAME, k.ORDINAL_POSITION';
 
         return $this->connection->executeQuery($sql, $params);
     }

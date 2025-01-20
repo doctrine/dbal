@@ -14,7 +14,6 @@ use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
-use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
@@ -378,9 +377,9 @@ class Table extends AbstractNamedObject
      *
      * Name is inferred from the local columns.
      *
-     * @param array<int, string>   $localColumnNames
-     * @param array<int, string>   $foreignColumnNames
-     * @param array<string, mixed> $options
+     * @param non-empty-list<string> $localColumnNames
+     * @param non-empty-list<string> $foreignColumnNames
+     * @param array<string, mixed>   $options
      */
     public function addForeignKeyConstraint(
         string $foreignTableName,
@@ -931,9 +930,9 @@ class Table extends AbstractNamedObject
             }
 
             $this->_fkConstraints[$key] = new ForeignKeyConstraint(
-                $localColumns,
+                $localColumns, // @phpstan-ignore argument.type
                 $constraint->getForeignTableName(),
-                $constraint->getForeignColumns(),
+                $constraint->getForeignColumns(), // @phpstan-ignore argument.type
                 $constraint->getName(),
                 $constraint->getOptions(),
             );
@@ -947,7 +946,7 @@ class Table extends AbstractNamedObject
             $columnNames = [];
             foreach ($constraint->getColumnNames() as $columnName) {
                 if ($columnName->getIdentifier()->getValue() === $oldName) {
-                    $columnNames[] = new UnqualifiedName(Identifier::unquoted($newName));
+                    $columnNames[] = UnqualifiedName::unquoted($newName);
                     $modified      = true;
                 } else {
                     $columnNames[] = $columnName;

@@ -7,10 +7,16 @@ namespace Doctrine\DBAL\Tests;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
+
+use function array_map;
 
 abstract class FunctionalTestCase extends TestCase
 {
@@ -101,5 +107,147 @@ abstract class FunctionalTestCase extends TestCase
 
         $this->dropTableIfExists($tableName);
         $schemaManager->createTable($table);
+    }
+
+    /** @throws Exception */
+    protected function assertOptionallyQualifiedNameEquals(
+        OptionallyQualifiedName $expected,
+        OptionallyQualifiedName $actual,
+    ): void {
+        self::assertEquals(
+            $this->toQuotedOptionallyQualifiedName($expected),
+            $this->toQuotedOptionallyQualifiedName($actual),
+        );
+    }
+
+    /** @throws Exception */
+    protected function toQuotedOptionallyQualifiedName(OptionallyQualifiedName $name): OptionallyQualifiedName
+    {
+        return new OptionallyQualifiedName(
+            $this->toQuotedIdentifier($name->getUnqualifiedName()),
+            $name->getQualifier() === null
+                ? null
+                : $this->toQuotedIdentifier($name->getQualifier()),
+        );
+    }
+
+    /** @throws Exception */
+    protected function assertUnqualifiedNameEquals(
+        UnqualifiedName $expected,
+        UnqualifiedName $actual,
+    ): void {
+        self::assertEquals(
+            $this->toQuotedUnqualifiedName($expected),
+            $this->toQuotedUnqualifiedName($actual),
+        );
+    }
+
+    /** @throws Exception */
+    protected function toQuotedUnqualifiedName(UnqualifiedName $name): UnqualifiedName
+    {
+        return new UnqualifiedName(
+            $this->toQuotedIdentifier($name->getIdentifier()),
+        );
+    }
+
+    /**
+     * @param non-empty-list<UnqualifiedName> $expected
+     * @param non-empty-list<UnqualifiedName> $actual
+     *
+     * @throws Exception
+     */
+    protected function assertUnqualifiedNameListEquals(array $expected, array $actual): void
+    {
+        self::assertEquals(
+            $this->toQuotedUnqualifiedNameList($expected),
+            $this->toQuotedUnqualifiedNameList($actual),
+        );
+    }
+
+    /**
+     * @param list<UnqualifiedName> $names
+     *
+     * @return ($names is non-empty-list ? non-empty-list<UnqualifiedName> : list<UnqualifiedName>)
+     *
+     * @throws Exception
+     */
+    protected function toQuotedUnqualifiedNameList(array $names): array
+    {
+        return array_map(
+            fn (UnqualifiedName $name): UnqualifiedName => $this->toQuotedUnqualifiedName($name),
+            $names,
+        );
+    }
+
+    /** @throws Exception */
+    protected function assertForeignKeyConstraintEquals(
+        ForeignKeyConstraint $expected,
+        ForeignKeyConstraint $actual,
+    ): void {
+        self::assertEquals(
+            $this->toQuotedForeignKeyConstraint($expected),
+            $this->toQuotedForeignKeyConstraint($actual),
+        );
+    }
+
+    /** @throws Exception */
+    protected function toQuotedForeignKeyConstraint(ForeignKeyConstraint $constraint): ForeignKeyConstraint
+    {
+        $name = $constraint->getObjectName();
+
+        if ($name !== null) {
+            $name = $this->toQuotedUnqualifiedName($name);
+        }
+
+        return $constraint->edit()
+            ->setName($name)
+            ->setReferencingColumnNames(...$this->toQuotedUnqualifiedNameList($constraint->getReferencingColumnNames()))
+            ->setReferencedTableName($this->toQuotedOptionallyQualifiedName($constraint->getReferencedTableName()))
+            ->setReferencedColumnNames(...$this->toQuotedUnqualifiedNameList($constraint->getReferencedColumnNames()))
+            ->create();
+    }
+
+    /**
+     * @param list<ForeignKeyConstraint> $expected
+     * @param list<ForeignKeyConstraint> $actual
+     *
+     * @throws Exception
+     */
+    protected function assertForeignKeyConstraintListEquals(array $expected, array $actual): void
+    {
+        self::assertEquals(
+            $this->toQuotedForeignKeyConstraintList($expected),
+            $this->toQuotedForeignKeyConstraintList($actual),
+        );
+    }
+
+    /**
+     * @param list<ForeignKeyConstraint> $constraints
+     *
+     * @return ($constraints is non-empty-list ? non-empty-list<ForeignKeyConstraint> : list<ForeignKeyConstraint>)
+     *
+     * @throws Exception
+     */
+    protected function toQuotedForeignKeyConstraintList(array $constraints): array
+    {
+        return array_map(
+            fn (ForeignKeyConstraint $constraint): ForeignKeyConstraint => $this->toQuotedForeignKeyConstraint(
+                $constraint,
+            ),
+            $constraints,
+        );
+    }
+
+    /** @throws Exception */
+    protected function toQuotedIdentifier(Identifier $identifier): Identifier
+    {
+        if ($identifier->isQuoted()) {
+            return $identifier;
+        }
+
+        return Identifier::quoted(
+            $this->connection->getDatabasePlatform()
+                ->normalizeUnquotedIdentifier($identifier->getValue()),
+        );
     }
 }

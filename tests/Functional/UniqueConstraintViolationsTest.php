@@ -13,7 +13,6 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
@@ -60,8 +59,8 @@ final class UniqueConstraintViolationsTest extends FunctionalTestCase
             );
         } else {
             $createConstraint = UniqueConstraint::editor()
-                ->setName(new UnqualifiedName(Identifier::unquoted($constraintName)))
-                ->setColumnNames(new UnqualifiedName(Identifier::unquoted('unique_field')))
+                ->setName(UnqualifiedName::unquoted($constraintName))
+                ->setColumnNames(UnqualifiedName::unquoted('unique_field'))
                 ->create();
         }
 

@@ -19,6 +19,7 @@ use Doctrine\DBAL\Types\Types;
 
 use function array_keys;
 use function array_shift;
+use function array_values;
 
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -45,6 +46,7 @@ class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         return $table;
     }
 
+    /** @throws Exception */
     public function testListForeignKeysFromExistingDatabase(): void
     {
         $this->connection->executeStatement('DROP TABLE IF EXISTS user');
@@ -240,6 +242,7 @@ SQL;
         self::assertSame(['b'], array_keys($this->schemaManager->listTableColumns('t')));
     }
 
+    /** @throws Exception */
     public function testIntrospectMultipleAnonymousForeignKeyConstraints(): void
     {
         $this->dropTableIfExists('album');
@@ -271,25 +274,26 @@ SQL;
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $song        = $schemaManager->introspectTable('song');
-        $foreignKeys = $song->getForeignKeys();
+        $song = $schemaManager->introspectTable('song');
+
+        /** @var list<ForeignKeyConstraint> $foreignKeys */
+        $foreignKeys = array_values($song->getForeignKeys());
         self::assertCount(2, $foreignKeys);
 
-        $foreignKey1 = array_shift($foreignKeys);
-        self::assertNotNull($foreignKey1);
+        $foreignKey1 = $foreignKeys[0];
         self::assertEmpty($foreignKey1->getName());
 
         self::assertSame(['album_id'], $foreignKey1->getLocalColumns());
         self::assertSame(['id'], $foreignKey1->getForeignColumns());
 
-        $foreignKey2 = array_shift($foreignKeys);
-        self::assertNotNull($foreignKey2);
+        $foreignKey2 = $foreignKeys[1];
         self::assertEmpty($foreignKey2->getName());
 
         self::assertSame(['artist_id'], $foreignKey2->getLocalColumns());
         self::assertSame(['id'], $foreignKey2->getForeignColumns());
     }
 
+    /** @throws Exception */
     public function testNoWhitespaceInForeignKeyReference(): void
     {
         $this->dropTableIfExists('notes');
@@ -309,16 +313,18 @@ SQL;
         $this->connection->executeStatement($ddl);
         $notes = $this->schemaManager->introspectTable('notes');
 
-        $foreignKeys = $notes->getForeignKeys();
+        /** @var list<ForeignKeyConstraint> $foreignKeys */
+        $foreignKeys = array_values($notes->getForeignKeys());
         self::assertCount(1, $foreignKeys);
 
-        $foreignKey = array_shift($foreignKeys);
-        self::assertNotNull($foreignKey);
+        $foreignKey = $foreignKeys[0];
+
         self::assertSame(['created_by'], $foreignKey->getLocalColumns());
         self::assertSame('users', $foreignKey->getForeignTableName());
         self::assertSame(['id'], $foreignKey->getForeignColumns());
     }
 
+    /** @throws Exception */
     public function testShorthandInForeignKeyReference(): void
     {
         $this->dropTableIfExists('artist');
@@ -341,12 +347,13 @@ SQL;
 
         $schemaManager = $this->connection->createSchemaManager();
 
-        $song        = $schemaManager->introspectTable('track');
-        $foreignKeys = $song->getForeignKeys();
+        $song = $schemaManager->introspectTable('track');
+
+        /** @var list<ForeignKeyConstraint> $foreignKeys */
+        $foreignKeys = array_values($song->getForeignKeys());
         self::assertCount(1, $foreignKeys);
 
-        $foreignKey1 = array_shift($foreignKeys);
-        self::assertNotNull($foreignKey1);
+        $foreignKey1 = $foreignKeys[0];
         self::assertEmpty($foreignKey1->getName());
 
         self::assertSame(['trackartist'], $foreignKey1->getLocalColumns());

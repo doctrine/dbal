@@ -27,4 +27,26 @@ final class OptionallyQualifiedName extends AbstractName
     {
         return $this->qualifier;
     }
+
+    /**
+     * Creates an optionally qualified name with all identifiers quoted.
+     */
+    public static function quoted(string $unqualifiedName, ?string $qualifier = null): self
+    {
+        return new self(
+            Identifier::quoted($unqualifiedName),
+            $qualifier !== null ? Identifier::quoted($qualifier) : null,
+        );
+    }
+
+    /**
+     * Creates an optionally qualified name with all identifiers unquoted.
+     */
+    public static function unquoted(string $unqualifiedName, ?string $qualifier = null): self
+    {
+        return new self(
+            Identifier::unquoted($unqualifiedName),
+            $qualifier !== null ? Identifier::unquoted($qualifier) : null,
+        );
+    }
 }

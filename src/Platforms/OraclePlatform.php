@@ -479,17 +479,23 @@ END;';
 
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
-        $referentialAction = '';
+        $sql = '';
 
         if ($foreignKey->hasOption('onDelete')) {
             $referentialAction = $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onDelete'));
+
+            if ($referentialAction !== '') {
+                $sql .= ' ON DELETE ' . $referentialAction;
+            }
         }
 
-        if ($referentialAction !== '') {
-            return ' ON DELETE ' . $referentialAction;
+        $deferrabilitySQL = $this->getConstraintDeferrabilitySQL($foreignKey);
+
+        if ($deferrabilitySQL !== '') {
+            $sql .= $deferrabilitySQL;
         }
 
-        return '';
+        return $sql;
     }
 
     protected function getForeignKeyReferentialActionSQL(string $action): string

@@ -4,34 +4,66 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema\Name;
 
-use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use PHPUnit\Framework\TestCase;
 
 class OptionallyQualifiedNameTest extends TestCase
 {
-    public function testWithQualifier(): void
+    public function testQualifiedQuoted(): void
     {
-        $unqualifiedName = Identifier::quoted('customers');
-        $qualifier       = Identifier::unquoted('inventory');
+        $name = OptionallyQualifiedName::quoted('customers', 'inventory');
 
-        $name = new OptionallyQualifiedName($unqualifiedName, $qualifier);
+        $unqualifiedName = $name->getUnqualifiedName();
+        self::assertTrue($unqualifiedName->isQuoted());
+        self::assertEquals('customers', $unqualifiedName->getValue());
 
-        self::assertSame($unqualifiedName, $name->getUnqualifiedName());
-        self::assertSame($qualifier, $name->getQualifier());
+        $qualifier = $name->getQualifier();
+        self::assertNotNull($qualifier);
+        self::assertTrue($qualifier->isQuoted());
+        self::assertEquals('inventory', $qualifier->getValue());
 
-        self::assertSame('inventory."customers"', $name->toString());
+        self::assertSame('"inventory"."customers"', $name->toString());
     }
 
-    public function testWithoutQualifier(): void
+    public function testUnqualifiedQuoted(): void
     {
-        $unqualifiedName = Identifier::unquoted('users');
+        $name = OptionallyQualifiedName::quoted('customers');
 
-        $name = new OptionallyQualifiedName($unqualifiedName, null);
+        $unqualifiedName = $name->getUnqualifiedName();
+        self::assertTrue($unqualifiedName->isQuoted());
+        self::assertEquals('customers', $unqualifiedName->getValue());
 
-        self::assertSame($unqualifiedName, $name->getUnqualifiedName());
         self::assertNull($name->getQualifier());
 
-        self::assertSame('users', $name->toString());
+        self::assertSame('"customers"', $name->toString());
+    }
+
+    public function testQualifiedUnquoted(): void
+    {
+        $name = OptionallyQualifiedName::unquoted('customers', 'inventory');
+
+        $unqualifiedName = $name->getUnqualifiedName();
+        self::assertFalse($unqualifiedName->isQuoted());
+        self::assertEquals('customers', $unqualifiedName->getValue());
+
+        $qualifier = $name->getQualifier();
+        self::assertNotNull($qualifier);
+        self::assertFalse($qualifier->isQuoted());
+        self::assertEquals('inventory', $qualifier->getValue());
+
+        self::assertSame('inventory.customers', $name->toString());
+    }
+
+    public function testUnqualifiedUnquoted(): void
+    {
+        $name = OptionallyQualifiedName::unquoted('customers');
+
+        $unqualifiedName = $name->getUnqualifiedName();
+        self::assertFalse($unqualifiedName->isQuoted());
+        self::assertEquals('customers', $unqualifiedName->getValue());
+
+        self::assertNull($name->getQualifier());
+
+        self::assertSame('customers', $name->toString());
     }
 }

@@ -18,4 +18,20 @@ final class UnqualifiedName extends AbstractName
     {
         return $this->identifier;
     }
+
+    /**
+     * Creates a quoted unqualified name.
+     */
+    public static function quoted(string $value): self
+    {
+        return new self(Identifier::quoted($value));
+    }
+
+    /**
+     * Creates an unquoted unqualified name.
+     */
+    public static function unquoted(string $value): self
+    {
+        return new self(Identifier::unquoted($value));
+    }
 }

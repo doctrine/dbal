@@ -136,8 +136,8 @@ class TableTest extends TestCase
         $table->renameColumn('c1', 'c1a');
 
         self::assertEquals([
-            new UnqualifiedName(Identifier::unquoted('c1a')),
-            new UnqualifiedName(Identifier::unquoted('c2')),
+            UnqualifiedName::unquoted('c1a'),
+            UnqualifiedName::unquoted('c2'),
         ], $table->getUniqueConstraint('uq_c1_c2')->getColumnNames());
     }
 
@@ -287,21 +287,6 @@ class TableTest extends TestCase
             new Index('an_idx', ['bar'], false, false),
         ];
         new Table('foo', $columns, $indexes, [], []);
-    }
-
-    public function testConstraints(): void
-    {
-        $constraint = new ForeignKeyConstraint([], 'foo', []);
-
-        $tableA      = new Table('foo', [], [], [], [$constraint]);
-        $constraints = $tableA->getForeignKeys();
-
-        self::assertCount(1, $constraints);
-
-        $constraintNames = array_keys($constraints);
-
-        self::assertSame('fk_8c736521', $constraintNames[0]);
-        self::assertSame($constraint, $constraints['fk_8c736521']);
     }
 
     public function testOptions(): void
