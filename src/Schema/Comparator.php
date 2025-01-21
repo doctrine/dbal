@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function array_map;
 use function assert;
@@ -380,28 +381,49 @@ class Comparator
     protected function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2): bool
     {
         if (
-            array_map('strtolower', $key1->getUnquotedLocalColumns())
-            !== array_map('strtolower', $key2->getUnquotedLocalColumns())
+            $this->normalizeColumnNames($key1->getReferencingColumnNames())
+            !==
+            $this->normalizeColumnNames($key2->getReferencingColumnNames())
         ) {
             return true;
         }
 
         if (
-            array_map('strtolower', $key1->getUnquotedForeignColumns())
-            !== array_map('strtolower', $key2->getUnquotedForeignColumns())
+            $this->normalizeColumnNames($key1->getReferencedColumnNames())
+            !==
+            $this->normalizeColumnNames($key2->getReferencedColumnNames())
         ) {
             return true;
         }
 
-        if ($key1->getUnqualifiedForeignTableName() !== $key2->getUnqualifiedForeignTableName()) {
+        if (
+            strtolower($key1->getReferencedTableName()->getUnqualifiedName()->getValue())
+                !== strtolower($key2->getReferencedTableName()->getUnqualifiedName()->getValue())
+        ) {
             return true;
         }
 
-        if ($key1->onUpdate() !== $key2->onUpdate()) {
+        if ($key1->getOnUpdateAction() !== $key2->getOnUpdateAction()) {
             return true;
         }
 
-        return $key1->onDelete() !== $key2->onDelete();
+        return $key1->getOnDeleteAction() !== $key2->getOnDeleteAction();
+    }
+
+    /**
+     * Normalizes column names for comparison. Historically, it lower-cases the names regardless of the target database
+     * platform and whether the names are quoted. This isn't correct, but it is what it is for the time being.
+     *
+     * @param list<UnqualifiedName> $columnNames
+     *
+     * @return ($columnNames is non-empty-list ? non-empty-list<string> : list<string>)
+     */
+    private function normalizeColumnNames(array $columnNames): array
+    {
+        return array_map(
+            static fn (UnqualifiedName $columnName) => strtolower($columnName->getIdentifier()->getValue()),
+            $columnNames,
+        );
     }
 
     /**

@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
@@ -678,7 +679,17 @@ abstract class AbstractComparatorTestCase extends TestCase
                 [],
                 [],
                 [
-                    new ForeignKeyConstraint(['id_table1'], 'table1', ['id'], 'fk_table2_table1'),
+                    ForeignKeyConstraint::editor()
+                        ->setReferencingColumnNames(
+                            UnqualifiedName::unquoted('id_table1'),
+                        )
+                        ->setReferencedTableName(
+                            OptionallyQualifiedName::unquoted('table1'),
+                        )
+                        ->setReferencedColumnNames(
+                            UnqualifiedName::unquoted('fk_table2_table1'),
+                        )
+                        ->create(),
                 ],
             ),
         ]);
@@ -692,7 +703,20 @@ abstract class AbstractComparatorTestCase extends TestCase
                 [],
                 [],
                 [
-                    new ForeignKeyConstraint(['id_table3'], 'table3', ['id'], 'fk_table2_table3'),
+                    ForeignKeyConstraint::editor()
+                        ->setName(
+                            UnqualifiedName::unquoted('fk_table2_table3'),
+                        )
+                        ->setReferencingColumnNames(
+                            UnqualifiedName::unquoted('id_table3'),
+                        )
+                        ->setReferencedTableName(
+                            OptionallyQualifiedName::unquoted('table3'),
+                        )
+                        ->setReferencedColumnNames(
+                            UnqualifiedName::unquoted('id'),
+                        )
+                        ->create(),
                 ],
             ),
             'table3' => new Table(
@@ -710,7 +734,10 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $addedForeignKeys = $alteredTables[0]->getAddedForeignKeys();
         self::assertCount(1, $addedForeignKeys, 'FK to table3 should be added.');
-        self::assertEquals('table3', $addedForeignKeys[0]->getForeignTableName());
+        self::assertEquals(
+            OptionallyQualifiedName::unquoted('table3'),
+            $addedForeignKeys[0]->getReferencedTableName(),
+        );
     }
 
     public function testWillNotProduceSchemaDiffOnTableWithAddedCustomSchemaDefinition(): void

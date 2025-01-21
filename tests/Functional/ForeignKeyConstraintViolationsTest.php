@@ -13,6 +13,8 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PHPUnit\Framework\Assert;
@@ -58,9 +60,14 @@ final class ForeignKeyConstraintViolationsTest extends FunctionalTestCase
                     SQL,
             );
         } else {
-            $createConstraint = new ForeignKeyConstraint(['ref_id'], 'test_t2', ['id'], $constraintName);
+            $constraint = ForeignKeyConstraint::editor()
+                ->setName(UnqualifiedName::unquoted($constraintName))
+                ->setReferencedTableName(OptionallyQualifiedName::unquoted('test_t2'))
+                ->setReferencingColumnNames(UnqualifiedName::unquoted('ref_id'))
+                ->setReferencedColumnNames(UnqualifiedName::unquoted('id'))
+                ->create();
 
-            $schemaManager->createForeignKey($createConstraint, 'test_t1');
+            $schemaManager->createForeignKey($constraint, 'test_t1');
             if (! $this->supportsDeferrableConstraints()) {
                 return;
             }

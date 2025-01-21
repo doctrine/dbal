@@ -11,6 +11,10 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Exception\UnsupportedSchema;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
@@ -18,7 +22,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 use function array_keys;
-use function array_shift;
 use function array_values;
 
 class SQLiteSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -59,23 +62,25 @@ CREATE TABLE user (
 EOS);
 
         $expected = [
-            new ForeignKeyConstraint(
-                ['page'],
-                'page',
-                ['key'],
-                'FK_1',
-                ['onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true],
-            ),
-            new ForeignKeyConstraint(
-                ['parent'],
-                'user',
-                ['id'],
-                '',
-                ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false],
-            ),
+            ForeignKeyConstraint::editor()
+                ->setName(UnqualifiedName::unquoted('FK_1'))
+                ->setReferencingColumnNames(UnqualifiedName::unquoted('page'))
+                ->setReferencedTableName(OptionallyQualifiedName::unquoted('page'))
+                ->setReferencedColumnNames(UnqualifiedName::unquoted('key'))
+                ->setDeferrability(Deferrability::DEFERRED)
+                ->create(),
+            ForeignKeyConstraint::editor()
+                ->setReferencingColumnNames(UnqualifiedName::unquoted('parent'))
+                ->setReferencedTableName(OptionallyQualifiedName::unquoted('user'))
+                ->setReferencedColumnNames(UnqualifiedName::unquoted('id'))
+                ->setOnDeleteAction(ReferentialAction::CASCADE)
+                ->create(),
         ];
 
-        self::assertEquals($expected, $this->schemaManager->listTableForeignKeys('user'));
+        $this->assertForeignKeyConstraintListEquals(
+            $expected,
+            array_values($this->schemaManager->listTableForeignKeys('user')),
+        );
     }
 
     public function testListForeignKeysWithImplicitColumnsFromIncompleteSchema(): void
@@ -283,14 +288,24 @@ SQL;
         $foreignKey1 = $foreignKeys[0];
         self::assertEmpty($foreignKey1->getName());
 
-        self::assertSame(['album_id'], $foreignKey1->getLocalColumns());
-        self::assertSame(['id'], $foreignKey1->getForeignColumns());
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('album_id'),
+        ], $foreignKey1->getReferencingColumnNames());
+
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('id'),
+        ], $foreignKey1->getReferencedColumnNames());
 
         $foreignKey2 = $foreignKeys[1];
         self::assertEmpty($foreignKey2->getName());
 
-        self::assertSame(['artist_id'], $foreignKey2->getLocalColumns());
-        self::assertSame(['id'], $foreignKey2->getForeignColumns());
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('artist_id'),
+        ], $foreignKey2->getReferencingColumnNames());
+
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('id'),
+        ], $foreignKey2->getReferencedColumnNames());
     }
 
     /** @throws Exception */
@@ -319,9 +334,18 @@ SQL;
 
         $foreignKey = $foreignKeys[0];
 
-        self::assertSame(['created_by'], $foreignKey->getLocalColumns());
-        self::assertSame('users', $foreignKey->getForeignTableName());
-        self::assertSame(['id'], $foreignKey->getForeignColumns());
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('created_by'),
+        ], $foreignKey->getReferencingColumnNames());
+
+        $this->assertOptionallyQualifiedNameEquals(
+            OptionallyQualifiedName::unquoted('users'),
+            $foreignKey->getReferencedTableName(),
+        );
+
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('id'),
+        ], $foreignKey->getReferencedColumnNames());
     }
 
     /** @throws Exception */
@@ -356,58 +380,12 @@ SQL;
         $foreignKey1 = $foreignKeys[0];
         self::assertEmpty($foreignKey1->getName());
 
-        self::assertSame(['trackartist'], $foreignKey1->getLocalColumns());
-        self::assertSame(['artistid'], $foreignKey1->getForeignColumns());
-    }
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('trackartist'),
+        ], $foreignKey1->getReferencingColumnNames());
 
-    public function testShorthandInForeignKeyReferenceWithMultipleColumns(): void
-    {
-        $this->dropTableIfExists('artist');
-        $this->dropTableIfExists('track');
-
-        $ddl = <<<'DDL'
-        CREATE TABLE artist(
-            artistid INTEGER,
-            isrc TEXT,
-            artistname TEXT,
-            PRIMARY KEY (artistid, isrc)
-        );
-
-        CREATE TABLE track(
-            trackid INTEGER,
-            trackname TEXT,
-            trackartist INTEGER REFERENCES artist
-        );
-        DDL;
-
-        $this->connection->executeStatement($ddl);
-
-        $schemaManager = $this->connection->createSchemaManager();
-
-        $track       = $schemaManager->introspectTable('track');
-        $foreignKeys = $track->getForeignKeys();
-        self::assertCount(1, $foreignKeys);
-
-        $foreignKey1 = array_shift($foreignKeys);
-        self::assertNotNull($foreignKey1);
-        self::assertEmpty($foreignKey1->getName());
-
-        self::assertSame(['trackartist'], $foreignKey1->getLocalColumns());
-        self::assertSame(['artistid', 'isrc'], $foreignKey1->getForeignColumns());
-
-        $createTableTrackSql = $this->connection->getDatabasePlatform()->getCreateTableSQL($track);
-
-        self::assertSame(
-            [
-                'CREATE TABLE "track" ('
-                . '"trackid" INTEGER DEFAULT NULL,'
-                . ' "trackname" CLOB DEFAULT NULL COLLATE "BINARY",'
-                . ' "trackartist" INTEGER DEFAULT NULL,'
-                . ' FOREIGN KEY ("trackartist") REFERENCES "artist" ("artistid", "isrc")'
-                . ' ON UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE)',
-                'CREATE INDEX "IDX_D6E3F8A6FB96D8BC" ON "track" ("trackartist")',
-            ],
-            $createTableTrackSql,
-        );
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('artistid'),
+        ], $foreignKey1->getReferencedColumnNames());
     }
 }

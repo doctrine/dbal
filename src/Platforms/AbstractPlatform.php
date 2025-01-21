@@ -20,6 +20,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -60,7 +61,6 @@ use function preg_quote;
 use function preg_replace;
 use function sprintf;
 use function str_replace;
-use function strlen;
 use function strtolower;
 use function strtoupper;
 
@@ -1566,69 +1566,35 @@ abstract class AbstractPlatform
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';
-        if ($foreignKey->hasOption('onUpdate')) {
-            $query .= ' ON UPDATE ' . $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onUpdate'));
+
+        $onUpdateAction = $foreignKey->getOnUpdateAction();
+        if ($onUpdateAction !== ReferentialAction::NO_ACTION) {
+            $query .= ' ON UPDATE ' . $this->getForeignKeyReferentialActionSQL($onUpdateAction);
         }
 
-        if ($foreignKey->hasOption('onDelete')) {
-            $query .= ' ON DELETE ' . $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onDelete'));
+        $onDeleteAction = $foreignKey->getOnDeleteAction();
+        if ($onDeleteAction !== ReferentialAction::NO_ACTION) {
+            $query .= ' ON DELETE ' . $this->getForeignKeyReferentialActionSQL($onDeleteAction);
         }
 
         return $query;
     }
 
     /**
-     * Returns the SQL fragment representing the deferrability of a constraint.
-     */
-    protected function getConstraintDeferrabilitySQL(ForeignKeyConstraint $foreignKey): string
-    {
-        $sql = '';
-
-        if ($foreignKey->hasOption('deferrable')) {
-            if ($foreignKey->getOption('deferrable') !== false) {
-                $sql .= ' DEFERRABLE';
-            } else {
-                $sql .= ' NOT DEFERRABLE';
-            }
-        }
-
-        if ($foreignKey->hasOption('deferred')) {
-            if ($foreignKey->getOption('deferred') !== false) {
-                $sql .= ' INITIALLY DEFERRED';
-            } else {
-                $sql .= ' INITIALLY IMMEDIATE';
-            }
-        }
-
-        return $sql;
-    }
-
-    /**
      * Returns the given referential action in uppercase if valid, otherwise throws an exception.
      *
-     * @param string $action The foreign key referential action.
+     * @param ReferentialAction $action The foreign key referential action.
      */
-    protected function getForeignKeyReferentialActionSQL(string $action): string
+    protected function getForeignKeyReferentialActionSQL(ReferentialAction $action): string
     {
-        $upper = strtoupper($action);
-
-        return match ($upper) {
-            'CASCADE',
-            'SET NULL',
-            'NO ACTION',
-            'RESTRICT',
-            'SET DEFAULT' => $upper,
-            default => throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $upper)),
-        };
+        return $action->toSQL();
     }
 
     /**
      * Obtains DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      * of a column declaration to be used in statements like CREATE TABLE.
-     *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
      */
-    public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey): string
+    protected function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {
         $name = $foreignKey->getObjectName();
 
@@ -1637,24 +1603,18 @@ abstract class AbstractPlatform
             $sql .= 'CONSTRAINT ' . $name->toSQL($this) . ' ';
         }
 
-        $sql .= 'FOREIGN KEY (';
-
-        if (count($foreignKey->getLocalColumns()) === 0) {
-            throw new InvalidArgumentException('Incomplete definition. "local" required.');
-        }
-
-        if (count($foreignKey->getForeignColumns()) === 0) {
-            throw new InvalidArgumentException('Incomplete definition. "foreign" required.');
-        }
-
-        if (strlen($foreignKey->getForeignTableName()) === 0) {
-            throw new InvalidArgumentException('Incomplete definition. "foreignTable" required.');
-        }
-
-        return $sql . implode(', ', $foreignKey->getQuotedLocalColumns($this))
-            . ') REFERENCES '
-            . $foreignKey->getQuotedForeignTableName($this) . ' ('
-            . implode(', ', $foreignKey->getQuotedForeignColumns($this)) . ')';
+        return $sql . sprintf(
+            'FOREIGN KEY (%s) REFERENCES %s (%s)',
+            implode(', ', array_map(
+                fn (UnqualifiedName $columnName) => $columnName->toSQL($this),
+                $foreignKey->getReferencingColumnNames(),
+            )),
+            $foreignKey->getReferencedTableName()->toSQL($this),
+            implode(', ', array_map(
+                fn (UnqualifiedName $columnName) => $columnName->toSQL($this),
+                $foreignKey->getReferencedColumnNames(),
+            )),
+        );
     }
 
     /**

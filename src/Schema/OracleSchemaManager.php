@@ -202,7 +202,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 }
 
                 $list[$value['constraint_name']] = [
-                    'name' => $this->getQuotedIdentifierName($value['constraint_name']),
+                    'name' => $value['constraint_name'],
                     'local' => [],
                     'foreign' => [],
                     'foreignTable' => $value['references_table'],
@@ -212,32 +212,14 @@ class OracleSchemaManager extends AbstractSchemaManager
                 ];
             }
 
-            $localColumn   = $this->getQuotedIdentifierName($value['local_column']);
-            $foreignColumn = $this->getQuotedIdentifierName($value['foreign_column']);
+            $localColumn   = $value['local_column'];
+            $foreignColumn = $value['foreign_column'];
 
             $list[$value['constraint_name']]['local'][]   = $localColumn;
             $list[$value['constraint_name']]['foreign'][] = $foreignColumn;
         }
 
         return parent::_getPortableTableForeignKeysList($list);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
-    {
-        return new ForeignKeyConstraint(
-            $tableForeignKey['local'],
-            $this->getQuotedIdentifierName($tableForeignKey['foreignTable']),
-            $tableForeignKey['foreign'],
-            $this->getQuotedIdentifierName($tableForeignKey['name']),
-            [
-                'onDelete' => $tableForeignKey['onDelete'],
-                'deferrable' => $tableForeignKey['deferrable'],
-                'deferred' => $tableForeignKey['deferred'],
-            ],
-        );
     }
 
     /**
@@ -421,7 +403,6 @@ SQL;
                  ALC.DEFERRABLE,
                  ALC.DEFERRED,
                  COLS.COLUMN_NAME LOCAL_COLUMN,
-                 COLS.POSITION,
                  R_COLS.TABLE_NAME REFERENCES_TABLE,
                  R_COLS.COLUMN_NAME FOREIGN_COLUMN
             FROM ALL_CONS_COLUMNS COLS

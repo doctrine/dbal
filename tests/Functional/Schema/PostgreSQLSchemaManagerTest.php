@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\View;
@@ -113,38 +114,42 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $this->connection->executeStatement('CREATE SCHEMA nested');
 
-        $nestedRelatedTable = new Table('nested.schemarelated');
-        $column             = $nestedRelatedTable->addColumn('id', Types::INTEGER);
-        $column->setAutoincrement(true);
-        $nestedRelatedTable->setPrimaryKey(['id']);
+        $referencedName  = OptionallyQualifiedName::unquoted('referenced', 'nested');
+        $referencingName = OptionallyQualifiedName::unquoted('referencing', 'nested');
 
-        $nestedSchemaTable = new Table('nested.schematable');
-        $column            = $nestedSchemaTable->addColumn('id', Types::INTEGER);
+        $referencedTable = new Table($referencedName->toString());
+        $column          = $referencedTable->addColumn('id', Types::INTEGER);
         $column->setAutoincrement(true);
-        $nestedSchemaTable->setPrimaryKey(['id']);
-        $nestedSchemaTable->addForeignKeyConstraint($nestedRelatedTable->getName(), ['id'], ['id']);
+        $referencedTable->setPrimaryKey(['id']);
 
-        $this->schemaManager->createTable($nestedRelatedTable);
-        $this->schemaManager->createTable($nestedSchemaTable);
+        $referencingTable = new Table($referencingName->toString());
+        $column           = $referencingTable->addColumn('id', Types::INTEGER);
+        $column->setAutoincrement(true);
+        $referencingTable->setPrimaryKey(['id']);
+        $referencingTable->addForeignKeyConstraint($referencedTable->getName(), ['id'], ['id']);
+
+        $this->schemaManager->createTable($referencedTable);
+        $this->schemaManager->createTable($referencingTable);
 
         $tableNames = $this->schemaManager->listTableNames();
-        self::assertContains('nested.schematable', $tableNames);
+        self::assertContains($referencingName->toString(), $tableNames);
 
         $tables = $this->schemaManager->listTables();
-        self::assertNotNull($this->findTableByName($tables, 'nested.schematable'));
+        self::assertNotNull($this->findTableByName($tables, $referencingName->toString()));
 
-        $nestedSchemaTable = $this->schemaManager->introspectTable('nested.schematable');
-        self::assertTrue($nestedSchemaTable->hasColumn('id'));
+        $referencingTable = $this->schemaManager->introspectTable($referencingName->toString());
+        self::assertTrue($referencingTable->hasColumn('id'));
 
-        $primaryKey = $nestedSchemaTable->getPrimaryKey();
+        $primaryKey = $referencingTable->getPrimaryKey();
         self::assertNotNull($primaryKey);
         self::assertEquals(['id'], $primaryKey->getColumns());
 
-        $relatedFks = $nestedSchemaTable->getForeignKeys();
-        self::assertCount(1, $relatedFks);
-        $relatedFk = array_pop($relatedFks);
-        self::assertNotNull($relatedFk);
-        self::assertEquals('nested.schemarelated', $relatedFk->getForeignTableName());
+        $foreignKeys = $referencingTable->getForeignKeys();
+        self::assertCount(1, $foreignKeys);
+
+        $foreignKey = array_pop($foreignKeys);
+        self::assertNotNull($foreignKey);
+        $this->assertOptionallyQualifiedNameEquals($referencedName, $foreignKey->getReferencedTableName());
     }
 
     public function testListSameTableNameColumnsWithDifferentSchema(): void

@@ -189,18 +189,16 @@ SQL,
 
             if (! isset($foreignKeys[$name])) {
                 $foreignKeys[$name] = [
-                    'local_columns' => [$tableForeignKey['ColumnName']],
-                    'foreign_table' => $tableForeignKey['ReferenceTableName'],
-                    'foreign_columns' => [$tableForeignKey['ReferenceColumnName']],
+                    'local' => [$tableForeignKey['ColumnName']],
+                    'foreignTable' => $tableForeignKey['ReferenceTableName'],
+                    'foreign' => [$tableForeignKey['ReferenceColumnName']],
                     'name' => $name,
-                    'options' => [
-                        'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
-                        'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc']),
-                    ],
+                    'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
+                    'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc']),
                 ];
             } else {
-                $foreignKeys[$name]['local_columns'][]   = $tableForeignKey['ColumnName'];
-                $foreignKeys[$name]['foreign_columns'][] = $tableForeignKey['ReferenceColumnName'];
+                $foreignKeys[$name]['local'][]   = $tableForeignKey['ColumnName'];
+                $foreignKeys[$name]['foreign'][] = $tableForeignKey['ReferenceColumnName'];
             }
         }
 
@@ -219,20 +217,6 @@ SQL,
         }
 
         return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
-    {
-        return new ForeignKeyConstraint(
-            $tableForeignKey['local_columns'],
-            $tableForeignKey['foreign_table'],
-            $tableForeignKey['foreign_columns'],
-            $tableForeignKey['name'],
-            $tableForeignKey['options'],
-        );
     }
 
     /**

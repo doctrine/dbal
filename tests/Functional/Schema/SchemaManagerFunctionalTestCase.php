@@ -593,9 +593,18 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertCount(1, $fks);
         $foreignKey = $fks[0];
 
-        self::assertEquals('alter_table_foreign', strtolower($foreignKey->getForeignTableName()));
-        self::assertEquals(['foreign_key_test'], array_map('strtolower', $foreignKey->getLocalColumns()));
-        self::assertEquals(['id'], array_map('strtolower', $foreignKey->getForeignColumns()));
+        $this->assertOptionallyQualifiedNameEquals(
+            OptionallyQualifiedName::unquoted('alter_table_foreign'),
+            $foreignKey->getReferencedTableName(),
+        );
+
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('foreign_key_test'),
+        ], $foreignKey->getReferencingColumnNames());
+
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('id'),
+        ], $foreignKey->getReferencedColumnNames());
     }
 
     public function testTableInNamespace(): void
@@ -748,7 +757,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertCount(1, $foreignKeys);
         $foreignKey = $foreignKeys[0];
 
-        self::assertSame(['rename_fk_id'], array_map('strtolower', $foreignKey->getLocalColumns()));
+        $this->assertUnqualifiedNameListEquals([
+            UnqualifiedName::unquoted('rename_fk_id'),
+        ], $foreignKey->getReferencingColumnNames());
     }
 
     public function testRenameIndexUsedInForeignKeyConstraint(): void

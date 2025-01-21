@@ -9,7 +9,6 @@ use RuntimeException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class UnsupportedSchema extends RuntimeException implements SchemaException
 {
     public static function sqliteMissingForeignKeyConstraintReferencedColumns(

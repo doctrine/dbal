@@ -279,7 +279,7 @@ SQL
             . ' REFERENCES "FOO" ("CREATE", "BAR", "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT "FK_WITH_INTENDED_QUOTATION" FOREIGN KEY ("CREATE", "FOO", "bar")'
             . ' REFERENCES "foo-bar" ("CREATE", "BAR", "foo-bar")',
-            'CREATE INDEX "IDX_22660D028FD6E0FB8C736521D79164E3" ON "quoted" ("CREATE", "FOO", "bar")',
+            'CREATE INDEX "IDX_22660D028FD6E0FB8C73652176FF8CAA" ON "quoted" ("CREATE", "FOO", "bar")',
         ];
     }
 

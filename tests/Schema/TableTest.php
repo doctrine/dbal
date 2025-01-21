@@ -8,8 +8,8 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -22,6 +22,7 @@ use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ValueError;
 
 use function array_keys;
 use function array_shift;
@@ -124,7 +125,11 @@ class TableTest extends TestCase
         $table->addColumn('c2', Types::INTEGER);
         $table->addForeignKeyConstraint('t2', ['c1', 'c2'], ['c1', 'c2'], [], 'fk_c1_c2');
         $table->renameColumn('c2', 'c2a');
-        self::assertSame(['c1', 'c2a'], $table->getForeignKey('fk_c1_c2')->getLocalColumns());
+
+        self::assertEquals([
+            UnqualifiedName::unquoted('c1'),
+            UnqualifiedName::unquoted('c2a'),
+        ], $table->getForeignKey('fk_c1_c2')->getReferencingColumnNames());
     }
 
     public function testRenameColumnInUniqueConstraint(): void
@@ -372,24 +377,50 @@ class TableTest extends TestCase
         $table->addForeignKeyConstraint($foreignTable->getName(), ['foo'], ['id']);
     }
 
-    public function testAddForeignKeyConstraint(): void
+    /** @throws Exception */
+    public function testAddForeignKeyConstraintWithInvalidMatchType(): void
     {
         $table = new Table('foo');
-        $table->addColumn('id', Types::INTEGER);
+        $table->addColumn('bar_id', Types::INTEGER);
 
-        $foreignTable = new Table('bar');
-        $foreignTable->addColumn('id', Types::INTEGER);
+        $this->expectException(ValueError::class);
 
-        $table->addForeignKeyConstraint($foreignTable->getName(), ['id'], ['id'], ['foo' => 'bar']);
+        $table->addForeignKeyConstraint('bar', ['bar_id'], ['id'], ['match' => 'MAYBE']);
+    }
 
-        $constraints = $table->getForeignKeys();
-        self::assertCount(1, $constraints);
-        $constraint = array_shift($constraints);
+    /** @throws Exception */
+    public function testAddForeignKeyConstraintWithInvalidOnUpdateAction(): void
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar_id', Types::INTEGER);
 
-        self::assertInstanceOf(ForeignKeyConstraint::class, $constraint);
+        $this->expectException(ValueError::class);
 
-        self::assertTrue($constraint->hasOption('foo'));
-        self::assertEquals('bar', $constraint->getOption('foo'));
+        $table->addForeignKeyConstraint('bar', ['bar_id'], ['id'], ['onUpdate' => 'DROP']);
+    }
+
+    /** @throws Exception */
+    public function testAddForeignKeyConstraintWithInvalidOnDeleteAction(): void
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar_id', Types::INTEGER);
+
+        $this->expectException(ValueError::class);
+
+        $table->addForeignKeyConstraint('bar', ['bar_id'], ['id'], ['onDelete' => 'DROP']);
+    }
+
+    public function testAddForeignKeyConstraintWithInvalidDeferrability(): void
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar_id', Types::INTEGER);
+
+        $this->expectException(InvalidForeignKeyConstraintDefinition::class);
+
+        $table->addForeignKeyConstraint('bar', ['bar_id'], ['id'], [
+            'deferrable' => false,
+            'deferred' => true,
+        ]);
     }
 
     public function testAddIndexWithCaseSensitiveColumnProblem(): void
@@ -647,7 +678,7 @@ class TableTest extends TestCase
         $table = new Table('test');
         $table->addColumn('"foo"', Types::INTEGER);
         $table->addColumn('bar', Types::INTEGER);
-        $table->addForeignKeyConstraint('"boing"', ['"foo"', '"bar"'], ['id']);
+        $table->addForeignKeyConstraint('"boing"', ['"foo"', '"bar"'], ['id1', 'id2']);
 
         self::assertCount(1, $table->getForeignKeys());
     }

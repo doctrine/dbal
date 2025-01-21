@@ -304,9 +304,9 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
                 . '"id" INTEGER NOT NULL, "article" INTEGER NOT NULL, "post" INTEGER NOT NULL'
                 . ', "parent" INTEGER NOT NULL, PRIMARY KEY("id")'
                 . ', CONSTRAINT "FK_8D93D64923A0E66" FOREIGN KEY ("article")'
-                . ' REFERENCES "article" ("id") DEFERRABLE INITIALLY IMMEDIATE'
+                . ' REFERENCES "article" ("id") DEFERRABLE'
                 . ', CONSTRAINT "FK_8D93D6495A8A6C8D" FOREIGN KEY ("post")'
-                . ' REFERENCES "post" ("id") NOT DEFERRABLE INITIALLY DEFERRED'
+                . ' REFERENCES "post" ("id") DEFERRABLE INITIALLY DEFERRED'
                 . ', CONSTRAINT "FK_8D93D6493D8E604F" FOREIGN KEY ("parent")'
                 . ' REFERENCES "user" ("id") DEFERRABLE INITIALLY DEFERRED'
                 . ')',
@@ -358,9 +358,9 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
                 . '"key" INTEGER NOT NULL, "article" INTEGER NOT NULL, "comment" INTEGER NOT NULL'
                 . ', PRIMARY KEY("key")'
                 . ', CONSTRAINT "FK_8D93D64923A0E66" FOREIGN KEY ("article")'
-                . ' REFERENCES "article" ("id") DEFERRABLE INITIALLY IMMEDIATE'
+                . ' REFERENCES "article" ("id") DEFERRABLE'
                 . ', CONSTRAINT "FK_8D93D6495A8A6C8D" FOREIGN KEY ("comment")'
-                . ' REFERENCES "post" ("id") NOT DEFERRABLE INITIALLY DEFERRED'
+                . ' REFERENCES "post" ("id") DEFERRABLE INITIALLY DEFERRED'
                 . ')',
             'INSERT INTO "user" ("key", "article", "comment") SELECT "id", "article", "post" FROM "__temp__user"',
             'DROP TABLE "__temp__user"',
@@ -410,12 +410,12 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE "quoted" (' .
             '"create" VARCHAR(255) NOT NULL, "foo" VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL, ' .
             'CONSTRAINT "FK_WITH_RESERVED_KEYWORD" FOREIGN KEY ("create", "foo", "bar") ' .
-            'REFERENCES "foreign" ("create", "bar", "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
+            'REFERENCES "foreign" ("create", "bar", "foo-bar"), ' .
             'CONSTRAINT "FK_WITH_NON_RESERVED_KEYWORD" FOREIGN KEY ("create", "foo", "bar") ' .
-            'REFERENCES "foo" ("create", "bar", "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
+            'REFERENCES "foo" ("create", "bar", "foo-bar"), ' .
             'CONSTRAINT "FK_WITH_INTENDED_QUOTATION" FOREIGN KEY ("create", "foo", "bar") ' .
-            'REFERENCES "foo-bar" ("create", "bar", "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE)',
-            'CREATE INDEX "IDX_22660D028FD6E0FB8C736521D79164E3" ON "quoted" ("create", "foo", "bar")',
+            'REFERENCES "foo-bar" ("create", "bar", "foo-bar"))',
+            'CREATE INDEX "IDX_22660D028FD6E0FB8C73652176FF8CAA" ON "quoted" ("create", "foo", "bar")',
         ];
     }
 
@@ -588,9 +588,9 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             'DROP TABLE "mytable"',
             'CREATE TABLE "mytable" ("foo" INTEGER NOT NULL, "bar" INTEGER NOT NULL, "baz" INTEGER NOT NULL, '
                 . 'CONSTRAINT "fk_foo" FOREIGN KEY ("foo") REFERENCES "foreign_table" ("id")'
-                . ' NOT DEFERRABLE INITIALLY IMMEDIATE, '
+                . ', '
                 . 'CONSTRAINT "fk_bar" FOREIGN KEY ("bar") REFERENCES "foreign_table" ("id")'
-                . ' NOT DEFERRABLE INITIALLY IMMEDIATE)',
+                . ')',
             'INSERT INTO "mytable" ("foo", "bar", "baz") SELECT "foo", "bar", "baz" FROM "__temp__mytable"',
             'DROP TABLE "__temp__mytable"',
             'CREATE INDEX "idx_bar" ON "mytable" ("bar")',
