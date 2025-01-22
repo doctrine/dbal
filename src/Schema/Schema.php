@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_values;
 use function count;
@@ -56,9 +57,9 @@ use function strtolower;
  * execute them. Only the queries for the currently connected database are
  * executed.
  *
- * @extends AbstractOptionallyNamedObject<UnqualifiedName>
+ * @extends AbstractAsset<UnqualifiedName>
  */
-class Schema extends AbstractOptionallyNamedObject
+class Schema extends AbstractAsset
 {
     /**
      * The namespaces in this schema.
@@ -111,6 +112,29 @@ class Schema extends AbstractOptionallyNamedObject
         foreach ($sequences as $sequence) {
             $this->_addSequence($sequence);
         }
+    }
+
+    /** @deprecated */
+    public function getName(): string
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6734',
+            'Using Schema as AbstractAsset, including %s, is deprecated.',
+            __METHOD__,
+        );
+
+        return parent::getName();
+    }
+
+    /**
+     * The object representation of the name isn't used because {@see Schema} is not an {@see AbstractAsset}.
+     *
+     * This method implements the abstract method in the parent class and will be removed once {@see Schema} stops
+     * extending {@see AbstractAsset}.
+     */
+    protected function setName(?Name $name): void
+    {
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -254,8 +278,15 @@ class Schema extends AbstractOptionallyNamedObject
      */
     private function resolveName(OptionallyQualifiedName $name): OptionallyQualifiedName
     {
-        if ($name->getQualifier() === null && $this->name !== null) {
-            return new OptionallyQualifiedName($name->getUnqualifiedName(), $this->name->getIdentifier());
+        if ($name->getQualifier() === null) {
+            $defaultNamespaceName = $this->getName();
+
+            if ($defaultNamespaceName !== '') {
+                return new OptionallyQualifiedName(
+                    $name->getUnqualifiedName(),
+                    Identifier::quoted($defaultNamespaceName),
+                );
+            }
         }
 
         return $name;

@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\ImproperlyQualifiedName;
-use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\SchemaException;
@@ -407,28 +404,5 @@ class SchemaTest extends TestCase
 
         self::assertFalse($schema->hasTable('s'));
         self::assertFalse($schema->hasTable('public.s'));
-    }
-
-    public function testQualifiedName(): void
-    {
-        $schemaConfig = new SchemaConfig();
-        $schemaConfig->setName('warehouse.inventory');
-
-        $this->expectException(InvalidName::class);
-
-        new Schema([], [], $schemaConfig);
-    }
-
-    /** @throws Exception */
-    public function testGetObjectName(): void
-    {
-        $schemaConfig = new SchemaConfig();
-        $schemaConfig->setName('public');
-
-        $schema = new Schema([], [], $schemaConfig);
-        $name   = $schema->getObjectName();
-
-        self::assertNotNull($name);
-        self::assertEquals(Identifier::unquoted('public'), $name->getIdentifier());
     }
 }
