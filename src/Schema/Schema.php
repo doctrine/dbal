@@ -16,12 +16,9 @@ use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
-use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_values;
 use function count;
@@ -56,10 +53,8 @@ use function strtolower;
  * the CREATE/DROP SQL visitors will just filter this queries and do not
  * execute them. Only the queries for the currently connected database are
  * executed.
- *
- * @extends AbstractAsset<UnqualifiedName>
  */
-class Schema extends AbstractAsset
+class Schema
 {
     /**
      * The namespaces in this schema.
@@ -75,6 +70,13 @@ class Schema extends AbstractAsset
     protected array $_sequences = [];
 
     protected SchemaConfig $_schemaConfig;
+
+    /**
+     * The default namespace name that the schema will use as a qualifier to resolve unqualified names.
+     *
+     * The name is assumed to be always set in its original case and thus will be represented as a quoted identifier.
+     */
+    private ?string $defaultNamespaceName;
 
     /**
      * Indicates whether the schema uses unqualified names for its objects. Once this flag is set to true, it won't be
@@ -97,9 +99,7 @@ class Schema extends AbstractAsset
 
         $this->_schemaConfig = $schemaConfig;
 
-        $name = $schemaConfig->getName();
-
-        parent::__construct($name ?? '');
+        $this->defaultNamespaceName = $schemaConfig->getName();
 
         foreach ($namespaces as $namespace) {
             $this->createNamespace($namespace);
@@ -112,34 +112,6 @@ class Schema extends AbstractAsset
         foreach ($sequences as $sequence) {
             $this->_addSequence($sequence);
         }
-    }
-
-    /** @deprecated */
-    public function getName(): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6734',
-            'Using Schema as AbstractAsset, including %s, is deprecated.',
-            __METHOD__,
-        );
-
-        return parent::getName();
-    }
-
-    /**
-     * The object representation of the name isn't used because {@see Schema} is not an {@see AbstractAsset}.
-     *
-     * This method implements the abstract method in the parent class and will be removed once {@see Schema} stops
-     * extending {@see AbstractAsset}.
-     */
-    protected function setName(?Name $name): void
-    {
-    }
-
-    protected function getNameParser(): UnqualifiedNameParser
-    {
-        return Parsers::getUnqualifiedNameParser();
     }
 
     protected function _addTable(Table $table): void
@@ -182,7 +154,7 @@ class Schema extends AbstractAsset
 
         $namespaceName = $qualifier->getValue();
 
-        if ($namespaceName === $this->getName()) {
+        if ($namespaceName === $this->defaultNamespaceName) {
             return;
         }
 
@@ -278,15 +250,11 @@ class Schema extends AbstractAsset
      */
     private function resolveName(OptionallyQualifiedName $name): OptionallyQualifiedName
     {
-        if ($name->getQualifier() === null) {
-            $defaultNamespaceName = $this->getName();
-
-            if ($defaultNamespaceName !== '') {
-                return new OptionallyQualifiedName(
-                    $name->getUnqualifiedName(),
-                    Identifier::quoted($defaultNamespaceName),
-                );
-            }
+        if ($name->getQualifier() === null && $this->defaultNamespaceName !== null) {
+            return new OptionallyQualifiedName(
+                $name->getUnqualifiedName(),
+                Identifier::quoted($this->defaultNamespaceName),
+            );
         }
 
         return $name;
