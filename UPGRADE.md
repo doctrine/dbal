@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: `Schema` no longer extends `AbstractAsset`
+
+The `Schema` class no longer extends `AbstractAsset`.
+
 ## BC BREAK: Changes in `ForeignKeyConstraint` API and behavior
 
 The following `ForeignKeyConstraint` methods and properties have been removed:
