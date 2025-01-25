@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Exception\UnsupportedSchema;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -53,9 +54,12 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     {
         $columnsByTable = parent::fetchForeignKeyColumnsByTable($databaseName);
 
-        if (count($columnsByTable) > 0) {
-            foreach ($columnsByTable as $table => $columns) {
-                $columnsByTable[$table] = $this->addDetailsToTableForeignKeyColumns($table, $columns);
+        foreach ($columnsByTable as $schemaNameKey => $schemaTables) {
+            assert($schemaNameKey === self::NULL_SCHEMA_KEY);
+
+            foreach ($schemaTables as $tableName => $columns) {
+                $columnsByTable[$schemaNameKey][$tableName]
+                    = $this->addDetailsToTableForeignKeyColumns($tableName, $columns);
             }
         }
 
@@ -81,27 +85,22 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    public function listTableForeignKeys(string $table): array
+    public function listTableForeignKeys(string $tableName): array
     {
-        $table = $this->normalizeName($table);
+        $tableName = $this->parseOptionallyQualifiedName($tableName);
 
-        $columns = $this->fetchForeignKeyColumns('main', $table);
+        $this->ensureUnqualifiedName($tableName, __METHOD__);
+
+        $columns = $this->fetchForeignKeyColumns('main', $tableName);
 
         if (count($columns) > 0) {
-            $columns = $this->addDetailsToTableForeignKeyColumns($table, $columns);
+            $columns = $this->addDetailsToTableForeignKeyColumns(
+                $tableName->getUnqualifiedName()->toNormalizedValue($this->platform),
+                $columns,
+            );
         }
 
         return $this->_getPortableTableForeignKeysList($columns);
-    }
-
-    /**
-     * @deprecated Use the schema name and the unqualified table name separately instead.
-     *
-     * {@inheritDoc}
-     */
-    protected function _getPortableTableDefinition(array $table): string
-    {
-        return $table['table_name'];
     }
 
     /**
@@ -222,7 +221,9 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
             // Inferring a shorthand form for the foreign key constraint, where the "to" field is empty.
             // @see https://www.sqlite.org/foreignkeys.html#fk_indexes.
-            $foreignTablePrimaryKeyColumnRows = $this->fetchPrimaryKeyColumns($value['foreignTable']);
+            $foreignTablePrimaryKeyColumnRows = $this->fetchPrimaryKeyColumns(
+                OptionallyQualifiedName::quoted($value['foreignTable']),
+            );
 
             if (count($foreignTablePrimaryKeyColumnRows) < 1) {
                 throw UnsupportedSchema::sqliteMissingForeignKeyConstraintReferencedColumns(
@@ -298,7 +299,7 @@ CREATE\sTABLE' . $this->buildIdentifierPattern($table) . '
     }
 
     /** @throws Exception */
-    private function getCreateTableSQL(string $table): string
+    private function getCreateTableSQL(string $tableName): string
     {
         $sql = $this->connection->fetchOne(
             <<<'SQL'
@@ -314,7 +315,7 @@ WHERE type = 'table'
 AND name = ?
 SQL
             ,
-            [$table],
+            [$tableName],
         );
 
         if ($sql !== false) {
@@ -331,9 +332,9 @@ SQL
      *
      * @throws Exception
      */
-    private function addDetailsToTableForeignKeyColumns(string $table, array $columns): array
+    private function addDetailsToTableForeignKeyColumns(string $tableName, array $columns): array
     {
-        $foreignKeyDetails = $this->getForeignKeyDetails($table);
+        $foreignKeyDetails = $this->getForeignKeyDetails($tableName);
         $foreignKeyCount   = count($foreignKeyDetails);
 
         foreach ($columns as $i => $column) {
@@ -349,9 +350,9 @@ SQL
      *
      * @throws Exception
      */
-    private function getForeignKeyDetails(string $table): array
+    private function getForeignKeyDetails(string $tableName): array
     {
-        $createSql = $this->getCreateTableSQL($table);
+        $createSql = $this->getCreateTableSQL($tableName);
 
         if (
             preg_match_all(
@@ -403,28 +404,31 @@ SQL
 
     protected function selectTableNames(string $databaseName): Result
     {
-        $sql = <<<'SQL'
-SELECT name AS table_name
+        $sql = sprintf(
+            <<<'SQL'
+SELECT name AS %1$s
 FROM sqlite_master
 WHERE type = 'table'
   AND name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')
 UNION ALL
-SELECT name
+SELECT name AS %1$s
 FROM sqlite_temp_master
 WHERE type = 'table'
-ORDER BY name
-SQL;
+ORDER BY 1
+SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
+        );
 
         return $this->connection->executeQuery($sql);
     }
 
-    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
-            SELECT t.name AS table_name,
+            SELECT t.name AS %s,
                    c.*
               FROM sqlite_master t
               JOIN pragma_table_info(t.name) c
@@ -432,19 +436,20 @@ SQL;
           ORDER BY t.name,
                    c.cid
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause($tableName, $params),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
-            SELECT t.name AS table_name,
+            SELECT t.name AS %s,
                    i.name,
                    i."unique"
               FROM sqlite_master t
@@ -452,19 +457,20 @@ SQL,
              WHERE %s
           ORDER BY t.name, i.seq
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause($tableName, $params),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
-            SELECT t.name AS table_name,
+            SELECT t.name AS %s,
                    p.*
               FROM sqlite_master t
               JOIN pragma_foreign_key_list(t.name) p
@@ -474,6 +480,7 @@ SQL,
                    p.id DESC,
                    p.seq
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause($tableName, $params),
         );
 
@@ -483,32 +490,36 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function fetchTableColumns(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
+        if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+        }
+
         $rows = parent::fetchTableColumns($databaseName, $tableName);
 
         $sqlByTable = $pkColumnNamesByTable = $result = [];
 
         foreach ($rows as $row) {
-            $tableName = $row['table_name'];
+            $unqualifiedTableName = $row[self::TABLE_NAME_COLUMN];
 
-            $sqlByTable[$tableName] ??= $this->getCreateTableSQL($tableName);
+            $sqlByTable[$unqualifiedTableName] ??= $this->getCreateTableSQL($unqualifiedTableName);
 
             if ($row['pk'] === 0 || $row['pk'] === '0' || $row['type'] !== 'INTEGER') {
                 continue;
             }
 
-            $pkColumnNamesByTable[$tableName][] = $row['name'];
+            $pkColumnNamesByTable[$unqualifiedTableName][] = $row['name'];
         }
 
         foreach ($rows as $row) {
-            $tableName  = $row['table_name'];
-            $columnName = $row['name'];
-            $tableSQL   = $sqlByTable[$row['table_name']];
+            $unqualifiedTableName = $row[self::TABLE_NAME_COLUMN];
+            $columnName           = $row['name'];
+            $tableSQL             = $sqlByTable[$row[self::TABLE_NAME_COLUMN]];
 
             $result[] = array_merge($row, [
-                'autoincrement' => isset($pkColumnNamesByTable[$tableName])
-                    && $pkColumnNamesByTable[$tableName] === [$columnName],
+                'autoincrement' => isset($pkColumnNamesByTable[$unqualifiedTableName])
+                    && $pkColumnNamesByTable[$unqualifiedTableName] === [$columnName],
                 'collation' => $this->parseColumnCollationFromSQL($columnName, $tableSQL),
                 'comment' => $this->parseColumnCommentFromSQL($columnName, $tableSQL),
             ]);
@@ -523,7 +534,7 @@ SQL,
      *
      * {@inheritDoc}
      */
-    protected function fetchIndexColumns(string $databaseName, ?string $tableName = null): array
+    protected function fetchIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         $result = [];
 
@@ -531,7 +542,7 @@ SQL,
 
         foreach ($pkColumnNameRows as $pkColumnNameRow) {
             $result[] = [
-                'table_name' => $pkColumnNameRow['table_name'],
+                self::TABLE_NAME_COLUMN => $pkColumnNameRow[self::TABLE_NAME_COLUMN],
                 'key_name' => 'primary',
                 'primary' => true,
                 'non_unique' => false,
@@ -550,7 +561,7 @@ SQL,
             $keyName = $indexColumnRow['name'];
 
             $row = [
-                'table_name' => $indexColumnRow['table_name'],
+                self::TABLE_NAME_COLUMN => $indexColumnRow[self::TABLE_NAME_COLUMN],
                 'key_name'   => $keyName,
                 'primary'    => false,
                 'non_unique' => ! $indexColumnRow['unique'],
@@ -579,13 +590,13 @@ SQL,
      *
      * @throws Exception
      */
-    private function fetchPrimaryKeyColumns(?string $tableName = null): array
+    private function fetchPrimaryKeyColumns(?OptionallyQualifiedName $tableName = null): array
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
-            SELECT t.name AS table_name,
+            SELECT t.name AS %s,
                    p.name
               FROM sqlite_master t
               JOIN pragma_table_info(t.name) p
@@ -594,6 +605,7 @@ SQL,
           ORDER BY t.name,
                    p.pk
         SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause($tableName, $params),
         );
 
@@ -603,30 +615,35 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         if ($tableName === null) {
-            $tables = $this->listTableNames();
+            $tableNames = $this->listTableNames();
         } else {
-            $tables = [$tableName];
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
+            $tableNames = [$tableName->getUnqualifiedName()->toNormalizedValue($this->platform)];
         }
 
         $tableOptions = [];
-        foreach ($tables as $table) {
-            $comment = $this->parseTableCommentFromSQL($table, $this->getCreateTableSQL($table));
+        foreach ($tableNames as $unqualifiedTableName) {
+            $comment = $this->parseTableCommentFromSQL(
+                $unqualifiedTableName,
+                $this->getCreateTableSQL($unqualifiedTableName),
+            );
 
             if ($comment === null) {
                 continue;
             }
 
-            $tableOptions[$table]['comment'] = $comment;
+            $tableOptions[self::NULL_SCHEMA_KEY][$unqualifiedTableName]['comment'] = $comment;
         }
 
         return $tableOptions;
     }
 
     /** @param list<string> $params */
-    private function getWhereClause(?string $tableName, array &$params): string
+    private function getWhereClause(?OptionallyQualifiedName $tableName, array &$params): string
     {
         $conditions = [
             "t.type = 'table'",
@@ -634,8 +651,10 @@ SQL,
         ];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[] = 't.name = ?';
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         return implode(' AND ', $conditions);

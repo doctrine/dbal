@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMeta
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
@@ -60,16 +61,6 @@ class MySQLSchemaManager extends AbstractSchemaManager
     ];
 
     private ?DefaultTableOptions $defaultTableOptions = null;
-
-    /**
-     * @deprecated Use the schema name and the unqualified table name separately instead.
-     *
-     * {@inheritDoc}
-     */
-    protected function _getPortableTableDefinition(array $table): string
-    {
-        return $table['TABLE_NAME'];
-    }
 
     /**
      * {@inheritDoc}
@@ -332,18 +323,21 @@ class MySQLSchemaManager extends AbstractSchemaManager
 
     protected function selectTableNames(string $databaseName): Result
     {
-        $sql = <<<'SQL'
-SELECT TABLE_NAME
-FROM information_schema.TABLES
-WHERE TABLE_SCHEMA = ?
-  AND TABLE_TYPE = 'BASE TABLE'
-ORDER BY TABLE_NAME
-SQL;
+        $sql = sprintf(
+            <<<'SQL'
+                SELECT TABLE_NAME AS %s
+                FROM information_schema.TABLES
+                WHERE TABLE_SCHEMA = ?
+                  AND TABLE_TYPE = 'BASE TABLE'
+                ORDER BY TABLE_NAME
+                SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
+        );
 
         return $this->connection->executeQuery($sql, [$databaseName]);
     }
 
-    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
         // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
@@ -352,14 +346,16 @@ SQL;
         $params     = [$databaseName, $databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[] = 't.TABLE_NAME = ?';
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
             <<<'SQL'
 SELECT
-       c.TABLE_NAME,
+       c.TABLE_NAME         AS %s,
        c.COLUMN_NAME        AS field,
        %s                   AS type,
        c.IS_NULLABLE        AS `null`,
@@ -377,6 +373,7 @@ FROM information_schema.COLUMNS c
 ORDER BY c.TABLE_NAME,
          c.ORDINAL_POSITION
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->platform->getColumnTypeSQLSnippet('c', $databaseName),
             implode(' AND ', $conditions),
         );
@@ -384,20 +381,22 @@ SQL,
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $conditions = ['TABLE_SCHEMA = ?'];
         $params     = [$databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[] = 'TABLE_NAME = ?';
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
             <<<'SQL'
 SELECT
-        TABLE_NAME,
+        TABLE_NAME  AS %s,
         NON_UNIQUE  AS Non_Unique,
         INDEX_NAME  AS Key_name,
         COLUMN_NAME AS Column_Name,
@@ -408,13 +407,14 @@ WHERE %s
 ORDER BY TABLE_NAME,
          SEQ_IN_INDEX
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $conditions),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         // The schema name is passed multiple times in the WHERE clause instead of using a JOIN condition
         // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
@@ -423,14 +423,16 @@ SQL,
         $params     = [$databaseName, $databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[] = 'k.TABLE_NAME = ?';
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
             <<<'SQL'
 SELECT
-            k.TABLE_NAME,
+            k.TABLE_NAME AS %s,
             k.CONSTRAINT_NAME,
             k.COLUMN_NAME,
             k.REFERENCED_TABLE_NAME,
@@ -448,6 +450,7 @@ ORDER BY k.TABLE_NAME,
          k.CONSTRAINT_NAME,
          k.ORDINAL_POSITION
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $conditions),
         );
 
@@ -457,13 +460,15 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         $sql = $this->platform->fetchTableOptionsByTable($tableName !== null);
 
         $params = [$databaseName];
         if ($tableName !== null) {
-            $params[] = $tableName;
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
+            $params[] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         /** @var array<string,array<string,mixed>> $metadata */
@@ -474,7 +479,7 @@ SQL,
         foreach ($metadata as $table => $data) {
             $data = array_change_key_case($data, CASE_LOWER);
 
-            $tableOptions[$table] = [
+            $tableOptions[self::NULL_SCHEMA_KEY][$table] = [
                 'engine'         => $data['engine'],
                 'collation'      => $data['table_collation'],
                 'charset'        => $data['character_set_name'],

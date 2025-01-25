@@ -8,22 +8,18 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\Type;
 
-use function array_change_key_case;
 use function assert;
-use function explode;
 use function func_get_arg;
 use function func_num_args;
 use function implode;
 use function is_string;
 use function preg_match;
 use function sprintf;
-use function str_contains;
 use function str_replace;
 use function strtok;
-
-use const CASE_LOWER;
 
 /**
  * SQL Server Schema Manager.
@@ -225,20 +221,6 @@ SQL,
     }
 
     /**
-     * @deprecated Use the schema name and the unqualified table name separately instead.
-     *
-     * {@inheritDoc}
-     */
-    protected function _getPortableTableDefinition(array $table): string
-    {
-        if ($table['schema_name'] !== $this->getCurrentSchemaName()) {
-            return $table['schema_name'] . '.' . $table['table_name'];
-        }
-
-        return $table['table_name'];
-    }
-
-    /**
      * {@inheritDoc}
      */
     protected function _getPortableDatabaseDefinition(array $database): string
@@ -293,26 +275,30 @@ SQL,
     protected function selectTableNames(string $databaseName): Result
     {
         // The "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
-        $sql = <<<'SQL'
-SELECT SCHEMA_NAME(schema_id) AS schema_name,
-       name AS table_name
+        $sql = sprintf(
+            <<<'SQL'
+SELECT SCHEMA_NAME(schema_id) AS %s,
+       name AS %s
 FROM sys.tables
 WHERE name != 'sysdiagrams'
 ORDER BY name
-SQL;
+SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
+        );
 
         return $this->connection->executeQuery($sql);
     }
 
-    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
                 SELECT
-                          scm.name AS schema_name,
-                          tbl.name AS table_name,
+                          scm.name AS %s,
+                          tbl.name AS %s,
                           col.name,
                           type.name AS type,
                           col.max_length AS length,
@@ -344,21 +330,23 @@ SQL;
                           tbl.name,
                           col.column_id
 SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause($tableName, 'scm.name', 'tbl.name', $params),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
               SELECT
-                       scm.name AS schema_name,
-                       tbl.name AS table_name,
+                       scm.name AS %s,
+                       tbl.name AS %s,
                        idx.name AS key_name,
                        col.name AS column_name,
                        ~idx.is_unique AS non_unique,
@@ -385,21 +373,23 @@ SQL,
                      idx.index_id,
                      idxcol.key_ordinal
 SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause($tableName, 'scm.name', 'tbl.name', $params),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
                 SELECT
-                SCHEMA_NAME(f.schema_id) AS schema_name,
-                OBJECT_NAME(f.parent_object_id) AS table_name,
+                SCHEMA_NAME(f.schema_id) AS %s,
+                OBJECT_NAME(f.parent_object_id) AS %s,
                 f.name AS ForeignKey,
                 COL_NAME(fc.parent_object_id, fc.parent_column_id) AS ColumnName,
                 SCHEMA_NAME(t.schema_id) ReferenceSchemaName,
@@ -418,6 +408,8 @@ SQL,
                          3,
                          fc.constraint_column_id
 SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause(
                 $tableName,
                 'SCHEMA_NAME(f.schema_id)',
@@ -432,15 +424,15 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
           SELECT
-            scm.name AS schema_name,
-            tbl.name AS table_name,
+            scm.name AS %s,
+            tbl.name AS %s,
             p.value
           FROM
             sys.tables AS tbl
@@ -451,16 +443,14 @@ SQL,
               p.name = N'MS_Description'
           AND %s
 SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause($tableName, 'scm.name', 'tbl.name', $params),
         );
 
         $tableOptions = [];
-        foreach ($this->connection->iterateAssociative($sql, $params) as $data) {
-            $data = array_change_key_case($data, CASE_LOWER);
-
-            $tableOptions[$this->_getPortableTableDefinition($data)] = [
-                'comment' => $data['value'],
-            ];
+        foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            $tableOptions[$row[0]][$row[1]] = ['comment' => $row[2]];
         }
 
         return $tableOptions;
@@ -469,13 +459,14 @@ SQL,
     /**
      * Returns the where clause to filter schema and table name in a query.
      *
-     * @param ?string      $tableName    The full qualified name of the table.
-     * @param string       $schemaColumn The name of the column to compare the schema to in the where clause.
-     * @param string       $tableColumn  The name of the column to compare the table to in the where clause.
-     * @param list<string> $params
+     * @param ?OptionallyQualifiedName $tableName    The name of the table.
+     * @param string                   $schemaColumn The name of the column to compare the schema to in the where
+     *                                               clause.
+     * @param string                   $tableColumn  The name of the column to compare the table to in the where clause.
+     * @param list<string>             $params
      */
     private function getWhereClause(
-        ?string $tableName,
+        ?OptionallyQualifiedName $tableName,
         string $schemaColumn,
         string $tableColumn,
         array &$params,
@@ -483,17 +474,17 @@ SQL,
         $conditions = [];
 
         if ($tableName !== null) {
-            if (str_contains($tableName, '.')) {
-                [$schemaName, $tableName] = explode('.', $tableName);
+            $qualifier = $tableName->getQualifier();
 
+            if ($qualifier !== null) {
                 $conditions = [sprintf('%s = ?', $schemaColumn)];
-                $params[]   = $schemaName;
+                $params[]   = $qualifier->toNormalizedValue($this->platform);
             } else {
                 $conditions = [sprintf('%s = SCHEMA_NAME()', $schemaColumn)];
             }
 
             $conditions[] = sprintf('%s = ?', $tableColumn);
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         // The "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams

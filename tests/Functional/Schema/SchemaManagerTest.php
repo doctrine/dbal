@@ -7,16 +7,12 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
-use PHPUnit\Framework\Attributes\TestWith;
-
-use function sprintf;
+use Doctrine\DBAL\Types\Types;
 
 final class SchemaManagerTest extends FunctionalTestCase
 {
-    use VerifyDeprecations;
-
     private AbstractSchemaManager $schemaManager;
 
     /** @throws Exception */
@@ -26,35 +22,14 @@ final class SchemaManagerTest extends FunctionalTestCase
     }
 
     /** @throws Exception */
-    #[TestWith([false])]
-    #[TestWith([true])]
-    public function testIntrospectTableWithDotInName(bool $quoted): void
+    public function testIntrospectTableWithDotInName(): void
     {
-        $platform = $this->connection->getDatabasePlatform();
+        $table = new Table('"example.com"');
+        $table->addColumn('id', Types::INTEGER);
 
-        if ($platform->supportsSchemas()) {
-            self::markTestIncomplete('DBAL 4.x will fail to introspect this table on a platform that supports schemas');
-        }
+        $this->dropAndCreateTable($table);
 
-        $name           = 'example.com';
-        $normalizedName = $platform->normalizeUnquotedIdentifier($name);
-        $quotedName     = $this->connection->quoteSingleIdentifier($normalizedName);
-
-        // create the table manually since identifiers with dots are not supported in DBAL 4.x
-        $sql = sprintf('CREATE TABLE %s (s VARCHAR(16))', $quotedName);
-
-        $this->dropTableIfExists($quotedName);
-        $this->connection->executeStatement($sql);
-
-        if ($quoted) {
-            $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6768');
-
-            $table = $this->schemaManager->introspectTable($quotedName);
-        } else {
-            $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6768');
-
-            $table = $this->schemaManager->introspectTable($name);
-        }
+        $table = $this->schemaManager->introspectTable('"example.com"');
 
         self::assertCount(1, $table->getColumns());
     }

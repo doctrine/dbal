@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `AbstractSchemaManager` methods
+
+The following `AbstractSchemaManager` methods have been removed:
+
+- `AbstractSchemaManager::_getPortableTableDefinition()`
+- `AbstractSchemaManager::_normalizeName()`
+
 ## BC BREAK: Removed `PostgreSQLSchemaManager` methods related to the current schema
 
 The following `PostgreSQLSchemaManager` methods have been removed:
@@ -317,6 +324,8 @@ The `Sequence::isAutoIncrementsFor()` method has been deprecated.
 
 ## Deprecated using invalid database object names
 
+### For schema definition
+
 Using the following objects with an empty name is deprecated: `Table`, `Column`, `Index`, `View`, `Sequence`,
 `Identifier`.
 
@@ -327,6 +336,17 @@ Using the following objects with a name that has more than one qualifier is depr
 The name should be unqualified or contain one qualifier.
 
 The `AbstractAsset` class has been marked as internal.
+
+### For schema introspection
+
+The following `AbstractSchemaManager` methods no longer accept table names that are not valid SQL names:
+
+- `AbstractSchemaManager::introspectTable()`
+- `AbstractSchemaManager::listTableColumns()`
+- `AbstractSchemaManager::listTableIndexes()`
+- `AbstractSchemaManager::listTableForeignKeys()`
+
+The above methods no longer accept qualified table names for the database platforms that don't support schemas.
 
 ## Deprecated configuration-related `Table` methods
 
