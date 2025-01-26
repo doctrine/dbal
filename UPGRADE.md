@@ -6,6 +6,12 @@ awareness about deprecated code.
 - Use of our low-overhead runtime deprecation API, details:
   https://github.com/doctrine/deprecations/
 
+# Upgrade to 3.10
+
+The `doctrine/cache` package is now an optional dependency. If you are using the
+`Doctrine\DBAL\Cache` classes, you need to require the `doctrine/cache` package
+explicitly.
+
 # Upgrade to 3.8
 
 ## Deprecated lock-related `AbstractPlatform` methods

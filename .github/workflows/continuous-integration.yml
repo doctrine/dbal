@@ -43,6 +43,7 @@ jobs:
         dependencies:
           - "highest"
         extension:
+          - "sqlite3"
           - "pdo_sqlite"
         include:
           - os: "ubuntu-20.04"
@@ -50,8 +51,8 @@ jobs:
             dependencies: "lowest"
             extension: "pdo_sqlite"
           - os: "ubuntu-22.04"
-            php-version: "7.4"
-            dependencies: "highest"
+            php-version: "8.4"
+            dependencies: "minimal"
             extension: "sqlite3"
 
     steps:
@@ -59,6 +60,10 @@ jobs:
         uses: "actions/checkout@v4"
         with:
           fetch-depth: 2
+
+      - name: "Remove optional dependencies"
+        run: "composer remove --no-update --dev doctrine/cache"
+        if: "${{ matrix.dependencies == 'minimal' }}"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
@@ -71,7 +76,7 @@ jobs:
         uses: "ramsey/composer-install@v3"
         with:
           composer-options: "--ignore-platform-req=php+"
-          dependency-versions: "${{ matrix.dependencies }}"
+          dependency-versions: "${{ matrix.dependencies == 'minimal' && 'highest' || matrix.dependencies }}"
 
       - name: "Print SQLite version"
         run: >

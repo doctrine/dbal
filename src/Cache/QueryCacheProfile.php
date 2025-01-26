@@ -8,8 +8,10 @@ use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use Psr\Cache\CacheItemPoolInterface;
+use RuntimeException;
 use TypeError;
 
+use function class_exists;
 use function get_class;
 use function hash;
 use function serialize;
@@ -82,7 +84,19 @@ class QueryCacheProfile
             __METHOD__,
         );
 
-        return $this->resultCache !== null ? DoctrineProvider::wrap($this->resultCache) : null;
+        if ($this->resultCache === null) {
+            return null;
+        }
+
+        if (! class_exists(DoctrineProvider::class)) {
+            throw new RuntimeException(sprintf(
+                'Calling %s() is not supported if the doctrine/cache package is not installed. '
+                    . 'Try running "composer require doctrine/cache" or migrate cache access to PSR-6.',
+                __METHOD__,
+            ));
+        }
+
+        return DoctrineProvider::wrap($this->resultCache);
     }
 
     /** @return int */

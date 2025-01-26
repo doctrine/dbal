@@ -40,6 +40,10 @@ class CachedQueryTest extends TestCase
 
     public function testCachedQueryLegacyWrapped(): void
     {
+        if (! class_exists(DoctrineProvider::class)) {
+            self::markTestSkipped('This test requires the doctrine/cache package.');
+        }
+
         $cache  = new ArrayAdapter();
         $legacy = DoctrineProvider::wrap($cache);
         $this->assertCachedQueryIsExecutedOnceAndYieldsTheSameResult($legacy, __FUNCTION__);
