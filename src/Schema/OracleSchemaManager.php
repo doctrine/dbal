@@ -55,7 +55,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows): array
     {
         $indexBuffer = [];
         foreach ($rows as $row) {
@@ -78,7 +78,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $indexBuffer[]         = $buffer;
         }
 
-        return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
+        return parent::_getPortableTableIndexesList($indexBuffer);
     }
 
     /**

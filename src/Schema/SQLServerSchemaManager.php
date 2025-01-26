@@ -208,7 +208,7 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows): array
     {
         foreach ($rows as &$row) {
             $row['non_unique'] = (bool) $row['non_unique'];
@@ -216,7 +216,7 @@ SQL,
             $row['flags']      = $row['flags'] ? [$row['flags']] : null;
         }
 
-        return parent::_getPortableTableIndexesList($rows, $tableName);
+        return parent::_getPortableTableIndexesList($rows);
     }
 
     /**

@@ -122,8 +122,6 @@ abstract class AbstractSchemaManager
         $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableColumnList(
-            $table,
-            $database,
             $this->fetchTableColumns($database, $this->normalizeName($table)),
         );
     }
@@ -144,7 +142,6 @@ abstract class AbstractSchemaManager
 
         return $this->_getPortableTableIndexesList(
             $this->fetchIndexColumns($database, $table),
-            $table,
         );
     }
 
@@ -229,9 +226,9 @@ abstract class AbstractSchemaManager
 
             $editor = Table::editor()
                 ->setName($tableName)
-                ->setColumns($this->_getPortableTableColumnList($tableName, $database, $tableColumns))
+                ->setColumns($this->_getPortableTableColumnList($tableColumns))
                 ->setIndexes(
-                    $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? [], $tableName),
+                    $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? []),
                 );
 
             if (isset($foreignKeyColumnsByTable[$tableName])) {
@@ -765,7 +762,7 @@ abstract class AbstractSchemaManager
      *
      * @return array<string, Column>
      */
-    protected function _getPortableTableColumnList(string $table, string $database, array $rows): array
+    protected function _getPortableTableColumnList(array $rows): array
     {
         $list = [];
         foreach ($rows as $row) {
@@ -791,7 +788,7 @@ abstract class AbstractSchemaManager
      *
      * @return array<string, Index>
      */
-    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows): array
     {
         $result = [];
         foreach ($rows as $row) {
