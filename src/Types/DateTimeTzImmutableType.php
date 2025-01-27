@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
+use Exception;
 
 /**
  * Immutable type of {@see DateTimeTzType}.
@@ -59,16 +60,15 @@ class DateTimeTzImmutableType extends Type implements PhpDateTimeMappingType
             return $value;
         }
 
-        $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeTzFormatString(), $value);
-
-        if ($dateTime !== false) {
-            return $dateTime;
+        try {
+            return new DateTimeImmutable($value);
+        } catch (Exception $e) {
+            throw InvalidFormat::new(
+                $value,
+                static::class,
+                $platform->getDateTimeTzFormatString(),
+                $e,
+            );
         }
-
-        throw InvalidFormat::new(
-            $value,
-            static::class,
-            $platform->getDateTimeTzFormatString(),
-        );
     }
 }

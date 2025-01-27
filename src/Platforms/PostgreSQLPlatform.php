@@ -594,7 +594,11 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
-        return 'TIMESTAMP(0) WITHOUT TIME ZONE';
+        if (! empty($column['without_precision'])) {
+            return 'TIMESTAMP WITHOUT TIME ZONE';
+        }
+
+        return sprintf('TIMESTAMP(%d) WITHOUT TIME ZONE', $column['precision']);
     }
 
     /**
@@ -602,7 +606,11 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
-        return 'TIMESTAMP(0) WITH TIME ZONE';
+        if (! empty($column['without_precision'])) {
+            return 'TIMESTAMP WITH TIME ZONE';
+        }
+
+        return sprintf('TIMESTAMP(%d) WITH TIME ZONE', $column['precision']);
     }
 
     /**
@@ -662,9 +670,14 @@ class PostgreSQLPlatform extends AbstractPlatform
         return 'TEXT';
     }
 
+    public function getDateTimeFormatString(): string
+    {
+        return 'Y-m-d H:i:s.u';
+    }
+
     public function getDateTimeTzFormatString(): string
     {
-        return 'Y-m-d H:i:sO';
+        return 'Y-m-d H:i:s.uO';
     }
 
     public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string

@@ -78,10 +78,6 @@ class DateTimeTzImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeWithTimezoneStringToPHPValue(): void
     {
-        $this->platform->expects(self::once())
-            ->method('getDateTimeTzFormatString')
-            ->willReturn('Y-m-d H:i:s T');
-
         $date = $this->type->convertToPHPValue('2016-01-01 15:58:59 UTC', $this->platform);
 
         self::assertInstanceOf(DateTimeImmutable::class, $date);
@@ -90,10 +86,6 @@ class DateTimeTzImmutableTypeTest extends TestCase
 
     public function testThrowsExceptionDuringConversionToPHPValueWithInvalidDateTimeWithTimezoneString(): void
     {
-        $this->platform->expects(self::atLeastOnce())
-            ->method('getDateTimeTzFormatString')
-            ->willReturn('Y-m-d H:i:s T');
-
         $this->expectException(ConversionException::class);
 
         $this->type->convertToPHPValue('invalid datetime with timezone string', $this->platform);

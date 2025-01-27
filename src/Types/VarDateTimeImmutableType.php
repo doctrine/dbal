@@ -11,34 +11,10 @@ use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use Exception;
 
 /**
- * Immutable type of {@see VarDateTimeType}.
+ * @deprecated Use {@see DateTimeImmutableType} instead.
  */
 class VarDateTimeImmutableType extends DateTimeImmutableType
 {
-    /**
-     * @param T $value
-     *
-     * @return (T is null ? null : string)
-     *
-     * @template T
-     */
-    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
-    {
-        if ($value === null) {
-            return $value;
-        }
-
-        if ($value instanceof DateTimeImmutable) {
-            return $value->format($platform->getDateTimeFormatString());
-        }
-
-        throw InvalidType::new(
-            $value,
-            static::class,
-            ['null', DateTimeImmutable::class],
-        );
-    }
-
     /**
      * @param T $value
      *

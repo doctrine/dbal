@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Types\JsonType;
+use Doctrine\DBAL\Types\PhpDateTimeMappingType;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
@@ -331,6 +332,20 @@ SQL,
 
                 break;
 
+            case 'timestamp':
+            case 'timestamptz':
+                if (
+                    preg_match(
+                        '([A-Za-z]+\(([0-9]+)\))',
+                        $tableColumn['complete_type'],
+                        $match,
+                    ) === 1
+                ) {
+                    $precision = (int) $match[1];
+                }
+
+                break;
+
             case 'year':
                 $length = null;
                 break;
@@ -373,6 +388,8 @@ SQL,
 
         if ($column->getType() instanceof JsonType) {
             $column->setPlatformOption('jsonb', $jsonb);
+        } elseif ($column->getType() instanceof PhpDateTimeMappingType) {
+            $column->setPlatformOption('without_precision', $precision === null ? true : null);
         }
 
         return $column;

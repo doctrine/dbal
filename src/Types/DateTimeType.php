@@ -60,12 +60,6 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
             return $value;
         }
 
-        $dateTime = DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
-
-        if ($dateTime !== false) {
-            return $dateTime;
-        }
-
         try {
             return new DateTime($value);
         } catch (Exception $e) {

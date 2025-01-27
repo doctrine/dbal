@@ -8,6 +8,7 @@ use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
+use Exception;
 
 /**
  * DateTime type accepting additional information about timezone offsets.
@@ -73,15 +74,15 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             return $value;
         }
 
-        $dateTime = DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
-        if ($dateTime !== false) {
-            return $dateTime;
+        try {
+            return new DateTime($value);
+        } catch (Exception $e) {
+            throw InvalidFormat::new(
+                $value,
+                static::class,
+                $platform->getDateTimeTzFormatString(),
+                $e,
+            );
         }
-
-        throw InvalidFormat::new(
-            $value,
-            static::class,
-            $platform->getDateTimeTzFormatString(),
-        );
     }
 }
