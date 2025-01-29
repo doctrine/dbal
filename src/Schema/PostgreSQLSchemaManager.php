@@ -176,7 +176,7 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows): array
     {
         $buffer = [];
         foreach ($rows as $row) {
@@ -207,7 +207,7 @@ SQL,
             }
         }
 
-        return parent::_getPortableTableIndexesList($buffer, $tableName);
+        return parent::_getPortableTableIndexesList($buffer);
     }
 
     /**

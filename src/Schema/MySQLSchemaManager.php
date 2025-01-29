@@ -79,7 +79,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows): array
     {
         foreach ($rows as $i => $row) {
             $row = array_change_key_case($row, CASE_LOWER);
@@ -103,7 +103,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
             $rows[$i] = $row;
         }
 
-        return parent::_getPortableTableIndexesList($rows, $tableName);
+        return parent::_getPortableTableIndexesList($rows);
     }
 
     /**
