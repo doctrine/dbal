@@ -55,26 +55,26 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
     {
         $indexBuffer = [];
-        foreach ($tableIndexes as $tableIndex) {
-            $tableIndex = array_change_key_case($tableIndex, CASE_LOWER);
+        foreach ($rows as $row) {
+            $row = array_change_key_case($row, CASE_LOWER);
 
-            $keyName = strtolower($tableIndex['name']);
+            $keyName = strtolower($row['name']);
             $buffer  = [];
 
-            if ($tableIndex['is_primary'] === 'P') {
+            if ($row['is_primary'] === 'P') {
                 $keyName              = 'primary';
                 $buffer['primary']    = true;
                 $buffer['non_unique'] = false;
             } else {
                 $buffer['primary']    = false;
-                $buffer['non_unique'] = ! $tableIndex['is_unique'];
+                $buffer['non_unique'] = ! $row['is_unique'];
             }
 
             $buffer['key_name']    = $keyName;
-            $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
+            $buffer['column_name'] = $this->getQuotedIdentifierName($row['column_name']);
             $indexBuffer[]         = $buffer;
         }
 
@@ -191,32 +191,32 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
+    protected function _getPortableTableForeignKeysList(array $rows): array
     {
         $list = [];
-        foreach ($tableForeignKeys as $value) {
-            $value = array_change_key_case($value, CASE_LOWER);
-            if (! isset($list[$value['constraint_name']])) {
-                if ($value['delete_rule'] === 'NO ACTION') {
-                    $value['delete_rule'] = null;
+        foreach ($rows as $row) {
+            $row = array_change_key_case($row, CASE_LOWER);
+            if (! isset($list[$row['constraint_name']])) {
+                if ($row['delete_rule'] === 'NO ACTION') {
+                    $row['delete_rule'] = null;
                 }
 
-                $list[$value['constraint_name']] = [
-                    'name' => $value['constraint_name'],
+                $list[$row['constraint_name']] = [
+                    'name' => $row['constraint_name'],
                     'local' => [],
                     'foreign' => [],
-                    'foreignTable' => $value['references_table'],
-                    'onDelete' => $value['delete_rule'],
-                    'deferrable' => $value['deferrable'] === 'DEFERRABLE',
-                    'deferred' => $value['deferred'] === 'DEFERRED',
+                    'foreignTable' => $row['references_table'],
+                    'onDelete' => $row['delete_rule'],
+                    'deferrable' => $row['deferrable'] === 'DEFERRABLE',
+                    'deferred' => $row['deferred'] === 'DEFERRED',
                 ];
             }
 
-            $localColumn   = $value['local_column'];
-            $foreignColumn = $value['foreign_column'];
+            $localColumn   = $row['local_column'];
+            $foreignColumn = $row['foreign_column'];
 
-            $list[$value['constraint_name']]['local'][]   = $localColumn;
-            $list[$value['constraint_name']]['foreign'][] = $foreignColumn;
+            $list[$row['constraint_name']]['local'][]   = $localColumn;
+            $list[$row['constraint_name']]['foreign'][] = $foreignColumn;
         }
 
         return parent::_getPortableTableForeignKeysList($list);

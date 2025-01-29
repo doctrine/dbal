@@ -79,31 +79,31 @@ class MySQLSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
     {
-        foreach ($tableIndexes as $k => $v) {
-            $v = array_change_key_case($v, CASE_LOWER);
-            if ($v['key_name'] === 'PRIMARY') {
-                $v['primary'] = true;
+        foreach ($rows as $i => $row) {
+            $row = array_change_key_case($row, CASE_LOWER);
+            if ($row['key_name'] === 'PRIMARY') {
+                $row['primary'] = true;
             } else {
-                $v['primary'] = false;
+                $row['primary'] = false;
             }
 
-            if (str_contains($v['index_type'], 'FULLTEXT')) {
-                $v['flags'] = ['FULLTEXT'];
-            } elseif (str_contains($v['index_type'], 'SPATIAL')) {
-                $v['flags'] = ['SPATIAL'];
+            if (str_contains($row['index_type'], 'FULLTEXT')) {
+                $row['flags'] = ['FULLTEXT'];
+            } elseif (str_contains($row['index_type'], 'SPATIAL')) {
+                $row['flags'] = ['SPATIAL'];
             }
 
             // Ignore prohibited prefix `length` for spatial index
-            if (! str_contains($v['index_type'], 'SPATIAL')) {
-                $v['length'] = isset($v['sub_part']) ? (int) $v['sub_part'] : null;
+            if (! str_contains($row['index_type'], 'SPATIAL')) {
+                $row['length'] = isset($row['sub_part']) ? (int) $row['sub_part'] : null;
             }
 
-            $tableIndexes[$k] = $v;
+            $rows[$i] = $row;
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
+        return parent::_getPortableTableIndexesList($rows, $tableName);
     }
 
     /**
@@ -288,24 +288,24 @@ class MySQLSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
+    protected function _getPortableTableForeignKeysList(array $rows): array
     {
         $list = [];
-        foreach ($tableForeignKeys as $value) {
-            $value = array_change_key_case($value, CASE_LOWER);
-            if (! isset($list[$value['constraint_name']])) {
-                $list[$value['constraint_name']] = [
-                    'name' => $value['constraint_name'],
+        foreach ($rows as $row) {
+            $row = array_change_key_case($row, CASE_LOWER);
+            if (! isset($list[$row['constraint_name']])) {
+                $list[$row['constraint_name']] = [
+                    'name' => $row['constraint_name'],
                     'local' => [],
                     'foreign' => [],
-                    'foreignTable' => $value['referenced_table_name'],
-                    'onDelete' => $value['delete_rule'],
-                    'onUpdate' => $value['update_rule'],
+                    'foreignTable' => $row['referenced_table_name'],
+                    'onDelete' => $row['delete_rule'],
+                    'onUpdate' => $row['update_rule'],
                 ];
             }
 
-            $list[$value['constraint_name']]['local'][]   = $value['column_name'];
-            $list[$value['constraint_name']]['foreign'][] = $value['referenced_column_name'];
+            $list[$row['constraint_name']]['local'][]   = $row['column_name'];
+            $list[$row['constraint_name']]['foreign'][] = $row['referenced_column_name'];
         }
 
         return parent::_getPortableTableForeignKeysList($list);

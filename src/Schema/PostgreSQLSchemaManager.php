@@ -44,8 +44,6 @@ class PostgreSQLSchemaManager extends AbstractSchemaManager
         'r' => ReferentialAction::RESTRICT,
     ];
 
-    private ?string $currentSchema = null;
-
     /**
      * The maximum number of columns that can be included in an index.
      */
@@ -66,27 +64,22 @@ SQL,
         );
     }
 
-    public function createSchemaConfig(): SchemaConfig
-    {
-        $config = parent::createSchemaConfig();
-
-        $config->setName($this->getCurrentSchema());
-
-        return $config;
-    }
-
     /**
      * Returns the name of the current schema.
+     *
+     * @deprecated Use {@link getCurrentSchemaName()} instead
      *
      * @throws Exception
      */
     protected function getCurrentSchema(): ?string
     {
-        return $this->currentSchema ??= $this->determineCurrentSchema();
+        return $this->getCurrentSchemaName();
     }
 
     /**
      * Determines the name of the current schema.
+     *
+     * @deprecated Use {@link determineCurrentSchemaName()} instead
      *
      * @throws Exception
      */
@@ -96,6 +89,11 @@ SQL,
         assert(is_string($currentSchema));
 
         return $currentSchema;
+    }
+
+    protected function determineCurrentSchemaName(): ?string
+    {
+        return $this->determineCurrentSchema();
     }
 
     /**
@@ -178,10 +176,10 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
     {
         $buffer = [];
-        foreach ($tableIndexes as $row) {
+        foreach ($rows as $row) {
             $colNumbers    = array_map('intval', explode(' ', $row['indkey']));
             $columnNameSql = sprintf(
                 'SELECT attnum, attname FROM pg_attribute WHERE attrelid=%d AND attnum IN (%s) ORDER BY attnum ASC',

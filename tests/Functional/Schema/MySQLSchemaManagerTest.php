@@ -608,4 +608,9 @@ SQL;
         self::assertArrayHasKey('col1', $columns);
         self::assertInstanceOf(CustomType::class, $columns['col1']->getNewColumn()->getType());
     }
+
+    public function getExpectedDefaultSchemaName(): ?string
+    {
+        return null;
+    }
 }

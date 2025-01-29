@@ -144,4 +144,10 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame(-1, $table->getColumn('col_nvarchar_max')->getLength());
         self::assertSame(128, $table->getColumn('col_nvarchar')->getLength());
     }
+
+    /** @link https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/ownership-and-user-schema-separation?view=sql-server-ver16#the-dbo-schema */
+    public function getExpectedDefaultSchemaName(): string
+    {
+        return 'dbo';
+    }
 }

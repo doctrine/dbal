@@ -180,25 +180,25 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
+    protected function _getPortableTableForeignKeysList(array $rows): array
     {
         $foreignKeys = [];
 
-        foreach ($tableForeignKeys as $tableForeignKey) {
-            $name = $tableForeignKey['ForeignKey'];
+        foreach ($rows as $row) {
+            $name = $row['ForeignKey'];
 
             if (! isset($foreignKeys[$name])) {
                 $foreignKeys[$name] = [
-                    'local' => [$tableForeignKey['ColumnName']],
-                    'foreignTable' => $tableForeignKey['ReferenceTableName'],
-                    'foreign' => [$tableForeignKey['ReferenceColumnName']],
+                    'local' => [$row['ColumnName']],
+                    'foreignTable' => $row['ReferenceTableName'],
+                    'foreign' => [$row['ReferenceColumnName']],
                     'name' => $name,
-                    'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
-                    'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc']),
+                    'onUpdate' => str_replace('_', ' ', $row['update_referential_action_desc']),
+                    'onDelete' => str_replace('_', ' ', $row['delete_referential_action_desc']),
                 ];
             } else {
-                $foreignKeys[$name]['local'][]   = $tableForeignKey['ColumnName'];
-                $foreignKeys[$name]['foreign'][] = $tableForeignKey['ReferenceColumnName'];
+                $foreignKeys[$name]['local'][]   = $row['ColumnName'];
+                $foreignKeys[$name]['foreign'][] = $row['ReferenceColumnName'];
             }
         }
 
@@ -208,15 +208,15 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
     {
-        foreach ($tableIndexes as &$tableIndex) {
-            $tableIndex['non_unique'] = (bool) $tableIndex['non_unique'];
-            $tableIndex['primary']    = (bool) $tableIndex['primary'];
-            $tableIndex['flags']      = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
+        foreach ($rows as &$row) {
+            $row['non_unique'] = (bool) $row['non_unique'];
+            $row['primary']    = (bool) $row['primary'];
+            $row['flags']      = $row['flags'] ? [$row['flags']] : null;
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
+        return parent::_getPortableTableIndexesList($rows, $tableName);
     }
 
     /**
@@ -224,7 +224,7 @@ SQL,
      */
     protected function _getPortableTableDefinition(array $table): string
     {
-        if ($table['schema_name'] !== 'dbo') {
+        if ($table['schema_name'] !== $this->getCurrentSchemaName()) {
             return $table['schema_name'] . '.' . $table['table_name'];
         }
 
@@ -257,15 +257,6 @@ SQL,
         );
     }
 
-    public function createSchemaConfig(): SchemaConfig
-    {
-        $config = parent::createSchemaConfig();
-
-        $config->setName($this->getCurrentSchemaName());
-
-        return $config;
-    }
-
     /** @throws Exception */
     private function getDatabaseCollation(): string
     {
@@ -284,8 +275,7 @@ SQL,
         return $this->databaseCollation;
     }
 
-    /** @throws Exception */
-    private function getCurrentSchemaName(): ?string
+    protected function determineCurrentSchemaName(): ?string
     {
         $schemaName = $this->connection->fetchOne('SELECT SCHEMA_NAME()');
         assert($schemaName !== false);

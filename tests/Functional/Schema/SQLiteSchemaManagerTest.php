@@ -388,4 +388,9 @@ SQL;
             UnqualifiedName::unquoted('artistid'),
         ], $foreignKey1->getReferencedColumnNames());
     }
+
+    public function getExpectedDefaultSchemaName(): ?string
+    {
+        return null;
+    }
 }

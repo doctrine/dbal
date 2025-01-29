@@ -21,4 +21,9 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->listDatabases();
     }
+
+    public function getExpectedDefaultSchemaName(): ?string
+    {
+        return null;
+    }
 }

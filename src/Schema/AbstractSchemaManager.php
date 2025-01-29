@@ -33,6 +33,23 @@ use function strtolower;
  */
 abstract class AbstractSchemaManager
 {
+    /**
+     * The current schema name determined from the connection. The <code>null</code> value means that there is no
+     * schema currently selected within the connection.
+     *
+     * The property should be accessed only when {@link $currentSchemaDetermined} is set to <code>true</code>. If the
+     * currently used database platform doesn't support schemas, the property will remain uninitialized.
+     *
+     * The property is initialized only once. If the underlying connection switches to a different schema, a new schema
+     * manager instance will have to be created to reflect this change.
+     */
+    private ?string $currentSchemaName;
+
+    /**
+     * Indicates whether the current schema has been determined.
+     */
+    private bool $currentSchemaDetermined = false;
+
     /** @param T $platform */
     public function __construct(protected Connection $connection, protected AbstractPlatform $platform)
     {
@@ -107,8 +124,7 @@ abstract class AbstractSchemaManager
         return $this->_getPortableTableColumnList(
             $table,
             $database,
-            $this->selectTableColumns($database, $this->normalizeName($table))
-                ->fetchAllAssociative(),
+            $this->fetchTableColumns($database, $this->normalizeName($table)),
         );
     }
 
@@ -127,10 +143,7 @@ abstract class AbstractSchemaManager
         $table    = $this->normalizeName($table);
 
         return $this->_getPortableTableIndexesList(
-            $this->selectIndexColumns(
-                $database,
-                $table,
-            )->fetchAllAssociative(),
+            $this->fetchIndexColumns($database, $table),
             $table,
         );
     }
@@ -240,6 +253,40 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Returns the current schema name used by the schema manager connection.
+     *
+     * The <code>null</code> value means that there is no schema currently selected within the connection or the
+     * corresponding database platform doesn't support schemas.
+     *
+     * @throws Exception
+     */
+    final protected function getCurrentSchemaName(): ?string
+    {
+        if (! $this->platform->supportsSchemas()) {
+            return null;
+        }
+
+        if (! $this->currentSchemaDetermined) {
+            $this->currentSchemaName       = $this->determineCurrentSchemaName();
+            $this->currentSchemaDetermined = true;
+        }
+
+        return $this->currentSchemaName;
+    }
+
+    /**
+     * Determines the name of the current schema.
+     *
+     * If the corresponding database platform supports schemas, the schema manager must implement this method.
+     *
+     * @throws Exception
+     */
+    protected function determineCurrentSchemaName(): ?string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
      * An extension point for those platforms where case sensitivity of the object name depends on whether it's quoted.
      *
      * Such platforms should convert a possibly quoted name into a value of the corresponding case.
@@ -283,6 +330,45 @@ abstract class AbstractSchemaManager
     abstract protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result;
 
     /**
+     * Fetches definitions of table columns in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    protected function fetchTableColumns(string $databaseName, ?string $tableName = null): array
+    {
+        return $this->selectTableColumns($databaseName, $tableName)->fetchAllAssociative();
+    }
+
+    /**
+     * Fetches definitions of index columns in the specified database. If the table name is specified, narrows down
+     * the selection to this table.
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    protected function fetchIndexColumns(string $databaseName, ?string $tableName = null): array
+    {
+        return $this->selectIndexColumns($databaseName, $tableName)->fetchAllAssociative();
+    }
+
+    /**
+     * Fetches definitions of foreign key columns in the specified database. If the table name is specified,
+     * narrows down the selection to this table.
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    protected function fetchForeignKeyColumns(string $databaseName, ?string $tableName = null): array
+    {
+        return $this->selectForeignKeyColumns($databaseName, $tableName)->fetchAllAssociative();
+    }
+
+    /**
      * Fetches definitions of table columns in the specified database and returns them grouped by table name.
      *
      * @return array<string,list<array<string,mixed>>>
@@ -291,7 +377,7 @@ abstract class AbstractSchemaManager
      */
     protected function fetchTableColumnsByTable(string $databaseName): array
     {
-        return $this->fetchAllAssociativeGrouped($this->selectTableColumns($databaseName));
+        return $this->groupByTable($this->fetchTableColumns($databaseName));
     }
 
     /**
@@ -303,7 +389,7 @@ abstract class AbstractSchemaManager
      */
     protected function fetchIndexColumnsByTable(string $databaseName): array
     {
-        return $this->fetchAllAssociativeGrouped($this->selectIndexColumns($databaseName));
+        return $this->groupByTable($this->fetchIndexColumns($databaseName));
     }
 
     /**
@@ -315,9 +401,7 @@ abstract class AbstractSchemaManager
      */
     protected function fetchForeignKeyColumnsByTable(string $databaseName): array
     {
-        return $this->fetchAllAssociativeGrouped(
-            $this->selectForeignKeyColumns($databaseName),
-        );
+        return $this->groupByTable($this->fetchForeignKeyColumns($databaseName));
     }
 
     /**
@@ -382,10 +466,10 @@ abstract class AbstractSchemaManager
         $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableForeignKeysList(
-            $this->selectForeignKeyColumns(
+            $this->fetchForeignKeyColumns(
                 $database,
                 $this->normalizeName($table),
-            )->fetchAllAssociative(),
+            ),
         );
     }
 
@@ -677,17 +761,15 @@ abstract class AbstractSchemaManager
      *
      * The name of the created column instance however is kept in its case.
      *
-     * @param array<int, array<string, mixed>> $tableColumns
+     * @param array<array<string, mixed>> $rows
      *
      * @return array<string, Column>
-     *
-     * @throws Exception
      */
-    protected function _getPortableTableColumnList(string $table, string $database, array $tableColumns): array
+    protected function _getPortableTableColumnList(string $table, string $database, array $rows): array
     {
         $list = [];
-        foreach ($tableColumns as $tableColumn) {
-            $column = $this->_getPortableTableColumnDefinition($tableColumn);
+        foreach ($rows as $row) {
+            $column = $this->_getPortableTableColumnDefinition($row);
 
             $list[strtolower($column->getName())] = $column;
         }
@@ -699,26 +781,22 @@ abstract class AbstractSchemaManager
      * Gets Table Column Definition.
      *
      * @param array<string, mixed> $tableColumn
-     *
-     * @throws Exception
      */
     abstract protected function _getPortableTableColumnDefinition(array $tableColumn): Column;
 
     /**
      * Aggregates and groups the index results according to the required data result.
      *
-     * @param array<int, array<string, mixed>> $tableIndexes
+     * @param array<array<string, mixed>> $rows
      *
      * @return array<string, Index>
-     *
-     * @throws Exception
      */
-    protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
     {
         $result = [];
-        foreach ($tableIndexes as $tableIndex) {
-            $indexName = $keyName = $tableIndex['key_name'];
-            if ($tableIndex['primary']) {
+        foreach ($rows as $row) {
+            $indexName = $keyName = $row['key_name'];
+            if ($row['primary']) {
                 $keyName = 'primary';
             }
 
@@ -729,22 +807,22 @@ abstract class AbstractSchemaManager
                     'lengths' => [],
                 ];
 
-                if (isset($tableIndex['where'])) {
-                    $options['where'] = $tableIndex['where'];
+                if (isset($row['where'])) {
+                    $options['where'] = $row['where'];
                 }
 
                 $result[$keyName] = [
                     'name' => $indexName,
                     'columns' => [],
-                    'unique' => ! $tableIndex['non_unique'],
-                    'primary' => $tableIndex['primary'],
-                    'flags' => $tableIndex['flags'] ?? [],
+                    'unique' => ! $row['non_unique'],
+                    'primary' => $row['primary'],
+                    'flags' => $row['flags'] ?? [],
                     'options' => $options,
                 ];
             }
 
-            $result[$keyName]['columns'][]            = $tableIndex['column_name'];
-            $result[$keyName]['options']['lengths'][] = $tableIndex['length'] ?? null;
+            $result[$keyName]['columns'][]            = $row['column_name'];
+            $result[$keyName]['options']['lengths'][] = $row['length'] ?? null;
         }
 
         $indexes = [];
@@ -769,15 +847,15 @@ abstract class AbstractSchemaManager
     abstract protected function _getPortableViewDefinition(array $view): View;
 
     /**
-     * @param array<int|string, array<string, mixed>> $tableForeignKeys
+     * @param array<array<string, mixed>> $rows
      *
      * @return array<int, ForeignKeyConstraint>
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
+    protected function _getPortableTableForeignKeysList(array $rows): array
     {
         $list = [];
 
-        foreach ($tableForeignKeys as $value) {
+        foreach ($rows as $value) {
             $list[] = $this->_getPortableTableForeignKeyDefinition($value);
         }
 
@@ -876,6 +954,7 @@ abstract class AbstractSchemaManager
     {
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setMaxIdentifierLength($this->platform->getMaxIdentifierLength());
+        $schemaConfig->setName($this->getCurrentSchemaName());
 
         $params = $this->connection->getParams();
         if (! isset($params['defaultTableOptions'])) {
@@ -909,15 +988,17 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @return array<string,list<array<string,mixed>>>
+     * Groups the rows representing database object elements by table they belong to.
      *
-     * @throws Exception
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return array<string,list<array<string,mixed>>>
      */
-    private function fetchAllAssociativeGrouped(Result $result): array
+    private function groupByTable(array $rows): array
     {
         $data = [];
 
-        foreach ($result->fetchAllAssociative() as $row) {
+        foreach ($rows as $row) {
             $tableName          = $this->_getPortableTableDefinition($row);
             $data[$tableName][] = $row;
         }
