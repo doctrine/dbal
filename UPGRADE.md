@@ -8,6 +8,12 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Removed `PostgreSQLSchemaManager` methods related to the current schema
+
+The following `PostgreSQLSchemaManager` methods have been removed:
+- `getCurrentSchema()`
+- `determineCurrentSchema()`
+
 ## BC BREAK: `Schema` no longer extends `AbstractAsset`
 
 The `Schema` class no longer extends `AbstractAsset`.
