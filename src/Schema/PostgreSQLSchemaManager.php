@@ -64,36 +64,12 @@ SQL,
         );
     }
 
-    /**
-     * Returns the name of the current schema.
-     *
-     * @deprecated Use {@link getCurrentSchemaName()} instead
-     *
-     * @throws Exception
-     */
-    protected function getCurrentSchema(): ?string
-    {
-        return $this->getCurrentSchemaName();
-    }
-
-    /**
-     * Determines the name of the current schema.
-     *
-     * @deprecated Use {@link determineCurrentSchemaName()} instead
-     *
-     * @throws Exception
-     */
-    protected function determineCurrentSchema(): string
-    {
-        $currentSchema = $this->connection->fetchOne('SELECT current_schema()');
-        assert(is_string($currentSchema));
-
-        return $currentSchema;
-    }
-
     protected function determineCurrentSchemaName(): ?string
     {
-        return $this->determineCurrentSchema();
+        $currentSchema = $this->connection->fetchOne('SELECT current_schema()');
+        assert($currentSchema !== false);
+
+        return $currentSchema;
     }
 
     /**
@@ -117,7 +93,7 @@ SQL,
      */
     protected function _getPortableViewDefinition(array $view): View
     {
-        if ($view['schemaname'] === $this->getCurrentSchema()) {
+        if ($view['schemaname'] === $this->getCurrentSchemaName()) {
             $name = $view['viewname'];
         } else {
             $name = $view['schemaname'] . '.' . $view['viewname'];
@@ -135,7 +111,7 @@ SQL,
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value);
             if (! isset($list[$value['conname']])) {
-                if ($value['fk_nspname'] === $this->getCurrentSchema()) {
+                if ($value['fk_nspname'] === $this->getCurrentSchemaName()) {
                     $value['fk_nspname'] = null;
                 }
 
@@ -164,7 +140,7 @@ SQL,
      */
     protected function _getPortableTableDefinition(array $table): string
     {
-        $currentSchema = $this->getCurrentSchema();
+        $currentSchema = $this->getCurrentSchemaName();
 
         if ($table['schema_name'] === $currentSchema) {
             return $table['table_name'];
@@ -223,7 +199,7 @@ SQL,
      */
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
-        if ($sequence['schemaname'] !== $this->getCurrentSchema()) {
+        if ($sequence['schemaname'] !== $this->getCurrentSchemaName()) {
             $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
         } else {
             $sequenceName = $sequence['relname'];
