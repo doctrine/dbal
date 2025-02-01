@@ -649,6 +649,34 @@ SQL;
         ));
         self::assertSame(1, $partitionsCount);
     }
+
+    public function testTimestampPrecisionComparison(): void
+    {
+        $offlineTable = new Table('timestamp_columns_test');
+        $offlineTable->addColumn('t_0_wz', Types::DATETIME_MUTABLE, ['precision' => 0]);
+        $offlineTable->addColumn('t_6_wz', Types::DATETIME_MUTABLE, ['precision' => 6]);
+        $offlineTable->addColumn('t_u_wz', Types::DATETIME_MUTABLE, ['precision' => 6]);
+        $offlineTable->addColumn('t_0_tz', Types::DATETIMETZ_MUTABLE, ['precision' => 0]);
+        $offlineTable->addColumn('t_6_tz', Types::DATETIMETZ_MUTABLE, ['precision' => 6]);
+        $offlineTable->addColumn('t_u_tz', Types::DATETIMETZ_MUTABLE, ['precision' => 6]);
+
+        $createTableSQL = <<<'SQL'
+            CREATE TABLE timestamp_columns_test (
+                t_0_wz TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+                t_6_wz TIMESTAMP(6) WITHOUT TIME ZONE NOT NULL,
+                t_u_wz TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                t_0_tz TIMESTAMP(0) WITH TIME ZONE NOT NULL,
+                t_6_tz TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+                t_u_tz TIMESTAMP WITH TIME ZONE NOT NULL
+            )
+            SQL;
+
+        $this->connection->executeStatement($createTableSQL);
+
+        $onlineTable = $this->connection->createSchemaManager()->introspectTable($offlineTable->getName());
+
+        self::assertEquals($offlineTable->getColumns(), $onlineTable->getColumns());
+    }
 }
 
 class MoneyType extends Type

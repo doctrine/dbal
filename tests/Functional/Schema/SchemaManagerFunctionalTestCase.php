@@ -269,12 +269,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addColumn('baz1', Types::DATETIME_MUTABLE);
         $table->addColumn('baz2', Types::TIME_MUTABLE);
         $table->addColumn('baz3', Types::DATE_MUTABLE);
-        $table->addColumn('dt1', Types::DATETIME_IMMUTABLE);
-        $table->addColumn('dt2', Types::DATETIME_IMMUTABLE, ['precision' => 6]);
-        $table->addColumn('dt3', Types::DATETIME_IMMUTABLE, ['platformOptions' => ['without_precision' => true]]);
-        $table->addColumn('dt4', Types::DATETIMETZ_IMMUTABLE);
-        $table->addColumn('dt5', Types::DATETIMETZ_IMMUTABLE, ['precision' => 6]);
-        $table->addColumn('dt6', Types::DATETIMETZ_IMMUTABLE, ['platformOptions' => ['without_precision' => true]]);
         $table->setPrimaryKey(['id']);
 
         return $table;
@@ -348,8 +342,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         );
         self::assertEquals(true, $columns['baz3']->getNotnull());
         self::assertEquals(null, $columns['baz3']->getDefault());
-
-        self::assertCount(13, $columns);
     }
 
     public function testListTableColumnsWithFixedStringColumn(): void

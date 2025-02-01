@@ -342,6 +342,8 @@ SQL,
                     ) === 1
                 ) {
                     $precision = (int) $match[1];
+                } else {
+                    $precision = 6;
                 }
 
                 break;
@@ -388,8 +390,6 @@ SQL,
 
         if ($column->getType() instanceof JsonType) {
             $column->setPlatformOption('jsonb', $jsonb);
-        } elseif ($column->getType() instanceof PhpDateTimeMappingType) {
-            $column->setPlatformOption('without_precision', $precision === null ? true : null);
         }
 
         return $column;

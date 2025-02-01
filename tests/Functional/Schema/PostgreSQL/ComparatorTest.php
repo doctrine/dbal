@@ -72,6 +72,15 @@ final class ComparatorTest extends FunctionalTestCase
         });
     }
 
+    public function testCompareDatesOfZeroPrecision(): void
+    {
+        $this->testColumnModification(static function (Table $table, string $name): Column {
+            return $table->addColumn($name, Types::DATETIME_IMMUTABLE)->setPrecision(null);
+        }, static function (Column $column): void {
+            $column->setPrecision(0);
+        });
+    }
+
     public function testPlatformOptionsChangedColumnComparison(): void
     {
         $table = new Table('update_json_to_jsonb_table');

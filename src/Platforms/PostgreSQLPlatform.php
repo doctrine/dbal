@@ -594,10 +594,6 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
-        if (! empty($column['without_precision'])) {
-            return 'TIMESTAMP WITHOUT TIME ZONE';
-        }
-
         return sprintf('TIMESTAMP(%d) WITHOUT TIME ZONE', $column['precision']);
     }
 
@@ -606,10 +602,6 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
-        if (! empty($column['without_precision'])) {
-            return 'TIMESTAMP WITH TIME ZONE';
-        }
-
         return sprintf('TIMESTAMP(%d) WITH TIME ZONE', $column['precision']);
     }
 
