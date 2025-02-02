@@ -42,6 +42,7 @@ jobs:
         dependencies:
           - "highest"
         extension:
+          - "sqlite3"
           - "pdo_sqlite"
         include:
           - os: "ubuntu-20.04"
@@ -49,7 +50,7 @@ jobs:
             dependencies: "lowest"
             extension: "pdo_sqlite"
           - os: "ubuntu-22.04"
-            php-version: "8.1"
+            php-version: "8.4"
             dependencies: "highest"
             extension: "sqlite3"
 

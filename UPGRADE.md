@@ -965,6 +965,12 @@ The following methods have been removed.
 | `QueryCacheProfile` | `setResultCacheDriver()` | `setResultCache()` |
 | `QueryCacheProfile` | `getResultCacheDriver()` | `getResultCache()` |
 
+# Upgrade to 3.10
+
+The `doctrine/cache` package is now an optional dependency. If you are using the
+`Doctrine\DBAL\Cache` classes, you need to require the `doctrine/cache` package
+explicitly.
+
 # Upgrade to 3.8
 
 ## Deprecated lock-related `AbstractPlatform` methods

@@ -161,9 +161,16 @@ SQL,
         foreach ($tableIndexes as $row) {
             $colNumbers    = array_map('intval', explode(' ', $row['indkey']));
             $columnNameSql = sprintf(
-                'SELECT attnum, attname FROM pg_attribute WHERE attrelid=%d AND attnum IN (%s) ORDER BY attnum ASC',
+                <<<'SQL'
+                SELECT attnum,
+                       quote_ident(attname) AS attname
+                FROM pg_attribute
+                WHERE attrelid = %d
+                  AND attnum IN (%s)
+                ORDER BY attnum
+                SQL,
                 $row['indrelid'],
-                implode(' ,', $colNumbers),
+                implode(', ', $colNumbers),
             );
 
             $indexColumns = $this->connection->fetchAllAssociative($columnNameSql);
@@ -412,7 +419,7 @@ SQL;
         $sql = 'SELECT ';
 
         if ($tableName === null) {
-            $sql .= 'c.relname AS table_name, n.nspname AS schema_name,';
+            $sql .= 'quote_ident(c.relname) AS table_name, quote_ident(n.nspname) AS schema_name,';
         }
 
         $sql .= sprintf(<<<'SQL'
@@ -478,7 +485,7 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' tc.relname AS table_name, tn.nspname AS schema_name,';
+            $sql .= ' quote_ident(tc.relname) AS table_name, quote_ident(tn.nspname) AS schema_name,';
         }
 
         $sql .= <<<'SQL'
@@ -512,7 +519,7 @@ SQL;
         $sql = 'SELECT';
 
         if ($tableName === null) {
-            $sql .= ' tc.relname AS table_name, tn.nspname AS schema_name,';
+            $sql .= ' quote_ident(tc.relname) AS table_name, quote_ident(tn.nspname) AS schema_name,';
         }
 
         $sql .= <<<'SQL'
@@ -540,7 +547,8 @@ SQL;
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
         $sql = <<<'SQL'
-SELECT c.relname,
+SELECT quote_ident(n.nspname) AS schema_name,
+       quote_ident(c.relname) AS table_name,
        CASE c.relpersistence WHEN 'u' THEN true ELSE false END as unlogged,
        obj_description(c.oid, 'pg_class') AS comment
 FROM pg_class c
@@ -552,7 +560,12 @@ SQL;
 
         $sql .= ' WHERE ' . implode(' AND ', $conditions);
 
-        return $this->connection->fetchAllAssociativeIndexed($sql);
+        $tableOptions = [];
+        foreach ($this->connection->iterateAssociative($sql) as $row) {
+            $tableOptions[$this->_getPortableTableDefinition($row)] = $row;
+        }
+
+        return $tableOptions;
     }
 
     /** @return list<string> */

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
@@ -1335,6 +1336,96 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $schemaManager->createSchemaObjects($schema);
     }
 
+    /** @throws Exception */
+    public function testQuotedIdentifiers(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof DB2Platform) {
+            self::markTestIncomplete(
+                'Introspection of lower-case identifiers as quoted is currently not implemented on IBM DB2.',
+            );
+        }
+
+        if (! $platform instanceof OraclePlatform && ! $platform instanceof PostgreSQLPlatform) {
+            self::markTestSkipped('The current platform does not auto-quote introspected identifiers.');
+        }
+
+        $artists = new Table('"Artists"');
+        $artists->addColumn('"Id"', Types::INTEGER);
+        $artists->addColumn('"Name"', Types::INTEGER);
+        $artists->addIndex(['"Name"'], '"Idx_Name"');
+        $artists->setPrimaryKey(['"Id"']);
+
+        $tracks = new Table('"Tracks"');
+        $tracks->addColumn('"Id"', Types::INTEGER);
+        $tracks->addColumn('"Artist_Id"', Types::INTEGER);
+        $tracks->addIndex(['"Artist_Id"'], '"Idx_Artist_Id"');
+        $tracks->addForeignKeyConstraint(
+            '"Artists"',
+            ['"Artist_Id"'],
+            ['"Id"'],
+            [],
+            '"Artists_Fk"',
+        );
+        $tracks->setPrimaryKey(['"Id"']);
+
+        $this->dropTableIfExists('"Tracks"');
+        $this->dropTableIfExists('"Artists"');
+
+        $this->schemaManager->createTable($artists);
+        $this->schemaManager->createTable($tracks);
+
+        $artists = $this->schemaManager->introspectTable('"Artists"');
+        $tracks  = $this->schemaManager->introspectTable('"Tracks"');
+
+        $platform = $this->connection->getDatabasePlatform();
+
+        // Primary table assertions
+        self::assertSame('"Artists"', $artists->getQuotedName($platform));
+        self::assertSame('"Id"', $artists->getColumn('"Id"')->getQuotedName($platform));
+        self::assertSame('"Name"', $artists->getColumn('"Name"')->getQuotedName($platform));
+        self::assertSame(['"Name"'], $artists->getIndex('"Idx_Name"')->getQuotedColumns($platform));
+
+        $primaryKey = $artists->getPrimaryKey();
+        self::assertNotNull($primaryKey);
+        self::assertSame(['"Id"'], $primaryKey->getQuotedColumns($platform));
+
+        // Foreign table assertions
+        self::assertTrue($tracks->hasColumn('"Id"'));
+        self::assertSame('"Id"', $tracks->getColumn('"Id"')->getQuotedName($platform));
+
+        $primaryKey = $tracks->getPrimaryKey();
+        self::assertNotNull($primaryKey);
+        self::assertSame(['"Id"'], $primaryKey->getQuotedColumns($platform));
+
+        self::assertTrue($tracks->hasColumn('"Artist_Id"'));
+        self::assertSame(
+            '"Artist_Id"',
+            $tracks->getColumn('"Artist_Id"')->getQuotedName($platform),
+        );
+
+        self::assertTrue($tracks->hasIndex('"Idx_Artist_Id"'));
+        self::assertSame(
+            ['"Artist_Id"'],
+            $tracks->getIndex('"Idx_Artist_Id"')->getQuotedColumns($platform),
+        );
+
+        self::assertTrue($tracks->hasForeignKey('"Artists_Fk"'));
+        self::assertSame(
+            '"Artists"',
+            $tracks->getForeignKey('"Artists_Fk"')->getQuotedForeignTableName($platform),
+        );
+        self::assertSame(
+            ['"Artist_Id"'],
+            $tracks->getForeignKey('"Artists_Fk"')->getQuotedLocalColumns($platform),
+        );
+        self::assertSame(
+            ['"Id"'],
+            $tracks->getForeignKey('"Artists_Fk"')->getQuotedForeignColumns($platform),
+        );
+    }
+
     public function testChangeIndexWithForeignKeys(): void
     {
         $this->dropTableIfExists('child');
@@ -1429,6 +1520,49 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         }
 
         return null;
+    }
+
+    public function testTableWithSchema(): void
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsSchemas()) {
+            self::markTestSkipped('The currently used database platform does not support schemas.');
+        }
+
+        $this->connection->executeStatement('CREATE SCHEMA nested');
+
+        $nestedRelatedTable = new Table('nested.schemarelated');
+        $column             = $nestedRelatedTable->addColumn('id', Types::INTEGER);
+        $column->setAutoincrement(true);
+        $nestedRelatedTable->setPrimaryKey(['id']);
+
+        $nestedSchemaTable = new Table('nested.schematable');
+        $column            = $nestedSchemaTable->addColumn('id', Types::INTEGER);
+        $column->setAutoincrement(true);
+        $nestedSchemaTable->setPrimaryKey(['id']);
+        $nestedSchemaTable->addForeignKeyConstraint($nestedRelatedTable->getName(), ['id'], ['id']);
+        $nestedSchemaTable->setComment('This is a comment');
+
+        $this->schemaManager->createTable($nestedRelatedTable);
+        $this->schemaManager->createTable($nestedSchemaTable);
+
+        $tableNames = $this->schemaManager->listTableNames();
+        self::assertContains('nested.schematable', $tableNames);
+
+        $tables = $this->schemaManager->listTables();
+        self::assertNotNull($this->findTableByName($tables, 'nested.schematable'));
+
+        $nestedSchemaTable = $this->schemaManager->introspectTable('nested.schematable');
+        self::assertTrue($nestedSchemaTable->hasColumn('id'));
+
+        $primaryKey = $nestedSchemaTable->getPrimaryKey();
+        self::assertNotNull($primaryKey);
+        self::assertEquals(['id'], $primaryKey->getColumns());
+
+        $relatedFks = array_values($nestedSchemaTable->getForeignKeys());
+        self::assertCount(1, $relatedFks);
+        $relatedFk = $relatedFks[0];
+        self::assertEquals('nested.schemarelated', $relatedFk->getForeignTableName());
+        self::assertEquals('This is a comment', $nestedSchemaTable->getComment());
     }
 }
 
