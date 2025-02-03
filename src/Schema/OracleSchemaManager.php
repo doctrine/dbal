@@ -512,13 +512,13 @@ SQL;
 
         $sql .= ' FROM ALL_TAB_COMMENTS WHERE ' . implode(' AND ', $conditions);
 
-        /** @var array<string,array<string,mixed>> $metadata */
-        $metadata = $this->_conn->executeQuery($sql, $params)
-            ->fetchAllAssociativeIndexed();
+        /** @var array<array{TABLE_NAME: string, COMMENTS: string|null}> $metadata */
+        $metadata = $this->_conn->executeQuery($sql, $params)->fetchAllAssociative();
 
         $tableOptions = [];
-        foreach ($metadata as $table => $data) {
-            $data = array_change_key_case($data, CASE_LOWER);
+        foreach ($metadata as $data) {
+            $data  = array_change_key_case($data, CASE_LOWER);
+            $table = $this->_getPortableTableDefinition($data);
 
             $tableOptions[$table] = [
                 'comment' => $data['comments'],

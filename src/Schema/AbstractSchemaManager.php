@@ -249,11 +249,12 @@ abstract class AbstractSchemaManager
             );
         }
 
+        $normalizedTable = $this->normalizeName($table);
+
         return $this->_getPortableTableColumnList(
-            $table,
+            $normalizedTable,
             $database,
-            $this->selectTableColumns($database, $this->normalizeName($table))
-                ->fetchAllAssociative(),
+            $this->selectTableColumns($database, $normalizedTable)->fetchAllAssociative(),
         );
     }
 
@@ -486,7 +487,7 @@ abstract class AbstractSchemaManager
             $this->listTableIndexes($name),
             [],
             $foreignKeys,
-            $tableOptionsByTable[$normalizedName] ?? [],
+            $tableOptionsByTable[$name] ?? [],
         );
     }
 
