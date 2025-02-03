@@ -27,6 +27,7 @@ use function preg_match_all;
 use function preg_quote;
 use function preg_replace;
 use function rtrim;
+use function sprintf;
 use function str_contains;
 use function str_ends_with;
 use function str_replace;
@@ -94,6 +95,8 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * @deprecated Use the schema name and the unqualified table name separately instead.
+     *
      * {@inheritDoc}
      */
     protected function _getPortableTableDefinition(array $table): string
@@ -404,9 +407,7 @@ SQL
 SELECT name AS table_name
 FROM sqlite_master
 WHERE type = 'table'
-  AND name != 'sqlite_sequence'
-  AND name != 'geometry_columns'
-  AND name != 'spatial_ref_sys'
+  AND name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')
 UNION ALL
 SELECT name
 FROM sqlite_temp_master
@@ -419,77 +420,62 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = <<<'SQL'
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
             SELECT t.name AS table_name,
                    c.*
               FROM sqlite_master t
               JOIN pragma_table_info(t.name) c
-SQL;
-
-        $conditions = [
-            "t.type = 'table'",
-            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
-        ];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = 't.name = ?';
-            $params[]     = $tableName;
-        }
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, c.cid';
+             WHERE %s
+          ORDER BY t.name,
+                   c.cid
+SQL,
+            $this->getWhereClause($tableName, $params),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = <<<'SQL'
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
             SELECT t.name AS table_name,
                    i.name,
                    i."unique"
               FROM sqlite_master t
               JOIN pragma_index_list(t.name) i
-SQL;
-
-        $conditions = [
-            "t.type = 'table'",
-            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
-        ];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = 't.name = ?';
-            $params[]     = $tableName;
-        }
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, i.seq';
+             WHERE %s
+          ORDER BY t.name, i.seq
+SQL,
+            $this->getWhereClause($tableName, $params),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = <<<'SQL'
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
             SELECT t.name AS table_name,
                    p.*
               FROM sqlite_master t
               JOIN pragma_foreign_key_list(t.name) p
-                ON p."seq" != '-1'
-SQL;
-
-        $conditions = [
-            "t.type = 'table'",
-            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
-        ];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = 't.name = ?';
-            $params[]     = $tableName;
-        }
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, p.id DESC, p.seq';
+                ON p.seq != '-1'
+             WHERE %s
+          ORDER BY t.name,
+                   p.id DESC,
+                   p.seq
+SQL,
+            $this->getWhereClause($tableName, $params),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
@@ -595,27 +581,21 @@ SQL;
      */
     private function fetchPrimaryKeyColumns(?string $tableName = null): array
     {
-        $sql = <<<'SQL'
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
             SELECT t.name AS table_name,
                    p.name
               FROM sqlite_master t
               JOIN pragma_table_info(t.name) p
-        SQL;
-
-        $conditions = [
-            "t.type = 'table'",
-            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
-        ];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = 't.name = ?';
-            $params[]     = $tableName;
-        }
-
-        $conditions[] = 'p.pk > 0';
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY t.name, p.pk';
+             WHERE %s
+               AND p.pk > 0
+          ORDER BY t.name,
+                   p.pk
+        SQL,
+            $this->getWhereClause($tableName, $params),
+        );
 
         return $this->connection->fetchAllAssociative($sql, $params);
     }
@@ -643,5 +623,21 @@ SQL;
         }
 
         return $tableOptions;
+    }
+
+    /** @param list<string> $params */
+    private function getWhereClause(?string $tableName, array &$params): string
+    {
+        $conditions = [
+            "t.type = 'table'",
+            "t.name NOT IN ('geometry_columns', 'spatial_ref_sys', 'sqlite_sequence')",
+        ];
+
+        if ($tableName !== null) {
+            $conditions[] = 't.name = ?';
+            $params[]     = $tableName;
+        }
+
+        return implode(' AND ', $conditions);
     }
 }

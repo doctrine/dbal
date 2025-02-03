@@ -837,7 +837,11 @@ abstract class AbstractSchemaManager
         return $indexes;
     }
 
-    /** @param array<string, string> $table */
+    /**
+     * @deprecated Use the schema name and the unqualified table name separately instead.
+     *
+     * @param array<string, string> $table
+     */
     abstract protected function _getPortableTableDefinition(array $table): string;
 
     /** @param array<string, mixed> $view */

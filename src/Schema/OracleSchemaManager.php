@@ -16,6 +16,7 @@ use function assert;
 use function implode;
 use function is_string;
 use function preg_match;
+use function sprintf;
 use function str_contains;
 use function str_replace;
 use function str_starts_with;
@@ -43,6 +44,8 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * @deprecated Use the schema name and the unqualified table name separately instead.
+     *
      * {@inheritDoc}
      */
     protected function _getPortableTableDefinition(array $table): string
@@ -312,13 +315,18 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
+        $conditions = ['C.OWNER = :OWNER'];
+        $params     = ['OWNER' => $databaseName];
 
-        if ($tableName === null) {
-            $sql .= ' C.TABLE_NAME,';
+        if ($tableName !== null) {
+            $conditions[]         = 'C.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
         }
 
-        $sql .= <<<'SQL'
+        $sql = sprintf(
+            <<<'SQL'
+          SELECT
+                 C.TABLE_NAME,
                  C.COLUMN_NAME,
                  C.DATA_TYPE,
                  C.DATA_DEFAULT,
@@ -336,30 +344,29 @@ SQL;
            ON D.OWNER = C.OWNER
                   AND D.TABLE_NAME = C.TABLE_NAME
                   AND D.COLUMN_NAME = C.COLUMN_NAME
-SQL;
-
-        $conditions = ['C.OWNER = :OWNER'];
-        $params     = ['OWNER' => $databaseName];
-
-        if ($tableName !== null) {
-            $conditions[]         = 'C.TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName;
-        }
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY C.COLUMN_ID';
+           WHERE %s
+        ORDER BY C.TABLE_NAME, C.COLUMN_ID
+SQL,
+            implode(' AND ', $conditions),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
+        $conditions = ['IND_COL.INDEX_OWNER = :OWNER'];
+        $params     = ['OWNER' => $databaseName];
 
-        if ($tableName === null) {
-            $sql .= ' IND_COL.TABLE_NAME,';
+        if ($tableName !== null) {
+            $conditions[]         = 'IND_COL.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
         }
 
-        $sql .= <<<'SQL'
+        $sql = sprintf(
+            <<<'SQL'
+          SELECT
+                 IND_COL.TABLE_NAME,
                  IND_COL.INDEX_NAME AS NAME,
                  IND.INDEX_TYPE AS TYPE,
                  DECODE(IND.UNIQUENESS, 'NONUNIQUE', 0, 'UNIQUE', 1) AS IS_UNIQUE,
@@ -373,31 +380,31 @@ SQL;
        LEFT JOIN ALL_CONSTRAINTS CON
               ON CON.OWNER = IND_COL.INDEX_OWNER
              AND CON.INDEX_NAME = IND_COL.INDEX_NAME
-SQL;
-
-        $conditions = ['IND_COL.INDEX_OWNER = :OWNER'];
-        $params     = ['OWNER' => $databaseName];
-
-        if ($tableName !== null) {
-            $conditions[]         = 'IND_COL.TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName;
-        }
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY IND_COL.TABLE_NAME, IND_COL.INDEX_NAME'
-            . ', IND_COL.COLUMN_POSITION';
+           WHERE %s
+        ORDER BY IND_COL.TABLE_NAME,
+                 IND_COL.INDEX_NAME,
+                 IND_COL.COLUMN_POSITION
+SQL,
+            implode(' AND ', $conditions),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
+        $conditions = ["ALC.CONSTRAINT_TYPE = 'R'", 'COLS.OWNER = :OWNER'];
+        $params     = ['OWNER' => $databaseName];
 
-        if ($tableName === null) {
-            $sql .= ' COLS.TABLE_NAME,';
+        if ($tableName !== null) {
+            $conditions[]         = 'COLS.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName;
         }
 
-        $sql .= <<<'SQL'
+        $sql = sprintf(
+            <<<'SQL'
+          SELECT
+                 COLS.TABLE_NAME,
                  ALC.CONSTRAINT_NAME,
                  ALC.DELETE_RULE,
                  ALC.DEFERRABLE,
@@ -410,18 +417,13 @@ SQL;
        LEFT JOIN ALL_CONS_COLUMNS R_COLS ON R_COLS.OWNER = ALC.R_OWNER AND
                  R_COLS.CONSTRAINT_NAME = ALC.R_CONSTRAINT_NAME AND
                  R_COLS.POSITION = COLS.POSITION
-SQL;
-
-        $conditions = ["ALC.CONSTRAINT_TYPE = 'R'", 'COLS.OWNER = :OWNER'];
-        $params     = ['OWNER' => $databaseName];
-
-        if ($tableName !== null) {
-            $conditions[]         = 'COLS.TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName;
-        }
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY COLS.TABLE_NAME, COLS.CONSTRAINT_NAME'
-            . ', COLS.POSITION';
+           WHERE %s
+        ORDER BY COLS.TABLE_NAME,
+                 COLS.CONSTRAINT_NAME,
+                 COLS.POSITION
+SQL,
+            implode(' AND ', $conditions),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
@@ -431,8 +433,6 @@ SQL;
      */
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
-        $sql = 'SELECT TABLE_NAME, COMMENTS';
-
         $conditions = ['OWNER = :OWNER'];
         $params     = ['OWNER' => $databaseName];
 
@@ -441,19 +441,20 @@ SQL;
             $params['TABLE_NAME'] = $tableName;
         }
 
-        $sql .= ' FROM ALL_TAB_COMMENTS WHERE ' . implode(' AND ', $conditions);
-
-        /** @var array<string,array<string,mixed>> $metadata */
-        $metadata = $this->connection->executeQuery($sql, $params)
-            ->fetchAllAssociativeIndexed();
+        $sql = sprintf(
+            <<<'SQL'
+      SELECT TABLE_NAME,
+             COMMENTS
+        FROM ALL_TAB_COMMENTS
+      WHERE %s
+   ORDER BY TABLE_NAME
+SQL,
+            implode(' AND ', $conditions),
+        );
 
         $tableOptions = [];
-        foreach ($metadata as $table => $data) {
-            $data = array_change_key_case($data, CASE_LOWER);
-
-            $tableOptions[$table] = [
-                'comment' => $data['comments'],
-            ];
+        foreach ($this->connection->iterateKeyValue($sql, $params) as $table => $comments) {
+            $tableOptions[$table] = ['comment' => $comments];
         }
 
         return $tableOptions;

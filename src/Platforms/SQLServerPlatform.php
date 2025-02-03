@@ -1191,11 +1191,17 @@ class SQLServerPlatform extends AbstractPlatform
 
     protected function getCommentOnTableSQL(string $tableName, string $comment): string
     {
+        if (str_contains($tableName, '.')) {
+            [$schemaName, $tableName] = explode('.', $tableName);
+        } else {
+            $schemaName = 'dbo';
+        }
+
         return $this->getAddExtendedPropertySQL(
             'MS_Description',
             $comment,
             'SCHEMA',
-            $this->quoteStringLiteral('dbo'),
+            $this->quoteStringLiteral($this->unquoteSingleIdentifier($schemaName)),
             'TABLE',
             $this->quoteStringLiteral($this->unquoteSingleIdentifier($tableName)),
         );

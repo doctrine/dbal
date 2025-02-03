@@ -478,7 +478,6 @@ The following table shows an overview of Doctrine's type abstraction.
 The matrix contains the mapping information for how a specific Doctrine
 type is mapped to the database and back to PHP.
 Please also notice the mapping specific footnotes for additional information.
-::
 
     +-------------------+--------------------+-----------------------------------------------------------------------------------------------+
     | Doctrine          | PHP                | Database vendor                                                                               |
@@ -602,10 +601,10 @@ Please also notice the mapping specific footnotes for additional information.
     |                   |                    +--------------------------+         |                                                          |
     |                   |                    | **PostgreSQL**           | *all*   | ``UUID``                                                 |
     +-------------------+--------------------+--------------------------+---------+----------------------------------------------------------+
-    | **binary**        | ``resource``       | **MySQL**                | *all*   | ``VARBINARY(n)`` [3]                                     |
+    | **binary**        | ``string``         | **MySQL**                | *all*   | ``VARBINARY(n)`` [3]                                     |
     | [2]  [6]          |                    +--------------------------+         |                                                          |
-    |                   |                    | **SQL Server**           |         +----------------------------------------------------------+
-    |                   |                    +--------------------------+         | ``BINARY(n)`` [4]                                        |
+    |                   |                    | **SQL Server**           |         | ``BINARY(n)`` [4]                                        |
+    |                   |                    +--------------------------+---------+----------------------------------------------------------+
     |                   |                    | **Oracle**               | *all*   | ``RAW(n)``                                               |
     |                   |                    +--------------------------+---------+----------------------------------------------------------+
     |                   |                    | **PostgreSQL**           | *all*   | ``BYTEA`` [15]                                           |

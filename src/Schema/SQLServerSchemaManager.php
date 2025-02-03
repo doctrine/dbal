@@ -188,9 +188,14 @@ SQL,
             $name = $row['ForeignKey'];
 
             if (! isset($foreignKeys[$name])) {
+                if ($row['ReferenceSchemaName'] === $this->getCurrentSchemaName()) {
+                    $row['ReferenceSchemaName'] = null;
+                }
+
                 $foreignKeys[$name] = [
                     'local' => [$row['ColumnName']],
                     'foreignTable' => $row['ReferenceTableName'],
+                    'foreignSchema' => $row['ReferenceSchemaName'],
                     'foreign' => [$row['ReferenceColumnName']],
                     'name' => $name,
                     'onUpdate' => str_replace('_', ' ', $row['update_referential_action_desc']),
@@ -220,6 +225,8 @@ SQL,
     }
 
     /**
+     * @deprecated Use the schema name and the unqualified table name separately instead.
+     *
      * {@inheritDoc}
      */
     protected function _getPortableTableDefinition(array $table): string
@@ -287,11 +294,10 @@ SQL,
     {
         // The "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
         $sql = <<<'SQL'
-SELECT name AS table_name,
-       SCHEMA_NAME(schema_id) AS schema_name
-FROM sys.objects
-WHERE type = 'U'
-  AND name != 'sysdiagrams'
+SELECT SCHEMA_NAME(schema_id) AS schema_name,
+       name AS table_name
+FROM sys.tables
+WHERE name != 'sysdiagrams'
 ORDER BY name
 SQL;
 
@@ -300,13 +306,13 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
+        $params = [];
 
-        if ($tableName === null) {
-            $sql .= ' obj.name AS table_name, scm.name AS schema_name,';
-        }
-
-        $sql .= <<<'SQL'
+        $sql = sprintf(
+            <<<'SQL'
+                SELECT
+                          scm.name AS schema_name,
+                          tbl.name AS table_name,
                           col.name,
                           type.name AS type,
                           col.max_length AS length,
@@ -322,41 +328,37 @@ SQL;
                 FROM      sys.columns AS col
                 JOIN      sys.types AS type
                 ON        col.user_type_id = type.user_type_id
-                JOIN      sys.objects AS obj
-                ON        col.object_id = obj.object_id
+                JOIN      sys.tables AS tbl
+                ON        col.object_id = tbl.object_id
                 JOIN      sys.schemas AS scm
-                ON        obj.schema_id = scm.schema_id
+                ON        tbl.schema_id = scm.schema_id
                 LEFT JOIN sys.default_constraints def
                 ON        col.default_object_id = def.object_id
                 AND       col.object_id = def.parent_object_id
                 LEFT JOIN sys.extended_properties AS prop
-                ON        obj.object_id = prop.major_id
+                ON        tbl.object_id = prop.major_id
                 AND       col.column_id = prop.minor_id
                 AND       prop.name = 'MS_Description'
-SQL;
-
-        // The "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
-        $conditions = ["obj.type = 'U'", "obj.name != 'sysdiagrams'"];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = $this->getTableWhereClause($tableName, 'scm.name', 'obj.name');
-        }
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+                WHERE     %s
+                ORDER BY  scm.name,
+                          tbl.name,
+                          col.column_id
+SQL,
+            $this->getWhereClause($tableName, 'scm.name', 'tbl.name', $params),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
+        $params = [];
 
-        if ($tableName === null) {
-            $sql .= ' tbl.name AS table_name, scm.name AS schema_name,';
-        }
-
-        $sql .= <<<'SQL'
+        $sql = sprintf(
+            <<<'SQL'
+              SELECT
+                       scm.name AS schema_name,
+                       tbl.name AS table_name,
                        idx.name AS key_name,
                        col.name AS column_name,
                        ~idx.is_unique AS non_unique,
@@ -377,59 +379,52 @@ SQL;
                 JOIN sys.columns AS col
                   ON idxcol.object_id = col.object_id
                  AND idxcol.column_id = col.column_id
-SQL;
-
-        $conditions = [];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = $this->getTableWhereClause($tableName, 'scm.name', 'tbl.name');
-            $sql         .= ' WHERE ' . implode(' AND ', $conditions);
-        }
-
-        $sql .= ' ORDER BY idx.index_id, idxcol.key_ordinal';
+               WHERE %s
+            ORDER BY scm.name,
+                     tbl.name,
+                     idx.index_id,
+                     idxcol.key_ordinal
+SQL,
+            $this->getWhereClause($tableName, 'scm.name', 'tbl.name', $params),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
+        $params = [];
 
-        if ($tableName === null) {
-            $sql .= ' OBJECT_NAME (f.parent_object_id) AS table_name, SCHEMA_NAME(f.schema_id) AS schema_name,';
-        }
-
-        $sql .= <<<'SQL'
+        $sql = sprintf(
+            <<<'SQL'
+                SELECT
+                SCHEMA_NAME(f.schema_id) AS schema_name,
+                OBJECT_NAME(f.parent_object_id) AS table_name,
                 f.name AS ForeignKey,
-                SCHEMA_NAME (f.SCHEMA_ID) AS SchemaName,
-                OBJECT_NAME (f.parent_object_id) AS TableName,
-                COL_NAME (fc.parent_object_id,fc.parent_column_id) AS ColumnName,
-                SCHEMA_NAME (o.SCHEMA_ID) ReferenceSchemaName,
-                OBJECT_NAME (f.referenced_object_id) AS ReferenceTableName,
-                COL_NAME(fc.referenced_object_id,fc.referenced_column_id) AS ReferenceColumnName,
+                COL_NAME(fc.parent_object_id, fc.parent_column_id) AS ColumnName,
+                SCHEMA_NAME(t.schema_id) ReferenceSchemaName,
+                OBJECT_NAME(f.referenced_object_id) AS ReferenceTableName,
+                COL_NAME(fc.referenced_object_id, fc.referenced_column_id) AS ReferenceColumnName,
                 f.delete_referential_action_desc,
                 f.update_referential_action_desc
                 FROM sys.foreign_keys AS f
                 INNER JOIN sys.foreign_key_columns AS fc
-                INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
-                ON f.OBJECT_ID = fc.constraint_object_id
-SQL;
-
-        $conditions = [];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = $this->getTableWhereClause(
+                ON f.object_id = fc.constraint_object_id
+                INNER JOIN sys.tables AS t
+                ON t.object_id = fc.referenced_object_id
+                WHERE %s
+                ORDER BY 1,
+                         2,
+                         3,
+                         fc.constraint_column_id
+SQL,
+            $this->getWhereClause(
                 $tableName,
                 'SCHEMA_NAME(f.schema_id)',
                 'OBJECT_NAME(f.parent_object_id)',
-            );
-
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        }
-
-        $sql .= ' ORDER BY fc.constraint_column_id';
+                $params,
+            ),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
@@ -439,34 +434,32 @@ SQL;
      */
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
-        $sql = <<<'SQL'
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
           SELECT
-            tbl.name,
-            p.value AS [table_comment]
+            scm.name AS schema_name,
+            tbl.name AS table_name,
+            p.value
           FROM
             sys.tables AS tbl
+            JOIN sys.schemas AS scm
+              ON tbl.schema_id = scm.schema_id
             INNER JOIN sys.extended_properties AS p ON p.major_id=tbl.object_id AND p.minor_id=0 AND p.class=1
-SQL;
-
-        $conditions = ["SCHEMA_NAME(tbl.schema_id) = N'dbo'", "p.name = N'MS_Description'"];
-        $params     = [];
-
-        if ($tableName !== null) {
-            $conditions[] = "tbl.name = N'" . $tableName . "'";
-        }
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions);
-
-        /** @var array<string,array<string,mixed>> $metadata */
-        $metadata = $this->connection->executeQuery($sql, $params)
-            ->fetchAllAssociativeIndexed();
+          WHERE
+              p.name = N'MS_Description'
+          AND %s
+SQL,
+            $this->getWhereClause($tableName, 'scm.name', 'tbl.name', $params),
+        );
 
         $tableOptions = [];
-        foreach ($metadata as $table => $data) {
+        foreach ($this->connection->iterateAssociative($sql, $params) as $data) {
             $data = array_change_key_case($data, CASE_LOWER);
 
-            $tableOptions[$table] = [
-                'comment' => $data['table_comment'],
+            $tableOptions[$this->_getPortableTableDefinition($data)] = [
+                'comment' => $data['value'],
             ];
         }
 
@@ -476,21 +469,36 @@ SQL;
     /**
      * Returns the where clause to filter schema and table name in a query.
      *
-     * @param string $table        The full qualified name of the table.
-     * @param string $schemaColumn The name of the column to compare the schema to in the where clause.
-     * @param string $tableColumn  The name of the column to compare the table to in the where clause.
+     * @param ?string      $tableName    The full qualified name of the table.
+     * @param string       $schemaColumn The name of the column to compare the schema to in the where clause.
+     * @param string       $tableColumn  The name of the column to compare the table to in the where clause.
+     * @param list<string> $params
      */
-    private function getTableWhereClause(string $table, string $schemaColumn, string $tableColumn): string
-    {
-        if (str_contains($table, '.')) {
-            [$schema, $table] = explode('.', $table);
-            $schema           = $this->platform->quoteStringLiteral($schema);
-            $table            = $this->platform->quoteStringLiteral($table);
-        } else {
-            $schema = 'SCHEMA_NAME()';
-            $table  = $this->platform->quoteStringLiteral($table);
+    private function getWhereClause(
+        ?string $tableName,
+        string $schemaColumn,
+        string $tableColumn,
+        array &$params,
+    ): string {
+        $conditions = [];
+
+        if ($tableName !== null) {
+            if (str_contains($tableName, '.')) {
+                [$schemaName, $tableName] = explode('.', $tableName);
+
+                $conditions = [sprintf('%s = ?', $schemaColumn)];
+                $params[]   = $schemaName;
+            } else {
+                $conditions = [sprintf('%s = SCHEMA_NAME()', $schemaColumn)];
+            }
+
+            $conditions[] = sprintf('%s = ?', $tableColumn);
+            $params[]     = $tableName;
         }
 
-        return sprintf('(%s = %s AND %s = %s)', $tableColumn, $table, $schemaColumn, $schema);
+        // The "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
+        $conditions[] = sprintf("%s != 'sysdiagrams'", $tableColumn);
+
+        return implode(' AND ', $conditions);
     }
 }

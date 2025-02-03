@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
-use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\View;
@@ -20,7 +19,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-use function array_pop;
 use function sprintf;
 use function strtolower;
 use function version_compare;
@@ -108,48 +106,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->alterTable($diff);
         $tableFinal = $this->schemaManager->introspectTable('autoinc_table_drop');
         self::assertFalse($tableFinal->getColumn('id')->getAutoincrement());
-    }
-
-    public function testTableWithSchema(): void
-    {
-        $this->connection->executeStatement('CREATE SCHEMA nested');
-
-        $referencedName  = OptionallyQualifiedName::unquoted('referenced', 'nested');
-        $referencingName = OptionallyQualifiedName::unquoted('referencing', 'nested');
-
-        $referencedTable = new Table($referencedName->toString());
-        $column          = $referencedTable->addColumn('id', Types::INTEGER);
-        $column->setAutoincrement(true);
-        $referencedTable->setPrimaryKey(['id']);
-
-        $referencingTable = new Table($referencingName->toString());
-        $column           = $referencingTable->addColumn('id', Types::INTEGER);
-        $column->setAutoincrement(true);
-        $referencingTable->setPrimaryKey(['id']);
-        $referencingTable->addForeignKeyConstraint($referencedTable->getName(), ['id'], ['id']);
-
-        $this->schemaManager->createTable($referencedTable);
-        $this->schemaManager->createTable($referencingTable);
-
-        $tableNames = $this->schemaManager->listTableNames();
-        self::assertContains($referencingName->toString(), $tableNames);
-
-        $tables = $this->schemaManager->listTables();
-        self::assertNotNull($this->findTableByName($tables, $referencingName->toString()));
-
-        $referencingTable = $this->schemaManager->introspectTable($referencingName->toString());
-        self::assertTrue($referencingTable->hasColumn('id'));
-
-        $primaryKey = $referencingTable->getPrimaryKey();
-        self::assertNotNull($primaryKey);
-        self::assertEquals(['id'], $primaryKey->getColumns());
-
-        $foreignKeys = $referencingTable->getForeignKeys();
-        self::assertCount(1, $foreignKeys);
-
-        $foreignKey = array_pop($foreignKeys);
-        self::assertNotNull($foreignKey);
-        $this->assertOptionallyQualifiedNameEquals($referencedName, $foreignKey->getReferencedTableName());
     }
 
     public function testListSameTableNameColumnsWithDifferentSchema(): void

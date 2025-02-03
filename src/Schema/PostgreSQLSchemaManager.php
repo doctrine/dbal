@@ -14,7 +14,6 @@ use Doctrine\DBAL\Types\Type;
 use function array_change_key_case;
 use function array_key_exists;
 use function array_map;
-use function array_merge;
 use function assert;
 use function explode;
 use function implode;
@@ -136,6 +135,8 @@ SQL,
     }
 
     /**
+     * @deprecated Use the schema name and the unqualified table name separately instead.
+     *
      * {@inheritDoc}
      */
     protected function _getPortableTableDefinition(array $table): string
@@ -158,9 +159,16 @@ SQL,
         foreach ($rows as $row) {
             $colNumbers    = array_map('intval', explode(' ', $row['indkey']));
             $columnNameSql = sprintf(
-                'SELECT attnum, attname FROM pg_attribute WHERE attrelid=%d AND attnum IN (%s) ORDER BY attnum ASC',
+                <<<'SQL'
+                SELECT attnum,
+                       quote_ident(attname) AS attname
+                FROM pg_attribute
+                WHERE attrelid = %d
+                  AND attnum IN (%s)
+                ORDER BY attnum
+                SQL,
                 $row['indrelid'],
-                implode(' ,', $colNumbers),
+                implode(', ', $colNumbers),
             );
 
             $indexColumns = $this->connection->fetchAllAssociative($columnNameSql);
@@ -406,13 +414,13 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT ';
+        $params = [];
 
-        if ($tableName === null) {
-            $sql .= 'c.relname AS table_name, n.nspname AS schema_name,';
-        }
-
-        $sql .= <<<'SQL'
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT
+            quote_ident(n.nspname) AS schema_name,
+            quote_ident(c.relname) AS table_name,
             a.attnum,
             quote_ident(a.attname) AS field,
             t.typname AS type,
@@ -451,41 +459,36 @@ SQL;
                     ON d.objid = c.oid
                         AND d.deptype = 'e'
                         AND d.classid = (SELECT oid FROM pg_class WHERE relname = 'pg_class')
-            SQL;
-
-        $conditions = array_merge([
-            'a.attnum > 0',
-            'd.refobjid IS NULL',
-
-            // 'r' for regular tables - 'p' for partitioned tables
-            "c.relkind IN('r', 'p')",
-
-            // exclude partitions (tables that inherit from partitioned tables)
-            <<<'SQL'
-            NOT EXISTS (
-                SELECT 1 
-                FROM pg_inherits 
-                INNER JOIN pg_class parent on pg_inherits.inhparent = parent.oid 
-                    AND parent.relkind = 'p' 
-                WHERE inhrelid = c.oid
-            )
+            WHERE a.attnum > 0
+                AND d.refobjid IS NULL
+                -- 'r' for regular tables - 'p' for partitioned tables
+                AND c.relkind IN('r', 'p')
+                -- exclude partitions (tables that inherit from partitioned tables)
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM pg_inherits
+                    INNER JOIN pg_class parent on pg_inherits.inhparent = parent.oid
+                        AND parent.relkind = 'p'
+                    WHERE inhrelid = c.oid
+                )
+                AND %s
+            ORDER BY a.attnum
             SQL,
-        ], $this->buildQueryConditions($tableName));
+            implode(' AND ', $this->buildQueryConditions($tableName, $params)),
+        );
 
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY a.attnum';
-
-        return $this->connection->executeQuery($sql);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
+        $params = [];
 
-        if ($tableName === null) {
-            $sql .= ' tc.relname AS table_name, tn.nspname AS schema_name,';
-        }
-
-        $sql .= <<<'SQL'
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT
+                   quote_ident(tn.nspname) AS schema_name,
+                   quote_ident(tc.relname) AS table_name,
                    quote_ident(ic.relname) AS relname,
                    i.indisunique,
                    i.indisprimary,
@@ -498,29 +501,26 @@ SQL;
                    JOIN pg_class AS ic ON ic.oid = i.indexrelid
              WHERE ic.oid IN (
                 SELECT indexrelid
-                FROM pg_index i, pg_class c, pg_namespace n
-SQL;
+                FROM pg_index i
+                JOIN pg_class AS c ON c.oid = i.indrelid
+                JOIN pg_namespace n ON n.oid = c.relnamespace
+                WHERE %s)
+            SQL,
+            implode(' AND ', $this->buildQueryConditions($tableName, $params)),
+        );
 
-        $conditions = array_merge([
-            'c.oid = i.indrelid',
-            'c.relnamespace = n.oid',
-        ], $this->buildQueryConditions($tableName));
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ')';
-
-        return $this->connection->executeQuery($sql);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT r.conname';
+        $params = [$this->getMaxIndexKeys()];
 
-        if ($tableName === null) {
-            $sql .= ', pkn.nspname AS schema_name, pkc.relname AS table_name';
-        }
-
-        $sql .= <<<'SQL'
-        ,
+        $sql = sprintf(
+            <<<'SQL'
+        SELECT quote_ident(pkn.nspname) AS schema_name,
+               quote_ident(pkc.relname) AS table_name,
+               r.conname,
                pka.attname AS pk_attname,
                fkn.nspname AS fk_nspname,
                fkc.relname AS fk_relname,
@@ -549,14 +549,16 @@ SQL;
                           WHERE r.conrelid IN
                           (
                               SELECT c.oid
-                              FROM pg_class c, pg_namespace n
-        SQL;
+                              FROM pg_class c
+                                JOIN pg_namespace n
+                                    ON n.oid = c.relnamespace
+                              WHERE %s
+                          ) AND r.contype = 'f'
+        SQL,
+            implode(' AND ', $this->buildQueryConditions($tableName, $params)),
+        );
 
-        $conditions = array_merge(['n.oid = c.relnamespace'], $this->buildQueryConditions($tableName));
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ") AND r.contype = 'f'";
-
-        return $this->connection->executeQuery($sql, [$this->getMaxIndexKeys()]);
+        return $this->connection->executeQuery($sql, $params);
     }
 
     /**
@@ -564,37 +566,53 @@ SQL;
      */
     protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
     {
-        $sql = <<<'SQL'
-SELECT c.relname,
-       CASE c.relpersistence WHEN 'u' THEN true ELSE false END as unlogged,
-       obj_description(c.oid, 'pg_class') AS comment
-FROM pg_class c
-     INNER JOIN pg_namespace n
-         ON n.oid = c.relnamespace
-SQL;
+        $params = [];
 
-        $conditions = array_merge(["c.relkind = 'r'"], $this->buildQueryConditions($tableName));
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT quote_ident(n.nspname) AS schema_name,
+                   quote_ident(c.relname) AS table_name,
+                   CASE c.relpersistence WHEN 'u' THEN true ELSE false END as unlogged,
+                   obj_description(c.oid, 'pg_class') AS comment
+            FROM pg_class c
+                 INNER JOIN pg_namespace n
+                     ON n.oid = c.relnamespace
+            WHERE
+                  c.relkind = 'r'
+              AND %s
+            SQL,
+            implode(' AND ', $this->buildQueryConditions($tableName, $params)),
+        );
 
-        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        $tableOptions = [];
+        foreach ($this->connection->iterateAssociative($sql, $params) as $row) {
+            $tableOptions[$this->_getPortableTableDefinition($row)] = $row;
+        }
 
-        return $this->connection->fetchAllAssociativeIndexed($sql);
+        return $tableOptions;
     }
 
-    /** @return list<string> */
-    private function buildQueryConditions(?string $tableName): array
+    /**
+     * @param list<int|string> $params
+     *
+     * @return non-empty-list<string>
+     */
+    private function buildQueryConditions(?string $tableName, array &$params): array
     {
         $conditions = [];
 
         if ($tableName !== null) {
             if (str_contains($tableName, '.')) {
                 [$schemaName, $tableName] = explode('.', $tableName);
-                $conditions[]             = 'n.nspname = ' . $this->platform->quoteStringLiteral($schemaName);
+
+                $conditions[] = 'n.nspname = ?';
+                $params[]     = $schemaName;
             } else {
                 $conditions[] = 'n.nspname = ANY(current_schemas(false))';
             }
 
-            $identifier   = new Identifier($tableName);
-            $conditions[] = 'c.relname = ' . $this->platform->quoteStringLiteral($identifier->getName());
+            $conditions[] = 'c.relname = ?';
+            $params[]     = $tableName;
         }
 
         $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";

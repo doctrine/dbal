@@ -26,6 +26,7 @@ use function implode;
 use function is_string;
 use function preg_match;
 use function preg_match_all;
+use function sprintf;
 use function str_contains;
 use function strtok;
 use function strtolower;
@@ -61,6 +62,8 @@ class MySQLSchemaManager extends AbstractSchemaManager
     private ?DefaultTableOptions $defaultTableOptions = null;
 
     /**
+     * @deprecated Use the schema name and the unqualified table name separately instead.
+     *
      * {@inheritDoc}
      */
     protected function _getPortableTableDefinition(array $table): string
@@ -342,17 +345,23 @@ SQL;
 
     protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $columnTypeSQL = $this->platform->getColumnTypeSQLSnippet('c', $databaseName);
+        // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
+        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
+        // caused by https://bugs.mysql.com/bug.php?id=81347
+        $conditions = ['c.TABLE_SCHEMA = ?', 't.TABLE_SCHEMA = ?'];
+        $params     = [$databaseName, $databaseName];
 
-        $sql = 'SELECT';
-
-        if ($tableName === null) {
-            $sql .= ' c.TABLE_NAME,';
+        if ($tableName !== null) {
+            $conditions[] = 't.TABLE_NAME = ?';
+            $params[]     = $tableName;
         }
 
-        $sql .= <<<SQL
+        $sql = sprintf(
+            <<<'SQL'
+SELECT
+       c.TABLE_NAME,
        c.COLUMN_NAME        AS field,
-       $columnTypeSQL       AS type,
+       %s                   AS type,
        c.IS_NULLABLE        AS `null`,
        c.COLUMN_KEY         AS `key`,
        c.COLUMN_DEFAULT     AS `default`,
@@ -363,41 +372,20 @@ SQL;
 FROM information_schema.COLUMNS c
     INNER JOIN information_schema.TABLES t
         ON t.TABLE_NAME = c.TABLE_NAME
-SQL;
-
-        // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
-        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
-        // caused by https://bugs.mysql.com/bug.php?id=81347
-        $conditions = ['c.TABLE_SCHEMA = ?', 't.TABLE_SCHEMA = ?', "t.TABLE_TYPE = 'BASE TABLE'"];
-        $params     = [$databaseName, $databaseName];
-
-        if ($tableName !== null) {
-            $conditions[] = 't.TABLE_NAME = ?';
-            $params[]     = $tableName;
-        }
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY ORDINAL_POSITION';
+ WHERE %s
+   AND t.TABLE_TYPE = 'BASE TABLE'
+ORDER BY c.TABLE_NAME,
+         c.ORDINAL_POSITION
+SQL,
+            $this->platform->getColumnTypeSQLSnippet('c', $databaseName),
+            implode(' AND ', $conditions),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT';
-
-        if ($tableName === null) {
-            $sql .= ' TABLE_NAME,';
-        }
-
-        $sql .= <<<'SQL'
-        NON_UNIQUE  AS Non_Unique,
-        INDEX_NAME  AS Key_name,
-        COLUMN_NAME AS Column_Name,
-        SUB_PART    AS Sub_Part,
-        INDEX_TYPE  AS Index_Type
-FROM information_schema.STATISTICS
-SQL;
-
         $conditions = ['TABLE_SCHEMA = ?'];
         $params     = [$databaseName];
 
@@ -406,20 +394,43 @@ SQL;
             $params[]     = $tableName;
         }
 
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY SEQ_IN_INDEX';
+        $sql = sprintf(
+            <<<'SQL'
+SELECT
+        TABLE_NAME,
+        NON_UNIQUE  AS Non_Unique,
+        INDEX_NAME  AS Key_name,
+        COLUMN_NAME AS Column_Name,
+        SUB_PART    AS Sub_Part,
+        INDEX_TYPE  AS Index_Type
+FROM information_schema.STATISTICS
+WHERE %s
+ORDER BY TABLE_NAME,
+         SEQ_IN_INDEX
+SQL,
+            implode(' AND ', $conditions),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
     {
-        $sql = 'SELECT DISTINCT';
+        // The schema name is passed multiple times in the WHERE clause instead of using a JOIN condition
+        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
+        // caused by https://bugs.mysql.com/bug.php?id=81347
+        $conditions = ['k.TABLE_SCHEMA = ?', 'c.CONSTRAINT_SCHEMA = ?'];
+        $params     = [$databaseName, $databaseName];
 
-        if ($tableName === null) {
-            $sql .= ' k.TABLE_NAME,';
+        if ($tableName !== null) {
+            $conditions[] = 'k.TABLE_NAME = ?';
+            $params[]     = $tableName;
         }
 
-        $sql .= <<<'SQL'
+        $sql = sprintf(
+            <<<'SQL'
+SELECT
+            k.TABLE_NAME,
             k.CONSTRAINT_NAME,
             k.COLUMN_NAME,
             k.REFERENCED_TABLE_NAME,
@@ -431,25 +442,14 @@ FROM information_schema.key_column_usage k
 INNER JOIN information_schema.referential_constraints c
 ON c.CONSTRAINT_NAME = k.CONSTRAINT_NAME
 AND c.TABLE_NAME = k.TABLE_NAME
-SQL;
-
-        $conditions = ['k.TABLE_SCHEMA = ?'];
-        $params     = [$databaseName];
-
-        if ($tableName !== null) {
-            $conditions[] = 'k.TABLE_NAME = ?';
-            $params[]     = $tableName;
-        }
-
-        // The schema name is passed multiple times in the WHERE clause instead of using a JOIN condition
-        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
-        // caused by https://bugs.mysql.com/bug.php?id=81347
-        $conditions[] = 'c.CONSTRAINT_SCHEMA = ?';
-        $params[]     = $databaseName;
-
-        $conditions[] = 'k.REFERENCED_COLUMN_NAME IS NOT NULL';
-
-        $sql .= ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY k.CONSTRAINT_NAME, k.ORDINAL_POSITION';
+WHERE %s
+AND k.REFERENCED_COLUMN_NAME IS NOT NULL
+ORDER BY k.TABLE_NAME,
+         k.CONSTRAINT_NAME,
+         k.ORDINAL_POSITION
+SQL,
+            implode(' AND ', $conditions),
+        );
 
         return $this->connection->executeQuery($sql, $params);
     }
