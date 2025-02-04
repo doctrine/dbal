@@ -214,7 +214,7 @@ SQL;
 
         $table1 = $schemaManager->introspectTable('nodes');
         $table2 = clone $table1;
-        $table2->addIndex(['name'], 'idx_name');
+        $table2->addIndex(['name'], 'idx_node_name');
 
         $comparator = $schemaManager->createComparator();
         $diff       = $comparator->compareTables($table1, $table2);
@@ -222,7 +222,7 @@ SQL;
         $schemaManager->alterTable($diff);
 
         $table = $schemaManager->introspectTable('nodes');
-        $index = $table->getIndex('idx_name');
+        $index = $table->getIndex('idx_node_name');
         self::assertSame(['name'], $index->getColumns());
     }
 
