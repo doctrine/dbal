@@ -9,7 +9,6 @@ use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -1269,14 +1268,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             );
         }
 
-        if (! $platform instanceof OraclePlatform && ! $platform instanceof PostgreSQLPlatform) {
-            self::markTestSkipped('The current platform does not auto-quote introspected identifiers.');
-        }
-
         $artists = new Table('"Artists"');
         $artists->addColumn('"Id"', Types::INTEGER);
         $artists->addColumn('"Name"', Types::INTEGER);
-        $artists->addIndex(['"Name"'], '"Idx_Name"');
+        $artists->addIndex(['"Name"'], '"Idx_Artist_Name"');
         $artists->setPrimaryKey(['"Id"']);
 
         $tracks = new Table('"Tracks"');
@@ -1292,16 +1287,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         );
         $tracks->setPrimaryKey(['"Id"']);
 
-        $this->dropTableIfExists('"Tracks"');
-        $this->dropTableIfExists('"Artists"');
+        $this->dropTableIfExists($tracks->getObjectName()->toSQL($platform));
+        $this->dropTableIfExists($artists->getObjectName()->toSQL($platform));
 
         $this->schemaManager->createTable($artists);
         $this->schemaManager->createTable($tracks);
 
         $artists = $this->schemaManager->introspectTable('"Artists"');
         $tracks  = $this->schemaManager->introspectTable('"Tracks"');
-
-        $platform = $this->connection->getDatabasePlatform();
 
         // Primary table assertions
         self::assertOptionallyQualifiedNameEquals(
@@ -1319,11 +1312,15 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $artists->getColumn('"Name"')->getObjectName(),
         );
 
-        self::assertSame(['"Name"'], $artists->getIndex('"Idx_Name"')->getQuotedColumns($platform));
+        self::assertSame([
+            $platform->quoteSingleIdentifier('Name'),
+        ], $artists->getIndex('"Idx_Artist_Name"')->getQuotedColumns($platform));
 
         $primaryKey = $artists->getPrimaryKey();
         self::assertNotNull($primaryKey);
-        self::assertSame(['"Id"'], $primaryKey->getQuotedColumns($platform));
+        self::assertSame([
+            $platform->quoteSingleIdentifier('Id'),
+        ], $primaryKey->getQuotedColumns($platform));
 
         // Foreign table assertions
         self::assertUnqualifiedNameEquals(
@@ -1333,7 +1330,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $primaryKey = $tracks->getPrimaryKey();
         self::assertNotNull($primaryKey);
-        self::assertSame(['"Id"'], $primaryKey->getQuotedColumns($platform));
+        self::assertSame([
+            $platform->quoteSingleIdentifier('Id'),
+        ], $primaryKey->getQuotedColumns($platform));
 
         self::assertUnqualifiedNameEquals(
             UnqualifiedName::quoted('Artist_Id'),
@@ -1341,10 +1340,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         );
 
         self::assertTrue($tracks->hasIndex('"Idx_Artist_Id"'));
-        self::assertSame(
-            ['"Artist_Id"'],
-            $tracks->getIndex('"Idx_Artist_Id"')->getQuotedColumns($platform),
-        );
+        self::assertSame([
+            $platform->quoteSingleIdentifier('Artist_Id'),
+        ], $tracks->getIndex('"Idx_Artist_Id"')->getQuotedColumns($platform));
 
         $constraint = $tracks->getForeignKey('"Artists_Fk"');
 
