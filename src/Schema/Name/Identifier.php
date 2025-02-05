@@ -37,13 +37,23 @@ final class Identifier
 
     public function toSQL(AbstractPlatform $platform): string
     {
+        return $platform->quoteSingleIdentifier(
+            $this->toNormalizedValue($platform),
+        );
+    }
+
+    /**
+     * Returns the literal value of the identifier normalized according to the rules of the given database platform.
+     *
+     * Consumers should use the normalized value for schema comparison and referencing the objects to be introspected.
+     */
+    public function toNormalizedValue(AbstractPlatform $platform): string
+    {
         if (! $this->isQuoted) {
-            $value = $platform->normalizeUnquotedIdentifier($this->value);
-        } else {
-            $value = $this->value;
+            return $platform->normalizeUnquotedIdentifier($this->value);
         }
 
-        return $platform->quoteSingleIdentifier($value);
+        return $this->value;
     }
 
     public function toString(): string

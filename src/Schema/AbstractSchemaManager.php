@@ -14,7 +14,10 @@ use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\Deprecations\Deprecation;
+use Throwable;
 
 use function array_filter;
 use function array_intersect;
@@ -119,6 +122,8 @@ abstract class AbstractSchemaManager
      */
     public function listTableColumns(string $table): array
     {
+        $this->validateTableName($table, __METHOD__);
+
         $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableColumnList(
@@ -137,6 +142,8 @@ abstract class AbstractSchemaManager
      */
     public function listTableIndexes(string $table): array
     {
+        $this->validateTableName($table, __METHOD__);
+
         $database = $this->getDatabase(__METHOD__);
         $table    = $this->normalizeName($table);
 
@@ -287,12 +294,46 @@ abstract class AbstractSchemaManager
      * An extension point for those platforms where case sensitivity of the object name depends on whether it's quoted.
      *
      * Such platforms should convert a possibly quoted name into a value of the corresponding case.
+     *
+     * @deprecated Use {@see Identifier::toNormalizedValue()} instead.
      */
     protected function normalizeName(string $name): string
     {
         $identifier = new Identifier($name);
 
         return $identifier->getName();
+    }
+
+    private function validateTableName(string $input, string $methodName): void
+    {
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            $tableName = $parser->parse($input);
+        } catch (Throwable $e) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6768',
+                'Unable to parse table name passed to %s(): %s.',
+                $methodName,
+                $e->getMessage(),
+            );
+
+            return;
+        }
+
+        if ($tableName->getQualifier() === null || $this->platform->supportsSchemas()) {
+            return;
+        }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6768',
+            'Relying on %s() not parsing an unquoted table name containing a dot while working with %s is'
+                . ' deprecated. Pass a quoted name instead.',
+            $methodName,
+            $this->platform::class,
+        );
     }
 
     /**
@@ -460,6 +501,8 @@ abstract class AbstractSchemaManager
      */
     public function listTableForeignKeys(string $table): array
     {
+        $this->validateTableName($table, __METHOD__);
+
         $database = $this->getDatabase(__METHOD__);
 
         return $this->_getPortableTableForeignKeysList(
@@ -477,6 +520,8 @@ abstract class AbstractSchemaManager
      */
     private function getTableOptions(string $name): array
     {
+        $this->validateTableName($name, __METHOD__);
+
         $normalizedName = $this->normalizeName($name);
 
         return $this->fetchTableOptionsByTable(
