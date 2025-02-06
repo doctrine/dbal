@@ -10,14 +10,15 @@ use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
+use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
-use Doctrine\Deprecations\Deprecation;
-use Throwable;
 
 use function array_filter;
 use function array_intersect;
@@ -36,6 +37,23 @@ use function strtolower;
  */
 abstract class AbstractSchemaManager
 {
+    /**
+     * The value representing the <code>NULL</code> schema key. Should be populated only by the schema managers
+     * corresponding to the database platforms that don't support schemas.
+     */
+    protected const NULL_SCHEMA_KEY = "\x00";
+
+    /**
+     * The name of the column of the schema introspection result set that holds the schema name, if the underlying
+     * platform supports schemas.
+     */
+    protected const SCHEMA_NAME_COLUMN = 'SCHEMA_NAME';
+
+    /**
+     * The name of the column of the schema introspection result set that holds the table name.
+     */
+    protected const TABLE_NAME_COLUMN = 'TABLE_NAME';
+
     /**
      * The current schema name determined from the connection. The <code>null</code> value means that there is no
      * schema currently selected within the connection.
@@ -120,14 +138,13 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function listTableColumns(string $table): array
+    public function listTableColumns(string $tableName): array
     {
-        $this->validateTableName($table, __METHOD__);
-
-        $database = $this->getDatabase(__METHOD__);
-
         return $this->_getPortableTableColumnList(
-            $this->fetchTableColumns($database, $this->normalizeName($table)),
+            $this->fetchTableColumns(
+                $this->getDatabase(__METHOD__),
+                $this->parseOptionallyQualifiedName($tableName),
+            ),
         );
     }
 
@@ -140,15 +157,13 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function listTableIndexes(string $table): array
+    public function listTableIndexes(string $tableName): array
     {
-        $this->validateTableName($table, __METHOD__);
-
-        $database = $this->getDatabase(__METHOD__);
-        $table    = $this->normalizeName($table);
-
         return $this->_getPortableTableIndexesList(
-            $this->fetchIndexColumns($database, $table),
+            $this->fetchIndexColumns(
+                $this->getDatabase(__METHOD__),
+                $this->parseOptionallyQualifiedName($tableName),
+            ),
         );
     }
 
@@ -180,9 +195,18 @@ abstract class AbstractSchemaManager
      */
     public function listTableNames(): array
     {
+        $supportsSchemas   = $this->platform->supportsSchemas();
+        $currentSchemaName = $this->getCurrentSchemaName();
+
         return $this->filterAssetNames(
-            array_map(function (array $row): string {
-                return $this->_getPortableTableDefinition($row);
+            array_map(static function (array $row) use ($supportsSchemas, $currentSchemaName): string {
+                $name = $row[self::TABLE_NAME_COLUMN];
+
+                if ($supportsSchemas && $row[self::SCHEMA_NAME_COLUMN] !== $currentSchemaName) {
+                    $name = $row[self::SCHEMA_NAME_COLUMN] . '.' . $name;
+                }
+
+                return $name;
             }, $this->selectTableNames(
                 $this->getDatabase(__METHOD__),
             )->fetchAllAssociative()),
@@ -220,37 +244,56 @@ abstract class AbstractSchemaManager
         $foreignKeyColumnsByTable = $this->fetchForeignKeyColumnsByTable($database);
         $tableOptionsByTable      = $this->fetchTableOptionsByTable($database);
 
+        $currentSchemaName = $this->getCurrentSchemaName();
+
         $filter = $this->connection->getConfiguration()->getSchemaAssetsFilter();
         $tables = [];
 
         $configuration = $this->createSchemaConfig()
             ->toTableConfiguration();
 
-        foreach ($tableColumnsByTable as $tableName => $tableColumns) {
-            if (! $filter($tableName)) {
-                continue;
+        foreach ($tableColumnsByTable as $schemaNameKey => $schemaTables) {
+            if ($schemaNameKey !== self::NULL_SCHEMA_KEY && $schemaNameKey !== $currentSchemaName) {
+                $qualifier = $schemaNameKey;
+                $prefix    = $schemaNameKey . '.';
+            } else {
+                $qualifier = null;
+                $prefix    = '';
             }
 
-            $editor = Table::editor()
-                ->setName($tableName)
-                ->setColumns($this->_getPortableTableColumnList($tableColumns))
-                ->setIndexes(
-                    $this->_getPortableTableIndexesList($indexColumnsByTable[$tableName] ?? []),
-                );
+            foreach ($schemaTables as $unqualifiedName => $tableColumns) {
+                if (! $filter($prefix . $unqualifiedName)) {
+                    continue;
+                }
 
-            if (isset($foreignKeyColumnsByTable[$tableName])) {
-                $editor->setForeignKeyConstraints(
-                    $this->_getPortableTableForeignKeysList($foreignKeyColumnsByTable[$tableName]),
-                );
+                $editor = Table::editor()
+                    ->setName(
+                        OptionallyQualifiedName::quoted($unqualifiedName, $qualifier)
+                            ->toString(),
+                    )
+                    ->setColumns($this->_getPortableTableColumnList($tableColumns))
+                    ->setIndexes(
+                        $this->_getPortableTableIndexesList(
+                            $indexColumnsByTable[$schemaNameKey][$unqualifiedName] ?? [],
+                        ),
+                    );
+
+                if (isset($foreignKeyColumnsByTable[$schemaNameKey][$unqualifiedName])) {
+                    $editor->setForeignKeyConstraints(
+                        $this->_getPortableTableForeignKeysList(
+                            $foreignKeyColumnsByTable[$schemaNameKey][$unqualifiedName],
+                        ),
+                    );
+                }
+
+                if (isset($tableOptionsByTable[$schemaNameKey][$unqualifiedName])) {
+                    $editor->setOptions($tableOptionsByTable[$schemaNameKey][$unqualifiedName]);
+                }
+
+                $tables[] = $editor
+                    ->setConfiguration($configuration)
+                    ->create();
             }
-
-            if (isset($tableOptionsByTable[$tableName])) {
-                $editor->setOptions($tableOptionsByTable[$tableName]);
-            }
-
-            $tables[] = $editor
-                ->setConfiguration($configuration)
-                ->create();
         }
 
         return $tables;
@@ -291,53 +334,10 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * An extension point for those platforms where case sensitivity of the object name depends on whether it's quoted.
-     *
-     * Such platforms should convert a possibly quoted name into a value of the corresponding case.
-     *
-     * @deprecated Use {@see Identifier::toNormalizedValue()} instead.
-     */
-    protected function normalizeName(string $name): string
-    {
-        $identifier = new Identifier($name);
-
-        return $identifier->getName();
-    }
-
-    private function validateTableName(string $input, string $methodName): void
-    {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
-        try {
-            $tableName = $parser->parse($input);
-        } catch (Throwable $e) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6768',
-                'Unable to parse table name passed to %s(): %s.',
-                $methodName,
-                $e->getMessage(),
-            );
-
-            return;
-        }
-
-        if ($tableName->getQualifier() === null || $this->platform->supportsSchemas()) {
-            return;
-        }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6768',
-            'Relying on %s() not parsing an unquoted table name containing a dot while working with %s is'
-                . ' deprecated. Pass a quoted name instead.',
-            $methodName,
-            $this->platform::class,
-        );
-    }
-
-    /**
      * Selects names of tables in the specified database.
+     *
+     * Implementations must project the table name as quoted {@see TABLE_NAME_COLUMN}. If the corresponding
+     * database platform supports schemas, the schema name must be projected as quoted {@see SCHEMA_NAME_COLUMN}.
      *
      * @throws Exception
      */
@@ -347,25 +347,46 @@ abstract class AbstractSchemaManager
      * Selects definitions of table columns in the specified database. If the table name is specified, narrows down
      * the selection to this table.
      *
+     * Implementations must project the name of the table the column belongs to as quoted {@see TABLE_NAME_COLUMN}.
+     * If the corresponding database platform supports schemas, the schema name of the column's table should be
+     * projected as quoted {@see SCHEMA_NAME_COLUMN}.
+     *
      * @throws Exception
      */
-    abstract protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result;
+    abstract protected function selectTableColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): Result;
 
     /**
      * Selects definitions of index columns in the specified database. If the table name is specified, narrows down
      * the selection to this table.
      *
+     * Implementations must project the name of the table the index belongs to as quoted {@see TABLE_NAME_COLUMN}.
+     * If the corresponding database platform supports schemas, the schema name of the indexes table should be
+     * projected as quoted {@see SCHEMA_NAME_COLUMN}.
+     *
      * @throws Exception
      */
-    abstract protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result;
+    abstract protected function selectIndexColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): Result;
 
     /**
      * Selects definitions of foreign key columns in the specified database. If the table name is specified,
      * narrows down the selection to this table.
      *
+     * Implementations must project the name of the referencing table of the constraint as quoted
+     * {@see TABLE_NAME_COLUMN}. If the corresponding database platform supports schemas, the schema name of the
+     * referencing table should be projected as quoted {@see SCHEMA_NAME_COLUMN}.
+     *
      * @throws Exception
      */
-    abstract protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result;
+    abstract protected function selectForeignKeyColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): Result;
 
     /**
      * Fetches definitions of table columns in the specified database. If the table name is specified, narrows down
@@ -375,7 +396,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    protected function fetchTableColumns(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         return $this->selectTableColumns($databaseName, $tableName)->fetchAllAssociative();
     }
@@ -388,7 +409,7 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    protected function fetchIndexColumns(string $databaseName, ?string $tableName = null): array
+    protected function fetchIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         return $this->selectIndexColumns($databaseName, $tableName)->fetchAllAssociative();
     }
@@ -401,15 +422,19 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    protected function fetchForeignKeyColumns(string $databaseName, ?string $tableName = null): array
+    protected function fetchForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         return $this->selectForeignKeyColumns($databaseName, $tableName)->fetchAllAssociative();
     }
 
     /**
-     * Fetches definitions of table columns in the specified database and returns them grouped by table name.
+     * Fetches definitions of table columns in the specified database and returns them grouped by schema name and table
+     * name.
      *
-     * @return array<string,list<array<string,mixed>>>
+     * If the corresponding database platform doesn't support schemas, the schema name key will be the
+     * {@see NULL_SCHEMA_KEY}.
+     *
+     * @return array<string,array<string,list<array<string,mixed>>>>
      *
      * @throws Exception
      */
@@ -419,9 +444,13 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Fetches definitions of index columns in the specified database and returns them grouped by table name.
+     * Fetches definitions of index columns in the specified database and returns them grouped by schema name and table
+     * name.
      *
-     * @return array<string,list<array<string,mixed>>>
+     * If the corresponding database platform doesn't support schemas, the schema name key will be the
+     * {@see NULL_SCHEMA_KEY}.
+     *
+     * @return array<string,array<string,list<array<string,mixed>>>>
      *
      * @throws Exception
      */
@@ -431,9 +460,13 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Fetches definitions of foreign key columns in the specified database and returns them grouped by table name.
+     * Fetches definitions of foreign key columns in the specified database and returns them grouped by schema name and
+     * table name.
      *
-     * @return array<string, list<array<string, mixed>>>
+     * If the corresponding database platform doesn't support schemas, the schema name key will be the
+     * {@see NULL_SCHEMA_KEY}.
+     *
+     * @return array<string,array<string,list<array<string,mixed>>>>
      *
      * @throws Exception
      */
@@ -443,14 +476,45 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Fetches table options for the tables in the specified database and returns them grouped by table name.
-     * If the table name is specified, narrows down the selection to this table.
+     * Fetches table options for the tables in the specified database and returns them grouped by schema name and table
+     * name. If the table name is specified, narrows down the selection to this table.
      *
-     * @return array<string,array<string,mixed>>
+     * If the corresponding database platform doesn't support schemas, the schema name key will be the
+     * {@see NULL_SCHEMA_KEY}.
+     *
+     * @return array<string,array<string,array<string,mixed>>>
      *
      * @throws Exception
      */
-    abstract protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array;
+    abstract protected function fetchTableOptionsByTable(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): array;
+
+    final protected function parseOptionallyQualifiedName(string $input): OptionallyQualifiedName
+    {
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            return $parser->parse($input);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($input, $e);
+        }
+    }
+
+    /**
+     * Ensures that the given optionally qualified name is in fact unqualified.
+     *
+     * Schema managers for the platforms that don't support schemas, before using the unqualified part of the name,
+     * should use this method to ensure that the name doesn't have a qualifier, which, if it was present, they would be
+     * unable to bind to the schema introspection query.
+     */
+    final protected function ensureUnqualifiedName(OptionallyQualifiedName $name, string $methodName): void
+    {
+        if ($name->getQualifier() !== null) {
+            throw UnsupportedName::fromQualifiedName($name, $methodName);
+        }
+    }
 
     /**
      * Introspects the table with the given name.
@@ -459,6 +523,8 @@ abstract class AbstractSchemaManager
      */
     public function introspectTable(string $name): Table
     {
+        $tableName = $this->parseOptionallyQualifiedName($name);
+
         $columns = $this->listTableColumns($name);
 
         if ($columns === []) {
@@ -470,7 +536,7 @@ abstract class AbstractSchemaManager
             ->setColumns($columns)
             ->setIndexes($this->listTableIndexes($name))
             ->setForeignKeyConstraints($this->listTableForeignKeys($name))
-            ->setOptions($this->getTableOptions($name))
+            ->setOptions($this->getTableOptions($tableName))
             ->create();
     }
 
@@ -499,16 +565,12 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    public function listTableForeignKeys(string $table): array
+    public function listTableForeignKeys(string $tableName): array
     {
-        $this->validateTableName($table, __METHOD__);
-
-        $database = $this->getDatabase(__METHOD__);
-
         return $this->_getPortableTableForeignKeysList(
             $this->fetchForeignKeyColumns(
-                $database,
-                $this->normalizeName($table),
+                $this->getDatabase(__METHOD__),
+                $this->parseOptionallyQualifiedName($tableName),
             ),
         );
     }
@@ -518,16 +580,22 @@ abstract class AbstractSchemaManager
      *
      * @throws Exception
      */
-    private function getTableOptions(string $name): array
+    private function getTableOptions(OptionallyQualifiedName $tableName): array
     {
-        $this->validateTableName($name, __METHOD__);
+        $qualifier = $tableName->getQualifier();
 
-        $normalizedName = $this->normalizeName($name);
+        if ($qualifier !== null) {
+            $schemaNameKey = $qualifier->toNormalizedValue($this->platform);
+        } else {
+            $schemaNameKey = $this->getCurrentSchemaName() ?? self::NULL_SCHEMA_KEY;
+        }
+
+        $unqualifiedTableName = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
 
         return $this->fetchTableOptionsByTable(
             $this->getDatabase(__METHOD__),
-            $normalizedName,
-        )[$normalizedName] ?? [];
+            $tableName,
+        )[$schemaNameKey][$unqualifiedTableName] ?? [];
     }
 
     /* drop*() Methods */
@@ -882,13 +950,6 @@ abstract class AbstractSchemaManager
         return $indexes;
     }
 
-    /**
-     * @deprecated Use the schema name and the unqualified table name separately instead.
-     *
-     * @param array<string, string> $table
-     */
-    abstract protected function _getPortableTableDefinition(array $table): string;
-
     /** @param array<string, mixed> $view */
     abstract protected function _getPortableViewDefinition(array $view): View;
 
@@ -1038,15 +1099,22 @@ abstract class AbstractSchemaManager
      *
      * @param list<array<string, mixed>> $rows
      *
-     * @return array<string,list<array<string,mixed>>>
+     * @return array<string,array<string,list<array<string,mixed>>>>
      */
     private function groupByTable(array $rows): array
     {
+        $supportsSchemas = $this->platform->supportsSchemas();
+
         $data = [];
 
         foreach ($rows as $row) {
-            $tableName          = $this->_getPortableTableDefinition($row);
-            $data[$tableName][] = $row;
+            if ($supportsSchemas) {
+                $schemaNameKey = $row[self::SCHEMA_NAME_COLUMN];
+            } else {
+                $schemaNameKey = self::NULL_SCHEMA_KEY;
+            }
+
+            $data[$schemaNameKey][$row[self::TABLE_NAME_COLUMN]][] = $row;
         }
 
         return $data;

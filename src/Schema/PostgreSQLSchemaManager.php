@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 
@@ -21,7 +22,6 @@ use function in_array;
 use function is_string;
 use function preg_match;
 use function sprintf;
-use function str_contains;
 use function str_replace;
 use function strtolower;
 use function trim;
@@ -132,22 +132,6 @@ SQL,
         }
 
         return parent::_getPortableTableForeignKeysList($list);
-    }
-
-    /**
-     * @deprecated Use the schema name and the unqualified table name separately instead.
-     *
-     * {@inheritDoc}
-     */
-    protected function _getPortableTableDefinition(array $table): string
-    {
-        $currentSchema = $this->getCurrentSchemaName();
-
-        if ($table['schema_name'] === $currentSchema) {
-            return $table['table_name'];
-        }
-
-        return $table['schema_name'] . '.' . $table['table_name'];
     }
 
     /**
@@ -397,30 +381,34 @@ SQL,
 
     protected function selectTableNames(string $databaseName): Result
     {
-        $sql = <<<'SQL'
-SELECT quote_ident(table_name) AS table_name,
-       table_schema AS schema_name
-FROM information_schema.tables
-WHERE table_catalog = ?
-  AND table_schema NOT LIKE 'pg\_%'
-  AND table_schema != 'information_schema'
-  AND table_name != 'geometry_columns'
-  AND table_name != 'spatial_ref_sys'
-  AND table_type = 'BASE TABLE'
-SQL;
+        $sql = sprintf(
+            <<<'SQL'
+                SELECT table_schema AS %s,
+                       table_name AS %s
+                FROM information_schema.tables
+                WHERE table_catalog = ?
+                  AND table_schema NOT LIKE 'pg\_%%'
+                  AND table_schema != 'information_schema'
+                  AND table_name != 'geometry_columns'
+                  AND table_name != 'spatial_ref_sys'
+                  AND table_type = 'BASE TABLE'
+                SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
+        );
 
         return $this->connection->executeQuery($sql, [$databaseName]);
     }
 
-    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
             SELECT
-            quote_ident(n.nspname) AS schema_name,
-            quote_ident(c.relname) AS table_name,
+            n.nspname AS %s,
+            c.relname AS %s,
             a.attnum,
             quote_ident(a.attname) AS field,
             t.typname AS type,
@@ -474,21 +462,23 @@ SQL;
                 AND %s
             ORDER BY a.attnum
             SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $this->buildQueryConditions($tableName, $params)),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
             SELECT
-                   quote_ident(tn.nspname) AS schema_name,
-                   quote_ident(tc.relname) AS table_name,
+                   tn.nspname AS %s,
+                   tc.relname AS %s,
                    quote_ident(ic.relname) AS relname,
                    i.indisunique,
                    i.indisprimary,
@@ -506,20 +496,22 @@ SQL;
                 JOIN pg_namespace n ON n.oid = c.relnamespace
                 WHERE %s)
             SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $this->buildQueryConditions($tableName, $params)),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [$this->getMaxIndexKeys()];
 
         $sql = sprintf(
             <<<'SQL'
-        SELECT quote_ident(pkn.nspname) AS schema_name,
-               quote_ident(pkc.relname) AS table_name,
+        SELECT pkn.nspname AS %s,
+               pkc.relname AS %s,
                r.conname,
                pka.attname AS pk_attname,
                fkn.nspname AS fk_nspname,
@@ -552,9 +544,11 @@ SQL;
                               FROM pg_class c
                                 JOIN pg_namespace n
                                     ON n.oid = c.relnamespace
-                              WHERE %s
+                            WHERE %s
                           ) AND r.contype = 'f'
         SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $this->buildQueryConditions($tableName, $params)),
         );
 
@@ -564,32 +558,35 @@ SQL;
     /**
      * {@inheritDoc}
      */
-    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
-            SELECT quote_ident(n.nspname) AS schema_name,
-                   quote_ident(c.relname) AS table_name,
+            SELECT n.nspname AS %s,
+                   c.relname AS %s,
                    CASE c.relpersistence WHEN 'u' THEN true ELSE false END as unlogged,
                    obj_description(c.oid, 'pg_class') AS comment
             FROM pg_class c
                  INNER JOIN pg_namespace n
                      ON n.oid = c.relnamespace
             WHERE
-                  c.relkind = 'r'
+                c.relkind = 'r'
               AND %s
             SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $this->buildQueryConditions($tableName, $params)),
         );
 
-        $tableOptions = [];
-        foreach ($this->connection->iterateAssociative($sql, $params) as $row) {
-            $tableOptions[$this->_getPortableTableDefinition($row)] = $row;
+        $data = [];
+
+        foreach ($this->connection->fetchAllAssociative($sql, $params) as $row) {
+            $data[$row[self::SCHEMA_NAME_COLUMN]][$row[self::TABLE_NAME_COLUMN]] = $row;
         }
 
-        return $tableOptions;
+        return $data;
     }
 
     /**
@@ -597,22 +594,22 @@ SQL;
      *
      * @return non-empty-list<string>
      */
-    private function buildQueryConditions(?string $tableName, array &$params): array
+    private function buildQueryConditions(?OptionallyQualifiedName $tableName, array &$params): array
     {
         $conditions = [];
 
         if ($tableName !== null) {
-            if (str_contains($tableName, '.')) {
-                [$schemaName, $tableName] = explode('.', $tableName);
+            $qualifier = $tableName->getQualifier();
 
+            if ($qualifier !== null) {
                 $conditions[] = 'n.nspname = ?';
-                $params[]     = $schemaName;
+                $params[]     = $qualifier->toNormalizedValue($this->platform);
             } else {
                 $conditions[] = 'n.nspname = ANY(current_schemas(false))';
             }
 
             $conditions[] = 'c.relname = ?';
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";

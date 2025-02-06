@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
@@ -16,7 +17,6 @@ use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtolower;
-use function strtoupper;
 use function substr;
 
 use const CASE_LOWER;
@@ -104,18 +104,6 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @deprecated Use the schema name and the unqualified table name separately instead.
-     *
-     * {@inheritDoc}
-     */
-    protected function _getPortableTableDefinition(array $table): string
-    {
-        $table = array_change_key_case($table, CASE_LOWER);
-
-        return $table['name'];
-    }
-
-    /**
      * {@inheritDoc}
      */
     protected function _getPortableTableIndexesList(array $rows): array
@@ -173,40 +161,38 @@ class DB2SchemaManager extends AbstractSchemaManager
         return new View($view['name'], $sql);
     }
 
-    /** @deprecated Use {@see Identifier::toNormalizedValue()} instead. */
-    protected function normalizeName(string $name): string
-    {
-        $identifier = new Identifier($name);
-
-        return $identifier->isQuoted() ? $identifier->getName() : strtoupper($name);
-    }
-
     protected function selectTableNames(string $databaseName): Result
     {
-        $sql = <<<'SQL'
-SELECT TABNAME AS NAME
-FROM SYSCAT.TABLES
-WHERE TYPE = 'T'
-  AND TABSCHEMA = ?
-SQL;
+        $sql = sprintf(
+            <<<'SQL'
+                SELECT TABNAME AS %s
+                FROM SYSCAT.TABLES
+                WHERE TABSCHEMA = ?
+                  AND TYPE = 'T'
+                ORDER BY TABNAME
+                SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
+        );
 
         return $this->connection->executeQuery($sql, [$databaseName]);
     }
 
-    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $conditions = ['C.TABSCHEMA = ?'];
         $params     = [$databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[] = 'C.TABNAME = ?';
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
             <<<'SQL'
 SELECT
-       C.TABNAME AS NAME,
+       C.TABNAME AS %s,
        C.COLNAME,
        C.TYPENAME,
        C.CODEPAGE,
@@ -227,26 +213,29 @@ FROM SYSCAT.COLUMNS C
    AND T.TYPE = 'T'
 ORDER BY C.TABNAME, C.COLNO
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $conditions),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $conditions = ['IDX.TABSCHEMA = ?'];
         $params     = [$databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[] = 'IDX.TABNAME = ?';
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
             <<<'SQL'
       SELECT
-             IDX.TABNAME AS NAME,
+             IDX.TABNAME AS %s,
              IDX.INDNAME AS KEY_NAME,
              IDXCOL.COLNAME AS COLUMN_NAME,
              CASE
@@ -268,26 +257,29 @@ SQL,
              IDX.INDNAME,
              IDXCOL.COLSEQ
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $conditions),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $conditions = ['R.TABSCHEMA = ?'];
         $params     = [$databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[] = 'R.TABNAME = ?';
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
             <<<'SQL'
       SELECT
-             R.TABNAME AS NAME,
+             R.TABNAME AS %s,
              FKCOL.COLNAME AS LOCAL_COLUMN,
              R.REFTABNAME AS FOREIGN_TABLE,
              PKCOL.COLNAME AS FOREIGN_COLUMN,
@@ -319,6 +311,7 @@ SQL,
             R.CONSTNAME,
             FKCOL.COLSEQ
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $conditions),
         );
 
@@ -328,14 +321,16 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         $conditions = ['TABSCHEMA = ?'];
         $params     = [$databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[] = 'TABNAME = ?';
-            $params[]     = $tableName;
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
@@ -352,7 +347,7 @@ SQL,
 
         $tableOptions = [];
         foreach ($this->connection->iterateKeyValue($sql, $params) as $table => $remarks) {
-            $tableOptions[$table] = ['comment' => $remarks];
+            $tableOptions[self::NULL_SCHEMA_KEY][$table] = ['comment' => $remarks];
         }
 
         return $tableOptions;

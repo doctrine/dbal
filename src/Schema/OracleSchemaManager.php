@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
@@ -21,7 +22,6 @@ use function str_contains;
 use function str_replace;
 use function str_starts_with;
 use function strtolower;
-use function strtoupper;
 use function trim;
 
 use const CASE_LOWER;
@@ -41,18 +41,6 @@ class OracleSchemaManager extends AbstractSchemaManager
         $view = array_change_key_case($view, CASE_LOWER);
 
         return new View($this->getQuotedIdentifierName($view['view_name']), $view['text']);
-    }
-
-    /**
-     * @deprecated Use the schema name and the unqualified table name separately instead.
-     *
-     * {@inheritDoc}
-     */
-    protected function _getPortableTableDefinition(array $table): string
-    {
-        $table = array_change_key_case($table, CASE_LOWER);
-
-        return $this->getQuotedIdentifierName($table['table_name']);
     }
 
     /**
@@ -303,30 +291,35 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     protected function selectTableNames(string $databaseName): Result
     {
-        $sql = <<<'SQL'
-SELECT TABLE_NAME
-FROM ALL_TABLES
-WHERE OWNER = :OWNER
-ORDER BY TABLE_NAME
-SQL;
+        $sql = sprintf(
+            <<<'SQL'
+                SELECT TABLE_NAME AS %s
+                FROM ALL_TABLES
+                WHERE OWNER = :OWNER
+                ORDER BY TABLE_NAME
+                SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
+        );
 
         return $this->connection->executeQuery($sql, ['OWNER' => $databaseName]);
     }
 
-    protected function selectTableColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectTableColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $conditions = ['C.OWNER = :OWNER'];
         $params     = ['OWNER' => $databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[]         = 'C.TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName;
+            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
             <<<'SQL'
           SELECT
-                 C.TABLE_NAME,
+                 C.TABLE_NAME AS %s,
                  C.COLUMN_NAME,
                  C.DATA_TYPE,
                  C.DATA_DEFAULT,
@@ -347,26 +340,29 @@ SQL;
            WHERE %s
         ORDER BY C.TABLE_NAME, C.COLUMN_ID
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $conditions),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectIndexColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $conditions = ['IND_COL.INDEX_OWNER = :OWNER'];
         $params     = ['OWNER' => $databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[]         = 'IND_COL.TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName;
+            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
             <<<'SQL'
           SELECT
-                 IND_COL.TABLE_NAME,
+                 IND_COL.TABLE_NAME AS %s,
                  IND_COL.INDEX_NAME AS NAME,
                  IND.INDEX_TYPE AS TYPE,
                  DECODE(IND.UNIQUENESS, 'NONUNIQUE', 0, 'UNIQUE', 1) AS IS_UNIQUE,
@@ -385,26 +381,29 @@ SQL,
                  IND_COL.INDEX_NAME,
                  IND_COL.COLUMN_POSITION
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $conditions),
         );
 
         return $this->connection->executeQuery($sql, $params);
     }
 
-    protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
+    protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $conditions = ["ALC.CONSTRAINT_TYPE = 'R'", 'COLS.OWNER = :OWNER'];
         $params     = ['OWNER' => $databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[]         = 'COLS.TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName;
+            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
             <<<'SQL'
           SELECT
-                 COLS.TABLE_NAME,
+                 COLS.TABLE_NAME AS %s,
                  ALC.CONSTRAINT_NAME,
                  ALC.DELETE_RULE,
                  ALC.DEFERRABLE,
@@ -422,6 +421,7 @@ SQL,
                  COLS.CONSTRAINT_NAME,
                  COLS.POSITION
 SQL,
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             implode(' AND ', $conditions),
         );
 
@@ -431,14 +431,16 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function fetchTableOptionsByTable(string $databaseName, ?string $tableName = null): array
+    protected function fetchTableOptionsByTable(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
     {
         $conditions = ['OWNER = :OWNER'];
         $params     = ['OWNER' => $databaseName];
 
         if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
             $conditions[]         = 'TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName;
+            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
         }
 
         $sql = sprintf(
@@ -454,17 +456,9 @@ SQL,
 
         $tableOptions = [];
         foreach ($this->connection->iterateKeyValue($sql, $params) as $table => $comments) {
-            $tableOptions[$table] = ['comment' => $comments];
+            $tableOptions[self::NULL_SCHEMA_KEY][$table] = ['comment' => $comments];
         }
 
         return $tableOptions;
-    }
-
-    /** @deprecated Use {@see Identifier::toNormalizedValue()} instead. */
-    protected function normalizeName(string $name): string
-    {
-        $identifier = new Identifier($name);
-
-        return $identifier->isQuoted() ? $identifier->getName() : strtoupper($name);
     }
 }

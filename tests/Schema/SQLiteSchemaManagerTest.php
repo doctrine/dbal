@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -215,8 +216,10 @@ class SQLiteSchemaManagerTest extends TestCase
         $manager = new class ($conn, new SQLitePlatform()) extends SQLiteSchemaManager {
             public static string $passedDatabaseName;
 
-            protected function selectForeignKeyColumns(string $databaseName, ?string $tableName = null): Result
-            {
+            protected function selectForeignKeyColumns(
+                string $databaseName,
+                ?OptionallyQualifiedName $tableName = null,
+            ): Result {
                 self::$passedDatabaseName = $databaseName;
 
                 return parent::selectForeignKeyColumns($databaseName, $tableName);
