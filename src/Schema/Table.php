@@ -78,9 +78,6 @@ class Table extends AbstractNamedObject
     private readonly int $maxIdentifierLength;
 
     /**
-     * @internal Use {@link Table::editor()} to instantiate an editor and {@link TableEditor::create()}
-     *           to create a table.
-     *
      * @param array<Column>               $columns
      * @param array<Index>                $indexes
      * @param array<UniqueConstraint>     $uniqueConstraints
@@ -145,6 +142,15 @@ class Table extends AbstractNamedObject
 
         foreach ($columnNames as $columnName) {
             $column = $this->getColumn($columnName);
+
+            if (! $column->getNotnull()) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/6787',
+                    'Using nullable columns in a primary key index is deprecated.',
+                );
+            }
+
             $column->setNotnull(true);
         }
 
@@ -891,7 +897,7 @@ class Table extends AbstractNamedObject
     public function edit(): TableEditor
     {
         return self::editor()
-            ->setName($this->getObjectName()->toString())
+            ->setName($this->getObjectName())
             ->setColumns($this->_columns)
             ->setIndexes($this->_indexes)
             ->setUniqueConstraints($this->uniqueConstraints)

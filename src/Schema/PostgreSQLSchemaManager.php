@@ -413,7 +413,14 @@ SQL,
             quote_ident(a.attname) AS field,
             t.typname AS type,
             format_type(a.atttypid, a.atttypmod) AS complete_type,
-            (SELECT tc.collcollate FROM pg_catalog.pg_collation tc WHERE tc.oid = a.attcollation) AS collation,
+            (
+                SELECT CASE
+                    WHEN collprovider = 'c' THEN tc.collcollate
+                    WHEN collprovider = 'd' THEN null
+                    ELSE tc.collname
+                END
+                FROM pg_catalog.pg_collation tc WHERE tc.oid = a.attcollation
+            ) AS collation,
             (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
             (SELECT format_type(t2.typbasetype, t2.typtypmod) FROM
               pg_catalog.pg_type t2 WHERE t2.typtype = 'd' AND t2.oid = a.atttypid) AS domain_complete_type,

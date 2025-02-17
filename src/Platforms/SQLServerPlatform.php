@@ -275,6 +275,8 @@ class SQLServerPlatform extends AbstractPlatform
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
+     * @internal The method should be only used by the {@see SQLServerPlatform} class.
+     *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to create the comment for.
      * @param string $comment    The column's comment.
@@ -301,6 +303,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * Returns the SQL snippet for declaring a default constraint.
+     *
+     * @internal The method should be only used by the {@see SQLServerPlatform} class.
      *
      * @param mixed[] $column Column definition.
      */
@@ -567,6 +571,8 @@ class SQLServerPlatform extends AbstractPlatform
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
+     * @internal The method should be only used by the {@see SQLServerPlatform} class.
+     *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to alter the comment for.
      * @param string $comment    The column's comment.
@@ -601,6 +607,8 @@ class SQLServerPlatform extends AbstractPlatform
      * which provides compatibility with SQL Server Management Studio,
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
+     *
+     * @internal The method should be only used by the {@see SQLServerPlatform} class.
      *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to drop the comment for.
@@ -660,6 +668,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL statement for adding an extended property to a database object.
      *
+     * @internal The method should be only used by the {@see SQLServerPlatform} class.
+     *
      * @link http://msdn.microsoft.com/en-us/library/ms180047%28v=sql.90%29.aspx
      *
      * @param string      $name       The name of the property to add.
@@ -694,6 +704,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL statement for dropping an extended property from a database object.
      *
+     * @internal The method should be only used by the {@see SQLServerPlatform} class.
+     *
      * @link http://technet.microsoft.com/en-gb/library/ms178595%28v=sql.90%29.aspx
      *
      * @param string      $name       The name of the property to drop.
@@ -725,6 +737,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * Returns the SQL statement for updating an extended property of a database object.
+     *
+     * @internal The method should be only used by the {@see SQLServerPlatform} class.
      *
      * @link http://msdn.microsoft.com/en-us/library/ms186885%28v=sql.90%29.aspx
      *

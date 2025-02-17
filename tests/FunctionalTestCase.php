@@ -7,16 +7,19 @@ namespace Doctrine\DBAL\Tests;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
+use function count;
 
 abstract class FunctionalTestCase extends TestCase
 {
@@ -107,6 +110,77 @@ abstract class FunctionalTestCase extends TestCase
 
         $this->dropTableIfExists($tableName);
         $schemaManager->createTable($table);
+    }
+
+    /**
+     * Drops the schema with the specified name, if it exists.
+     *
+     * @throws Exception
+     */
+    protected function dropSchemaIfExists(UnqualifiedName $schemaName): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        if (! $platform->supportsSchemas()) {
+            throw NotSupported::new(__METHOD__);
+        }
+
+        $normalizedSchemaName = $schemaName->getIdentifier()
+            ->toNormalizedValue($platform);
+
+        $schemaManager  = $this->connection->createSchemaManager();
+        $databaseSchema = $schemaManager->introspectSchema();
+
+        $sequencesToDrop = [];
+        foreach ($databaseSchema->getSequences() as $sequence) {
+            $qualifier = $sequence->getObjectName()
+                ->getQualifier();
+
+            if ($qualifier === null || $qualifier->toNormalizedValue($platform) !== $normalizedSchemaName) {
+                continue;
+            }
+
+            $sequencesToDrop[] = $sequence;
+        }
+
+        $tablesToDrop = [];
+        foreach ($databaseSchema->getTables() as $table) {
+            $qualifier = $table->getObjectName()
+                ->getQualifier();
+
+            if ($qualifier === null || $qualifier->toNormalizedValue($platform) !== $normalizedSchemaName) {
+                continue;
+            }
+
+            $tablesToDrop[] = $table;
+        }
+
+        if (count($sequencesToDrop) > 0 || count($tablesToDrop) > 0) {
+            $schemaManager->dropSchemaObjects(new Schema($tablesToDrop, $sequencesToDrop));
+        }
+
+        try {
+            $schemaManager->dropSchema($schemaName->toSQL($platform));
+        } catch (DatabaseObjectNotFoundException) {
+        }
+    }
+
+    /**
+     * Drops and creates a new schema.
+     *
+     * @throws Exception
+     */
+    protected function dropAndCreateSchema(UnqualifiedName $schemaName): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        if (! $platform->supportsSchemas()) {
+            throw NotSupported::new(__METHOD__);
+        }
+
+        $schemaManager  = $this->connection->createSchemaManager();
+        $schemaToCreate = new Schema([], [], null, [$schemaName->toString()]);
+
+        $this->dropSchemaIfExists($schemaName);
+        $schemaManager->createSchemaObjects($schemaToCreate);
     }
 
     /** @throws Exception */

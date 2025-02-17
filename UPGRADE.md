@@ -175,12 +175,38 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated `Index` usage scenarios
+
+The following `Index` usage scenarios have been deprecated:
+
+1. Instantiation of an index with empty columns
+2. Instantiation of a primary key index with column lengths specified
+3. Using qualified or otherwise invalid column names in index columns
+4. Using other values than positive integers as index column lengths
+5. Using nullable columns in a primary key index
+
 ## Deprecated passing unquoted names containing dots for table introspection on platforms that don't support schemas
 
 Relying on table names containing dots not being parsed on platforms that don't support schemas is deprecated. If a
 table name contains a dot or other special characters, it should be quoted.
 
 Passing names that are not valid SQL to the schema introspection methods is also deprecated.
+
+## Platform and schema manager methods marked as internal
+
+The following platform and schema manager methods are considered implementation details and have been marked as
+internal:
+
+- `OraclePlatform::getCreateAutoincrementSql()`
+- `OraclePlatform::getIdentitySequenceName()`
+- `OracleSchemaManager::dropAutoincrement()`
+- `SQLServerPlatform::getCreateColumnCommentSQL()`
+- `SQLServerPlatform::getDefaultConstraintDeclarationSQL()`
+- `SQLServerPlatform::getAlterColumnCommentSQL()`
+- `SQLServerPlatform::getDropColumnCommentSQL()`
+- `SQLServerPlatform::getAddExtendedPropertySQL()`
+- `SQLServerPlatform::getDropExtendedPropertySQL()`
+- `SQLServerPlatform::getUpdateExtendedPropertySQL()`
 
 ## Deprecated `AbstractSchemaManager::_normalizeName()`
 

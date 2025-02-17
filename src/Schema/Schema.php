@@ -232,13 +232,7 @@ class Schema
      */
     private function getKeyFromName(string $input): string
     {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
-        try {
-            $name = $parser->parse($input);
-        } catch (Parser\Exception $e) {
-            throw InvalidName::fromParserException($input, $e);
-        }
+        $name = $this->parseOptionallyQualifiedName($input);
 
         return $this->getKeyFromResolvedName(
             $this->resolveName($name),
@@ -342,8 +336,10 @@ class Schema
      */
     public function createTable(string $name): Table
     {
+        $parsedName = $this->parseOptionallyQualifiedName($name);
+
         $table = Table::editor()
-            ->setName($name)
+            ->setName($parsedName)
             ->setOptions($this->_schemaConfig->getDefaultTableOptions())
             ->setConfiguration($this->_schemaConfig->toTableConfiguration())
             ->create();
@@ -360,9 +356,11 @@ class Schema
      */
     public function renameTable(string $oldName, string $newName): self
     {
+        $parsedName = $this->parseOptionallyQualifiedName($newName);
+
         $table = $this->getTable($oldName)
             ->edit()
-            ->setName($newName)
+            ->setName($parsedName)
             ->create();
 
         $this->dropTable($oldName);
@@ -445,6 +443,17 @@ class Schema
 
         foreach ($this->_sequences as $k => $sequence) {
             $this->_sequences[$k] = clone $sequence;
+        }
+    }
+
+    private function parseOptionallyQualifiedName(string $input): OptionallyQualifiedName
+    {
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
+        try {
+            return $parser->parse($input);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($input, $e);
         }
     }
 }

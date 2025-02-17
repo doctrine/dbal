@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\InvalidState;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\Deprecations\Deprecation;
+use Throwable;
 
 use function array_filter;
 use function array_keys;
@@ -15,6 +19,9 @@ use function array_map;
 use function array_search;
 use function array_shift;
 use function count;
+use function gettype;
+use function is_int;
+use function is_object;
 use function strtolower;
 
 /** @extends AbstractNamedObject<UnqualifiedName> */
@@ -39,6 +46,15 @@ class Index extends AbstractNamedObject
     protected array $_flags = [];
 
     /**
+     * Column the index is associated with.
+     *
+     * An empty list indicates that an attempt to parse indexed columns failed.
+     *
+     * @var list<IndexedColumn>
+     */
+    private readonly array $columns;
+
+    /**
      * @param array<int, string>   $columns
      * @param array<int, string>   $flags
      * @param array<string, mixed> $options
@@ -53,8 +69,26 @@ class Index extends AbstractNamedObject
     ) {
         parent::__construct($name ?? '');
 
+        if (count($columns) < 1) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6787',
+                'Instantiation of an index without column names is deprecated.',
+            );
+        }
+
         $this->_isUnique  = $isUnique || $isPrimary;
         $this->_isPrimary = $isPrimary;
+
+        $lengths = $options['lengths'] ?? [];
+
+        if ($isPrimary && count($lengths) > 0) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6787',
+                'Declaring column length for primary key indexes is deprecated.',
+            );
+        }
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -63,11 +97,27 @@ class Index extends AbstractNamedObject
         foreach ($flags as $flag) {
             $this->addFlag($flag);
         }
+
+        $this->columns = $this->parseColumns($columns, $options['lengths'] ?? []);
     }
 
     protected function getNameParser(): UnqualifiedNameParser
     {
         return Parsers::getUnqualifiedNameParser();
+    }
+
+    /**
+     * Returns the indexed columns.
+     *
+     * @return non-empty-list<IndexedColumn>
+     */
+    public function getIndexedColumns(): array
+    {
+        if (count($this->columns) < 1) {
+            throw InvalidState::indexHasInvalidColumns($this->getName());
+        }
+
+        return $this->columns;
     }
 
     protected function _addColumn(string $column): void
@@ -286,6 +336,63 @@ class Index extends AbstractNamedObject
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    /**
+     * @param array<string> $columnNames
+     * @param array<int>    $lengths
+     *
+     * @return list<IndexedColumn>
+     */
+    private function parseColumns(array $columnNames, array $lengths): array
+    {
+        $columns = [];
+
+        $parser = Parsers::getUnqualifiedNameParser();
+
+        try {
+            foreach ($columnNames as $columnName) {
+                $name   = $parser->parse($columnName);
+                $length = array_shift($lengths);
+
+                if ($length !== null) {
+                    if (! is_int($length)) {
+                        Deprecation::trigger(
+                            'doctrine/dbal',
+                            'https://github.com/doctrine/dbal/pull/6787',
+                            'Indexed column length should be an integer, %s given.',
+                            is_object($length) ? $length::class : gettype($length),
+                        );
+
+                        $length = (int) $length;
+                    }
+
+                    if ($length < 1) {
+                        Deprecation::trigger(
+                            'doctrine/dbal',
+                            'https://github.com/doctrine/dbal/pull/6787',
+                            'Indexed column length should be a positive integer, %d given.',
+                            $length,
+                        );
+
+                        return [];
+                    }
+                }
+
+                $columns[] = new IndexedColumn($name, $length);
+            }
+
+            return $columns;
+        } catch (Throwable $e) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6787',
+                'Unable to parse column name: %s.',
+                $e->getMessage(),
+            );
+
+            return [];
+        }
     }
 
     /**

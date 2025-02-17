@@ -74,10 +74,8 @@ install:
           $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip"
           Invoke-WebRequest $source -OutFile $destination
           7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip > $null
-
-          # Pin the version until https://github.com/krakjoe/pcov/issues/117 is resolved
-          $DLLVersion = "1.0.11"
-          Invoke-WebRequest https://windows.php.net/downloads/pecl/releases/pcov/$($DLLVersion)/php_pcov-$($DLLVersion)-$($env:php)-nts-vs16-$($env:platform).zip -OutFile pcov.zip
+          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/pcov/stable.txt").Content
+          Invoke-WebRequest https://downloads.php.net/~windows/pecl/releases/pcov/$($DLLVersion)/php_pcov-$($DLLVersion)-$($env:php)-nts-vs16-$($env:platform).zip -OutFile pcov.zip
           7z x -y pcov.zip > $null
           Remove-Item c:\tools\php\* -include .zip
           cd c:\tools\php

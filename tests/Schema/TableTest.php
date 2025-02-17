@@ -304,6 +304,8 @@ class TableTest extends TestCase
 
     public function testBuilderSetPrimaryKey(): void
     {
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
+
         $table = new Table('foo');
 
         $table->addColumn('bar', Types::INTEGER);
@@ -313,6 +315,20 @@ class TableTest extends TestCase
         self::assertInstanceOf(Index::class, $table->getPrimaryKey());
         self::assertTrue($table->getIndex('primary')->isUnique());
         self::assertTrue($table->getIndex('primary')->isPrimary());
+    }
+
+    public function testSetPrimaryKeyOnANullableColumn(): void
+    {
+        $table = new Table('users');
+
+        $id = $table->addColumn('id', Types::INTEGER)
+            ->setNotnull(false);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
+
+        $table->setPrimaryKey(['id']);
+
+        self::assertTrue($id->getNotnull());
     }
 
     public function testBuilderAddUniqueIndex(): void

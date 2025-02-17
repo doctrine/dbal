@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 
 final class TableEditor
 {
-    private ?string $name = null;
+    private ?OptionallyQualifiedName $name = null;
 
     /** @var array<Column> */
     private array $columns = [];
@@ -32,7 +33,7 @@ final class TableEditor
     {
     }
 
-    public function setName(string $name): self
+    public function setName(OptionallyQualifiedName $name): self
     {
         $this->name = $name;
 
@@ -93,7 +94,7 @@ final class TableEditor
         }
 
         return new Table(
-            $this->name,
+            $this->name->toString(),
             $this->columns,
             $this->indexes,
             $this->uniqueConstraints,

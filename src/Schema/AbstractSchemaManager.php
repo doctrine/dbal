@@ -268,8 +268,7 @@ abstract class AbstractSchemaManager
 
                 $editor = Table::editor()
                     ->setName(
-                        OptionallyQualifiedName::quoted($unqualifiedName, $qualifier)
-                            ->toString(),
+                        OptionallyQualifiedName::quoted($unqualifiedName, $qualifier),
                     )
                     ->setColumns($this->_getPortableTableColumnList($tableColumns))
                     ->setIndexes(
@@ -532,7 +531,7 @@ abstract class AbstractSchemaManager
         }
 
         return Table::editor()
-            ->setName($name)
+            ->setName($tableName)
             ->setColumns($columns)
             ->setIndexes($this->listTableIndexes($name))
             ->setForeignKeyConstraints($this->listTableForeignKeys($name))

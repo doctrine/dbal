@@ -364,6 +364,11 @@ class PostgreSQLPlatform extends AbstractPlatform
             return $this->getDropConstraintSQL($constraintName, $table);
         }
 
+        if (str_contains($table, '.')) {
+            [$schema] = explode('.', $table);
+            $name     = $schema . '.' . $name;
+        }
+
         return parent::getDropIndexSQL($name, $table);
     }
 

@@ -10,7 +10,7 @@ the schema with the DBAL:
 
 1. Identify all ``autoincrement`` columns and their tables.
 2. Create the ``upgrade_serial_to_identity()`` function in the database as described in
-   `PostgreSQL 10 identity columns explained <https://www.2ndquadrant.com/en/blog/postgresql-10-identity-columns/>`_:
+   `PostgreSQL 10 identity columns explained <https://www.enterprisedb.com/blog/postgresql-10-identity-columns-explained>`_:
 
     .. code-block:: sql
 

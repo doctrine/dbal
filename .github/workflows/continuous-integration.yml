@@ -220,6 +220,8 @@ jobs:
       matrix:
         php-version:
           - "8.4"
+        postgres-locale-provider:
+            - "libc"
         postgres-version:
           - "12"
           - "16"
@@ -240,11 +242,16 @@ jobs:
           - php-version: "8.5"
             postgres-version: "17"
             extension: "pdo_pgsql"
+          - php-version: "8.4"
+            postgres-version: "15"
+            extension: "pdo_pgsql"
+            postgres-locale-provider: "icu"
 
     services:
       postgres:
         image: "postgres:${{ matrix.postgres-version }}"
         env:
+          POSTGRES_INITDB_ARGS: ${{ matrix.postgres-locale-provider == 'icu' && '--locale-provider=icu --icu-locale=en-US' || '' }}
           POSTGRES_PASSWORD: "postgres"
 
         options: >-
@@ -278,7 +285,7 @@ jobs:
       - name: "Upload coverage file"
         uses: "actions/upload-artifact@v4"
         with:
-          name: "${{ github.job }}-${{ matrix.postgres-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
+          name: "${{ github.job }}-${{ matrix.postgres-version }}-${{ matrix.extension }}-${{ matrix.php-version }}-${{ matrix.postgres-locale-provider }}.coverage"
           path: "coverage.xml"
 
   phpunit-mariadb:

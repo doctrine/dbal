@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -196,5 +199,71 @@ class IndexTest extends TestCase
         $index = new Index('idx_user_id', ['user_id']);
 
         self::assertEquals(Identifier::unquoted('idx_user_id'), $index->getObjectName()->getIdentifier());
+    }
+
+    public function testEmptyColumns(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
+
+        $index = new Index('idx_user_name', []);
+
+        $this->expectException(InvalidState::class);
+
+        $index->getIndexedColumns();
+    }
+
+    public function testInvalidColumnName(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
+
+        $index = new Index('idx_user_name', ['user.name']);
+
+        $this->expectException(InvalidState::class);
+
+        $index->getIndexedColumns();
+    }
+
+    public function testPrimaryKeyWithColumnLength(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
+
+        new Index('primary', ['id'], false, true, [], ['lengths' => [32]]);
+    }
+
+    public function testNonIntegerColumnLength(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
+
+        $index = new Index('idx_user_name', ['name'], false, false, [], ['lengths' => ['8']]);
+
+        self::assertEquals([
+            new IndexedColumn(UnqualifiedName::unquoted('name'), 8),
+        ], $index->getIndexedColumns());
+    }
+
+    public function testNonPositiveColumnLength(): void
+    {
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
+
+        $index = new Index('idx_user_name', ['name'], false, false, [], ['lengths' => [-1]]);
+
+        $this->expectException(InvalidState::class);
+
+        $index->getIndexedColumns();
+    }
+
+    public function testGetIndexedColumns(): void
+    {
+        $index = new Index('idx_user_name', ['first_name', 'last_name'], false, false, [], ['lengths' => [16]]);
+
+        $indexedColumns = $index->getIndexedColumns();
+
+        self::assertCount(2, $indexedColumns);
+
+        self::assertEquals(UnqualifiedName::unquoted('first_name'), $indexedColumns[0]->getColumnName());
+        self::assertEquals(16, $indexedColumns[0]->getLength());
+
+        self::assertEquals(UnqualifiedName::unquoted('last_name'), $indexedColumns[1]->getColumnName());
+        self::assertNull($indexedColumns[1]->getLength());
     }
 }
