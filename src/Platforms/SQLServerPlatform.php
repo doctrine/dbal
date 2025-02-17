@@ -275,13 +275,11 @@ class SQLServerPlatform extends AbstractPlatform
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
-     * @internal The method should be only used by the {@see SQLServerPlatform} class.
-     *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to create the comment for.
      * @param string $comment    The column's comment.
      */
-    protected function getCreateColumnCommentSQL(string $tableName, string $columnName, string $comment): string
+    private function getCreateColumnCommentSQL(string $tableName, string $columnName, string $comment): string
     {
         if (str_contains($tableName, '.')) {
             [$schemaName, $tableName] = explode('.', $tableName);
@@ -304,11 +302,9 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL snippet for declaring a default constraint.
      *
-     * @internal The method should be only used by the {@see SQLServerPlatform} class.
-     *
      * @param mixed[] $column Column definition.
      */
-    protected function getDefaultConstraintDeclarationSQL(array $column): string
+    private function getDefaultConstraintDeclarationSQL(array $column): string
     {
         if (! isset($column['default'])) {
             throw new InvalidArgumentException('Incomplete column definition. "default" required.');
@@ -571,13 +567,11 @@ class SQLServerPlatform extends AbstractPlatform
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
-     * @internal The method should be only used by the {@see SQLServerPlatform} class.
-     *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to alter the comment for.
      * @param string $comment    The column's comment.
      */
-    protected function getAlterColumnCommentSQL(string $tableName, string $columnName, string $comment): string
+    private function getAlterColumnCommentSQL(string $tableName, string $columnName, string $comment): string
     {
         if (str_contains($tableName, '.')) {
             [$schemaName, $tableName] = explode('.', $tableName);
@@ -608,12 +602,10 @@ class SQLServerPlatform extends AbstractPlatform
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
-     * @internal The method should be only used by the {@see SQLServerPlatform} class.
-     *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to drop the comment for.
      */
-    protected function getDropColumnCommentSQL(string $tableName, string $columnName): string
+    private function getDropColumnCommentSQL(string $tableName, string $columnName): string
     {
         if (str_contains($tableName, '.')) {
             [$schemaName, $tableName] = explode('.', $tableName);
@@ -667,8 +659,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL statement for adding an extended property to a database object.
      *
-     * @internal The method should be only used by the {@see SQLServerPlatform} class.
-     *
      * @link http://msdn.microsoft.com/en-us/library/ms180047%28v=sql.90%29.aspx
      *
      * @param string      $name       The name of the property to add.
@@ -680,7 +670,7 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string|null $level2Type The type of the object at level 2 the property belongs to.
      * @param string|null $level2Name The name of the object at level 2 the property belongs to.
      */
-    protected function getAddExtendedPropertySQL(
+    private function getAddExtendedPropertySQL(
         string $name,
         ?string $value = null,
         ?string $level0Type = null,
@@ -710,8 +700,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL statement for dropping an extended property from a database object.
      *
-     * @internal The method should be only used by the {@see SQLServerPlatform} class.
-     *
      * @link http://technet.microsoft.com/en-gb/library/ms178595%28v=sql.90%29.aspx
      *
      * @param string      $name       The name of the property to drop.
@@ -722,7 +710,7 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string|null $level2Type The type of the object at level 2 the property belongs to.
      * @param string|null $level2Name The name of the object at level 2 the property belongs to.
      */
-    protected function getDropExtendedPropertySQL(
+    private function getDropExtendedPropertySQL(
         string $name,
         ?string $level0Type = null,
         ?string $level0Name = null,
@@ -750,8 +738,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL statement for updating an extended property of a database object.
      *
-     * @internal The method should be only used by the {@see SQLServerPlatform} class.
-     *
      * @link http://msdn.microsoft.com/en-us/library/ms186885%28v=sql.90%29.aspx
      *
      * @param string      $name       The name of the property to update.
@@ -763,7 +749,7 @@ class SQLServerPlatform extends AbstractPlatform
      * @param string|null $level2Type The type of the object at level 2 the property belongs to.
      * @param string|null $level2Name The name of the object at level 2 the property belongs to.
      */
-    protected function getUpdateExtendedPropertySQL(
+    private function getUpdateExtendedPropertySQL(
         string $name,
         ?string $value = null,
         ?string $level0Type = null,

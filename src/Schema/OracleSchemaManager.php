@@ -253,19 +253,13 @@ class OracleSchemaManager extends AbstractSchemaManager
         $this->connection->executeStatement($statement);
     }
 
-    /**
-     * @internal The method should be only used by the {@see OracleSchemaManager} class.
-     *
-     * @throws Exception
-     */
-    protected function dropAutoincrement(string $table): bool
+    /** @throws Exception */
+    private function dropAutoincrement(string $table): void
     {
         $sql = $this->platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
             $this->connection->executeStatement($query);
         }
-
-        return true;
     }
 
     public function dropTable(string $name): void
