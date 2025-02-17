@@ -659,10 +659,9 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function getRenameSQL(string ...$arguments): string
     {
-        return 'EXEC sp_rename '
-             . implode(', ', array_map(function (string $argument): string {
-                return 'N' . $this->quoteStringLiteral($argument);
-             }, $arguments));
+        return $this->getExecSQL('sp_rename', ...array_map(function (string $argument): string {
+            return $this->quoteNationalStringLiteral($argument);
+        }, $arguments));
     }
 
     /**
@@ -691,14 +690,21 @@ class SQLServerPlatform extends AbstractPlatform
         ?string $level2Type = null,
         ?string $level2Name = null,
     ): string {
-        return 'EXEC sp_addextendedproperty ' .
-            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral($value ?? '') . ', ' .
-            'N' . $this->quoteStringLiteral($level0Type ?? '') . ', ' . $level0Name . ', ' .
-            'N' . $this->quoteStringLiteral($level1Type ?? '') . ', ' . $level1Name .
-            ($level2Type !== null || $level2Name !== null
-                ? ', N' . $this->quoteStringLiteral($level2Type ?? '') . ', ' . $level2Name
-                : ''
-            );
+        $arguments = [
+            $this->quoteNationalStringLiteral($name),
+            $this->quoteNationalStringLiteral($value ?? ''),
+            $this->quoteNationalStringLiteral($level0Type ?? ''),
+            $level0Name ?? '',
+            $this->quoteNationalStringLiteral($level1Type ?? ''),
+            $level1Name ?? '',
+        ];
+
+        if ($level2Type !== null || $level2Name !== null) {
+            $arguments[] = $this->quoteNationalStringLiteral($level2Type ?? '');
+            $arguments[] = $level2Name ?? '';
+        }
+
+        return $this->getExecSQL('sp_addextendedproperty', ...$arguments);
     }
 
     /**
@@ -725,14 +731,20 @@ class SQLServerPlatform extends AbstractPlatform
         ?string $level2Type = null,
         ?string $level2Name = null,
     ): string {
-        return 'EXEC sp_dropextendedproperty ' .
-            'N' . $this->quoteStringLiteral($name) . ', ' .
-            'N' . $this->quoteStringLiteral($level0Type ?? '') . ', ' . $level0Name . ', ' .
-            'N' . $this->quoteStringLiteral($level1Type ?? '') . ', ' . $level1Name .
-            ($level2Type !== null || $level2Name !== null
-                ? ', N' . $this->quoteStringLiteral($level2Type ?? '') . ', ' . $level2Name
-                : ''
-            );
+        $arguments = [
+            $this->quoteNationalStringLiteral($name),
+            $this->quoteNationalStringLiteral($level0Type ?? ''),
+            $level0Name ?? '',
+            $this->quoteNationalStringLiteral($level1Type ?? ''),
+            $level1Name ?? '',
+        ];
+
+        if ($level2Type !== null || $level2Name !== null) {
+            $arguments[] = $this->quoteNationalStringLiteral($level2Type ?? '');
+            $arguments[] = $level2Name ?? '';
+        }
+
+        return $this->getExecSQL('sp_dropextendedproperty', ...$arguments);
     }
 
     /**
@@ -761,14 +773,37 @@ class SQLServerPlatform extends AbstractPlatform
         ?string $level2Type = null,
         ?string $level2Name = null,
     ): string {
-        return 'EXEC sp_updateextendedproperty ' .
-            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral($value ?? '') . ', ' .
-            'N' . $this->quoteStringLiteral($level0Type ?? '') . ', ' . $level0Name . ', ' .
-            'N' . $this->quoteStringLiteral($level1Type ?? '') . ', ' . $level1Name .
-            ($level2Type !== null || $level2Name !== null
-                ? ', N' . $this->quoteStringLiteral($level2Type ?? '') . ', ' . $level2Name
-                : ''
-            );
+        $arguments = [
+            $this->quoteNationalStringLiteral($name),
+            $this->quoteNationalStringLiteral($value ?? ''),
+            $this->quoteNationalStringLiteral($level0Type ?? ''),
+            $level0Name ?? '',
+            $this->quoteNationalStringLiteral($level1Type ?? ''),
+            $level1Name ?? '',
+        ];
+
+        if ($level2Type !== null || $level2Name !== null) {
+            $arguments[] = $this->quoteNationalStringLiteral($level2Type ?? '');
+            $arguments[] = $level2Name ?? '';
+        }
+
+        return $this->getExecSQL('sp_updateextendedproperty', ...$arguments);
+    }
+
+    /**
+     * Returns the SQL statement that will execute the given stored procedure with the given arguments.
+     *
+     * @param string $procedureName The name of the stored procedure to execute.
+     * @param string ...$arguments  The SQL fragments representing the arguments to pass to the stored procedure.
+     */
+    private function getExecSQL(string $procedureName, string ...$arguments): string
+    {
+        return 'EXEC ' . $this->quoteSingleIdentifier($procedureName) . ' ' . implode(', ', $arguments);
+    }
+
+    private function quoteNationalStringLiteral(string $value): string
+    {
+        return 'N' . $this->quoteStringLiteral($value);
     }
 
     public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string
