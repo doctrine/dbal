@@ -143,4 +143,9 @@
     <rule ref="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly.ReferenceViaFallbackGlobalName">
         <exclude-pattern>src/ParameterType.php</exclude-pattern>
     </rule>
+
+    <!-- PHP_CodeSniffer doesn't seem to understand splat operator with associative arrays -->
+    <rule ref="Squiz.Arrays.ArrayDeclaration.KeySpecified">
+        <exclude-pattern>src/Platforms/SQLServerPlatform.php</exclude-pattern>
+    </rule>
 </ruleset>

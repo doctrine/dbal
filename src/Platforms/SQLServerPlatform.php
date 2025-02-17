@@ -275,27 +275,22 @@ class SQLServerPlatform extends AbstractPlatform
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
+     * @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql
+     *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to create the comment for.
      * @param string $comment    The column's comment.
      */
     private function getCreateColumnCommentSQL(string $tableName, string $columnName, string $comment): string
     {
-        if (str_contains($tableName, '.')) {
-            [$schemaName, $tableName] = explode('.', $tableName);
-        } else {
-            $schemaName = 'dbo';
-        }
-
-        return $this->getAddExtendedPropertySQL(
-            'MS_Description',
-            $comment,
-            'SCHEMA',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($schemaName)),
-            'TABLE',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($tableName)),
-            'COLUMN',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+        return $this->getExecSQL(
+            'sp_addextendedproperty',
+            $this->quoteNationalStringLiteral('MS_Description'),
+            $this->quoteNationalStringLiteral($comment),
+            ...$this->getArgumentsForExtendedProperties([
+                ...$this->getExtendedPropertiesForTable($tableName),
+                'COLUMN' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+            ]),
         );
     }
 
@@ -567,27 +562,22 @@ class SQLServerPlatform extends AbstractPlatform
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
+     * @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-updateextendedproperty-transact-sql
+     *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to alter the comment for.
      * @param string $comment    The column's comment.
      */
     private function getAlterColumnCommentSQL(string $tableName, string $columnName, string $comment): string
     {
-        if (str_contains($tableName, '.')) {
-            [$schemaName, $tableName] = explode('.', $tableName);
-        } else {
-            $schemaName = 'dbo';
-        }
-
-        return $this->getUpdateExtendedPropertySQL(
-            'MS_Description',
-            $comment,
-            'SCHEMA',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($schemaName)),
-            'TABLE',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($tableName)),
-            'COLUMN',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+        return $this->getExecSQL(
+            'sp_updateextendedproperty',
+            $this->quoteNationalStringLiteral('MS_Description'),
+            $this->quoteNationalStringLiteral($comment),
+            ...$this->getArgumentsForExtendedProperties([
+                ...$this->getExtendedPropertiesForTable($tableName),
+                'COLUMN' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+            ]),
         );
     }
 
@@ -604,23 +594,18 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param string $tableName  The quoted table name to which the column belongs.
      * @param string $columnName The quoted column name to drop the comment for.
+     *
+     * https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-dropextendedproperty-transact-sql
      */
     private function getDropColumnCommentSQL(string $tableName, string $columnName): string
     {
-        if (str_contains($tableName, '.')) {
-            [$schemaName, $tableName] = explode('.', $tableName);
-        } else {
-            $schemaName = 'dbo';
-        }
-
-        return $this->getDropExtendedPropertySQL(
-            'MS_Description',
-            'SCHEMA',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($schemaName)),
-            'TABLE',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($tableName)),
-            'COLUMN',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+        return $this->getExecSQL(
+            'sp_dropextendedproperty',
+            $this->quoteNationalStringLiteral('MS_Description'),
+            ...$this->getArgumentsForExtendedProperties([
+                ...$this->getExtendedPropertiesForTable($tableName),
+                'COLUMN' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+            ]),
         );
     }
 
@@ -648,132 +633,14 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * Returns the SQL statement that will execute sp_rename with the given arguments.
+     *
+     * @param string ...$arguments The literal values of the arguments to pass to the <code>sp_rename</code> procedure.
      */
     private function getRenameSQL(string ...$arguments): string
     {
         return $this->getExecSQL('sp_rename', ...array_map(function (string $argument): string {
             return $this->quoteNationalStringLiteral($argument);
         }, $arguments));
-    }
-
-    /**
-     * Returns the SQL statement for adding an extended property to a database object.
-     *
-     * @link http://msdn.microsoft.com/en-us/library/ms180047%28v=sql.90%29.aspx
-     *
-     * @param string      $name       The name of the property to add.
-     * @param string|null $value      The value of the property to add.
-     * @param string|null $level0Type The type of the object at level 0 the property belongs to.
-     * @param string|null $level0Name The name of the object at level 0 the property belongs to.
-     * @param string|null $level1Type The type of the object at level 1 the property belongs to.
-     * @param string|null $level1Name The name of the object at level 1 the property belongs to.
-     * @param string|null $level2Type The type of the object at level 2 the property belongs to.
-     * @param string|null $level2Name The name of the object at level 2 the property belongs to.
-     */
-    private function getAddExtendedPropertySQL(
-        string $name,
-        ?string $value = null,
-        ?string $level0Type = null,
-        ?string $level0Name = null,
-        ?string $level1Type = null,
-        ?string $level1Name = null,
-        ?string $level2Type = null,
-        ?string $level2Name = null,
-    ): string {
-        $arguments = [
-            $this->quoteNationalStringLiteral($name),
-            $this->quoteNationalStringLiteral($value ?? ''),
-            $this->quoteNationalStringLiteral($level0Type ?? ''),
-            $level0Name ?? '',
-            $this->quoteNationalStringLiteral($level1Type ?? ''),
-            $level1Name ?? '',
-        ];
-
-        if ($level2Type !== null || $level2Name !== null) {
-            $arguments[] = $this->quoteNationalStringLiteral($level2Type ?? '');
-            $arguments[] = $level2Name ?? '';
-        }
-
-        return $this->getExecSQL('sp_addextendedproperty', ...$arguments);
-    }
-
-    /**
-     * Returns the SQL statement for dropping an extended property from a database object.
-     *
-     * @link http://technet.microsoft.com/en-gb/library/ms178595%28v=sql.90%29.aspx
-     *
-     * @param string      $name       The name of the property to drop.
-     * @param string|null $level0Type The type of the object at level 0 the property belongs to.
-     * @param string|null $level0Name The name of the object at level 0 the property belongs to.
-     * @param string|null $level1Type The type of the object at level 1 the property belongs to.
-     * @param string|null $level1Name The name of the object at level 1 the property belongs to.
-     * @param string|null $level2Type The type of the object at level 2 the property belongs to.
-     * @param string|null $level2Name The name of the object at level 2 the property belongs to.
-     */
-    private function getDropExtendedPropertySQL(
-        string $name,
-        ?string $level0Type = null,
-        ?string $level0Name = null,
-        ?string $level1Type = null,
-        ?string $level1Name = null,
-        ?string $level2Type = null,
-        ?string $level2Name = null,
-    ): string {
-        $arguments = [
-            $this->quoteNationalStringLiteral($name),
-            $this->quoteNationalStringLiteral($level0Type ?? ''),
-            $level0Name ?? '',
-            $this->quoteNationalStringLiteral($level1Type ?? ''),
-            $level1Name ?? '',
-        ];
-
-        if ($level2Type !== null || $level2Name !== null) {
-            $arguments[] = $this->quoteNationalStringLiteral($level2Type ?? '');
-            $arguments[] = $level2Name ?? '';
-        }
-
-        return $this->getExecSQL('sp_dropextendedproperty', ...$arguments);
-    }
-
-    /**
-     * Returns the SQL statement for updating an extended property of a database object.
-     *
-     * @link http://msdn.microsoft.com/en-us/library/ms186885%28v=sql.90%29.aspx
-     *
-     * @param string      $name       The name of the property to update.
-     * @param string|null $value      The value of the property to update.
-     * @param string|null $level0Type The type of the object at level 0 the property belongs to.
-     * @param string|null $level0Name The name of the object at level 0 the property belongs to.
-     * @param string|null $level1Type The type of the object at level 1 the property belongs to.
-     * @param string|null $level1Name The name of the object at level 1 the property belongs to.
-     * @param string|null $level2Type The type of the object at level 2 the property belongs to.
-     * @param string|null $level2Name The name of the object at level 2 the property belongs to.
-     */
-    private function getUpdateExtendedPropertySQL(
-        string $name,
-        ?string $value = null,
-        ?string $level0Type = null,
-        ?string $level0Name = null,
-        ?string $level1Type = null,
-        ?string $level1Name = null,
-        ?string $level2Type = null,
-        ?string $level2Name = null,
-    ): string {
-        $arguments = [
-            $this->quoteNationalStringLiteral($name),
-            $this->quoteNationalStringLiteral($value ?? ''),
-            $this->quoteNationalStringLiteral($level0Type ?? ''),
-            $level0Name ?? '',
-            $this->quoteNationalStringLiteral($level1Type ?? ''),
-            $level1Name ?? '',
-        ];
-
-        if ($level2Type !== null || $level2Name !== null) {
-            $arguments[] = $this->quoteNationalStringLiteral($level2Type ?? '');
-            $arguments[] = $level2Name ?? '';
-        }
-
-        return $this->getExecSQL('sp_updateextendedproperty', ...$arguments);
     }
 
     /**
@@ -790,6 +657,50 @@ class SQLServerPlatform extends AbstractPlatform
     private function quoteNationalStringLiteral(string $value): string
     {
         return 'N' . $this->quoteStringLiteral($value);
+    }
+
+    /**
+     * Returns the stored procedure arguments for the extended properties.
+     *
+     * The keys of the properties array are property name literals, and the values are SQL fragments representing the
+     * values.
+     *
+     * @param array<string,string> $properties
+     *
+     * @return list<string>
+     */
+    private function getArgumentsForExtendedProperties(array $properties): array
+    {
+        $arguments = [];
+
+        foreach ($properties as $name => $value) {
+            $arguments[] = $this->quoteNationalStringLiteral($name);
+            $arguments[] = $value;
+        }
+
+        return $arguments;
+    }
+
+    /**
+     * Returns extended properties representing the given table.
+     *
+     * The keys of the returned array are property name literals, and the values are SQL fragments representing the
+     * values.
+     *
+     * @return array<string,string>
+     */
+    private function getExtendedPropertiesForTable(string $tableName): array
+    {
+        if (str_contains($tableName, '.')) {
+            [$schemaName, $tableName] = explode('.', $tableName);
+        } else {
+            $schemaName = 'dbo';
+        }
+
+        return [
+            'SCHEMA' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($schemaName)),
+            'TABLE' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($tableName)),
+        ];
     }
 
     public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string
@@ -1224,21 +1135,16 @@ class SQLServerPlatform extends AbstractPlatform
         return parent::getLikeWildcardCharacters() . '[]^';
     }
 
+    /** @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql */
     protected function getCommentOnTableSQL(string $tableName, string $comment): string
     {
-        if (str_contains($tableName, '.')) {
-            [$schemaName, $tableName] = explode('.', $tableName);
-        } else {
-            $schemaName = 'dbo';
-        }
-
-        return $this->getAddExtendedPropertySQL(
-            'MS_Description',
-            $comment,
-            'SCHEMA',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($schemaName)),
-            'TABLE',
-            $this->quoteStringLiteral($this->unquoteSingleIdentifier($tableName)),
+        return $this->getExecSQL(
+            'sp_addextendedproperty',
+            $this->quoteNationalStringLiteral('MS_Description'),
+            $this->quoteNationalStringLiteral($comment),
+            ...$this->getArgumentsForExtendedProperties(
+                $this->getExtendedPropertiesForTable($tableName),
+            ),
         );
     }
 
