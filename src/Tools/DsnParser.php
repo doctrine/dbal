@@ -135,12 +135,10 @@ final class DsnParser
      */
     private function normalizeDatabaseUrlPath(string $urlPath): string
     {
-        // Trim leading slash from URL path.
-        if ($urlPath[0] === '/') {
-            return substr($urlPath, 1);
-        }
+        assert($urlPath[0] === '/');
 
-        return $urlPath;
+        // Trim leading slash from URL path.
+        return substr($urlPath, 1);
     }
 
     /**
