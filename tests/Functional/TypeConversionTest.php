@@ -24,7 +24,7 @@ class TypeConversionTest extends FunctionalTestCase
     protected function setUp(): void
     {
         $table = new Table('type_conversion');
-        $table->addColumn('id', Types::INTEGER, ['notnull' => false]);
+        $table->addColumn('id', Types::INTEGER);
         $table->addColumn('test_string', Types::STRING, [
             'length' => 16,
             'notnull' => false,
