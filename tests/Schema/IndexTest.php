@@ -112,9 +112,9 @@ class IndexTest extends TestCase
     }
 
     /**
-     * @param string[]     $columns
-     * @param int[]|null[] $lengths1
-     * @param int[]|null[] $lengths2
+     * @param non-empty-list<string> $columns
+     * @param list<?int>             $lengths1
+     * @param list<?int>             $lengths2
      */
     #[DataProvider('indexLengthProvider')]
     public function testFulfilledWithLength(array $columns, array $lengths1, array $lengths2, bool $expected): void
@@ -205,6 +205,7 @@ class IndexTest extends TestCase
     {
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
 
+        /** @phpstan-ignore argument.type */
         $index = new Index('idx_user_name', []);
 
         $this->expectException(InvalidState::class);
@@ -227,7 +228,18 @@ class IndexTest extends TestCase
     {
         $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
 
-        new Index('primary', ['id'], false, true, [], ['lengths' => [32]]);
+        $index = new Index('primary', ['id'], false, true, [], ['lengths' => [32]]);
+
+        $this->expectException(InvalidState::class);
+
+        $index->getIndexedColumns();
+    }
+
+    public function testPrimaryKeyWithNullColumnLength(): void
+    {
+        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6787');
+
+        new Index('primary', ['id'], false, true, [], ['lengths' => [null]]);
     }
 
     public function testNonIntegerColumnLength(): void

@@ -184,6 +184,7 @@ The following `Index` usage scenarios have been deprecated:
 3. Using qualified or otherwise invalid column names in index columns
 4. Using other values than positive integers as index column lengths
 5. Using nullable columns in a primary key index
+6. Extending the `Index` class has been deprecated. Use the `Index` class directly.
 
 ## Deprecated passing unquoted names containing dots for table introspection on platforms that don't support schemas
 

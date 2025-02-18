@@ -24,8 +24,11 @@ use function is_int;
 use function is_object;
 use function strtolower;
 
-/** @extends AbstractNamedObject<UnqualifiedName> */
-class Index extends AbstractNamedObject
+/**
+ * @final
+ * @extends AbstractNamedObject<UnqualifiedName>
+ */
+final class Index extends AbstractNamedObject
 {
     /**
      * Asset identifier instances of the column names the index is associated with.
@@ -55,9 +58,9 @@ class Index extends AbstractNamedObject
     private readonly array $columns;
 
     /**
-     * @param array<int, string>   $columns
-     * @param array<int, string>   $flags
-     * @param array<string, mixed> $options
+     * @param non-empty-list<string> $columns
+     * @param array<int, string>     $flags
+     * @param array<string, mixed>   $options
      */
     public function __construct(
         ?string $name,
@@ -80,16 +83,6 @@ class Index extends AbstractNamedObject
         $this->_isUnique  = $isUnique || $isPrimary;
         $this->_isPrimary = $isPrimary;
 
-        $lengths = $options['lengths'] ?? [];
-
-        if ($isPrimary && count($lengths) > 0) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6787',
-                'Declaring column length for primary key indexes is deprecated.',
-            );
-        }
-
         foreach ($columns as $column) {
             $this->_addColumn($column);
         }
@@ -98,7 +91,7 @@ class Index extends AbstractNamedObject
             $this->addFlag($flag);
         }
 
-        $this->columns = $this->parseColumns($columns, $options['lengths'] ?? []);
+        $this->columns = $this->parseColumns($isPrimary, $columns, $options['lengths'] ?? []);
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -128,10 +121,11 @@ class Index extends AbstractNamedObject
     /**
      * Returns the names of the referencing table columns the constraint is associated with.
      *
-     * @return list<string>
+     * @return non-empty-list<string>
      */
     public function getColumns(): array
     {
+        /** @phpstan-ignore return.type */
         return array_keys($this->_columns);
     }
 
@@ -339,60 +333,71 @@ class Index extends AbstractNamedObject
     }
 
     /**
-     * @param array<string> $columnNames
-     * @param array<int>    $lengths
+     * @param non-empty-array<int, string> $columnNames
+     * @param array<int>                   $lengths
      *
      * @return list<IndexedColumn>
      */
-    private function parseColumns(array $columnNames, array $lengths): array
+    private function parseColumns(bool $isPrimary, array $columnNames, array $lengths): array
     {
         $columns = [];
 
         $parser = Parsers::getUnqualifiedNameParser();
 
-        try {
-            foreach ($columnNames as $columnName) {
-                $name   = $parser->parse($columnName);
-                $length = array_shift($lengths);
+        foreach ($columnNames as $columnName) {
+            try {
+                $parsedName = $parser->parse($columnName);
+            } catch (Throwable $e) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/6787',
+                    'Unable to parse column name: %s.',
+                    $e->getMessage(),
+                );
 
-                if ($length !== null) {
-                    if (! is_int($length)) {
-                        Deprecation::trigger(
-                            'doctrine/dbal',
-                            'https://github.com/doctrine/dbal/pull/6787',
-                            'Indexed column length should be an integer, %s given.',
-                            is_object($length) ? $length::class : gettype($length),
-                        );
-
-                        $length = (int) $length;
-                    }
-
-                    if ($length < 1) {
-                        Deprecation::trigger(
-                            'doctrine/dbal',
-                            'https://github.com/doctrine/dbal/pull/6787',
-                            'Indexed column length should be a positive integer, %d given.',
-                            $length,
-                        );
-
-                        return [];
-                    }
-                }
-
-                $columns[] = new IndexedColumn($name, $length);
+                return [];
             }
 
-            return $columns;
-        } catch (Throwable $e) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6787',
-                'Unable to parse column name: %s.',
-                $e->getMessage(),
-            );
+            $length = array_shift($lengths);
 
-            return [];
+            if ($length !== null) {
+                if ($isPrimary) {
+                    Deprecation::trigger(
+                        'doctrine/dbal',
+                        'https://github.com/doctrine/dbal/pull/6787',
+                        'Declaring column length for primary key indexes is deprecated.',
+                    );
+
+                    return [];
+                }
+
+                if (! is_int($length)) {
+                    Deprecation::trigger(
+                        'doctrine/dbal',
+                        'https://github.com/doctrine/dbal/pull/6787',
+                        'Indexed column length should be an integer, %s given.',
+                        is_object($length) ? $length::class : gettype($length),
+                    );
+
+                    $length = (int) $length;
+                }
+
+                if ($length < 1) {
+                    Deprecation::trigger(
+                        'doctrine/dbal',
+                        'https://github.com/doctrine/dbal/pull/6787',
+                        'Indexed column length should be a positive integer, %d given.',
+                        $length,
+                    );
+
+                    return [];
+                }
+            }
+
+            $columns[] = new IndexedColumn($parsedName, $length);
         }
+
+        return $columns;
     }
 
     /**
