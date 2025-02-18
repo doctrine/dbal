@@ -344,12 +344,8 @@ class OraclePlatform extends AbstractPlatform
         return 'SELECT view_name, text FROM sys.user_views';
     }
 
-    /**
-     * @internal The method should be only used by the {@see OraclePlatform} class.
-     *
-     * @return array<int, string>
-     */
-    protected function getCreateAutoincrementSql(string $name, string $table, int $start = 1): array
+    /** @return list<string> */
+    private function getCreateAutoincrementSql(string $name, string $table, int $start = 1): array
     {
         $tableIdentifier   = $this->normalizeIdentifier($table);
         $quotedTableName   = $tableIdentifier->getObjectName()->toSQL($this);
@@ -672,8 +668,7 @@ END;';
         return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getObjectName()->toSQL($this)];
     }
 
-    /** @internal The method should be only used by the {@see OraclePlatform} class. */
-    protected function getIdentitySequenceName(string $tableName): string
+    private function getIdentitySequenceName(string $tableName): string
     {
         $table = new Identifier($tableName);
 
