@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
@@ -144,14 +145,8 @@ class Table extends AbstractNamedObject
             $column = $this->getColumn($columnName);
 
             if (! $column->getNotnull()) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/6787',
-                    'Using nullable columns in a primary key index is deprecated.',
-                );
+                throw InvalidIndexDefinition::primaryKeyIndexOnANullableColumn($column->getObjectName());
             }
-
-            $column->setNotnull(true);
         }
 
         return $this;

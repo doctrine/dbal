@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Exception\InvalidState;
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
-use Doctrine\Deprecations\Deprecation;
-use Throwable;
 
 use function array_filter;
 use function array_keys;
@@ -19,41 +19,34 @@ use function array_map;
 use function array_search;
 use function array_shift;
 use function count;
-use function gettype;
 use function is_int;
-use function is_object;
 use function strtolower;
 
-/**
- * @final
- * @extends AbstractNamedObject<UnqualifiedName>
- */
+/** @extends AbstractNamedObject<UnqualifiedName> */
 final class Index extends AbstractNamedObject
 {
     /**
      * Asset identifier instances of the column names the index is associated with.
      *
-     * @var array<string, Identifier>
+     * @var non-empty-array<string, Identifier>
      */
-    protected array $_columns = [];
+    private readonly array $_columns;
 
-    protected bool $_isUnique = false;
+    private readonly bool $_isUnique;
 
-    protected bool $_isPrimary = false;
+    private readonly bool $_isPrimary;
 
     /**
      * Platform specific flags for indexes.
      *
      * @var array<string, true>
      */
-    protected array $_flags = [];
+    private array $_flags = [];
 
     /**
      * Column the index is associated with.
      *
-     * An empty list indicates that an attempt to parse indexed columns failed.
-     *
-     * @var list<IndexedColumn>
+     * @var non-empty-list<IndexedColumn>
      */
     private readonly array $columns;
 
@@ -73,19 +66,18 @@ final class Index extends AbstractNamedObject
         parent::__construct($name ?? '');
 
         if (count($columns) < 1) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6787',
-                'Instantiation of an index without column names is deprecated.',
-            );
+            throw InvalidIndexDefinition::columnNamesNotSet();
         }
 
         $this->_isUnique  = $isUnique || $isPrimary;
         $this->_isPrimary = $isPrimary;
 
+        $identifiers = [];
         foreach ($columns as $column) {
-            $this->_addColumn($column);
+            $identifiers[$column] = new Identifier($column);
         }
+
+        $this->_columns = $identifiers;
 
         foreach ($flags as $flag) {
             $this->addFlag($flag);
@@ -106,16 +98,7 @@ final class Index extends AbstractNamedObject
      */
     public function getIndexedColumns(): array
     {
-        if (count($this->columns) < 1) {
-            throw InvalidState::indexHasInvalidColumns($this->getName());
-        }
-
         return $this->columns;
-    }
-
-    protected function _addColumn(string $column): void
-    {
-        $this->_columns[$column] = new Identifier($column);
     }
 
     /**
@@ -125,7 +108,6 @@ final class Index extends AbstractNamedObject
      */
     public function getColumns(): array
     {
-        /** @phpstan-ignore return.type */
         return array_keys($this->_columns);
     }
 
@@ -336,7 +318,7 @@ final class Index extends AbstractNamedObject
      * @param non-empty-array<int, string> $columnNames
      * @param array<int>                   $lengths
      *
-     * @return list<IndexedColumn>
+     * @return non-empty-list<IndexedColumn>
      */
     private function parseColumns(bool $isPrimary, array $columnNames, array $lengths): array
     {
@@ -347,50 +329,19 @@ final class Index extends AbstractNamedObject
         foreach ($columnNames as $columnName) {
             try {
                 $parsedName = $parser->parse($columnName);
-            } catch (Throwable $e) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/6787',
-                    'Unable to parse column name: %s.',
-                    $e->getMessage(),
-                );
-
-                return [];
+            } catch (Parser\Exception $e) {
+                throw InvalidName::fromParserException($columnName, $e);
             }
 
             $length = array_shift($lengths);
 
             if ($length !== null) {
                 if ($isPrimary) {
-                    Deprecation::trigger(
-                        'doctrine/dbal',
-                        'https://github.com/doctrine/dbal/pull/6787',
-                        'Declaring column length for primary key indexes is deprecated.',
-                    );
-
-                    return [];
+                    throw InvalidIndexDefinition::primaryKeyIndexHasColumnLengths();
                 }
 
-                if (! is_int($length)) {
-                    Deprecation::trigger(
-                        'doctrine/dbal',
-                        'https://github.com/doctrine/dbal/pull/6787',
-                        'Indexed column length should be an integer, %s given.',
-                        is_object($length) ? $length::class : gettype($length),
-                    );
-
-                    $length = (int) $length;
-                }
-
-                if ($length < 1) {
-                    Deprecation::trigger(
-                        'doctrine/dbal',
-                        'https://github.com/doctrine/dbal/pull/6787',
-                        'Indexed column length should be a positive integer, %d given.',
-                        $length,
-                    );
-
-                    return [];
+                if (! is_int($length) || $length < 1) {
+                    throw InvalidIndexDefinition::invalidColumnLength($length);
                 }
             }
 

@@ -8,14 +8,11 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidUniqueConstraintDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\UniqueConstraint;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class UniqueConstraintTest extends TestCase
 {
-    use VerifyDeprecations;
-
     /** @throws Exception */
     public function testGetNonNullObjectName(): void
     {

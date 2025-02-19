@@ -9,12 +9,9 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
 {
-    use VerifyDeprecations;
-
     public function createPlatform(): AbstractPlatform
     {
         return new MySQLPlatform();

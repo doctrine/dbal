@@ -8,6 +8,18 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Changes in `Index` behavior
+
+The following `Index` usage scenarios are no longer supported:
+
+1. Instantiation of an index with empty columns
+2. Instantiation of a primary key index with column lengths specified
+3. Using qualified or otherwise invalid column names in index columns
+4. Using other values than positive integers as index column lengths
+5. Using nullable columns in a primary key index
+
+The `Index` class has been declared as final.
+
 ## BC BREAK: Removed `AbstractSchemaManager` methods
 
 The following `AbstractSchemaManager` methods have been removed:
