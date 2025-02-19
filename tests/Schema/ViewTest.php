@@ -8,13 +8,10 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\View;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\TestCase;
 
 class ViewTest extends TestCase
 {
-    use VerifyDeprecations;
-
     public function testEmptyName(): void
     {
         $this->expectException(InvalidName::class);

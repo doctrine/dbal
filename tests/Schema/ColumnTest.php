@@ -14,14 +14,11 @@ use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ColumnTest extends TestCase
 {
-    use VerifyDeprecations;
-
     public function testGet(): void
     {
         $column = $this->createColumn();
