@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types;
 
+use ArgumentCountError;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\TypeArgumentCountError;
 
 use function array_map;
+use function is_string;
 
 /**
  * The base class for so-called Doctrine mapping types.
@@ -50,11 +53,6 @@ abstract class Type
     ];
 
     private static ?TypeRegistry $typeRegistry = null;
-
-    /** @internal Do not instantiate directly - use {@see Type::addType()} method instead. */
-    final public function __construct()
-    {
-    }
 
     /**
      * Converts a value from its PHP representation to its database representation
@@ -137,14 +135,22 @@ abstract class Type
     /**
      * Adds a custom type to the type map.
      *
-     * @param string             $name      The name of the type.
-     * @param class-string<Type> $className The class name of the custom type.
+     * @param string                  $name The name of the type.
+     * @param class-string<Type>|Type $type The custom type or the class name of the custom type.
      *
      * @throws Exception
      */
-    public static function addType(string $name, string $className): void
+    public static function addType(string $name, string|Type $type): void
     {
-        self::getTypeRegistry()->register($name, new $className());
+        if (is_string($type)) {
+            try {
+                $type = new $type();
+            } catch (ArgumentCountError $e) { // @phpstan-ignore catch.neverThrown (it can be thrown)
+                throw TypeArgumentCountError::new($name, $e);
+            }
+        }
+
+        self::getTypeRegistry()->register($name, $type);
     }
 
     /**
@@ -162,13 +168,21 @@ abstract class Type
     /**
      * Overrides an already defined type to use a different implementation.
      *
-     * @param class-string<Type> $className
+     * @param class-string<Type>|Type $type The custom type or the class name of the custom type.
      *
      * @throws Exception
      */
-    public static function overrideType(string $name, string $className): void
+    public static function overrideType(string $name, string|Type $type): void
     {
-        self::getTypeRegistry()->override($name, new $className());
+        if (is_string($type)) {
+            try {
+                $type = new $type();
+            } catch (ArgumentCountError $e) { // @phpstan-ignore catch.neverThrown (it can be thrown)
+                throw TypeArgumentCountError::new($name, $e);
+            }
+        }
+
+        self::getTypeRegistry()->override($name, $type);
     }
 
     /**

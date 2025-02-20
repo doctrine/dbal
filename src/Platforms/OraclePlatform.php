@@ -353,7 +353,6 @@ class OraclePlatform extends AbstractPlatform
 
         $nameIdentifier = $this->normalizeIdentifier($name);
         $quotedName     = $nameIdentifier->getObjectName()->toSQL($this);
-        $unquotedName   = $nameIdentifier->getName();
 
         $sql = [];
 
@@ -361,17 +360,23 @@ class OraclePlatform extends AbstractPlatform
 
         $idx = new Index($autoincrementIdentifierName, [$quotedName], true, true);
 
-        $sql[] = "DECLARE
-  constraints_Count NUMBER;
+        $sql[] = sprintf(
+            <<<'SQL'
+DECLARE
+  CONSTRAINTS_COUNT NUMBER;
 BEGIN
-  SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count
+  SELECT COUNT(CONSTRAINT_NAME) INTO CONSTRAINTS_COUNT
     FROM USER_CONSTRAINTS
-   WHERE TABLE_NAME = '" . $unquotedTableName . "'
+   WHERE TABLE_NAME = %s
      AND CONSTRAINT_TYPE = 'P';
-  IF constraints_Count = 0 OR constraints_Count = '' THEN
-    EXECUTE IMMEDIATE '" . $this->getCreateIndexSQL($idx, $quotedTableName) . "';
+  IF CONSTRAINTS_COUNT = 0 THEN
+    EXECUTE IMMEDIATE %s;
   END IF;
-END;";
+END;
+SQL,
+            $this->quoteStringLiteral($unquotedTableName),
+            $this->quoteStringLiteral($this->getCreateIndexSQL($idx, $quotedTableName)),
+        );
 
         $sequenceName = $this->getIdentitySequenceName(
             $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName,
@@ -379,27 +384,36 @@ END;";
         $sequence     = new Sequence($sequenceName, $start);
         $sql[]        = $this->getCreateSequenceSQL($sequence);
 
-        $sql[] = 'CREATE TRIGGER ' . $autoincrementIdentifierName . '
+        $sql[] = sprintf(
+            <<<'SQL'
+CREATE TRIGGER %1$s
    BEFORE INSERT
-   ON ' . $quotedTableName . '
+   ON %2$s
    FOR EACH ROW
 DECLARE
    last_Sequence NUMBER;
    last_InsertID NUMBER;
 BEGIN
-   IF (:NEW.' . $quotedName . ' IS NULL OR :NEW.' . $quotedName . ' = 0) THEN
-      SELECT ' . $sequenceName . '.NEXTVAL INTO :NEW.' . $quotedName . ' FROM DUAL;
+   IF (:NEW.%3$s IS NULL OR :NEW.%3$s = 0) THEN
+      SELECT %4$s.NEXTVAL INTO :NEW.%3$s FROM DUAL;
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
-        FROM User_Sequences
-       WHERE Sequence_Name = \'' . $sequence->getName() . '\';
-      SELECT :NEW.' . $quotedName . ' INTO last_InsertID FROM DUAL;
+        FROM USER_SEQUENCES
+       WHERE Sequence_Name = %5$s;
+      SELECT :NEW.%3$s INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
-         SELECT ' . $sequenceName . '.NEXTVAL INTO last_Sequence FROM DUAL;
+         SELECT %4$s.NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
-      SELECT ' . $sequenceName . '.NEXTVAL INTO last_Sequence FROM DUAL;
+      SELECT %4$s.NEXTVAL INTO last_Sequence FROM DUAL;
    END IF;
-END;';
+END;
+SQL,
+            $autoincrementIdentifierName,
+            $quotedTableName,
+            $quotedName,
+            $sequenceName,
+            $this->quoteStringLiteral($sequence->getName()),
+        );
 
         return $sql;
     }

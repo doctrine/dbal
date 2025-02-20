@@ -166,13 +166,13 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             sprintf(
                 <<<'SQL'
 DECLARE
-  constraints_Count NUMBER;
+  CONSTRAINTS_COUNT NUMBER;
 BEGIN
-  SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count
+  SELECT COUNT(CONSTRAINT_NAME) INTO CONSTRAINTS_COUNT
     FROM USER_CONSTRAINTS
    WHERE TABLE_NAME = '%s'
      AND CONSTRAINT_TYPE = 'P';
-  IF constraints_Count = 0 OR constraints_Count = '' THEN
+  IF CONSTRAINTS_COUNT = 0 THEN
     EXECUTE IMMEDIATE 'ALTER TABLE "%s" ADD CONSTRAINT "%s_AI_PK" PRIMARY KEY ("%s")';
   END IF;
 END;
@@ -198,7 +198,7 @@ BEGIN
       SELECT "%s_SEQ".NEXTVAL INTO :NEW."%s" FROM DUAL;
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
-        FROM User_Sequences
+        FROM USER_SEQUENCES
        WHERE Sequence_Name = '%s_SEQ';
       SELECT :NEW."%s" INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
@@ -507,7 +507,7 @@ BEGIN
       SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
-        FROM User_Sequences
+        FROM USER_SEQUENCES
        WHERE Sequence_Name = 'test_SEQ';
       SELECT :NEW."id" INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
