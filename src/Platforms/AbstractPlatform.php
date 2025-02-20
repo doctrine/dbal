@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
@@ -813,7 +814,7 @@ abstract class AbstractPlatform
             throw NoColumnsSpecifiedForTable::new($table->getName());
         }
 
-        $tableName                       = $table->getObjectName()->toSQL($this);
+        $tableName                       = $table->getObjectName();
         $parameters                      = $table->getOptions();
         $parameters['indexes']           = [];
         $parameters['uniqueConstraints'] = [];
@@ -849,7 +850,7 @@ abstract class AbstractPlatform
 
         if ($this->supportsCommentOnStatement()) {
             if ($table->hasOption('comment')) {
-                $sql[] = $this->getCommentOnTableSQL($tableName, $table->getOption('comment'));
+                $sql[] = $this->getCommentOnTableSQL($tableName->toSQL($this), $table->getOption('comment'));
             }
 
             foreach ($table->getColumns() as $column) {
@@ -859,7 +860,11 @@ abstract class AbstractPlatform
                     continue;
                 }
 
-                $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getObjectName()->toSQL($this), $comment);
+                $sql[] = $this->getCommentOnColumnSQL(
+                    $tableName->toSQL($this),
+                    $column->getObjectName()->toSQL($this),
+                    $comment,
+                );
             }
         }
 
@@ -960,7 +965,7 @@ abstract class AbstractPlatform
      *
      * @return list<string>
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
+    protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $elements = [];
 
@@ -985,12 +990,12 @@ abstract class AbstractPlatform
 
         $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));
 
-        $query = 'CREATE TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
+        $query = 'CREATE TABLE ' . $tableName->toSQL($this) . ' (' . implode(', ', $elements) . ')';
 
         $sql = [$query];
 
         foreach ($parameters['foreignKeys'] as $definition) {
-            $sql[] = $this->getCreateForeignKeySQL($definition, $name);
+            $sql[] = $this->getCreateForeignKeySQL($definition, $tableName->toSQL($this));
         }
 
         return $sql;

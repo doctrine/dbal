@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -370,7 +371,7 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
+    protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $elements = [];
 
@@ -387,20 +388,20 @@ class PostgreSQLPlatform extends AbstractPlatform
 
         $unlogged = isset($parameters['unlogged']) && $parameters['unlogged'] === true ? ' UNLOGGED' : '';
 
-        $query = 'CREATE' . $unlogged . ' TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
+        $query = 'CREATE' . $unlogged . ' TABLE ' . $tableName->toSQL($this) . ' (' . implode(', ', $elements) . ')';
 
         $sql = [$query];
 
         foreach ($parameters['indexes'] as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $name);
+            $sql[] = $this->getCreateIndexSQL($index, $tableName->toSQL($this));
         }
 
         foreach ($parameters['uniqueConstraints'] as $uniqueConstraint) {
-            $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $name);
+            $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $tableName->toSQL($this));
         }
 
         foreach ($parameters['foreignKeys'] as $definition) {
-            $sql[] = $this->getCreateForeignKeySQL($definition, $name);
+            $sql[] = $this->getCreateForeignKeySQL($definition, $tableName->toSQL($this));
         }
 
         return $sql;

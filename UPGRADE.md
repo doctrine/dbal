@@ -19,6 +19,8 @@ awareness about deprecated code.
    `$name`. The column name is sourced from the `$column` parameter.
 5. The `CreateTableParameters` array no longer includes the `primary` key. Primary key columns should be sourced from
    the `primary_index` element.
+6. The type of the `$name` parameter of the `AbstractPlatform::_getCreateTableSQL()` method has changed from `string`
+   to `OptionallyQualifiedName`. Now the parameter is named `$tableName`.
 
 Additionally, the column names of the primary key index are no longer deduplicated.
 

@@ -8,7 +8,10 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parser;
+use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
@@ -254,7 +257,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /** @throws Exception */
-    private function dropAutoincrement(string $table): void
+    private function dropAutoincrement(OptionallyQualifiedName $table): void
     {
         $sql = $this->platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
@@ -264,8 +267,16 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     public function dropTable(string $name): void
     {
+        $parser = Parsers::getOptionallyQualifiedNameParser();
+
         try {
-            $this->dropAutoincrement($name);
+            $tableName = $parser->parse($name);
+        } catch (Parser\Exception $e) {
+            throw InvalidName::fromParserException($name, $e);
+        }
+
+        try {
+            $this->dropAutoincrement($tableName);
         } catch (DatabaseObjectNotFoundException) {
         }
 
