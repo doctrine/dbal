@@ -200,7 +200,7 @@ class SQLServerPlatform extends AbstractPlatform
         $elements = [];
 
         foreach ($columns as $column) {
-            $elements[] = $this->getColumnDeclarationSQL($column['name']->toSQL($this), $column);
+            $elements[] = $this->getColumnDeclarationSQL($column);
         }
 
         foreach ($parameters['uniqueConstraints'] as $definition) {
@@ -354,10 +354,7 @@ class SQLServerPlatform extends AbstractPlatform
         foreach ($diff->getAddedColumns() as $column) {
             $columnProperties = $column->toArray();
 
-            $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL(
-                $column->getObjectName()->toSQL($this),
-                $columnProperties,
-            );
+            $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL($columnProperties);
 
             if (isset($columnProperties['default'])) {
                 $addColumnSql .= $this->getDefaultValueDeclarationSQL($columnProperties);
@@ -433,8 +430,8 @@ class SQLServerPlatform extends AbstractPlatform
 
             $columnNameSQL = $newColumn->getObjectName()->toSQL($this);
 
-            $newDeclarationSQL     = $this->getColumnDeclarationSQL($columnNameSQL, $newColumn->toArray());
-            $oldDeclarationSQL     = $this->getColumnDeclarationSQL($columnNameSQL, $oldColumn->toArray());
+            $newDeclarationSQL     = $this->getColumnDeclarationSQL($newColumn->toArray());
+            $oldDeclarationSQL     = $this->getColumnDeclarationSQL($oldColumn->toArray());
             $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
 
             $defaultChanged = $columnDiff->hasDefaultChanged();
@@ -1086,7 +1083,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getColumnDeclarationSQL(string $name, array $column): string
+    protected function getColumnDeclarationSQL(array $column): string
     {
         if (isset($column['columnDefinition'])) {
             $declaration = $column['columnDefinition'];
@@ -1100,7 +1097,7 @@ class SQLServerPlatform extends AbstractPlatform
             $declaration = $typeDecl . $collation . $notnull;
         }
 
-        return $name . ' ' . $declaration;
+        return $column['name']->toSQL($this) . ' ' . $declaration;
     }
 
     /**

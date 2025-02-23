@@ -231,7 +231,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $elements = [];
 
         foreach ($columns as $column) {
-            $elements[] = $this->getColumnDeclarationSQL($column['name']->toSQL($this), $column);
+            $elements[] = $this->getColumnDeclarationSQL($column);
         }
 
         foreach ($parameters['uniqueConstraints'] as $definition) {
@@ -330,10 +330,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 'comment' => $column->getComment(),
             ]);
 
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL(
-                $column->getObjectName()->toSQL($this),
-                $columnProperties,
-            );
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($columnProperties);
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
@@ -350,7 +347,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $oldColumn = $columnDiff->getOldColumn();
 
             $queryParts[] = 'CHANGE ' . $oldColumn->getObjectName()->toSQL($this) . ' '
-                . $this->getColumnDeclarationSQL($newColumn->getObjectName()->toSQL($this), $newColumnProperties);
+                . $this->getColumnDeclarationSQL($newColumnProperties);
         }
 
         $addedIndexes    = $this->indexAssetsByLowerCaseName($diff->getAddedIndexes());
@@ -490,7 +487,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $column->setAutoincrement(false);
 
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                $this->getColumnDeclarationSQL($column->getObjectName()->toSQL($this), $column->toArray());
+                $this->getColumnDeclarationSQL($column->toArray());
 
             // original autoincrement information might be needed later on by other parts of the table alteration
             $column->setAutoincrement(true);
@@ -551,7 +548,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 $column->setAutoincrement(false);
 
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                    $this->getColumnDeclarationSQL($column->getObjectName()->toSQL($this), $column->toArray());
+                    $this->getColumnDeclarationSQL($column->toArray());
 
                 // Restore the autoincrement attribute as it might be needed later on
                 // by other parts of the table alteration.

@@ -543,10 +543,7 @@ SQL,
         $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
 
         foreach ($diff->getAddedColumns() as $column) {
-            $addColumnSQL[] = $this->getColumnDeclarationSQL(
-                $column->getObjectName()->toSQL($this),
-                $column->toArray(),
-            );
+            $addColumnSQL[] = $this->getColumnDeclarationSQL($column->toArray());
 
             $comment = $column->getComment();
 
@@ -601,16 +598,16 @@ SQL,
             if ($countChangedProperties > ($columnHasChangedComment ? 1 : 0)) {
                 $newColumnProperties = $newColumn->toArray();
 
-                $oldSQL = $this->getColumnDeclarationSQL('', $oldColumn->toArray());
-                $newSQL = $this->getColumnDeclarationSQL('', $newColumnProperties);
+                $oldSQL = $this->getColumnDeclarationSQL($oldColumn->toArray());
+                $newSQL = $this->getColumnDeclarationSQL($newColumnProperties);
 
                 if ($newSQL !== $oldSQL) {
                     if (! $columnDiff->hasNotNullChanged()) {
                         unset($newColumnProperties['notnull']);
-                        $newSQL = $this->getColumnDeclarationSQL('', $newColumnProperties);
+                        $newSQL = $this->getColumnDeclarationSQL($newColumnProperties);
                     }
 
-                    $modifyColumnSQL[] = $newColumn->getObjectName()->toSQL($this) . $newSQL;
+                    $modifyColumnSQL[] = $newSQL;
                 }
             }
 
@@ -649,7 +646,7 @@ SQL,
     /**
      * {@inheritDoc}
      */
-    protected function getColumnDeclarationSQL(string $name, array $column): string
+    protected function getColumnDeclarationSQL(array $column): string
     {
         if (isset($column['columnDefinition'])) {
             $declaration = $column['columnDefinition'];
@@ -666,7 +663,7 @@ SQL,
             $declaration = $typeDecl . $default . $notnull;
         }
 
-        return $name . ' ' . $declaration;
+        return $column['name']->toSQL($this) . ' ' . $declaration;
     }
 
     /**

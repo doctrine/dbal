@@ -199,10 +199,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         $tableNameSQL = $table->getObjectName()->toSQL($this);
 
         foreach ($diff->getAddedColumns() as $addedColumn) {
-            $query = 'ADD ' . $this->getColumnDeclarationSQL(
-                $addedColumn->getObjectName()->toSQL($this),
-                $addedColumn->toArray(),
-            );
+            $query = 'ADD ' . $this->getColumnDeclarationSQL($addedColumn->toArray());
 
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
 
@@ -379,7 +376,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         $elements = [];
 
         foreach ($columns as $column) {
-            $elements[] = $this->getColumnDeclarationSQL($column['name']->toSQL($this), $column);
+            $elements[] = $this->getColumnDeclarationSQL($column);
         }
 
         if (count($parameters['primary']) > 0) {

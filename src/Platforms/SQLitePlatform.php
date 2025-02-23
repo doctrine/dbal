@@ -263,7 +263,7 @@ class SQLitePlatform extends AbstractPlatform
         $elements = [];
 
         foreach ($columns as $column) {
-            $elements[] = $this->getColumnDeclarationSQL($column['name']->toSQL($this), $column);
+            $elements[] = $this->getColumnDeclarationSQL($column);
         }
 
         foreach ($parameters['uniqueConstraints'] as $definition) {
@@ -738,7 +738,7 @@ class SQLitePlatform extends AbstractPlatform
             $definition['name'] = $column->getObjectName();
 
             $sql[] = 'ALTER TABLE ' . $table->getObjectName()->toSQL($this) . ' ADD COLUMN '
-                . $this->getColumnDeclarationSQL($definition['name']->toSQL($this), $definition);
+                . $this->getColumnDeclarationSQL($definition);
         }
 
         return $sql;

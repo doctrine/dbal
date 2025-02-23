@@ -262,10 +262,7 @@ class DB2Platform extends AbstractPlatform
         $queryParts = [];
         foreach ($diff->getAddedColumns() as $column) {
             $columnDef = $column->toArray();
-            $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL(
-                $column->getObjectName()->toSQL($this),
-                $columnDef,
-            );
+            $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($columnDef);
 
             // Adding non-nullable columns to a table requires a default value to be specified.
             if (
