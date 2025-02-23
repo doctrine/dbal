@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -347,20 +348,17 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /** @return list<string> */
-    private function getCreateAutoincrementSql(string $name, string $table, int $start = 1): array
+    private function getCreateAutoincrementSql(UnqualifiedName $name, string $table, int $start = 1): array
     {
         $tableIdentifier   = $this->normalizeIdentifier($table);
         $quotedTableName   = $tableIdentifier->getObjectName()->toSQL($this);
         $unquotedTableName = $tableIdentifier->getName();
 
-        $nameIdentifier = $this->normalizeIdentifier($name);
-        $quotedName     = $nameIdentifier->getObjectName()->toSQL($this);
-
         $sql = [];
 
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($tableIdentifier);
 
-        $idx = new Index($autoincrementIdentifierName, [$quotedName], true, true);
+        $idx = new Index($autoincrementIdentifierName, [$name->toString()], true, true);
 
         $sql[] = sprintf(
             <<<'SQL'
@@ -412,7 +410,7 @@ END;
 SQL,
             $autoincrementIdentifierName,
             $quotedTableName,
-            $quotedName,
+            $name->toSQL($this),
             $sequenceName,
             $this->quoteStringLiteral($sequence->getName()),
         );

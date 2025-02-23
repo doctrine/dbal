@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -199,7 +200,7 @@ class SQLServerPlatform extends AbstractPlatform
         $elements = [];
 
         foreach ($columns as $column) {
-            $elements[] = $this->getColumnDeclarationSQL($column['name'], $column);
+            $elements[] = $this->getColumnDeclarationSQL($column['name']->toSQL($this), $column);
         }
 
         foreach ($parameters['uniqueConstraints'] as $definition) {
@@ -263,11 +264,11 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql
      *
-     * @param string $tableName  The quoted table name to which the column belongs.
-     * @param string $columnName The quoted column name to create the comment for.
-     * @param string $comment    The column's comment.
+     * @param string          $tableName  The quoted table name to which the column belongs.
+     * @param UnqualifiedName $columnName The column name to create the comment for.
+     * @param string          $comment    The column's comment.
      */
-    private function getCreateColumnCommentSQL(string $tableName, string $columnName, string $comment): string
+    private function getCreateColumnCommentSQL(string $tableName, UnqualifiedName $columnName, string $comment): string
     {
         return $this->getExecSQL(
             'sp_addextendedproperty',
@@ -275,7 +276,9 @@ class SQLServerPlatform extends AbstractPlatform
             $this->quoteNationalStringLiteral($comment),
             ...$this->getArgumentsForExtendedProperties([
                 ...$this->getExtendedPropertiesForTable($tableName),
-                'COLUMN' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+                'COLUMN' => $this->quoteStringLiteral(
+                    $columnName->getIdentifier()->toNormalizedValue($this),
+                ),
             ]),
         );
     }
@@ -291,9 +294,7 @@ class SQLServerPlatform extends AbstractPlatform
             throw new InvalidArgumentException('Incomplete column definition. "default" required.');
         }
 
-        $columnName = new Identifier($column['name']);
-
-        return $this->getDefaultValueDeclarationSQL($column) . ' FOR ' . $columnName->getObjectName()->toSQL($this);
+        return $this->getDefaultValueDeclarationSQL($column) . ' FOR ' . $column['name']->toSQL($this);
     }
 
     public function getCreateIndexSQL(Index $index, string $table): string
@@ -372,7 +373,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $commentsSql[] = $this->getCreateColumnCommentSQL(
                 $tableName,
-                $column->getObjectName()->toSQL($this),
+                $column->getObjectName(),
                 $comment,
             );
         }
@@ -425,7 +426,7 @@ class SQLServerPlatform extends AbstractPlatform
             } elseif (! $hasOldComment && $hasNewComment) {
                 $commentsSql[] = $this->getCreateColumnCommentSQL(
                     $tableName,
-                    $newColumn->getObjectName()->toSQL($this),
+                    $newColumn->getObjectName(),
                     $newComment,
                 );
             }
@@ -488,7 +489,7 @@ class SQLServerPlatform extends AbstractPlatform
     private function getAlterTableAddDefaultConstraintClause(string $tableName, Column $column): string
     {
         $columnDef         = $column->toArray();
-        $columnDef['name'] = $column->getObjectName()->toSQL($this);
+        $columnDef['name'] = $column->getObjectName();
 
         return 'ADD' . $this->getDefaultConstraintDeclarationSQL($columnDef);
     }

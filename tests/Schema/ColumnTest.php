@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Schema\Name\Identifier;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -43,7 +44,7 @@ class ColumnTest extends TestCase
     public function testToArray(): void
     {
         $expected = [
-            'name' => 'foo',
+            'name' => UnqualifiedName::unquoted('foo'),
             'type' => Type::getType(Types::STRING),
             'default' => 'baz',
             'notnull' => false,
@@ -59,7 +60,7 @@ class ColumnTest extends TestCase
             'charset' => 'utf8',
         ];
 
-        self::assertSame($expected, $this->createColumn()->toArray());
+        self::assertEquals($expected, $this->createColumn()->toArray());
     }
 
     public function testSettingUnknownOptionIsStillSupported(): void

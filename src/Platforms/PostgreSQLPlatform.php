@@ -379,7 +379,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         $elements = [];
 
         foreach ($columns as $column) {
-            $elements[] = $this->getColumnDeclarationSQL($column['name'], $column);
+            $elements[] = $this->getColumnDeclarationSQL($column['name']->toSQL($this), $column);
         }
 
         if (count($parameters['primary']) > 0) {

@@ -968,7 +968,7 @@ abstract class AbstractPlatform
         $elements = [];
 
         foreach ($columns as $column) {
-            $elements[] = $this->getColumnDeclarationSQL($column['name'], $column);
+            $elements[] = $this->getColumnDeclarationSQL($column['name']->toSQL($this), $column);
         }
 
         foreach ($parameters['uniqueConstraints'] as $definition) {
@@ -1295,7 +1295,7 @@ abstract class AbstractPlatform
         $declarations = [];
 
         foreach ($columns as $column) {
-            $declarations[] = $this->getColumnDeclarationSQL($column['name'], $column);
+            $declarations[] = $this->getColumnDeclarationSQL($column['name']->toSQL($this), $column);
         }
 
         return implode(', ', $declarations);
@@ -1415,15 +1415,17 @@ abstract class AbstractPlatform
     {
         $constraints = [];
         foreach ($column as $def) {
+            $name = $def['name']->toSQL($this);
+
             if (isset($def['min'])) {
-                $constraints[] = 'CHECK (' . $def['name'] . ' >= ' . $def['min'] . ')';
+                $constraints[] = 'CHECK (' . $name . ' >= ' . $def['min'] . ')';
             }
 
             if (! isset($def['max'])) {
                 continue;
             }
 
-            $constraints[] = 'CHECK (' . $def['name'] . ' <= ' . $def['max'] . ')';
+            $constraints[] = 'CHECK (' . $name . ' <= ' . $def['max'] . ')';
         }
 
         return $constraints;
@@ -2074,7 +2076,6 @@ abstract class AbstractPlatform
     private function columnToArray(Column $column): array
     {
         return array_merge($column->toArray(), [
-            'name' => $column->getObjectName()->toSQL($this),
             'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
             'comment' => $column->getComment(),
         ]);

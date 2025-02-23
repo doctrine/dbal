@@ -18,7 +18,7 @@ use function method_exists;
  *
  * @extends AbstractNamedObject<UnqualifiedName>
  * @phpstan-type ColumnProperties = array{
- *     name: string,
+ *     name: UnqualifiedName,
  *     type: Type,
  *     default: mixed,
  *     notnull?: bool,
@@ -289,7 +289,7 @@ class Column extends AbstractNamedObject
     public function toArray(): array
     {
         return array_merge([
-            'name'             => $this->_name,
+            'name'             => $this->getObjectName(),
             'type'             => $this->_type,
             'default'          => $this->_default,
             'notnull'          => $this->_notnull,

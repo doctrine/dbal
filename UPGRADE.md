@@ -14,6 +14,7 @@ awareness about deprecated code.
    renamed to `$parameters`.
 2. The following keys of the above `$parameters` parameter are no longer optional: `primary`, `indexes`,
    `uniqueConstraints`, `foreignKeys`.
+3. The type of the `name` key of the `ColumnProperties` array has been changed from `string` to `UnqualifiedName`.
 
 Additionally, the column names of the primary key index are no longer deduplicated.
 
