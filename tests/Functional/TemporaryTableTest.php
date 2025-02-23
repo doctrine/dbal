@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -22,18 +23,12 @@ class TemporaryTableTest extends FunctionalTestCase
             self::markTestSkipped('Test does not work on Oracle.');
         }
 
-        $columnDefinitions = [
-            [
-                'name' => 'id',
-                'type' => Type::getType(Types::INTEGER),
-                'notnull' => true,
-            ],
-        ];
+        $column = new Column('id', Type::getType(Types::INTEGER));
 
         $tempTable = $platform->getTemporaryTableName('my_temporary');
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
-                . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
+                . $platform->getColumnDeclarationListSQL([$column->toArray()]) . ')';
         $this->connection->executeStatement($createTempTableSQL);
 
         $table = new Table('nontemporary');
@@ -61,18 +56,12 @@ class TemporaryTableTest extends FunctionalTestCase
             self::markTestSkipped('Test does not work on Oracle.');
         }
 
-        $columnDefinitions = [
-            [
-                'name' => 'id',
-                'type' => Type::getType(Types::INTEGER),
-                'notnull' => true,
-            ],
-        ];
+        $column = new Column('id', Type::getType(Types::INTEGER));
 
         $tempTable = $platform->getTemporaryTableName('my_temporary');
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
-                . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
+                . $platform->getColumnDeclarationListSQL([$column->toArray()]) . ')';
 
         $table = new Table('nontemporary');
         $table->addColumn('id', Types::INTEGER);

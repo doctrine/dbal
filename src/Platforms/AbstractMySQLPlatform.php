@@ -229,6 +229,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
+        $this->validateCreateTableOptions($options, __METHOD__);
+
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (! empty($options['uniqueConstraints'])) {
@@ -668,12 +670,13 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
-        $autoinc = '';
+        $sql = $this->getUnsignedDeclaration($column);
+
         if (! empty($column['autoincrement'])) {
-            $autoinc = ' AUTO_INCREMENT';
+            $sql .= ' AUTO_INCREMENT';
         }
 
-        return $this->getUnsignedDeclaration($column) . $autoinc;
+        return $sql;
     }
 
     protected function getColumnCharsetDeclarationSQL(string $charset): string

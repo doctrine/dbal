@@ -195,7 +195,7 @@ class SQLitePlatform extends AbstractPlatform
      */
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
-        //  SQLite autoincrement is implicit for INTEGER PKs, but not for BIGINT fields.
+        // SQLite autoincrement is implicit for INTEGER PKs, but not for BIGINT fields.
         if (! empty($column['autoincrement'])) {
             return $this->getIntegerTypeDeclarationSQL($column);
         }
@@ -245,7 +245,7 @@ class SQLitePlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
-        // sqlite autoincrement is only possible for the primary key
+        // SQLite autoincrement is only possible for the primary key
         if (! empty($column['autoincrement'])) {
             return ' PRIMARY KEY AUTOINCREMENT';
         }
@@ -258,6 +258,8 @@ class SQLitePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
+        $this->validateCreateTableOptions($options, __METHOD__);
+
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (! empty($options['uniqueConstraints'])) {
@@ -289,12 +291,6 @@ class SQLitePlatform extends AbstractPlatform
 
         if (! empty($options['indexes'])) {
             foreach ($options['indexes'] as $indexDef) {
-                $query[] = $this->getCreateIndexSQL($indexDef, $name);
-            }
-        }
-
-        if (! empty($options['unique'])) {
-            foreach ($options['unique'] as $indexDef) {
                 $query[] = $this->getCreateIndexSQL($indexDef, $name);
             }
         }
@@ -723,16 +719,12 @@ class SQLitePlatform extends AbstractPlatform
         $sql = [];
 
         foreach ($diff->getAddedColumns() as $column) {
-            $definition = array_merge([
-                'unique' => null,
-                'autoincrement' => null,
-                'default' => null,
-            ], $column->toArray());
+            $definition = $column->toArray();
 
             $type = $definition['type'];
 
             switch (true) {
-                case isset($definition['columnDefinition']) || $definition['autoincrement'] || $definition['unique']:
+                case isset($definition['columnDefinition']) || $definition['autoincrement']:
                 case $type instanceof Types\DateTimeType && $definition['default'] === $this->getCurrentTimestampSQL():
                 case $type instanceof Types\DateType && $definition['default'] === $this->getCurrentDateSQL():
                 case $type instanceof Types\TimeType && $definition['default'] === $this->getCurrentTimeSQL():

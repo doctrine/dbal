@@ -17,6 +17,24 @@ use function method_exists;
  * Object representation of a database column.
  *
  * @extends AbstractNamedObject<UnqualifiedName>
+ * @phpstan-type ColumnProperties = array{
+ *     name: string,
+ *     type: Type,
+ *     default: mixed,
+ *     notnull?: bool,
+ *     autoincrement: bool,
+ *     columnDefinition: ?string,
+ *     comment: string,
+ *     charset?: ?string,
+ *     collation?: ?string,
+ * }
+ * @phpstan-type PlatformOptions = array{
+ *     charset?: ?string,
+ *     collation?: ?string,
+ *     default_constraint_name?: string,
+ *     jsonb?: bool,
+ *     version?: bool,
+ * }
  */
 class Column extends AbstractNamedObject
 {
@@ -41,7 +59,7 @@ class Column extends AbstractNamedObject
     /** @var list<string> */
     protected array $_values = [];
 
-    /** @var array<string, mixed> */
+    /** @var PlatformOptions */
     protected array $_platformOptions = [];
 
     protected ?string $_columnDefinition = null;
@@ -138,7 +156,7 @@ class Column extends AbstractNamedObject
         return $this;
     }
 
-    /** @param array<string, mixed> $platformOptions */
+    /** @param PlatformOptions $platformOptions */
     public function setPlatformOptions(array $platformOptions): self
     {
         $this->_platformOptions = $platformOptions;
@@ -146,6 +164,7 @@ class Column extends AbstractNamedObject
         return $this;
     }
 
+    /** @param key-of<PlatformOptions> $name */
     public function setPlatformOption(string $name, mixed $value): self
     {
         $this->_platformOptions[$name] = $value;
@@ -200,19 +219,22 @@ class Column extends AbstractNamedObject
         return $this->_default;
     }
 
-    /** @return array<string, mixed> */
+    /** @return PlatformOptions */
     public function getPlatformOptions(): array
     {
         return $this->_platformOptions;
     }
 
+    /** @param key-of<PlatformOptions> $name */
     public function hasPlatformOption(string $name): bool
     {
         return isset($this->_platformOptions[$name]);
     }
 
+    /** @param key-of<PlatformOptions> $name */
     public function getPlatformOption(string $name): mixed
     {
+        /** @phpstan-ignore offsetAccess.notFound */
         return $this->_platformOptions[$name];
     }
 
@@ -263,7 +285,7 @@ class Column extends AbstractNamedObject
         return $this->_values;
     }
 
-    /** @return array<string, mixed> */
+    /** @return ColumnProperties */
     public function toArray(): array
     {
         return array_merge([

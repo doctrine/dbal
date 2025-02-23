@@ -187,6 +187,17 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated not passing `$options` to `AbstractPlatform::_getCreateTableSQL()`
+
+Not passing the `$options` argument or any of its following keys to the `AbstractPlatform::_getCreateTableSQL()` method
+has been deprecated: `primary`, `indexes`, `uniqueConstraints`, `foreignKeys`.
+
+## Deprecated check-related features
+
+1. The `AbstractPlatform::getCheckDeclarationSQL()` method has been marked as internal.
+2. Passing string elements as part of the `$definition` argument to `AbstractPlatform::getCheckDeclarationSQL()` is
+   deprecated. Pass column definitions represented as array instead.
+
 ## Deprecated `Index` usage scenarios
 
 The following `Index` usage scenarios have been deprecated:

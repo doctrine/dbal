@@ -313,6 +313,8 @@ class OraclePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
+        $this->validateCreateTableOptions($options, __METHOD__);
+
         $indexes            = $options['indexes'] ?? [];
         $options['indexes'] = [];
         $sql                = parent::_getCreateTableSQL($name, $columns, $options);

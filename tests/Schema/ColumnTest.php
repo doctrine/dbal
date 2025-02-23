@@ -34,10 +34,10 @@ class ColumnTest extends TestCase
         self::assertTrue($column->getFixed());
         self::assertEquals('baz', $column->getDefault());
 
-        self::assertEquals(['foo' => 'bar'], $column->getPlatformOptions());
-        self::assertTrue($column->hasPlatformOption('foo'));
-        self::assertEquals('bar', $column->getPlatformOption('foo'));
-        self::assertFalse($column->hasPlatformOption('bar'));
+        self::assertEquals(['charset' => 'utf8'], $column->getPlatformOptions());
+        self::assertTrue($column->hasPlatformOption('charset'));
+        self::assertEquals('utf8', $column->getPlatformOption('charset'));
+        self::assertFalse($column->hasPlatformOption('collation'));
     }
 
     public function testToArray(): void
@@ -56,7 +56,7 @@ class ColumnTest extends TestCase
             'columnDefinition' => null,
             'comment' => '',
             'values' => [],
-            'foo' => 'bar',
+            'charset' => 'utf8',
         ];
 
         self::assertSame($expected, $this->createColumn()->toArray());
@@ -92,7 +92,7 @@ class ColumnTest extends TestCase
             'notnull' => false,
             'fixed' => true,
             'default' => 'baz',
-            'platformOptions' => ['foo' => 'bar'],
+            'platformOptions' => ['charset' => 'utf8'],
         ];
 
         $string = Type::getType(Types::STRING);
