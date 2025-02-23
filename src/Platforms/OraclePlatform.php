@@ -311,13 +311,13 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
+        $indexes = $parameters['indexes'];
 
-        $indexes            = $options['indexes'] ?? [];
-        $options['indexes'] = [];
-        $sql                = parent::_getCreateTableSQL($name, $columns, $options);
+        $parameters['indexes'] = [];
+
+        $sql = parent::_getCreateTableSQL($name, $columns, $parameters);
 
         foreach ($columns as $column) {
             if (isset($column['sequence'])) {

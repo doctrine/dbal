@@ -227,53 +227,45 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
-
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
-        if (! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
-            }
+        foreach ($parameters['uniqueConstraints'] as $definition) {
+            $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        // add all indexes
-        if (! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $definition) {
-                $queryFields .= ', ' . $this->getIndexDeclarationSQL($definition);
-            }
+        foreach ($parameters['indexes'] as $definition) {
+            $queryFields .= ', ' . $this->getIndexDeclarationSQL($definition);
         }
 
-        // attach all primary keys
-        if (! empty($options['primary'])) {
-            $keyColumns   = array_unique(array_values($options['primary']));
+        if (count($parameters['primary']) > 0) {
+            $keyColumns   = $parameters['primary'];
             $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
         $sql = ['CREATE'];
 
-        if (! empty($options['temporary'])) {
+        if (! empty($parameters['temporary'])) {
             $sql[] = 'TEMPORARY';
         }
 
         $sql[] = 'TABLE ' . $name . ' (' . $queryFields . ')';
 
-        $tableOptions = $this->buildTableOptions($options);
+        $tableOptions = $this->buildTableOptions($parameters);
 
         if ($tableOptions !== '') {
             $sql[] = $tableOptions;
         }
 
-        if (isset($options['partition_options'])) {
-            $sql[] = $options['partition_options'];
+        if (isset($parameters['partition_options'])) {
+            $sql[] = $parameters['partition_options'];
         }
 
         $sql = [implode(' ', $sql)];
 
-        if (isset($options['foreignKeys'])) {
-            foreach ($options['foreignKeys'] as $definition) {
+        if (isset($parameters['foreignKeys'])) {
+            foreach ($parameters['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }

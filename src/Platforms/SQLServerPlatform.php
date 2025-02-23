@@ -23,8 +23,7 @@ use InvalidArgumentException;
 
 use function array_map;
 use function array_merge;
-use function array_unique;
-use function array_values;
+use function count;
 use function explode;
 use function implode;
 use function is_array;
@@ -45,6 +44,8 @@ use const PREG_OFFSET_CAPTURE;
 /**
  * Provides the behavior, features and SQL dialect of the Microsoft SQL Server database platform
  * of the oldest supported version.
+ *
+ * @phpstan-import-type ColumnProperties from Column
  */
 class SQLServerPlatform extends AbstractPlatform
 {
@@ -172,32 +173,23 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
-
         $defaultConstraintsSql = [];
         $commentsSql           = [];
 
-        $tableComment = $options['comment'] ?? null;
+        $tableComment = $parameters['comment'] ?? null;
         if ($tableComment !== null) {
             $commentsSql[] = $this->getCommentOnTableSQL($name, $tableComment);
         }
 
-        // @todo does other code breaks because of this?
-        // force primary keys to be not null
         foreach ($columns as &$column) {
-            if (! empty($column['primary'])) {
-                $column['notnull'] = true;
-            }
-
-            // Build default constraints SQL statements.
             if (isset($column['default'])) {
                 $defaultConstraintsSql[] = 'ALTER TABLE ' . $name .
                     ' ADD' . $this->getDefaultConstraintDeclarationSQL($column);
             }
 
-            if (empty($column['comment']) && ! is_numeric($column['comment'])) {
+            if ($column['comment'] === '') {
                 continue;
             }
 
@@ -206,20 +198,17 @@ class SQLServerPlatform extends AbstractPlatform
 
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
-        if (! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
-            }
+        foreach ($parameters['uniqueConstraints'] as $definition) {
+            $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        if (! empty($options['primary'])) {
+        if (count($parameters['primary']) > 0) {
             $flags = '';
-            if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
+            if (isset($parameters['primary_index']) && $parameters['primary_index']->hasFlag('nonclustered')) {
                 $flags = ' NONCLUSTERED';
             }
 
-            $columnListSql .= ', PRIMARY KEY' . $flags
-                . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', $parameters['primary']) . ')';
         }
 
         $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
@@ -233,16 +222,12 @@ class SQLServerPlatform extends AbstractPlatform
 
         $sql = [$query];
 
-        if (! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $name);
-            }
+        foreach ($parameters['indexes'] as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $name);
         }
 
-        if (isset($options['foreignKeys'])) {
-            foreach ($options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
-            }
+        foreach ($parameters['foreignKeys'] as $definition) {
+            $sql[] = $this->getCreateForeignKeySQL($definition, $name);
         }
 
         return array_merge($sql, $commentsSql, $defaultConstraintsSql);
@@ -299,7 +284,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL snippet for declaring a default constraint.
      *
-     * @param mixed[] $column Column definition.
+     * @param ColumnProperties $column
      */
     private function getDefaultConstraintDeclarationSQL(array $column): string
     {

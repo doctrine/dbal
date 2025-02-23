@@ -256,43 +256,35 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
-
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
-        if (! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
-            }
+        foreach ($parameters['uniqueConstraints'] as $definition) {
+            $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        $queryFields .= $this->getNonAutoincrementPrimaryKeyDefinition($columns, $options);
+        $queryFields .= $this->getNonAutoincrementPrimaryKeyDefinition($columns, $parameters);
 
-        if (isset($options['foreignKeys'])) {
-            foreach ($options['foreignKeys'] as $foreignKey) {
-                $queryFields .= ', ' . $this->getForeignKeyDeclarationSQL($foreignKey);
-            }
+        foreach ($parameters['foreignKeys'] as $foreignKey) {
+            $queryFields .= ', ' . $this->getForeignKeyDeclarationSQL($foreignKey);
         }
 
         $tableComment = '';
-        if (isset($options['comment'])) {
-            $comment = trim($options['comment'], " '");
+        if (isset($parameters['comment'])) {
+            $comment = trim($parameters['comment'], " '");
 
             $tableComment = $this->getInlineTableCommentSQL($comment);
         }
 
         $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')'];
 
-        if (isset($options['alter']) && $options['alter'] === true) {
+        if (isset($parameters['alter']) && $parameters['alter'] === true) {
             return $query;
         }
 
-        if (! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $indexDef) {
-                $query[] = $this->getCreateIndexSQL($indexDef, $name);
-            }
+        foreach ($parameters['indexes'] as $indexDef) {
+            $query[] = $this->getCreateIndexSQL($indexDef, $name);
         }
 
         return $query;
@@ -302,15 +294,15 @@ class SQLitePlatform extends AbstractPlatform
      * Generate a PRIMARY KEY definition if no autoincrement value is used
      *
      * @param mixed[][] $columns
-     * @param mixed[]   $options
+     * @param mixed[]   $parameters
      */
-    private function getNonAutoincrementPrimaryKeyDefinition(array $columns, array $options): string
+    private function getNonAutoincrementPrimaryKeyDefinition(array $columns, array $parameters): string
     {
-        if (empty($options['primary'])) {
+        if (empty($parameters['primary'])) {
             return '';
         }
 
-        $keyColumns = array_unique(array_values($options['primary']));
+        $keyColumns = array_unique(array_values($parameters['primary']));
 
         foreach ($keyColumns as $keyColumn) {
             foreach ($columns as $column) {
