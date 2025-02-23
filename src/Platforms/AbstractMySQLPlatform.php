@@ -18,7 +18,6 @@ use Doctrine\DBAL\Types\Types;
 
 use function array_map;
 use function array_merge;
-use function array_unique;
 use function array_values;
 use function count;
 use function implode;
@@ -229,19 +228,22 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $queryFields = $this->getColumnDeclarationListSQL($columns);
+        $elements = [];
+
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column['name'], $column);
+        }
 
         foreach ($parameters['uniqueConstraints'] as $definition) {
-            $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
+            $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
         foreach ($parameters['indexes'] as $definition) {
-            $queryFields .= ', ' . $this->getIndexDeclarationSQL($definition);
+            $elements[] = $this->getIndexDeclarationSQL($definition);
         }
 
         if (count($parameters['primary']) > 0) {
-            $keyColumns   = $parameters['primary'];
-            $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+            $elements[] = 'PRIMARY KEY(' . implode(', ', $parameters['primary']) . ')';
         }
 
         $sql = ['CREATE'];
@@ -250,7 +252,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $sql[] = 'TEMPORARY';
         }
 
-        $sql[] = 'TABLE ' . $name . ' (' . $queryFields . ')';
+        $sql[] = 'TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
 
         $tableOptions = $this->buildTableOptions($parameters);
 
@@ -356,7 +358,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $diffModified    = false;
 
         if (isset($addedIndexes['primary'])) {
-            $keyColumns   = array_values(array_unique($addedIndexes['primary']->getColumns()));
+            $keyColumns   = $addedIndexes['primary']->getQuotedColumns($this);
             $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
             unset($addedIndexes['primary']);
             $diffModified = true;
@@ -366,7 +368,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             // Necessary in case the new primary key includes a new auto_increment column
             foreach ($modifiedIndexes['primary']->getColumns() as $columnName) {
                 if (isset($addedColumns[$columnName]) && $addedColumns[$columnName]->getAutoincrement()) {
-                    $keyColumns   = array_values(array_unique($modifiedIndexes['primary']->getColumns()));
+                    $keyColumns   = $modifiedIndexes['primary']->getQuotedColumns($this);
                     $queryParts[] = 'DROP PRIMARY KEY';
                     $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
                     unset($modifiedIndexes['primary']);

@@ -153,7 +153,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $sql = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals([
-            'ALTER TABLE `foo` ADD PRIMARY KEY (bar)',
+            'ALTER TABLE `foo` ADD PRIMARY KEY (`bar`)',
             'CREATE UNIQUE INDEX `UNIQ_8C73652178240498` ON `foo` (`baz`)',
         ], $sql);
     }
@@ -299,7 +299,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             ->compareTables($table, $diffTable);
 
         self::assertEquals(
-            ['DROP INDEX `idx_id` ON `alter_table_add_pk`', 'ALTER TABLE `alter_table_add_pk` ADD PRIMARY KEY (id)'],
+            ['DROP INDEX `idx_id` ON `alter_table_add_pk`', 'ALTER TABLE `alter_table_add_pk` ADD PRIMARY KEY (`id`)'],
             $this->platform->getAlterTableSQL($diff),
         );
     }
@@ -420,7 +420,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
-        self::assertEquals(['ALTER TABLE `foo` ADD `id` INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)'], $sql);
+        self::assertEquals(['ALTER TABLE `foo` ADD `id` INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (`id`)'], $sql);
     }
 
     public function testAlterPrimaryKeyWithNewColumn(): void

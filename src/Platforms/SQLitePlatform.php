@@ -27,7 +27,6 @@ use function array_combine;
 use function array_keys;
 use function array_merge;
 use function array_search;
-use function array_unique;
 use function array_values;
 use function count;
 use function explode;
@@ -42,6 +41,9 @@ use function trim;
 /**
  * The SQLitePlatform class describes the specifics and dialects of the SQLite
  * database platform.
+ *
+ * @phpstan-import-type ColumnProperties from Column
+ * @phpstan-import-type CreateTableParameters from AbstractPlatform
  */
 class SQLitePlatform extends AbstractPlatform
 {
@@ -258,16 +260,24 @@ class SQLitePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $queryFields = $this->getColumnDeclarationListSQL($columns);
+        $elements = [];
 
-        foreach ($parameters['uniqueConstraints'] as $definition) {
-            $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column['name'], $column);
         }
 
-        $queryFields .= $this->getNonAutoincrementPrimaryKeyDefinition($columns, $parameters);
+        foreach ($parameters['uniqueConstraints'] as $definition) {
+            $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
+        }
+
+        $primaryKeyColumns = $this->getNonAutoincrementPrimaryKeyColumnNames($columns, $parameters);
+
+        if (count($primaryKeyColumns) > 0) {
+            $elements[] = 'PRIMARY KEY(' . implode(', ', $primaryKeyColumns) . ')';
+        }
 
         foreach ($parameters['foreignKeys'] as $foreignKey) {
-            $queryFields .= ', ' . $this->getForeignKeyDeclarationSQL($foreignKey);
+            $elements[] = $this->getForeignKeyDeclarationSQL($foreignKey);
         }
 
         $tableComment = '';
@@ -277,7 +287,7 @@ class SQLitePlatform extends AbstractPlatform
             $tableComment = $this->getInlineTableCommentSQL($comment);
         }
 
-        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')'];
+        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . implode(', ', $elements) . ')'];
 
         if (isset($parameters['alter']) && $parameters['alter'] === true) {
             return $query;
@@ -293,26 +303,28 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * Generate a PRIMARY KEY definition if no autoincrement value is used
      *
-     * @param mixed[][] $columns
-     * @param mixed[]   $parameters
+     * @param list<ColumnProperties> $columns
+     * @param CreateTableParameters  $parameters
+     *
+     * @return list<string>
      */
-    private function getNonAutoincrementPrimaryKeyDefinition(array $columns, array $parameters): string
+    private function getNonAutoincrementPrimaryKeyColumnNames(array $columns, array $parameters): array
     {
         if (empty($parameters['primary'])) {
-            return '';
+            return [];
         }
 
-        $keyColumns = array_unique(array_values($parameters['primary']));
+        $keyColumns = $parameters['primary'];
 
         foreach ($keyColumns as $keyColumn) {
             foreach ($columns as $column) {
                 if ($column['name'] === $keyColumn && ! empty($column['autoincrement'])) {
-                    return '';
+                    return [];
                 }
             }
         }
 
-        return ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+        return $keyColumns;
     }
 
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string

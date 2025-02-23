@@ -183,7 +183,7 @@ class SQLServerPlatform extends AbstractPlatform
             $commentsSql[] = $this->getCommentOnTableSQL($name, $tableComment);
         }
 
-        foreach ($columns as &$column) {
+        foreach ($columns as $column) {
             if (isset($column['default'])) {
                 $defaultConstraintsSql[] = 'ALTER TABLE ' . $name .
                     ' ADD' . $this->getDefaultConstraintDeclarationSQL($column);
@@ -196,10 +196,14 @@ class SQLServerPlatform extends AbstractPlatform
             $commentsSql[] = $this->getCreateColumnCommentSQL($name, $column['name'], $column['comment']);
         }
 
-        $columnListSql = $this->getColumnDeclarationListSQL($columns);
+        $elements = [];
+
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column['name'], $column);
+        }
 
         foreach ($parameters['uniqueConstraints'] as $definition) {
-            $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
+            $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
         if (count($parameters['primary']) > 0) {
@@ -208,17 +212,12 @@ class SQLServerPlatform extends AbstractPlatform
                 $flags = ' NONCLUSTERED';
             }
 
-            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', $parameters['primary']) . ')';
+            $elements[] = 'PRIMARY KEY' . $flags . ' (' . implode(', ', $parameters['primary']) . ')';
         }
 
-        $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
+        $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));
 
-        $check = $this->getCheckDeclarationSQL($columns);
-        if (! empty($check)) {
-            $query .= ', ' . $check;
-        }
-
-        $query .= ')';
+        $query = 'CREATE TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
 
         $sql = [$query];
 

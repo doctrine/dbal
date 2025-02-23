@@ -60,7 +60,7 @@ class MySQLSchemaTest extends TestCase
         $sql = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals(
-            ['ALTER TABLE `test` ADD PRIMARY KEY (id)'],
+            ['ALTER TABLE `test` ADD PRIMARY KEY (`id`)'],
             $sql,
         );
     }

@@ -15,6 +15,8 @@ awareness about deprecated code.
 2. The following keys of the above `$parameters` parameter are no longer optional: `primary`, `indexes`,
    `uniqueConstraints`, `foreignKeys`.
 
+Additionally, the column names of the primary key index are no longer deduplicated.
+
 ## BC BREAK: Changes in `Index` behavior
 
 The following `Index` usage scenarios are no longer supported:

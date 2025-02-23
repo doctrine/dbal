@@ -39,7 +39,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -966,28 +965,27 @@ abstract class AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $columnListSql = $this->getColumnDeclarationListSQL($columns);
+        $elements = [];
+
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column['name'], $column);
+        }
 
         foreach ($parameters['uniqueConstraints'] as $definition) {
-            $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
+            $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
         if (count($parameters['primary']) > 0) {
-            $columnListSql .= ', PRIMARY KEY(' . implode(', ', $parameters['primary']) . ')';
+            $elements[] = 'PRIMARY KEY(' . implode(', ', $parameters['primary']) . ')';
         }
 
         foreach ($parameters['indexes'] as $definition) {
-            $columnListSql .= ', ' . $this->getIndexDeclarationSQL($definition);
+            $elements[] = $this->getIndexDeclarationSQL($definition);
         }
 
-        $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
-        $check = $this->getCheckDeclarationSQL($columns);
+        $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));
 
-        if (! empty($check)) {
-            $query .= ', ' . $check;
-        }
-
-        $query .= ')';
+        $query = 'CREATE TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
 
         $sql = [$query];
 
@@ -1409,40 +1407,26 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a CHECK constraint
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     * @param list<ColumnProperties> $column The column properties.
      *
-     * @param list<string|ColumnProperties> $definition The check definition.
-     *
-     * @return string DBMS specific SQL code portion needed to set a CHECK constraint.
+     * @return list<string> A list of SQL expressions each representing an individual CHECK constraint.
      */
-    public function getCheckDeclarationSQL(array $definition): string
+    protected function getCheckDeclarationSQL(array $column): array
     {
         $constraints = [];
-        foreach ($definition as $def) {
-            if (is_string($def)) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/6805',
-                    'Passing column definition to %s() as string is deprecated. Pass the definition as array'
-                        . ' instead.',
-                    __METHOD__,
-                );
-
-                $constraints[] = 'CHECK (' . $def . ')';
-            } else {
-                if (isset($def['min'])) {
-                    $constraints[] = 'CHECK (' . $def['name'] . ' >= ' . $def['min'] . ')';
-                }
-
-                if (! isset($def['max'])) {
-                    continue;
-                }
-
-                $constraints[] = 'CHECK (' . $def['name'] . ' <= ' . $def['max'] . ')';
+        foreach ($column as $def) {
+            if (isset($def['min'])) {
+                $constraints[] = 'CHECK (' . $def['name'] . ' >= ' . $def['min'] . ')';
             }
+
+            if (! isset($def['max'])) {
+                continue;
+            }
+
+            $constraints[] = 'CHECK (' . $def['name'] . ' <= ' . $def['max'] . ')';
         }
 
-        return implode(', ', $constraints);
+        return $constraints;
     }
 
     /**

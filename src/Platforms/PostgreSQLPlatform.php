@@ -376,15 +376,19 @@ class PostgreSQLPlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $queryFields = $this->getColumnDeclarationListSQL($columns);
+        $elements = [];
+
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column['name'], $column);
+        }
 
         if (count($parameters['primary']) > 0) {
-            $queryFields .= ', PRIMARY KEY(' . implode(', ', $parameters['primary']) . ')';
+            $elements[] = 'PRIMARY KEY(' . implode(', ', $parameters['primary']) . ')';
         }
 
         $unlogged = isset($parameters['unlogged']) && $parameters['unlogged'] === true ? ' UNLOGGED' : '';
 
-        $query = 'CREATE' . $unlogged . ' TABLE ' . $name . ' (' . $queryFields . ')';
+        $query = 'CREATE' . $unlogged . ' TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
 
         $sql = [$query];
 
