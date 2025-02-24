@@ -270,10 +270,15 @@ class SQLitePlatform extends AbstractPlatform
             $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        $primaryKeyColumns = $this->getNonAutoincrementPrimaryKeyColumnNames($columns, $parameters);
+        if (isset($parameters['primary_index'])) {
+            $primaryKeyColumns = $parameters['primary_index']->getQuotedColumns($this);
 
-        if (count($primaryKeyColumns) > 0) {
-            $elements[] = 'PRIMARY KEY(' . implode(', ', $primaryKeyColumns) . ')';
+            if ($this->shouldDeclarePrimaryKeyConstraint($columns, $primaryKeyColumns)) {
+                $elements[] = sprintf(
+                    'PRIMARY KEY(%s)',
+                    implode(', ', $primaryKeyColumns),
+                );
+            }
         }
 
         foreach ($parameters['foreignKeys'] as $foreignKey) {
@@ -301,30 +306,24 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
-     * Generate a PRIMARY KEY definition if no autoincrement value is used
+     * Returns whether the primary key constraint should be declared on the table.
+     *
+     * The constraint should be declared only if none of the primary key columns are autoincrement.
      *
      * @param list<ColumnProperties> $columns
-     * @param CreateTableParameters  $parameters
-     *
-     * @return list<string>
+     * @param list<string>           $keyColumns
      */
-    private function getNonAutoincrementPrimaryKeyColumnNames(array $columns, array $parameters): array
+    private function shouldDeclarePrimaryKeyConstraint(array $columns, array $keyColumns): bool
     {
-        if (empty($parameters['primary'])) {
-            return [];
-        }
-
-        $keyColumns = $parameters['primary'];
-
         foreach ($keyColumns as $keyColumn) {
             foreach ($columns as $column) {
                 if ($column['name']->toSQL($this) === $keyColumn && ! empty($column['autoincrement'])) {
-                    return [];
+                    return false;
                 }
             }
         }
 
-        return $keyColumns;
+        return true;
     }
 
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string

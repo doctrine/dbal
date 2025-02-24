@@ -68,7 +68,6 @@ use function strtoupper;
  *
  * @phpstan-import-type ColumnProperties from Column
  * @phpstan-type CreateTableParameters = array{
- *    primary: list<string>,
  *    primary_index?: Index,
  *    indexes: list<Index>,
  *    uniqueConstraints: list<UniqueConstraint>,
@@ -816,7 +815,6 @@ abstract class AbstractPlatform
 
         $tableName                       = $table->getObjectName()->toSQL($this);
         $parameters                      = $table->getOptions();
-        $parameters['primary']           = [];
         $parameters['indexes']           = [];
         $parameters['uniqueConstraints'] = [];
         $parameters['foreignKeys']       = [];
@@ -828,7 +826,6 @@ abstract class AbstractPlatform
                 continue;
             }
 
-            $parameters['primary']       = $index->getQuotedColumns($this);
             $parameters['primary_index'] = $index;
         }
 
@@ -975,8 +972,11 @@ abstract class AbstractPlatform
             $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        if (count($parameters['primary']) > 0) {
-            $elements[] = 'PRIMARY KEY(' . implode(', ', $parameters['primary']) . ')';
+        if (isset($parameters['primary_index'])) {
+            $elements[] = sprintf(
+                'PRIMARY KEY(%s)',
+                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
+            );
         }
 
         foreach ($parameters['indexes'] as $definition) {

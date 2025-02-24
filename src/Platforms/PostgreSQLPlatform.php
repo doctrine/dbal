@@ -18,7 +18,6 @@ use Doctrine\DBAL\Types\Types;
 use UnexpectedValueException;
 
 use function array_merge;
-use function count;
 use function explode;
 use function implode;
 use function in_array;
@@ -379,8 +378,11 @@ class PostgreSQLPlatform extends AbstractPlatform
             $elements[] = $this->getColumnDeclarationSQL($column);
         }
 
-        if (count($parameters['primary']) > 0) {
-            $elements[] = 'PRIMARY KEY(' . implode(', ', $parameters['primary']) . ')';
+        if (isset($parameters['primary_index'])) {
+            $elements[] = sprintf(
+                'PRIMARY KEY(%s)',
+                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
+            );
         }
 
         $unlogged = isset($parameters['unlogged']) && $parameters['unlogged'] === true ? ' UNLOGGED' : '';

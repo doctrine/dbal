@@ -24,7 +24,6 @@ use InvalidArgumentException;
 
 use function array_map;
 use function array_merge;
-use function count;
 use function explode;
 use function implode;
 use function is_array;
@@ -207,13 +206,19 @@ class SQLServerPlatform extends AbstractPlatform
             $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        if (count($parameters['primary']) > 0) {
-            $flags = '';
-            if (isset($parameters['primary_index']) && $parameters['primary_index']->hasFlag('nonclustered')) {
-                $flags = ' NONCLUSTERED';
+        if (isset($parameters['primary_index'])) {
+            $primaryKeySQL = 'PRIMARY KEY';
+
+            if ($parameters['primary_index']->hasFlag('nonclustered')) {
+                $primaryKeySQL .= ' NONCLUSTERED';
             }
 
-            $elements[] = 'PRIMARY KEY' . $flags . ' (' . implode(', ', $parameters['primary']) . ')';
+            $primaryKeySQL .= sprintf(
+                ' (%s)',
+                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
+            );
+
+            $elements[] = $primaryKeySQL;
         }
 
         $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));

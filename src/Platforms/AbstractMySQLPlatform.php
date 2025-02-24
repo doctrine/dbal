@@ -242,8 +242,11 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $elements[] = $this->getIndexDeclarationSQL($definition);
         }
 
-        if (count($parameters['primary']) > 0) {
-            $elements[] = 'PRIMARY KEY(' . implode(', ', $parameters['primary']) . ')';
+        if (isset($parameters['primary_index'])) {
+            $elements[] = sprintf(
+                'PRIMARY KEY(%s)',
+                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
+            );
         }
 
         $sql = ['CREATE'];
