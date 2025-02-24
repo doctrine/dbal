@@ -2076,7 +2076,6 @@ abstract class AbstractPlatform
     {
         return array_merge($column->toArray(), [
             'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
-            'comment' => $column->getComment(),
         ]);
     }
 
