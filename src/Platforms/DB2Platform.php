@@ -234,18 +234,13 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
+        $indexes = $parameters['indexes'];
 
-        $indexes = [];
-        if (isset($options['indexes'])) {
-            $indexes = $options['indexes'];
-        }
+        $parameters['indexes'] = [];
 
-        $options['indexes'] = [];
-
-        $sqls = parent::_getCreateTableSQL($name, $columns, $options);
+        $sqls = parent::_getCreateTableSQL($name, $columns, $parameters);
 
         foreach ($indexes as $definition) {
             $sqls[] = $this->getCreateIndexSQL($definition, $name);
@@ -267,10 +262,7 @@ class DB2Platform extends AbstractPlatform
         $queryParts = [];
         foreach ($diff->getAddedColumns() as $column) {
             $columnDef = $column->toArray();
-            $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL(
-                $column->getObjectName()->toSQL($this),
-                $columnDef,
-            );
+            $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($columnDef);
 
             // Adding non-nullable columns to a table requires a default value to be specified.
             if (

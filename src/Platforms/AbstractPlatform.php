@@ -39,13 +39,10 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
 use function array_merge;
-use function array_unique;
-use function array_values;
 use function assert;
 use function count;
 use function implode;
@@ -71,11 +68,10 @@ use function strtoupper;
  *
  * @phpstan-import-type ColumnProperties from Column
  * @phpstan-type CreateTableParameters = array{
- *    primary?: list<string>,
  *    primary_index?: Index,
- *    indexes?: list<Index>,
- *    uniqueConstraints?: list<UniqueConstraint>,
- *    foreignKeys?: list<ForeignKeyConstraint>,
+ *    indexes: list<Index>,
+ *    uniqueConstraints: list<UniqueConstraint>,
+ *    foreignKeys: list<ForeignKeyConstraint>,
  *    comment?: string,
  * }
  */
@@ -817,31 +813,29 @@ abstract class AbstractPlatform
             throw NoColumnsSpecifiedForTable::new($table->getName());
         }
 
-        $tableName                    = $table->getObjectName()->toSQL($this);
-        $options                      = $table->getOptions();
-        $options['primary']           = [];
-        $options['indexes']           = [];
-        $options['uniqueConstraints'] = [];
-        $options['foreignKeys']       = [];
+        $tableName                       = $table->getObjectName()->toSQL($this);
+        $parameters                      = $table->getOptions();
+        $parameters['indexes']           = [];
+        $parameters['uniqueConstraints'] = [];
+        $parameters['foreignKeys']       = [];
 
         foreach ($table->getIndexes() as $index) {
             if (! $index->isPrimary()) {
-                $options['indexes'][] = $index;
+                $parameters['indexes'][] = $index;
 
                 continue;
             }
 
-            $options['primary']       = $index->getQuotedColumns($this);
-            $options['primary_index'] = $index;
+            $parameters['primary_index'] = $index;
         }
 
         foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
-            $options['uniqueConstraints'][] = $uniqueConstraint;
+            $parameters['uniqueConstraints'][] = $uniqueConstraint;
         }
 
         if ($createForeignKeys) {
             foreach ($table->getForeignKeys() as $fkConstraint) {
-                $options['foreignKeys'][] = $fkConstraint;
+                $parameters['foreignKeys'][] = $fkConstraint;
             }
         }
 
@@ -851,7 +845,7 @@ abstract class AbstractPlatform
             $columns[] = $this->columnToArray($column);
         }
 
-        $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
+        $sql = $this->_getCreateTableSQL($tableName, $columns, $parameters);
 
         if ($this->supportsCommentOnStatement()) {
             if ($table->hasOption('comment')) {
@@ -962,77 +956,44 @@ abstract class AbstractPlatform
      * Returns the SQL used to create a table.
      *
      * @param list<ColumnProperties> $columns
-     * @param CreateTableParameters  $options
+     * @param CreateTableParameters  $parameters
      *
      * @return list<string>
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
+        $elements = [];
 
-        $columnListSql = $this->getColumnDeclarationListSQL($columns);
-
-        if (! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
-            }
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column);
         }
 
-        if (! empty($options['primary'])) {
-            $columnListSql .= ', PRIMARY KEY(' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+        foreach ($parameters['uniqueConstraints'] as $definition) {
+            $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        if (! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $definition) {
-                $columnListSql .= ', ' . $this->getIndexDeclarationSQL($definition);
-            }
+        if (isset($parameters['primary_index'])) {
+            $elements[] = sprintf(
+                'PRIMARY KEY(%s)',
+                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
+            );
         }
 
-        $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
-        $check = $this->getCheckDeclarationSQL($columns);
-
-        if (! empty($check)) {
-            $query .= ', ' . $check;
+        foreach ($parameters['indexes'] as $definition) {
+            $elements[] = $this->getIndexDeclarationSQL($definition);
         }
 
-        $query .= ')';
+        $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));
+
+        $query = 'CREATE TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
 
         $sql = [$query];
 
-        if (isset($options['foreignKeys'])) {
-            foreach ($options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
-            }
+        foreach ($parameters['foreignKeys'] as $definition) {
+            $sql[] = $this->getCreateForeignKeySQL($definition, $name);
         }
 
         return $sql;
-    }
-
-    /**
-     * @internal
-     *
-     * @param CreateTableParameters $options
-     */
-    final protected function validateCreateTableOptions(array $options, string $methodName): void
-    {
-        if (
-            isset(
-                $options['primary'],
-                $options['indexes'],
-                $options['uniqueConstraints'],
-                $options['foreignKeys'],
-            )
-        ) {
-            return;
-        }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6805',
-            'Not passing $options or any of its following keys to %s() is deprecated:'
-                . ' "primary", "indexes", "uniqueConstraints", "foreignKeys".',
-            $methodName,
-        );
     }
 
     public function getCreateTemporaryTableSnippetSQL(): string
@@ -1334,7 +1295,7 @@ abstract class AbstractPlatform
         $declarations = [];
 
         foreach ($columns as $column) {
-            $declarations[] = $this->getColumnDeclarationSQL($column['name'], $column);
+            $declarations[] = $this->getColumnDeclarationSQL($column);
         }
 
         return implode(', ', $declarations);
@@ -1344,12 +1305,11 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to declare a generic type
      * column to be used in statements like CREATE TABLE.
      *
-     * @param string           $name   The name of the column to be declared.
      * @param ColumnProperties $column Column properties.
      *
      * @return string DBMS specific SQL code portion that should be used to declare the column.
      */
-    protected function getColumnDeclarationSQL(string $name, array $column): string
+    protected function getColumnDeclarationSQL(array $column): string
     {
         if (isset($column['columnDefinition'])) {
             $declaration = $column['columnDefinition'];
@@ -1372,7 +1332,7 @@ abstract class AbstractPlatform
             }
         }
 
-        return $name . ' ' . $declaration;
+        return $column['name']->toSQL($this) . ' ' . $declaration;
     }
 
     /**
@@ -1446,40 +1406,28 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a CHECK constraint
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @internal The method should be only used from within the {@see AbstractPlatform} class hierarchy.
+     * @param list<ColumnProperties> $column The column properties.
      *
-     * @param list<string|ColumnProperties> $definition The check definition.
-     *
-     * @return string DBMS specific SQL code portion needed to set a CHECK constraint.
+     * @return list<string> A list of SQL expressions each representing an individual CHECK constraint.
      */
-    public function getCheckDeclarationSQL(array $definition): string
+    protected function getCheckDeclarationSQL(array $column): array
     {
         $constraints = [];
-        foreach ($definition as $def) {
-            if (is_string($def)) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/6805',
-                    'Passing column definition to %s() as string is deprecated. Pass the definition as array'
-                        . ' instead.',
-                    __METHOD__,
-                );
+        foreach ($column as $def) {
+            $name = $def['name']->toSQL($this);
 
-                $constraints[] = 'CHECK (' . $def . ')';
-            } else {
-                if (isset($def['min'])) {
-                    $constraints[] = 'CHECK (' . $def['name'] . ' >= ' . $def['min'] . ')';
-                }
-
-                if (! isset($def['max'])) {
-                    continue;
-                }
-
-                $constraints[] = 'CHECK (' . $def['name'] . ' <= ' . $def['max'] . ')';
+            if (isset($def['min'])) {
+                $constraints[] = 'CHECK (' . $name . ' >= ' . $def['min'] . ')';
             }
+
+            if (! isset($def['max'])) {
+                continue;
+            }
+
+            $constraints[] = 'CHECK (' . $name . ' <= ' . $def['max'] . ')';
         }
 
-        return implode(', ', $constraints);
+        return $constraints;
     }
 
     /**
@@ -2127,9 +2075,7 @@ abstract class AbstractPlatform
     private function columnToArray(Column $column): array
     {
         return array_merge($column->toArray(), [
-            'name' => $column->getObjectName()->toSQL($this),
             'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
-            'comment' => $column->getComment(),
         ]);
     }
 
@@ -2152,13 +2098,19 @@ abstract class AbstractPlatform
         $column1Array = $this->columnToArray($column1);
         $column2Array = $this->columnToArray($column2);
 
+        $name = UnqualifiedName::unquoted('dummy');
+
+        // ignore the difference in column names to enable detection of renamed columns
+        $column1Array['name'] = $name;
+        $column2Array['name'] = $name;
+
         // ignore explicit columnDefinition since it's not set on the Column generated by the SchemaManager
         $column1Array['columnDefinition'] = null;
         $column2Array['columnDefinition'] = null;
 
         if (
-            $this->getColumnDeclarationSQL('', $column1Array)
-            !== $this->getColumnDeclarationSQL('', $column2Array)
+            $this->getColumnDeclarationSQL($column1Array)
+            !== $this->getColumnDeclarationSQL($column2Array)
         ) {
             return false;
         }

@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -23,8 +24,6 @@ use InvalidArgumentException;
 
 use function array_map;
 use function array_merge;
-use function array_unique;
-use function array_values;
 use function explode;
 use function implode;
 use function is_array;
@@ -45,6 +44,8 @@ use const PREG_OFFSET_CAPTURE;
 /**
  * Provides the behavior, features and SQL dialect of the Microsoft SQL Server database platform
  * of the oldest supported version.
+ *
+ * @phpstan-import-type ColumnProperties from Column
  */
 class SQLServerPlatform extends AbstractPlatform
 {
@@ -172,77 +173,66 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
-
         $defaultConstraintsSql = [];
         $commentsSql           = [];
 
-        $tableComment = $options['comment'] ?? null;
+        $tableComment = $parameters['comment'] ?? null;
         if ($tableComment !== null) {
             $commentsSql[] = $this->getCommentOnTableSQL($name, $tableComment);
         }
 
-        // @todo does other code breaks because of this?
-        // force primary keys to be not null
-        foreach ($columns as &$column) {
-            if (! empty($column['primary'])) {
-                $column['notnull'] = true;
-            }
-
-            // Build default constraints SQL statements.
+        foreach ($columns as $column) {
             if (isset($column['default'])) {
                 $defaultConstraintsSql[] = 'ALTER TABLE ' . $name .
                     ' ADD' . $this->getDefaultConstraintDeclarationSQL($column);
             }
 
-            if (empty($column['comment']) && ! is_numeric($column['comment'])) {
+            if ($column['comment'] === '') {
                 continue;
             }
 
             $commentsSql[] = $this->getCreateColumnCommentSQL($name, $column['name'], $column['comment']);
         }
 
-        $columnListSql = $this->getColumnDeclarationListSQL($columns);
+        $elements = [];
 
-        if (! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column);
+        }
+
+        foreach ($parameters['uniqueConstraints'] as $definition) {
+            $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
+        }
+
+        if (isset($parameters['primary_index'])) {
+            $primaryKeySQL = 'PRIMARY KEY';
+
+            if ($parameters['primary_index']->hasFlag('nonclustered')) {
+                $primaryKeySQL .= ' NONCLUSTERED';
             }
+
+            $primaryKeySQL .= sprintf(
+                ' (%s)',
+                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
+            );
+
+            $elements[] = $primaryKeySQL;
         }
 
-        if (! empty($options['primary'])) {
-            $flags = '';
-            if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
-                $flags = ' NONCLUSTERED';
-            }
+        $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));
 
-            $columnListSql .= ', PRIMARY KEY' . $flags
-                . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
-        }
-
-        $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
-
-        $check = $this->getCheckDeclarationSQL($columns);
-        if (! empty($check)) {
-            $query .= ', ' . $check;
-        }
-
-        $query .= ')';
+        $query = 'CREATE TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
 
         $sql = [$query];
 
-        if (! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $name);
-            }
+        foreach ($parameters['indexes'] as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $name);
         }
 
-        if (isset($options['foreignKeys'])) {
-            foreach ($options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
-            }
+        foreach ($parameters['foreignKeys'] as $definition) {
+            $sql[] = $this->getCreateForeignKeySQL($definition, $name);
         }
 
         return array_merge($sql, $commentsSql, $defaultConstraintsSql);
@@ -279,11 +269,11 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @link https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql
      *
-     * @param string $tableName  The quoted table name to which the column belongs.
-     * @param string $columnName The quoted column name to create the comment for.
-     * @param string $comment    The column's comment.
+     * @param string          $tableName  The quoted table name to which the column belongs.
+     * @param UnqualifiedName $columnName The column name to create the comment for.
+     * @param string          $comment    The column's comment.
      */
-    private function getCreateColumnCommentSQL(string $tableName, string $columnName, string $comment): string
+    private function getCreateColumnCommentSQL(string $tableName, UnqualifiedName $columnName, string $comment): string
     {
         return $this->getExecSQL(
             'sp_addextendedproperty',
@@ -291,7 +281,9 @@ class SQLServerPlatform extends AbstractPlatform
             $this->quoteNationalStringLiteral($comment),
             ...$this->getArgumentsForExtendedProperties([
                 ...$this->getExtendedPropertiesForTable($tableName),
-                'COLUMN' => $this->quoteStringLiteral($this->unquoteSingleIdentifier($columnName)),
+                'COLUMN' => $this->quoteStringLiteral(
+                    $columnName->getIdentifier()->toNormalizedValue($this),
+                ),
             ]),
         );
     }
@@ -299,7 +291,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL snippet for declaring a default constraint.
      *
-     * @param mixed[] $column Column definition.
+     * @param ColumnProperties $column
      */
     private function getDefaultConstraintDeclarationSQL(array $column): string
     {
@@ -307,9 +299,7 @@ class SQLServerPlatform extends AbstractPlatform
             throw new InvalidArgumentException('Incomplete column definition. "default" required.');
         }
 
-        $columnName = new Identifier($column['name']);
-
-        return $this->getDefaultValueDeclarationSQL($column) . ' FOR ' . $columnName->getObjectName()->toSQL($this);
+        return $this->getDefaultValueDeclarationSQL($column) . ' FOR ' . $column['name']->toSQL($this);
     }
 
     public function getCreateIndexSQL(Index $index, string $table): string
@@ -369,10 +359,7 @@ class SQLServerPlatform extends AbstractPlatform
         foreach ($diff->getAddedColumns() as $column) {
             $columnProperties = $column->toArray();
 
-            $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL(
-                $column->getObjectName()->toSQL($this),
-                $columnProperties,
-            );
+            $addColumnSql = 'ADD ' . $this->getColumnDeclarationSQL($columnProperties);
 
             if (isset($columnProperties['default'])) {
                 $addColumnSql .= $this->getDefaultValueDeclarationSQL($columnProperties);
@@ -388,7 +375,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $commentsSql[] = $this->getCreateColumnCommentSQL(
                 $tableName,
-                $column->getObjectName()->toSQL($this),
+                $column->getObjectName(),
                 $comment,
             );
         }
@@ -441,15 +428,15 @@ class SQLServerPlatform extends AbstractPlatform
             } elseif (! $hasOldComment && $hasNewComment) {
                 $commentsSql[] = $this->getCreateColumnCommentSQL(
                     $tableName,
-                    $newColumn->getObjectName()->toSQL($this),
+                    $newColumn->getObjectName(),
                     $newComment,
                 );
             }
 
             $columnNameSQL = $newColumn->getObjectName()->toSQL($this);
 
-            $newDeclarationSQL     = $this->getColumnDeclarationSQL($columnNameSQL, $newColumn->toArray());
-            $oldDeclarationSQL     = $this->getColumnDeclarationSQL($columnNameSQL, $oldColumn->toArray());
+            $newDeclarationSQL     = $this->getColumnDeclarationSQL($newColumn->toArray());
+            $oldDeclarationSQL     = $this->getColumnDeclarationSQL($oldColumn->toArray());
             $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
 
             $defaultChanged = $columnDiff->hasDefaultChanged();
@@ -504,7 +491,7 @@ class SQLServerPlatform extends AbstractPlatform
     private function getAlterTableAddDefaultConstraintClause(string $tableName, Column $column): string
     {
         $columnDef         = $column->toArray();
-        $columnDef['name'] = $column->getObjectName()->toSQL($this);
+        $columnDef['name'] = $column->getObjectName();
 
         return 'ADD' . $this->getDefaultConstraintDeclarationSQL($columnDef);
     }
@@ -1101,7 +1088,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getColumnDeclarationSQL(string $name, array $column): string
+    protected function getColumnDeclarationSQL(array $column): string
     {
         if (isset($column['columnDefinition'])) {
             $declaration = $column['columnDefinition'];
@@ -1115,7 +1102,7 @@ class SQLServerPlatform extends AbstractPlatform
             $declaration = $typeDecl . $collation . $notnull;
         }
 
-        return $name . ' ' . $declaration;
+        return $column['name']->toSQL($this) . ' ' . $declaration;
     }
 
     /**

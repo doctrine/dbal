@@ -400,7 +400,9 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         self::assertSame(
             $this->getExpectedVariableLengthStringTypeDeclarationSQLNoLength(),
-            $this->platform->getStringTypeDeclarationSQL(['name' => 'email']),
+            $this->platform->getStringTypeDeclarationSQL([
+                'name' => UnqualifiedName::unquoted('email'),
+            ]),
         );
     }
 
@@ -426,7 +428,10 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         self::assertSame(
             $this->getExpectedFixedLengthBinaryTypeDeclarationSQLNoLength(),
-            $this->platform->getBinaryTypeDeclarationSQL(['name' => 'checksum', 'fixed' => true]),
+            $this->platform->getBinaryTypeDeclarationSQL([
+                'name' => UnqualifiedName::unquoted('checksum'),
+                'fixed' => true,
+            ]),
         );
     }
 
@@ -455,7 +460,9 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         self::assertSame(
             $this->getExpectedVariableLengthBinaryTypeDeclarationSQLNoLength(),
-            $this->platform->getBinaryTypeDeclarationSQL(['name' => 'attachment']),
+            $this->platform->getBinaryTypeDeclarationSQL([
+                'name' => UnqualifiedName::unquoted('attachment'),
+            ]),
         );
     }
 
@@ -480,13 +487,19 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGetDecimalTypeDeclarationSQLNoPrecision(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
-        $this->platform->getDecimalTypeDeclarationSQL(['name' => 'price', 'scale' => 2]);
+        $this->platform->getDecimalTypeDeclarationSQL([
+            'name' => UnqualifiedName::unquoted('price'),
+            'scale' => 2,
+        ]);
     }
 
     public function testGetDecimalTypeDeclarationSQLNoScale(): void
     {
         $this->expectException(InvalidColumnDeclaration::class);
-        $this->platform->getDecimalTypeDeclarationSQL(['name' => 'price', 'precision' => 10]);
+        $this->platform->getDecimalTypeDeclarationSQL([
+            'name' => UnqualifiedName::unquoted('price'),
+            'precision' => 10,
+        ]);
     }
 
     public function testReturnsJsonTypeDeclarationSQL(): void

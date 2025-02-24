@@ -8,6 +8,20 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Changes in protected `AbstractPlatform` API
+
+1. The `$options` parameter of the `AbstractPlatform::_getCreateTableSQL()` method is no longer optional and has been
+   renamed to `$parameters`.
+2. The following keys of the above `$parameters` parameter are no longer optional: `indexes`, `uniqueConstraints`,
+   `foreignKeys`.
+3. The type of the `name` key of the `ColumnProperties` array has been changed from `string` to `UnqualifiedName`.
+4. The `AbstractPlatform::getColumnDeclarationSQL()` method no longer accepts the column name as its first parameter
+   `$name`. The column name is sourced from the `$column` parameter.
+5. The `CreateTableParameters` array no longer includes the `primary` key. Primary key columns should be sourced from
+   the `primary_index` element.
+
+Additionally, the column names of the primary key index are no longer deduplicated.
+
 ## BC BREAK: Changes in `Index` behavior
 
 The following `Index` usage scenarios are no longer supported:

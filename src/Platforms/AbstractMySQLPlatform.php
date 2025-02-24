@@ -18,7 +18,6 @@ use Doctrine\DBAL\Types\Types;
 
 use function array_map;
 use function array_merge;
-use function array_unique;
 use function array_values;
 use function count;
 use function implode;
@@ -227,53 +226,51 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
+        $elements = [];
 
-        $queryFields = $this->getColumnDeclarationListSQL($columns);
-
-        if (! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
-            }
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column);
         }
 
-        // add all indexes
-        if (! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $definition) {
-                $queryFields .= ', ' . $this->getIndexDeclarationSQL($definition);
-            }
+        foreach ($parameters['uniqueConstraints'] as $definition) {
+            $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        // attach all primary keys
-        if (! empty($options['primary'])) {
-            $keyColumns   = array_unique(array_values($options['primary']));
-            $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+        foreach ($parameters['indexes'] as $definition) {
+            $elements[] = $this->getIndexDeclarationSQL($definition);
+        }
+
+        if (isset($parameters['primary_index'])) {
+            $elements[] = sprintf(
+                'PRIMARY KEY(%s)',
+                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
+            );
         }
 
         $sql = ['CREATE'];
 
-        if (! empty($options['temporary'])) {
+        if (! empty($parameters['temporary'])) {
             $sql[] = 'TEMPORARY';
         }
 
-        $sql[] = 'TABLE ' . $name . ' (' . $queryFields . ')';
+        $sql[] = 'TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
 
-        $tableOptions = $this->buildTableOptions($options);
+        $tableOptions = $this->buildTableOptions($parameters);
 
         if ($tableOptions !== '') {
             $sql[] = $tableOptions;
         }
 
-        if (isset($options['partition_options'])) {
-            $sql[] = $options['partition_options'];
+        if (isset($parameters['partition_options'])) {
+            $sql[] = $parameters['partition_options'];
         }
 
         $sql = [implode(' ', $sql)];
 
-        if (isset($options['foreignKeys'])) {
-            foreach ($options['foreignKeys'] as $definition) {
+        if (isset($parameters['foreignKeys'])) {
+            foreach ($parameters['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
@@ -332,14 +329,9 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $queryParts = [];
 
         foreach ($diff->getAddedColumns() as $column) {
-            $columnProperties = array_merge($column->toArray(), [
-                'comment' => $column->getComment(),
-            ]);
+            $columnProperties = array_merge($column->toArray());
 
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL(
-                $column->getObjectName()->toSQL($this),
-                $columnProperties,
-            );
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($columnProperties);
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
@@ -349,14 +341,12 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         foreach ($diff->getChangedColumns() as $columnDiff) {
             $newColumn = $columnDiff->getNewColumn();
 
-            $newColumnProperties = array_merge($newColumn->toArray(), [
-                'comment' => $newColumn->getComment(),
-            ]);
+            $newColumnProperties = $newColumn->toArray();
 
             $oldColumn = $columnDiff->getOldColumn();
 
             $queryParts[] = 'CHANGE ' . $oldColumn->getObjectName()->toSQL($this) . ' '
-                . $this->getColumnDeclarationSQL($newColumn->getObjectName()->toSQL($this), $newColumnProperties);
+                . $this->getColumnDeclarationSQL($newColumnProperties);
         }
 
         $addedIndexes    = $this->indexAssetsByLowerCaseName($diff->getAddedIndexes());
@@ -364,7 +354,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $diffModified    = false;
 
         if (isset($addedIndexes['primary'])) {
-            $keyColumns   = array_values(array_unique($addedIndexes['primary']->getColumns()));
+            $keyColumns   = $addedIndexes['primary']->getQuotedColumns($this);
             $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
             unset($addedIndexes['primary']);
             $diffModified = true;
@@ -374,7 +364,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             // Necessary in case the new primary key includes a new auto_increment column
             foreach ($modifiedIndexes['primary']->getColumns() as $columnName) {
                 if (isset($addedColumns[$columnName]) && $addedColumns[$columnName]->getAutoincrement()) {
-                    $keyColumns   = array_values(array_unique($modifiedIndexes['primary']->getColumns()));
+                    $keyColumns   = $modifiedIndexes['primary']->getQuotedColumns($this);
                     $queryParts[] = 'DROP PRIMARY KEY';
                     $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
                     unset($modifiedIndexes['primary']);
@@ -496,7 +486,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $column->setAutoincrement(false);
 
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                $this->getColumnDeclarationSQL($column->getObjectName()->toSQL($this), $column->toArray());
+                $this->getColumnDeclarationSQL($column->toArray());
 
             // original autoincrement information might be needed later on by other parts of the table alteration
             $column->setAutoincrement(true);
@@ -557,7 +547,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 $column->setAutoincrement(false);
 
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                    $this->getColumnDeclarationSQL($column->getObjectName()->toSQL($this), $column->toArray());
+                    $this->getColumnDeclarationSQL($column->toArray());
 
                 // Restore the autoincrement attribute as it might be needed later on
                 // by other parts of the table alteration.

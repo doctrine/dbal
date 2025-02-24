@@ -18,8 +18,6 @@ use Doctrine\DBAL\Types\Types;
 use UnexpectedValueException;
 
 use function array_merge;
-use function array_unique;
-use function array_values;
 use function explode;
 use function implode;
 use function in_array;
@@ -200,10 +198,7 @@ class PostgreSQLPlatform extends AbstractPlatform
         $tableNameSQL = $table->getObjectName()->toSQL($this);
 
         foreach ($diff->getAddedColumns() as $addedColumn) {
-            $query = 'ADD ' . $this->getColumnDeclarationSQL(
-                $addedColumn->getObjectName()->toSQL($this),
-                $addedColumn->toArray(),
-            );
+            $query = 'ADD ' . $this->getColumnDeclarationSQL($addedColumn->toArray());
 
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
 
@@ -375,39 +370,37 @@ class PostgreSQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
+        $elements = [];
 
-        $queryFields = $this->getColumnDeclarationListSQL($columns);
-
-        if (! empty($options['primary'])) {
-            $keyColumns   = array_unique(array_values($options['primary']));
-            $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column);
         }
 
-        $unlogged = isset($options['unlogged']) && $options['unlogged'] === true ? ' UNLOGGED' : '';
+        if (isset($parameters['primary_index'])) {
+            $elements[] = sprintf(
+                'PRIMARY KEY(%s)',
+                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
+            );
+        }
 
-        $query = 'CREATE' . $unlogged . ' TABLE ' . $name . ' (' . $queryFields . ')';
+        $unlogged = isset($parameters['unlogged']) && $parameters['unlogged'] === true ? ' UNLOGGED' : '';
+
+        $query = 'CREATE' . $unlogged . ' TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
 
         $sql = [$query];
 
-        if (! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $name);
-            }
+        foreach ($parameters['indexes'] as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $name);
         }
 
-        if (isset($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $uniqueConstraint) {
-                $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $name);
-            }
+        foreach ($parameters['uniqueConstraints'] as $uniqueConstraint) {
+            $sql[] = $this->getCreateUniqueConstraintSQL($uniqueConstraint, $name);
         }
 
-        if (isset($options['foreignKeys'])) {
-            foreach ($options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
-            }
+        foreach ($parameters['foreignKeys'] as $definition) {
+            $sql[] = $this->getCreateForeignKeySQL($definition, $name);
         }
 
         return $sql;

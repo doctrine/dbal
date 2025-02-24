@@ -27,7 +27,6 @@ use function array_combine;
 use function array_keys;
 use function array_merge;
 use function array_search;
-use function array_unique;
 use function array_values;
 use function count;
 use function explode;
@@ -42,6 +41,9 @@ use function trim;
 /**
  * The SQLitePlatform class describes the specifics and dialects of the SQLite
  * database platform.
+ *
+ * @phpstan-import-type ColumnProperties from Column
+ * @phpstan-import-type CreateTableParameters from AbstractPlatform
  */
 class SQLitePlatform extends AbstractPlatform
 {
@@ -256,71 +258,72 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
     {
-        $this->validateCreateTableOptions($options, __METHOD__);
+        $elements = [];
 
-        $queryFields = $this->getColumnDeclarationListSQL($columns);
+        foreach ($columns as $column) {
+            $elements[] = $this->getColumnDeclarationSQL($column);
+        }
 
-        if (! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition);
+        foreach ($parameters['uniqueConstraints'] as $definition) {
+            $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
+        }
+
+        if (isset($parameters['primary_index'])) {
+            $primaryKeyColumns = $parameters['primary_index']->getQuotedColumns($this);
+
+            if ($this->shouldDeclarePrimaryKeyConstraint($columns, $primaryKeyColumns)) {
+                $elements[] = sprintf(
+                    'PRIMARY KEY(%s)',
+                    implode(', ', $primaryKeyColumns),
+                );
             }
         }
 
-        $queryFields .= $this->getNonAutoincrementPrimaryKeyDefinition($columns, $options);
-
-        if (isset($options['foreignKeys'])) {
-            foreach ($options['foreignKeys'] as $foreignKey) {
-                $queryFields .= ', ' . $this->getForeignKeyDeclarationSQL($foreignKey);
-            }
+        foreach ($parameters['foreignKeys'] as $foreignKey) {
+            $elements[] = $this->getForeignKeyDeclarationSQL($foreignKey);
         }
 
         $tableComment = '';
-        if (isset($options['comment'])) {
-            $comment = trim($options['comment'], " '");
+        if (isset($parameters['comment'])) {
+            $comment = trim($parameters['comment'], " '");
 
             $tableComment = $this->getInlineTableCommentSQL($comment);
         }
 
-        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')'];
+        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . implode(', ', $elements) . ')'];
 
-        if (isset($options['alter']) && $options['alter'] === true) {
+        if (isset($parameters['alter']) && $parameters['alter'] === true) {
             return $query;
         }
 
-        if (! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $indexDef) {
-                $query[] = $this->getCreateIndexSQL($indexDef, $name);
-            }
+        foreach ($parameters['indexes'] as $indexDef) {
+            $query[] = $this->getCreateIndexSQL($indexDef, $name);
         }
 
         return $query;
     }
 
     /**
-     * Generate a PRIMARY KEY definition if no autoincrement value is used
+     * Returns whether the primary key constraint should be declared on the table.
      *
-     * @param mixed[][] $columns
-     * @param mixed[]   $options
+     * The constraint should be declared only if none of the primary key columns are autoincrement.
+     *
+     * @param list<ColumnProperties> $columns
+     * @param list<string>           $keyColumns
      */
-    private function getNonAutoincrementPrimaryKeyDefinition(array $columns, array $options): string
+    private function shouldDeclarePrimaryKeyConstraint(array $columns, array $keyColumns): bool
     {
-        if (empty($options['primary'])) {
-            return '';
-        }
-
-        $keyColumns = array_unique(array_values($options['primary']));
-
         foreach ($keyColumns as $keyColumn) {
             foreach ($columns as $column) {
-                if ($column['name'] === $keyColumn && ! empty($column['autoincrement'])) {
-                    return '';
+                if ($column['name']->toSQL($this) === $keyColumn && ! empty($column['autoincrement'])) {
+                    return false;
                 }
             }
         }
 
-        return ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+        return true;
     }
 
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string
@@ -731,10 +734,10 @@ class SQLitePlatform extends AbstractPlatform
                     return false;
             }
 
-            $definition['name'] = $column->getObjectName()->toSQL($this);
+            $definition['name'] = $column->getObjectName();
 
             $sql[] = 'ALTER TABLE ' . $table->getObjectName()->toSQL($this) . ' ADD COLUMN '
-                . $this->getColumnDeclarationSQL($definition['name'], $definition);
+                . $this->getColumnDeclarationSQL($definition);
         }
 
         return $sql;
