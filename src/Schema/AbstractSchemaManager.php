@@ -730,6 +730,10 @@ abstract class AbstractSchemaManager
 
         $indexes = [];
         foreach ($result as $indexKey => $data) {
+            if (count($data['columns']) === 0) {
+                continue;
+            }
+
             $indexes[$indexKey] = new Index(
                 $data['name'],
                 $data['columns'],
