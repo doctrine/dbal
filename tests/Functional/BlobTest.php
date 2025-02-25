@@ -13,6 +13,7 @@ use function array_map;
 use function assert;
 use function fopen;
 use function fseek;
+use function ftell;
 use function fwrite;
 use function str_repeat;
 use function stream_get_contents;
@@ -239,6 +240,15 @@ class BlobTest extends FunctionalTestCase
         );
 
         self::assertSame([[1, 'test'], [2, 'test'], [3, 'test']], $rows);
+
+        // Executing this multiple times assures that the same bound stream is written
+        // multiple times. However, that is not the primary issue being tested. The impetus
+        // for this test is that reading the stream to extract the value moves the stream
+        // pointer, so that using the stream with a new statement (and hence a new call
+        // to bindValue and a new initial call to execute*) causes a different value to
+        // be read from the stream results. All that we have learned so far is that bindValue
+        // reuses the value obtained during the first execution of the statement.
+        self::assertEquals(2, ftell($stream), 'Resource parameter should be reset to position before execute.');
     }
 
     private function assertBlobContains(string $text): void
