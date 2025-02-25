@@ -110,7 +110,7 @@ final class Statement implements StatementInterface
         }
 
         if ($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY) {
-            $this->trackParamResource($value);
+            $this->trackParamResource($param, $value);
         }
 
         $this->variables[$param] = $value;
@@ -248,16 +248,17 @@ final class Statement implements StatementInterface
      * Track a binary parameter reference at binding time. These
      * are cached for later analysis by the getResourceOffsets.
      *
-     * @param mixed $resource
+     * @param int|string $param
+     * @param mixed      $resource
      */
-    private function trackParamResource($resource): void
+    private function trackParamResource($param, $resource): void
     {
         if (! is_resource($resource)) {
             return;
         }
 
-        $this->paramResources ??= [];
-        $this->paramResources[] = $resource;
+        $this->paramResources       ??= [];
+        $this->paramResources[$param] = $resource;
     }
 
     /**
@@ -309,7 +310,5 @@ final class Statement implements StatementInterface
         foreach ($resourceOffsets as $index => $offset) {
             fseek($this->paramResources[$index], $offset, SEEK_SET);
         }
-
-        $this->paramResources = null;
     }
 }

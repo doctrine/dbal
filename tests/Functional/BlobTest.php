@@ -13,7 +13,6 @@ use function array_map;
 use function assert;
 use function fopen;
 use function fseek;
-use function ftell;
 use function fwrite;
 use function str_repeat;
 use function stream_get_contents;
@@ -229,10 +228,12 @@ class BlobTest extends FunctionalTestCase
         $stmt->bindValue(1, 3, ParameterType::INTEGER);
         $stmt->executeStatement();
 
-        $rows = array_map(
-            function (array $row): array {
+        $blobType = Type::getType(Types::BLOB);
+        $platform = $this->connection->getDatabasePlatform();
+        $rows     = array_map(
+            function (array $row) use ($blobType, $platform): array {
                 $row[0] = $this->connection->convertToPHPValue($row[0], Types::INTEGER);
-                $row[1] = $this->connection->convertToPHPValue($row[1], Types::STRING);
+                $row[1] = stream_get_contents($blobType->convertToPHPValue($row[1], $platform));
 
                 return $row;
             },
@@ -246,9 +247,12 @@ class BlobTest extends FunctionalTestCase
         // for this test is that reading the stream to extract the value moves the stream
         // pointer, so that using the stream with a new statement (and hence a new call
         // to bindValue and a new initial call to execute*) causes a different value to
-        // be read from the stream results. All that we have learned so far is that bindValue
-        // reuses the value obtained during the first execution of the statement.
-        self::assertEquals(2, ftell($stream), 'Resource parameter should be reset to position before execute.');
+        // be read from the stream results. Currently, we have verified one of two things:
+        // either the stream is reset with each execute, or that bindValue reuses the value
+        // obtained during the first execution of the statement. Which of these holds is not
+        // consistent across implementations. For example, the default pdo_sqlite test target
+        // does not reread the stream on subsequent executes, but pdo_pgsql does.
+        self::assertEquals('test', stream_get_contents($stream));
     }
 
     private function assertBlobContains(string $text): void
