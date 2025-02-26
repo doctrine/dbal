@@ -157,7 +157,13 @@ final class Statement implements StatementInterface
             fclose($handle);
         }
 
-        $this->lobs = [];
+        // Clear parameters bound to closed handles.
+        // $this->lobs itself is not cleared, allowing a
+        // second call to execute without rebinding, which
+        // is supported for other parameter types.
+        foreach ($this->lobs as $param => $value) {
+            unset($this->parameters[$param]);
+        }
 
         if ($result === false) {
             throw StatementError::new($this->stmt);
