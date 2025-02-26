@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
@@ -234,16 +235,16 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
+    protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $indexes = $parameters['indexes'];
 
         $parameters['indexes'] = [];
 
-        $sqls = parent::_getCreateTableSQL($name, $columns, $parameters);
+        $sqls = parent::_getCreateTableSQL($tableName, $columns, $parameters);
 
         foreach ($indexes as $definition) {
-            $sqls[] = $this->getCreateIndexSQL($definition, $name);
+            $sqls[] = $this->getCreateIndexSQL($definition, $tableName->toSQL($this));
         }
 
         return $sqls;

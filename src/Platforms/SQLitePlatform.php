@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
@@ -258,7 +259,7 @@ class SQLitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
+    protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $elements = [];
 
@@ -292,14 +293,16 @@ class SQLitePlatform extends AbstractPlatform
             $tableComment = $this->getInlineTableCommentSQL($comment);
         }
 
-        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . implode(', ', $elements) . ')'];
+        $query = [
+            'CREATE TABLE ' . $tableName->toSQL($this) . ' ' . $tableComment . '(' . implode(', ', $elements) . ')',
+        ];
 
         if (isset($parameters['alter']) && $parameters['alter'] === true) {
             return $query;
         }
 
         foreach ($parameters['indexes'] as $indexDef) {
-            $query[] = $this->getCreateIndexSQL($indexDef, $name);
+            $query[] = $this->getCreateIndexSQL($indexDef, $tableName->toSQL($this));
         }
 
         return $query;

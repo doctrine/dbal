@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -419,25 +420,25 @@ SQL
 
     /** @param string[] $expectedSql */
     #[DataProvider('getReturnsDropAutoincrementSQL')]
-    public function testReturnsDropAutoincrementSQL(string $table, array $expectedSql): void
+    public function testReturnsDropAutoincrementSQL(OptionallyQualifiedName $table, array $expectedSql): void
     {
         self::assertSame($expectedSql, $this->platform->getDropAutoincrementSql($table));
     }
 
-    /** @return mixed[][] */
+    /** @return iterable<array{OptionallyQualifiedName, list<string>}> */
     public static function getReturnsDropAutoincrementSQL(): iterable
     {
         return [
             [
-                'myTable',
+                OptionallyQualifiedName::unquoted('myTable'),
                 [
-                    'DROP TRIGGER MYTABLE_AI_PK',
+                    'DROP TRIGGER "MYTABLE_AI_PK"',
                     'DROP SEQUENCE "MYTABLE_SEQ"',
-                    'ALTER TABLE "MYTABLE" DROP CONSTRAINT MYTABLE_AI_PK',
+                    'ALTER TABLE "MYTABLE" DROP CONSTRAINT "MYTABLE_AI_PK"',
                 ],
             ],
             [
-                '"myTable"',
+                OptionallyQualifiedName::quoted('myTable'),
                 [
                     'DROP TRIGGER "myTable_AI_PK"',
                     'DROP SEQUENCE "myTable_SEQ"',
@@ -445,11 +446,11 @@ SQL
                 ],
             ],
             [
-                'table',
+                OptionallyQualifiedName::unquoted('table'),
                 [
-                    'DROP TRIGGER TABLE_AI_PK',
+                    'DROP TRIGGER "TABLE_AI_PK"',
                     'DROP SEQUENCE "TABLE_SEQ"',
-                    'ALTER TABLE "TABLE" DROP CONSTRAINT TABLE_AI_PK',
+                    'ALTER TABLE "TABLE" DROP CONSTRAINT "TABLE_AI_PK"',
                 ],
             ],
         ];

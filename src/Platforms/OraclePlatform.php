@@ -6,11 +6,14 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
+use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
@@ -312,13 +315,13 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
+    protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $indexes = $parameters['indexes'];
 
         $parameters['indexes'] = [];
 
-        $sql = parent::_getCreateTableSQL($name, $columns, $parameters);
+        $sql = parent::_getCreateTableSQL($tableName, $columns, $parameters);
 
         foreach ($columns as $column) {
             if (isset($column['sequence'])) {
@@ -331,11 +334,11 @@ class OraclePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql = array_merge($sql, $this->getCreateAutoincrementSql($column['name'], $name));
+            $sql = array_merge($sql, $this->getCreateAutoincrementSql($tableName, $column['name']));
         }
 
         foreach ($indexes as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $name);
+            $sql[] = $this->getCreateIndexSQL($index, $tableName->toSQL($this));
         }
 
         return $sql;
@@ -348,17 +351,17 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /** @return list<string> */
-    private function getCreateAutoincrementSql(UnqualifiedName $name, string $table, int $start = 1): array
+    private function getCreateAutoincrementSql(OptionallyQualifiedName $tableName, UnqualifiedName $columnName): array
     {
-        $tableIdentifier   = $this->normalizeIdentifier($table);
-        $quotedTableName   = $tableIdentifier->getObjectName()->toSQL($this);
-        $unquotedTableName = $tableIdentifier->getName();
+        if ($tableName->getQualifier() !== null) {
+            throw UnsupportedName::fromQualifiedName($tableName, __METHOD__);
+        }
 
         $sql = [];
 
-        $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($tableIdentifier);
+        $constraintName = $this->generatePrimaryKeyConstraintName($tableName->getUnqualifiedName());
 
-        $idx = new Index($autoincrementIdentifierName, [$name->toString()], true, true);
+        $index = new Index($constraintName->toString(), [$columnName->toString()], true, true);
 
         $sql[] = sprintf(
             <<<'SQL'
@@ -374,14 +377,14 @@ BEGIN
   END IF;
 END;
 SQL,
-            $this->quoteStringLiteral($unquotedTableName),
-            $this->quoteStringLiteral($this->getCreateIndexSQL($idx, $quotedTableName)),
+            $this->quoteStringLiteral(
+                $tableName->getUnqualifiedName()->toNormalizedValue($this),
+            ),
+            $this->quoteStringLiteral($this->getCreateIndexSQL($index, $tableName->toSQL($this))),
         );
 
-        $sequenceName = $this->getIdentitySequenceName(
-            $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName,
-        );
-        $sequence     = new Sequence($sequenceName, $start);
+        $sequenceName = $this->generateAutoincrementSequenceName($tableName);
+        $sequence     = new Sequence($sequenceName->toString());
         $sql[]        = $this->getCreateSequenceSQL($sequence);
 
         $sql[] = sprintf(
@@ -408,11 +411,13 @@ BEGIN
    END IF;
 END;
 SQL,
-            $autoincrementIdentifierName,
-            $quotedTableName,
-            $name->toSQL($this),
-            $sequenceName,
-            $this->quoteStringLiteral($sequence->getName()),
+            $constraintName->toSQL($this),
+            $tableName->toSQL($this),
+            $columnName->toSQL($this),
+            $sequenceName->toSQL($this),
+            $this->quoteStringLiteral(
+                $sequenceName->getUnqualifiedName()->toNormalizedValue($this),
+            ),
         );
 
         return $sql;
@@ -423,22 +428,23 @@ SQL,
      *
      * Returns the SQL statements to drop the autoincrement for the given table name.
      *
-     * @param string $table The table name to drop the autoincrement for.
+     * @param OptionallyQualifiedName $tableName The table name to drop the autoincrement for.
      *
      * @return string[]
      */
-    public function getDropAutoincrementSql(string $table): array
+    public function getDropAutoincrementSql(OptionallyQualifiedName $tableName): array
     {
-        $table                       = $this->normalizeIdentifier($table);
-        $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);
-        $identitySequenceName        = $this->getIdentitySequenceName(
-            $table->isQuoted() ? $table->getObjectName()->toSQL($this) : $table->getName(),
-        );
+        if ($tableName->getQualifier() !== null) {
+            throw UnsupportedName::fromQualifiedName($tableName, __METHOD__);
+        }
+
+        $primaryKeyConstraintName = $this->generatePrimaryKeyConstraintName($tableName->getUnqualifiedName());
+        $sequenceName             = $this->generateAutoincrementSequenceName($tableName);
 
         return [
-            'DROP TRIGGER ' . $autoincrementIdentifierName,
-            $this->getDropSequenceSQL($identitySequenceName),
-            $this->getDropConstraintSQL($autoincrementIdentifierName, $table->getObjectName()->toSQL($this)),
+            'DROP TRIGGER ' . $primaryKeyConstraintName->toSQL($this),
+            $this->getDropSequenceSQL($sequenceName->toSQL($this)),
+            $this->getDropConstraintSQL($primaryKeyConstraintName->toSQL($this), $tableName->toSQL($this)),
         ];
     }
 
@@ -463,29 +469,22 @@ SQL,
      * if the new string exceeds max identifier length,
      * keeps $suffix, cuts from $identifier as much as the part exceeding.
      */
-    private function addSuffix(string $identifier, string $suffix): string
+    private function addSuffix(Name\Identifier $identifier, string $suffix): Name\Identifier
     {
-        $maxPossibleLengthWithoutSuffix = $this->getMaxIdentifierLength() - strlen($suffix);
-        if (strlen($identifier) > $maxPossibleLengthWithoutSuffix) {
-            $identifier = substr($identifier, 0, $maxPossibleLengthWithoutSuffix);
-        }
+        $prefix = substr($identifier->toNormalizedValue($this), 0, $this->getMaxIdentifierLength() - strlen($suffix));
 
-        return $identifier . $suffix;
+        return Name\Identifier::quoted($prefix . $suffix);
     }
 
     /**
-     * Returns the autoincrement primary key identifier name for the given table identifier.
+     * Returns the autoincrement primary key constraint name for the given table name.
      *
      * Quotes the autoincrement primary key identifier name
      * if the given table name is quoted by intention.
      */
-    private function getAutoincrementIdentifierName(Identifier $table): string
+    private function generatePrimaryKeyConstraintName(Name\Identifier $tableName): Name\Identifier
     {
-        $identifierName = $this->addSuffix($table->getName(), '_AI_PK');
-
-        return $table->isQuoted()
-            ? $this->quoteSingleIdentifier($identifierName)
-            : $identifierName;
+        return $this->addSuffix($tableName, '_AI_PK');
     }
 
     public function getDropForeignKeySQL(string $foreignKey, string $table): string
@@ -679,20 +678,12 @@ SQL,
         return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getObjectName()->toSQL($this)];
     }
 
-    private function getIdentitySequenceName(string $tableName): string
+    private function generateAutoincrementSequenceName(OptionallyQualifiedName $tableName): OptionallyQualifiedName
     {
-        $table = new Identifier($tableName);
-
-        // No usage of column name to preserve BC compatibility with <2.5
-        $identitySequenceName = $this->addSuffix($table->getName(), '_SEQ');
-
-        if ($table->isQuoted()) {
-            $identitySequenceName = '"' . $identitySequenceName . '"';
-        }
-
-        $identitySequenceIdentifier = $this->normalizeIdentifier($identitySequenceName);
-
-        return $identitySequenceIdentifier->getObjectName()->toSQL($this);
+        return new OptionallyQualifiedName(
+            $this->addSuffix($tableName->getUnqualifiedName(), '_SEQ'),
+            $tableName->getQualifier(),
+        );
     }
 
     protected function supportsCommentOnStatement(): bool

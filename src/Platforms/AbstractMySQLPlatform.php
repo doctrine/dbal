@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
@@ -226,7 +227,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
+    protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $elements = [];
 
@@ -255,7 +256,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $sql[] = 'TEMPORARY';
         }
 
-        $sql[] = 'TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
+        $sql[] = 'TABLE ' . $tableName->toSQL($this) . ' (' . implode(', ', $elements) . ')';
 
         $tableOptions = $this->buildTableOptions($parameters);
 
@@ -271,7 +272,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         if (isset($parameters['foreignKeys'])) {
             foreach ($parameters['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
+                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName->toSQL($this));
             }
         }
 

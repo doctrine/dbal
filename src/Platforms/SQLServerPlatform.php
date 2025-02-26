@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
@@ -173,19 +174,19 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $name, array $columns, array $parameters): array
+    protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         $defaultConstraintsSql = [];
         $commentsSql           = [];
 
         $tableComment = $parameters['comment'] ?? null;
         if ($tableComment !== null) {
-            $commentsSql[] = $this->getCommentOnTableSQL($name, $tableComment);
+            $commentsSql[] = $this->getCommentOnTableSQL($tableName->toSQL($this), $tableComment);
         }
 
         foreach ($columns as $column) {
             if (isset($column['default'])) {
-                $defaultConstraintsSql[] = 'ALTER TABLE ' . $name .
+                $defaultConstraintsSql[] = 'ALTER TABLE ' . $tableName->toSQL($this) .
                     ' ADD' . $this->getDefaultConstraintDeclarationSQL($column);
             }
 
@@ -193,7 +194,11 @@ class SQLServerPlatform extends AbstractPlatform
                 continue;
             }
 
-            $commentsSql[] = $this->getCreateColumnCommentSQL($name, $column['name'], $column['comment']);
+            $commentsSql[] = $this->getCreateColumnCommentSQL(
+                $tableName->toSQL($this),
+                $column['name'],
+                $column['comment'],
+            );
         }
 
         $elements = [];
@@ -223,16 +228,16 @@ class SQLServerPlatform extends AbstractPlatform
 
         $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));
 
-        $query = 'CREATE TABLE ' . $name . ' (' . implode(', ', $elements) . ')';
+        $query = 'CREATE TABLE ' . $tableName->toSQL($this) . ' (' . implode(', ', $elements) . ')';
 
         $sql = [$query];
 
         foreach ($parameters['indexes'] as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $name);
+            $sql[] = $this->getCreateIndexSQL($index, $tableName->toSQL($this));
         }
 
         foreach ($parameters['foreignKeys'] as $definition) {
-            $sql[] = $this->getCreateForeignKeySQL($definition, $name);
+            $sql[] = $this->getCreateForeignKeySQL($definition, $tableName->toSQL($this));
         }
 
         return array_merge($sql, $commentsSql, $defaultConstraintsSql);
