@@ -24,7 +24,7 @@ class DriverException extends \Exception implements Exception, Driver\Exception
         private readonly ?Query $query,
     ) {
         if ($query !== null) {
-            $message = 'An exception occurred while executing a query: ' . $driverException->getMessage();
+            $message = 'An exception occurred while executing a query: ' . $driverException->getMessage() . ' | SQL: ' . $query->getSQL() . ' | Params: ' . $query->getParams();
         } else {
             $message = 'An exception occurred in the driver: ' . $driverException->getMessage();
         }
