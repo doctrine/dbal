@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidPrimaryKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
 use function count;
 
@@ -53,6 +54,24 @@ final class PrimaryKeyConstraint implements OptionallyNamedObject
     public function isClustered(): bool
     {
         return $this->isClustered;
+    }
+
+    /**
+     * Returns whether this primary key constraint is equal to the other.
+     */
+    public function equals(self $other, UnquotedIdentifierFolding $folding): bool
+    {
+        if (count($this->columnNames) !== count($other->columnNames)) {
+            return false;
+        }
+
+        for ($i = 0, $count = count($this->columnNames); $i < $count; $i++) {
+            if (! $this->columnNames[$i]->equals($other->columnNames[$i], $folding)) {
+                return false;
+            }
+        }
+
+        return $this->isClustered === $other->isClustered;
     }
 
     /**
