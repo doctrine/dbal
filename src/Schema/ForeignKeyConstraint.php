@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
 use function count;
 
@@ -135,6 +136,67 @@ final class ForeignKeyConstraint extends AbstractOptionallyNamedObject
     public function getDeferrability(): Deferrability
     {
         return $this->deferrability;
+    }
+
+    /**
+     * Returns whether this foreign key constraint is equal to the other.
+     *
+     * For the constraints to be comparable, both must either reference a table by the name with a qualifier or by the
+     * name with no qualifier.
+     */
+    public function equals(self $other, UnquotedIdentifierFolding $folding): bool
+    {
+        if ($this === $other) {
+            return true;
+        }
+
+        if (! $this->referencedTableName->equals($other->referencedTableName, $folding)) {
+            return false;
+        }
+
+        if (! $this->columnsNamesEqual($this->referencingColumnNames, $other->referencingColumnNames, $folding)) {
+            return false;
+        }
+
+        if (! $this->columnsNamesEqual($this->referencedColumnNames, $other->referencedColumnNames, $folding)) {
+            return false;
+        }
+
+        if ($this->matchType !== $other->matchType) {
+            return false;
+        }
+
+        if ($this->onUpdateAction !== $other->onUpdateAction) {
+            return false;
+        }
+
+        if ($this->onDeleteAction !== $other->onDeleteAction) {
+            return false;
+        }
+
+        return $this->deferrability === $other->deferrability;
+    }
+
+    /**
+     * @param list<UnqualifiedName> $thisNames
+     * @param list<UnqualifiedName> $otherNames
+     */
+    private function columnsNamesEqual(
+        array $thisNames,
+        array $otherNames,
+        UnquotedIdentifierFolding $folding,
+    ): bool {
+        if (count($thisNames) !== count($otherNames)) {
+            return false;
+        }
+
+        for ($i = 0, $count = count($thisNames); $i < $count; $i++) {
+            if (! $thisNames[$i]->equals($otherNames[$i], $folding)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
