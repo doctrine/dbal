@@ -32,6 +32,18 @@ final class UnqualifiedName implements Name
     }
 
     /**
+     * Returns whether this unqualified name is equal to the other.
+     */
+    public function equals(self $other, UnquotedIdentifierFolding $folding): bool
+    {
+        if ($this === $other) {
+            return true;
+        }
+
+        return $this->identifier->equals($other->getIdentifier(), $folding);
+    }
+
+    /**
      * Creates a quoted unqualified name.
      */
     public static function quoted(string $value): self
