@@ -164,26 +164,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         self::assertSame([
             sprintf('CREATE TABLE "%s" ("%s" NUMBER(10) NOT NULL)', $tableName, $columnName),
-            sprintf(
-                <<<'SQL'
-DECLARE
-  CONSTRAINTS_COUNT NUMBER;
-BEGIN
-  SELECT COUNT(CONSTRAINT_NAME) INTO CONSTRAINTS_COUNT
-    FROM USER_CONSTRAINTS
-   WHERE TABLE_NAME = '%s'
-     AND CONSTRAINT_TYPE = 'P';
-  IF CONSTRAINTS_COUNT = 0 THEN
-    EXECUTE IMMEDIATE 'ALTER TABLE "%s" ADD CONSTRAINT "%s_AI_PK" PRIMARY KEY ("%s")';
-  END IF;
-END;
-SQL
-                ,
-                $tableName,
-                $tableName,
-                $tableName,
-                $columnName,
-            ),
             sprintf('CREATE SEQUENCE "%s_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $tableName),
             sprintf(
                 <<<'SQL'
@@ -494,7 +474,7 @@ SQL
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals('CREATE TABLE "test" ("id" NUMBER(10) NOT NULL)', $sql[0]);
-        self::assertEquals('CREATE SEQUENCE "test_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[2]);
+        self::assertEquals('CREATE SEQUENCE "test_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[1]);
         $createTriggerStatement = <<<'EOD'
 CREATE TRIGGER "test_AI_PK"
    BEFORE INSERT
@@ -519,7 +499,7 @@ BEGIN
 END;
 EOD;
 
-        self::assertEquals($createTriggerStatement, $sql[3]);
+        self::assertEquals($createTriggerStatement, $sql[2]);
     }
 
     protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
