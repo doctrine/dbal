@@ -359,30 +359,7 @@ class OraclePlatform extends AbstractPlatform
 
         $sql = [];
 
-        $constraintName = $this->generatePrimaryKeyConstraintName($tableName->getUnqualifiedName());
-
-        $index = new Index($constraintName->toString(), [$columnName->toString()], true, true);
-
-        $sql[] = sprintf(
-            <<<'SQL'
-DECLARE
-  CONSTRAINTS_COUNT NUMBER;
-BEGIN
-  SELECT COUNT(CONSTRAINT_NAME) INTO CONSTRAINTS_COUNT
-    FROM USER_CONSTRAINTS
-   WHERE TABLE_NAME = %s
-     AND CONSTRAINT_TYPE = 'P';
-  IF CONSTRAINTS_COUNT = 0 THEN
-    EXECUTE IMMEDIATE %s;
-  END IF;
-END;
-SQL,
-            $this->quoteStringLiteral(
-                $tableName->getUnqualifiedName()->toNormalizedValue($this),
-            ),
-            $this->quoteStringLiteral($this->getCreateIndexSQL($index, $tableName->toSQL($this))),
-        );
-
+        $triggerName  = $this->generateAutoincrementTriggerName($tableName->getUnqualifiedName());
         $sequenceName = $this->generateAutoincrementSequenceName($tableName);
         $sequence     = new Sequence($sequenceName->toString());
         $sql[]        = $this->getCreateSequenceSQL($sequence);
@@ -411,7 +388,7 @@ BEGIN
    END IF;
 END;
 SQL,
-            $constraintName->toSQL($this),
+            $triggerName->toSQL($this),
             $tableName->toSQL($this),
             $columnName->toSQL($this),
             $sequenceName->toSQL($this),
@@ -438,7 +415,7 @@ SQL,
             throw UnsupportedName::fromQualifiedName($tableName, __METHOD__);
         }
 
-        $primaryKeyConstraintName = $this->generatePrimaryKeyConstraintName($tableName->getUnqualifiedName());
+        $primaryKeyConstraintName = $this->generateAutoincrementTriggerName($tableName->getUnqualifiedName());
         $sequenceName             = $this->generateAutoincrementSequenceName($tableName);
 
         return [
@@ -477,12 +454,9 @@ SQL,
     }
 
     /**
-     * Returns the autoincrement primary key constraint name for the given table name.
-     *
-     * Quotes the autoincrement primary key identifier name
-     * if the given table name is quoted by intention.
+     * Returns the autoincrement trigger name for the given table name.
      */
-    private function generatePrimaryKeyConstraintName(Name\Identifier $tableName): Name\Identifier
+    private function generateAutoincrementTriggerName(Name\Identifier $tableName): Name\Identifier
     {
         return $this->addSuffix($tableName, '_AI_PK');
     }

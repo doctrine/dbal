@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Primary key constraint no longer created for auto-increment columns on Oracle
+
+The primary key constraint is no longer automatically created for auto-increment columns on Oracle. If a primary key
+constraint is required, create it explicitly.
+
 ## BC BREAK: Changes in protected `AbstractPlatform` API
 
 1. The `$options` parameter of the `AbstractPlatform::_getCreateTableSQL()` method is no longer optional and has been
