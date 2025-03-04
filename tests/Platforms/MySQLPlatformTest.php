@@ -58,14 +58,6 @@ class MySQLPlatformTest extends AbstractMySQLPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
-    {
-        return ['ALTER TABLE `mytable` RENAME INDEX `idx_foo` TO `idx_foo_renamed`'];
-    }
-
     public function testHasCorrectDefaultTransactionIsolationLevel(): void
     {
         self::assertEquals(
