@@ -10,7 +10,7 @@ awareness about deprecated code.
 
 ## BC BREAK: removed `TableDiff` methods
 
-The `TableDiff::getModifiedForeignKeys()` method has been removed.
+The `TableDiff::getModifiedForeignKeys()` and `TableDiff::getModifiedIndexes()` methods have been removed.
 
 ## BC BREAK: changes in `AbstractPlatform` constructor
 

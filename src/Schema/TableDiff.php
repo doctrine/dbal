@@ -25,7 +25,6 @@ class TableDiff
      * @param array<string, ColumnDiff>   $changedColumns
      * @param array<Column>               $droppedColumns
      * @param array<Index>                $addedIndexes
-     * @param array<Index>                $modifiedIndexes
      * @param array<Index>                $droppedIndexes
      * @param array<string, Index>        $renamedIndexes
      * @param array<ForeignKeyConstraint> $addedForeignKeys
@@ -36,23 +35,11 @@ class TableDiff
         private readonly array $changedColumns = [],
         private readonly array $droppedColumns = [],
         private array $addedIndexes = [],
-        private readonly array $modifiedIndexes = [],
         private array $droppedIndexes = [],
         private readonly array $renamedIndexes = [],
         private readonly array $addedForeignKeys = [],
         private readonly array $droppedForeignKeys = [],
     ) {
-        if (count($this->modifiedIndexes) === 0) {
-            return;
-        }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6831',
-            'Passing a non-empty $modifiedIndexes value to %s() is deprecated. Instead, pass dropped'
-                . ' indexes via $droppedIndexes and added indexes via $addedIndexes.',
-            __METHOD__,
-        );
     }
 
     public function getOldTable(): Table
@@ -144,23 +131,6 @@ class TableDiff
         );
     }
 
-    /**
-     * @deprecated Use {@see getAddedIndexes()} and {@see getDroppedIndexes()} instead.
-     *
-     * @return array<Index>
-     */
-    public function getModifiedIndexes(): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6831',
-            '%s() is deprecated, use getAddedIndexes() and getDroppedIndexes() instead.',
-            __METHOD__,
-        );
-
-        return $this->modifiedIndexes;
-    }
-
     /** @return array<Index> */
     public function getDroppedIndexes(): array
     {
@@ -208,7 +178,6 @@ class TableDiff
             && count($this->changedColumns) === 0
             && count($this->droppedColumns) === 0
             && count($this->addedIndexes) === 0
-            && count($this->modifiedIndexes) === 0
             && count($this->droppedIndexes) === 0
             && count($this->renamedIndexes) === 0
             && count($this->addedForeignKeys) === 0

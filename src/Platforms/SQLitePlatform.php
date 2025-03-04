@@ -709,7 +709,6 @@ class SQLitePlatform extends AbstractPlatform
             count($diff->getChangedColumns()) > 0
             || count($diff->getDroppedColumns()) > 0
             || count($diff->getAddedIndexes()) > 0
-            || count($diff->getModifiedIndexes()) > 0
             || count($diff->getDroppedIndexes()) > 0
             || count($diff->getRenamedIndexes()) > 0
             || count($diff->getAddedForeignKeys()) > 0
@@ -835,7 +834,6 @@ class SQLitePlatform extends AbstractPlatform
 
         foreach (
             array_merge(
-                $diff->getModifiedIndexes(),
                 $diff->getAddedIndexes(),
                 $diff->getRenamedIndexes(),
             ) as $index

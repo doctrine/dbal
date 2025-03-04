@@ -1231,10 +1231,6 @@ abstract class AbstractPlatform
             $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
         }
 
-        foreach ($diff->getModifiedIndexes() as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
-        }
-
         return $sql;
     }
 
@@ -1250,10 +1246,6 @@ abstract class AbstractPlatform
         }
 
         foreach ($diff->getAddedIndexes() as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
-        }
-
-        foreach ($diff->getModifiedIndexes() as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 

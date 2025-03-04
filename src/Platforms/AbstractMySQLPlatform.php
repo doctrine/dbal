@@ -22,7 +22,6 @@ use function array_merge;
 use function array_values;
 use function count;
 use function implode;
-use function in_array;
 use function is_array;
 use function is_numeric;
 use function sprintf;
@@ -355,39 +354,19 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 . $this->getColumnDeclarationSQL($newColumnProperties);
         }
 
-        $addedIndexes    = $this->indexAssetsByLowerCaseName($diff->getAddedIndexes());
-        $modifiedIndexes = $this->indexAssetsByLowerCaseName($diff->getModifiedIndexes());
-        $diffModified    = false;
+        $addedIndexes = $this->indexAssetsByLowerCaseName($diff->getAddedIndexes());
 
         if (isset($addedIndexes['primary'])) {
             $keyColumns   = $addedIndexes['primary']->getQuotedColumns($this);
             $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
             unset($addedIndexes['primary']);
-            $diffModified = true;
-        } elseif (isset($modifiedIndexes['primary'])) {
-            $addedColumns = $this->indexAssetsByLowerCaseName($diff->getAddedColumns());
 
-            // Necessary in case the new primary key includes a new auto_increment column
-            foreach ($modifiedIndexes['primary']->getColumns() as $columnName) {
-                if (isset($addedColumns[$columnName]) && $addedColumns[$columnName]->getAutoincrement()) {
-                    $keyColumns   = $modifiedIndexes['primary']->getQuotedColumns($this);
-                    $queryParts[] = 'DROP PRIMARY KEY';
-                    $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
-                    unset($modifiedIndexes['primary']);
-                    $diffModified = true;
-                    break;
-                }
-            }
-        }
-
-        if ($diffModified) {
             $diff = new TableDiff(
                 $diff->getOldTable(),
                 addedColumns: $diff->getAddedColumns(),
                 changedColumns: $diff->getChangedColumns(),
                 droppedColumns: $diff->getDroppedColumns(),
                 addedIndexes: array_values($addedIndexes),
-                modifiedIndexes: array_values($modifiedIndexes),
                 droppedIndexes: $diff->getDroppedIndexes(),
                 renamedIndexes: $diff->getRenamedIndexes(),
                 addedForeignKeys: $diff->getAddedForeignKeys(),
@@ -417,10 +396,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $sql = [];
 
         $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
-
-        foreach ($diff->getModifiedIndexes() as $changedIndex) {
-            $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $changedIndex));
-        }
 
         foreach ($diff->getDroppedIndexes() as $droppedIndex) {
             $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $droppedIndex));
@@ -453,7 +428,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         return array_merge(
             $sql,
-            $this->getPreAlterTableAlterIndexForeignKeySQL($diff),
             parent::getPreAlterTableIndexForeignKeySQL($diff),
             $this->getPreAlterTableRenameIndexForeignKeySQL($diff),
         );
@@ -491,67 +465,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
             // original autoincrement information might be needed later on by other parts of the table alteration
             $column->setAutoincrement(true);
-        }
-
-        return $sql;
-    }
-
-    /**
-     * @param TableDiff $diff The table diff to gather the SQL for.
-     *
-     * @return list<string>
-     */
-    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff): array
-    {
-        $table = $diff->getOldTable();
-
-        $primaryKey = $table->getPrimaryKey();
-
-        if ($primaryKey === null) {
-            return [];
-        }
-
-        $primaryKeyColumns = [];
-
-        foreach ($primaryKey->getColumns() as $columnName) {
-            if (! $table->hasColumn($columnName)) {
-                continue;
-            }
-
-            $primaryKeyColumns[] = $table->getColumn($columnName);
-        }
-
-        if (count($primaryKeyColumns) === 0) {
-            return [];
-        }
-
-        $sql = [];
-
-        $tableNameSQL = $table->getObjectName()->toSQL($this);
-
-        foreach ($diff->getModifiedIndexes() as $changedIndex) {
-            // Changed primary key
-            if (! $changedIndex->isPrimary()) {
-                continue;
-            }
-
-            foreach ($primaryKeyColumns as $column) {
-                // Check if an autoincrement column was dropped from the primary key.
-                if (! $column->getAutoincrement() || in_array($column->getName(), $changedIndex->getColumns(), true)) {
-                    continue;
-                }
-
-                // The autoincrement attribute needs to be removed from the dropped column
-                // before we can drop and recreate the primary key.
-                $column->setAutoincrement(false);
-
-                $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                    $this->getColumnDeclarationSQL($column->toArray());
-
-                // Restore the autoincrement attribute as it might be needed later on
-                // by other parts of the table alteration.
-                $column->setAutoincrement(true);
-            }
         }
 
         return $sql;
