@@ -391,7 +391,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 droppedIndexes: $diff->getDroppedIndexes(),
                 renamedIndexes: $diff->getRenamedIndexes(),
                 addedForeignKeys: $diff->getAddedForeignKeys(),
-                modifiedForeignKeys: $diff->getModifiedForeignKeys(),
                 droppedForeignKeys: $diff->getDroppedForeignKeys(),
             );
         }

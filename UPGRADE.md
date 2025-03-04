@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: removed `TableDiff` methods
+
+The `TableDiff::getModifiedForeignKeys()` method has been removed.
+
 ## BC BREAK: changes in `AbstractPlatform` constructor
 
 The `AbstractPlatform` class constructor is now `protected` and requires an `UnquotedIdentifierFolding` instance as its
