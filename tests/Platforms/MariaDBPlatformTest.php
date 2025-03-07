@@ -46,14 +46,6 @@ class MariaDBPlatformTest extends AbstractMySQLPlatformTestCase
     }
 
     /**
-     * {@inheritDoc}
-     */
-    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
-    {
-        return ['ALTER TABLE `mytable` RENAME INDEX `idx_foo` TO `idx_foo_renamed`'];
-    }
-
-    /**
      * From MariaDB 10.2.7, JSON type is an alias to LONGTEXT however from 10.4.3 setting a column
      * as JSON adds additional functionality so use JSON.
      *
