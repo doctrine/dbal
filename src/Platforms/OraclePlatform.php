@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -38,6 +39,11 @@ use function substr;
  */
 class OraclePlatform extends AbstractPlatform
 {
+    public function __construct()
+    {
+        parent::__construct(UnquotedIdentifierFolding::UPPER);
+    }
+
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string
     {
         if ($length === null) {
@@ -384,7 +390,6 @@ BEGIN
       WHILE (last_InsertID > last_Sequence) LOOP
          SELECT %4$s.NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
-      SELECT %4$s.NEXTVAL INTO last_Sequence FROM DUAL;
    END IF;
 END;
 SQL,
@@ -393,7 +398,9 @@ SQL,
             $columnName->toSQL($this),
             $sequenceName->toSQL($this),
             $this->quoteStringLiteral(
-                $sequenceName->getUnqualifiedName()->toNormalizedValue($this),
+                $sequenceName->getUnqualifiedName()->toNormalizedValue(
+                    $this->getUnquotedIdentifierFolding(),
+                ),
             ),
         );
 
@@ -448,7 +455,13 @@ SQL,
      */
     private function addSuffix(Name\Identifier $identifier, string $suffix): Name\Identifier
     {
-        $prefix = substr($identifier->toNormalizedValue($this), 0, $this->getMaxIdentifierLength() - strlen($suffix));
+        $prefix = substr(
+            $identifier->toNormalizedValue(
+                $this->getUnquotedIdentifierFolding(),
+            ),
+            0,
+            $this->getMaxIdentifierLength() - strlen($suffix),
+        );
 
         return Name\Identifier::quoted($prefix . $suffix);
     }

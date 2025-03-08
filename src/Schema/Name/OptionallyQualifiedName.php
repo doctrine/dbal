@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema\Name;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Name;
+
 /**
  * An optionally qualified {@see Name} consisting of an unqualified name and an optional unqualified qualifier.
  */
-final class OptionallyQualifiedName extends AbstractName
+final class OptionallyQualifiedName implements Name
 {
     public function __construct(private readonly Identifier $unqualifiedName, private readonly ?Identifier $qualifier)
     {
-        if ($qualifier !== null) {
-            parent::__construct($qualifier, $unqualifiedName);
-        } else {
-            parent::__construct($unqualifiedName);
-        }
     }
 
     public function getUnqualifiedName(): Identifier
@@ -26,6 +24,28 @@ final class OptionallyQualifiedName extends AbstractName
     public function getQualifier(): ?Identifier
     {
         return $this->qualifier;
+    }
+
+    public function toSQL(AbstractPlatform $platform): string
+    {
+        $unqualifiedName = $this->unqualifiedName->toSQL($platform);
+
+        if ($this->qualifier === null) {
+            return $unqualifiedName;
+        }
+
+        return $this->qualifier->toSQL($platform) . '.' . $unqualifiedName;
+    }
+
+    public function toString(): string
+    {
+        $unqualifiedName = $this->unqualifiedName->toString();
+
+        if ($this->qualifier === null) {
+            return $unqualifiedName;
+        }
+
+        return $this->qualifier->toString() . '.' . $unqualifiedName;
     }
 
     /**

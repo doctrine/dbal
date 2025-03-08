@@ -95,7 +95,9 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
         if (count($columns) > 0) {
             $columns = $this->addDetailsToTableForeignKeyColumns(
-                $tableName->getUnqualifiedName()->toNormalizedValue($this->platform),
+                $tableName->getUnqualifiedName()->toNormalizedValue(
+                    $this->platform->getUnquotedIdentifierFolding(),
+                ),
                 $columns,
             );
         }
@@ -622,7 +624,11 @@ SQL,
         } else {
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
-            $tableNames = [$tableName->getUnqualifiedName()->toNormalizedValue($this->platform)];
+            $tableNames = [
+                $tableName->getUnqualifiedName()->toNormalizedValue(
+                    $this->platform->getUnquotedIdentifierFolding(),
+                ),
+            ];
         }
 
         $tableOptions = [];
@@ -654,7 +660,9 @@ SQL,
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[] = 't.name = ?';
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         return implode(' AND ', $conditions);

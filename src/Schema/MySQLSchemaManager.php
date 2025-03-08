@@ -349,7 +349,9 @@ class MySQLSchemaManager extends AbstractSchemaManager
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[] = 't.TABLE_NAME = ?';
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(
@@ -390,7 +392,9 @@ SQL,
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[] = 'TABLE_NAME = ?';
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(
@@ -426,7 +430,9 @@ SQL,
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[] = 'k.TABLE_NAME = ?';
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(
@@ -468,7 +474,9 @@ SQL,
         if ($tableName !== null) {
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
-            $params[] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[] = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         /** @var array<string,array<string,mixed>> $metadata */

@@ -124,8 +124,10 @@ abstract class FunctionalTestCase extends TestCase
             throw NotSupported::new(__METHOD__);
         }
 
+        $folding = $platform->getUnquotedIdentifierFolding();
+
         $normalizedSchemaName = $schemaName->getIdentifier()
-            ->toNormalizedValue($platform);
+            ->toNormalizedValue($folding);
 
         $schemaManager  = $this->connection->createSchemaManager();
         $databaseSchema = $schemaManager->introspectSchema();
@@ -135,7 +137,7 @@ abstract class FunctionalTestCase extends TestCase
             $qualifier = $sequence->getObjectName()
                 ->getQualifier();
 
-            if ($qualifier === null || $qualifier->toNormalizedValue($platform) !== $normalizedSchemaName) {
+            if ($qualifier === null || $qualifier->toNormalizedValue($folding) !== $normalizedSchemaName) {
                 continue;
             }
 
@@ -147,7 +149,7 @@ abstract class FunctionalTestCase extends TestCase
             $qualifier = $table->getObjectName()
                 ->getQualifier();
 
-            if ($qualifier === null || $qualifier->toNormalizedValue($platform) !== $normalizedSchemaName) {
+            if ($qualifier === null || $qualifier->toNormalizedValue($folding) !== $normalizedSchemaName) {
                 continue;
             }
 
@@ -321,7 +323,8 @@ abstract class FunctionalTestCase extends TestCase
 
         return Identifier::quoted(
             $this->connection->getDatabasePlatform()
-                ->normalizeUnquotedIdentifier($identifier->getValue()),
+                ->getUnquotedIdentifierFolding()
+                ->foldUnquotedIdentifier($identifier->getValue()),
         );
     }
 }

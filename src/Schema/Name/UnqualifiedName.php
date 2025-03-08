@@ -4,19 +4,31 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema\Name;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Name;
+
 /**
  * An unqualified {@see Name} consisting of a single identifier.
  */
-final class UnqualifiedName extends AbstractName
+final class UnqualifiedName implements Name
 {
     public function __construct(private readonly Identifier $identifier)
     {
-        parent::__construct($identifier);
     }
 
     public function getIdentifier(): Identifier
     {
         return $this->identifier;
+    }
+
+    public function toSQL(AbstractPlatform $platform): string
+    {
+        return $this->identifier->toSQL($platform);
+    }
+
+    public function toString(): string
+    {
+        return $this->identifier->toString();
     }
 
     /**

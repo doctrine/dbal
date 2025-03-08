@@ -362,7 +362,10 @@ abstract class AbstractPlatformTestCase extends TestCase
         ]);
 
         self::assertStringContainsString(
-            $this->platform->quoteSingleIdentifier($this->platform->normalizeUnquotedIdentifier('select')),
+            $this->platform->quoteSingleIdentifier(
+                $this->platform->getUnquotedIdentifierFolding()
+                    ->foldUnquotedIdentifier('select'),
+            ),
             implode(';', $this->platform->getAlterTableSQL($tableDiff)),
         );
     }

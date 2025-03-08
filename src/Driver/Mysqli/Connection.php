@@ -80,7 +80,9 @@ final class Connection implements ConnectionInterface
 
     public function beginTransaction(): void
     {
-        $this->connection->begin_transaction();
+        if (! $this->connection->begin_transaction()) {
+            throw ConnectionError::new($this->connection);
+        }
     }
 
     public function commit(): void

@@ -322,7 +322,9 @@ class OracleSchemaManager extends AbstractSchemaManager
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[]         = 'C.TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(
@@ -365,7 +367,9 @@ SQL,
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[]         = 'IND_COL.TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(
@@ -406,7 +410,9 @@ SQL,
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[]         = 'COLS.TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(
@@ -449,7 +455,9 @@ SQL,
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[]         = 'TABLE_NAME = :TABLE_NAME';
-            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(

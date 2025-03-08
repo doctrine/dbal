@@ -38,7 +38,7 @@ final class Identifier
     public function toSQL(AbstractPlatform $platform): string
     {
         return $platform->quoteSingleIdentifier(
-            $this->toNormalizedValue($platform),
+            $this->toNormalizedValue($platform->getUnquotedIdentifierFolding()),
         );
     }
 
@@ -47,10 +47,10 @@ final class Identifier
      *
      * Consumers should use the normalized value for schema comparison and referencing the objects to be introspected.
      */
-    public function toNormalizedValue(AbstractPlatform $platform): string
+    public function toNormalizedValue(UnquotedIdentifierFolding $folding): string
     {
         if (! $this->isQuoted) {
-            return $platform->normalizeUnquotedIdentifier($this->value);
+            return $folding->foldUnquotedIdentifier($this->value);
         }
 
         return $this->value;

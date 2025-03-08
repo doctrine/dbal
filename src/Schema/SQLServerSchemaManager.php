@@ -475,16 +475,17 @@ SQL,
 
         if ($tableName !== null) {
             $qualifier = $tableName->getQualifier();
+            $folding   = $this->platform->getUnquotedIdentifierFolding();
 
             if ($qualifier !== null) {
                 $conditions = [sprintf('%s = ?', $schemaColumn)];
-                $params[]   = $qualifier->toNormalizedValue($this->platform);
+                $params[]   = $qualifier->toNormalizedValue($folding);
             } else {
                 $conditions = [sprintf('%s = SCHEMA_NAME()', $schemaColumn)];
             }
 
             $conditions[] = sprintf('%s = ?', $tableColumn);
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($folding);
         }
 
         // The "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams

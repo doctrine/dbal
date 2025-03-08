@@ -186,7 +186,9 @@ class DB2SchemaManager extends AbstractSchemaManager
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[] = 'C.TABNAME = ?';
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(
@@ -229,7 +231,9 @@ SQL,
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[] = 'IDX.TABNAME = ?';
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(
@@ -273,7 +277,9 @@ SQL,
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[] = 'R.TABNAME = ?';
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(
@@ -330,7 +336,9 @@ SQL,
             $this->ensureUnqualifiedName($tableName, __METHOD__);
 
             $conditions[] = 'TABNAME = ?';
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
         }
 
         $sql = sprintf(

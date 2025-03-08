@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -52,6 +53,11 @@ class SQLServerPlatform extends AbstractPlatform
 {
     /** @internal Should be used only from within the {@see AbstractSchemaManager} class hierarchy. */
     public const OPTION_DEFAULT_CONSTRAINT_NAME = 'default_constraint_name';
+
+    public function __construct()
+    {
+        parent::__construct(UnquotedIdentifierFolding::NONE);
+    }
 
     public function createSelectSQLBuilder(): SelectSQLBuilder
     {
@@ -287,7 +293,9 @@ class SQLServerPlatform extends AbstractPlatform
             ...$this->getArgumentsForExtendedProperties([
                 ...$this->getExtendedPropertiesForTable($tableName),
                 'COLUMN' => $this->quoteStringLiteral(
-                    $columnName->getIdentifier()->toNormalizedValue($this),
+                    $columnName->getIdentifier()->toNormalizedValue(
+                        $this->getUnquotedIdentifierFolding(),
+                    ),
                 ),
             ]),
         );
@@ -1177,10 +1185,5 @@ class SQLServerPlatform extends AbstractPlatform
     public function createSchemaManager(Connection $connection): SQLServerSchemaManager
     {
         return new SQLServerSchemaManager($connection, $this);
-    }
-
-    public function normalizeUnquotedIdentifier(string $identifier): string
-    {
-        return $identifier;
     }
 }

@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -60,6 +61,11 @@ class PostgreSQLPlatform extends AbstractPlatform
             '0',
         ],
     ];
+
+    public function __construct()
+    {
+        parent::__construct(UnquotedIdentifierFolding::LOWER);
+    }
 
     /**
      * PostgreSQL has different behavior with some drivers
@@ -761,10 +767,5 @@ class PostgreSQLPlatform extends AbstractPlatform
     public function createSchemaManager(Connection $connection): PostgreSQLSchemaManager
     {
         return new PostgreSQLSchemaManager($connection, $this);
-    }
-
-    public function normalizeUnquotedIdentifier(string $identifier): string
-    {
-        return strtolower($identifier);
     }
 }

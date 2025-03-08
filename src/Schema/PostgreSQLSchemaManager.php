@@ -607,16 +607,17 @@ SQL,
 
         if ($tableName !== null) {
             $qualifier = $tableName->getQualifier();
+            $folding   = $this->platform->getUnquotedIdentifierFolding();
 
             if ($qualifier !== null) {
                 $conditions[] = 'n.nspname = ?';
-                $params[]     = $qualifier->toNormalizedValue($this->platform);
+                $params[]     = $qualifier->toNormalizedValue($folding);
             } else {
                 $conditions[] = 'n.nspname = ANY(current_schemas(false))';
             }
 
             $conditions[] = 'c.relname = ?';
-            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue($folding);
         }
 
         $conditions[] = "n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast')";

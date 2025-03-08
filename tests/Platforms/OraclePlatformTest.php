@@ -185,7 +185,6 @@ BEGIN
       WHILE (last_InsertID > last_Sequence) LOOP
          SELECT "%s_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
-      SELECT "%s_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
    END IF;
 END;
 SQL
@@ -198,7 +197,6 @@ SQL
                 $columnName,
                 $tableName,
                 $columnName,
-                $tableName,
                 $tableName,
             ),
         ], $this->platform->getCreateTableSQL($table));
@@ -494,7 +492,6 @@ BEGIN
       WHILE (last_InsertID > last_Sequence) LOOP
          SELECT "test_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
-      SELECT "test_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
    END IF;
 END;
 EOD;

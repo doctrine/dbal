@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\API\PostgreSQL;
 use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DatabaseDoesNotExist;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
@@ -75,6 +76,10 @@ final class ExceptionConverter implements ExceptionConverterInterface
 
             case '08006':
                 return new ConnectionException($exception, $query);
+        }
+
+        if (str_contains($exception->getMessage(), 'terminating connection')) {
+            return new ConnectionLost($exception, $query);
         }
 
         return new DriverException($exception, $query);

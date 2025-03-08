@@ -582,14 +582,15 @@ abstract class AbstractSchemaManager
     private function getTableOptions(OptionallyQualifiedName $tableName): array
     {
         $qualifier = $tableName->getQualifier();
+        $folding   = $this->platform->getUnquotedIdentifierFolding();
 
         if ($qualifier !== null) {
-            $schemaNameKey = $qualifier->toNormalizedValue($this->platform);
+            $schemaNameKey = $qualifier->toNormalizedValue($folding);
         } else {
             $schemaNameKey = $this->getCurrentSchemaName() ?? self::NULL_SCHEMA_KEY;
         }
 
-        $unqualifiedTableName = $tableName->getUnqualifiedName()->toNormalizedValue($this->platform);
+        $unqualifiedTableName = $tableName->getUnqualifiedName()->toNormalizedValue($folding);
 
         return $this->fetchTableOptionsByTable(
             $this->getDatabase(__METHOD__),
