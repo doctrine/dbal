@@ -71,7 +71,9 @@ class NoneTest extends FunctionalTestCase
         }
 
         $db = $this->connection->getDatabase();
-        $this->connection->executeStatement('ALTER DATABASE ' . $db . ' SET READ_COMMITTED_SNAPSHOT OFF');
+        $this->connection->executeStatement(
+            'ALTER DATABASE ' . $db . ' SET READ_COMMITTED_SNAPSHOT OFF WITH ROLLBACK IMMEDIATE',
+        );
     }
 
     public function testLockModeNoneDoesNotBreakTransactionIsolation(): void
