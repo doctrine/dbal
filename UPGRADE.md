@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: changes in `AbstractPlatform` constructor
+
+The `AbstractPlatform` class constructor is now `protected` and requires an `UnquotedIdentifierFolding` instance as its
+first parameter.
+
 ## BC BREAK: Primary key constraint no longer created for auto-increment columns on Oracle
 
 The primary key constraint is no longer automatically created for auto-increment columns on Oracle. If a primary key

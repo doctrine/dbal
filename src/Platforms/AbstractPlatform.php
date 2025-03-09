@@ -41,7 +41,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -85,20 +84,11 @@ abstract class AbstractPlatform
     /**
      * Defines how the platform folds the case of unquoted identifiers.
      */
-    private ?UnquotedIdentifierFolding $unquotedIdentifierFolding = null;
+    private readonly UnquotedIdentifierFolding $unquotedIdentifierFolding;
 
-    public function __construct(?UnquotedIdentifierFolding $unquotedIdentifierFolding = null)
+    protected function __construct(UnquotedIdentifierFolding $unquotedIdentifierFolding)
     {
-        if ($unquotedIdentifierFolding === null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6823',
-                'Not passing $unquotedIdentifierFolding to %s() is deprecated.',
-                __METHOD__,
-            );
-        }
-
-        $this->unquotedIdentifierFolding = $unquotedIdentifierFolding ?? UnquotedIdentifierFolding::UPPER;
+        $this->unquotedIdentifierFolding = $unquotedIdentifierFolding;
     }
 
     /**
@@ -2174,17 +2164,6 @@ abstract class AbstractPlatform
 
     public function getUnquotedIdentifierFolding(): UnquotedIdentifierFolding
     {
-        if ($this->unquotedIdentifierFolding === null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6823',
-                'Not calling the %s constructor from child class constructors is deprecated.',
-                self::class,
-            );
-
-            $this->unquotedIdentifierFolding = UnquotedIdentifierFolding::UPPER;
-        }
-
         return $this->unquotedIdentifierFolding;
     }
 
