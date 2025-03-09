@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\TypeArgumentCountError;
+use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function array_map;
 use function is_string;
@@ -94,20 +95,21 @@ abstract class Type
      */
     abstract public function getSQLDeclaration(array $column, AbstractPlatform $platform): string;
 
+    /** @throws TypesException */
     final public static function getTypeRegistry(): TypeRegistry
     {
         return self::$typeRegistry ??= self::createTypeRegistry();
     }
 
+    /** @throws TypesException */
     private static function createTypeRegistry(): TypeRegistry
     {
-        $instances = [];
-
-        foreach (self::BUILTIN_TYPES_MAP as $name => $class) {
-            $instances[$name] = new $class();
-        }
-
-        return new TypeRegistry($instances);
+        return new TypeRegistry(
+            array_map(
+                static fn ($class) => new $class(),
+                self::BUILTIN_TYPES_MAP,
+            ),
+        );
     }
 
     /**
@@ -115,7 +117,7 @@ abstract class Type
      *
      * @param string $name The name of the type.
      *
-     * @throws Exception
+     * @throws TypesException
      */
     public static function getType(string $name): self
     {
@@ -125,7 +127,7 @@ abstract class Type
     /**
      * Finds a name for the given type.
      *
-     * @throws Exception
+     * @throws TypesException
      */
     public static function lookupName(self $type): string
     {
@@ -159,6 +161,8 @@ abstract class Type
      * @param string $name The name of the type.
      *
      * @return bool TRUE if type is supported; FALSE otherwise.
+     *
+     * @throws TypesException
      */
     public static function hasType(string $name): bool
     {
@@ -199,13 +203,13 @@ abstract class Type
      * type class
      *
      * @return array<string, string>
+     *
+     * @throws TypesException
      */
     public static function getTypesMap(): array
     {
         return array_map(
-            static function (Type $type): string {
-                return $type::class;
-            },
+            static fn (Type $type): string => $type::class,
             self::getTypeRegistry()->getMap(),
         );
     }

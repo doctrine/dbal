@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Types\Exception\TypesException;
 
 use function array_filter;
 use function array_intersect;
@@ -181,6 +182,7 @@ abstract class AbstractSchemaManager
         return count($names) === count(array_intersect($names, array_map('strtolower', $this->listTableNames())));
     }
 
+    /** @throws Exception */
     public function tableExists(string $tableName): bool
     {
         return $this->tablesExist([$tableName]);
@@ -874,6 +876,8 @@ abstract class AbstractSchemaManager
      * @param array<array<string, mixed>> $rows
      *
      * @return array<string, Column>
+     *
+     * @throws TypesException
      */
     protected function _getPortableTableColumnList(array $rows): array
     {
@@ -891,6 +895,8 @@ abstract class AbstractSchemaManager
      * Gets Table Column Definition.
      *
      * @param array<string, mixed> $tableColumn
+     *
+     * @throws TypesException
      */
     abstract protected function _getPortableTableColumnDefinition(array $tableColumn): Column;
 

@@ -356,14 +356,14 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     public function getDropIndexSQL(string $name, string $table): string
     {
-        if ($name === '"primary"') {
-            if (str_ends_with($table, '"')) {
-                $constraintName = substr($table, 0, -1) . '_pkey"';
-            } else {
-                $constraintName = $table . '_pkey';
-            }
+        if (str_ends_with($table, '"')) {
+            $primaryKeyName = substr($table, 0, -1) . '_pkey"';
+        } else {
+            $primaryKeyName = $table . '_pkey';
+        }
 
-            return $this->getDropConstraintSQL($constraintName, $table);
+        if ($name === '"primary"' || $name === $primaryKeyName) {
+            return $this->getDropConstraintSQL($primaryKeyName, $table);
         }
 
         if (str_contains($table, '.')) {

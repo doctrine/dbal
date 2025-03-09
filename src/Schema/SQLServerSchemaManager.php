@@ -184,6 +184,7 @@ SQL,
             $name = $row['ForeignKey'];
 
             if (! isset($foreignKeys[$name])) {
+                // @phpstan-ignore missingType.checkedException
                 if ($row['ReferenceSchemaName'] === $this->getCurrentSchemaName()) {
                     $row['ReferenceSchemaName'] = null;
                 }

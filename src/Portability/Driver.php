@@ -7,7 +7,9 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Doctrine\DBAL\Platforms\Exception\PlatformException;
 use PDO;
 use SensitiveParameter;
 
@@ -26,6 +28,9 @@ final class Driver extends AbstractDriverMiddleware
 
     /**
      * {@inheritDoc}
+     *
+     * @throws PlatformException
+     * @throws Exception
      */
     public function connect(
         #[SensitiveParameter]

@@ -345,6 +345,8 @@ class QueryBuilder
      * </code>
      *
      * @return string The SQL query string.
+     *
+     * @throws Exception
      */
     public function getSQL(): string
     {
@@ -551,6 +553,8 @@ class QueryBuilder
      * </code>
      *
      * @return $this
+     *
+     * @throws QueryException
      */
     public function addUnion(string|QueryBuilder $part, UnionType $type = UnionType::DISTINCT): self
     {
@@ -1417,6 +1421,8 @@ class QueryBuilder
 
     /**
      * Converts this instance into a UNION string in SQL.
+     *
+     * @throws Exception
      */
     private function getSQLForUnion(): string
     {
@@ -1444,6 +1450,8 @@ class QueryBuilder
      * the final SQL query being constructed.
      *
      * @return string The string representation of this QueryBuilder.
+     *
+     * @throws Exception
      */
     public function __toString(): string
     {

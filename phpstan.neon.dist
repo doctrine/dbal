@@ -7,8 +7,28 @@ parameters:
         - tests
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
+    exceptions:
+        check:
+            missingCheckedExceptionInThrows: true
+        uncheckedExceptionClasses:
+            - ErrorException
+            - LogicException
+            - RuntimeException
     ignoreErrors:
         - identifier: missingType.generics
+
+        # Ignore missing declarations of checked exceptions in tests
+        -
+            identifier: missingType.checkedException
+            paths:
+                - static-analysis
+                - tests
+
+        # PHPStan reports these errors in the methods that call BackedEnum::from() even if the line is annotated with
+        # @phpstan-ignore missingType.checkedException.
+        -
+            message: '~^Method .* throws checked exception (Type|Value)Error but it''s missing from the PHPDoc @throws tag.~'
+
 
         # https://github.com/phpstan/phpstan-strict-rules/issues/103
         -

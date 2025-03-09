@@ -92,6 +92,7 @@ SQL,
      */
     protected function _getPortableViewDefinition(array $view): View
     {
+        // @phpstan-ignore missingType.checkedException
         if ($view['schemaname'] === $this->getCurrentSchemaName()) {
             $name = $view['viewname'];
         } else {
@@ -110,6 +111,7 @@ SQL,
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value);
             if (! isset($list[$value['conname']])) {
+                // @phpstan-ignore missingType.checkedException
                 if ($value['fk_nspname'] === $this->getCurrentSchemaName()) {
                     $value['fk_nspname'] = null;
                 }
@@ -155,6 +157,7 @@ SQL,
                 implode(', ', $colNumbers),
             );
 
+            // @phpstan-ignore missingType.checkedException
             $indexColumns = $this->connection->fetchAllAssociative($columnNameSql);
 
             // required for getting the order of the columns right.
@@ -191,6 +194,7 @@ SQL,
      */
     protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
+        // @phpstan-ignore missingType.checkedException
         if ($sequence['schemaname'] !== $this->getCurrentSchemaName()) {
             $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
         } else {

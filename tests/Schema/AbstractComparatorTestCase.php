@@ -280,7 +280,8 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $tableDiff = $this->comparator->compareTables($table1, $table2);
 
-        self::assertCount(1, $tableDiff->getModifiedForeignKeys());
+        self::assertCount(1, $tableDiff->getDroppedForeignKeys());
+        self::assertCount(1, $tableDiff->getAddedForeignKeys());
     }
 
     public function testMovedForeignKeyForeignTable(): void
@@ -301,7 +302,8 @@ abstract class AbstractComparatorTestCase extends TestCase
 
         $tableDiff = $this->comparator->compareTables($table1, $table2);
 
-        self::assertCount(1, $tableDiff->getModifiedForeignKeys());
+        self::assertCount(1, $tableDiff->getDroppedForeignKeys());
+        self::assertCount(1, $tableDiff->getAddedForeignKeys());
     }
 
     public function testTablesCaseInsensitive(): void

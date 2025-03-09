@@ -141,6 +141,7 @@ class PrimaryReadReplicaConnection extends Connection
         return $this->performConnect();
     }
 
+    /** @throws Exception */
     protected function performConnect(?string $connectionName = null): DriverConnection
     {
         $requestedConnectionChange = ($connectionName !== null);
@@ -192,6 +193,8 @@ class PrimaryReadReplicaConnection extends Connection
      * Connects to the primary node of the database cluster.
      *
      * All following statements after this will be executed against the primary node.
+     *
+     * @throws Exception
      */
     public function ensureConnectedToPrimary(): void
     {
@@ -204,6 +207,8 @@ class PrimaryReadReplicaConnection extends Connection
      * All following statements after this will be executed against the replica node,
      * unless the keepReplica option is set to false and a primary connection
      * was already opened.
+     *
+     * @throws Exception
      */
     public function ensureConnectedToReplica(): void
     {

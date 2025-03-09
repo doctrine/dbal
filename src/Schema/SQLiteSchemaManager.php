@@ -70,7 +70,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
     {
         $table = $this->introspectTable($table);
 
-        $this->alterTable(new TableDiff($table, modifiedForeignKeys: [$foreignKey]));
+        $this->alterTable(new TableDiff($table, addedForeignKeys: [$foreignKey]));
     }
 
     public function dropForeignKey(string $name, string $table): void
@@ -223,6 +223,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
 
             // Inferring a shorthand form for the foreign key constraint, where the "to" field is empty.
             // @see https://www.sqlite.org/foreignkeys.html#fk_indexes.
+            // @phpstan-ignore missingType.checkedException
             $foreignTablePrimaryKeyColumnRows = $this->fetchPrimaryKeyColumns(
                 OptionallyQualifiedName::quoted($value['foreignTable']),
             );

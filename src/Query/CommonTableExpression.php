@@ -10,7 +10,11 @@ use function sprintf;
 /** @internal */
 final class CommonTableExpression
 {
-    /** @param string[]|null $columns */
+    /**
+     * @param string[]|null $columns
+     *
+     * @throws QueryException
+     */
     public function __construct(
         public readonly string $name,
         public readonly string|QueryBuilder $query,

@@ -129,16 +129,14 @@ class Comparator
      */
     public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
-        $addedColumns        = [];
-        $modifiedColumns     = [];
-        $droppedColumns      = [];
-        $addedIndexes        = [];
-        $modifiedIndexes     = [];
-        $droppedIndexes      = [];
-        $renamedIndexes      = [];
-        $addedForeignKeys    = [];
-        $modifiedForeignKeys = [];
-        $droppedForeignKeys  = [];
+        $addedColumns       = [];
+        $modifiedColumns    = [];
+        $droppedColumns     = [];
+        $addedIndexes       = [];
+        $droppedIndexes     = [];
+        $renamedIndexes     = [];
+        $addedForeignKeys   = [];
+        $droppedForeignKeys = [];
 
         $oldColumns = $oldTable->getColumns();
         $newColumns = $newTable->getColumns();
@@ -230,7 +228,8 @@ class Comparator
                 continue;
             }
 
-            $modifiedIndexes[] = $newIndex;
+            $droppedIndexes[$oldIndexName] = $oldIndex;
+            $addedIndexes[$oldIndexName]   = $newIndex;
         }
 
         if ($this->config->getDetectRenamedIndexes()) {
@@ -246,7 +245,8 @@ class Comparator
                     unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
                 } else {
                     if (strtolower($oldForeignKey->getName()) === strtolower($newForeignKey->getName())) {
-                        $modifiedForeignKeys[] = $newForeignKey;
+                        $droppedForeignKeys[$oldKey] = $oldForeignKey;
+                        $addedForeignKeys[$newKey]   = $newForeignKey;
 
                         unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
                     }
@@ -268,11 +268,9 @@ class Comparator
             changedColumns: $modifiedColumns,
             droppedColumns: $droppedColumns,
             addedIndexes: $addedIndexes,
-            modifiedIndexes: $modifiedIndexes,
             droppedIndexes: $droppedIndexes,
             renamedIndexes: $renamedIndexes,
             addedForeignKeys: $addedForeignKeys,
-            modifiedForeignKeys: $modifiedForeignKeys,
             droppedForeignKeys: $droppedForeignKeys,
         );
     }

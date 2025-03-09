@@ -75,6 +75,7 @@ final class Result implements ResultInterface
         }
     }
 
+    /** @throws Exception */
     public function getColumnName(int $index): string
     {
         try {

@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
@@ -275,7 +276,11 @@ class Table extends AbstractNamedObject
         return $this->addIndex($oldIndex->getColumns(), $newName, $oldIndex->getFlags(), $oldIndex->getOptions());
     }
 
-    /** @param array<string, mixed> $options */
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @throws TypesException
+     */
     public function addColumn(string $name, string $typeName, array $options = []): Column
     {
         $column = new Column($name, Type::getType($typeName), $options);

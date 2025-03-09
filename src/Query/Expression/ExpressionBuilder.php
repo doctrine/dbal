@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 
 use function implode;
 use function sprintf;
@@ -236,6 +237,8 @@ class ExpressionBuilder
      *
      * The usage of this method is discouraged. Use prepared statements
      * or {@see AbstractPlatform::quoteStringLiteral()} instead.
+     *
+     * @throws Exception
      */
     public function literal(string $input): string
     {

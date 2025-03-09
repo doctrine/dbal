@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Exception\TypeAlreadyRegistered;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
 use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
+use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 
 use function spl_object_id;
@@ -23,7 +24,11 @@ final class TypeRegistry
     /** @var array<int, string> */
     private array $instancesReverseIndex;
 
-    /** @param array<string, Type> $instances */
+    /**
+     * @param array<string, Type> $instances
+     *
+     * @throws TypesException
+     */
     public function __construct(array $instances = [])
     {
         $this->instances             = [];
@@ -36,7 +41,7 @@ final class TypeRegistry
     /**
      * Finds a type by the given name.
      *
-     * @throws Exception
+     * @throws TypesException
      */
     public function get(string $name): Type
     {
@@ -51,7 +56,7 @@ final class TypeRegistry
     /**
      * Finds a name for the given type.
      *
-     * @throws Exception
+     * @throws TypesException
      */
     public function lookupName(Type $type): string
     {
@@ -75,7 +80,7 @@ final class TypeRegistry
     /**
      * Registers a custom type to the type map.
      *
-     * @throws Exception
+     * @throws TypesException
      */
     public function register(string $name, Type $type): void
     {
