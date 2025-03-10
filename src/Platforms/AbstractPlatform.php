@@ -1227,15 +1227,7 @@ abstract class AbstractPlatform
             $sql[] = $this->getDropForeignKeySQL($this->getConstraintName($foreignKey)->toSQL($this), $tableNameSQL);
         }
 
-        foreach ($diff->getModifiedForeignKeys() as $foreignKey) {
-            $sql[] = $this->getDropForeignKeySQL($this->getConstraintName($foreignKey)->toSQL($this), $tableNameSQL);
-        }
-
         foreach ($diff->getDroppedIndexes() as $index) {
-            $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
-        }
-
-        foreach ($diff->getModifiedIndexes() as $index) {
             $sql[] = $this->getDropIndexSQL($index->getObjectName()->toSQL($this), $tableNameSQL);
         }
 
@@ -1253,15 +1245,7 @@ abstract class AbstractPlatform
             $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
         }
 
-        foreach ($diff->getModifiedForeignKeys() as $foreignKey) {
-            $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableNameSQL);
-        }
-
         foreach ($diff->getAddedIndexes() as $index) {
-            $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
-        }
-
-        foreach ($diff->getModifiedIndexes() as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableNameSQL);
         }
 

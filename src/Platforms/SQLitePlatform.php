@@ -709,11 +709,9 @@ class SQLitePlatform extends AbstractPlatform
             count($diff->getChangedColumns()) > 0
             || count($diff->getDroppedColumns()) > 0
             || count($diff->getAddedIndexes()) > 0
-            || count($diff->getModifiedIndexes()) > 0
             || count($diff->getDroppedIndexes()) > 0
             || count($diff->getRenamedIndexes()) > 0
             || count($diff->getAddedForeignKeys()) > 0
-            || count($diff->getModifiedForeignKeys()) > 0
             || count($diff->getDroppedForeignKeys()) > 0
         ) {
             return false;
@@ -836,7 +834,6 @@ class SQLitePlatform extends AbstractPlatform
 
         foreach (
             array_merge(
-                $diff->getModifiedIndexes(),
                 $diff->getAddedIndexes(),
                 $diff->getRenamedIndexes(),
             ) as $index
@@ -899,7 +896,7 @@ class SQLitePlatform extends AbstractPlatform
             unset($foreignKeys[strtolower($constraintName)]);
         }
 
-        foreach (array_merge($diff->getModifiedForeignKeys(), $diff->getAddedForeignKeys()) as $constraint) {
+        foreach ($diff->getAddedForeignKeys() as $constraint) {
             $constraintName = $constraint->getName();
 
             if ($constraintName !== '') {

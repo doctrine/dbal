@@ -25,11 +25,9 @@ class TableDiff
      * @param array<string, ColumnDiff>   $changedColumns
      * @param array<Column>               $droppedColumns
      * @param array<Index>                $addedIndexes
-     * @param array<Index>                $modifiedIndexes
      * @param array<Index>                $droppedIndexes
      * @param array<string, Index>        $renamedIndexes
      * @param array<ForeignKeyConstraint> $addedForeignKeys
-     * @param array<ForeignKeyConstraint> $modifiedForeignKeys
      */
     public function __construct(
         private readonly Table $oldTable,
@@ -37,34 +35,11 @@ class TableDiff
         private readonly array $changedColumns = [],
         private readonly array $droppedColumns = [],
         private array $addedIndexes = [],
-        private readonly array $modifiedIndexes = [],
         private array $droppedIndexes = [],
         private readonly array $renamedIndexes = [],
         private readonly array $addedForeignKeys = [],
-        private readonly array $modifiedForeignKeys = [],
         private readonly array $droppedForeignKeys = [],
     ) {
-        if (count($this->modifiedIndexes) !== 0) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6831',
-                'Passing a non-empty $modifiedIndexes value to %s() is deprecated. Instead, pass dropped'
-                    . ' indexes via $droppedIndexes and added indexes via $addedIndexes.',
-                __METHOD__,
-            );
-        }
-
-        if (count($modifiedForeignKeys) === 0) {
-            return;
-        }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6827',
-            'Passing a non-empty $modifiedForeignKeys value to %s() is deprecated. Instead, pass dropped'
-                . ' constraints via $droppedForeignKeys and added constraints via $addedForeignKeys.',
-            __METHOD__,
-        );
     }
 
     public function getOldTable(): Table
@@ -156,23 +131,6 @@ class TableDiff
         );
     }
 
-    /**
-     * @deprecated Use {@see getAddedIndexes()} and {@see getDroppedIndexes()} instead.
-     *
-     * @return array<Index>
-     */
-    public function getModifiedIndexes(): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6831',
-            '%s() is deprecated, use getAddedIndexes() and getDroppedIndexes() instead.',
-            __METHOD__,
-        );
-
-        return $this->modifiedIndexes;
-    }
-
     /** @return array<Index> */
     public function getDroppedIndexes(): array
     {
@@ -205,23 +163,6 @@ class TableDiff
         return $this->addedForeignKeys;
     }
 
-    /**
-     * @deprecated Use {@see getAddedForeignKeys()} and {@see getDroppedForeignKeys()} instead.
-     *
-     * @return array<ForeignKeyConstraint>
-     */
-    public function getModifiedForeignKeys(): array
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6827',
-            '%s() is deprecated, use getDroppedForeignKeys() and getAddedForeignKeys() instead.',
-            __METHOD__,
-        );
-
-        return $this->modifiedForeignKeys;
-    }
-
     /** @return array<ForeignKeyConstraint> */
     public function getDroppedForeignKeys(): array
     {
@@ -237,11 +178,9 @@ class TableDiff
             && count($this->changedColumns) === 0
             && count($this->droppedColumns) === 0
             && count($this->addedIndexes) === 0
-            && count($this->modifiedIndexes) === 0
             && count($this->droppedIndexes) === 0
             && count($this->renamedIndexes) === 0
             && count($this->addedForeignKeys) === 0
-            && count($this->modifiedForeignKeys) === 0
             && count($this->droppedForeignKeys) === 0;
     }
 }
