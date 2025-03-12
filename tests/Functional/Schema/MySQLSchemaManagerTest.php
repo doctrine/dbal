@@ -137,32 +137,6 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNotNull($table->getPrimaryKey());
     }
 
-    public function testDropPrimaryKeyWithAutoincrementColumn(): void
-    {
-        $table = new Table('drop_primary_key');
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->addColumn('foo', Types::INTEGER);
-        $table->setPrimaryKey(['id', 'foo']);
-
-        $this->dropAndCreateTable($table);
-
-        $diffTable = clone $table;
-
-        $diffTable->dropPrimaryKey();
-
-        $diff = $this->schemaManager->createComparator()
-            ->compareTables($table, $diffTable);
-
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6841');
-
-        $this->schemaManager->alterTable($diff);
-
-        $table = $this->schemaManager->introspectTable('drop_primary_key');
-
-        self::assertNull($table->getPrimaryKey());
-        self::assertFalse($table->getColumn('id')->getAutoincrement());
-    }
-
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
     {
         if ($this->connection->getDatabasePlatform() instanceof MariaDBPlatform) {

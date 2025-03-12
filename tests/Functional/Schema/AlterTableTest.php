@@ -55,9 +55,8 @@ class AlterTableTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if ($platform instanceof AbstractMySQLPlatform) {
-            self::markTestIncomplete(
-                'DBAL should not allow this migration on MySQL because an auto-increment column must be part of the'
-                    . ' primary key constraint.',
+            self::markTestSkipped(
+                'MySQL does not support auto-increment columns that are not part of the primary key constraint',
             );
         }
 
@@ -85,9 +84,8 @@ class AlterTableTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if ($platform instanceof AbstractMySQLPlatform) {
-            self::markTestIncomplete(
-                'DBAL should not allow this migration on MySQL because an auto-increment column must be part of the'
-                    . ' primary key constraint.',
+            self::markTestSkipped(
+                'MySQL does not support auto-increment columns that are not part of the primary key constraint',
             );
         }
 
