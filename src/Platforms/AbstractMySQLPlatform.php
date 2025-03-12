@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
-use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\Index;
@@ -16,10 +15,11 @@ use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 
+use function array_diff;
 use function array_map;
 use function array_merge;
-use function array_values;
 use function count;
 use function implode;
 use function is_array;
@@ -354,27 +354,50 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 . $this->getColumnDeclarationSQL($newColumnProperties);
         }
 
-        $addedIndexes = $this->indexAssetsByLowerCaseName($diff->getAddedIndexes());
+        $droppedIndexes = $this->indexIndexesByLowerCaseName($diff->getDroppedIndexes());
+        $addedIndexes   = $this->indexIndexesByLowerCaseName($diff->getAddedIndexes());
+
+        $noLongerPrimaryKeyColumns = [];
+
+        if (isset($droppedIndexes['primary'])) {
+            $queryParts[] = 'DROP PRIMARY KEY';
+
+            $noLongerPrimaryKeyColumns = $droppedIndexes['primary']->getColumns();
+        }
 
         if (isset($addedIndexes['primary'])) {
             $keyColumns   = $addedIndexes['primary']->getQuotedColumns($this);
             $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
-            unset($addedIndexes['primary']);
 
-            $diff = new TableDiff(
-                $diff->getOldTable(),
-                addedColumns: $diff->getAddedColumns(),
-                changedColumns: $diff->getChangedColumns(),
-                droppedColumns: $diff->getDroppedColumns(),
-                addedIndexes: array_values($addedIndexes),
-                droppedIndexes: $diff->getDroppedIndexes(),
-                renamedIndexes: $diff->getRenamedIndexes(),
-                addedForeignKeys: $diff->getAddedForeignKeys(),
-                droppedForeignKeys: $diff->getDroppedForeignKeys(),
+            $noLongerPrimaryKeyColumns = array_diff(
+                $noLongerPrimaryKeyColumns,
+                $addedIndexes['primary']->getColumns(),
             );
+
+            $diff->unsetAddedIndex($addedIndexes['primary']);
         }
 
         $tableSql = [];
+
+        if (isset($droppedIndexes['primary'])) {
+            $oldTable = $diff->getOldTable();
+            foreach ($noLongerPrimaryKeyColumns as $columnName) {
+                if (! $oldTable->hasColumn($columnName)) {
+                    continue;
+                }
+
+                $column = $oldTable->getColumn($columnName);
+                if ($column->getAutoincrement()) {
+                    $tableSql = array_merge(
+                        $tableSql,
+                        $this->getPreAlterTableAlterPrimaryKeySQL($diff, $droppedIndexes['primary']),
+                    );
+                    break;
+                }
+            }
+
+            $diff->unsetDroppedIndex($droppedIndexes['primary']);
+        }
 
         if (count($queryParts) > 0) {
             $tableSql[] = 'ALTER TABLE ' . $diff->getOldTable()->getObjectName()->toSQL($this) . ' '
@@ -457,6 +480,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             if (! $column->getAutoincrement()) {
                 continue;
             }
+
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6841',
+                'Relying on the auto-increment attribute of a column being automatically dropped once a column'
+                    . ' is no longer part of the primary key constraint is deprecated. Instead, drop the auto-increment'
+                    . ' attribute explicitly.',
+            );
 
             $column->setAutoincrement(false);
 
@@ -723,18 +754,16 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     }
 
     /**
-     * @param array<T> $assets
+     * @param array<Index> $indexes
      *
-     * @return array<string,T>
-     *
-     * @template T of AbstractAsset
+     * @return array<string,Index>
      */
-    private function indexAssetsByLowerCaseName(array $assets): array
+    private function indexIndexesByLowerCaseName(array $indexes): array
     {
         $result = [];
 
-        foreach ($assets as $asset) {
-            $result[strtolower($asset->getName())] = $asset;
+        foreach ($indexes as $index) {
+            $result[strtolower($index->getName())] = $index;
         }
 
         return $result;

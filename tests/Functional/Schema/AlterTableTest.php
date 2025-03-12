@@ -111,13 +111,6 @@ class AlterTableTest extends FunctionalTestCase
 
     public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn(): void
     {
-        if ($this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
-            self::markTestIncomplete(
-                'DBAL does not restore the auto-increment attribute after dropping and adding the constraint,'
-                    . ' which is a bug.',
-            );
-        }
-
         $this->ensureDroppingPrimaryKeyConstraintIsSupported();
 
         $table = new Table('alter_pk');
@@ -134,13 +127,6 @@ class AlterTableTest extends FunctionalTestCase
     public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn(): void
     {
         $platform = $this->connection->getDatabasePlatform();
-
-        if ($platform instanceof AbstractMySQLPlatform) {
-            self::markTestIncomplete(
-                'DBAL does not restore the auto-increment attribute after dropping and adding the constraint,'
-                    . ' which is a bug.',
-            );
-        }
 
         if ($platform instanceof SQLitePlatform) {
             self::markTestSkipped(
@@ -243,6 +229,8 @@ class AlterTableTest extends FunctionalTestCase
 
         $diff = $schemaManager->createComparator()
             ->compareTables($oldTable, $newTable);
+
+        self::assertFalse($diff->isEmpty());
 
         $schemaManager->alterTable($diff);
 

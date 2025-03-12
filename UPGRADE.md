@@ -217,6 +217,11 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated automatic drop of `auto-increment` column attribute
+
+Relying on the auto-increment attribute of a MySQL column being automatically dropped once the column is no longer part
+of the primary key constraint is deprecated. Instead, drop the auto-increment attribute explicitly.
+
 ## Deprecated handling of modified indexes in `TableDiff`
 
 Passing a non-empty `$modifiedIndexes` value to the `TableDiff` constructor is deprecated. Instead, pass dropped

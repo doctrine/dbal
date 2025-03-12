@@ -474,7 +474,7 @@ class SQLitePlatform extends AbstractPlatform
 
         $sql = [];
 
-        foreach ($this->getIndexesInAlteredTable($diff, $table) as $index) {
+        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
             if ($index->isPrimary()) {
                 continue;
             }
@@ -647,9 +647,9 @@ class SQLitePlatform extends AbstractPlatform
         $newTable = new Table(
             $table->getObjectName()->toSQL($this),
             $columns,
-            $this->getPrimaryIndexInAlteredTable($diff, $table),
+            $this->getPrimaryIndexInAlteredTable($diff),
             [],
-            $this->getForeignKeysInAlteredTable($diff, $table),
+            $this->getForeignKeysInAlteredTable($diff),
             $table->getOptions(),
         );
 
@@ -743,45 +743,46 @@ class SQLitePlatform extends AbstractPlatform
         return $sql;
     }
 
-    /** @return string[] */
-    private function getColumnNamesInAlteredTable(TableDiff $diff, Table $oldTable): array
+    /**
+     * Based on the table diff, returns a map where the keys are the lower-case old column names and the values are the
+     * new column names. If the column was dropped, it is not present in the map.
+     *
+     * @return array<string, string>
+     */
+    private function getDiffColumnNameMap(TableDiff $diff): array
     {
-        $columns = [];
+        $oldTable = $diff->getOldTable();
+
+        $map = [];
 
         foreach ($oldTable->getColumns() as $column) {
-            $columnName                       = $column->getName();
-            $columns[strtolower($columnName)] = $columnName;
+            $columnName                   = $column->getName();
+            $map[strtolower($columnName)] = $columnName;
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
-            $columnName = strtolower($column->getName());
-            if (! isset($columns[$columnName])) {
-                continue;
-            }
-
-            unset($columns[$columnName]);
+            unset($map[strtolower($column->getName())]);
         }
 
         foreach ($diff->getChangedColumns() as $columnDiff) {
-            $oldColumnName                       = $columnDiff->getOldColumn()->getName();
-            $newColumnName                       = $columnDiff->getNewColumn()->getName();
-            $columns[strtolower($oldColumnName)] = $newColumnName;
-            $columns[strtolower($newColumnName)] = $newColumnName;
+            $columnName                   = $columnDiff->getOldColumn()->getName();
+            $map[strtolower($columnName)] = $columnDiff->getNewColumn()->getName();
         }
 
         foreach ($diff->getAddedColumns() as $column) {
-            $columnName                       = $column->getName();
-            $columns[strtolower($columnName)] = $columnName;
+            $columnName                   = $column->getName();
+            $map[strtolower($columnName)] = $columnName;
         }
 
-        return $columns;
+        return $map;
     }
 
-    /** @return Index[] */
-    private function getIndexesInAlteredTable(TableDiff $diff, Table $oldTable): array
+    /** @return array<Index> */
+    private function getIndexesInAlteredTable(TableDiff $diff): array
     {
-        $indexes     = $oldTable->getIndexes();
-        $columnNames = $this->getColumnNamesInAlteredTable($diff, $oldTable);
+        $oldTable = $diff->getOldTable();
+        $indexes  = $oldTable->getIndexes();
+        $nameMap  = $this->getDiffColumnNameMap($diff);
 
         foreach ($indexes as $key => $index) {
             foreach ($diff->getRenamedIndexes() as $oldIndexName => $renamedIndex) {
@@ -796,13 +797,13 @@ class SQLitePlatform extends AbstractPlatform
             $indexColumns = [];
             foreach ($index->getColumns() as $columnName) {
                 $normalizedColumnName = strtolower($columnName);
-                if (! isset($columnNames[$normalizedColumnName])) {
+                if (! isset($nameMap[$normalizedColumnName])) {
                     unset($indexes[$key]);
                     continue 2;
                 }
 
-                $indexColumns[] = $columnNames[$normalizedColumnName];
-                if ($columnName === $columnNames[$normalizedColumnName]) {
+                $indexColumns[] = $nameMap[$normalizedColumnName];
+                if ($columnName === $nameMap[$normalizedColumnName]) {
                     continue;
                 }
 
@@ -850,11 +851,12 @@ class SQLitePlatform extends AbstractPlatform
         return $indexes;
     }
 
-    /** @return ForeignKeyConstraint[] */
-    private function getForeignKeysInAlteredTable(TableDiff $diff, Table $oldTable): array
+    /** @return array<ForeignKeyConstraint> */
+    private function getForeignKeysInAlteredTable(TableDiff $diff): array
     {
+        $oldTable    = $diff->getOldTable();
         $foreignKeys = $oldTable->getForeignKeys();
-        $columnNames = $this->getColumnNamesInAlteredTable($diff, $oldTable);
+        $nameMap     = $this->getDiffColumnNameMap($diff);
 
         foreach ($foreignKeys as $key => $constraint) {
             $changed = false;
@@ -863,14 +865,14 @@ class SQLitePlatform extends AbstractPlatform
             foreach ($constraint->getReferencingColumnNames() as $columnName) {
                 $originalColumnName   = $columnName->getIdentifier()->getValue();
                 $normalizedColumnName = strtolower($originalColumnName);
-                if (! isset($columnNames[$normalizedColumnName])) {
+                if (! isset($nameMap[$normalizedColumnName])) {
                     unset($foreignKeys[$key]);
                     continue 2;
                 }
 
-                $referencingColumnNames[] = UnqualifiedName::unquoted($columnNames[$normalizedColumnName]);
+                $referencingColumnNames[] = UnqualifiedName::unquoted($nameMap[$normalizedColumnName]);
 
-                if ($originalColumnName === $columnNames[$normalizedColumnName]) {
+                if ($originalColumnName === $nameMap[$normalizedColumnName]) {
                     continue;
                 }
 
@@ -909,12 +911,12 @@ class SQLitePlatform extends AbstractPlatform
         return $foreignKeys;
     }
 
-    /** @return Index[] */
-    private function getPrimaryIndexInAlteredTable(TableDiff $diff, Table $oldTable): array
+    /** @return array<string, Index> */
+    private function getPrimaryIndexInAlteredTable(TableDiff $diff): array
     {
         $primaryIndex = [];
 
-        foreach ($this->getIndexesInAlteredTable($diff, $oldTable) as $index) {
+        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
             if (! $index->isPrimary()) {
                 continue;
             }
