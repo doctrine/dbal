@@ -15,9 +15,7 @@ use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 
-use function array_diff;
 use function array_map;
 use function array_merge;
 use function count;
@@ -357,47 +355,20 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $droppedIndexes = $this->indexIndexesByLowerCaseName($diff->getDroppedIndexes());
         $addedIndexes   = $this->indexIndexesByLowerCaseName($diff->getAddedIndexes());
 
-        $noLongerPrimaryKeyColumns = [];
-
         if (isset($droppedIndexes['primary'])) {
             $queryParts[] = 'DROP PRIMARY KEY';
 
-            $noLongerPrimaryKeyColumns = $droppedIndexes['primary']->getColumns();
+            $diff->unsetDroppedIndex($droppedIndexes['primary']);
         }
 
         if (isset($addedIndexes['primary'])) {
             $keyColumns   = $addedIndexes['primary']->getQuotedColumns($this);
             $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
 
-            $noLongerPrimaryKeyColumns = array_diff(
-                $noLongerPrimaryKeyColumns,
-                $addedIndexes['primary']->getColumns(),
-            );
-
             $diff->unsetAddedIndex($addedIndexes['primary']);
         }
 
         $tableSql = [];
-
-        if (isset($droppedIndexes['primary'])) {
-            $oldTable = $diff->getOldTable();
-            foreach ($noLongerPrimaryKeyColumns as $columnName) {
-                if (! $oldTable->hasColumn($columnName)) {
-                    continue;
-                }
-
-                $column = $oldTable->getColumn($columnName);
-                if ($column->getAutoincrement()) {
-                    $tableSql = array_merge(
-                        $tableSql,
-                        $this->getPreAlterTableAlterPrimaryKeySQL($diff, $droppedIndexes['primary']),
-                    );
-                    break;
-                }
-            }
-
-            $diff->unsetDroppedIndex($droppedIndexes['primary']);
-        }
 
         if (count($queryParts) > 0) {
             $tableSql[] = 'ALTER TABLE ' . $diff->getOldTable()->getObjectName()->toSQL($this) . ' '
@@ -421,8 +392,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
 
         foreach ($diff->getDroppedIndexes() as $droppedIndex) {
-            $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $droppedIndex));
-
             foreach ($diff->getAddedIndexes() as $addedIndex) {
                 if ($droppedIndex->getColumns() !== $addedIndex->getColumns()) {
                     continue;
@@ -449,66 +418,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             }
         }
 
-        return array_merge(
-            $sql,
-            parent::getPreAlterTableIndexForeignKeySQL($diff),
-            $this->getPreAlterTableRenameIndexForeignKeySQL($diff),
-        );
-    }
-
-    /** @return list<string> */
-    private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index): array
-    {
-        if (! $index->isPrimary()) {
-            return [];
-        }
-
-        $table = $diff->getOldTable();
-
-        $sql = [];
-
-        $tableNameSQL = $table->getObjectName()->toSQL($this);
-
-        // Dropping primary keys requires to unset autoincrement attribute on the particular column first.
-        foreach ($index->getColumns() as $columnName) {
-            if (! $table->hasColumn($columnName)) {
-                continue;
-            }
-
-            $column = $table->getColumn($columnName);
-
-            if (! $column->getAutoincrement()) {
-                continue;
-            }
-
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6841',
-                'Relying on the auto-increment attribute of a column being automatically dropped once a column'
-                    . ' is no longer part of the primary key constraint is deprecated. Instead, drop the auto-increment'
-                    . ' attribute explicitly.',
-            );
-
-            $column->setAutoincrement(false);
-
-            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                $this->getColumnDeclarationSQL($column->toArray());
-
-            // original autoincrement information might be needed later on by other parts of the table alteration
-            $column->setAutoincrement(true);
-        }
-
-        return $sql;
-    }
-
-    /**
-     * @param TableDiff $diff The table diff to gather the SQL for.
-     *
-     * @return list<string>
-     */
-    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
-    {
-        return [];
+        return array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
     }
 
     protected function getCreateIndexSQLFlags(Index $index): string
