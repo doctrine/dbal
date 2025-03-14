@@ -118,10 +118,6 @@ final class SchemaManagerTest extends FunctionalTestCase
             self::markTestSkipped('This test is only supported on platforms that have autoincrement');
         }
 
-        if (! $autoincrement && $platform instanceof SQLitePlatform) {
-            self::markTestIncomplete('See https://github.com/doctrine/dbal/issues/6844');
-        }
-
         $table = new Table('test_autoincrement');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => $autoincrement]);
         $table->setPrimaryKey(['id']);

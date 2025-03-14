@@ -237,6 +237,14 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         return parent::_getPortableTableForeignKeysList($list);
     }
 
+    /** @link https://www.sqlite.org/autoinc.html#the_autoincrement_keyword */
+    private function parseColumnAutoIncrementFromSQL(string $column, string $sql): bool
+    {
+        $pattern = '/' . $this->buildIdentifierPattern($column) . 'INTEGER\s+PRIMARY\s+KEY\s+AUTOINCREMENT/i';
+
+        return preg_match($pattern, $sql) === 1;
+    }
+
     private function parseColumnCollationFromSQL(string $column, string $sql): ?string
     {
         $pattern = '{' . $this->buildIdentifierPattern($column)
@@ -497,28 +505,16 @@ SQL,
 
         $rows = parent::fetchTableColumns($databaseName, $tableName);
 
-        $sqlByTable = $pkColumnNamesByTable = $result = [];
-
-        foreach ($rows as $row) {
-            $unqualifiedTableName = $row[self::TABLE_NAME_COLUMN];
-
-            $sqlByTable[$unqualifiedTableName] ??= $this->getCreateTableSQL($unqualifiedTableName);
-
-            if ($row['pk'] === 0 || $row['pk'] === '0' || $row['type'] !== 'INTEGER') {
-                continue;
-            }
-
-            $pkColumnNamesByTable[$unqualifiedTableName][] = $row['name'];
-        }
+        $sqlByTable = $result = [];
 
         foreach ($rows as $row) {
             $unqualifiedTableName = $row[self::TABLE_NAME_COLUMN];
             $columnName           = $row['name'];
-            $tableSQL             = $sqlByTable[$row[self::TABLE_NAME_COLUMN]];
+
+            $tableSQL = $sqlByTable[$unqualifiedTableName] ??= $this->getCreateTableSQL($unqualifiedTableName);
 
             $result[] = array_merge($row, [
-                'autoincrement' => isset($pkColumnNamesByTable[$unqualifiedTableName])
-                    && $pkColumnNamesByTable[$unqualifiedTableName] === [$columnName],
+                'autoincrement' => $this->parseColumnAutoIncrementFromSQL($columnName, $tableSQL),
                 'collation' => $this->parseColumnCollationFromSQL($columnName, $tableSQL),
                 'comment' => $this->parseColumnCommentFromSQL($columnName, $tableSQL),
             ]);
