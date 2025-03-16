@@ -28,11 +28,11 @@ class DBAL461Test extends TestCase
             'type' => 'numeric(18,0)',
             'length' => null,
             'default' => null,
-            'notnull' => false,
+            'is_nullable' => true,
             'scale' => 18,
             'precision' => 0,
-            'autoincrement' => false,
-            'collation' => 'foo',
+            'is_identity' => false,
+            'collation_name' => 'foo',
             'comment' => null,
         ]);
 

@@ -112,7 +112,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        $dbType = strtolower($tableColumn['type']);
+        $dbType = strtolower($tableColumn['column_type']);
         $dbType = strtok($dbType, '(), ');
         assert(is_string($dbType));
 
@@ -141,7 +141,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 if (
                     preg_match(
                         '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
-                        $tableColumn['type'],
+                        $tableColumn['column_type'],
                         $match,
                     ) === 1
                 ) {
@@ -187,35 +187,35 @@ class MySQLSchemaManager extends AbstractSchemaManager
                 break;
 
             case 'enum':
-                $values = $this->parseEnumExpression($tableColumn['type']);
+                $values = $this->parseEnumExpression($tableColumn['column_type']);
                 break;
         }
 
         if ($this->platform instanceof MariaDBPlatform) {
-            $columnDefault = $this->getMariaDBColumnDefault($this->platform, $tableColumn['default']);
+            $columnDefault = $this->getMariaDBColumnDefault($this->platform, $tableColumn['column_default']);
         } else {
-            $columnDefault = $tableColumn['default'];
+            $columnDefault = $tableColumn['column_default'];
         }
 
         $options = [
             'length'        => $length !== null ? (int) $length : null,
-            'unsigned'      => str_contains($tableColumn['type'], 'unsigned'),
+            'unsigned'      => str_contains($tableColumn['column_type'], 'unsigned'),
             'fixed'         => $fixed,
             'default'       => $columnDefault,
-            'notnull'       => $tableColumn['null'] !== 'YES',
+            'notnull'       => $tableColumn['is_nullable'] !== 'YES',
             'scale'         => $scale,
             'precision'     => $precision,
             'autoincrement' => str_contains($tableColumn['extra'], 'auto_increment'),
             'values'        => $values,
         ];
 
-        if ($tableColumn['comment'] !== null) {
-            $options['comment'] = $tableColumn['comment'];
+        if ($tableColumn['column_comment'] !== null) {
+            $options['comment'] = $tableColumn['column_comment'];
         }
 
-        $column = new Column($tableColumn['field'], Type::getType($type), $options);
-        $column->setPlatformOption('charset', $tableColumn['characterset']);
-        $column->setPlatformOption('collation', $tableColumn['collation']);
+        $column = new Column($tableColumn['column_name'], Type::getType($type), $options);
+        $column->setPlatformOption('charset', $tableColumn['character_set_name']);
+        $column->setPlatformOption('collation', $tableColumn['collation_name']);
 
         return $column;
     }
@@ -344,16 +344,15 @@ class MySQLSchemaManager extends AbstractSchemaManager
         $sql = sprintf(
             <<<'SQL'
 SELECT
-       c.TABLE_NAME         AS %s,
-       c.COLUMN_NAME        AS field,
-       %s                   AS type,
-       c.IS_NULLABLE        AS `null`,
-       c.COLUMN_KEY         AS `key`,
-       c.COLUMN_DEFAULT     AS `default`,
+       c.TABLE_NAME AS %s,
+       c.COLUMN_NAME,
+       %s AS COLUMN_TYPE,
+       c.IS_NULLABLE,
+       c.COLUMN_DEFAULT,
        c.EXTRA,
-       c.COLUMN_COMMENT     AS comment,
-       c.CHARACTER_SET_NAME AS characterset,
-       c.COLLATION_NAME     AS collation
+       c.COLUMN_COMMENT,
+       c.CHARACTER_SET_NAME,
+       c.COLLATION_NAME
 FROM information_schema.COLUMNS c
     INNER JOIN information_schema.TABLES t
         ON t.TABLE_NAME = c.TABLE_NAME
@@ -387,12 +386,12 @@ SQL,
         $sql = sprintf(
             <<<'SQL'
 SELECT
-        TABLE_NAME  AS %s,
-        NON_UNIQUE  AS Non_Unique,
-        INDEX_NAME  AS Key_name,
-        COLUMN_NAME AS Column_Name,
-        SUB_PART    AS Sub_Part,
-        INDEX_TYPE  AS Index_Type
+        TABLE_NAME AS %s,
+        NON_UNIQUE,
+        INDEX_NAME AS Key_name,
+        COLUMN_NAME,
+        SUB_PART,
+        INDEX_TYPE
 FROM information_schema.STATISTICS
 WHERE %s
 ORDER BY TABLE_NAME,

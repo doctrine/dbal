@@ -57,14 +57,14 @@ class OracleSchemaManager extends AbstractSchemaManager
 
             $buffer = [];
 
-            if ($row['is_primary'] === 'P') {
+            if ($row['constraint_type'] === 'P') {
                 $buffer['key_name']   = 'primary';
                 $buffer['primary']    = true;
                 $buffer['non_unique'] = false;
             } else {
-                $buffer['key_name']   = strtolower($row['name']);
+                $buffer['key_name']   = strtolower($row['index_name']);
                 $buffer['primary']    = false;
-                $buffer['non_unique'] = ! $row['is_unique'];
+                $buffer['non_unique'] = $row['uniqueness'] !== 'UNIQUE';
             }
 
             $buffer['column_name'] = $this->getQuotedIdentifierName($row['column_name']);
@@ -371,12 +371,10 @@ SQL,
             <<<'SQL'
           SELECT
                  IND_COL.TABLE_NAME AS %s,
-                 IND_COL.INDEX_NAME AS NAME,
-                 IND.INDEX_TYPE AS TYPE,
-                 DECODE(IND.UNIQUENESS, 'NONUNIQUE', 0, 'UNIQUE', 1) AS IS_UNIQUE,
+                 IND_COL.INDEX_NAME,
+                 IND.UNIQUENESS,
                  IND_COL.COLUMN_NAME,
-                 IND_COL.COLUMN_POSITION AS COLUMN_POS,
-                 CON.CONSTRAINT_TYPE AS IS_PRIMARY
+                 CON.CONSTRAINT_TYPE
             FROM ALL_IND_COLUMNS IND_COL
        LEFT JOIN ALL_INDEXES IND
               ON IND.OWNER = IND_COL.INDEX_OWNER
