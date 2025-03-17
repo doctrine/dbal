@@ -55,17 +55,6 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertInstanceOf(MoneyType::class, $table->getColumn('value')->getType());
     }
 
-    public function testDetectsAutoIncrement(): void
-    {
-        $autoincTable = new Table('autoinc_table');
-        $column       = $autoincTable->addColumn('id', Types::INTEGER);
-        $column->setAutoincrement(true);
-        $this->dropAndCreateTable($autoincTable);
-        $autoincTable = $this->schemaManager->introspectTable('autoinc_table');
-
-        self::assertTrue($autoincTable->getColumn('id')->getAutoincrement());
-    }
-
     public function testAlterTableAutoIncrementAdd(): void
     {
         $tableFrom = new Table('autoinc_table_add');

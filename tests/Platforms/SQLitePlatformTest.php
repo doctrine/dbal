@@ -18,12 +18,15 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 use function implode;
 
 /** @extends AbstractPlatformTestCase<SQLitePlatform> */
 class SQLitePlatformTest extends AbstractPlatformTestCase
 {
+    use VerifyDeprecations;
+
     public function createPlatform(): AbstractPlatform
     {
         return new SQLitePlatform();
@@ -636,5 +639,25 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
             ],
             $this->platform->getCreateTableSQL($table),
         );
+    }
+
+    public function testCreateTableWithNonPrimaryKeyAutoIncrementColumn(): void
+    {
+        $table = new Table('test_autoincrement');
+        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6849');
+        $this->platform->getCreateTableSQL($table);
+    }
+
+    public function testCreateTableWithCompositePrimaryKeyAutoIncrementColumn(): void
+    {
+        $table = new Table('test_autoincrement');
+        $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('id2', Types::INTEGER);
+        $table->setPrimaryKey(['id1', 'id2']);
+
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6849');
+        $this->platform->getCreateTableSQL($table);
     }
 }

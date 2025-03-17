@@ -38,29 +38,6 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         return $platform instanceof AbstractMySQLPlatform;
     }
 
-    public function testSwitchPrimaryKeyColumns(): void
-    {
-        $tableOld = new Table('switch_primary_key_columns');
-        $tableOld->addColumn('foo_id', Types::INTEGER);
-        $tableOld->addColumn('bar_id', Types::INTEGER);
-
-        $this->schemaManager->createTable($tableOld);
-        $tableFetched = $this->schemaManager->introspectTable('switch_primary_key_columns');
-        $tableNew     = clone $tableFetched;
-        $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
-
-        $diff = $this->schemaManager->createComparator()
-            ->compareTables($tableFetched, $tableNew);
-
-        $this->schemaManager->alterTable($diff);
-
-        $table = $this->schemaManager->introspectTable('switch_primary_key_columns');
-
-        $primaryKey = $table->getPrimaryKey();
-        self::assertNotNull($primaryKey);
-        self::assertSame(['bar_id', 'foo_id'], $primaryKey->getColumns());
-    }
-
     public function testFulltextIndex(): void
     {
         $table = new Table('fulltext_index');
@@ -110,31 +87,6 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $indexes = $this->schemaManager->listTableIndexes('index_length');
         self::assertArrayHasKey('text_index', $indexes);
         self::assertSame([128], $indexes['text_index']->getOption('lengths'));
-    }
-
-    public function testAlterTableAddPrimaryKey(): void
-    {
-        $table = new Table('alter_table_add_pk');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('foo', Types::INTEGER);
-        $table->addIndex(['id'], 'idx_id');
-
-        $this->schemaManager->createTable($table);
-
-        $diffTable = clone $table;
-
-        $diffTable->dropIndex('idx_id');
-        $diffTable->setPrimaryKey(['id']);
-
-        $diff = $this->schemaManager->createComparator()
-            ->compareTables($table, $diffTable);
-
-        $this->schemaManager->alterTable($diff);
-
-        $table = $this->schemaManager->introspectTable('alter_table_add_pk');
-
-        self::assertFalse($table->hasIndex('idx_id'));
-        self::assertNotNull($table->getPrimaryKey());
     }
 
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void

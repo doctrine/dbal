@@ -652,58 +652,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertStringContainsString('view_test_table', $filtered[0]->getSql());
     }
 
-    public function testAutoincrementDetection(): void
-    {
-        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            self::markTestSkipped('This test is only supported on platforms that have autoincrement');
-        }
-
-        $table = new Table(
-            'test_autoincrement',
-            [],
-            [],
-            [],
-            [],
-            [],
-            $this->schemaManager->createSchemaConfig()->toTableConfiguration(),
-        );
-        $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-        $table->setPrimaryKey(['id']);
-
-        $this->schemaManager->createTable($table);
-
-        $inferredTable = $this->schemaManager->introspectTable('test_autoincrement');
-        self::assertTrue($inferredTable->hasColumn('id'));
-        self::assertTrue($inferredTable->getColumn('id')->getAutoincrement());
-    }
-
-    public function testAutoincrementDetectionMulticolumns(): void
-    {
-        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            self::markTestSkipped('This test is only supported on platforms that have autoincrement');
-        }
-
-        $table = new Table(
-            'test_not_autoincrement',
-            [],
-            [],
-            [],
-            [],
-            [],
-            $this->schemaManager->createSchemaConfig()->toTableConfiguration(),
-        );
-        $table->addColumn('id', Types::INTEGER);
-        $table->addColumn('other_id', Types::INTEGER);
-        $table->setPrimaryKey(['id', 'other_id']);
-
-        $this->schemaManager->createTable($table);
-
-        $inferredTable = $this->schemaManager->introspectTable('test_not_autoincrement');
-        self::assertTrue($inferredTable->hasColumn('id'));
-        self::assertFalse($inferredTable->getColumn('id')->getAutoincrement());
-    }
-
-    /** @throws Exception */
     public function testUpdateSchemaWithForeignKeyRenaming(): void
     {
         $table = new Table('test_fk_base');

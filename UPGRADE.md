@@ -217,7 +217,14 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
-## Deprecated automatic drop of `auto-increment` column attribute
+## Deprecated invalid auto-increment column definitions on SQLite
+
+The following auto-increment column definitions are deprecated in SQLite:
+
+1. An auto-increment column that is not a primary key.
+2. An auto-increment column that is part of a composite primary key.
+
+## Deprecated automatic drop of auto-increment column attribute on MySQL
 
 Relying on the auto-increment attribute of a MySQL column being automatically dropped once the column is no longer part
 of the primary key constraint is deprecated. Instead, drop the auto-increment attribute explicitly.

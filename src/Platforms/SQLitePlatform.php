@@ -22,6 +22,7 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_combine;
@@ -266,6 +267,10 @@ class SQLitePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
+        if ($this->hasAutoIncrementColumn($columns, $parameters)) {
+            unset($parameters['primary_index']);
+        }
+
         $elements = [];
 
         foreach ($columns as $column) {
@@ -279,12 +284,10 @@ class SQLitePlatform extends AbstractPlatform
         if (isset($parameters['primary_index'])) {
             $primaryKeyColumns = $parameters['primary_index']->getQuotedColumns($this);
 
-            if ($this->shouldDeclarePrimaryKeyConstraint($columns, $primaryKeyColumns)) {
-                $elements[] = sprintf(
-                    'PRIMARY KEY(%s)',
-                    implode(', ', $primaryKeyColumns),
-                );
-            }
+            $elements[] = sprintf(
+                'PRIMARY KEY(%s)',
+                implode(', ', $primaryKeyColumns),
+            );
         }
 
         foreach ($parameters['foreignKeys'] as $foreignKey) {
@@ -314,24 +317,51 @@ class SQLitePlatform extends AbstractPlatform
     }
 
     /**
-     * Returns whether the primary key constraint should be declared on the table.
-     *
-     * The constraint should be declared only if none of the primary key columns are autoincrement.
-     *
      * @param list<ColumnProperties> $columns
-     * @param list<string>           $keyColumns
+     * @param CreateTableParameters  $parameters
      */
-    private function shouldDeclarePrimaryKeyConstraint(array $columns, array $keyColumns): bool
+    private function hasAutoIncrementColumn(array $columns, array $parameters): bool
     {
-        foreach ($keyColumns as $keyColumn) {
-            foreach ($columns as $column) {
-                if ($column['name']->toSQL($this) === $keyColumn && ! empty($column['autoincrement'])) {
-                    return false;
-                }
+        $primaryKeyColumnNames = [];
+
+        $folding = $this->getUnquotedIdentifierFolding();
+
+        if (isset($parameters['primary_index'])) {
+            foreach ($parameters['primary_index']->getIndexedColumns() as $indexedColumn) {
+                $columnName = $indexedColumn->getColumnName()
+                    ->getIdentifier()
+                    ->toNormalizedValue($folding);
+
+                $primaryKeyColumnNames[$columnName] = true;
             }
         }
 
-        return true;
+        foreach ($columns as $column) {
+            if (empty($column['autoincrement'])) {
+                continue;
+            }
+
+            $columnName = $column['name']->getIdentifier()
+                ->toNormalizedValue($folding);
+
+            if (! isset($primaryKeyColumnNames[$columnName])) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/6849',
+                    'Declaring a column that is not part of the primary key as auto-increment is deprecated.',
+                );
+            } elseif (count($primaryKeyColumnNames) > 1) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/6849',
+                    'Declaring a column that is part of a composite primary key as auto-increment is deprecated.',
+                );
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string

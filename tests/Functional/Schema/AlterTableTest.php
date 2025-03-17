@@ -109,6 +109,14 @@ class AlterTableTest extends FunctionalTestCase
 
     public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn(): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SQLitePlatform) {
+            self::markTestSkipped(
+                'SQLite does not support auto-increment columns as part of composite primary key constraint',
+            );
+        }
+
         $this->ensureDroppingPrimaryKeyConstraintIsSupported();
 
         $table = new Table('alter_pk');
