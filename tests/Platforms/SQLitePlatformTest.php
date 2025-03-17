@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\UnsupportedTableDefinition;
 use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -18,15 +19,12 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 use function implode;
 
 /** @extends AbstractPlatformTestCase<SQLitePlatform> */
 class SQLitePlatformTest extends AbstractPlatformTestCase
 {
-    use VerifyDeprecations;
-
     public function createPlatform(): AbstractPlatform
     {
         return new SQLitePlatform();
@@ -646,7 +644,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table = new Table('test_autoincrement');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
 
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6849');
+        $this->expectException(UnsupportedTableDefinition::class);
         $this->platform->getCreateTableSQL($table);
     }
 
@@ -657,7 +655,7 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('id2', Types::INTEGER);
         $table->setPrimaryKey(['id1', 'id2']);
 
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6849');
+        $this->expectException(UnsupportedTableDefinition::class);
         $this->platform->getCreateTableSQL($table);
     }
 }
