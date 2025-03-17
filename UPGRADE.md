@@ -8,6 +8,13 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: removed support for invalid auto-increment column definitions on SQLite
+
+The following auto-increment column definitions are no longer supported on SQLite:
+
+1. An auto-increment column that is not a primary key.
+2. An auto-increment column that is part of a composite primary key.
+
 ## BC BREAK: removed `TableDiff` methods
 
 The `TableDiff::getModifiedForeignKeys()` and `TableDiff::getModifiedIndexes()` methods have been removed.

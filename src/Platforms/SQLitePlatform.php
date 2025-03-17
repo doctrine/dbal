@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Platforms\Exception\UnsupportedTableDefinition;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -22,7 +23,6 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_combine;
@@ -345,17 +345,11 @@ class SQLitePlatform extends AbstractPlatform
                 ->toNormalizedValue($folding);
 
             if (! isset($primaryKeyColumnNames[$columnName])) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/6849',
-                    'Declaring a column that is not part of the primary key as auto-increment is deprecated.',
-                );
-            } elseif (count($primaryKeyColumnNames) > 1) {
-                Deprecation::trigger(
-                    'doctrine/dbal',
-                    'https://github.com/doctrine/dbal/pull/6849',
-                    'Declaring a column that is part of a composite primary key as auto-increment is deprecated.',
-                );
+                throw UnsupportedTableDefinition::autoIncrementColumnNotPartOfPrimaryKey($column['name']);
+            }
+
+            if (count($primaryKeyColumnNames) > 1) {
+                throw UnsupportedTableDefinition::autoIncrementColumnPartOfCompositePrimaryKey($column['name']);
             }
 
             return true;
