@@ -354,7 +354,7 @@ SQL,
             'autoincrement' => $autoincrement,
         ];
 
-        if (isset($tableColumn['comment'])) {
+        if ($tableColumn['comment'] !== null) {
             $options['comment'] = $tableColumn['comment'];
         }
 

@@ -220,6 +220,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
      * The SQL snippet required to elucidate a column type
      *
      * Returns a column type SELECT snippet string
+     *
+     * @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy.
      */
     public function getColumnTypeSQLSnippet(string $tableAlias, string $databaseName): string
     {
@@ -679,6 +681,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $result;
     }
 
+    /** @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy. */
     public function fetchTableOptionsByTable(bool $includeTableName): string
     {
         $sql = <<<'SQL'

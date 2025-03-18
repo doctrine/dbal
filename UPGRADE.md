@@ -288,6 +288,10 @@ Passing names that are not valid SQL to the schema introspection methods is also
 The following platform and schema manager methods are considered implementation details and have been marked as
 internal:
 
+- `AbstractMySQLPlatform::getColumnTypeSQLSnippet()`
+- `AbstractMySQLPlatform::fetchTableOptionsByTable()`
+- `MariaDB1010Platform::fetchTableOptionsByTable()`
+- `MariaDBPlatform::getColumnTypeSQLSnippet()`
 - `OraclePlatform::getCreateAutoincrementSql()`
 - `OraclePlatform::getIdentitySequenceName()`
 - `OracleSchemaManager::dropAutoincrement()`

@@ -5,6 +5,7 @@
          beStrictAboutOutputDuringTests="true"
          failOnRisky="true"
          failOnWarning="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
 >
     <php>
         <var name="db_driver" value="pdo_sqlsrv"/>

@@ -17,6 +17,7 @@
          beStrictAboutOutputDuringTests="true"
          failOnRisky="true"
          failOnWarning="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
 >
     <php>
         <ini name="error_reporting" value="-1" />

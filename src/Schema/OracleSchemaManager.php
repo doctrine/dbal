@@ -55,19 +55,18 @@ class OracleSchemaManager extends AbstractSchemaManager
         foreach ($rows as $row) {
             $row = array_change_key_case($row, CASE_LOWER);
 
-            $keyName = strtolower($row['name']);
-            $buffer  = [];
+            $buffer = [];
 
             if ($row['is_primary'] === 'P') {
-                $keyName              = 'primary';
+                $buffer['key_name']   = 'primary';
                 $buffer['primary']    = true;
                 $buffer['non_unique'] = false;
             } else {
+                $buffer['key_name']   = strtolower($row['name']);
                 $buffer['primary']    = false;
                 $buffer['non_unique'] = ! $row['is_unique'];
             }
 
-            $buffer['key_name']    = $keyName;
             $buffer['column_name'] = $this->getQuotedIdentifierName($row['column_name']);
             $indexBuffer[]         = $buffer;
         }
@@ -94,10 +93,6 @@ class OracleSchemaManager extends AbstractSchemaManager
         $length = $precision = null;
         $scale  = 0;
         $fixed  = false;
-
-        if (! isset($tableColumn['column_name'])) {
-            $tableColumn['column_name'] = '';
-        }
 
         assert(array_key_exists('data_default', $tableColumn));
 
@@ -175,7 +170,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             'scale'      => $scale,
         ];
 
-        if (isset($tableColumn['comments'])) {
+        if ($tableColumn['comments'] !== null) {
             $options['comment'] = $tableColumn['comments'];
         }
 

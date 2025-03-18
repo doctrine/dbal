@@ -18,6 +18,7 @@ class MariaDB1010Platform extends MariaDB1060Platform
         return AbstractPlatform::createSelectSQLBuilder();
     }
 
+    /** @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy. */
     public function fetchTableOptionsByTable(bool $includeTableName): string
     {
         // MariaDB-10.10.1 added FULL_COLLATION_NAME to the information_schema.COLLATION_CHARACTER_SET_APPLICABILITY.

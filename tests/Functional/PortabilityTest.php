@@ -36,7 +36,7 @@ class PortabilityTest extends FunctionalTestCase
 
         $result = $this->connection->executeQuery('SELECT * FROM portability_table');
 
-        while (($row = $result->fetchAssociative())) {
+        while (($row = $result->fetchAssociative()) !== false) {
             $this->assertFetchResultRow($row);
         }
 
@@ -44,7 +44,7 @@ class PortabilityTest extends FunctionalTestCase
             ->prepare('SELECT * FROM portability_table')
             ->executeQuery();
 
-        while (($row = $result->fetchAssociative())) {
+        while (($row = $result->fetchAssociative()) !== false) {
             $this->assertFetchResultRow($row);
         }
     }

@@ -36,6 +36,8 @@ class MariaDBPlatform extends AbstractMySQLPlatform
      * as JSON where it was originally specified as such instead of LONGTEXT.
      *
      * The CHECK constraints are stored in information_schema.CHECK_CONSTRAINTS so query that table.
+     *
+     * @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy.
      */
     public function getColumnTypeSQLSnippet(string $tableAlias, string $databaseName): string
     {

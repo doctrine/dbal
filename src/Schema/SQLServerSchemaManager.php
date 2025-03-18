@@ -125,7 +125,7 @@ SQL,
             'autoincrement' => (bool) $tableColumn['autoincrement'],
         ];
 
-        if (isset($tableColumn['comment'])) {
+        if ($tableColumn['comment'] !== null) {
             $options['comment'] = $tableColumn['comment'];
         }
 
@@ -145,16 +145,14 @@ SQL,
             );
         }
 
-        if (isset($tableColumn['collation']) && $tableColumn['collation'] !== 'NULL') {
-            $column->setPlatformOption('collation', $tableColumn['collation']);
-        }
+        $column->setPlatformOption('collation', $tableColumn['collation']);
 
         return $column;
     }
 
     private function parseDefaultExpression(string $value): ?string
     {
-        while (preg_match('/^\((.*)\)$/s', $value, $matches)) {
+        while (preg_match('/^\((.*)\)$/s', $value, $matches) === 1) {
             $value = $matches[1];
         }
 

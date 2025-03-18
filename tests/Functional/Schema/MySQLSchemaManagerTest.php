@@ -197,7 +197,7 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->schemaManager->listTableColumns('test_collation');
 
-        self::assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
+        self::assertFalse($columns['id']->hasPlatformOption('collation'));
         self::assertEquals('latin1_swedish_ci', $columns['text']->getPlatformOption('collation'));
         self::assertEquals('latin1_swedish_ci', $columns['foo']->getPlatformOption('collation'));
         self::assertEquals('utf8mb4_general_ci', $columns['bar']->getPlatformOption('collation'));

@@ -83,15 +83,13 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $options = [
             'length'          => $length,
-            'unsigned'        => false,
             'fixed'           => $fixed,
             'default'         => $default,
             'autoincrement'   => (bool) $tableColumn['autoincrement'],
             'notnull'         => $tableColumn['nulls'] === 'N',
-            'platformOptions' => [],
         ];
 
-        if (isset($tableColumn['comment'])) {
+        if ($tableColumn['comment'] !== null) {
             $options['comment'] = $tableColumn['comment'];
         }
 
