@@ -8,6 +8,12 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: `INTEGER PRIMARY KEY` columns are no longer introspected as auto-incremented on SQLite
+
+Even though `INTEGER PRIMARY KEY` columns are effectively auto-incremented on SQLite, DBAL no longer introspects them as
+such. Only if the column is declared as `INTEGER PRIMARY KEY AUTOINCREMENT`, it will be introspected as
+auto-incremented.
+
 ## BC BREAK: removed support for invalid auto-increment column definitions on SQLite
 
 The following auto-increment column definitions are no longer supported on SQLite:

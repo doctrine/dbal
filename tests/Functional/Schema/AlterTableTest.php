@@ -17,13 +17,6 @@ class AlterTableTest extends FunctionalTestCase
 {
     public function testAddPrimaryKeyOnExistingColumn(): void
     {
-        if ($this->connection->getDatabasePlatform() instanceof SQLitePlatform) {
-            self::markTestSkipped(
-                'SQLite will automatically set up auto-increment behavior on the primary key column, which this test'
-                    . ' does not expect.',
-            );
-        }
-
         $table = new Table('alter_pk');
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn('val', Types::INTEGER);
