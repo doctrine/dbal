@@ -422,13 +422,12 @@ SQL,
             throw UnsupportedName::fromQualifiedName($tableName, __METHOD__);
         }
 
-        $primaryKeyConstraintName = $this->generateAutoincrementTriggerName($tableName->getUnqualifiedName());
-        $sequenceName             = $this->generateAutoincrementSequenceName($tableName);
+        $triggerName  = $this->generateAutoincrementTriggerName($tableName->getUnqualifiedName());
+        $sequenceName = $this->generateAutoincrementSequenceName($tableName);
 
         return [
-            'DROP TRIGGER ' . $primaryKeyConstraintName->toSQL($this),
+            'DROP TRIGGER ' . $triggerName->toSQL($this),
             $this->getDropSequenceSQL($sequenceName->toSQL($this)),
-            $this->getDropConstraintSQL($primaryKeyConstraintName->toSQL($this), $tableName->toSQL($this)),
         ];
     }
 
