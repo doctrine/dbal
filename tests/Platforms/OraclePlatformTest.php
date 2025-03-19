@@ -412,7 +412,6 @@ SQL
                 [
                     'DROP TRIGGER "MYTABLE_AI_PK"',
                     'DROP SEQUENCE "MYTABLE_SEQ"',
-                    'ALTER TABLE "MYTABLE" DROP CONSTRAINT "MYTABLE_AI_PK"',
                 ],
             ],
             [
@@ -420,7 +419,6 @@ SQL
                 [
                     'DROP TRIGGER "myTable_AI_PK"',
                     'DROP SEQUENCE "myTable_SEQ"',
-                    'ALTER TABLE "myTable" DROP CONSTRAINT "myTable_AI_PK"',
                 ],
             ],
             [
@@ -428,7 +426,6 @@ SQL
                 [
                     'DROP TRIGGER "TABLE_AI_PK"',
                     'DROP SEQUENCE "TABLE_SEQ"',
-                    'ALTER TABLE "TABLE" DROP CONSTRAINT "TABLE_AI_PK"',
                 ],
             ],
         ];
