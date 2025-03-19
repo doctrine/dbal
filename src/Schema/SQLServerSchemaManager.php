@@ -119,10 +119,10 @@ SQL,
 
         $options = [
             'fixed'         => $fixed,
-            'notnull'       => (bool) $tableColumn['notnull'],
+            'notnull'       => ! $tableColumn['is_nullable'],
             'scale'         => $scale,
             'precision'     => $precision,
-            'autoincrement' => (bool) $tableColumn['autoincrement'],
+            'autoincrement' => (bool) $tableColumn['is_identity'],
         ];
 
         if ($tableColumn['comment'] !== null) {
@@ -145,7 +145,7 @@ SQL,
             );
         }
 
-        $column->setPlatformOption('collation', $tableColumn['collation']);
+        $column->setPlatformOption('collation', $tableColumn['collation_name']);
 
         return $column;
     }
@@ -211,9 +211,13 @@ SQL,
     protected function _getPortableTableIndexesList(array $rows): array
     {
         foreach ($rows as &$row) {
-            $row['non_unique'] = (bool) $row['non_unique'];
-            $row['primary']    = (bool) $row['primary'];
-            $row['flags']      = $row['flags'] ? [$row['flags']] : null;
+            $row['non_unique'] = ! $row['is_unique'];
+            $row['primary']    = (bool) $row['is_primary_key'];
+            $row['flags']      = match ($row['type']) {
+                1 => ['clustered'],
+                2 => ['nonclustered'],
+                default => null,
+            };
         }
 
         return parent::_getPortableTableIndexesList($rows);
@@ -301,13 +305,13 @@ SQL,
                           col.name,
                           type.name AS type,
                           col.max_length AS length,
-                          ~col.is_nullable AS notnull,
+                          col.is_nullable,
                           def.definition AS [default],
                           def.name AS df_name,
                           col.scale,
                           col.precision,
-                          col.is_identity AS autoincrement,
-                          col.collation_name AS collation,
+                          col.is_identity,
+                          col.collation_name,
                           -- CAST avoids driver error for sql_variant type
                           CAST(prop.value AS NVARCHAR(MAX)) AS comment
                 FROM      sys.columns AS col
@@ -348,13 +352,9 @@ SQL,
                        tbl.name AS %s,
                        idx.name AS key_name,
                        col.name AS column_name,
-                       ~idx.is_unique AS non_unique,
-                       idx.is_primary_key AS [primary],
-                       CASE idx.type
-                           WHEN '1' THEN 'clustered'
-                           WHEN '2' THEN 'nonclustered'
-                           ELSE NULL
-                       END AS flags
+                       idx.is_unique,
+                       idx.is_primary_key,
+                       idx.type
                 FROM sys.tables AS tbl
                 JOIN sys.schemas AS scm
                   ON tbl.schema_id = scm.schema_id

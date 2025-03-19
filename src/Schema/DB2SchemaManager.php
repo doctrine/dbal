@@ -85,12 +85,12 @@ class DB2SchemaManager extends AbstractSchemaManager
             'length'          => $length,
             'fixed'           => $fixed,
             'default'         => $default,
-            'autoincrement'   => (bool) $tableColumn['autoincrement'],
+            'autoincrement'   => $tableColumn['generated'] === 'D',
             'notnull'         => $tableColumn['nulls'] === 'N',
         ];
 
-        if ($tableColumn['comment'] !== null) {
-            $options['comment'] = $tableColumn['comment'];
+        if ($tableColumn['remarks'] !== null) {
+            $options['comment'] = $tableColumn['remarks'];
         }
 
         if ($scale !== null && $precision !== null) {
@@ -107,8 +107,11 @@ class DB2SchemaManager extends AbstractSchemaManager
     protected function _getPortableTableIndexesList(array $rows): array
     {
         foreach ($rows as &$row) {
-            $row            = array_change_key_case($row, CASE_LOWER);
-            $row['primary'] = (bool) $row['primary'];
+            $row = array_change_key_case($row, CASE_LOWER);
+
+            $row['column_name'] = $row['colname'];
+            $row['primary']     = $row['uniquerule'] === 'P';
+            $row['non_unique']  = $row['uniquerule'] === 'D';
         }
 
         return parent::_getPortableTableIndexesList($rows);
@@ -124,18 +127,26 @@ class DB2SchemaManager extends AbstractSchemaManager
         foreach ($rows as $tableForeignKey) {
             $tableForeignKey = array_change_key_case($tableForeignKey, CASE_LOWER);
 
-            if (! isset($foreignKeys[$tableForeignKey['index_name']])) {
-                $foreignKeys[$tableForeignKey['index_name']] = [
+            if (! isset($foreignKeys[$tableForeignKey['constname']])) {
+                $foreignKeys[$tableForeignKey['constname']] = [
                     'local' => [$tableForeignKey['local_column']],
-                    'foreignTable' => $tableForeignKey['foreign_table'],
+                    'foreignTable' => $tableForeignKey['reftabname'],
                     'foreign' => [$tableForeignKey['foreign_column']],
-                    'name' => $tableForeignKey['index_name'],
-                    'onUpdate' => $tableForeignKey['on_update'],
-                    'onDelete' => $tableForeignKey['on_delete'],
+                    'name' => $tableForeignKey['constname'],
+                    'onUpdate' => match ($tableForeignKey['updaterule']) {
+                        'R' => 'RESTRICT',
+                        default => null,
+                    },
+                    'onDelete' => match ($tableForeignKey['deleterule']) {
+                        'C' => 'CASCADE',
+                        'N' => 'SET NULL',
+                        'R' => 'RESTRICT',
+                        default => null,
+                    },
                 ];
             } else {
-                $foreignKeys[$tableForeignKey['index_name']]['local'][]   = $tableForeignKey['local_column'];
-                $foreignKeys[$tableForeignKey['index_name']]['foreign'][] = $tableForeignKey['foreign_column'];
+                $foreignKeys[$tableForeignKey['constname']]['local'][]   = $tableForeignKey['local_column'];
+                $foreignKeys[$tableForeignKey['constname']]['foreign'][] = $tableForeignKey['foreign_column'];
             }
         }
 
@@ -199,11 +210,8 @@ SELECT
        C.NULLS,
        C.LENGTH,
        C.SCALE,
-       C.REMARKS AS COMMENT,
-       CASE
-           WHEN C.GENERATED = 'D' THEN 1
-           ELSE 0
-           END   AS AUTOINCREMENT,
+       C.REMARKS,
+       C.GENERATED,
        C.DEFAULT
 FROM SYSCAT.COLUMNS C
          JOIN SYSCAT.TABLES AS T
@@ -239,15 +247,8 @@ SQL,
       SELECT
              IDX.TABNAME AS %s,
              IDX.INDNAME AS KEY_NAME,
-             IDXCOL.COLNAME AS COLUMN_NAME,
-             CASE
-                 WHEN IDX.UNIQUERULE = 'P' THEN 1
-                 ELSE 0
-             END AS PRIMARY,
-             CASE
-                 WHEN IDX.UNIQUERULE = 'D' THEN 1
-                 ELSE 0
-             END AS NON_UNIQUE
+             IDXCOL.COLNAME,
+             IDX.UNIQUERULE
         FROM SYSCAT.INDEXES AS IDX
         JOIN SYSCAT.TABLES AS T
           ON IDX.TABSCHEMA = T.TABSCHEMA AND IDX.TABNAME = T.TABNAME
@@ -285,17 +286,11 @@ SQL,
       SELECT
              R.TABNAME AS %s,
              FKCOL.COLNAME AS LOCAL_COLUMN,
-             R.REFTABNAME AS FOREIGN_TABLE,
+             R.REFTABNAME,
              PKCOL.COLNAME AS FOREIGN_COLUMN,
-             R.CONSTNAME AS INDEX_NAME,
-             CASE
-                 WHEN R.UPDATERULE = 'R' THEN 'RESTRICT'
-             END AS ON_UPDATE,
-             CASE
-                 WHEN R.DELETERULE = 'C' THEN 'CASCADE'
-                 WHEN R.DELETERULE = 'N' THEN 'SET NULL'
-                 WHEN R.DELETERULE = 'R' THEN 'RESTRICT'
-             END AS ON_DELETE
+             R.CONSTNAME,
+             R.UPDATERULE,
+             R.DELETERULE
         FROM SYSCAT.REFERENCES AS R
          JOIN SYSCAT.TABLES AS T
               ON T.TABSCHEMA = R.TABSCHEMA

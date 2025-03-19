@@ -214,7 +214,7 @@ SQL,
         $length = null;
 
         if (
-            in_array(strtolower($tableColumn['type']), ['varchar', 'bpchar'], true)
+            in_array(strtolower($tableColumn['typname']), ['varchar', 'bpchar'], true)
             && preg_match('/\((\d*)\)/', $tableColumn['complete_type'], $matches) === 1
         ) {
             $length = (int) $matches[1];
@@ -253,11 +253,11 @@ SQL,
         $scale     = 0;
         $jsonb     = null;
 
-        $dbType = strtolower($tableColumn['type']);
+        $dbType = strtolower($tableColumn['typname']);
         if (
             $tableColumn['domain_type'] !== null
             && $tableColumn['domain_type'] !== ''
-            && ! $this->platform->hasDoctrineTypeMappingFor($tableColumn['type'])
+            && ! $this->platform->hasDoctrineTypeMappingFor($tableColumn['typname'])
         ) {
             $dbType                       = strtolower($tableColumn['domain_type']);
             $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
@@ -358,7 +358,7 @@ SQL,
             $options['comment'] = $tableColumn['comment'];
         }
 
-        $column = new Column($tableColumn['field'], Type::getType($type), $options);
+        $column = new Column($tableColumn['attname'], Type::getType($type), $options);
 
         if (! empty($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
@@ -414,8 +414,8 @@ SQL,
             n.nspname AS %s,
             c.relname AS %s,
             a.attnum,
-            quote_ident(a.attname) AS field,
-            t.typname AS type,
+            quote_ident(a.attname) AS attname,
+            t.typname,
             format_type(a.atttypid, a.atttypmod) AS complete_type,
             (
                 SELECT CASE
