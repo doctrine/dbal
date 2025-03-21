@@ -19,7 +19,6 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_merge;
@@ -32,9 +31,7 @@ use function is_numeric;
 use function is_string;
 use function sprintf;
 use function str_contains;
-use function str_ends_with;
 use function strtolower;
-use function substr;
 use function trim;
 
 /**
@@ -385,24 +382,6 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     public function getDropIndexSQL(string $name, string $table): string
     {
-        if (str_ends_with($table, '"')) {
-            $primaryKeyName = substr($table, 0, -1) . '_pkey"';
-        } else {
-            $primaryKeyName = $table . '_pkey';
-        }
-
-        if ($name === '"primary"' || $name === $primaryKeyName) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6867',
-                'Building the SQL for dropping primary key constraint via %s() is deprecated. Use'
-                    . ' getDropConstraintSQL() instead.',
-                __METHOD__,
-            );
-
-            return $this->getDropConstraintSQL($primaryKeyName, $table);
-        }
-
         if (str_contains($table, '.')) {
             [$schema] = explode('.', $table);
             $name     = $schema . '.' . $name;

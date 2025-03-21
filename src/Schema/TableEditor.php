@@ -7,8 +7,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Exception\InvalidTableDefinition;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 
-use function array_filter;
-
 final class TableEditor
 {
     private ?OptionallyQualifiedName $name = null;
@@ -63,11 +61,6 @@ final class TableEditor
     public function setPrimaryKeyConstraint(?PrimaryKeyConstraint $primaryKeyConstraint): self
     {
         $this->primaryKeyConstraint = $primaryKeyConstraint;
-
-        $this->indexes = array_filter(
-            $this->indexes,
-            static fn (Index $index): bool => ! $index->isPrimary(),
-        );
 
         return $this;
     }

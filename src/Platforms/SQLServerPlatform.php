@@ -23,7 +23,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_map;
@@ -238,25 +237,6 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return array_merge($sql, $commentsSql, $defaultConstraintsSql);
-    }
-
-    /** @deprecated */
-    public function getCreatePrimaryKeySQL(Index $index, string $table): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6867',
-            '%s() is deprecated.',
-            __METHOD__,
-        );
-
-        $sql = 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY';
-
-        if ($index->hasFlag('nonclustered')) {
-            $sql .= ' NONCLUSTERED';
-        }
-
-        return $sql . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }
 
     private function unquoteSingleIdentifier(string $possiblyQuotedName): string

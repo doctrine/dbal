@@ -231,4 +231,11 @@ class IndexTest extends TestCase
         self::assertEquals(UnqualifiedName::unquoted('last_name'), $indexedColumns[1]->getColumnName());
         self::assertNull($indexedColumns[1]->getLength());
     }
+
+    public function testPrimaryIndex(): void
+    {
+        $this->expectException(InvalidIndexDefinition::class);
+
+        new Index('users_pk', ['id'], false, true);
+    }
 }

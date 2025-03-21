@@ -502,10 +502,6 @@ class SQLitePlatform extends AbstractPlatform
         $sql = [];
 
         foreach ($this->getIndexesInAlteredTable($diff) as $index) {
-            if ($index->isPrimary()) {
-                continue;
-            }
-
             $sql[] = $this->getCreateIndexSQL($index, $table->getObjectName()->toSQL($this));
         }
 
@@ -562,10 +558,6 @@ class SQLitePlatform extends AbstractPlatform
             ));
         }
 
-        if ($index->isPrimary()) {
-            return $this->getCreatePrimaryKeySQL($index, $table);
-        }
-
         if (strpos($table, '.') !== false) {
             [$schema, $table] = explode('.', $table);
             $name             = $schema . '.' . $name;
@@ -589,12 +581,6 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         return $sql;
-    }
-
-    /** @deprecated */
-    public function getCreatePrimaryKeySQL(Index $index, string $table): string
-    {
-        throw NotSupported::new(__METHOD__);
     }
 
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $table): string
@@ -850,7 +836,7 @@ class SQLitePlatform extends AbstractPlatform
                 $index->getName(),
                 $indexColumns,
                 $index->isUnique(),
-                $index->isPrimary(),
+                false,
                 $index->getFlags(),
             );
         }

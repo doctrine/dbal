@@ -44,7 +44,6 @@ use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -842,10 +841,6 @@ abstract class AbstractPlatform
         $parameters['foreignKeys']       = [];
 
         foreach ($table->getIndexes() as $index) {
-            if ($index->isPrimary()) {
-                continue;
-            }
-
             $parameters['indexes'][] = $index;
         }
 
@@ -1112,10 +1107,6 @@ abstract class AbstractPlatform
             ));
         }
 
-        if ($index->isPrimary()) {
-            return $this->getCreatePrimaryKeySQL($index, $table);
-        }
-
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
         $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
 
@@ -1140,23 +1131,6 @@ abstract class AbstractPlatform
     protected function getCreateIndexSQLFlags(Index $index): string
     {
         return $index->isUnique() ? 'UNIQUE ' : '';
-    }
-
-    /**
-     * Returns the SQL to create an unnamed primary key constraint.
-     *
-     * @deprecated
-     */
-    public function getCreatePrimaryKeySQL(Index $index, string $table): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6867',
-            '%s() is deprecated.',
-            __METHOD__,
-        );
-
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }
 
     /**

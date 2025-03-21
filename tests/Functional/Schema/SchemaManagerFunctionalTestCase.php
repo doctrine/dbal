@@ -516,7 +516,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foreign_key_test'));
         self::assertCount(0, $table->getForeignKeys());
-        self::assertCount(1, $table->getIndexes());
+        self::assertCount(0, $table->getIndexes());
 
         $newTable = clone $table;
         $newTable->addColumn('foo', Types::INTEGER);
@@ -540,10 +540,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTable('alter_table');
-        self::assertCount(2, $table->getIndexes());
+        self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
         self::assertEquals(['foo'], array_map('strtolower', $table->getIndex('foo_idx')->getColumns()));
-        self::assertFalse($table->getIndex('foo_idx')->isPrimary());
         self::assertFalse($table->getIndex('foo_idx')->isUnique());
 
         $newTable = clone $table;
@@ -555,7 +554,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTable('alter_table');
-        self::assertCount(2, $table->getIndexes());
+        self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
         self::assertEquals(
             ['foo', 'foreign_key_test'],
@@ -571,14 +570,13 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->introspectTable('alter_table');
-        self::assertCount(2, $table->getIndexes());
+        self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('foo_idx'));
         self::assertEquals(
             ['foo', 'foreign_key_test'],
             array_map('strtolower', $table->getIndex('bar_idx')->getColumns()),
         );
-        self::assertFalse($table->getIndex('bar_idx')->isPrimary());
         self::assertFalse($table->getIndex('bar_idx')->isUnique());
 
         $newTable = clone $table;
@@ -1237,7 +1235,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $user = $this->schemaManager->introspectTable('user');
         self::assertCount(2, $user->getColumns());
-        self::assertCount(2, $user->getIndexes());
+        self::assertCount(1, $user->getIndexes());
         self::assertCount(1, $user->getForeignKeys());
     }
 
@@ -1250,7 +1248,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $user = $this->findTableByName($tables, 'user');
         self::assertNotNull($user);
         self::assertCount(2, $user->getColumns());
-        self::assertCount(2, $user->getIndexes());
+        self::assertCount(1, $user->getIndexes());
         self::assertCount(1, $user->getForeignKeys());
     }
 

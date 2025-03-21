@@ -392,10 +392,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
                 $indexClause = 'INDEX ' . $addedIndex->getObjectName()->toSQL($this);
 
-                if ($addedIndex->isPrimary()) {
-                    continue;
-                }
-
                 if ($addedIndex->isUnique()) {
                     $indexClause = 'UNIQUE ' . $indexClause;
                 }

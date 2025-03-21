@@ -208,10 +208,6 @@ class Comparator
 
         // See if all the indexes from the old table exist in the new one
         foreach ($newIndexes as $newIndexName => $newIndex) {
-            if ($newIndex->isPrimary()) {
-                continue;
-            }
-
             if ($oldTable->hasIndex($newIndexName)) {
                 continue;
             }
@@ -221,10 +217,6 @@ class Comparator
 
         // See if there are any removed indexes in the new table
         foreach ($oldIndexes as $oldIndexName => $oldIndex) {
-            if ($oldIndex->isPrimary()) {
-                continue;
-            }
-
             if (! $newTable->hasIndex($oldIndexName)) {
                 $droppedIndexes[$oldIndexName] = $oldIndex;
 
