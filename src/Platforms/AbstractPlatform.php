@@ -1470,10 +1470,7 @@ abstract class AbstractPlatform
             $chunks[] = 'CLUSTERED';
         }
 
-        $chunks[] = sprintf('(%s)', implode(', ', array_map(
-            fn (UnqualifiedName $columnName) => $columnName->toSQL($this),
-            $constraint->getColumnNames(),
-        )));
+        $chunks[] = $this->buildUnqualifiedNameListSQL($constraint->getColumnNames());
 
         return implode(' ', $chunks);
     }
@@ -1560,25 +1557,21 @@ abstract class AbstractPlatform
      */
     protected function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {
-        $name = $foreignKey->getObjectName();
+        $chunks = [];
 
-        $sql = '';
+        $name = $foreignKey->getObjectName();
         if ($name !== null) {
-            $sql .= 'CONSTRAINT ' . $name->toSQL($this) . ' ';
+            $chunks[] = 'CONSTRAINT';
+            $chunks[] = $name->toSQL($this);
         }
 
-        return $sql . sprintf(
-            'FOREIGN KEY (%s) REFERENCES %s (%s)',
-            implode(', ', array_map(
-                fn (UnqualifiedName $columnName) => $columnName->toSQL($this),
-                $foreignKey->getReferencingColumnNames(),
-            )),
-            $foreignKey->getReferencedTableName()->toSQL($this),
-            implode(', ', array_map(
-                fn (UnqualifiedName $columnName) => $columnName->toSQL($this),
-                $foreignKey->getReferencedColumnNames(),
-            )),
-        );
+        $chunks[] = 'FOREIGN KEY';
+        $chunks[] = $this->buildUnqualifiedNameListSQL($foreignKey->getReferencingColumnNames());
+        $chunks[] = 'REFERENCES';
+        $chunks[] = $foreignKey->getReferencedTableName()->toSQL($this);
+        $chunks[] = $this->buildUnqualifiedNameListSQL($foreignKey->getReferencedColumnNames());
+
+        return implode(' ', $chunks);
     }
 
     /**
@@ -1607,6 +1600,15 @@ abstract class AbstractPlatform
     protected function getColumnCollationDeclarationSQL(string $collation): string
     {
         return $this->supportsColumnCollation() ? 'COLLATE ' . $this->quoteSingleIdentifier($collation) : '';
+    }
+
+    /** @param non-empty-list<UnqualifiedName> $names */
+    private function buildUnqualifiedNameListSQL(array $names): string
+    {
+        return sprintf('(%s)', implode(', ', array_map(
+            fn (UnqualifiedName $columnName) => $columnName->toSQL($this),
+            $names,
+        )));
     }
 
     /**
