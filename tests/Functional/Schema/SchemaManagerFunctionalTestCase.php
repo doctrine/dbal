@@ -392,12 +392,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $tableIndexes = $this->schemaManager->listTableIndexes('list_table_indexes_test');
 
-        self::assertCount(3, $tableIndexes);
-
-        self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        self::assertEquals(['id', 'other_id'], array_map('strtolower', $tableIndexes['primary']->getColumns()));
-        self::assertTrue($tableIndexes['primary']->isUnique());
-        self::assertTrue($tableIndexes['primary']->isPrimary());
+        self::assertCount(2, $tableIndexes);
 
         self::assertEquals('test_index_name', strtolower($tableIndexes['test_index_name']->getName()));
         self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test_index_name']->getColumns()));
@@ -1382,7 +1377,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table      = $schemaManager->introspectTable('test_switch_pk_order');
         $primaryKey = $table->getPrimaryKey();
         self::assertNotNull($primaryKey);
-        self::assertSame(['bar_id', 'foo_id'], array_map('strtolower', $primaryKey->getColumns()));
+        self::assertSame(['bar_id', 'foo_id'], array_map('strtolower', $primaryKey->getUnquotedColumns()));
     }
 
     public function testDropColumnWithDefault(): void
@@ -1464,7 +1459,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $primaryKey = $nestedSchemaTable->getPrimaryKey();
         self::assertNotNull($primaryKey);
-        self::assertEquals(['id'], $primaryKey->getColumns());
+        self::assertEquals(['id'], $primaryKey->getUnquotedColumns());
 
         $relatedFks = array_values($nestedSchemaTable->getForeignKeys());
         self::assertCount(1, $relatedFks);

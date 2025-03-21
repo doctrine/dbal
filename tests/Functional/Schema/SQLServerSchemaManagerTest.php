@@ -6,10 +6,10 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
-
-use function array_shift;
 
 class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -115,19 +115,23 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // declared in the table. In that case, key_ordinal != index_column_id.
         // key_ordinal holds the index ordering. index_column_id is just a unique identifier
         // for index columns within the given index.
+        $primaryKeyConstraint = PrimaryKeyConstraint::editor()
+            ->setColumnNames(
+                UnqualifiedName::unquoted('colA'),
+                UnqualifiedName::unquoted('colB'),
+            )
+            ->create();
+
         $table = new Table('sqlsrv_pk_ordering');
         $table->addColumn('colA', Types::INTEGER, ['notnull' => true]);
         $table->addColumn('colB', Types::INTEGER, ['notnull' => true]);
-        $table->setPrimaryKey(['colB', 'colA']);
+        $table->addPrimaryKeyConstraint($primaryKeyConstraint);
         $this->schemaManager->createTable($table);
 
-        $indexes = $this->schemaManager->listTableIndexes('sqlsrv_pk_ordering');
-
-        self::assertCount(1, $indexes);
-        $firstIndex = array_shift($indexes);
-        self::assertNotNull($firstIndex);
-
-        self::assertSame(['colB', 'colA'], $firstIndex->getColumns());
+        self::assertPrimaryKeyConstraintEquals(
+            $primaryKeyConstraint,
+            $this->schemaManager->getTablePrimaryKeyConstraint('sqlsrv_pk_ordering'),
+        );
     }
 
     public function testNvarcharMaxIsLengthMinus1(): void

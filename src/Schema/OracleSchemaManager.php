@@ -57,16 +57,9 @@ class OracleSchemaManager extends AbstractSchemaManager
 
             $buffer = [];
 
-            if ($row['constraint_type'] === 'P') {
-                $buffer['key_name']   = 'primary';
-                $buffer['primary']    = true;
-                $buffer['non_unique'] = false;
-            } else {
-                $buffer['key_name']   = strtolower($row['index_name']);
-                $buffer['primary']    = false;
-                $buffer['non_unique'] = $row['uniqueness'] !== 'UNIQUE';
-            }
-
+            $buffer['key_name']    = strtolower($row['index_name']);
+            $buffer['primary']     = false;
+            $buffer['non_unique']  = $row['uniqueness'] !== 'UNIQUE';
             $buffer['column_name'] = $this->getQuotedIdentifierName($row['column_name']);
             $indexBuffer[]         = $buffer;
         }
@@ -383,6 +376,7 @@ SQL,
               ON CON.OWNER = IND_COL.INDEX_OWNER
              AND CON.INDEX_NAME = IND_COL.INDEX_NAME
            WHERE %s
+             AND (CON.CONSTRAINT_TYPE IS NULL OR CON.CONSTRAINT_TYPE != 'P')
         ORDER BY IND_COL.TABLE_NAME,
                  IND_COL.INDEX_NAME,
                  IND_COL.COLUMN_POSITION
@@ -392,6 +386,49 @@ SQL,
         );
 
         return $this->connection->executeQuery($sql, $params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function fetchPrimaryKeyConstraintColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): array {
+        $conditions = ['AC.OWNER = :OWNER'];
+        $params     = ['OWNER' => $databaseName];
+
+        if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
+            $conditions[]         = 'AC.TABLE_NAME = :TABLE_NAME';
+            $params['TABLE_NAME'] = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
+        }
+
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT
+                AC.TABLE_NAME,
+                AC.CONSTRAINT_NAME,
+                ACC.COLUMN_NAME
+            FROM
+                ALL_CONSTRAINTS AC
+            INNER JOIN
+                ALL_CONS_COLUMNS ACC
+                ON ACC.OWNER = AC.OWNER
+               AND ACC.TABLE_NAME = AC.TABLE_NAME
+               AND ACC.CONSTRAINT_NAME = AC.CONSTRAINT_NAME
+            WHERE %s
+              AND AC.CONSTRAINT_TYPE = 'P'
+            ORDER BY TABLE_NAME,
+                     ACC.POSITION
+SQL,
+            implode(' AND ', $conditions),
+        );
+
+        return $this->connection->fetchAllAssociative($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result

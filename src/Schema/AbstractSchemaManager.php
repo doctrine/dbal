@@ -21,10 +21,12 @@ use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Types\Exception\TypesException;
 
+use function array_change_key_case;
 use function array_filter;
 use function array_intersect;
 use function array_map;
 use function array_values;
+use function assert;
 use function count;
 use function func_get_arg;
 use function func_num_args;
@@ -169,6 +171,21 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Returns the primary key constraint definition for a given table.
+     *
+     * @throws Exception
+     */
+    public function getTablePrimaryKeyConstraint(string $tableName): ?PrimaryKeyConstraint
+    {
+        return $this->parsePrimaryKeyConstraint(
+            $this->fetchPrimaryKeyConstraintColumns(
+                $this->getDatabase(__METHOD__),
+                $this->parseOptionallyQualifiedName($tableName),
+            ),
+        );
+    }
+
+    /**
      * Returns true if all the given tables exist.
      *
      * @param array<int, string> $names
@@ -244,6 +261,7 @@ abstract class AbstractSchemaManager
         $tableColumnsByTable      = $this->fetchTableColumnsByTable($database);
         $indexColumnsByTable      = $this->fetchIndexColumnsByTable($database);
         $foreignKeyColumnsByTable = $this->fetchForeignKeyColumnsByTable($database);
+        $primaryKeyColumnsByTable = $this->fetchPrimaryKeyConstraintColumnsByTable($database);
         $tableOptionsByTable      = $this->fetchTableOptionsByTable($database);
 
         $currentSchemaName = $this->getCurrentSchemaName();
@@ -278,6 +296,14 @@ abstract class AbstractSchemaManager
                             $indexColumnsByTable[$schemaNameKey][$unqualifiedName] ?? [],
                         ),
                     );
+
+                if (isset($primaryKeyColumnsByTable[$schemaNameKey][$unqualifiedName])) {
+                    $editor->setPrimaryKeyConstraint(
+                        $this->parsePrimaryKeyConstraint(
+                            $primaryKeyColumnsByTable[$schemaNameKey][$unqualifiedName],
+                        ),
+                    );
+                }
 
                 if (isset($foreignKeyColumnsByTable[$schemaNameKey][$unqualifiedName])) {
                     $editor->setForeignKeyConstraints(
@@ -416,6 +442,21 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Fetches definitions of primary key columns in the specified database. If the table name is specified, narrows
+     * down the selection to this table.
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    protected function fetchPrimaryKeyConstraintColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): array {
+        throw NotSupported::new(__METHOD__);
+    }
+
+    /**
      * Fetches definitions of foreign key columns in the specified database. If the table name is specified,
      * narrows down the selection to this table.
      *
@@ -458,6 +499,22 @@ abstract class AbstractSchemaManager
     protected function fetchIndexColumnsByTable(string $databaseName): array
     {
         return $this->groupByTable($this->fetchIndexColumns($databaseName));
+    }
+
+    /**
+     * Fetches definitions of primary key constraint columns in the specified database and returns them grouped by
+     * schema name and table name.
+     *
+     * If the corresponding database platform doesn't support schemas, the schema name key will be the
+     * {@see NULL_SCHEMA_KEY}.
+     *
+     * @return array<string,array<string,list<array<string,mixed>>>>
+     *
+     * @throws Exception
+     */
+    protected function fetchPrimaryKeyConstraintColumnsByTable(string $databaseName): array
+    {
+        return $this->groupByTable($this->fetchPrimaryKeyConstraintColumns($databaseName));
     }
 
     /**
@@ -535,6 +592,7 @@ abstract class AbstractSchemaManager
         return Table::editor()
             ->setName($tableName)
             ->setColumns($columns)
+            ->setPrimaryKeyConstraint($this->getTablePrimaryKeyConstraint($name))
             ->setIndexes($this->listTableIndexes($name))
             ->setForeignKeyConstraints($this->listTableForeignKeys($name))
             ->setOptions($this->getTableOptions($tableName))
@@ -891,6 +949,47 @@ abstract class AbstractSchemaManager
         return $list;
     }
 
+    /** @param list<array<string, mixed>> $rows */
+    protected function parsePrimaryKeyConstraint(array $rows): ?PrimaryKeyConstraint
+    {
+        if (count($rows) < 1) {
+            return null;
+        }
+
+        $constraintName = null;
+        $isClustered    = true;
+        $columnNames    = [];
+
+        foreach ($rows as $i => $row) {
+            $row = array_change_key_case($row);
+
+            if ($i === 0) {
+                $constraintName = $row['constraint_name'];
+
+                if (isset($row['is_clustered'])) {
+                    $isClustered = $row['is_clustered'];
+                }
+            } else {
+                assert($row['constraint_name'] === $constraintName);
+            }
+
+            $columnNames[] = UnqualifiedName::quoted($row['column_name']);
+        }
+
+         $editor = PrimaryKeyConstraint::editor();
+
+        if ($constraintName !== null) {
+            $editor->setName(
+                UnqualifiedName::quoted($constraintName),
+            );
+        }
+
+        return $editor
+            ->setColumnNames(...$columnNames)
+            ->setIsClustered($isClustered)
+            ->create();
+    }
+
     /**
      * Gets Table Column Definition.
      *
@@ -911,12 +1010,8 @@ abstract class AbstractSchemaManager
     {
         $result = [];
         foreach ($rows as $row) {
-            $indexName = $keyName = $row['key_name'];
-            if ($row['primary']) {
-                $keyName = 'primary';
-            }
-
-            $keyName = strtolower($keyName);
+            $indexName = $row['key_name'];
+            $keyName   = strtolower($indexName);
 
             if (! isset($result[$keyName])) {
                 $options = [
@@ -931,7 +1026,6 @@ abstract class AbstractSchemaManager
                     'name' => $indexName,
                     'columns' => [],
                     'unique' => ! $row['non_unique'],
-                    'primary' => $row['primary'],
                     'flags' => $row['flags'] ?? [],
                     'options' => $options,
                 ];
@@ -947,7 +1041,7 @@ abstract class AbstractSchemaManager
                 $data['name'],
                 $data['columns'],
                 $data['unique'],
-                $data['primary'],
+                false,
                 $data['flags'],
                 $data['options'],
             );

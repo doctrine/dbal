@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BinaryType;
@@ -15,8 +14,6 @@ use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\DateTimeTzType;
 use Doctrine\DBAL\Types\DateType;
 use Doctrine\DBAL\Types\Types;
-
-use function array_map;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -90,35 +87,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->schemaManager->listTableColumns($table->getName());
         self::assertCount(7, $columns);
-    }
-
-    public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName(): void
-    {
-        $table = new Table(
-            'list_table_indexes_pk_id_test',
-            [],
-            [],
-            [],
-            [],
-            [],
-            $this->schemaManager->createSchemaConfig()->toTableConfiguration(),
-        );
-
-        $table->addColumn('id', Types::INTEGER, ['notnull' => true]);
-        $table->addUniqueIndex(['id'], 'id_unique_index');
-        $this->dropAndCreateTable($table);
-
-        $this->schemaManager->createIndex(
-            new Index('id_pk_id_index', ['id'], true, true),
-            'list_table_indexes_pk_id_test',
-        );
-
-        $tableIndexes = $this->schemaManager->listTableIndexes('list_table_indexes_pk_id_test');
-
-        self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        self::assertEquals(['id'], array_map('strtolower', $tableIndexes['primary']->getColumns()));
-        self::assertTrue($tableIndexes['primary']->isUnique());
-        self::assertTrue($tableIndexes['primary']->isPrimary());
     }
 
     public function testListTableDateTypeColumns(): void

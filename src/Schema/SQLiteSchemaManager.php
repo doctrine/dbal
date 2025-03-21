@@ -220,7 +220,8 @@ class SQLiteSchemaManager extends AbstractSchemaManager
             // Inferring a shorthand form for the foreign key constraint, where the "to" field is empty.
             // @see https://www.sqlite.org/foreignkeys.html#fk_indexes.
             // @phpstan-ignore missingType.checkedException
-            $foreignTablePrimaryKeyColumnRows = $this->fetchPrimaryKeyColumns(
+            $foreignTablePrimaryKeyColumnRows = $this->fetchPrimaryKeyConstraintColumns(
+                '',
                 OptionallyQualifiedName::quoted($value['foreignTable']),
             );
 
@@ -231,7 +232,7 @@ class SQLiteSchemaManager extends AbstractSchemaManager
                 );
             }
 
-            $list[$id]['foreign'] = array_column($foreignTablePrimaryKeyColumnRows, 'name');
+            $list[$id]['foreign'] = array_column($foreignTablePrimaryKeyColumnRows, 'column_name');
         }
 
         return parent::_getPortableTableForeignKeysList($list);
@@ -533,18 +534,6 @@ SQL,
     {
         $result = [];
 
-        $pkColumnNameRows = $this->fetchPrimaryKeyColumns($tableName);
-
-        foreach ($pkColumnNameRows as $pkColumnNameRow) {
-            $result[] = [
-                self::TABLE_NAME_COLUMN => $pkColumnNameRow[self::TABLE_NAME_COLUMN],
-                'key_name' => 'primary',
-                'primary' => true,
-                'non_unique' => false,
-                'column_name' => $pkColumnNameRow['name'],
-            ];
-        }
-
         $indexColumnRows = parent::fetchIndexColumns($databaseName, $tableName);
 
         foreach ($indexColumnRows as $indexColumnRow) {
@@ -558,7 +547,6 @@ SQL,
             $row = [
                 self::TABLE_NAME_COLUMN => $indexColumnRow[self::TABLE_NAME_COLUMN],
                 'key_name'   => $keyName,
-                'primary'    => false,
                 'non_unique' => ! $indexColumnRow['unique'],
             ];
 
@@ -577,22 +565,22 @@ SQL,
     }
 
     /**
-     * Fetches names of primary key columns. If the table name is specified, narrows down the selection to this table.
+     * {@inheritDoc}
      *
      * @link https://www.sqlite.org/pragma.html#pragma_table_info
-     *
-     * @return list<array<string, mixed>>
-     *
-     * @throws Exception
      */
-    private function fetchPrimaryKeyColumns(?OptionallyQualifiedName $tableName = null): array
-    {
+    protected function fetchPrimaryKeyConstraintColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): array {
         $params = [];
 
         $sql = sprintf(
             <<<'SQL'
-            SELECT t.name AS %s,
-                   p.name
+            SELECT NULL AS %s,
+                   t.name AS %s,
+                   NULL AS constraint_name,
+                   p.name AS column_name
               FROM sqlite_master t
               JOIN pragma_table_info(t.name) p
              WHERE %s
@@ -600,6 +588,7 @@ SQL,
           ORDER BY t.name,
                    p.pk
         SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
             $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause($tableName, $params),
         );

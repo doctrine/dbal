@@ -77,9 +77,6 @@ class MySQLSchemaManager extends AbstractSchemaManager
     {
         foreach ($rows as $i => $row) {
             $row = array_change_key_case($row, CASE_LOWER);
-
-            $row['primary'] = $row['key_name'] === 'PRIMARY';
-
             if (str_contains($row['index_type'], 'FULLTEXT')) {
                 $row['flags'] = ['FULLTEXT'];
             } elseif (str_contains($row['index_type'], 'SPATIAL')) {
@@ -394,6 +391,7 @@ SELECT
         INDEX_TYPE
 FROM information_schema.STATISTICS
 WHERE %s
+AND INDEX_NAME != 'PRIMARY'
 ORDER BY TABLE_NAME,
          SEQ_IN_INDEX
 SQL,
@@ -402,6 +400,49 @@ SQL,
         );
 
         return $this->connection->executeQuery($sql, $params);
+    }
+
+    /** {@inheritDoc} */
+    protected function fetchPrimaryKeyConstraintColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): array {
+        // The schema name is passed multiple times as a literal in the WHERE clause instead of using a JOIN condition
+        // in order to avoid performance issues on MySQL older than 8.0 and the corresponding MariaDB versions
+        // caused by https://bugs.mysql.com/bug.php?id=81347
+        $conditions = ['tc.TABLE_SCHEMA = ?', 'kcu.TABLE_SCHEMA = ?'];
+        $params     = [$databaseName, $databaseName];
+
+        if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
+            $conditions[] = 'tc.TABLE_NAME = ?';
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
+        }
+
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT
+                tc.TABLE_NAME,
+                tc.CONSTRAINT_NAME,
+                kcu.COLUMN_NAME
+            FROM
+                information_schema.TABLE_CONSTRAINTS tc
+            INNER JOIN
+                information_schema.KEY_COLUMN_USAGE kcu
+                ON kcu.TABLE_NAME = tc.TABLE_NAME
+               AND kcu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+            WHERE %s
+              AND tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
+            ORDER BY TABLE_NAME,
+                     kcu.ORDINAL_POSITION;
+            SQL,
+            implode(' AND ', $conditions),
+        );
+
+        return $this->connection->fetchAllAssociative($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
