@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
@@ -247,11 +248,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $elements[] = $this->getIndexDeclarationSQL($definition);
         }
 
-        if (isset($parameters['primary_index'])) {
-            $elements[] = sprintf(
-                'PRIMARY KEY (%s)',
-                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
-            );
+        if (isset($parameters['primaryKey'])) {
+            $elements[] = $this->getPrimaryKeyConstraintDeclarationSQL($parameters['primaryKey']);
         }
 
         $sql = ['CREATE'];
@@ -527,6 +525,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     protected function getColumnCharsetDeclarationSQL(string $charset): string
     {
         return 'CHARACTER SET ' . $charset;
+    }
+
+    protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
+    {
+        $this->ensurePrimaryKeyConstraintIsNotNamed($constraint);
+        $this->ensurePrimaryKeyConstraintIsClustered($constraint);
+
+        return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string

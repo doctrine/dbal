@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -268,7 +269,7 @@ class SQLitePlatform extends AbstractPlatform
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         if ($this->hasAutoIncrementColumn($columns, $parameters)) {
-            unset($parameters['primary_index']);
+            unset($parameters['primaryKey']);
         }
 
         $elements = [];
@@ -281,13 +282,8 @@ class SQLitePlatform extends AbstractPlatform
             $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        if (isset($parameters['primary_index'])) {
-            $primaryKeyColumns = $parameters['primary_index']->getQuotedColumns($this);
-
-            $elements[] = sprintf(
-                'PRIMARY KEY (%s)',
-                implode(', ', $primaryKeyColumns),
-            );
+        if (isset($parameters['primaryKey'])) {
+            $elements[] = $this->getPrimaryKeyConstraintDeclarationSQL($parameters['primaryKey']);
         }
 
         foreach ($parameters['foreignKeys'] as $foreignKey) {
@@ -326,10 +322,9 @@ class SQLitePlatform extends AbstractPlatform
 
         $folding = $this->getUnquotedIdentifierFolding();
 
-        if (isset($parameters['primary_index'])) {
-            foreach ($parameters['primary_index']->getIndexedColumns() as $indexedColumn) {
-                $columnName = $indexedColumn->getColumnName()
-                    ->getIdentifier()
+        if (isset($parameters['primaryKey'])) {
+            foreach ($parameters['primaryKey']->getColumnNames() as $columnName) {
+                $columnName = $columnName->getIdentifier()
                     ->toNormalizedValue($folding);
 
                 $primaryKeyColumnNames[$columnName] = true;
@@ -391,6 +386,14 @@ class SQLitePlatform extends AbstractPlatform
     public function getListViewsSQL(string $database): string
     {
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
+    }
+
+    protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
+    {
+        $this->ensurePrimaryKeyConstraintIsNotNamed($constraint);
+        $this->ensurePrimaryKeyConstraintIsClustered($constraint);
+
+        return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string

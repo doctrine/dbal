@@ -218,19 +218,8 @@ class SQLServerPlatform extends AbstractPlatform
             $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        if (isset($parameters['primary_index'])) {
-            $primaryKeySQL = 'PRIMARY KEY';
-
-            if ($parameters['primary_index']->hasFlag('nonclustered')) {
-                $primaryKeySQL .= ' NONCLUSTERED';
-            }
-
-            $primaryKeySQL .= sprintf(
-                ' (%s)',
-                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
-            );
-
-            $elements[] = $primaryKeySQL;
+        if (isset($parameters['primaryKey'])) {
+            $elements[] = $this->getPrimaryKeyConstraintDeclarationSQL($parameters['primaryKey']);
         }
 
         $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));

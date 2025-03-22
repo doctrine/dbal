@@ -16,6 +16,7 @@ use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Platforms\Exception\UnsupportedPrimaryKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
@@ -26,6 +27,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -71,8 +73,8 @@ use function strtolower;
  *
  * @phpstan-import-type ColumnProperties from Column
  * @phpstan-type CreateTableParameters = array{
- *    primary_index?: Index,
  *    indexes: list<Index>,
+ *    primaryKey: ?PrimaryKeyConstraint,
  *    uniqueConstraints: list<UniqueConstraint>,
  *    foreignKeys: list<ForeignKeyConstraint>,
  *    comment?: string,
@@ -834,18 +836,17 @@ abstract class AbstractPlatform
 
         $tableName                       = $table->getObjectName();
         $parameters                      = $table->getOptions();
+        $parameters['primaryKey']        = $table->getPrimaryKeyConstraint();
         $parameters['indexes']           = [];
         $parameters['uniqueConstraints'] = [];
         $parameters['foreignKeys']       = [];
 
         foreach ($table->getIndexes() as $index) {
-            if (! $index->isPrimary()) {
-                $parameters['indexes'][] = $index;
-
+            if ($index->isPrimary()) {
                 continue;
             }
 
-            $parameters['primary_index'] = $index;
+            $parameters['indexes'][] = $index;
         }
 
         foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
@@ -995,11 +996,8 @@ abstract class AbstractPlatform
             $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        if (isset($parameters['primary_index'])) {
-            $elements[] = sprintf(
-                'PRIMARY KEY (%s)',
-                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
-            );
+        if (isset($parameters['primaryKey'])) {
+            $elements[] = $this->getPrimaryKeyConstraintDeclarationSQL($parameters['primaryKey']);
         }
 
         foreach ($parameters['indexes'] as $definition) {
@@ -1501,6 +1499,48 @@ abstract class AbstractPlatform
     public function getTemporaryTableName(string $tableName): string
     {
         return $tableName;
+    }
+
+    /**
+     * Returns declaration of a primary key constraint.
+     */
+    protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
+    {
+        $chunks = [];
+
+        $name = $constraint->getObjectName();
+        if ($name !== null) {
+            $chunks[] = 'CONSTRAINT';
+            $chunks[] = $name->toSQL($this);
+        }
+
+        $chunks[] = 'PRIMARY KEY';
+
+        if (! $constraint->isClustered()) {
+            $chunks[] = 'NONCLUSTERED';
+        }
+
+        $chunks[] = $this->buildUnqualifiedNameListSQL($constraint->getColumnNames());
+
+        return implode(' ', $chunks);
+    }
+
+    final protected function ensurePrimaryKeyConstraintIsNotNamed(PrimaryKeyConstraint $constraint): void
+    {
+        if ($constraint->getObjectName() === null) {
+            return;
+        }
+
+        throw UnsupportedPrimaryKeyConstraintDefinition::fromNamedConstraint(static::class);
+    }
+
+    final protected function ensurePrimaryKeyConstraintIsClustered(PrimaryKeyConstraint $constraint): void
+    {
+        if ($constraint->isClustered()) {
+            return;
+        }
+
+        throw UnsupportedPrimaryKeyConstraintDefinition::fromNonClusteredConstraint(static::class);
     }
 
     /**

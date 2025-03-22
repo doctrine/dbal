@@ -8,6 +8,10 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\UnsupportedPrimaryKeyConstraintDefinition;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -16,6 +20,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -865,5 +870,53 @@ abstract class AbstractPlatformTestCase extends TestCase
             "field 'values' is not an array" => [['values' => 'foo']],
             "field 'values' is an empty array" => [['values' => []]],
         ];
+    }
+
+    /**
+     * The list of tested platforms should be kept in-sync with
+     * {@see PrimaryKeyConstraintTest::testNameIntrospection()}.
+     */
+    public function testNamedPrimaryKeyConstraintIsReportedAsUnsupported(): void
+    {
+        if (! $this->platform instanceof MySqlPlatform && ! $this->platform instanceof SQLitePlatform) {
+            self::markTestSkipped('This current database platform supports named primary key constraints.');
+        }
+
+        $table = new Table('users');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setName(
+                    UnqualifiedName::unquoted('users_pk'),
+                )
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
+
+        $this->expectException(UnsupportedPrimaryKeyConstraintDefinition::class);
+        $this->platform->getCreateTableSQL($table);
+    }
+
+    /**
+     * The list of tested platforms should be kept in-sync with
+     * {@see PrimaryKeyConstraintTest::testIsClusteredIntrospection()}.
+     */
+    public function testNonClusteredPrimaryKeyConstraintIsReportedAsUnsupported(): void
+    {
+        if ($this->platform instanceof SQLServerPlatform) {
+            self::markTestSkipped('This current database platform supports non-clustered primary key constraints.');
+        }
+
+        $table = new Table('users');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setIsClustered(false)
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
+
+        $this->expectException(UnsupportedPrimaryKeyConstraintDefinition::class);
+        $this->platform->getCreateTableSQL($table);
     }
 }
