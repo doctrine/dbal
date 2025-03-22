@@ -8,6 +8,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -365,7 +367,16 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         $oldTable = new Table('test');
         $oldTable->addColumn('id', 'integer');
-        $oldTable->setPrimaryKey(['id']);
+        $oldTable->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setName(
+                    UnqualifiedName::unquoted('test_pkey'),
+                )
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $newTable = clone $oldTable;
         $newTable->dropPrimaryKey();

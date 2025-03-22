@@ -26,11 +26,14 @@ class DBAL6024Test extends FunctionalTestCase
         $table->setPrimaryKey(['id']);
         $this->dropAndCreateTable($table);
 
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $table = $schemaManager->introspectTable('mytable');
+
         $newTable = clone $table;
         $newTable->dropPrimaryKey();
 
-        $schemaManager = $this->connection->createSchemaManager();
-        $diff          = $schemaManager->createComparator()->compareTables($table, $newTable);
+        $diff = $schemaManager->createComparator()->compareTables($table, $newTable);
 
         $statements = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
         foreach ($statements as $statement) {

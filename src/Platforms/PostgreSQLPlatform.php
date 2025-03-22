@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
@@ -209,9 +210,21 @@ class PostgreSQLPlatform extends AbstractPlatform
         $sql         = [];
         $commentsSQL = [];
 
-        $table = $diff->getOldTable();
+        $table        = $diff->getOldTable();
+        $tableName    = $table->getObjectName();
+        $tableNameSQL = $tableName->toSQL($this);
 
-        $tableNameSQL = $table->getObjectName()->toSQL($this);
+        $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
+
+        if ($droppedPrimaryKeyConstraint !== null) {
+            $constraintName = $droppedPrimaryKeyConstraint->getObjectName();
+
+            if ($constraintName === null) {
+                throw UnspecifiedConstraintName::new();
+            }
+
+            $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
 
         foreach ($diff->getAddedColumns() as $addedColumn) {
             $query = 'ADD ' . $this->getColumnDeclarationSQL($addedColumn->toArray());
@@ -302,6 +315,13 @@ class PostgreSQLPlatform extends AbstractPlatform
                 $newColumn->getObjectName()->toSQL($this),
                 $newColumn->getComment(),
             );
+        }
+
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
+
+        if ($addedPrimaryKeyConstraint !== null) {
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ADD '
+                . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
         return array_merge(

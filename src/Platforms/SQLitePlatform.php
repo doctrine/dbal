@@ -675,10 +675,12 @@ class SQLitePlatform extends AbstractPlatform
         $newTable = new Table(
             $table->getObjectName()->toSQL($this),
             $columns,
-            $this->getPrimaryIndexInAlteredTable($diff),
+            [],
             [],
             $this->getForeignKeysInAlteredTable($diff),
             $table->getOptions(),
+            null,
+            $this->getPrimaryKeyConstraintInAlteredTable($diff, $table),
         );
 
         $newTable->addOption('alter', true);
@@ -741,6 +743,8 @@ class SQLitePlatform extends AbstractPlatform
             || count($diff->getRenamedIndexes()) > 0
             || count($diff->getAddedForeignKeys()) > 0
             || count($diff->getDroppedForeignKeys()) > 0
+            || $diff->getDroppedPrimaryKeyConstraint() !== null
+            || $diff->getAddedPrimaryKeyConstraint() !== null
         ) {
             return false;
         }
@@ -939,20 +943,52 @@ class SQLitePlatform extends AbstractPlatform
         return $foreignKeys;
     }
 
-    /** @return array<string, Index> */
-    private function getPrimaryIndexInAlteredTable(TableDiff $diff): array
+    private function getPrimaryKeyConstraintInAlteredTable(TableDiff $diff, Table $oldTable): ?PrimaryKeyConstraint
     {
-        $primaryIndex = [];
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
 
-        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
-            if (! $index->isPrimary()) {
+        if ($addedPrimaryKeyConstraint !== null) {
+            return $addedPrimaryKeyConstraint;
+        }
+
+        if ($diff->getDroppedPrimaryKeyConstraint() !== null) {
+            return null;
+        }
+
+        $primaryKeyConstraint = $oldTable->getPrimaryKeyConstraint();
+
+        if ($primaryKeyConstraint === null) {
+            return null;
+        }
+
+        $nameMap = $this->getDiffColumnNameMap($diff);
+
+        $changed = false;
+
+        $columnNames = [];
+        foreach ($primaryKeyConstraint->getColumnNames() as $columnName) {
+            $originalColumnName   = $columnName->getIdentifier()->getValue();
+            $normalizedColumnName = strtolower($originalColumnName);
+            if (! isset($nameMap[$normalizedColumnName])) {
+                return null;
+            }
+
+            $columnNames[] = UnqualifiedName::unquoted($nameMap[$normalizedColumnName]);
+
+            if ($originalColumnName === $nameMap[$normalizedColumnName]) {
                 continue;
             }
 
-            $primaryIndex = [$index->getName() => $index];
+            $changed = true;
         }
 
-        return $primaryIndex;
+        if (! $changed) {
+            return $primaryKeyConstraint;
+        }
+
+        return $primaryKeyConstraint->edit()
+            ->setColumnNames(...$columnNames)
+            ->create();
     }
 
     public function createSchemaManager(Connection $connection): SQLiteSchemaManager

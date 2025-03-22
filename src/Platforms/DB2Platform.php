@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
@@ -272,7 +273,20 @@ class DB2Platform extends AbstractPlatform
         $sql         = [];
         $commentsSQL = [];
 
-        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
+        $tableName    = $diff->getOldTable()->getObjectName();
+        $tableNameSQL = $tableName->toSQL($this);
+
+        $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
+
+        if ($droppedPrimaryKeyConstraint !== null) {
+            $constraintName = $droppedPrimaryKeyConstraint->getObjectName();
+
+            if ($constraintName === null) {
+                throw UnspecifiedConstraintName::new();
+            }
+
+            $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
 
         $queryParts = [];
         foreach ($diff->getAddedColumns() as $column) {
@@ -330,6 +344,13 @@ class DB2Platform extends AbstractPlatform
 
         if (count($queryParts) > 0) {
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . implode(' ', $queryParts);
+        }
+
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
+
+        if ($addedPrimaryKeyConstraint !== null) {
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ADD '
+                . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
         // Some table alteration operations require a table reorganization.
@@ -462,9 +483,7 @@ class DB2Platform extends AbstractPlatform
                     continue;
                 }
 
-                if ($droppedIndex->isPrimary()) {
-                    $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP PRIMARY KEY';
-                } elseif ($droppedIndex->isUnique()) {
+                if ($droppedIndex->isUnique()) {
                     $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP UNIQUE '
                         . $droppedIndex->getObjectName()->toSQL($this);
                 } else {

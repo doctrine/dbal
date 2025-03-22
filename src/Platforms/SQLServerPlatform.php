@@ -10,6 +10,7 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -317,7 +318,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $constraint = parent::getCreateIndexSQL($index, $table);
 
-        if ($index->isUnique() && ! $index->isPrimary()) {
+        if ($index->isUnique()) {
             $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
         }
 
@@ -366,6 +367,18 @@ class SQLServerPlatform extends AbstractPlatform
         $table = $diff->getOldTable();
 
         $tableName = $table->getName();
+
+        $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
+
+        if ($droppedPrimaryKeyConstraint !== null) {
+            $constraintName = $droppedPrimaryKeyConstraint->getObjectName();
+
+            if ($constraintName === null) {
+                throw UnspecifiedConstraintName::new();
+            }
+
+            $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $table->getObjectName()->toSQL($this));
+        }
 
         foreach ($diff->getAddedColumns() as $column) {
             $columnProperties = $column->toArray();
@@ -444,8 +457,6 @@ class SQLServerPlatform extends AbstractPlatform
                 );
             }
 
-            $columnNameSQL = $newColumn->getObjectName()->toSQL($this);
-
             $newDeclarationSQL     = $this->getColumnDeclarationSQL($newColumn->toArray());
             $oldDeclarationSQL     = $this->getColumnDeclarationSQL($oldColumn->toArray());
             $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
@@ -474,6 +485,12 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
+        }
+
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
+
+        if ($addedPrimaryKeyConstraint !== null) {
+            $queryParts[] = 'ADD ' . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
         foreach ($queryParts as $query) {

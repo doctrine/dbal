@@ -220,11 +220,12 @@ class AlterTableTest extends FunctionalTestCase
     {
         $this->dropAndCreateTable($oldTable);
 
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $oldTable = $schemaManager->introspectTable($oldTable->getName());
         $newTable = clone $oldTable;
 
         $migration($newTable);
-
-        $schemaManager = $this->connection->createSchemaManager();
 
         $diff = $schemaManager->createComparator()
             ->compareTables($oldTable, $newTable);

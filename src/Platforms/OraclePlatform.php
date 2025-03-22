@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
@@ -478,9 +479,9 @@ SQL,
     /**
      * Returns the autoincrement trigger name for the given table name.
      */
-    private function generateAutoincrementTriggerName(Name\Identifier $tableName): Name\Identifier
+    private function generateAutoincrementTriggerName(Name\Identifier $tableName): UnqualifiedName
     {
-        return $this->addSuffix($tableName, '_AI_PK');
+        return new UnqualifiedName($this->addSuffix($tableName, '_AI_PK'));
     }
 
     public function getDropForeignKeySQL(string $foreignKey, string $table): string
@@ -542,7 +543,20 @@ SQL,
         $commentsSQL  = [];
         $addColumnSQL = [];
 
-        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
+        $tableName    = $diff->getOldTable()->getObjectName();
+        $tableNameSQL = $tableName->toSQL($this);
+
+        $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
+
+        if ($droppedPrimaryKeyConstraint !== null) {
+            $constraintName = $droppedPrimaryKeyConstraint->getObjectName();
+
+            if ($constraintName === null) {
+                throw UnspecifiedConstraintName::new();
+            }
+
+            $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
 
         foreach ($diff->getAddedColumns() as $column) {
             $addColumnSQL[] = $this->getColumnDeclarationSQL($column->toArray());
@@ -635,6 +649,13 @@ SQL,
 
         if (count($dropColumnSQL) > 0) {
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP (' . implode(', ', $dropColumnSQL) . ')';
+        }
+
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
+
+        if ($addedPrimaryKeyConstraint !== null) {
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ADD '
+                . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
         return array_merge(

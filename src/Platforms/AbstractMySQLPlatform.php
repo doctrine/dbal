@@ -25,7 +25,6 @@ use function is_array;
 use function is_numeric;
 use function sprintf;
 use function str_replace;
-use function strtolower;
 
 /**
  * Provides the base implementation for the lowest versions of supported MySQL-like database platforms.
@@ -352,20 +351,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 . $this->getColumnDeclarationSQL($newColumnProperties);
         }
 
-        $droppedIndexes = $this->indexIndexesByLowerCaseName($diff->getDroppedIndexes());
-        $addedIndexes   = $this->indexIndexesByLowerCaseName($diff->getAddedIndexes());
-
-        if (isset($droppedIndexes['primary'])) {
+        if ($diff->getDroppedPrimaryKeyConstraint() !== null) {
             $queryParts[] = 'DROP PRIMARY KEY';
-
-            $diff->unsetDroppedIndex($droppedIndexes['primary']);
         }
 
-        if (isset($addedIndexes['primary'])) {
-            $keyColumns   = $addedIndexes['primary']->getQuotedColumns($this);
-            $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
 
-            $diff->unsetAddedIndex($addedIndexes['primary']);
+        if ($addedPrimaryKeyConstraint !== null) {
+            $queryParts[] = 'ADD ' . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
         $tableSql = [];
@@ -397,19 +390,23 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                     continue;
                 }
 
-                $indexClause = 'INDEX ' . $addedIndex->getName();
+                $indexClause = 'INDEX ' . $addedIndex->getObjectName()->toSQL($this);
 
                 if ($addedIndex->isPrimary()) {
-                    $indexClause = 'PRIMARY KEY';
-                } elseif ($addedIndex->isUnique()) {
-                    $indexClause = 'UNIQUE INDEX ' . $addedIndex->getName();
+                    continue;
                 }
 
-                $query  = 'ALTER TABLE ' . $tableNameSQL . ' DROP INDEX ' . $droppedIndex->getName() . ', ';
-                $query .= 'ADD ' . $indexClause;
-                $query .= ' (' . implode(', ', $addedIndex->getQuotedColumns($this)) . ')';
+                if ($addedIndex->isUnique()) {
+                    $indexClause = 'UNIQUE ' . $indexClause;
+                }
 
-                $sql[] = $query;
+                $sql[] = sprintf(
+                    'ALTER TABLE %s DROP INDEX %s, ADD %s (%s)',
+                    $tableNameSQL,
+                    $droppedIndex->getObjectName()->toSQL($this),
+                    $indexClause,
+                    implode(', ', $addedIndex->getQuotedColumns($this)),
+                );
 
                 $diff->unsetAddedIndex($addedIndex);
                 $diff->unsetDroppedIndex($droppedIndex);
@@ -669,22 +666,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function createSchemaManager(Connection $connection): MySQLSchemaManager
     {
         return new MySQLSchemaManager($connection, $this);
-    }
-
-    /**
-     * @param array<Index> $indexes
-     *
-     * @return array<string,Index>
-     */
-    private function indexIndexesByLowerCaseName(array $indexes): array
-    {
-        $result = [];
-
-        foreach ($indexes as $index) {
-            $result[strtolower($index->getName())] = $index;
-        }
-
-        return $result;
     }
 
     /** @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy. */
