@@ -6,9 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
-use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -59,8 +57,6 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
-
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('id2', Types::INTEGER);
@@ -88,8 +84,6 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
-
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('id2', Types::INTEGER);
@@ -109,8 +103,6 @@ class AlterTableTest extends FunctionalTestCase
                 'SQLite does not support auto-increment columns as part of composite primary key constraint',
             );
         }
-
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
 
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
@@ -133,8 +125,6 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
-
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('id2', Types::INTEGER);
@@ -148,7 +138,9 @@ class AlterTableTest extends FunctionalTestCase
 
     public function testAddNewColumnToPrimaryKey(): void
     {
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
+        if ($this->connection->getDatabasePlatform() instanceof DB2Platform) {
+            self::markTestIncomplete('This test fails on IBM Db2 for an unrelated reason.');
+        }
 
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER);
@@ -197,23 +189,6 @@ class AlterTableTest extends FunctionalTestCase
                 'articles_fk',
             );
         });
-    }
-
-    private function ensureDroppingPrimaryKeyConstraintIsSupported(): void
-    {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if (
-            ! ($platform instanceof DB2Platform)
-            && ! ($platform instanceof OraclePlatform)
-            && ! ($platform instanceof SQLServerPlatform)
-        ) {
-            return;
-        }
-
-        self::markTestIncomplete(
-            'Dropping primary key constraint on the currently used database platform is not implemented.',
-        );
     }
 
     private function testMigration(Table $oldTable, callable $migration): void
