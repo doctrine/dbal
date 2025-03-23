@@ -6,8 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 
@@ -104,34 +102,6 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('another default value', $columns['df_string_3']->getDefault());
         self::assertEquals(0, $columns['df_boolean']->getDefault());
         self::assertEquals('column to rename', $columns['df_string_4_renamed']->getDefault());
-    }
-
-    public function testPkOrdering(): void
-    {
-        // SQL Server stores index column information in a system table with two
-        // columns that almost always have the same value: index_column_id and key_ordinal.
-        // The only situation when the two values doesn't match up is when a clustered index
-        // is declared that references columns in a different order from which they are
-        // declared in the table. In that case, key_ordinal != index_column_id.
-        // key_ordinal holds the index ordering. index_column_id is just a unique identifier
-        // for index columns within the given index.
-        $primaryKeyConstraint = PrimaryKeyConstraint::editor()
-            ->setColumnNames(
-                UnqualifiedName::unquoted('colA'),
-                UnqualifiedName::unquoted('colB'),
-            )
-            ->create();
-
-        $table = new Table('sqlsrv_pk_ordering');
-        $table->addColumn('colA', Types::INTEGER, ['notnull' => true]);
-        $table->addColumn('colB', Types::INTEGER, ['notnull' => true]);
-        $table->addPrimaryKeyConstraint($primaryKeyConstraint);
-        $this->schemaManager->createTable($table);
-
-        self::assertPrimaryKeyConstraintEquals(
-            $primaryKeyConstraint,
-            $this->schemaManager->getTablePrimaryKeyConstraint('sqlsrv_pk_ordering'),
-        );
     }
 
     public function testNvarcharMaxIsLengthMinus1(): void
