@@ -35,6 +35,18 @@ final class Identifier
         return $this->isQuoted;
     }
 
+    /**
+     * Returns whether this identifier is equal to the other.
+     */
+    public function equals(self $other, UnquotedIdentifierFolding $folding): bool
+    {
+        if ($this === $other) {
+            return true;
+        }
+
+        return $this->toNormalizedValue($folding) === $other->toNormalizedValue($folding);
+    }
+
     public function toSQL(AbstractPlatform $platform): string
     {
         return $platform->quoteSingleIdentifier(

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Name;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\IncomparableNames;
 use Doctrine\DBAL\Schema\Name;
 
 /**
@@ -46,6 +47,30 @@ final class OptionallyQualifiedName implements Name
         }
 
         return $this->qualifier->toString() . '.' . $unqualifiedName;
+    }
+
+    /**
+     * Returns whether this optionally qualified name is equal to the other.
+     *
+     * To be comparable, both names must either have a qualifier or have no qualifier.
+     */
+    public function equals(self $other, UnquotedIdentifierFolding $folding): bool
+    {
+        if ($this === $other) {
+            return true;
+        }
+
+        if (($this->qualifier === null) !== ($other->qualifier === null)) {
+            throw IncomparableNames::fromOptionallyQualifiedNames($this, $other);
+        }
+
+        if (! $this->unqualifiedName->equals($other->getUnqualifiedName(), $folding)) {
+            return false;
+        }
+
+        return $this->qualifier === null
+            || $other->qualifier === null
+            || $this->qualifier->equals($other->qualifier, $folding);
     }
 
     /**

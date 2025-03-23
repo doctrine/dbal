@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
-use function array_map;
 use function assert;
 use function count;
 use function strtolower;
@@ -238,10 +236,11 @@ class Comparator
 
         $oldForeignKeys = $oldTable->getForeignKeys();
         $newForeignKeys = $newTable->getForeignKeys();
+        $folding        = $this->platform->getUnquotedIdentifierFolding();
 
         foreach ($oldForeignKeys as $oldKey => $oldForeignKey) {
             foreach ($newForeignKeys as $newKey => $newForeignKey) {
-                if ($this->diffForeignKey($oldForeignKey, $newForeignKey) === false) {
+                if ($newForeignKey->equals($oldForeignKey, $folding)) {
                     unset($oldForeignKeys[$oldKey], $newForeignKeys[$newKey]);
                 } else {
                     if (strtolower($oldForeignKey->getName()) === strtolower($newForeignKey->getName())) {
@@ -374,54 +373,6 @@ class Comparator
         }
 
         return $renamedIndexes;
-    }
-
-    protected function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2): bool
-    {
-        if (
-            $this->normalizeColumnNames($key1->getReferencingColumnNames())
-            !==
-            $this->normalizeColumnNames($key2->getReferencingColumnNames())
-        ) {
-            return true;
-        }
-
-        if (
-            $this->normalizeColumnNames($key1->getReferencedColumnNames())
-            !==
-            $this->normalizeColumnNames($key2->getReferencedColumnNames())
-        ) {
-            return true;
-        }
-
-        if (
-            strtolower($key1->getReferencedTableName()->getUnqualifiedName()->getValue())
-                !== strtolower($key2->getReferencedTableName()->getUnqualifiedName()->getValue())
-        ) {
-            return true;
-        }
-
-        if ($key1->getOnUpdateAction() !== $key2->getOnUpdateAction()) {
-            return true;
-        }
-
-        return $key1->getOnDeleteAction() !== $key2->getOnDeleteAction();
-    }
-
-    /**
-     * Normalizes column names for comparison. Historically, it lower-cases the names regardless of the target database
-     * platform and whether the names are quoted. This isn't correct, but it is what it is for the time being.
-     *
-     * @param list<UnqualifiedName> $columnNames
-     *
-     * @return ($columnNames is non-empty-list ? non-empty-list<string> : list<string>)
-     */
-    private function normalizeColumnNames(array $columnNames): array
-    {
-        return array_map(
-            static fn (UnqualifiedName $columnName) => strtolower($columnName->getIdentifier()->getValue()),
-            $columnNames,
-        );
     }
 
     /**
