@@ -9,9 +9,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
-use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -249,17 +247,16 @@ class TableTest extends TestCase
             new Column('bar', $type),
         ];
         $indexes = [
-            new Index('the_primary', ['foo'], true, true),
-            new Index('bar_idx', ['bar'], false, false),
+            new Index('foo_idx', ['foo'], true),
+            new Index('bar_idx', ['bar']),
         ];
         $table   = new Table('foo', $columns, $indexes, []);
 
-        self::assertTrue($table->hasIndex('the_primary'));
+        self::assertTrue($table->hasIndex('foo_idx'));
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('some_idx'));
 
-        self::assertNotNull($table->getPrimaryKey());
-        self::assertSame('the_primary', $table->getIndex('the_primary')->getName());
+        self::assertSame('foo_idx', $table->getIndex('foo_idx')->getName());
         self::assertSame('bar_idx', $table->getIndex('bar_idx')->getName());
     }
 
@@ -271,19 +268,6 @@ class TableTest extends TestCase
         $table->getIndex('unknownIndex');
     }
 
-    public function testAddTwoPrimaryThrowsException(): void
-    {
-        $this->expectException(SchemaException::class);
-
-        $type    = Type::getType(Types::INTEGER);
-        $columns = [new Column('foo', $type), new Column('bar', $type)];
-        $indexes = [
-            new Index('the_primary', ['foo'], true, true),
-            new Index('other_primary', ['bar'], true, true),
-        ];
-        new Table('foo', $columns, $indexes, [], []);
-    }
-
     public function testAddTwoIndexesWithSameNameThrowsException(): void
     {
         $this->expectException(SchemaException::class);
@@ -291,8 +275,8 @@ class TableTest extends TestCase
         $type    = Type::getType(Types::INTEGER);
         $columns = [new Column('foo', $type), new Column('bar', $type)];
         $indexes = [
-            new Index('an_idx', ['foo'], false, false),
-            new Index('an_idx', ['bar'], false, false),
+            new Index('an_idx', ['foo']),
+            new Index('an_idx', ['bar']),
         ];
         new Table('foo', $columns, $indexes, [], []);
     }
@@ -305,31 +289,6 @@ class TableTest extends TestCase
         self::assertEquals('bar', $table->getOption('foo'));
     }
 
-    public function testBuilderSetPrimaryKey(): void
-    {
-        $table = new Table('foo');
-
-        $table->addColumn('bar', Types::INTEGER);
-        $table->setPrimaryKey(['bar']);
-
-        self::assertTrue($table->hasIndex('primary'));
-        self::assertInstanceOf(Index::class, $table->getPrimaryKey());
-        self::assertTrue($table->getIndex('primary')->isUnique());
-        self::assertTrue($table->getIndex('primary')->isPrimary());
-    }
-
-    public function testSetPrimaryKeyOnANullableColumn(): void
-    {
-        $table = new Table('users');
-
-        $id = $table->addColumn('id', Types::INTEGER)
-            ->setNotnull(false);
-
-        $this->expectException(InvalidIndexDefinition::class);
-
-        $table->setPrimaryKey(['id']);
-    }
-
     public function testBuilderAddUniqueIndex(): void
     {
         $table = new Table('foo');
@@ -339,7 +298,6 @@ class TableTest extends TestCase
 
         self::assertTrue($table->hasIndex('my_idx'));
         self::assertTrue($table->getIndex('my_idx')->isUnique());
-        self::assertFalse($table->getIndex('my_idx')->isPrimary());
     }
 
     public function testBuilderAddIndex(): void
@@ -351,7 +309,6 @@ class TableTest extends TestCase
 
         self::assertTrue($table->hasIndex('my_idx'));
         self::assertFalse($table->getIndex('my_idx')->isUnique());
-        self::assertFalse($table->getIndex('my_idx')->isPrimary());
     }
 
     public function testBuilderAddIndexWithInvalidNameThrowsException(): void
@@ -563,23 +520,6 @@ class TableTest extends TestCase
         self::assertSame(['bar', 'baz'], $table->getIndex('fulfilling_idx')->getColumns());
     }
 
-    public function testPrimaryKeyOverrulingUniqueIndexDoesNotDropUniqueIndex(): void
-    {
-        $table = new Table('bar');
-        $table->addColumn('baz', Types::INTEGER, []);
-        $table->addUniqueIndex(['baz'], 'idx_unique');
-
-        $table->setPrimaryKey(['baz']);
-
-        $indexes = $table->getIndexes();
-
-        // Table should only contain both the primary key table index and the unique one, even though it was overruled
-        self::assertCount(2, $indexes);
-
-        self::assertNotNull($table->getPrimaryKey());
-        self::assertTrue($table->hasIndex('idx_unique'));
-    }
-
     public function testAddingFulfillingRegularIndexOverridesImplicitForeignKeyConstraintIndex(): void
     {
         $foreignTable = new Table('foreign');
@@ -609,23 +549,6 @@ class TableTest extends TestCase
         self::assertCount(1, $localTable->getIndexes());
 
         $localTable->addUniqueIndex(['id'], 'explicit_idx');
-
-        self::assertCount(1, $localTable->getIndexes());
-        self::assertTrue($localTable->hasIndex('explicit_idx'));
-    }
-
-    public function testAddingFulfillingPrimaryKeyOverridesImplicitForeignKeyConstraintIndex(): void
-    {
-        $foreignTable = new Table('foreign');
-        $foreignTable->addColumn('id', Types::INTEGER);
-
-        $localTable = new Table('local');
-        $localTable->addColumn('id', Types::INTEGER);
-        $localTable->addForeignKeyConstraint($foreignTable->getName(), ['id'], ['id']);
-
-        self::assertCount(1, $localTable->getIndexes());
-
-        $localTable->setPrimaryKey(['id'], 'explicit_idx');
 
         self::assertCount(1, $localTable->getIndexes());
         self::assertTrue($localTable->hasIndex('explicit_idx'));
@@ -667,13 +590,21 @@ class TableTest extends TestCase
     public function testTableHasPrimaryKey(): void
     {
         $table = new Table('test');
-
-        self::assertNull($table->getPrimaryKey());
-
         $table->addColumn('foo', Types::INTEGER);
-        $table->setPrimaryKey(['foo']);
 
-        self::assertNotNull($table->getPrimaryKey());
+        self::assertNull($table->getPrimaryKeyConstraint());
+
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('foo'))
+                ->create(),
+        );
+
+        self::assertNotNull($table->getPrimaryKeyConstraint());
+
+        $table->dropPrimaryKey();
+
+        self::assertNull($table->getPrimaryKeyConstraint());
     }
 
     public function testAddForeignKeyWithQuotedColumnsAndTable(): void
@@ -705,18 +636,6 @@ class TableTest extends TestCase
         self::assertFalse($table->hasIndex('idx'));
     }
 
-    public function testDropPrimaryKey(): void
-    {
-        $table = new Table('test');
-        $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
-
-        self::assertNotNull($table->getPrimaryKey());
-
-        $table->dropPrimaryKey();
-        self::assertNull($table->getPrimaryKey());
-    }
-
     public function testRenameIndex(): void
     {
         $table = new Table('test');
@@ -724,48 +643,35 @@ class TableTest extends TestCase
         $table->addColumn('foo', Types::INTEGER);
         $table->addColumn('bar', Types::INTEGER);
         $table->addColumn('baz', Types::INTEGER);
-        $table->setPrimaryKey(['id'], 'pk');
         $table->addIndex(['foo'], 'idx', ['flag']);
         $table->addUniqueIndex(['bar', 'baz'], 'uniq');
 
         // Rename to custom name.
-        self::assertSame($table, $table->renameIndex('pk', 'pk_new'));
         self::assertSame($table, $table->renameIndex('idx', 'idx_new'));
         self::assertSame($table, $table->renameIndex('uniq', 'uniq_new'));
 
-        self::assertNotNull($table->getPrimaryKey());
-        self::assertTrue($table->hasIndex('pk_new'));
         self::assertTrue($table->hasIndex('idx_new'));
         self::assertTrue($table->hasIndex('uniq_new'));
 
-        self::assertFalse($table->hasIndex('pk'));
         self::assertFalse($table->hasIndex('idx'));
         self::assertFalse($table->hasIndex('uniq'));
 
-        self::assertEquals(new Index('pk_new', ['id'], true, true), $table->getPrimaryKey());
-        self::assertEquals(new Index('pk_new', ['id'], true, true), $table->getIndex('pk_new'));
         self::assertEquals(
             new Index('idx_new', ['foo'], false, false, ['flag']),
             $table->getIndex('idx_new'),
         );
-        self::assertEquals(new Index('uniq_new', ['bar', 'baz'], true), $table->getIndex('uniq_new'));
+        self::assertEquals(new Index('uniq_new', ['bar', 'baz'], true, false), $table->getIndex('uniq_new'));
 
         // Rename to auto-generated name.
-        self::assertSame($table, $table->renameIndex('pk_new', null));
         self::assertSame($table, $table->renameIndex('idx_new', null));
         self::assertSame($table, $table->renameIndex('uniq_new', null));
 
-        self::assertNotNull($table->getPrimaryKey());
-        self::assertTrue($table->hasIndex('primary'));
         self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
         self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
 
-        self::assertFalse($table->hasIndex('pk_new'));
         self::assertFalse($table->hasIndex('idx_new'));
         self::assertFalse($table->hasIndex('uniq_new'));
 
-        self::assertEquals(new Index('primary', ['id'], true, true), $table->getPrimaryKey());
-        self::assertEquals(new Index('primary', ['id'], true, true), $table->getIndex('primary'));
         self::assertEquals(
             new Index('IDX_D87F7E0C8C736521', ['foo'], false, false, ['flag']),
             $table->getIndex('IDX_D87F7E0C8C736521'),
@@ -776,12 +682,9 @@ class TableTest extends TestCase
         );
 
         // Rename to same name (changed case).
-        self::assertSame($table, $table->renameIndex('primary', 'PRIMARY'));
         self::assertSame($table, $table->renameIndex('IDX_D87F7E0C8C736521', 'idx_D87F7E0C8C736521'));
         self::assertSame($table, $table->renameIndex('UNIQ_D87F7E0C76FF8CAA78240498', 'uniq_D87F7E0C76FF8CAA78240498'));
 
-        self::assertNotNull($table->getPrimaryKey());
-        self::assertTrue($table->hasIndex('primary'));
         self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
         self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
     }
@@ -1013,84 +916,5 @@ class TableTest extends TestCase
 
         self::assertEquals(Identifier::unquoted('products'), $name->getUnqualifiedName());
         self::assertEquals(Identifier::unquoted('inventory'), $name->getQualifier());
-    }
-
-    public function testPrimaryKeyConstraintIsDerivedFromIndex(): void
-    {
-        $table = new Table('t');
-        $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
-
-        self::assertEquals(
-            PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
-                ->create(),
-            $table->getPrimaryKeyConstraint(),
-        );
-    }
-
-    public function testIndexIsDerivedFromPrimaryKeyConstraint(): void
-    {
-        $table = new Table('t');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
-                ->create(),
-        );
-
-        self::assertEquals(
-            new Index('primary', ['id'], false, true),
-            $table->getPrimaryKey(),
-        );
-    }
-
-    public function testDroppingIndexDropsPrimaryKeyConstraint(): void
-    {
-        $table = new Table('t');
-        $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
-
-        self::assertNotNull($table->getPrimaryKeyConstraint());
-
-        $table->dropPrimaryKey();
-
-        self::assertNull($table->getPrimaryKeyConstraint());
-    }
-
-    public function testCannotAddIndexToExistingPrimaryKeyConstraint(): void
-    {
-        $table = new Table('t');
-        $table->addColumn('id', Types::INTEGER);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
-                ->create(),
-        );
-
-        $this->expectException(PrimaryKeyAlreadyExists::class);
-        $table->setPrimaryKey(['id']);
-    }
-
-    public function testCannotAddPrimaryKeyConstrainToExistingIndex(): void
-    {
-        $table = new Table('t');
-        $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
-
-        $this->expectException(PrimaryKeyAlreadyExists::class);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setColumnNames(
-                    UnqualifiedName::unquoted('id'),
-                )
-                ->create(),
-        );
     }
 }

@@ -16,6 +16,8 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Query\ForUpdate\ConflictResolutionMode;
 use Doctrine\DBAL\Query\UnionType;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -31,7 +33,13 @@ final class QueryBuilderTest extends FunctionalTestCase
     {
         $table = new Table('for_update');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $this->dropAndCreateTable($table);
 

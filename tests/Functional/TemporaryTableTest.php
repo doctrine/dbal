@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -33,7 +35,13 @@ class TemporaryTableTest extends FunctionalTestCase
 
         $table = new Table('nontemporary');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $this->dropAndCreateTable($table);
 
@@ -65,7 +73,13 @@ class TemporaryTableTest extends FunctionalTestCase
 
         $table = new Table('nontemporary');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $this->dropAndCreateTable($table);
 

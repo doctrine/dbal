@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Types;
 
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -23,7 +25,13 @@ class BigIntTypeTest extends FunctionalTestCase
         $table = new Table('bigint_type_test');
         $table->addColumn('id', Types::SMALLINT, ['notnull' => true]);
         $table->addColumn('my_integer', Types::BIGINT, ['notnull' => false]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
 
         $this->connection->executeStatement(<<<SQL
@@ -62,7 +70,13 @@ class BigIntTypeTest extends FunctionalTestCase
         $table = new Table('bigint_type_test');
         $table->addColumn('id', Types::SMALLINT, ['notnull' => true]);
         $table->addColumn('my_integer', Types::BIGINT, ['notnull' => false, 'unsigned' => true]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
 
         // Insert (2 ** 64) - 1

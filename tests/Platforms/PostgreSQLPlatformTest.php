@@ -343,7 +343,13 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         $newTable = new Table('mytable');
         $newTable->addColumn('id', Types::INTEGER);
-        $newTable->setPrimaryKey(['id']);
+        $newTable->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $oldTable = clone $newTable;
         $oldTable->addColumn('parent_id', Types::INTEGER);
@@ -378,8 +384,9 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
                 ->create(),
         );
 
-        $newTable = clone $oldTable;
-        $newTable->dropPrimaryKey();
+        $newTable = $oldTable->edit()
+            ->setPrimaryKeyConstraint(null)
+            ->create();
 
         $diff = $this->createComparator()
             ->compareTables($oldTable, $newTable);

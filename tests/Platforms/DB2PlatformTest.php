@@ -9,7 +9,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
-use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -119,7 +120,13 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         $table = new Table('test');
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn('name', Types::STRING, ['length' => 50]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $table->addIndex(['name']);
         $table->addIndex(['id', 'name'], 'composite_idx');
 
@@ -139,7 +146,13 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn('fk_1', Types::INTEGER);
         $table->addColumn('fk_2', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $table->addForeignKeyConstraint('foreign_table', ['fk_1', 'fk_2'], ['pk_1', 'pk_2']);
         $table->addForeignKeyConstraint(
             'foreign_table2',
@@ -169,7 +182,13 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn('check_max', Types::INTEGER, ['platformOptions' => ['max' => 10]]);
         $table->addColumn('check_min', Types::INTEGER, ['platformOptions' => ['min' => 10]]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         self::assertEquals(
             [
@@ -241,17 +260,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
 
         self::assertEquals('DROP VIEW fooview', $this->platform->getDropViewSQL('fooview'));
-    }
-
-    public function testGeneratesCreateUnnamedPrimaryKeySQL(): void
-    {
-        self::assertEquals(
-            'ALTER TABLE foo ADD PRIMARY KEY ("A", "B")',
-            $this->platform->getCreatePrimaryKeySQL(
-                new Index('any_pk_name', ['a', 'b'], true, true),
-                'foo',
-            ),
-        );
     }
 
     public function testGeneratesSQLSnippets(): void

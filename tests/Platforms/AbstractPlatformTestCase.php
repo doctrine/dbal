@@ -128,7 +128,11 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table = new Table('test');
         $table->addColumn('id', Types::INTEGER, ['notnull' => true, 'autoincrement' => true]);
         $table->addColumn('test', Types::STRING, ['notnull' => false, 'length' => 255]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getGenerateTableSql(), $sql[0]);
@@ -222,7 +226,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('`quoted`');
         $table->addColumn('create', Types::STRING, ['length' => 255]);
-        $table->setPrimaryKey(['create']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('create'))
+                ->create(),
+        );
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getQuotedColumnInPrimaryKeySQL(), $sql);
@@ -528,7 +536,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('mytable');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'idx_foo' => new Index('idx_bar', ['id']),
@@ -553,7 +565,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('table');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'create' => new Index('select', ['id']),
@@ -581,7 +597,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('myschema.mytable');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $tableDiff = new TableDiff($table, renamedIndexes: ['idx_foo' => new Index('idx_bar', ['id'])]);
 
@@ -604,7 +624,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('`schema`.table');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'create' => new Index('select', ['id']),
@@ -725,7 +749,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $foreignTable = new Table('foreign_table');
         $foreignTable->addColumn('id', Types::INTEGER);
-        $foreignTable->setPrimaryKey(['id']);
+        $foreignTable->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $primaryTable = new Table('mytable');
         $primaryTable->addColumn('foo', Types::INTEGER);

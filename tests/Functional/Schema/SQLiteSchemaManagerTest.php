@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
@@ -162,7 +163,13 @@ SQL;
         $table = new Table('test_pk_auto_increment');
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn('text', Types::TEXT);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
@@ -257,13 +264,13 @@ SQL;
         CREATE TABLE artist(
           id INTEGER,
           name TEXT,
-          PRIMARY KEY(id)
+          PRIMARY KEY (id)
         );
 
         CREATE TABLE album(
           id INTEGER,
           name TEXT,
-          PRIMARY KEY(id)
+          PRIMARY KEY (id)
         );
 
         CREATE TABLE song(

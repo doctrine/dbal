@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -22,13 +24,24 @@ class ModifyLimitQueryTest extends FunctionalTestCase
     {
         $table = new Table('modify_limit_table');
         $table->addColumn('test_int', Types::INTEGER);
-        $table->setPrimaryKey(['test_int']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('test_int'),
+                )
+                ->create(),
+        );
 
         $table2 = new Table('modify_limit_table2');
         $table2->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table2->addColumn('test_int', Types::INTEGER);
-        $table2->setPrimaryKey(['id']);
-
+        $table2->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
         $this->dropAndCreateTable($table2);
     }

@@ -585,16 +585,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testCreateNonClusteredPrimaryKey(): void
-    {
-        $idx = new Index('idx', ['id'], false, true);
-        $idx->addFlag('nonclustered');
-        self::assertEquals(
-            'ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED ([id])',
-            $this->platform->getCreatePrimaryKeySQL($idx, 'tbl'),
-        );
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -654,7 +644,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.test');
         $table->addColumn('id', Types::INTEGER, ['comment' => 'This is a comment']);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $expectedSql = [
             'CREATE TABLE [testschema].[test] ([id] INT NOT NULL, PRIMARY KEY ([id]))',

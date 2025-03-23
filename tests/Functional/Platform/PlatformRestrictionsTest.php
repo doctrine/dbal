@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -27,11 +29,18 @@ class PlatformRestrictionsTest extends FunctionalTestCase
         $columnName = str_repeat('y', $platform->getMaxIdentifierLength());
         $table      = new Table($tableName);
         $table->addColumn($columnName, Types::INTEGER, ['autoincrement' => true]);
-        $table->setPrimaryKey([$columnName]);
+
+        $primaryKeyConstraint = PrimaryKeyConstraint::editor()
+            ->setColumnNames(
+                UnqualifiedName::unquoted($columnName),
+            )
+            ->create();
+
+        $table->addPrimaryKeyConstraint($primaryKeyConstraint);
         $this->dropAndCreateTable($table);
         $createdTable = $this->connection->createSchemaManager()->introspectTable($tableName);
 
         self::assertTrue($createdTable->hasColumn($columnName));
-        self::assertNotNull($createdTable->getPrimaryKey());
+        self::assertPrimaryKeyConstraintEquals($primaryKeyConstraint, $createdTable->getPrimaryKeyConstraint());
     }
 }

@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BinaryType;
@@ -40,7 +42,13 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn('foo', Types::INTEGER);
         $table->addColumn('bar', Types::STRING, ['length' => 32]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $this->dropAndCreateTable($table);
 

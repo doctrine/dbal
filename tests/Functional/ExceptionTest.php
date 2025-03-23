@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -38,7 +40,13 @@ class ExceptionTest extends FunctionalTestCase
     {
         $table = new Table('duplicatekey_table');
         $table->addColumn('id', Types::INTEGER, []);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
 
         $this->connection->insert('duplicatekey_table', ['id' => 1]);
@@ -60,7 +68,13 @@ class ExceptionTest extends FunctionalTestCase
         $schemaManager = $this->connection->createSchemaManager();
         $table         = new Table('alreadyexist_table');
         $table->addColumn('id', Types::INTEGER, []);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $this->expectException(Exception\TableExistsException::class);
         $schemaManager->createTable($table);
@@ -72,7 +86,13 @@ class ExceptionTest extends FunctionalTestCase
         $table = new Table('notnull_table');
         $table->addColumn('id', Types::INTEGER, []);
         $table->addColumn('val', Types::INTEGER, ['notnull' => true]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
 
         $this->expectException(Exception\NotNullConstraintViolationException::class);
@@ -137,8 +157,13 @@ class ExceptionTest extends FunctionalTestCase
     {
         $table = new Table('syntax_error_table');
         $table->addColumn('id', Types::INTEGER, []);
-        $table->setPrimaryKey(['id']);
-
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
 
         $sql = 'SELECT id FRO syntax_error_table';
