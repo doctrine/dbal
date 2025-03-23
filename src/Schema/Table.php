@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
@@ -64,6 +65,7 @@ class Table extends AbstractNamedObject
      */
     private array $implicitIndexNames = [];
 
+    /** @deprecated Use {@see $primaryKeyConstraint} instead. */
     protected ?string $_primaryKeyName = null;
 
     /** @var UniqueConstraint[] */
@@ -78,6 +80,10 @@ class Table extends AbstractNamedObject
     ];
 
     private readonly int $maxIdentifierLength;
+
+    private ?PrimaryKeyConstraint $primaryKeyConstraint = null;
+
+    private bool $failedToParsePrimaryKeyConstraint = false;
 
     /**
      * @param array<Column>               $columns
@@ -94,6 +100,7 @@ class Table extends AbstractNamedObject
         array $fkConstraints = [],
         array $options = [],
         ?TableConfiguration $configuration = null,
+        ?PrimaryKeyConstraint $primaryKeyConstraint = null,
     ) {
         if ($name === '') {
             throw InvalidTableName::new($name);
@@ -111,6 +118,10 @@ class Table extends AbstractNamedObject
 
         foreach ($indexes as $idx) {
             $this->_addIndex($idx);
+        }
+
+        if ($primaryKeyConstraint !== null) {
+            $this->addPrimaryKeyConstraint($primaryKeyConstraint);
         }
 
         foreach ($uniqueConstraints as $uniqueConstraint) {
@@ -132,10 +143,19 @@ class Table extends AbstractNamedObject
     /**
      * Sets the Primary Key.
      *
+     * @deprecated Use {@see addPrimaryKeyConstraint()} instead.
+     *
      * @param non-empty-list<string> $columnNames
      */
     public function setPrimaryKey(array $columnNames, ?string $indexName = null): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6867',
+            '%s() is deprecated. Use Table::addPrimaryKeyConstraint() instead.',
+            __METHOD__,
+        );
+
         if ($indexName === null) {
             $indexName = 'primary';
         }
@@ -149,6 +169,21 @@ class Table extends AbstractNamedObject
                 throw InvalidIndexDefinition::primaryKeyIndexOnANullableColumn($column->getObjectName());
             }
         }
+
+        return $this;
+    }
+
+    public function addPrimaryKeyConstraint(PrimaryKeyConstraint $primaryKeyConstraint): self
+    {
+        $this->setPrimaryKey(
+            array_map(
+                static fn (UnqualifiedName $columnName): string => $columnName->toString(),
+                $primaryKeyConstraint->getColumnNames(),
+            ),
+            $primaryKeyConstraint->getObjectName()?->toString(),
+        );
+
+        $this->primaryKeyConstraint = $primaryKeyConstraint;
 
         return $this;
     }
@@ -198,6 +233,9 @@ class Table extends AbstractNamedObject
      */
     public function dropPrimaryKey(): void
     {
+        $this->primaryKeyConstraint              = null;
+        $this->failedToParsePrimaryKeyConstraint = false;
+
         if ($this->_primaryKeyName === null) {
             return;
         }
@@ -262,6 +300,14 @@ class Table extends AbstractNamedObject
         $oldIndex = $this->_indexes[$oldName];
 
         if ($oldIndex->isPrimary()) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6867',
+                'Renaming primary key constraint via %s() is deprecated. Use Table::dropPrimaryKey() and '
+                    . ' Table::addPrimaryKeyConstraint() instead.',
+                __METHOD__,
+            );
+
             $this->dropPrimaryKey();
 
             return $this->setPrimaryKey($oldIndex->getColumns(), $newName ?? null);
@@ -642,14 +688,32 @@ class Table extends AbstractNamedObject
 
     /**
      * Returns the primary key.
+     *
+     * @deprecated Use {@see getPrimaryKeyConstraint()} instead.
      */
     public function getPrimaryKey(): ?Index
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6867',
+            '%s() is deprecated. Use Table::getPrimaryKeyConstraint() instead.',
+            __METHOD__,
+        );
+
         if ($this->_primaryKeyName !== null) {
             return $this->getIndex($this->_primaryKeyName);
         }
 
         return null;
+    }
+
+    public function getPrimaryKeyConstraint(): ?PrimaryKeyConstraint
+    {
+        if ($this->failedToParsePrimaryKeyConstraint) {
+            throw InvalidState::tableHasInvalidPrimaryKeyConstraint($this->getName());
+        }
+
+        return $this->primaryKeyConstraint;
     }
 
     /**
@@ -769,12 +833,12 @@ class Table extends AbstractNamedObject
             $replacedImplicitIndexNames[$implicitIndexName] = true;
         }
 
-        if (isset($this->_indexes[$indexName]) && ! isset($replacedImplicitIndexNames[$indexName])) {
-            throw IndexAlreadyExists::new($indexName, $this->_name);
-        }
-
         if ($this->_primaryKeyName !== null && $index->isPrimary()) {
             throw PrimaryKeyAlreadyExists::new($this->_name);
+        }
+
+        if (isset($this->_indexes[$indexName]) && ! isset($replacedImplicitIndexNames[$indexName])) {
+            throw IndexAlreadyExists::new($indexName, $this->_name);
         }
 
         foreach ($replacedImplicitIndexNames as $name => $_) {
@@ -783,11 +847,41 @@ class Table extends AbstractNamedObject
 
         if ($index->isPrimary()) {
             $this->_primaryKeyName = $indexName;
+
+            try {
+                $this->primaryKeyConstraint              = $this->parsePrimaryKeyConstraint($index);
+                $this->failedToParsePrimaryKeyConstraint = false;
+            } catch (InvalidState) {
+                $this->primaryKeyConstraint              = null;
+                $this->failedToParsePrimaryKeyConstraint = true;
+            }
         }
 
         $this->_indexes[$indexName] = $index;
 
         return $this;
+    }
+
+    private function parsePrimaryKeyConstraint(Index $index): ?PrimaryKeyConstraint
+    {
+        $indexedColumns = $index->getIndexedColumns();
+
+        $columnNames = [];
+        foreach ($indexedColumns as $indexedColumn) {
+            if ($indexedColumn->getLength() !== null) {
+                return null;
+            }
+
+            $columnNames[] = $indexedColumn->getColumnName();
+        }
+
+        // Do not derive the constraint name from the index name in the upgrade path. The primary index name defaults to
+        // "PRIMARY", while the default constraint name is null (unspecified, to be generated by the database platform).
+        return new PrimaryKeyConstraint(
+            null,
+            $columnNames,
+            ! $index->hasFlag('nonclustered'),
+        );
     }
 
     protected function _addUniqueConstraint(UniqueConstraint $constraint): self

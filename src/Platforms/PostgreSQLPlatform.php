@@ -17,6 +17,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_merge;
@@ -363,6 +364,14 @@ class PostgreSQLPlatform extends AbstractPlatform
         }
 
         if ($name === '"primary"' || $name === $primaryKeyName) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6867',
+                'Building the SQL for dropping primary key constraint via %s() is deprecated. Use'
+                    . ' getDropConstraintSQL() instead.',
+                __METHOD__,
+            );
+
             return $this->getDropConstraintSQL($primaryKeyName, $table);
         }
 
@@ -387,7 +396,7 @@ class PostgreSQLPlatform extends AbstractPlatform
 
         if (isset($parameters['primary_index'])) {
             $elements[] = sprintf(
-                'PRIMARY KEY(%s)',
+                'PRIMARY KEY (%s)',
                 implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
             );
         }

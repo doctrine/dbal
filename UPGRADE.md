@@ -230,6 +230,25 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated features related to primary key constraints
+
+1. The `AbstractPlatform::getCreatePrimaryKeySQL()` method has been deprecated. Use the schema manager to create and
+   alter tables.
+2. Building the SQL for dropping a primary key constraint via `PostgreSQLPlatform::getDropIndexSQL()` has been
+   deprecated. Use `PostgreSQLPlatform::getDropConstraintSQL()` instead.
+3. Using the `Index` class to represent a primary key constraint has been deprecated, including:
+   - Passing `true` as the `$isPrimary` constructor argument.
+   - Using the `$_isPrimary` property and the `isPrimary()` method.
+
+   Use the `PrimaryKeyConstraint` class to represent a primary key constraint instead.
+
+4. The following features of the `Table` class have been deprecated:
+   - The `Table::getPrimaryKey()` method. Use `Table::getPrimaryKeyConstraint()` instead.
+   - The `Table::setPrimaryKey()` method. Instead, pass the `$primaryKeyConstraint` argument to the constructor or add
+      the constraint via `Table::addPrimaryKeyConstraint()`.
+   - Using `Table::renameIndex()` to rename the primary key constraint. Use `Table::dropPrimaryKey()` and
+      `Table::addPrimaryKeyConstraint()` instead.
+
 ## Deprecated invalid auto-increment column definitions on SQLite
 
 The following auto-increment column definitions are deprecated in SQLite:

@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\After;
@@ -253,6 +254,44 @@ abstract class FunctionalTestCase extends TestCase
             fn (UnqualifiedName $name): UnqualifiedName => $this->toQuotedUnqualifiedName($name),
             $names,
         );
+    }
+
+    /** @throws Exception */
+    protected function assertPrimaryKeyConstraintEquals(
+        PrimaryKeyConstraint $expected,
+        ?PrimaryKeyConstraint $actual,
+    ): void {
+        self::assertNotNull($actual);
+
+        $expectedName = $expected->getObjectName();
+        $actualName   = $actual->getObjectName();
+
+        // ignore auto-generated name on the actual constraint
+        if ($expectedName === null && $actualName !== null) {
+            $actual = $actual->edit()
+                ->setName(null)
+                ->create();
+        }
+
+        self::assertEquals(
+            $this->toQuotedPrimaryKeyConstraint($expected),
+            $this->toQuotedPrimaryKeyConstraint($actual),
+        );
+    }
+
+    /** @throws Exception */
+    protected function toQuotedPrimaryKeyConstraint(PrimaryKeyConstraint $constraint): PrimaryKeyConstraint
+    {
+        $name = $constraint->getObjectName();
+
+        if ($name !== null) {
+            $name = $this->toQuotedUnqualifiedName($name);
+        }
+
+        return $constraint->edit()
+            ->setName($name)
+            ->setColumnNames(...$this->toQuotedUnqualifiedNameList($constraint->getColumnNames()))
+            ->create();
     }
 
     /** @throws Exception */

@@ -42,6 +42,7 @@ use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -996,7 +997,7 @@ abstract class AbstractPlatform
 
         if (isset($parameters['primary_index'])) {
             $elements[] = sprintf(
-                'PRIMARY KEY(%s)',
+                'PRIMARY KEY (%s)',
                 implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
             );
         }
@@ -1145,9 +1146,18 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to create an unnamed primary key constraint.
+     *
+     * @deprecated
      */
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6867',
+            '%s() is deprecated.',
+            __METHOD__,
+        );
+
         return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }
 

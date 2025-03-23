@@ -32,7 +32,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE "TEST" ("ID" NUMBER(10) NOT NULL, '
-            . '"TEST" VARCHAR2(255) DEFAULT NULL NULL, PRIMARY KEY("ID"))';
+            . '"TEST" VARCHAR2(255) DEFAULT NULL NULL, PRIMARY KEY ("ID"))';
     }
 
     /**
@@ -219,7 +219,7 @@ SQL
      */
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
-        return ['CREATE TABLE "quoted" ("CREATE" VARCHAR2(255) NOT NULL, PRIMARY KEY("CREATE"))'];
+        return ['CREATE TABLE "quoted" ("CREATE" VARCHAR2(255) NOT NULL, PRIMARY KEY ("CREATE"))'];
     }
 
     /**

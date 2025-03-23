@@ -285,7 +285,7 @@ class SQLitePlatform extends AbstractPlatform
             $primaryKeyColumns = $parameters['primary_index']->getQuotedColumns($this);
 
             $elements[] = sprintf(
-                'PRIMARY KEY(%s)',
+                'PRIMARY KEY (%s)',
                 implode(', ', $primaryKeyColumns),
             );
         }
@@ -588,6 +588,7 @@ class SQLitePlatform extends AbstractPlatform
         return $sql;
     }
 
+    /** @deprecated */
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
         throw NotSupported::new(__METHOD__);

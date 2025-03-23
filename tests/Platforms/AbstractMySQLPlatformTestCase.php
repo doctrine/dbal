@@ -42,7 +42,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE `test` (`id` INT AUTO_INCREMENT NOT NULL, `test` VARCHAR(255) DEFAULT NULL, '
-            . 'PRIMARY KEY(`id`))';
+            . 'PRIMARY KEY (`id`))';
     }
 
     /** @return string[] */
@@ -181,7 +181,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, '
-                . 'PRIMARY KEY(`create`))',
+                . 'PRIMARY KEY (`create`))',
         ];
     }
 

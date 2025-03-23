@@ -249,7 +249,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         if (isset($parameters['primary_index'])) {
             $elements[] = sprintf(
-                'PRIMARY KEY(%s)',
+                'PRIMARY KEY (%s)',
                 implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
             );
         }

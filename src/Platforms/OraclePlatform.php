@@ -22,6 +22,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -131,8 +132,16 @@ class OraclePlatform extends AbstractPlatform
                 . '+' . $value2 . ')';
     }
 
+    /** @deprecated */
     public function getCreatePrimaryKeySQL(Index $index, string $table): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6867',
+            '%s() is deprecated.',
+            __METHOD__,
+        );
+
         return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $index->getObjectName()->toSQL($this)
             . ' PRIMARY KEY (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }

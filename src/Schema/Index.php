@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_keys;
@@ -34,6 +35,7 @@ final class Index extends AbstractNamedObject
 
     private readonly bool $_isUnique;
 
+    /** @deprecated Use {@see PrimaryKeyConstraint()} instead. */
     private readonly bool $_isPrimary;
 
     /**
@@ -67,6 +69,14 @@ final class Index extends AbstractNamedObject
 
         if (count($columns) < 1) {
             throw InvalidIndexDefinition::columnNamesNotSet();
+        }
+
+        if ($isPrimary) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6867',
+                'Declaring an index as primary is deprecated. Use PrimaryKeyConstraint instead.',
+            );
         }
 
         $this->_isUnique  = $isUnique || $isPrimary;
@@ -144,7 +154,7 @@ final class Index extends AbstractNamedObject
         return $columns;
     }
 
-    /** @return array<int, string> */
+    /** @return non-empty-list<string> */
     public function getUnquotedColumns(): array
     {
         return array_map($this->trimQuotes(...), $this->getColumns());
@@ -163,8 +173,15 @@ final class Index extends AbstractNamedObject
         return $this->_isUnique;
     }
 
+    /** @deprecated Use {@see PrimaryKeyConstraint()} instead. */
     public function isPrimary(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6867',
+            'Checking whether an index is primary is deprecated. Use PrimaryKeyConstraint instead.',
+        );
+
         return $this->_isPrimary;
     }
 

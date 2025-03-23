@@ -11,9 +11,11 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
@@ -1011,5 +1013,84 @@ class TableTest extends TestCase
 
         self::assertEquals(Identifier::unquoted('products'), $name->getUnqualifiedName());
         self::assertEquals(Identifier::unquoted('inventory'), $name->getQualifier());
+    }
+
+    public function testPrimaryKeyConstraintIsDerivedFromIndex(): void
+    {
+        $table = new Table('t');
+        $table->addColumn('id', Types::INTEGER);
+        $table->setPrimaryKey(['id']);
+
+        self::assertEquals(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+            $table->getPrimaryKeyConstraint(),
+        );
+    }
+
+    public function testIndexIsDerivedFromPrimaryKeyConstraint(): void
+    {
+        $table = new Table('t');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
+
+        self::assertEquals(
+            new Index('primary', ['id'], false, true),
+            $table->getPrimaryKey(),
+        );
+    }
+
+    public function testDroppingIndexDropsPrimaryKeyConstraint(): void
+    {
+        $table = new Table('t');
+        $table->addColumn('id', Types::INTEGER);
+        $table->setPrimaryKey(['id']);
+
+        self::assertNotNull($table->getPrimaryKeyConstraint());
+
+        $table->dropPrimaryKey();
+
+        self::assertNull($table->getPrimaryKeyConstraint());
+    }
+
+    public function testCannotAddIndexToExistingPrimaryKeyConstraint(): void
+    {
+        $table = new Table('t');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
+
+        $this->expectException(PrimaryKeyAlreadyExists::class);
+        $table->setPrimaryKey(['id']);
+    }
+
+    public function testCannotAddPrimaryKeyConstrainToExistingIndex(): void
+    {
+        $table = new Table('t');
+        $table->addColumn('id', Types::INTEGER);
+        $table->setPrimaryKey(['id']);
+
+        $this->expectException(PrimaryKeyAlreadyExists::class);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
     }
 }
