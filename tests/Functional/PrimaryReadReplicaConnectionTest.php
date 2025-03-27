@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -28,7 +30,13 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         try {
             $table = new Table('primary_replica_table');
             $table->addColumn('test_int', Types::INTEGER);
-            $table->setPrimaryKey(['test_int']);
+            $table->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('test_int'),
+                    )
+                    ->create(),
+            );
 
             $sm = $this->connection->createSchemaManager();
             $sm->createTable($table);

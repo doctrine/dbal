@@ -15,6 +15,8 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -568,29 +570,19 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('tbl');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
-        $table->getIndex('primary')->addFlag('nonclustered');
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->setIsClustered(false)
+                ->create(),
+        );
 
         self::assertEquals(
             ['CREATE TABLE [tbl] ([id] INT NOT NULL, PRIMARY KEY NONCLUSTERED ([id]))'],
             $this->platform->getCreateTableSQL($table),
         );
-    }
-
-    public function testCreateNonClusteredPrimaryKey(): void
-    {
-        $idx = new Index('idx', ['id'], false, true);
-        $idx->addFlag('nonclustered');
-        self::assertEquals(
-            'ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED ([id])',
-            $this->platform->getCreatePrimaryKeySQL($idx, 'tbl'),
-        );
-    }
-
-    public function testAlterAddPrimaryKey(): void
-    {
-        $idx = new Index('idx', ['id'], false, true);
-        self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY ([id])', $this->platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
     /**
@@ -652,7 +644,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('testschema.test');
         $table->addColumn('id', Types::INTEGER, ['comment' => 'This is a comment']);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $expectedSql = [
             'CREATE TABLE [testschema].[test] ([id] INT NOT NULL, PRIMARY KEY ([id]))',

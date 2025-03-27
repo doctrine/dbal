@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-use function assert;
 use function count;
 use function strtolower;
 
@@ -127,14 +126,16 @@ class Comparator
      */
     public function compareTables(Table $oldTable, Table $newTable): TableDiff
     {
-        $addedColumns       = [];
-        $modifiedColumns    = [];
-        $droppedColumns     = [];
-        $addedIndexes       = [];
-        $droppedIndexes     = [];
-        $renamedIndexes     = [];
-        $addedForeignKeys   = [];
-        $droppedForeignKeys = [];
+        $addedColumns                = [];
+        $modifiedColumns             = [];
+        $droppedColumns              = [];
+        $addedIndexes                = [];
+        $droppedIndexes              = [];
+        $renamedIndexes              = [];
+        $addedForeignKeys            = [];
+        $droppedForeignKeys          = [];
+        $addedPrimaryKeyConstraint   = null;
+        $droppedPrimaryKeyConstraint = null;
 
         $oldColumns = $oldTable->getColumns();
         $newColumns = $newTable->getColumns();
@@ -194,12 +195,20 @@ class Comparator
             $this->detectRenamedColumns($modifiedColumns, $addedColumns, $droppedColumns);
         }
 
+        $oldPrimaryKeyConstraint = $oldTable->getPrimaryKeyConstraint();
+        $newPrimaryKeyConstraint = $newTable->getPrimaryKeyConstraint();
+
+        if (! $this->primaryKeyConstraintsEqual($oldPrimaryKeyConstraint, $newPrimaryKeyConstraint)) {
+            $droppedPrimaryKeyConstraint = $oldPrimaryKeyConstraint;
+            $addedPrimaryKeyConstraint   = $newPrimaryKeyConstraint;
+        }
+
         $oldIndexes = $oldTable->getIndexes();
         $newIndexes = $newTable->getIndexes();
 
         // See if all the indexes from the old table exist in the new one
         foreach ($newIndexes as $newIndexName => $newIndex) {
-            if (($newIndex->isPrimary() && $oldTable->getPrimaryKey() !== null) || $oldTable->hasIndex($newIndexName)) {
+            if ($oldTable->hasIndex($newIndexName)) {
                 continue;
             }
 
@@ -208,19 +217,14 @@ class Comparator
 
         // See if there are any removed indexes in the new table
         foreach ($oldIndexes as $oldIndexName => $oldIndex) {
-            // See if the index is removed in the new table.
-            if (
-                ($oldIndex->isPrimary() && $newTable->getPrimaryKey() === null) ||
-                ! $oldIndex->isPrimary() && ! $newTable->hasIndex($oldIndexName)
-            ) {
+            if (! $newTable->hasIndex($oldIndexName)) {
                 $droppedIndexes[$oldIndexName] = $oldIndex;
 
                 continue;
             }
 
             // See if index has changed in the new table.
-            $newIndex = $oldIndex->isPrimary() ? $newTable->getPrimaryKey() : $newTable->getIndex($oldIndexName);
-            assert($newIndex instanceof Index);
+            $newIndex = $newTable->getIndex($oldIndexName);
 
             if (! $this->diffIndex($oldIndex, $newIndex)) {
                 continue;
@@ -271,6 +275,8 @@ class Comparator
             renamedIndexes: $renamedIndexes,
             addedForeignKeys: $addedForeignKeys,
             droppedForeignKeys: $droppedForeignKeys,
+            addedPrimaryKeyConstraint: $addedPrimaryKeyConstraint,
+            droppedPrimaryKeyConstraint: $droppedPrimaryKeyConstraint,
         );
     }
 
@@ -319,6 +325,20 @@ class Comparator
                 $removedColumns[$oldColumnName],
             );
         }
+    }
+
+    private function primaryKeyConstraintsEqual(
+        ?PrimaryKeyConstraint $oldPrimaryKeyConstraint,
+        ?PrimaryKeyConstraint $newPrimaryKeyConstraint,
+    ): bool {
+        if ($oldPrimaryKeyConstraint !== null && $newPrimaryKeyConstraint !== null) {
+            return $oldPrimaryKeyConstraint->equals(
+                $newPrimaryKeyConstraint,
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
+        }
+
+        return $oldPrimaryKeyConstraint === null && $newPrimaryKeyConstraint === null;
     }
 
     /**

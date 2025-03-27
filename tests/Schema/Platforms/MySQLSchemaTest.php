@@ -12,6 +12,8 @@ use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
@@ -50,9 +52,16 @@ class MySQLSchemaTest extends TestCase
         $tableOld = new Table('test');
         $tableOld->addColumn('id', Types::INTEGER);
         $tableOld->addColumn('description', Types::STRING, ['length' => 65536]);
-        $tableNew = clone $tableOld;
 
-        $tableNew->setPrimaryKey(['id']);
+        $tableNew = $tableOld->edit()
+            ->setPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('id'),
+                    )
+                    ->create(),
+            )
+            ->create();
 
         $diff = $this->createComparator()
             ->compareTables($tableOld, $tableNew);

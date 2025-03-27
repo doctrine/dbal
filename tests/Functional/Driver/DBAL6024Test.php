@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver;
 
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -23,23 +25,29 @@ class DBAL6024Test extends FunctionalTestCase
     {
         $table = new Table('mytable');
         $table->addColumn('id', 'integer');
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
+
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $table = $schemaManager->introspectTable('mytable');
 
         $newTable = clone $table;
         $newTable->dropPrimaryKey();
 
-        $schemaManager = $this->connection->createSchemaManager();
-        $diff          = $schemaManager->createComparator()->compareTables($table, $newTable);
+        $diff = $schemaManager->createComparator()->compareTables($table, $newTable);
 
-        $statements = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
-        foreach ($statements as $statement) {
-            $this->connection->executeStatement($statement);
-        }
+        $schemaManager->alterTable($diff);
 
         $validationSchema = $schemaManager->introspectSchema();
         $validationTable  = $validationSchema->getTable($table->getName());
 
-        self::assertNull($validationTable->getPrimaryKey());
+        self::assertNull($validationTable->getPrimaryKeyConstraint());
     }
 }

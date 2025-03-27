@@ -10,6 +10,7 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -22,7 +23,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_map;
@@ -218,19 +218,8 @@ class SQLServerPlatform extends AbstractPlatform
             $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        if (isset($parameters['primary_index'])) {
-            $primaryKeySQL = 'PRIMARY KEY';
-
-            if ($parameters['primary_index']->hasFlag('nonclustered')) {
-                $primaryKeySQL .= ' NONCLUSTERED';
-            }
-
-            $primaryKeySQL .= sprintf(
-                ' (%s)',
-                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
-            );
-
-            $elements[] = $primaryKeySQL;
+        if (isset($parameters['primaryKey'])) {
+            $elements[] = $this->getPrimaryKeyConstraintDeclarationSQL($parameters['primaryKey']);
         }
 
         $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));
@@ -248,25 +237,6 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return array_merge($sql, $commentsSql, $defaultConstraintsSql);
-    }
-
-    /** @deprecated */
-    public function getCreatePrimaryKeySQL(Index $index, string $table): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6867',
-            '%s() is deprecated.',
-            __METHOD__,
-        );
-
-        $sql = 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY';
-
-        if ($index->hasFlag('nonclustered')) {
-            $sql .= ' NONCLUSTERED';
-        }
-
-        return $sql . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }
 
     private function unquoteSingleIdentifier(string $possiblyQuotedName): string
@@ -328,7 +298,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $constraint = parent::getCreateIndexSQL($index, $table);
 
-        if ($index->isUnique() && ! $index->isPrimary()) {
+        if ($index->isUnique()) {
             $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
         }
 
@@ -377,6 +347,18 @@ class SQLServerPlatform extends AbstractPlatform
         $table = $diff->getOldTable();
 
         $tableName = $table->getName();
+
+        $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
+
+        if ($droppedPrimaryKeyConstraint !== null) {
+            $constraintName = $droppedPrimaryKeyConstraint->getObjectName();
+
+            if ($constraintName === null) {
+                throw UnspecifiedConstraintName::new();
+            }
+
+            $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $table->getObjectName()->toSQL($this));
+        }
 
         foreach ($diff->getAddedColumns() as $column) {
             $columnProperties = $column->toArray();
@@ -455,8 +437,6 @@ class SQLServerPlatform extends AbstractPlatform
                 );
             }
 
-            $columnNameSQL = $newColumn->getObjectName()->toSQL($this);
-
             $newDeclarationSQL     = $this->getColumnDeclarationSQL($newColumn->toArray());
             $oldDeclarationSQL     = $this->getColumnDeclarationSQL($oldColumn->toArray());
             $declarationSQLChanged = $newDeclarationSQL !== $oldDeclarationSQL;
@@ -485,6 +465,12 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($tableName, $newColumn);
+        }
+
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
+
+        if ($addedPrimaryKeyConstraint !== null) {
+            $queryParts[] = 'ADD ' . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
         foreach ($queryParts as $query) {

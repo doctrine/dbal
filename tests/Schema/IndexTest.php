@@ -15,9 +15,9 @@ use PHPUnit\Framework\TestCase;
 class IndexTest extends TestCase
 {
     /** @param mixed[] $options */
-    private function createIndex(bool $unique = false, bool $primary = false, array $options = []): Index
+    private function createIndex(bool $unique = false, array $options = []): Index
     {
-        return new Index('foo', ['bar', 'baz'], $unique, $primary, [], $options);
+        return new Index('foo', ['bar', 'baz'], $unique, false, [], $options);
     }
 
     public function testCreateIndex(): void
@@ -28,38 +28,19 @@ class IndexTest extends TestCase
         self::assertCount(2, $columns);
         self::assertEquals(['bar', 'baz'], $columns);
         self::assertFalse($idx->isUnique());
-        self::assertFalse($idx->isPrimary());
-    }
-
-    public function testCreatePrimary(): void
-    {
-        $idx = $this->createIndex(false, true);
-        self::assertTrue($idx->isUnique());
-        self::assertTrue($idx->isPrimary());
     }
 
     public function testCreateUnique(): void
     {
-        $idx = $this->createIndex(true, false);
+        $idx = $this->createIndex(true);
         self::assertTrue($idx->isUnique());
-        self::assertFalse($idx->isPrimary());
     }
 
     public function testFulfilledByUnique(): void
     {
-        $idx1 = $this->createIndex(true, false);
-        $idx2 = $this->createIndex(true, false);
+        $idx1 = $this->createIndex(true);
+        $idx2 = $this->createIndex(true);
         $idx3 = $this->createIndex();
-
-        self::assertTrue($idx1->isFulfilledBy($idx2));
-        self::assertFalse($idx1->isFulfilledBy($idx3));
-    }
-
-    public function testFulfilledByPrimary(): void
-    {
-        $idx1 = $this->createIndex(true, true);
-        $idx2 = $this->createIndex(true, true);
-        $idx3 = $this->createIndex(true, false);
 
         self::assertTrue($idx1->isFulfilledBy($idx2));
         self::assertFalse($idx1->isFulfilledBy($idx3));
@@ -69,11 +50,9 @@ class IndexTest extends TestCase
     {
         $idx1 = $this->createIndex();
         $idx2 = $this->createIndex();
-        $pri  = $this->createIndex(true, true);
         $uniq = $this->createIndex(true);
 
         self::assertTrue($idx1->isFulfilledBy($idx2));
-        self::assertTrue($idx1->isFulfilledBy($pri));
         self::assertTrue($idx1->isFulfilledBy($uniq));
     }
 
@@ -168,7 +147,7 @@ class IndexTest extends TestCase
         self::assertFalse($idx1->hasOption('where'));
         self::assertEmpty($idx1->getOptions());
 
-        $idx2 = $this->createIndex(false, false, ['where' => 'name IS NULL']);
+        $idx2 = $this->createIndex(false, ['where' => 'name IS NULL']);
         self::assertTrue($idx2->hasOption('where'));
         self::assertTrue($idx2->hasOption('WHERE'));
         self::assertSame('name IS NULL', $idx2->getOption('where'));
@@ -212,16 +191,9 @@ class IndexTest extends TestCase
         new Index('idx_user_name', ['user.name']);
     }
 
-    public function testPrimaryKeyWithColumnLength(): void
-    {
-        $this->expectException(InvalidIndexDefinition::class);
-
-        new Index('primary', ['id'], false, true, [], ['lengths' => [32]]);
-    }
-
     public function testPrimaryKeyWithNullColumnLength(): void
     {
-        $index = new Index('primary', ['id'], false, true, [], ['lengths' => [null]]);
+        $index = new Index('primary', ['id'], false, false, [], ['lengths' => [null]]);
 
         $indexedColumns = $index->getIndexedColumns();
 
@@ -258,5 +230,12 @@ class IndexTest extends TestCase
 
         self::assertEquals(UnqualifiedName::unquoted('last_name'), $indexedColumns[1]->getColumnName());
         self::assertNull($indexedColumns[1]->getLength());
+    }
+
+    public function testPrimaryIndex(): void
+    {
+        $this->expectException(InvalidIndexDefinition::class);
+
+        new Index('users_pk', ['id'], false, true);
     }
 }

@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
-use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_keys;
@@ -34,9 +33,6 @@ final class Index extends AbstractNamedObject
     private readonly array $_columns;
 
     private readonly bool $_isUnique;
-
-    /** @deprecated Use {@see PrimaryKeyConstraint()} instead. */
-    private readonly bool $_isPrimary;
 
     /**
      * Platform specific flags for indexes.
@@ -72,15 +68,10 @@ final class Index extends AbstractNamedObject
         }
 
         if ($isPrimary) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6867',
-                'Declaring an index as primary is deprecated. Use PrimaryKeyConstraint instead.',
-            );
+            throw InvalidIndexDefinition::fromPrimaryIndex();
         }
 
-        $this->_isUnique  = $isUnique || $isPrimary;
-        $this->_isPrimary = $isPrimary;
+        $this->_isUnique = $isUnique;
 
         $identifiers = [];
         foreach ($columns as $column) {
@@ -93,7 +84,7 @@ final class Index extends AbstractNamedObject
             $this->addFlag($flag);
         }
 
-        $this->columns = $this->parseColumns($isPrimary, $columns, $options['lengths'] ?? []);
+        $this->columns = $this->parseColumns($columns, $options['lengths'] ?? []);
     }
 
     protected function getNameParser(): UnqualifiedNameParser
@@ -165,24 +156,12 @@ final class Index extends AbstractNamedObject
      */
     public function isSimpleIndex(): bool
     {
-        return ! $this->_isPrimary && ! $this->_isUnique;
+        return ! $this->_isUnique;
     }
 
     public function isUnique(): bool
     {
         return $this->_isUnique;
-    }
-
-    /** @deprecated Use {@see PrimaryKeyConstraint()} instead. */
-    public function isPrimary(): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6867',
-            'Checking whether an index is primary is deprecated. Use PrimaryKeyConstraint instead.',
-        );
-
-        return $this->_isPrimary;
     }
 
     public function hasColumnAtPosition(string $name, int $pos = 0): bool
@@ -241,16 +220,11 @@ final class Index extends AbstractNamedObject
                 return false;
             }
 
-            if (! $this->isUnique() && ! $this->isPrimary()) {
-                // this is a special case: If the current key is neither primary or unique, any unique or
-                // primary key will always have the same effect for the index and there cannot be any constraint
-                // overlaps. This means a primary or unique index can always fulfill the requirements of just an
-                // index that has no constraints.
+            if (! $this->isUnique()) {
+                // this is a special case: If the current index is not unique, any unique index key will always have the
+                // same effect for the index and there cannot be any constraint overlaps. This means a unique index can
+                // always fulfill the requirements of just an index that has no constraints.
                 return true;
-            }
-
-            if ($other->isPrimary() !== $this->isPrimary()) {
-                return false;
             }
 
             return $other->isUnique() === $this->isUnique();
@@ -264,16 +238,12 @@ final class Index extends AbstractNamedObject
      */
     public function overrules(Index $other): bool
     {
-        if ($other->isPrimary()) {
-            return false;
-        }
-
         if ($this->isSimpleIndex() && $other->isUnique()) {
             return false;
         }
 
         return $this->spansColumns($other->getColumns())
-            && ($this->isPrimary() || $this->isUnique())
+            && $this->isUnique()
             && $this->samePartialIndex($other);
     }
 
@@ -337,7 +307,7 @@ final class Index extends AbstractNamedObject
      *
      * @return non-empty-list<IndexedColumn>
      */
-    private function parseColumns(bool $isPrimary, array $columnNames, array $lengths): array
+    private function parseColumns(array $columnNames, array $lengths): array
     {
         $columns = [];
 
@@ -352,14 +322,8 @@ final class Index extends AbstractNamedObject
 
             $length = array_shift($lengths);
 
-            if ($length !== null) {
-                if ($isPrimary) {
-                    throw InvalidIndexDefinition::primaryKeyIndexHasColumnLengths();
-                }
-
-                if (! is_int($length) || $length < 1) {
-                    throw InvalidIndexDefinition::invalidColumnLength($length);
-                }
+            if ($length !== null && (! is_int($length) || $length < 1)) {
+                throw InvalidIndexDefinition::invalidColumnLength($length);
             }
 
             $columns[] = new IndexedColumn($parsedName, $length);

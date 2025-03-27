@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
@@ -13,11 +14,11 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 use UnexpectedValueException;
 
 use function array_merge;
@@ -30,9 +31,7 @@ use function is_numeric;
 use function is_string;
 use function sprintf;
 use function str_contains;
-use function str_ends_with;
 use function strtolower;
-use function substr;
 use function trim;
 
 /**
@@ -174,6 +173,13 @@ class PostgreSQLPlatform extends AbstractPlatform
                 WHERE  view_definition IS NOT NULL';
     }
 
+    protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
+    {
+        $this->ensurePrimaryKeyConstraintIsClustered($constraint);
+
+        return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
+    }
+
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';
@@ -201,9 +207,21 @@ class PostgreSQLPlatform extends AbstractPlatform
         $sql         = [];
         $commentsSQL = [];
 
-        $table = $diff->getOldTable();
+        $table        = $diff->getOldTable();
+        $tableName    = $table->getObjectName();
+        $tableNameSQL = $tableName->toSQL($this);
 
-        $tableNameSQL = $table->getObjectName()->toSQL($this);
+        $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
+
+        if ($droppedPrimaryKeyConstraint !== null) {
+            $constraintName = $droppedPrimaryKeyConstraint->getObjectName();
+
+            if ($constraintName === null) {
+                throw UnspecifiedConstraintName::new();
+            }
+
+            $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
 
         foreach ($diff->getAddedColumns() as $addedColumn) {
             $query = 'ADD ' . $this->getColumnDeclarationSQL($addedColumn->toArray());
@@ -296,6 +314,13 @@ class PostgreSQLPlatform extends AbstractPlatform
             );
         }
 
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
+
+        if ($addedPrimaryKeyConstraint !== null) {
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ADD '
+                . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
+        }
+
         return array_merge(
             $this->getPreAlterTableIndexForeignKeySQL($diff),
             $sql,
@@ -357,24 +382,6 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     public function getDropIndexSQL(string $name, string $table): string
     {
-        if (str_ends_with($table, '"')) {
-            $primaryKeyName = substr($table, 0, -1) . '_pkey"';
-        } else {
-            $primaryKeyName = $table . '_pkey';
-        }
-
-        if ($name === '"primary"' || $name === $primaryKeyName) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6867',
-                'Building the SQL for dropping primary key constraint via %s() is deprecated. Use'
-                    . ' getDropConstraintSQL() instead.',
-                __METHOD__,
-            );
-
-            return $this->getDropConstraintSQL($primaryKeyName, $table);
-        }
-
         if (str_contains($table, '.')) {
             [$schema] = explode('.', $table);
             $name     = $schema . '.' . $name;
@@ -394,11 +401,8 @@ class PostgreSQLPlatform extends AbstractPlatform
             $elements[] = $this->getColumnDeclarationSQL($column);
         }
 
-        if (isset($parameters['primary_index'])) {
-            $elements[] = sprintf(
-                'PRIMARY KEY (%s)',
-                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
-            );
+        if (isset($parameters['primaryKey'])) {
+            $elements[] = $this->getPrimaryKeyConstraintDeclarationSQL($parameters['primaryKey']);
         }
 
         $unlogged = isset($parameters['unlogged']) && $parameters['unlogged'] === true ? ' UNLOGGED' : '';

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -17,7 +19,13 @@ class ResultMetadataTest extends FunctionalTestCase
     {
         $table = new Table('result_metadata_table');
         $table->addColumn('test_int', 'integer');
-        $table->setPrimaryKey(['test_int']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('test_int'),
+                )
+                ->create(),
+        );
 
         $this->dropAndCreateTable($table);
 

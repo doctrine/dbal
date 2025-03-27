@@ -8,6 +8,19 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Changes in features related to primary key constraints
+
+1. The `Index` class can no longer represent a primary key constraint. As a result:
+    1. The `Table::getIndexes()` and `AbstractSchemaManager::listTableIndexes()` methods no longer return the index that  
+       backs the primary key constraint.
+    2. The index that backs the primary key constraint is no longer considered during implicit index management.
+2. The `Table::getPrimaryKey()` and `Table::setPrimaryKey()` methods have been removed.
+3. The `Table::renameIndex()` method can no longer be used to rename a primary key constraint.
+4. The `AbstractPlatform::getCreatePrimaryKeySQL()` method has been removed.
+5. The `PostgreSQLPlatform::getDropIndexSQL()` method no longer builds SQL for dropping a primary key constraint. As a
+   result, dropping a primary key constraint on Postgres is now only possible if the constraint name is known (e.g. in
+   the result of database schema introspection).
+
 ## BC BREAK: `INTEGER PRIMARY KEY` columns are no longer introspected as auto-incremented on SQLite
 
 Even though `INTEGER PRIMARY KEY` columns are effectively auto-incremented on SQLite, DBAL no longer introspects them as

@@ -6,9 +6,9 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
-use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -22,7 +22,13 @@ class AlterTableTest extends FunctionalTestCase
         $table->addColumn('val', Types::INTEGER);
 
         $this->testMigration($table, static function (Table $table): void {
-            $table->setPrimaryKey(['id']);
+            $table->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('id'),
+                    )
+                    ->create(),
+            );
         });
     }
 
@@ -39,7 +45,13 @@ class AlterTableTest extends FunctionalTestCase
 
         $this->testMigration($table, static function (Table $table): void {
             $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
-            $table->setPrimaryKey(['id']);
+            $table->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('id'),
+                    )
+                    ->create(),
+            );
         });
     }
 
@@ -59,16 +71,26 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
-
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('id2', Types::INTEGER);
-        $table->setPrimaryKey(['id1']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id1'),
+                )
+                ->create(),
+        );
 
         $this->testMigration($table, static function (Table $table): void {
             $table->dropPrimaryKey();
-            $table->setPrimaryKey(['id2']);
+            $table->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('id2'),
+                    )
+                    ->create(),
+            );
         });
     }
 
@@ -88,12 +110,17 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
-
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('id2', Types::INTEGER);
-        $table->setPrimaryKey(['id1', 'id2']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id1'),
+                    UnqualifiedName::unquoted('id2'),
+                )
+                ->create(),
+        );
 
         $this->testMigration($table, static function (Table $table): void {
             $table->dropPrimaryKey();
@@ -110,16 +137,27 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
-
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('id2', Types::INTEGER);
-        $table->setPrimaryKey(['id1', 'id2']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id1'),
+                    UnqualifiedName::unquoted('id2'),
+                )
+                ->create(),
+        );
 
         $this->testMigration($table, static function (Table $table): void {
             $table->dropPrimaryKey();
-            $table->setPrimaryKey(['id1']);
+            $table->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('id1'),
+                    )
+                    ->create(),
+            );
         });
     }
 
@@ -133,31 +171,57 @@ class AlterTableTest extends FunctionalTestCase
             );
         }
 
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
-
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('id2', Types::INTEGER);
-        $table->setPrimaryKey(['id1']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id1'),
+                )
+                ->create(),
+        );
 
         $this->testMigration($table, static function (Table $table): void {
             $table->dropPrimaryKey();
-            $table->setPrimaryKey(['id1', 'id2']);
+            $table->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('id1'),
+                        UnqualifiedName::unquoted('id2'),
+                    )
+                    ->create(),
+            );
         });
     }
 
     public function testAddNewColumnToPrimaryKey(): void
     {
-        $this->ensureDroppingPrimaryKeyConstraintIsSupported();
+        if ($this->connection->getDatabasePlatform() instanceof DB2Platform) {
+            self::markTestIncomplete('This test fails on IBM Db2 for an unrelated reason.');
+        }
 
         $table = new Table('alter_pk');
         $table->addColumn('id1', Types::INTEGER);
-        $table->setPrimaryKey(['id1']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id1'),
+                )
+                ->create(),
+        );
 
         $this->testMigration($table, static function (Table $table): void {
             $table->addColumn('id2', Types::INTEGER);
             $table->dropPrimaryKey();
-            $table->setPrimaryKey(['id1', 'id2']);
+            $table->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('id1'),
+                        UnqualifiedName::unquoted('id2'),
+                    )
+                    ->create(),
+            );
         });
     }
 
@@ -166,7 +230,13 @@ class AlterTableTest extends FunctionalTestCase
         $articles = new Table('articles');
         $articles->addColumn('id', Types::INTEGER);
         $articles->addColumn('sku', Types::INTEGER);
-        $articles->setPrimaryKey(['id']);
+        $articles->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $articles->addUniqueConstraint(['sku']);
 
         $orders = new Table('orders');
@@ -199,32 +269,16 @@ class AlterTableTest extends FunctionalTestCase
         });
     }
 
-    private function ensureDroppingPrimaryKeyConstraintIsSupported(): void
-    {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if (
-            ! ($platform instanceof DB2Platform)
-            && ! ($platform instanceof OraclePlatform)
-            && ! ($platform instanceof SQLServerPlatform)
-        ) {
-            return;
-        }
-
-        self::markTestIncomplete(
-            'Dropping primary key constraint on the currently used database platform is not implemented.',
-        );
-    }
-
     private function testMigration(Table $oldTable, callable $migration): void
     {
         $this->dropAndCreateTable($oldTable);
 
+        $schemaManager = $this->connection->createSchemaManager();
+
+        $oldTable = $schemaManager->introspectTable($oldTable->getName());
         $newTable = clone $oldTable;
 
         $migration($newTable);
-
-        $schemaManager = $this->connection->createSchemaManager();
 
         $diff = $schemaManager->createComparator()
             ->compareTables($oldTable, $newTable);

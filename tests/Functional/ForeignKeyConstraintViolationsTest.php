@@ -15,6 +15,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PHPUnit\Framework\Assert;
@@ -48,7 +49,13 @@ final class ForeignKeyConstraintViolationsTest extends FunctionalTestCase
 
         $table2 = new Table('test_t2');
         $table2->addColumn('id', 'integer', ['notnull' => true]);
-        $table2->setPrimaryKey(['id']);
+        $table2->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $schemaManager->createTable($table2);
 
         if ($platform instanceof OraclePlatform) {

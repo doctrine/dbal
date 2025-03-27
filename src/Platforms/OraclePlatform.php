@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnLengthRequired;
+use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
@@ -17,12 +18,12 @@ use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\Deprecation;
 use InvalidArgumentException;
 
 use function array_merge;
@@ -130,20 +131,6 @@ class OraclePlatform extends AbstractPlatform
         return '(' . $value1 . '-' .
                 $this->getBitAndComparisonExpression($value1, $value2)
                 . '+' . $value2 . ')';
-    }
-
-    /** @deprecated */
-    public function getCreatePrimaryKeySQL(Index $index, string $table): string
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6867',
-            '%s() is deprecated.',
-            __METHOD__,
-        );
-
-        return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $index->getObjectName()->toSQL($this)
-            . ' PRIMARY KEY (' . implode(', ', $index->getQuotedColumns($this)) . ')';
     }
 
     /**
@@ -477,14 +464,21 @@ SQL,
     /**
      * Returns the autoincrement trigger name for the given table name.
      */
-    private function generateAutoincrementTriggerName(Name\Identifier $tableName): Name\Identifier
+    private function generateAutoincrementTriggerName(Name\Identifier $tableName): UnqualifiedName
     {
-        return $this->addSuffix($tableName, '_AI_PK');
+        return new UnqualifiedName($this->addSuffix($tableName, '_AI_PK'));
     }
 
     public function getDropForeignKeySQL(string $foreignKey, string $table): string
     {
         return $this->getDropConstraintSQL($foreignKey, $table);
+    }
+
+    protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
+    {
+        $this->ensurePrimaryKeyConstraintIsClustered($constraint);
+
+        return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
@@ -534,7 +528,20 @@ SQL,
         $commentsSQL  = [];
         $addColumnSQL = [];
 
-        $tableNameSQL = $diff->getOldTable()->getObjectName()->toSQL($this);
+        $tableName    = $diff->getOldTable()->getObjectName();
+        $tableNameSQL = $tableName->toSQL($this);
+
+        $droppedPrimaryKeyConstraint = $diff->getDroppedPrimaryKeyConstraint();
+
+        if ($droppedPrimaryKeyConstraint !== null) {
+            $constraintName = $droppedPrimaryKeyConstraint->getObjectName();
+
+            if ($constraintName === null) {
+                throw UnspecifiedConstraintName::new();
+            }
+
+            $sql[] = $this->getDropConstraintSQL($constraintName->toSQL($this), $tableNameSQL);
+        }
 
         foreach ($diff->getAddedColumns() as $column) {
             $addColumnSQL[] = $this->getColumnDeclarationSQL($column->toArray());
@@ -627,6 +634,13 @@ SQL,
 
         if (count($dropColumnSQL) > 0) {
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' DROP (' . implode(', ', $dropColumnSQL) . ')';
+        }
+
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
+
+        if ($addedPrimaryKeyConstraint !== null) {
+            $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ADD '
+                . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
         return array_merge(

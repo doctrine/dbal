@@ -11,9 +11,7 @@ use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
-use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
@@ -65,9 +63,6 @@ class Table extends AbstractNamedObject
      */
     private array $implicitIndexNames = [];
 
-    /** @deprecated Use {@see $primaryKeyConstraint} instead. */
-    protected ?string $_primaryKeyName = null;
-
     /** @var UniqueConstraint[] */
     protected array $uniqueConstraints = [];
 
@@ -82,8 +77,6 @@ class Table extends AbstractNamedObject
     private readonly int $maxIdentifierLength;
 
     private ?PrimaryKeyConstraint $primaryKeyConstraint = null;
-
-    private bool $failedToParsePrimaryKeyConstraint = false;
 
     /**
      * @param array<Column>               $columns
@@ -140,48 +133,11 @@ class Table extends AbstractNamedObject
         return Parsers::getOptionallyQualifiedNameParser();
     }
 
-    /**
-     * Sets the Primary Key.
-     *
-     * @deprecated Use {@see addPrimaryKeyConstraint()} instead.
-     *
-     * @param non-empty-list<string> $columnNames
-     */
-    public function setPrimaryKey(array $columnNames, ?string $indexName = null): self
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6867',
-            '%s() is deprecated. Use Table::addPrimaryKeyConstraint() instead.',
-            __METHOD__,
-        );
-
-        if ($indexName === null) {
-            $indexName = 'primary';
-        }
-
-        $this->_addIndex($this->_createIndex($columnNames, $indexName, true, true));
-
-        foreach ($columnNames as $columnName) {
-            $column = $this->getColumn($columnName);
-
-            if (! $column->getNotnull()) {
-                throw InvalidIndexDefinition::primaryKeyIndexOnANullableColumn($column->getObjectName());
-            }
-        }
-
-        return $this;
-    }
-
     public function addPrimaryKeyConstraint(PrimaryKeyConstraint $primaryKeyConstraint): self
     {
-        $this->setPrimaryKey(
-            array_map(
-                static fn (UnqualifiedName $columnName): string => $columnName->toString(),
-                $primaryKeyConstraint->getColumnNames(),
-            ),
-            $primaryKeyConstraint->getObjectName()?->toString(),
-        );
+        if ($this->primaryKeyConstraint !== null) {
+            throw PrimaryKeyAlreadyExists::new($this->_name);
+        }
 
         $this->primaryKeyConstraint = $primaryKeyConstraint;
 
@@ -225,7 +181,7 @@ class Table extends AbstractNamedObject
             $this->maxIdentifierLength,
         );
 
-        return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, false, $flags, $options));
+        return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, $flags, $options));
     }
 
     /**
@@ -233,15 +189,7 @@ class Table extends AbstractNamedObject
      */
     public function dropPrimaryKey(): void
     {
-        $this->primaryKeyConstraint              = null;
-        $this->failedToParsePrimaryKeyConstraint = false;
-
-        if ($this->_primaryKeyName === null) {
-            return;
-        }
-
-        $this->dropIndex($this->_primaryKeyName);
-        $this->_primaryKeyName = null;
+        $this->primaryKeyConstraint = null;
     }
 
     /**
@@ -270,7 +218,7 @@ class Table extends AbstractNamedObject
             $this->maxIdentifierLength,
         );
 
-        return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, false, [], $options));
+        return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, [], $options));
     }
 
     /**
@@ -298,20 +246,6 @@ class Table extends AbstractNamedObject
         }
 
         $oldIndex = $this->_indexes[$oldName];
-
-        if ($oldIndex->isPrimary()) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/6867',
-                'Renaming primary key constraint via %s() is deprecated. Use Table::dropPrimaryKey() and '
-                    . ' Table::addPrimaryKeyConstraint() instead.',
-                __METHOD__,
-            );
-
-            $this->dropPrimaryKey();
-
-            return $this->setPrimaryKey($oldIndex->getColumns(), $newName ?? null);
-        }
 
         unset($this->_indexes[$oldName]);
 
@@ -686,33 +620,8 @@ class Table extends AbstractNamedObject
         return $this->_columns[$name];
     }
 
-    /**
-     * Returns the primary key.
-     *
-     * @deprecated Use {@see getPrimaryKeyConstraint()} instead.
-     */
-    public function getPrimaryKey(): ?Index
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6867',
-            '%s() is deprecated. Use Table::getPrimaryKeyConstraint() instead.',
-            __METHOD__,
-        );
-
-        if ($this->_primaryKeyName !== null) {
-            return $this->getIndex($this->_primaryKeyName);
-        }
-
-        return null;
-    }
-
     public function getPrimaryKeyConstraint(): ?PrimaryKeyConstraint
     {
-        if ($this->failedToParsePrimaryKeyConstraint) {
-            throw InvalidState::tableHasInvalidPrimaryKeyConstraint($this->getName());
-        }
-
         return $this->primaryKeyConstraint;
     }
 
@@ -833,10 +742,6 @@ class Table extends AbstractNamedObject
             $replacedImplicitIndexNames[$implicitIndexName] = true;
         }
 
-        if ($this->_primaryKeyName !== null && $index->isPrimary()) {
-            throw PrimaryKeyAlreadyExists::new($this->_name);
-        }
-
         if (isset($this->_indexes[$indexName]) && ! isset($replacedImplicitIndexNames[$indexName])) {
             throw IndexAlreadyExists::new($indexName, $this->_name);
         }
@@ -845,43 +750,9 @@ class Table extends AbstractNamedObject
             unset($this->_indexes[$name], $this->implicitIndexNames[$name]);
         }
 
-        if ($index->isPrimary()) {
-            $this->_primaryKeyName = $indexName;
-
-            try {
-                $this->primaryKeyConstraint              = $this->parsePrimaryKeyConstraint($index);
-                $this->failedToParsePrimaryKeyConstraint = false;
-            } catch (InvalidState) {
-                $this->primaryKeyConstraint              = null;
-                $this->failedToParsePrimaryKeyConstraint = true;
-            }
-        }
-
         $this->_indexes[$indexName] = $index;
 
         return $this;
-    }
-
-    private function parsePrimaryKeyConstraint(Index $index): ?PrimaryKeyConstraint
-    {
-        $indexedColumns = $index->getIndexedColumns();
-
-        $columnNames = [];
-        foreach ($indexedColumns as $indexedColumn) {
-            if ($indexedColumn->getLength() !== null) {
-                return null;
-            }
-
-            $columnNames[] = $indexedColumn->getColumnName();
-        }
-
-        // Do not derive the constraint name from the index name in the upgrade path. The primary index name defaults to
-        // "PRIMARY", while the default constraint name is null (unspecified, to be generated by the database platform).
-        return new PrimaryKeyConstraint(
-            null,
-            $columnNames,
-            ! $index->hasFlag('nonclustered'),
-        );
     }
 
     protected function _addUniqueConstraint(UniqueConstraint $constraint): self
@@ -904,7 +775,7 @@ class Table extends AbstractNamedObject
         $indexCandidate = $this->_createIndex(array_map(
             static fn (UnqualifiedName $columnName): string => $columnName->toString(),
             $columnNames,
-        ), $indexName, true, false);
+        ), $indexName, true);
 
         foreach ($this->_indexes as $existingIndex) {
             if ($indexCandidate->isFulfilledBy($existingIndex)) {
@@ -936,7 +807,7 @@ class Table extends AbstractNamedObject
         $indexCandidate = $this->_createIndex(array_map(
             static fn (UnqualifiedName $columnName): string => $columnName->toString(),
             $constraint->getReferencingColumnNames(),
-        ), $indexName, false, false);
+        ), $indexName, false);
 
         foreach ($this->_indexes as $existingIndex) {
             if ($indexCandidate->isFulfilledBy($existingIndex)) {
@@ -1034,7 +905,6 @@ class Table extends AbstractNamedObject
         array $columns,
         string $indexName,
         bool $isUnique,
-        bool $isPrimary,
         array $flags = [],
         array $options = [],
     ): Index {
@@ -1048,7 +918,7 @@ class Table extends AbstractNamedObject
             }
         }
 
-        return new Index($indexName, $columns, $isUnique, $isPrimary, $flags, $options);
+        return new Index($indexName, $columns, $isUnique, false, $flags, $options);
     }
 
     /**
@@ -1089,7 +959,7 @@ class Table extends AbstractNamedObject
                 $index->getName(),
                 $columns,
                 $index->isUnique(),
-                $index->isPrimary(),
+                false,
                 $index->getFlags(),
                 $index->getOptions(),
             );

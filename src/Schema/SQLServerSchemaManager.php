@@ -212,7 +212,6 @@ SQL,
     {
         foreach ($rows as &$row) {
             $row['non_unique'] = ! $row['is_unique'];
-            $row['primary']    = (bool) $row['is_primary_key'];
             $row['flags']      = match ($row['type']) {
                 1 => ['clustered'],
                 2 => ['nonclustered'],
@@ -353,7 +352,6 @@ SQL,
                        idx.name AS key_name,
                        col.name AS column_name,
                        idx.is_unique,
-                       idx.is_primary_key,
                        idx.type
                 FROM sys.tables AS tbl
                 JOIN sys.schemas AS scm
@@ -367,6 +365,7 @@ SQL,
                   ON idxcol.object_id = col.object_id
                  AND idxcol.column_id = col.column_id
                WHERE %s
+                 AND idx.is_primary_key = 0
             ORDER BY scm.name,
                      tbl.name,
                      idx.index_id,
@@ -378,6 +377,64 @@ SQL,
         );
 
         return $this->connection->executeQuery($sql, $params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function fetchPrimaryKeyConstraintColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): array {
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT
+                s.name AS %s,
+                t.name AS %s,
+                i.name AS constraint_name,
+                c.name AS column_name,
+                i.type
+            FROM
+                sys.schemas s
+            INNER JOIN
+                sys.tables t
+                ON t.schema_id = s.schema_id
+            INNER JOIN
+                sys.indexes i
+                ON i.object_id = t.object_id
+               AND i.is_primary_key = 1
+            INNER JOIN
+                sys.index_columns ic
+                ON ic.object_id = t.object_id
+               AND ic.index_id = i.index_id
+            INNER JOIN
+                sys.columns c
+                ON c.object_id = t.object_id
+               AND c.column_id = ic.column_id
+            WHERE %s
+            ORDER BY s.name,
+                     t.name,
+                     ic.key_ordinal;
+            SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
+            $this->getWhereClause($tableName, 's.name', 't.name', $params),
+        );
+
+        return $this->connection->fetchAllAssociative($sql, $params);
+    }
+
+    /** @param list<array<string, mixed>> $rows */
+    protected function parsePrimaryKeyConstraint(array $rows): ?PrimaryKeyConstraint
+    {
+        foreach ($rows as &$row) {
+            $row['is_clustered'] = (int) $row['type'] === 1;
+            unset($row['type']);
+        }
+
+        return parent::parsePrimaryKeyConstraint($rows);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result

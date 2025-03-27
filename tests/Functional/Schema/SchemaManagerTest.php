@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -39,13 +40,25 @@ final class SchemaManagerTest extends FunctionalTestCase
 
         $tableForeign = new Table($foreignTableName);
         $tableForeign->addColumn('id', 'integer');
-        $tableForeign->setPrimaryKey(['id']);
+        $tableForeign->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($tableForeign);
 
         $tableTo = new Table('other_schema.other_table');
         $tableTo->addColumn('id', 'integer');
         $tableTo->addColumn('user_id', 'integer');
-        $tableTo->setPrimaryKey(['id']);
+        $tableTo->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $tableTo->addForeignKeyConstraint($foreignTableName, ['user_id'], ['id']);
         $this->dropAndCreateTable($tableTo);
 
@@ -120,7 +133,13 @@ final class SchemaManagerTest extends FunctionalTestCase
 
         $table = new Table('test_autoincrement');
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => $autoincrement]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
 
         $table = $this->schemaManager->introspectTable('test_autoincrement');
@@ -147,7 +166,14 @@ final class SchemaManagerTest extends FunctionalTestCase
         $table = new Table('test_autoincrement');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => $autoincrement]);
         $table->addColumn('id2', Types::INTEGER);
-        $table->setPrimaryKey(['id1', 'id2']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id1'),
+                    UnqualifiedName::unquoted('id2'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
 
         $table = $this->schemaManager->introspectTable('test_autoincrement');

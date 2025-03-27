@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\SchemaDiff;
@@ -537,14 +538,26 @@ abstract class AbstractComparatorTestCase extends TestCase
         $table->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('twitterId', Types::INTEGER);
         $table->addColumn('displayName', Types::STRING, ['length' => 32]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $newtable = new Table('twitter_users');
         $newtable->addColumn('id', Types::INTEGER, ['autoincrement' => true]);
         $newtable->addColumn('twitter_id', Types::INTEGER);
         $newtable->addColumn('display_name', Types::STRING, ['length' => 32]);
         $newtable->addColumn('logged_in_at', Types::DATETIME_MUTABLE);
-        $newtable->setPrimaryKey(['id']);
+        $newtable->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $tableDiff = $this->comparator->compareTables($table, $newtable);
 

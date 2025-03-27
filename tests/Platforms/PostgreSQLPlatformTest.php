@@ -8,6 +8,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -341,7 +343,13 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         $newTable = new Table('mytable');
         $newTable->addColumn('id', Types::INTEGER);
-        $newTable->setPrimaryKey(['id']);
+        $newTable->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $oldTable = clone $newTable;
         $oldTable->addColumn('parent_id', Types::INTEGER);
@@ -365,10 +373,20 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
     {
         $oldTable = new Table('test');
         $oldTable->addColumn('id', 'integer');
-        $oldTable->setPrimaryKey(['id']);
+        $oldTable->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setName(
+                    UnqualifiedName::unquoted('test_pkey'),
+                )
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
-        $newTable = clone $oldTable;
-        $newTable->dropPrimaryKey();
+        $newTable = $oldTable->edit()
+            ->setPrimaryKeyConstraint(null)
+            ->create();
 
         $diff = $this->createComparator()
             ->compareTables($oldTable, $newTable);

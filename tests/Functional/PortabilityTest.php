@@ -8,6 +8,8 @@ use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Middleware;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -181,7 +183,13 @@ class PortabilityTest extends FunctionalTestCase
             'length' => 1,
             'notnull' => false,
         ]);
-        $table->setPrimaryKey(['Test_Int']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('Test_Int'),
+                )
+                ->create(),
+        );
 
         $this->dropAndCreateTable($table);
 

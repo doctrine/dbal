@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
@@ -24,7 +25,6 @@ use function is_array;
 use function is_numeric;
 use function sprintf;
 use function str_replace;
-use function strtolower;
 
 /**
  * Provides the base implementation for the lowest versions of supported MySQL-like database platforms.
@@ -247,11 +247,8 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $elements[] = $this->getIndexDeclarationSQL($definition);
         }
 
-        if (isset($parameters['primary_index'])) {
-            $elements[] = sprintf(
-                'PRIMARY KEY (%s)',
-                implode(', ', $parameters['primary_index']->getQuotedColumns($this)),
-            );
+        if (isset($parameters['primaryKey'])) {
+            $elements[] = $this->getPrimaryKeyConstraintDeclarationSQL($parameters['primaryKey']);
         }
 
         $sql = ['CREATE'];
@@ -354,20 +351,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 . $this->getColumnDeclarationSQL($newColumnProperties);
         }
 
-        $droppedIndexes = $this->indexIndexesByLowerCaseName($diff->getDroppedIndexes());
-        $addedIndexes   = $this->indexIndexesByLowerCaseName($diff->getAddedIndexes());
-
-        if (isset($droppedIndexes['primary'])) {
+        if ($diff->getDroppedPrimaryKeyConstraint() !== null) {
             $queryParts[] = 'DROP PRIMARY KEY';
-
-            $diff->unsetDroppedIndex($droppedIndexes['primary']);
         }
 
-        if (isset($addedIndexes['primary'])) {
-            $keyColumns   = $addedIndexes['primary']->getQuotedColumns($this);
-            $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
 
-            $diff->unsetAddedIndex($addedIndexes['primary']);
+        if ($addedPrimaryKeyConstraint !== null) {
+            $queryParts[] = 'ADD ' . $this->getPrimaryKeyConstraintDeclarationSQL($addedPrimaryKeyConstraint);
         }
 
         $tableSql = [];
@@ -399,19 +390,19 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                     continue;
                 }
 
-                $indexClause = 'INDEX ' . $addedIndex->getName();
+                $indexClause = 'INDEX ' . $addedIndex->getObjectName()->toSQL($this);
 
-                if ($addedIndex->isPrimary()) {
-                    $indexClause = 'PRIMARY KEY';
-                } elseif ($addedIndex->isUnique()) {
-                    $indexClause = 'UNIQUE INDEX ' . $addedIndex->getName();
+                if ($addedIndex->isUnique()) {
+                    $indexClause = 'UNIQUE ' . $indexClause;
                 }
 
-                $query  = 'ALTER TABLE ' . $tableNameSQL . ' DROP INDEX ' . $droppedIndex->getName() . ', ';
-                $query .= 'ADD ' . $indexClause;
-                $query .= ' (' . implode(', ', $addedIndex->getQuotedColumns($this)) . ')';
-
-                $sql[] = $query;
+                $sql[] = sprintf(
+                    'ALTER TABLE %s DROP INDEX %s, ADD %s (%s)',
+                    $tableNameSQL,
+                    $droppedIndex->getObjectName()->toSQL($this),
+                    $indexClause,
+                    implode(', ', $addedIndex->getQuotedColumns($this)),
+                );
 
                 $diff->unsetAddedIndex($addedIndex);
                 $diff->unsetDroppedIndex($droppedIndex);
@@ -527,6 +518,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     protected function getColumnCharsetDeclarationSQL(string $charset): string
     {
         return 'CHARACTER SET ' . $charset;
+    }
+
+    protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
+    {
+        $this->ensurePrimaryKeyConstraintIsNotNamed($constraint);
+        $this->ensurePrimaryKeyConstraintIsClustered($constraint);
+
+        return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
@@ -663,22 +662,6 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
     public function createSchemaManager(Connection $connection): MySQLSchemaManager
     {
         return new MySQLSchemaManager($connection, $this);
-    }
-
-    /**
-     * @param array<Index> $indexes
-     *
-     * @return array<string,Index>
-     */
-    private function indexIndexesByLowerCaseName(array $indexes): array
-    {
-        $result = [];
-
-        foreach ($indexes as $index) {
-            $result[strtolower($index->getName())] = $index;
-        }
-
-        return $result;
     }
 
     /** @internal The method should be only used from within the {@see MySQLSchemaManager} class hierarchy. */

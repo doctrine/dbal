@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -29,7 +31,13 @@ class BlobTest extends FunctionalTestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn('clobcolumn', Types::TEXT, ['notnull' => false]);
         $table->addColumn('blobcolumn', Types::BLOB, ['notnull' => false]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $this->dropAndCreateTable($table);
     }
@@ -178,7 +186,13 @@ class BlobTest extends FunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->addColumn('blobcolumn1', 'blob', ['notnull' => false]);
         $table->addColumn('blobcolumn2', 'blob', ['notnull' => false]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $this->dropAndCreateTable($table);
 
         $params = ['test1', 'test2'];

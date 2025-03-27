@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Tests\Functional;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
@@ -170,7 +172,13 @@ class NamedParametersTest extends FunctionalTestCase
             $table->addColumn('id', Types::INTEGER);
             $table->addColumn('foo', Types::STRING, ['length' => 1]);
             $table->addColumn('bar', Types::STRING, ['length' => 1]);
-            $table->setPrimaryKey(['id']);
+            $table->addPrimaryKeyConstraint(
+                PrimaryKeyConstraint::editor()
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('id'),
+                    )
+                    ->create(),
+            );
 
             $sm = $this->connection->createSchemaManager();
             $sm->createTable($table);

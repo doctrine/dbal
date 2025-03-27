@@ -6,7 +6,10 @@ namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\EnumType;
 use Doctrine\DBAL\Types\Type;
@@ -45,18 +48,24 @@ final class EnumTypeTest extends FunctionalTestCase
 
     public function testDeployEnum(): void
     {
-        $schemaManager = $this->connection->createSchemaManager();
-        $schema        = new Schema(schemaConfig: $schemaManager->createSchemaConfig());
-        $table         = $schema->createTable('my_enum_table');
+        $table = new Table('my_enum_table');
         $table->addColumn('id', Types::BIGINT, ['notnull' => true]);
         $table->addColumn('suit', Types::ENUM, [
             'values' => ['hearts', 'diamonds', 'clubs', 'spades'],
             'notnull' => true,
             'default' => 'hearts',
         ]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
-        $schemaManager->createSchemaObjects($schema);
+        $this->dropAndCreateTable($table);
+
+        $schemaManager = $this->connection->createSchemaManager();
 
         $introspectedTable = $schemaManager->introspectTable('my_enum_table');
 
@@ -82,7 +91,13 @@ final class EnumTypeTest extends FunctionalTestCase
         $table         = $schema->createTable('my_enum_table');
         $table->addColumn('id', Types::BIGINT, ['notnull' => true]);
         $table->addColumn('suit', Types::ENUM);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $this->expectException(ColumnValuesRequired::class);
 

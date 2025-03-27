@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\ForeignKeyConstraintEditor;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -39,11 +40,23 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
 
         $roles = new Table('roles');
         $roles->addColumn('id', Types::INTEGER);
-        $roles->setPrimaryKey(['id']);
+        $roles->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $teams = new Table('teams');
         $teams->addColumn('id', Types::INTEGER);
-        $teams->setPrimaryKey(['id']);
+        $teams->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $editor = ForeignKeyConstraint::editor()
             ->setReferencedColumnNames(
@@ -68,7 +81,13 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
                 )
                 ->create(),
         ]);
-        $users->setPrimaryKey(['id']);
+        $users->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($roles);
@@ -93,12 +112,26 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
         $roles = new Table($rolesName->toString());
         $roles->addColumn('r_id1', Types::INTEGER);
         $roles->addColumn('r_id2', Types::INTEGER);
-        $roles->setPrimaryKey(['r_id1', 'r_id2']);
+        $roles->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('r_id1'),
+                    UnqualifiedName::unquoted('r_id2'),
+                )
+                ->create(),
+        );
 
         $teams = new Table($teamsName->toString());
         $teams->addColumn('t_id1', Types::INTEGER);
         $teams->addColumn('t_id2', Types::INTEGER);
-        $teams->setPrimaryKey(['t_id1', 't_id2']);
+        $teams->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('t_id1'),
+                    UnqualifiedName::unquoted('t_id2'),
+                )
+                ->create(),
+        );
 
         $foreignKeyConstraints = [
             ForeignKeyConstraint::editor()
@@ -135,7 +168,14 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
             new Column('team_id1', Type::getType(Types::INTEGER)),
             new Column('team_id2', Type::getType(Types::INTEGER)),
         ], [], [], $foreignKeyConstraints);
-        $users->setPrimaryKey(['u_id1', 'u_id2']);
+        $users->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('u_id1'),
+                    UnqualifiedName::unquoted('u_id2'),
+                )
+                ->create(),
+        );
 
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($roles);
@@ -209,7 +249,13 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
 
         $roles = new Table('roles');
         $roles->addColumn('id', Types::INTEGER);
-        $roles->setPrimaryKey(['id']);
+        $roles->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $editor = ForeignKeyConstraint::editor()
             ->setReferencingColumnNames(
@@ -225,7 +271,13 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
             new Column('id', Type::getType(Types::INTEGER)),
             new Column('role_id', Type::getType(Types::INTEGER), ['notnull' => false]),
         ], [], [], [$editor->create()]);
-        $users->setPrimaryKey(['id']);
+        $users->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $sm = $this->connection->createSchemaManager();
 
@@ -320,7 +372,13 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
 
         $roles = new Table('roles');
         $roles->addColumn('id', Types::INTEGER);
-        $roles->setPrimaryKey(['id']);
+        $roles->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $users = new Table('users', [
             new Column('id', Type::getType(Types::INTEGER)),
@@ -339,7 +397,13 @@ final class ForeignKeyConstraintTest extends FunctionalTestCase
                 ->setDeferrability($deferrability)
                 ->create(),
         ]);
-        $users->setPrimaryKey(['id']);
+        $users->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
 
         $sm = $this->connection->createSchemaManager();
         $sm->createTable($roles);

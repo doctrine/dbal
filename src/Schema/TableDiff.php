@@ -39,6 +39,8 @@ class TableDiff
         private readonly array $renamedIndexes = [],
         private readonly array $addedForeignKeys = [],
         private readonly array $droppedForeignKeys = [],
+        private readonly ?PrimaryKeyConstraint $addedPrimaryKeyConstraint = null,
+        private readonly ?PrimaryKeyConstraint $droppedPrimaryKeyConstraint = null,
     ) {
     }
 
@@ -169,6 +171,16 @@ class TableDiff
         return $this->droppedForeignKeys;
     }
 
+    public function getAddedPrimaryKeyConstraint(): ?PrimaryKeyConstraint
+    {
+        return $this->addedPrimaryKeyConstraint;
+    }
+
+    public function getDroppedPrimaryKeyConstraint(): ?PrimaryKeyConstraint
+    {
+        return $this->droppedPrimaryKeyConstraint;
+    }
+
     /**
      * Returns whether the diff is empty (contains no changes).
      */
@@ -181,6 +193,8 @@ class TableDiff
             && count($this->droppedIndexes) === 0
             && count($this->renamedIndexes) === 0
             && count($this->addedForeignKeys) === 0
-            && count($this->droppedForeignKeys) === 0;
+            && count($this->droppedForeignKeys) === 0
+            && $this->addedPrimaryKeyConstraint === null
+            && $this->droppedPrimaryKeyConstraint === null;
     }
 }

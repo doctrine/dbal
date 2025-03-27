@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\SQLiteSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -268,7 +269,7 @@ class SQLitePlatform extends AbstractPlatform
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
         if ($this->hasAutoIncrementColumn($columns, $parameters)) {
-            unset($parameters['primary_index']);
+            unset($parameters['primaryKey']);
         }
 
         $elements = [];
@@ -281,13 +282,8 @@ class SQLitePlatform extends AbstractPlatform
             $elements[] = $this->getUniqueConstraintDeclarationSQL($definition);
         }
 
-        if (isset($parameters['primary_index'])) {
-            $primaryKeyColumns = $parameters['primary_index']->getQuotedColumns($this);
-
-            $elements[] = sprintf(
-                'PRIMARY KEY (%s)',
-                implode(', ', $primaryKeyColumns),
-            );
+        if (isset($parameters['primaryKey'])) {
+            $elements[] = $this->getPrimaryKeyConstraintDeclarationSQL($parameters['primaryKey']);
         }
 
         foreach ($parameters['foreignKeys'] as $foreignKey) {
@@ -326,10 +322,9 @@ class SQLitePlatform extends AbstractPlatform
 
         $folding = $this->getUnquotedIdentifierFolding();
 
-        if (isset($parameters['primary_index'])) {
-            foreach ($parameters['primary_index']->getIndexedColumns() as $indexedColumn) {
-                $columnName = $indexedColumn->getColumnName()
-                    ->getIdentifier()
+        if (isset($parameters['primaryKey'])) {
+            foreach ($parameters['primaryKey']->getColumnNames() as $columnName) {
+                $columnName = $columnName->getIdentifier()
                     ->toNormalizedValue($folding);
 
                 $primaryKeyColumnNames[$columnName] = true;
@@ -391,6 +386,14 @@ class SQLitePlatform extends AbstractPlatform
     public function getListViewsSQL(string $database): string
     {
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
+    }
+
+    protected function getPrimaryKeyConstraintDeclarationSQL(PrimaryKeyConstraint $constraint): string
+    {
+        $this->ensurePrimaryKeyConstraintIsNotNamed($constraint);
+        $this->ensurePrimaryKeyConstraintIsClustered($constraint);
+
+        return parent::getPrimaryKeyConstraintDeclarationSQL($constraint);
     }
 
     protected function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
@@ -499,10 +502,6 @@ class SQLitePlatform extends AbstractPlatform
         $sql = [];
 
         foreach ($this->getIndexesInAlteredTable($diff) as $index) {
-            if ($index->isPrimary()) {
-                continue;
-            }
-
             $sql[] = $this->getCreateIndexSQL($index, $table->getObjectName()->toSQL($this));
         }
 
@@ -559,10 +558,6 @@ class SQLitePlatform extends AbstractPlatform
             ));
         }
 
-        if ($index->isPrimary()) {
-            return $this->getCreatePrimaryKeySQL($index, $table);
-        }
-
         if (strpos($table, '.') !== false) {
             [$schema, $table] = explode('.', $table);
             $name             = $schema . '.' . $name;
@@ -586,12 +581,6 @@ class SQLitePlatform extends AbstractPlatform
         }
 
         return $sql;
-    }
-
-    /** @deprecated */
-    public function getCreatePrimaryKeySQL(Index $index, string $table): string
-    {
-        throw NotSupported::new(__METHOD__);
     }
 
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, string $table): string
@@ -672,10 +661,12 @@ class SQLitePlatform extends AbstractPlatform
         $newTable = new Table(
             $table->getObjectName()->toSQL($this),
             $columns,
-            $this->getPrimaryIndexInAlteredTable($diff),
+            [],
             [],
             $this->getForeignKeysInAlteredTable($diff),
             $table->getOptions(),
+            null,
+            $this->getPrimaryKeyConstraintInAlteredTable($diff, $table),
         );
 
         $newTable->addOption('alter', true);
@@ -738,6 +729,8 @@ class SQLitePlatform extends AbstractPlatform
             || count($diff->getRenamedIndexes()) > 0
             || count($diff->getAddedForeignKeys()) > 0
             || count($diff->getDroppedForeignKeys()) > 0
+            || $diff->getDroppedPrimaryKeyConstraint() !== null
+            || $diff->getAddedPrimaryKeyConstraint() !== null
         ) {
             return false;
         }
@@ -820,7 +813,7 @@ class SQLitePlatform extends AbstractPlatform
 
             $changed      = false;
             $indexColumns = [];
-            foreach ($index->getColumns() as $columnName) {
+            foreach ($index->getUnquotedColumns() as $columnName) {
                 $normalizedColumnName = strtolower($columnName);
                 if (! isset($nameMap[$normalizedColumnName])) {
                     unset($indexes[$key]);
@@ -843,7 +836,7 @@ class SQLitePlatform extends AbstractPlatform
                 $index->getName(),
                 $indexColumns,
                 $index->isUnique(),
-                $index->isPrimary(),
+                false,
                 $index->getFlags(),
             );
         }
@@ -936,20 +929,52 @@ class SQLitePlatform extends AbstractPlatform
         return $foreignKeys;
     }
 
-    /** @return array<string, Index> */
-    private function getPrimaryIndexInAlteredTable(TableDiff $diff): array
+    private function getPrimaryKeyConstraintInAlteredTable(TableDiff $diff, Table $oldTable): ?PrimaryKeyConstraint
     {
-        $primaryIndex = [];
+        $addedPrimaryKeyConstraint = $diff->getAddedPrimaryKeyConstraint();
 
-        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
-            if (! $index->isPrimary()) {
+        if ($addedPrimaryKeyConstraint !== null) {
+            return $addedPrimaryKeyConstraint;
+        }
+
+        if ($diff->getDroppedPrimaryKeyConstraint() !== null) {
+            return null;
+        }
+
+        $primaryKeyConstraint = $oldTable->getPrimaryKeyConstraint();
+
+        if ($primaryKeyConstraint === null) {
+            return null;
+        }
+
+        $nameMap = $this->getDiffColumnNameMap($diff);
+
+        $changed = false;
+
+        $columnNames = [];
+        foreach ($primaryKeyConstraint->getColumnNames() as $columnName) {
+            $originalColumnName   = $columnName->getIdentifier()->getValue();
+            $normalizedColumnName = strtolower($originalColumnName);
+            if (! isset($nameMap[$normalizedColumnName])) {
+                return null;
+            }
+
+            $columnNames[] = UnqualifiedName::unquoted($nameMap[$normalizedColumnName]);
+
+            if ($originalColumnName === $nameMap[$normalizedColumnName]) {
                 continue;
             }
 
-            $primaryIndex = [$index->getName() => $index];
+            $changed = true;
         }
 
-        return $primaryIndex;
+        if (! $changed) {
+            return $primaryKeyConstraint;
+        }
+
+        return $primaryKeyConstraint->edit()
+            ->setColumnNames(...$columnNames)
+            ->create();
     }
 
     public function createSchemaManager(Connection $connection): SQLiteSchemaManager

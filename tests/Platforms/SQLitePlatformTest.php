@@ -14,13 +14,13 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-
-use function implode;
 
 /** @extends AbstractPlatformTestCase<SQLitePlatform> */
 class SQLitePlatformTest extends AbstractPlatformTestCase
@@ -193,22 +193,6 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesPrimaryIndexCreationSqlWithSchema(): void
-    {
-        $primaryIndexDef = new Index('i2', ['a', 'b'], false, true);
-
-        self::assertSame(
-            'TEST: main.mytable, i2 - a, b',
-            (new class () extends SqlitePlatform {
-                public function getCreatePrimaryKeySQL(Index $index, string $table): string
-                {
-                    return 'TEST: ' . $table . ', ' . $index->getName()
-                        . ' - ' . implode(', ', $index->getColumns());
-                }
-            })->getCreateIndexSQL($primaryIndexDef, 'main.mytable'),
-        );
-    }
-
     public function testGeneratesForeignKeyCreationSql(): void
     {
         $this->expectException(Exception::class);
@@ -243,7 +227,13 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('test');
         $table->addColumn('"like"', Types::INTEGER, ['notnull' => true, 'autoincrement' => true]);
-        $table->setPrimaryKey(['"like"']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::quoted('like'),
+                )
+                ->create(),
+        );
 
         $createTableSQL = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
@@ -295,7 +285,13 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('article', Types::INTEGER);
         $table->addColumn('post', Types::INTEGER);
         $table->addColumn('parent', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $table->addForeignKeyConstraint('article', ['article'], ['id'], ['deferrable' => true]);
         $table->addForeignKeyConstraint('post', ['post'], ['id'], ['deferred' => true]);
         $table->addForeignKeyConstraint('user', ['parent'], ['id'], ['deferrable' => true, 'deferred' => true]);
@@ -326,7 +322,13 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('article', Types::INTEGER);
         $table->addColumn('post', Types::INTEGER);
         $table->addColumn('parent', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        );
         $table->addForeignKeyConstraint('article', ['article'], ['id'], ['deferrable' => true]);
         $table->addForeignKeyConstraint('post', ['post'], ['id'], ['deferred' => true]);
         $table->addForeignKeyConstraint('user', ['parent'], ['id'], ['deferrable' => true, 'deferred' => true]);
@@ -653,7 +655,14 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
         $table = new Table('test_autoincrement');
         $table->addColumn('id1', Types::INTEGER, ['autoincrement' => true]);
         $table->addColumn('id2', Types::INTEGER);
-        $table->setPrimaryKey(['id1', 'id2']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id1'),
+                    UnqualifiedName::unquoted('id2'),
+                )
+                ->create(),
+        );
 
         $this->expectException(UnsupportedTableDefinition::class);
         $this->platform->getCreateTableSQL($table);

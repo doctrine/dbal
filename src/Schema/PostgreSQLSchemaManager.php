@@ -171,7 +171,6 @@ SQL,
                         'key_name' => $row['relname'],
                         'column_name' => trim($colRow['attname']),
                         'non_unique' => ! $row['indisunique'],
-                        'primary' => $row['indisprimary'],
                         'where' => $row['where'],
                     ];
                 }
@@ -492,7 +491,6 @@ SQL,
                    tc.relname AS %s,
                    quote_ident(ic.relname) AS relname,
                    i.indisunique,
-                   i.indisprimary,
                    i.indkey,
                    i.indrelid,
                    pg_get_expr(indpred, indrelid) AS "where"
@@ -506,6 +504,7 @@ SQL,
                 JOIN pg_class AS c ON c.oid = i.indrelid
                 JOIN pg_namespace n ON n.oid = c.relnamespace
                 WHERE %s)
+            AND i.indisprimary = false
             SQL,
             $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
             $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
@@ -513,6 +512,50 @@ SQL,
         );
 
         return $this->connection->executeQuery($sql, $params);
+    }
+
+    /** {@inheritDoc} */
+    protected function fetchPrimaryKeyConstraintColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): array {
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT n.nspname AS %s,
+                   c.relname AS %s,
+                   ct.conname AS constraint_name,
+                   a.attname AS column_name
+            FROM 
+                pg_namespace n
+            INNER JOIN
+                pg_class c
+                    ON c.relnamespace = n.oid
+            INNER JOIN
+                pg_constraint ct
+                    ON ct.conrelid = c.oid
+            INNER JOIN
+                pg_index i
+                    ON i.indrelid = c.oid
+                   AND i.indexrelid = ct.conindid
+            INNER JOIN LATERAL unnest(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
+                   ON true
+            INNER JOIN
+                pg_attribute a
+                    ON a.attrelid = c.oid
+                   AND a.attnum = keys.attnum
+            WHERE %s
+              AND ct.contype = 'p'
+            ORDER BY 
+                1, 2, keys.ord;
+            SQL,
+            $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
+            $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
+            implode(' AND ', $this->buildQueryConditions($tableName, $params)),
+        );
+
+        return $this->connection->fetchAllAssociative($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result

@@ -9,8 +9,6 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 
-use function array_shift;
-
 class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
@@ -104,30 +102,6 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('another default value', $columns['df_string_3']->getDefault());
         self::assertEquals(0, $columns['df_boolean']->getDefault());
         self::assertEquals('column to rename', $columns['df_string_4_renamed']->getDefault());
-    }
-
-    public function testPkOrdering(): void
-    {
-        // SQL Server stores index column information in a system table with two
-        // columns that almost always have the same value: index_column_id and key_ordinal.
-        // The only situation when the two values doesn't match up is when a clustered index
-        // is declared that references columns in a different order from which they are
-        // declared in the table. In that case, key_ordinal != index_column_id.
-        // key_ordinal holds the index ordering. index_column_id is just a unique identifier
-        // for index columns within the given index.
-        $table = new Table('sqlsrv_pk_ordering');
-        $table->addColumn('colA', Types::INTEGER, ['notnull' => true]);
-        $table->addColumn('colB', Types::INTEGER, ['notnull' => true]);
-        $table->setPrimaryKey(['colB', 'colA']);
-        $this->schemaManager->createTable($table);
-
-        $indexes = $this->schemaManager->listTableIndexes('sqlsrv_pk_ordering');
-
-        self::assertCount(1, $indexes);
-        $firstIndex = array_shift($indexes);
-        self::assertNotNull($firstIndex);
-
-        self::assertSame(['colB', 'colA'], $firstIndex->getColumns());
     }
 
     public function testNvarcharMaxIsLengthMinus1(): void

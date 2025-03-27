@@ -256,6 +256,7 @@ SQL,
           ON IDX.INDSCHEMA = IDXCOL.INDSCHEMA AND IDX.INDNAME = IDXCOL.INDNAME
        WHERE %s
          AND T.TYPE = 'T'
+         AND IDX.UNIQUERULE != 'P'
     ORDER BY IDX.TABNAME,
              IDX.INDNAME,
              IDXCOL.COLSEQ
@@ -265,6 +266,49 @@ SQL,
         );
 
         return $this->connection->executeQuery($sql, $params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function fetchPrimaryKeyConstraintColumns(
+        string $databaseName,
+        ?OptionallyQualifiedName $tableName = null,
+    ): array {
+        $conditions = ['TC.TABSCHEMA = ?'];
+        $params     = [$databaseName];
+
+        if ($tableName !== null) {
+            $this->ensureUnqualifiedName($tableName, __METHOD__);
+
+            $conditions[] = 'TC.TABNAME = ?';
+            $params[]     = $tableName->getUnqualifiedName()->toNormalizedValue(
+                $this->platform->getUnquotedIdentifierFolding(),
+            );
+        }
+
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT
+                TC.TABNAME AS TABLE_NAME,
+                TC.CONSTNAME AS CONSTRAINT_NAME,
+                KCU.COLNAME AS COLUMN_NAME
+            FROM
+                SYSCAT.TABCONST TC
+            INNER JOIN
+                SYSCAT.KEYCOLUSE KCU
+                ON KCU.TABSCHEMA = TC.TABSCHEMA
+               AND KCU.TABNAME = TC.TABNAME
+               AND KCU.CONSTNAME = TC.CONSTNAME
+            WHERE %s
+              AND TC.TYPE = 'P'
+         ORDER BY TABLE_NAME,
+                  KCU.COLSEQ
+SQL,
+            implode(' AND ', $conditions),
+        );
+
+        return $this->connection->fetchAllAssociative($sql, $params);
     }
 
     protected function selectForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result

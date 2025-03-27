@@ -8,6 +8,10 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\UnsupportedPrimaryKeyConstraintDefinition;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -16,6 +20,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -123,7 +128,11 @@ abstract class AbstractPlatformTestCase extends TestCase
         $table = new Table('test');
         $table->addColumn('id', Types::INTEGER, ['notnull' => true, 'autoincrement' => true]);
         $table->addColumn('test', Types::STRING, ['notnull' => false, 'length' => 255]);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getGenerateTableSql(), $sql[0]);
@@ -217,7 +226,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('`quoted`');
         $table->addColumn('create', Types::STRING, ['length' => 255]);
-        $table->setPrimaryKey(['create']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('create'))
+                ->create(),
+        );
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getQuotedColumnInPrimaryKeySQL(), $sql);
@@ -523,7 +536,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('mytable');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'idx_foo' => new Index('idx_bar', ['id']),
@@ -548,7 +565,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('table');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'create' => new Index('select', ['id']),
@@ -576,7 +597,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('myschema.mytable');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $tableDiff = new TableDiff($table, renamedIndexes: ['idx_foo' => new Index('idx_bar', ['id'])]);
 
@@ -599,7 +624,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('`schema`.table');
         $table->addColumn('id', Types::INTEGER);
-        $table->setPrimaryKey(['id']);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
             'create' => new Index('select', ['id']),
@@ -720,7 +749,11 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $foreignTable = new Table('foreign_table');
         $foreignTable->addColumn('id', Types::INTEGER);
-        $foreignTable->setPrimaryKey(['id']);
+        $foreignTable->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
 
         $primaryTable = new Table('mytable');
         $primaryTable->addColumn('foo', Types::INTEGER);
@@ -865,5 +898,53 @@ abstract class AbstractPlatformTestCase extends TestCase
             "field 'values' is not an array" => [['values' => 'foo']],
             "field 'values' is an empty array" => [['values' => []]],
         ];
+    }
+
+    /**
+     * The list of tested platforms should be kept in-sync with
+     * {@see PrimaryKeyConstraintTest::testNameIntrospection()}.
+     */
+    public function testNamedPrimaryKeyConstraintIsReportedAsUnsupported(): void
+    {
+        if (! $this->platform instanceof MySqlPlatform && ! $this->platform instanceof SQLitePlatform) {
+            self::markTestSkipped('This current database platform supports named primary key constraints.');
+        }
+
+        $table = new Table('users');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setName(
+                    UnqualifiedName::unquoted('users_pk'),
+                )
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
+
+        $this->expectException(UnsupportedPrimaryKeyConstraintDefinition::class);
+        $this->platform->getCreateTableSQL($table);
+    }
+
+    /**
+     * The list of tested platforms should be kept in-sync with
+     * {@see PrimaryKeyConstraintTest::testIsClusteredIntrospection()}.
+     */
+    public function testNonClusteredPrimaryKeyConstraintIsReportedAsUnsupported(): void
+    {
+        if ($this->platform instanceof SQLServerPlatform) {
+            self::markTestSkipped('This current database platform supports non-clustered primary key constraints.');
+        }
+
+        $table = new Table('users');
+        $table->addColumn('id', Types::INTEGER);
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setIsClustered(false)
+                ->setColumnNames(UnqualifiedName::unquoted('id'))
+                ->create(),
+        );
+
+        $this->expectException(UnsupportedPrimaryKeyConstraintDefinition::class);
+        $this->platform->getCreateTableSQL($table);
     }
 }
