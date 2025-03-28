@@ -241,28 +241,18 @@ class DB2Platform extends AbstractPlatform
         return 'CURRENT TIMESTAMP';
     }
 
-    protected function getIndexDeclarationSQL(Index $index): string
-    {
-        // Index declaration in statements like CREATE TABLE is not supported.
-        throw NotSupported::new(__METHOD__);
-    }
-
     /**
      * {@inheritDoc}
      */
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
-        $indexes = $parameters['indexes'];
+        $sql = parent::_getCreateTableSQL($tableName, $columns, $parameters);
 
-        $parameters['indexes'] = [];
-
-        $sqls = parent::_getCreateTableSQL($tableName, $columns, $parameters);
-
-        foreach ($indexes as $definition) {
-            $sqls[] = $this->getCreateIndexSQL($definition, $tableName->toSQL($this));
+        foreach ($parameters['indexes'] as $index) {
+            $sql[] = $this->getCreateIndexSQL($index, $tableName->toSQL($this));
         }
 
-        return $sqls;
+        return $sql;
     }
 
     /**

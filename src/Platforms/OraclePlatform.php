@@ -319,10 +319,6 @@ class OraclePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL(OptionallyQualifiedName $tableName, array $columns, array $parameters): array
     {
-        $indexes = $parameters['indexes'];
-
-        $parameters['indexes'] = [];
-
         $sql = parent::_getCreateTableSQL($tableName, $columns, $parameters);
 
         foreach ($columns as $column) {
@@ -339,7 +335,7 @@ class OraclePlatform extends AbstractPlatform
             $sql = array_merge($sql, $this->getCreateAutoincrementSql($tableName, $column['name']));
         }
 
-        foreach ($indexes as $index) {
+        foreach ($parameters['indexes'] as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName->toSQL($this));
         }
 
