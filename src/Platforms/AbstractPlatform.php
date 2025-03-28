@@ -995,10 +995,6 @@ abstract class AbstractPlatform
             $elements[] = $this->getPrimaryKeyConstraintDeclarationSQL($parameters['primaryKey']);
         }
 
-        foreach ($parameters['indexes'] as $definition) {
-            $elements[] = $this->getIndexDeclarationSQL($definition);
-        }
-
         $elements = array_merge($elements, $this->getCheckDeclarationSQL($columns));
 
         $query = 'CREATE TABLE ' . $tableName->toSQL($this) . ' (' . implode(', ', $elements) . ')';
@@ -1445,26 +1441,6 @@ abstract class AbstractPlatform
         $chunks[] = $this->buildUnqualifiedNameListSQL($constraint->getColumnNames());
 
         return implode(' ', $chunks);
-    }
-
-    /**
-     * Obtains DBMS specific SQL code portion needed to set an index
-     * declaration to be used in statements like CREATE TABLE.
-     *
-     * @param Index $index The index definition.
-     *
-     * @return string DBMS specific SQL code portion needed to set an index.
-     */
-    protected function getIndexDeclarationSQL(Index $index): string
-    {
-        $columns = $index->getColumns();
-
-        if (count($columns) === 0) {
-            throw new InvalidArgumentException('Incomplete definition. "columns" required.');
-        }
-
-        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getObjectName()->toSQL($this)
-            . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**

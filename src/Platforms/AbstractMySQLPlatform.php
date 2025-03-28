@@ -414,6 +414,15 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
     }
 
+    /**
+     * Returns the SQL fragment representing an index.
+     */
+    private function getIndexDeclarationSQL(Index $index): string
+    {
+        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getObjectName()->toSQL($this)
+            . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')';
+    }
+
     protected function getCreateIndexSQLFlags(Index $index): string
     {
         $type = '';
