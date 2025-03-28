@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -1431,7 +1432,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $child->dropIndex('idx_1');
         $child->addIndex(['parent_id'], 'idx_2');
 
-        $diff = $schemaManager->createComparator()->compareTables(
+        $diff = $schemaManager->createComparator(
+            (new ComparatorConfig())->withDetectRenamedIndexes(false),
+        )->compareTables(
             $schemaManager->introspectTable('child'),
             $child,
         );
