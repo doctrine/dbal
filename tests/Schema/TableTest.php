@@ -740,6 +740,8 @@ class TableTest extends TestCase
         );
         self::assertEquals(new Index('uniq_new', ['bar', 'baz'], true), $table->getIndex('uniq_new'));
 
+        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6879');
+
         // Rename to auto-generated name.
         self::assertSame($table, $table->renameIndex('pk_new', null));
         self::assertSame($table, $table->renameIndex('idx_new', null));

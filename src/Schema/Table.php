@@ -31,6 +31,7 @@ use function implode;
 use function in_array;
 use function preg_match;
 use function sprintf;
+use function strlen;
 use function strtolower;
 
 /**
@@ -298,22 +299,31 @@ class Table extends AbstractNamedObject
      */
     public function renameIndex(string $oldName, ?string $newName = null): self
     {
-        $oldName           = $this->normalizeIdentifier($oldName);
+        if ($newName === null || strlen($newName) === 0) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6879',
+                'Passing NULL as the $newName argument to %s() is deprecated. Pass the new index name instead',
+                __METHOD__,
+            );
+        }
+
+        $normalizedOldName = $this->normalizeIdentifier($oldName);
         $normalizedNewName = $this->normalizeIdentifier($newName);
 
-        if ($oldName === $normalizedNewName) {
+        if ($normalizedOldName === $normalizedNewName) {
             return $this;
         }
 
-        if (! $this->hasIndex($oldName)) {
-            throw IndexDoesNotExist::new($oldName, $this->_name);
+        if (! $this->hasIndex($normalizedOldName)) {
+            throw IndexDoesNotExist::new($normalizedOldName, $this->_name);
         }
 
         if ($this->hasIndex($normalizedNewName)) {
             throw IndexAlreadyExists::new($normalizedNewName, $this->_name);
         }
 
-        $oldIndex = $this->_indexes[$oldName];
+        $oldIndex = $this->_indexes[$normalizedOldName];
 
         if ($oldIndex->isPrimary()) {
             Deprecation::triggerIfCalledFromOutside(
@@ -329,7 +339,7 @@ class Table extends AbstractNamedObject
             return $this->setPrimaryKey($oldIndex->getColumns(), $newName ?? null);
         }
 
-        unset($this->_indexes[$oldName]);
+        unset($this->_indexes[$normalizedOldName]);
 
         if ($oldIndex->isUnique()) {
             return $this->addUniqueIndex($oldIndex->getColumns(), $newName, $oldIndex->getOptions());

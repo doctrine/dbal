@@ -8,6 +8,11 @@ awareness about deprecated code.
 
 # Upgrade to 4.3
 
+## Deprecated renaming an index to an auto-generated name
+
+Renaming an index to an auto-generated name by passing NULL as the `$newName` argument to `Table::renameIndex()` is
+deprecated. Pass the new index name instead.
+
 ## Deprecated features related to primary key constraints
 
 1. The `AbstractPlatform::getCreatePrimaryKeySQL()` method has been deprecated. Use the schema manager to create and
