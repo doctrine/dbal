@@ -54,7 +54,7 @@ use function sprintf;
  * configuration, emulated transaction nesting, lazy connecting and more.
  *
  * @phpstan-import-type Params from DriverManager
- * @phpstan-type WrapperParameterType = string|Type|ParameterType|ArrayParameterType
+ * @phpstan-type WrapperParameterType = string|Type|ParameterType|ArrayParameterType|ArrayType
  * @phpstan-type WrapperParameterTypeArray = array<
  *    int<0, max>,
  *    WrapperParameterType>|array<string, WrapperParameterType
@@ -1423,7 +1423,7 @@ class Connection implements ServerVersionProvider
             $needsConversion = true;
         } else {
             foreach ($types as $key => $type) {
-                if ($type instanceof ArrayParameterType) {
+                if ($type instanceof ArrayParameterType || $type instanceof ArrayType) {
                     $needsConversion = true;
                     break;
                 }

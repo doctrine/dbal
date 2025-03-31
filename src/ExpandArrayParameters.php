@@ -90,7 +90,7 @@ final class ExpandArrayParameters implements Visitor
 
         $type = $this->types[$key];
 
-        if (! $type instanceof ArrayParameterType) {
+        if (! $type instanceof ArrayParameterType && ! $type instanceof ArrayType) {
             $this->appendTypedParameter([$value], $type);
 
             return;
@@ -102,7 +102,11 @@ final class ExpandArrayParameters implements Visitor
             return;
         }
 
-        $this->appendTypedParameter($value, ArrayParameterType::toElementParameterType($type));
+        if ($type instanceof ArrayType) {
+            $this->appendTypedParameter($value, $type->getBaseType());
+        } else {
+            $this->appendTypedParameter($value, ArrayParameterType::toElementParameterType($type));
+        }
     }
 
     /** @return array<int<0, max>,string|ParameterType|Type> */

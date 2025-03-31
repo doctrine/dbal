@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Connection;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingNamedParameter;
 use Doctrine\DBAL\ArrayParameters\Exception\MissingPositionalParameter;
 use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\ArrayType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ExpandArrayParameters;
 use Doctrine\DBAL\ParameterType;
@@ -380,6 +381,15 @@ class ExpandArrayParametersTest extends TestCase
                 ParameterType::BINARY,
                 ParameterType::BINARY,
             ],
+        ];
+
+        yield 'ArrayType wrapped around a custom type' => [
+            'SELECT * FROM Foo WHERE foo IN (?)',
+            [['this', 'that']],
+            [new ArrayType('my_type')],
+            'SELECT * FROM Foo WHERE foo IN (?, ?)',
+            ['this', 'that'],
+            ['my_type', 'my_type'],
         ];
     }
 

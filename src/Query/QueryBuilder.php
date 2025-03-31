@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\ArrayType;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
@@ -377,7 +378,7 @@ class QueryBuilder
     public function setParameter(
         int|string $key,
         mixed $value,
-        string|ParameterType|Type|ArrayParameterType $type = ParameterType::STRING,
+        string|ParameterType|Type|ArrayParameterType|ArrayType $type = ParameterType::STRING,
     ): self {
         $this->params[$key] = $value;
         $this->types[$key]  = $type;
@@ -449,7 +450,7 @@ class QueryBuilder
      *
      * @param int|string $key The key of the bound parameter type
      */
-    public function getParameterType(int|string $key): string|ParameterType|Type|ArrayParameterType
+    public function getParameterType(int|string $key): string|ParameterType|Type|ArrayParameterType|ArrayType
     {
         return $this->types[$key] ?? ParameterType::STRING;
     }
@@ -1484,7 +1485,7 @@ class QueryBuilder
      */
     public function createNamedParameter(
         mixed $value,
-        string|ParameterType|Type|ArrayParameterType $type = ParameterType::STRING,
+        string|ParameterType|Type|ArrayParameterType|ArrayType $type = ParameterType::STRING,
         ?string $placeHolder = null,
     ): string {
         if ($placeHolder === null) {
@@ -1516,7 +1517,7 @@ class QueryBuilder
      */
     public function createPositionalParameter(
         mixed $value,
-        string|ParameterType|Type|ArrayParameterType $type = ParameterType::STRING,
+        string|ParameterType|Type|ArrayParameterType|ArrayType $type = ParameterType::STRING,
     ): string {
         $this->setParameter($this->boundCounter, $value, $type);
         $this->boundCounter++;
