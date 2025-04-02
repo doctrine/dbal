@@ -402,11 +402,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertCount(2, $tableIndexes);
 
         self::assertEquals('test_index_name', strtolower($tableIndexes['test_index_name']->getName()));
-        self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test_index_name']->getColumns()));
+        self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test_index_name']->getUnquotedColumns()));
         self::assertTrue($tableIndexes['test_index_name']->isUnique());
 
         self::assertEquals('test_composite_idx', strtolower($tableIndexes['test_composite_idx']->getName()));
-        self::assertEquals(['id', 'test'], array_map('strtolower', $tableIndexes['test_composite_idx']->getColumns()));
+        self::assertEquals(['id', 'test'], array_map(
+            'strtolower',
+            $tableIndexes['test_composite_idx']->getUnquotedColumns(),
+        ),);
         self::assertFalse($tableIndexes['test_composite_idx']->isUnique());
     }
 
@@ -422,7 +425,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableIndexes = $this->schemaManager->listTableIndexes('test_create_index');
 
         self::assertEquals('test', strtolower($tableIndexes['test']->getName()));
-        self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test']->getColumns()));
+        self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test']->getUnquotedColumns()));
         self::assertTrue($tableIndexes['test']->isUnique());
     }
 
@@ -543,7 +546,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table = $this->schemaManager->introspectTable('alter_table');
         self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
-        self::assertEquals(['foo'], array_map('strtolower', $table->getIndex('foo_idx')->getColumns()));
+        self::assertEquals(['foo'], array_map('strtolower', $table->getIndex('foo_idx')->getUnquotedColumns()));
         self::assertFalse($table->getIndex('foo_idx')->isUnique());
 
         $newTable = clone $table;
@@ -559,7 +562,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertTrue($table->hasIndex('foo_idx'));
         self::assertEquals(
             ['foo', 'foreign_key_test'],
-            array_map('strtolower', $table->getIndex('foo_idx')->getColumns()),
+            array_map('strtolower', $table->getIndex('foo_idx')->getUnquotedColumns()),
         );
 
         $newTable = clone $table;
@@ -576,7 +579,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertFalse($table->hasIndex('foo_idx'));
         self::assertEquals(
             ['foo', 'foreign_key_test'],
-            array_map('strtolower', $table->getIndex('bar_idx')->getColumns()),
+            array_map('strtolower', $table->getIndex('bar_idx')->getUnquotedColumns()),
         );
         self::assertFalse($table->getIndex('bar_idx')->isUnique());
 

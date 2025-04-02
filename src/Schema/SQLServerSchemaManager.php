@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\Type;
 
@@ -211,12 +212,10 @@ SQL,
     protected function _getPortableTableIndexesList(array $rows): array
     {
         foreach ($rows as &$row) {
-            $row['non_unique'] = ! $row['is_unique'];
-            $row['flags']      = match ($row['type']) {
-                1 => ['clustered'],
-                2 => ['nonclustered'],
-                default => null,
-            };
+            $isClustered = (int) $row['type'] === 1;
+
+            $row['type']         = $row['is_unique'] ? IndexType::UNIQUE : IndexType::REGULAR;
+            $row['is_clustered'] = $isClustered;
         }
 
         return parent::_getPortableTableIndexesList($rows);

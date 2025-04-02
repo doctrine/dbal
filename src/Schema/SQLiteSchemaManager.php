@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\SQLite;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Exception\UnsupportedSchema;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -537,8 +538,10 @@ SQL,
         $indexColumnRows = parent::fetchIndexColumns($databaseName, $tableName);
 
         foreach ($indexColumnRows as $indexColumnRow) {
-            // Ignore indexes with reserved names, e.g. autoindexes
-            if (str_starts_with($indexColumnRow['name'], 'sqlite_')) {
+            $name = $indexColumnRow['name'];
+
+            // Ignore indexes with reserved names, e.g. auto-indexes
+            if (str_starts_with($name, 'sqlite_')) {
                 continue;
             }
 
@@ -546,8 +549,8 @@ SQL,
 
             $row = [
                 self::TABLE_NAME_COLUMN => $indexColumnRow[self::TABLE_NAME_COLUMN],
-                'key_name'   => $keyName,
-                'non_unique' => ! $indexColumnRow['unique'],
+                'key_name' => $name,
+                'type' => $indexColumnRow['unique'] ? IndexType::UNIQUE : IndexType::REGULAR,
             ];
 
             $indexColumnNames = $this->connection->fetchFirstColumn(

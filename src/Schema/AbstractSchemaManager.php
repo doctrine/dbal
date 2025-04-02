@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\UnsupportedName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
@@ -1014,40 +1015,45 @@ abstract class AbstractSchemaManager
             $keyName   = strtolower($indexName);
 
             if (! isset($result[$keyName])) {
-                $options = [
-                    'lengths' => [],
-                ];
-
-                if (isset($row['where'])) {
-                    $options['where'] = $row['where'];
-                }
-
                 $result[$keyName] = [
                     'name' => $indexName,
-                    'columns' => [],
-                    'unique' => ! $row['non_unique'],
-                    'flags' => $row['flags'] ?? [],
-                    'options' => $options,
+                    'type' => $row['type'],
                 ];
+
+                if (isset($row['predicate'])) {
+                    $result[$keyName]['predicate'] = $row['predicate'];
+                }
+
+                if (isset($row['is_clustered'])) {
+                    $result[$keyName]['is_clustered'] = $row['is_clustered'];
+                }
             }
 
-            $result[$keyName]['columns'][]            = $row['column_name'];
-            $result[$keyName]['options']['lengths'][] = $row['length'] ?? null;
+            $result[$keyName]['columns'][$row['column_name']] = $row['length'] ?? null;
         }
 
-        $indexes = [];
-        foreach ($result as $indexKey => $data) {
-            $indexes[$indexKey] = new Index(
-                $data['name'],
-                $data['columns'],
-                $data['unique'],
-                false,
-                $data['flags'],
-                $data['options'],
-            );
-        }
+        return array_map(static function ($data) {
+            $editor = Index::editor()
+                ->setName(UnqualifiedName::quoted($data['name']))
+                ->setType($data['type']);
 
-        return $indexes;
+            $columns = [];
+            foreach ($data['columns'] as $name => $length) {
+                $columns[] = new IndexedColumn(UnqualifiedName::quoted($name), $length);
+            }
+
+            $editor->setColumns(...$columns);
+
+            if (isset($data['is_clustered'])) {
+                $editor->setIsClustered($data['is_clustered']);
+            }
+
+            if (isset($data['predicate'])) {
+                $editor->setPredicate($data['predicate']);
+            }
+
+            return $editor->create();
+        }, $result);
     }
 
     /** @param array<string, mixed> $view */

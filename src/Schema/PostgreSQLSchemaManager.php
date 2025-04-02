@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
@@ -144,9 +145,9 @@ SQL,
             static function (array $row): array {
                 return [
                     'key_name' => $row['relname'],
-                    'non_unique' => ! $row['indisunique'],
-                    'where' => $row['where'],
                     'column_name' => $row['attname'],
+                    'type' => $row['indisunique'] ? IndexType::UNIQUE : IndexType::REGULAR,
+                    'predicate' => $row['predicate'],
                 ];
             },
             $rows,
@@ -462,12 +463,12 @@ SQL,
             SELECT
                    n.nspname AS %s,
                    c.relname AS %s,
-                   quote_ident(ic.relname) AS relname,
+                   ic.relname,
                    i.indisunique,
                    i.indkey,
                    i.indrelid,
-                   pg_get_expr(indpred, indrelid) AS "where",
-                   quote_ident(attname) AS attname
+                   pg_get_expr(indpred, indrelid) AS predicate,
+                   attname
               FROM pg_index i
                    JOIN pg_class AS c ON c.oid = i.indrelid
                    JOIN pg_namespace n ON n.oid = c.relnamespace

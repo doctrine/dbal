@@ -6,11 +6,13 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
 use function array_change_key_case;
+use function array_map;
 use function implode;
 use function preg_match;
 use function sprintf;
@@ -106,15 +108,19 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexesList(array $rows): array
     {
-        foreach ($rows as &$row) {
-            $row = array_change_key_case($row, CASE_LOWER);
+        return parent::_getPortableTableIndexesList(array_map(
+            /** @param array<string, mixed> $row */
+            static function (array $row): array {
+                $row = array_change_key_case($row);
 
-            $row['column_name'] = $row['colname'];
-            $row['primary']     = $row['uniquerule'] === 'P';
-            $row['non_unique']  = $row['uniquerule'] === 'D';
-        }
-
-        return parent::_getPortableTableIndexesList($rows);
+                return [
+                    'key_name' => $row['indname'],
+                    'type' => $row['uniquerule'] === 'U' ? IndexType::UNIQUE : IndexType::REGULAR,
+                    'column_name' => $row['colname'],
+                ];
+            },
+            $rows,
+        ));
     }
 
     /**
@@ -246,7 +252,7 @@ SQL,
             <<<'SQL'
       SELECT
              IDX.TABNAME AS %s,
-             IDX.INDNAME AS KEY_NAME,
+             IDX.INDNAME,
              IDXCOL.COLNAME,
              IDX.UNIQUERULE
         FROM SYSCAT.INDEXES AS IDX

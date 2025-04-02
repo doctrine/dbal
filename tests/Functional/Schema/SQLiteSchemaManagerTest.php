@@ -230,7 +230,7 @@ SQL;
 
         $table = $schemaManager->introspectTable('nodes');
         $index = $table->getIndex('idx_node_name');
-        self::assertSame(['name'], $index->getColumns());
+        self::assertSame(['name'], $index->getUnquotedColumns());
     }
 
     public function testAlterTableWithSchema(): void
