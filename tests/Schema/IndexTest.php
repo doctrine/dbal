@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
-use Doctrine\DBAL\Schema\Exception\InvalidName;
-use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
-use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -22,14 +18,6 @@ use function sprintf;
 
 class IndexTest extends TestCase
 {
-    use VerifyDeprecations;
-
-    /** @param mixed[] $options */
-    private function createIndex(bool $unique = false, array $options = []): Index
-    {
-        return new Index('foo', ['bar', 'baz'], $unique, false, [], $options);
-    }
-
     #[DataProvider('fulfilledByProvider')]
     public function testFulfilledBy(Index $index1, Index $index2, bool $expected): void
     {
@@ -108,203 +96,75 @@ class IndexTest extends TestCase
         yield 'different-positions' => [[32, null], [null, 32], false];
     }
 
-    public function testFlags(): void
-    {
-        $idx1 = $this->createIndex();
-        self::assertFalse($idx1->hasFlag('clustered'));
-        self::assertEmpty($idx1->getFlags());
-
-        $idx1->addFlag('clustered');
-        self::assertTrue($idx1->hasFlag('clustered'));
-        self::assertTrue($idx1->hasFlag('CLUSTERED'));
-        self::assertSame(['clustered'], $idx1->getFlags());
-        self::assertTrue($idx1->isClustered());
-
-        $idx1->removeFlag('clustered');
-        self::assertFalse($idx1->hasFlag('clustered'));
-        self::assertEmpty($idx1->getFlags());
-        self::assertFalse($idx1->isClustered());
-    }
-
-    public function testIndexQuotes(): void
-    {
-        $index = new Index('foo', ['`bar`', '`baz`']);
-
-        self::assertTrue($index->spansColumns(['bar', 'baz']));
-        self::assertTrue($index->hasColumnAtPosition('bar', 0));
-        self::assertTrue($index->hasColumnAtPosition('baz', 1));
-
-        self::assertFalse($index->hasColumnAtPosition('bar', 1));
-        self::assertFalse($index->hasColumnAtPosition('baz', 0));
-    }
-
-    public function testOptions(): void
-    {
-        $idx1 = $this->createIndex();
-        self::assertFalse($idx1->hasOption('where'));
-        self::assertEmpty($idx1->getOptions());
-
-        $idx2 = $this->createIndex(false, ['where' => 'name IS NULL']);
-        self::assertTrue($idx2->hasOption('where'));
-        self::assertTrue($idx2->hasOption('WHERE'));
-        self::assertSame('name IS NULL', $idx2->getOption('where'));
-        self::assertSame('name IS NULL', $idx2->getOption('WHERE'));
-        self::assertSame(['where' => 'name IS NULL'], $idx2->getOptions());
-    }
-
-    public function testEmptyName(): void
-    {
-        $this->expectException(InvalidName::class);
-
-        new Index(null, ['user_id']);
-    }
-
-    public function testQualifiedName(): void
-    {
-        $this->expectException(InvalidName::class);
-
-        new Index('auth.idx_user_id', ['user_id']);
-    }
-
-    public function testGetObjectName(): void
-    {
-        $index = new Index('idx_user_id', ['user_id']);
-
-        self::assertEquals(Identifier::unquoted('idx_user_id'), $index->getObjectName()->getIdentifier());
-    }
-
     public function testEmptyColumns(): void
     {
         $this->expectException(InvalidIndexDefinition::class);
 
         /** @phpstan-ignore argument.type */
-        new Index('idx_user_name', []);
+        new Index(UnqualifiedName::unquoted('id'), IndexType::REGULAR, [], false, null);
     }
 
-    public function testInvalidColumnName(): void
+    public function testSpatialIndexWithColumnLength(): void
     {
-        $this->expectException(InvalidName::class);
+        $editor = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_point'))
+            ->setColumns(
+                new IndexedColumn(UnqualifiedName::unquoted('point'), 32),
+            )
+            ->setType(IndexType::SPATIAL);
 
-        new Index('idx_user_name', ['user.name']);
-    }
-
-    public function testPrimaryKeyWithNullColumnLength(): void
-    {
-        $index = new Index('primary', ['id'], false, false, [], ['lengths' => [null]]);
-
-        $indexedColumns = $index->getIndexedColumns();
-
-        self::assertCount(1, $indexedColumns);
-
-        self::assertEquals(UnqualifiedName::unquoted('id'), $indexedColumns[0]->getColumnName());
-        self::assertNull($indexedColumns[0]->getLength());
-    }
-
-    public function testNonIntegerColumnLength(): void
-    {
         $this->expectException(InvalidIndexDefinition::class);
-
-        new Index('idx_user_name', ['name'], false, false, [], ['lengths' => ['8']]);
+        $editor->create();
     }
 
-    public function testNonPositiveColumnLength(): void
+    #[TestWith([IndexType::FULLTEXT])]
+    #[TestWith([IndexType::SPATIAL])]
+    public function testClusteredIndexOfIncompatibleType(IndexType $type): void
     {
+        $editor = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_test'))
+            ->setColumnNames(UnqualifiedName::unquoted('test'))
+            ->setIsClustered(true)
+            ->setType($type);
+
         $this->expectException(InvalidIndexDefinition::class);
-
-        new Index('idx_user_name', ['name'], false, false, [], ['lengths' => [-1]]);
+        $editor->create();
     }
 
-    public function testGetIndexedColumns(): void
+    #[TestWith([IndexType::FULLTEXT])]
+    #[TestWith([IndexType::SPATIAL])]
+    public function testPartialIndexOfIncompatibleType(IndexType $type): void
     {
-        $index = new Index('idx_user_name', ['first_name', 'last_name'], false, false, [], ['lengths' => [16]]);
+        $editor = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_test'))
+            ->setColumnNames(UnqualifiedName::unquoted('test'))
+            ->setType($type)
+            ->setPredicate('test IS NOT NULL');
 
-        $indexedColumns = $index->getIndexedColumns();
-
-        self::assertCount(2, $indexedColumns);
-
-        self::assertEquals(UnqualifiedName::unquoted('first_name'), $indexedColumns[0]->getColumnName());
-        self::assertEquals(16, $indexedColumns[0]->getLength());
-
-        self::assertEquals(UnqualifiedName::unquoted('last_name'), $indexedColumns[1]->getColumnName());
-        self::assertNull($indexedColumns[1]->getLength());
+        $this->expectException(InvalidIndexDefinition::class);
+        $editor->create();
     }
 
-    public function testUnsupportedFlag(): void
+    public function testPartialClusteredIndex(): void
     {
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
-        new Index('idx_user_name', ['name'], false, false, ['banana']);
-    }
+        $editor = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_test'))
+            ->setColumnNames(UnqualifiedName::unquoted('test'))
+            ->setIsClustered(true)
+            ->setPredicate('test IS NOT NULL');
 
-    /** @param list<string> $flags */
-    #[TestWith([true, ['fulltext']])]
-    #[TestWith([true, ['spatial']])]
-    #[TestWith([false, ['fulltext', 'spatial']])]
-    public function testConflictInFlagsSignificantForTypeInference(bool $isUnique, array $flags): void
-    {
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
-        $index = new Index('idx_user_name', ['name'], $isUnique, false, $flags);
-
-        $this->expectException(InvalidState::class);
-        $index->getType();
-    }
-
-    /** @param list<string> $flags */
-    #[TestWith([['fulltext', 'clustered'], IndexType::FULLTEXT])]
-    #[TestWith([['spatial', 'clustered'], IndexType::SPATIAL])]
-    #[TestWith([['nonclustered', 'clustered'], IndexType::REGULAR])]
-    public function testConflictInFlagsInsignificantForTypeInference(array $flags, IndexType $expectedType): void
-    {
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
-        $index = new Index('idx_user_name', ['name'], false, false, $flags);
-
-        self::assertEquals($expectedType, $index->getType());
-    }
-
-    /** @param list<string> $flags */
-    #[TestWith([false, [], IndexType::REGULAR])]
-    #[TestWith([false, ['fulltext'], IndexType::FULLTEXT])]
-    #[TestWith([false, ['spatial'], IndexType::SPATIAL])]
-    #[TestWith([true, [], IndexType::UNIQUE])]
-    public function testParseType(bool $isUnique, array $flags, IndexType $expectedType): void
-    {
-        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
-        $index = new Index('idx_user_name', ['user_id'], $isUnique, false, $flags);
-
-        self::assertEquals($expectedType, $index->getType());
-    }
-
-    #[TestWith([null])]
-    #[TestWith(['is_active = 1'])]
-    public function testGetPredicate(?string $predicate): void
-    {
-        $this->expectNoDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
-        $index = new Index('idx_user_name', ['user_id'], false, false, [], ['where' => $predicate]);
-
-        self::assertEquals($predicate, $index->getPredicate());
+        $this->expectException(InvalidIndexDefinition::class);
+        $editor->create();
     }
 
     public function testEmptyPredicate(): void
     {
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
-        $index = new Index('idx_user_name', ['user_id'], false, false, [], ['where' => '']);
+        $editor = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_user_name'))
+            ->setColumnNames(UnqualifiedName::unquoted('user_id'))
+            ->setPredicate(''); // @phpstan-ignore argument.type
 
-        $this->expectException(InvalidState::class);
-        $index->getPredicate();
-    }
-
-    #[TestWith(['fulltext'])]
-    #[TestWith(['spatial'])]
-    #[TestWith(['clustered'])]
-    public function testPartialIndexWithConflictingFlags(string $flag): void
-    {
-        $this->expectDeprecationWithIdentifier('https://github.com/doctrine/dbal/pull/6886');
-        new Index('idx_user_name', ['user_id'], false, false, [$flag], ['where' => 'is_active = 1']);
-    }
-
-    public function testPrimaryIndex(): void
-    {
         $this->expectException(InvalidIndexDefinition::class);
-
-        new Index('users_pk', ['id'], false, true);
+        $editor->create();
     }
 }

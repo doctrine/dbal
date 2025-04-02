@@ -134,11 +134,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
-    protected function supportsPartialIndexes(): bool
-    {
-        return true;
-    }
-
     protected function supportsCommentOnStatement(): bool
     {
         return true;

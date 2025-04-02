@@ -89,45 +89,6 @@ final class IndexEditor
             throw InvalidIndexDefinition::columnsNotSet();
         }
 
-        $columnNames = $lengths = $flags = [];
-        foreach ($this->columns as $i => $column) {
-            $columnNames[] = $column->getColumnName()->toString();
-
-            $length = $column->getLength();
-            if ($length === null) {
-                continue;
-            }
-
-            $lengths[$i] = $length;
-        }
-
-        $options = [];
-
-        if (count($lengths) > 0) {
-            $options['lengths'] = $lengths;
-        }
-
-        if ($this->type === IndexType::FULLTEXT) {
-            $flags[] = 'fulltext';
-        } elseif ($this->type === IndexType::SPATIAL) {
-            $flags[] = 'spatial';
-        }
-
-        if ($this->isClustered) {
-            $flags[] = 'clustered';
-        }
-
-        if ($this->predicate !== null) {
-            $options['where'] = $this->predicate;
-        }
-
-        return new Index(
-            $this->name->toString(),
-            $columnNames,
-            $this->type === IndexType::UNIQUE,
-            false,
-            $flags,
-            $options,
-        );
+        return new Index($this->name, $this->type, $this->columns, $this->isClustered, $this->predicate);
     }
 }

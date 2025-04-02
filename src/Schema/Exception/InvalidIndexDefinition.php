@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema\Exception;
 
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\SchemaException;
 use LogicException;
@@ -76,16 +77,42 @@ final class InvalidIndexDefinition extends LogicException implements SchemaExcep
         ));
     }
 
-    public static function invalidColumnLength(mixed $length): self
+    public static function fromSpatialIndexWithLength(UnqualifiedName $name): self
     {
         return new self(sprintf(
-            'Indexed column length must be an integer, %s given.',
-            is_object($length) ? $length::class : gettype($length),
+            'Index %s is spatial and cannot have column lengths specified.',
+            $name->toString(),
         ));
     }
 
-    public static function fromPrimaryIndex(): self
+    public static function fromClusteredIndex(UnqualifiedName $name, IndexType $type): self
     {
-        return new self('Primary indexes are not supported.');
+        return new self(sprintf(
+            'Index %s is of type %s and cannot be clustered.',
+            $name->toString(),
+            $type->name,
+        ));
+    }
+
+    public static function fromPartialClusteredIndex(UnqualifiedName $name): self
+    {
+        return new self(sprintf(
+            'Index %s is partial and cannot be clustered.',
+            $name->toString(),
+        ));
+    }
+
+    public static function fromPartialIndex(UnqualifiedName $name, IndexType $type): self
+    {
+        return new self(sprintf(
+            'Index %s is of type %s and cannot be partial.',
+            $name->toString(),
+            $type->name,
+        ));
+    }
+
+    public static function fromEmptyPredicate(UnqualifiedName $name): self
+    {
+        return new self(sprintf('Index %s has empty predicate.', $name->toString()));
     }
 }

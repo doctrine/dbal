@@ -47,7 +47,6 @@ use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -1897,31 +1896,6 @@ abstract class AbstractPlatform
      */
     public function supportsIdentityColumns(): bool
     {
-        return false;
-    }
-
-    /**
-     * Whether the platform supports partial indexes.
-     */
-    protected function supportsPartialIndexes(): bool
-    {
-        return false;
-    }
-
-    /**
-     * Whether the platform supports indexes with column length definitions.
-     *
-     * @deprecated
-     */
-    public function supportsColumnLengthIndexes(): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6886',
-            '%s is deprecated.',
-            __METHOD__,
-        );
-
         return false;
     }
 
