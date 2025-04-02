@@ -90,12 +90,22 @@ final class IndexEditor
         }
 
         $columnNames = $lengths = $flags = [];
-        foreach ($this->columns as $column) {
+        foreach ($this->columns as $i => $column) {
             $columnNames[] = $column->getColumnName()->toString();
-            $lengths[]     = $column->getLength();
+
+            $length = $column->getLength();
+            if ($length === null) {
+                continue;
+            }
+
+            $lengths[$i] = $length;
         }
 
-        $options = ['lengths' => $lengths];
+        $options = [];
+
+        if (count($lengths) > 0) {
+            $options['lengths'] = $lengths;
+        }
 
         if ($this->type === IndexType::FULLTEXT) {
             $flags[] = 'fulltext';

@@ -10,8 +10,10 @@ use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -23,6 +25,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use ValueError;
 
@@ -644,7 +647,7 @@ class TableTest extends TestCase
         $table->addColumn('foo', Types::INTEGER);
         $table->addColumn('bar', Types::INTEGER);
         $table->addColumn('baz', Types::INTEGER);
-        $table->addIndex(['foo'], 'idx', ['flag']);
+        $table->addIndex(['foo'], 'idx', ['clustered']);
         $table->addUniqueIndex(['bar', 'baz'], 'uniq');
 
         // Rename to custom name.
@@ -658,7 +661,7 @@ class TableTest extends TestCase
         self::assertFalse($table->hasIndex('uniq'));
 
         self::assertEquals(
-            new Index('idx_new', ['foo'], false, false, ['flag']),
+            new Index('idx_new', ['foo'], false, false, ['clustered']),
             $table->getIndex('idx_new'),
         );
         self::assertEquals(new Index('uniq_new', ['bar', 'baz'], true, false), $table->getIndex('uniq_new'));
@@ -674,7 +677,7 @@ class TableTest extends TestCase
         self::assertFalse($table->hasIndex('uniq_new'));
 
         self::assertEquals(
-            new Index('IDX_D87F7E0C8C736521', ['foo'], false, false, ['flag']),
+            new Index('IDX_D87F7E0C8C736521', ['foo'], false, false, ['clustered']),
             $table->getIndex('IDX_D87F7E0C8C736521'),
         );
         self::assertEquals(
@@ -925,5 +928,85 @@ class TableTest extends TestCase
 
         self::assertEquals(Identifier::unquoted('products'), $name->getUnqualifiedName());
         self::assertEquals(Identifier::unquoted('inventory'), $name->getQualifier());
+    }
+
+    public function testAddIndexWithNonIntegerColumnLength(): void
+    {
+        $table = new Table('users');
+        $table->addColumn('name', Types::STRING);
+
+        $this->expectException(InvalidIndexDefinition::class);
+        $table->addIndex(['name'], null, [], ['lengths' => ['8']]);
+    }
+
+    public function testAddIndexWithNonPositiveColumnLength(): void
+    {
+        $table = new Table('users');
+        $table->addColumn('name', Types::STRING);
+
+        $this->expectException(InvalidIndexDefinition::class);
+        $table->addIndex(['name'], null, [], ['lengths' => [-1]]);
+    }
+
+    public function testAddIndexWithColumnLength(): void
+    {
+        $table = new Table('users');
+        $table->addColumn('first_name', Types::STRING);
+        $table->addColumn('last_name', Types::STRING);
+        $table->addIndex(['first_name', 'last_name'], 'idx_user_name', [], ['lengths' => [16]]);
+
+        $indexedColumns = $table->getIndex('idx_user_name')->getIndexedColumns();
+
+        self::assertCount(2, $indexedColumns);
+
+        self::assertEquals(UnqualifiedName::unquoted('first_name'), $indexedColumns[0]->getColumnName());
+        self::assertEquals(16, $indexedColumns[0]->getLength());
+
+        self::assertEquals(UnqualifiedName::unquoted('last_name'), $indexedColumns[1]->getColumnName());
+        self::assertNull($indexedColumns[1]->getLength());
+    }
+
+    /** @param list<string> $flags */
+    #[TestWith([[], IndexType::REGULAR])]
+    #[TestWith([['fulltext'], IndexType::FULLTEXT])]
+    #[TestWith([['spatial'], IndexType::SPATIAL])]
+    public function testParseNonUniqueIndexType(array $flags, IndexType $expectedType): void
+    {
+        $table = new Table('users');
+        $table->addColumn('user_id', Types::INTEGER);
+        $table->addIndex(['user_id'], 'idx_user_id', $flags);
+
+        $index = $table->getIndex('idx_user_id');
+        self::assertEquals($expectedType, $index->getType());
+    }
+
+    public function testAddIndexWithInvalidFlag(): void
+    {
+        $table = new Table('users');
+        $table->addColumn('user_id', Types::INTEGER);
+
+        $this->expectException(InvalidIndexDefinition::class);
+        $table->addIndex(['user_id'], null, ['banana']);
+    }
+
+    public function testAddIndexWithInvalidOption(): void
+    {
+        $table = new Table('users');
+        $table->addColumn('user_id', Types::INTEGER);
+
+        $this->expectException(InvalidIndexDefinition::class);
+        $table->addIndex(['user_id'], null, [], ['potato' => true]);
+    }
+
+    /** @param list<string> $flags */
+    #[TestWith([['nonclustered', 'clustered']])]
+    #[TestWith([['fulltext', 'spatial']])]
+    public function testAddIndexWithConflictingFlags(array $flags): void
+    {
+        $table = new Table('users');
+        $table->addColumn('user_id', Types::INTEGER);
+
+        $this->expectException(InvalidIndexDefinition::class);
+        $table->addIndex(['user_id'], null, $flags);
     }
 }
