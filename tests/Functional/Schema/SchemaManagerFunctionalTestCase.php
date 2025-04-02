@@ -1340,17 +1340,17 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tracks  = $this->schemaManager->introspectTable('"Tracks"');
 
         // Primary table assertions
-        self::assertOptionallyQualifiedNameEquals(
+        $this->assertOptionallyQualifiedNameEquals(
             OptionallyQualifiedName::quoted('Artists'),
             $artists->getObjectName(),
         );
 
-        self::assertUnqualifiedNameEquals(
+        $this->assertUnqualifiedNameEquals(
             UnqualifiedName::quoted('Id'),
             $artists->getColumn('"Id"')->getObjectName(),
         );
 
-        self::assertUnqualifiedNameEquals(
+        $this->assertUnqualifiedNameEquals(
             UnqualifiedName::quoted('Name'),
             $artists->getColumn('"Name"')->getObjectName(),
         );
@@ -1361,7 +1361,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $primaryKey = $artists->getPrimaryKeyConstraint();
         self::assertNotNull($primaryKey);
-        self::assertUnqualifiedNameListEquals([
+        $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::quoted('Id'),
         ], $primaryKey->getColumnNames());
 
@@ -1373,7 +1373,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $primaryKey = $tracks->getPrimaryKeyConstraint();
         self::assertNotNull($primaryKey);
-        self::assertUnqualifiedNameListEquals([
+        $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::quoted('Id'),
         ], $primaryKey->getColumnNames());
 
@@ -1389,7 +1389,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $constraint = $tracks->getForeignKey('"Artists_Fk"');
 
-        self::assertUnqualifiedNameListEquals([
+        $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::quoted('Artist_Id'),
         ], $constraint->getReferencingColumnNames());
 
@@ -1398,7 +1398,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $constraint->getReferencedTableName(),
         );
 
-        self::assertUnqualifiedNameListEquals([
+        $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::quoted('Id'),
         ], $constraint->getReferencedColumnNames());
     }
@@ -1487,7 +1487,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $table = $schemaManager->introspectTable('test_switch_pk_order');
 
-        self::assertPrimaryKeyConstraintEquals($newPrimaryKeyConstraint, $table->getPrimaryKeyConstraint());
+        $this->assertPrimaryKeyConstraintEquals($newPrimaryKeyConstraint, $table->getPrimaryKeyConstraint());
     }
 
     public function testDropColumnWithDefault(): void
@@ -1573,7 +1573,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $nestedSchemaTable = $this->schemaManager->introspectTable('nested.schematable');
         self::assertTrue($nestedSchemaTable->hasColumn('id'));
 
-        self::assertPrimaryKeyConstraintEquals($primaryKeyConstraint, $nestedSchemaTable->getPrimaryKeyConstraint());
+        $this->assertPrimaryKeyConstraintEquals($primaryKeyConstraint, $nestedSchemaTable->getPrimaryKeyConstraint());
 
         $relatedFks = array_values($nestedSchemaTable->getForeignKeys());
         self::assertCount(1, $relatedFks);
