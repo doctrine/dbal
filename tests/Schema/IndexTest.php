@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -15,6 +16,9 @@ use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
+
+use function count;
+use function sprintf;
 
 class IndexTest extends TestCase
 {
@@ -26,97 +30,82 @@ class IndexTest extends TestCase
         return new Index('foo', ['bar', 'baz'], $unique, false, [], $options);
     }
 
-    public function testCreateIndex(): void
+    #[DataProvider('fulfilledByProvider')]
+    public function testFulfilledBy(Index $index1, Index $index2, bool $expected): void
     {
-        $idx = $this->createIndex();
-        self::assertEquals('foo', $idx->getName());
-        $columns = $idx->getColumns();
-        self::assertCount(2, $columns);
-        self::assertEquals(['bar', 'baz'], $columns);
-        self::assertFalse($idx->isUnique());
+        self::assertSame($expected, $index1->isFulfilledBy($index2));
     }
 
-    public function testCreateUnique(): void
+    /** @return iterable<string, array{Index, Index, bool}> */
+    public static function fulfilledByProvider(): iterable
     {
-        $idx = $this->createIndex(true);
-        self::assertTrue($idx->isUnique());
-    }
+        $regularIndex = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_user_id'))
+            ->setColumnNames(UnqualifiedName::unquoted('user_id'))
+            ->create();
 
-    public function testFulfilledByUnique(): void
-    {
-        $idx1 = $this->createIndex(true);
-        $idx2 = $this->createIndex(true);
-        $idx3 = $this->createIndex();
+        $uniqueIndex = $regularIndex->edit()
+            ->setType(IndexType::UNIQUE)
+            ->create();
 
-        self::assertTrue($idx1->isFulfilledBy($idx2));
-        self::assertFalse($idx1->isFulfilledBy($idx3));
-    }
+        $partialIndex = $regularIndex->edit()
+            ->setType(IndexType::REGULAR)
+            ->setPredicate('is_active = 1')
+            ->create();
 
-    public function testFulfilledByIndex(): void
-    {
-        $idx1 = $this->createIndex();
-        $idx2 = $this->createIndex();
-        $uniq = $this->createIndex(true);
+        $upperCaseIndex = $regularIndex->edit()
+            ->setColumnNames(UnqualifiedName::unquoted('USER_ID'))
+            ->create();
 
-        self::assertTrue($idx1->isFulfilledBy($idx2));
-        self::assertTrue($idx1->isFulfilledBy($uniq));
-    }
+        yield 'regular-by-regular' => [$regularIndex, $regularIndex, true];
+        yield 'regular-by-unique' => [$regularIndex, $uniqueIndex, true];
+        yield 'unique-by-regular' => [$uniqueIndex, $regularIndex, false];
+        yield 'unique-by-unique' => [$uniqueIndex, $uniqueIndex, true];
 
-    public function testFulfilledWithPartial(): void
-    {
-        $without = new Index('without', ['col1', 'col2'], true, false, [], []);
-        $partial = new Index('partial', ['col1', 'col2'], true, false, [], ['where' => 'col1 IS NULL']);
-        $another = new Index('another', ['col1', 'col2'], true, false, [], ['where' => 'col1 IS NULL']);
+        yield 'regular-by-partial' => [$regularIndex, $partialIndex, false];
+        yield 'partial-by-regular' => [$partialIndex, $regularIndex, false];
+        yield 'partial-by-partial' => [$regularIndex, $upperCaseIndex, true];
 
-        self::assertFalse($partial->isFulfilledBy($without));
-        self::assertFalse($without->isFulfilledBy($partial));
-
-        self::assertTrue($partial->isFulfilledBy($partial));
-
-        self::assertTrue($partial->isFulfilledBy($another));
-        self::assertTrue($another->isFulfilledBy($partial));
-    }
-
-    public function testOverrulesWithPartial(): void
-    {
-        $without = new Index('without', ['col1', 'col2'], true, false, [], []);
-        $partial = new Index('partial', ['col1', 'col2'], true, false, [], ['where' => 'col1 IS NULL']);
-        $another = new Index('another', ['col1', 'col2'], true, false, [], ['where' => 'col1 IS NULL']);
-
-        self::assertFalse($partial->overrules($without));
-        self::assertFalse($without->overrules($partial));
-
-        self::assertTrue($partial->overrules($partial));
-
-        self::assertTrue($partial->overrules($another));
-        self::assertTrue($another->overrules($partial));
+        yield 'upper-case-by-lower-case' => [$upperCaseIndex, $regularIndex, true];
     }
 
     /**
-     * @param non-empty-list<string> $columns
-     * @param list<?int>             $lengths1
-     * @param list<?int>             $lengths2
+     * @param non-empty-list<?positive-int> $lengths1
+     * @param non-empty-list<?positive-int> $lengths2
      */
-    #[DataProvider('indexLengthProvider')]
-    public function testFulfilledWithLength(array $columns, array $lengths1, array $lengths2, bool $expected): void
+    #[DataProvider('indexedColumnLengthProvider')]
+    public function testFulfilledWithColumnLength(array $lengths1, array $lengths2, bool $expected): void
     {
-        $index1 = new Index('index1', $columns, false, false, [], ['lengths' => $lengths1]);
-        $index2 = new Index('index2', $columns, false, false, [], ['lengths' => $lengths2]);
+        self::assertCount(count($lengths1), $lengths2);
+
+        $columns1 = $columns2 = [];
+
+        for ($i = 0, $count = count($lengths1); $i < $count; $i++) {
+            $name = UnqualifiedName::unquoted(sprintf('c_%d', $i));
+
+            $columns1[] = new IndexedColumn($name, $lengths1[$i]);
+            $columns2[] = new IndexedColumn($name, $lengths2[$i]);
+        }
+
+        $index1 = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx'))
+            ->setColumns(...$columns1)
+            ->create();
+
+        $index2 = $index1->edit()
+            ->setColumns(...$columns2)
+            ->create();
 
         self::assertSame($expected, $index1->isFulfilledBy($index2));
         self::assertSame($expected, $index2->isFulfilledBy($index1));
     }
 
-    /** @return mixed[][] */
-    public static function indexLengthProvider(): iterable
+    /** @return iterable<string, array{non-empty-list<?positive-int>, non-empty-list<?positive-int>, bool}> */
+    public static function indexedColumnLengthProvider(): iterable
     {
-        return [
-            'empty' => [['column'], [], [], true],
-            'same' => [['column'], [64], [64], true],
-            'different' => [['column'], [32], [64], false],
-            'sparse-different-positions' => [['column1', 'column2'], [0 => 32], [1 => 32], false],
-            'sparse-same-positions' => [['column1', 'column2'], [null, 32], [1 => 32], true],
-        ];
+        yield 'same' => [[64], [64], true];
+        yield 'different-lengths' => [[32], [64], false];
+        yield 'different-positions' => [[32, null], [null, 32], false];
     }
 
     public function testFlags(): void

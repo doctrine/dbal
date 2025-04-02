@@ -322,8 +322,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 ->isEmpty(),
         );
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
-        self::assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
-        self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
+        self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getPredicate());
     }
 
     public function testJsonbColumn(): void

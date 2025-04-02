@@ -10,6 +10,10 @@ use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDBPlatform;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexType;
+use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\CustomType;
 use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
@@ -39,28 +43,29 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('fulltext_index');
         $table->addColumn('text', Types::TEXT);
-        $table->addIndex(['text'], 'f_index');
+        $table->addIndex(['text'], 'f_index', ['fulltext']);
         $table->addOption('engine', 'MyISAM');
-
-        $index = $table->getIndex('f_index');
-        $index->addFlag('fulltext');
 
         $this->dropAndCreateTable($table);
 
         $indexes = $this->schemaManager->listTableIndexes('fulltext_index');
         self::assertArrayHasKey('f_index', $indexes);
-        self::assertTrue($indexes['f_index']->hasFlag('fulltext'));
+        $this->assertIndexEquals(
+            Index::editor()
+                ->setName(UnqualifiedName::unquoted('f_index'))
+                ->setType(IndexType::FULLTEXT)
+                ->setColumnNames(UnqualifiedName::unquoted('text'))
+                ->create(),
+            $indexes['f_index'],
+        );
     }
 
     public function testSpatialIndex(): void
     {
         $table = new Table('spatial_index');
         $table->addColumn('point', 'point');
-        $table->addIndex(['point'], 's_index');
+        $table->addIndex(['point'], 's_index', ['spatial']);
         $table->addOption('engine', 'MyISAM');
-
-        $index = $table->getIndex('s_index');
-        $index->addFlag('spatial');
 
         $this->dropAndCreateTable($table);
 
@@ -69,8 +74,14 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $indexes = $this->schemaManager->listTableIndexes('spatial_index');
         self::assertArrayHasKey('s_index', $indexes);
-        self::assertTrue($indexes['s_index']->hasFlag('spatial'));
-        self::assertSame([0 => null], $indexes['s_index']->getOption('lengths'));
+        $this->assertIndexEquals(
+            Index::editor()
+                ->setName(UnqualifiedName::unquoted('s_index'))
+                ->setType(IndexType::SPATIAL)
+                ->setColumnNames(UnqualifiedName::unquoted('point'))
+                ->create(),
+            $indexes['s_index'],
+        );
     }
 
     public function testIndexWithLength(): void
@@ -83,7 +94,15 @@ class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $indexes = $this->schemaManager->listTableIndexes('index_length');
         self::assertArrayHasKey('text_index', $indexes);
-        self::assertSame([128], $indexes['text_index']->getOption('lengths'));
+        $this->assertIndexEquals(
+            Index::editor()
+                ->setName(UnqualifiedName::unquoted('text_index'))
+                ->setColumns(
+                    new IndexedColumn(UnqualifiedName::unquoted('text'), 128),
+                )
+                ->create(),
+            $indexes['text_index'],
+        );
     }
 
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
