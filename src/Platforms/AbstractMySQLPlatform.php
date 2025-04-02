@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
@@ -281,6 +282,14 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return $sql;
     }
 
+    public function getCreateIndexSQL(Index $index, string $table): string
+    {
+        $this->ensureIndexIsNotClustered($index);
+        $this->ensureIndexIsNotPartial($index);
+
+        return parent::getCreateIndexSQL($index, $table);
+    }
+
     /**
      * Build SQL for table options
      *
@@ -387,22 +396,15 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
 
         foreach ($diff->getDroppedIndexes() as $droppedIndex) {
             foreach ($diff->getAddedIndexes() as $addedIndex) {
-                if ($droppedIndex->getColumns() !== $addedIndex->getColumns()) {
+                if (! $this->indexedColumnNamesEqual($droppedIndex, $addedIndex)) {
                     continue;
                 }
 
-                $indexClause = 'INDEX ' . $addedIndex->getObjectName()->toSQL($this);
-
-                if ($addedIndex->isUnique()) {
-                    $indexClause = 'UNIQUE ' . $indexClause;
-                }
-
                 $sql[] = sprintf(
-                    'ALTER TABLE %s DROP INDEX %s, ADD %s (%s)',
+                    'ALTER TABLE %s DROP INDEX %s, ADD %s',
                     $tableNameSQL,
                     $droppedIndex->getObjectName()->toSQL($this),
-                    $indexClause,
-                    implode(', ', $addedIndex->getQuotedColumns($this)),
+                    $this->getIndexDeclarationSQL($addedIndex),
                 );
 
                 $diff->unsetAddedIndex($addedIndex);
@@ -415,27 +417,46 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
     }
 
+    private function indexedColumnNamesEqual(Index $index1, Index $index2): bool
+    {
+        $columns1 = $index1->getIndexedColumns();
+        $columns2 = $index2->getIndexedColumns();
+
+        if (count($columns1) !== count($columns2)) {
+            return false;
+        }
+
+        $folding = $this->getUnquotedIdentifierFolding();
+        foreach ($columns1 as $i => $column1) {
+            if (! $column1->getColumnName()->equals($columns2[$i]->getColumnName(), $folding)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Returns the SQL fragment representing an index.
      */
     private function getIndexDeclarationSQL(Index $index): string
     {
-        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getObjectName()->toSQL($this)
-            . ' (' . implode(', ', $index->getQuotedColumns($this)) . ')';
-    }
+        $chunks = [];
+        $type   = $index->getType();
 
-    protected function getCreateIndexSQLFlags(Index $index): string
-    {
-        $type = '';
-        if ($index->isUnique()) {
-            $type .= 'UNIQUE ';
-        } elseif ($index->hasFlag('fulltext')) {
-            $type .= 'FULLTEXT ';
-        } elseif ($index->hasFlag('spatial')) {
-            $type .= 'SPATIAL ';
+        if ($type === IndexType::UNIQUE) {
+            $chunks[] = 'UNIQUE';
+        } elseif ($type === IndexType::FULLTEXT) {
+            $chunks[] = 'FULLTEXT';
+        } elseif ($type === IndexType::SPATIAL) {
+            $chunks[] = 'SPATIAL';
         }
 
-        return $type;
+        $chunks[] = 'INDEX';
+        $chunks[] = $index->getObjectName()->toSQL($this);
+        $chunks[] = $this->buildIndexedColumnListSQL($index->getIndexedColumns());
+
+        return implode(' ', $chunks);
     }
 
     /**
