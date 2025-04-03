@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
@@ -166,5 +167,112 @@ class IndexTest extends TestCase
 
         $this->expectException(InvalidIndexDefinition::class);
         $editor->create();
+    }
+
+    public function testEqualsToSelf(): void
+    {
+        $index = Index::editor()
+            ->setName(
+                UnqualifiedName::unquoted('idx_user_id'),
+            )
+            ->setColumnNames(
+                UnqualifiedName::unquoted('user_id'),
+            )
+            ->create();
+
+        self::assertTrue($index->equals($index, UnquotedIdentifierFolding::NONE));
+    }
+
+    public function testEqualIndexes(): void
+    {
+        $index1 = Index::editor()
+            ->setName(
+                UnqualifiedName::unquoted('idx_user_id'),
+            )
+            ->setColumnNames(
+                UnqualifiedName::unquoted('user_id'),
+            )
+            ->create();
+
+        $index2 = Index::editor()
+            ->setName(
+                UnqualifiedName::unquoted('idx_user_id'),
+            )
+            ->setColumnNames(
+                UnqualifiedName::unquoted('user_id'),
+            )
+            ->create();
+
+        self::assertTrue($index1->equals($index2, UnquotedIdentifierFolding::NONE));
+        self::assertTrue($index2->equals($index1, UnquotedIdentifierFolding::NONE));
+    }
+
+    #[DataProvider('unequalIndexProvider')]
+    public function testUnequalIndexes(Index $index1, Index $index2): void
+    {
+        self::assertFalse($index1->equals($index2, UnquotedIdentifierFolding::NONE));
+        self::assertFalse($index2->equals($index1, UnquotedIdentifierFolding::NONE));
+    }
+
+    /** @return iterable<array{Index, Index}> */
+    public static function unequalIndexProvider(): iterable
+    {
+        $prototype = Index::editor()
+            ->setName(
+                UnqualifiedName::unquoted('idx_user_id'),
+            )
+            ->setColumnNames(
+                UnqualifiedName::unquoted('user_id'),
+            )
+            ->create();
+
+        yield [
+            $prototype,
+            $prototype->edit()
+                ->setType(IndexType::UNIQUE)
+                ->create(),
+        ];
+
+        yield [
+            $prototype,
+            $prototype->edit()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('user_id'),
+                    UnqualifiedName::unquoted('is_active'),
+                )
+                ->create(),
+        ];
+
+        yield [
+            $prototype,
+            $prototype->edit()
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('user_name'),
+                )
+                ->create(),
+        ];
+
+        yield [
+            $prototype,
+            $prototype->edit()
+                ->setColumns(
+                    new IndexedColumn(UnqualifiedName::unquoted('user_id'), 1),
+                )
+                ->create(),
+        ];
+
+        yield [
+            $prototype,
+            $prototype->edit()
+                ->setIsClustered(true)
+                ->create(),
+        ];
+
+        yield [
+            $prototype,
+            $prototype->edit()
+                ->setPredicate('is_active = 1')
+                ->create(),
+        ];
     }
 }

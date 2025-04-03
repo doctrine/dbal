@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
 use function count;
 use function strlen;
@@ -167,6 +168,36 @@ final class Index extends AbstractNamedObject
         }
 
         return $this->type === $other->type;
+    }
+
+    /**
+     * Returns whether this index is equal to the other.
+     */
+    public function equals(self $other, UnquotedIdentifierFolding $folding): bool
+    {
+        if ($this === $other) {
+            return true;
+        }
+
+        if ($this->type !== $other->type) {
+            return false;
+        }
+
+        if (count($this->columns) !== count($other->columns)) {
+            return false;
+        }
+
+        for ($i = 0, $count = count($this->columns); $i < $count; $i++) {
+            if (! $this->columns[$i]->equals($other->columns[$i], $folding)) {
+                return false;
+            }
+        }
+
+        if ($this->isClustered !== $other->isClustered) {
+            return false;
+        }
+
+        return $this->predicate === $other->predicate;
     }
 
     /**

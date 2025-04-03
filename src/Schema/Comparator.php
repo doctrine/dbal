@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
 use function count;
 use function strtolower;
@@ -205,6 +206,7 @@ class Comparator
 
         $oldIndexes = $oldTable->getIndexes();
         $newIndexes = $newTable->getIndexes();
+        $folding    = $this->platform->getUnquotedIdentifierFolding();
 
         // See if all the indexes from the old table exist in the new one
         foreach ($newIndexes as $newIndexName => $newIndex) {
@@ -226,7 +228,7 @@ class Comparator
             // See if index has changed in the new table.
             $newIndex = $newTable->getIndex($oldIndexName);
 
-            if (! $this->diffIndex($oldIndex, $newIndex)) {
+            if ($oldIndex->equals($newIndex, $folding)) {
                 continue;
             }
 
@@ -235,12 +237,11 @@ class Comparator
         }
 
         if ($this->config->getDetectRenamedIndexes()) {
-            $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes);
+            $renamedIndexes = $this->detectRenamedIndexes($addedIndexes, $droppedIndexes, $folding);
         }
 
         $oldForeignKeys = $oldTable->getForeignKeys();
         $newForeignKeys = $newTable->getForeignKeys();
-        $folding        = $this->platform->getUnquotedIdentifierFolding();
 
         foreach ($oldForeignKeys as $oldKey => $oldForeignKey) {
             foreach ($newForeignKeys as $newKey => $newForeignKey) {
@@ -350,14 +351,17 @@ class Comparator
      *
      * @return array<string,Index>
      */
-    private function detectRenamedIndexes(array &$addedIndexes, array &$removedIndexes): array
-    {
+    private function detectRenamedIndexes(
+        array &$addedIndexes,
+        array &$removedIndexes,
+        UnquotedIdentifierFolding $folding,
+    ): array {
         $candidatesByName = [];
 
         // Gather possible rename candidates by comparing each added and removed index based on semantics.
         foreach ($addedIndexes as $addedIndexName => $addedIndex) {
             foreach ($removedIndexes as $removedIndex) {
-                if ($this->diffIndex($addedIndex, $removedIndex)) {
+                if (! $addedIndex->equals($removedIndex, $folding)) {
                     continue;
                 }
 
@@ -401,16 +405,5 @@ class Comparator
     protected function columnsEqual(Column $column1, Column $column2): bool
     {
         return $this->platform->columnsEqual($column1, $column2);
-    }
-
-    /**
-     * Finds the difference between the indexes $index1 and $index2.
-     *
-     * Compares $index1 with $index2 and returns true if there are any
-     * differences or false in case there are no differences.
-     */
-    protected function diffIndex(Index $index1, Index $index2): bool
-    {
-        return ! ($index1->isFulfilledBy($index2) && $index2->isFulfilledBy($index1));
     }
 }
