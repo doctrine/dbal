@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 class ResultTest extends TestCase
 {
+    /** @param non-empty-string $source */
     #[DataProvider('fetchProvider')]
     public function testFetch(string $source, callable $fetch, mixed $return): void
     {

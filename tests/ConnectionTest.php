@@ -456,6 +456,7 @@ class ConnectionTest extends TestCase
         );
     }
 
+    /** @param non-empty-string $method */
     #[DataProvider('fetchModeProvider')]
     public function testFetch(string $method, callable $invoke, mixed $expected): void
     {

@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 
 use function sprintf;
@@ -28,11 +29,7 @@ final class SchemaManagerTest extends FunctionalTestCase
         $this->schemaManager = $this->connection->createSchemaManager();
     }
 
-    /**
-     * @throws Exception
-     *
-     * @dataProvider dataEmptyDiffRegardlessOfForeignTableQuotes
-     */
+    #[DataProvider('dataEmptyDiffRegardlessOfForeignTableQuotes')]
     public function testEmptyDiffRegardlessOfForeignTableQuotes(string $foreignTableName): void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSchemas()) {
@@ -70,11 +67,7 @@ final class SchemaManagerTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @throws Exception
-     *
-     * @dataProvider dataDropIndexInAnotherSchema
-     */
+    #[DataProvider('dataDropIndexInAnotherSchema')]
     public function testDropIndexInAnotherSchema(string $tableName): void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSchemas()) {

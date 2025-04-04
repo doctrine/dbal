@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class RenameColumnTest extends FunctionalTestCase
 {
-    /** @dataProvider columnNameProvider */
+    #[DataProvider('columnNameProvider')]
     public function testColumnPositionRetainedAfterImplicitRenaming(string $columnName, string $newColumnName): void
     {
         $table = new Table('test_rename');
@@ -59,7 +59,7 @@ class RenameColumnTest extends FunctionalTestCase
         return $renamed;
     }
 
-    /** @dataProvider columnNameProvider */
+    #[DataProvider('columnNameProvider')]
     public function testColumnPositionRetainedAfterExplicitRenaming(string $columnName, string $newColumnName): void
     {
         $table = new Table('test_rename');
