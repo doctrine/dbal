@@ -381,7 +381,7 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->connection->executeStatement('SET search_path TO "001_test"');
         $this->markConnectionNotReusable();
 
-        $this->testIntrospectReservedKeywordTableViaListTableDetails();
+        $this->testIntrospectReservedKeywordTableViaIntrospectTable();
     }
 
     public function testListTablesExcludesViews(): void

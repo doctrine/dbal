@@ -1617,14 +1617,31 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals($expected, $onlineTable->getIndexes());
     }
 
-    public function testCommentInTable(): void
+    /**
+     * This and the following test could be merged with {@see testIntrospectReservedKeywordTableViaIntrospectTable()}
+     * and the following one, but in this case,
+     * {@see PostgreSQLSchemaManagerTest::testListTableDetailsWhenCurrentSchemaNameQuoted()} would fail because
+     * introspection of table comments in a non-default schema doesn't work properly on PostgreSQL.
+     */
+    public function testCommentInReservedKeywordTableViaIntrospectTable(): void
     {
-        $table = new Table('table_with_comment');
-        $table->addColumn('id', Types::INTEGER);
-        $table->setComment('Foo with control characters \'\\');
-        $this->dropAndCreateTable($table);
+        $this->createReservedKeywordTables();
 
-        $table = $this->schemaManager->introspectTable('table_with_comment');
+        $table = $this->schemaManager->introspectTable('"user"');
+        self::assertSame('Foo with control characters \'\\', $table->getComment());
+    }
+
+    public function testCommentInReservedKeywordTableViaListTables(): void
+    {
+        if ($this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
+            self::markTestIncomplete('This test currently fails on PostgreSQL due to a bug.');
+        }
+
+        $this->createReservedKeywordTables();
+
+        $tables = $this->schemaManager->listTables();
+        $table  = $this->findTableByName($tables, 'user');
+
         self::assertSame('Foo with control characters \'\\', $table->getComment());
     }
 
@@ -1672,7 +1689,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertSame($foreignColumns, array_map('strtolower', $foreignKey->getForeignColumns()));
     }
 
-    public function testIntrospectReservedKeywordTableViaListTableDetails(): void
+    public function testIntrospectReservedKeywordTableViaIntrospectTable(): void
     {
         $this->createReservedKeywordTables();
 
@@ -1709,6 +1726,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $user->addColumn('group_id', Types::INTEGER);
         $user->setPrimaryKey(['id']);
         $user->addForeignKeyConstraint('group', ['group_id'], ['id']);
+        $user->setComment('Foo with control characters \'\\');
 
         $group = $schema->createTable('group');
         $group->addColumn('id', Types::INTEGER);
