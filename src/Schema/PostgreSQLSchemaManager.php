@@ -16,7 +16,6 @@ use function array_change_key_case;
 use function array_key_exists;
 use function array_map;
 use function assert;
-use function explode;
 use function implode;
 use function in_array;
 use function is_string;
@@ -24,7 +23,6 @@ use function preg_match;
 use function sprintf;
 use function str_replace;
 use function strtolower;
-use function trim;
 
 use const CASE_LOWER;
 
@@ -141,43 +139,18 @@ SQL,
      */
     protected function _getPortableTableIndexesList(array $rows): array
     {
-        $buffer = [];
-        foreach ($rows as $row) {
-            $colNumbers    = array_map('intval', explode(' ', $row['indkey']));
-            $columnNameSql = sprintf(
-                <<<'SQL'
-                SELECT attnum,
-                       quote_ident(attname) AS attname
-                FROM pg_attribute
-                WHERE attrelid = %d
-                  AND attnum IN (%s)
-                ORDER BY attnum
-                SQL,
-                $row['indrelid'],
-                implode(', ', $colNumbers),
-            );
-
-            // @phpstan-ignore missingType.checkedException
-            $indexColumns = $this->connection->fetchAllAssociative($columnNameSql);
-
-            // required for getting the order of the columns right.
-            foreach ($colNumbers as $colNum) {
-                foreach ($indexColumns as $colRow) {
-                    if ($colNum !== $colRow['attnum']) {
-                        continue;
-                    }
-
-                    $buffer[] = [
-                        'key_name' => $row['relname'],
-                        'column_name' => trim($colRow['attname']),
-                        'non_unique' => ! $row['indisunique'],
-                        'where' => $row['where'],
-                    ];
-                }
-            }
-        }
-
-        return parent::_getPortableTableIndexesList($buffer);
+        return parent::_getPortableTableIndexesList(array_map(
+            /** @param array<string, mixed> $row */
+            static function (array $row): array {
+                return [
+                    'key_name' => $row['relname'],
+                    'non_unique' => ! $row['indisunique'],
+                    'where' => $row['where'],
+                    'column_name' => $row['attname'],
+                ];
+            },
+            $rows,
+        ));
     }
 
     /**
@@ -487,24 +460,26 @@ SQL,
         $sql = sprintf(
             <<<'SQL'
             SELECT
-                   tn.nspname AS %s,
-                   tc.relname AS %s,
+                   n.nspname AS %s,
+                   c.relname AS %s,
                    quote_ident(ic.relname) AS relname,
                    i.indisunique,
                    i.indkey,
                    i.indrelid,
-                   pg_get_expr(indpred, indrelid) AS "where"
+                   pg_get_expr(indpred, indrelid) AS "where",
+                   quote_ident(attname) AS attname
               FROM pg_index i
-                   JOIN pg_class AS tc ON tc.oid = i.indrelid
-                   JOIN pg_namespace tn ON tn.oid = tc.relnamespace
+                   JOIN pg_class AS c ON c.oid = i.indrelid
+                   JOIN pg_namespace n ON n.oid = c.relnamespace
                    JOIN pg_class AS ic ON ic.oid = i.indexrelid
-             WHERE ic.oid IN (
-                SELECT indexrelid
-                FROM pg_index i
-                JOIN pg_class AS c ON c.oid = i.indrelid
-                JOIN pg_namespace n ON n.oid = c.relnamespace
-                WHERE %s)
-            AND i.indisprimary = false
+                   JOIN LATERAL UNNEST(i.indkey) WITH ORDINALITY AS keys(attnum, ord)
+                        ON TRUE
+                   JOIN pg_attribute a
+                        ON a.attrelid = c.oid
+                            AND a.attnum = keys.attnum
+             WHERE %s
+               AND i.indisprimary = false
+             ORDER BY 1, 2, keys.ord;
             SQL,
             $this->platform->quoteSingleIdentifier(self::SCHEMA_NAME_COLUMN),
             $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),

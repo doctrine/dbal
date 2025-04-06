@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema\Index;
 
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 final class IndexedColumn
@@ -15,6 +16,9 @@ final class IndexedColumn
      */
     public function __construct(private readonly UnqualifiedName $columnName, private readonly ?int $length)
     {
+        if ($length !== null && $length <= 0) {
+            throw InvalidIndexDefinition::fromNonPositiveColumnLength($length);
+        }
     }
 
     public function getColumnName(): UnqualifiedName
@@ -22,6 +26,7 @@ final class IndexedColumn
         return $this->columnName;
     }
 
+    /** @return ?positive-int */
     public function getLength(): ?int
     {
         return $this->length;

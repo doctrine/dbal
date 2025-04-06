@@ -27,11 +27,11 @@ environment:
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
-    php: 8.1
+    php: 8.3
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 8.1
+    php: 8.3
 
 init:
   - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;%PATH%
@@ -64,18 +64,19 @@ install:
           Add-Content php.ini "`n extension=php_sqlite3.dll"
           Add-Content php.ini "`n extension=php_curl.dll"
 
-          $DLLVersion = "5.10.0"
+          $DLLVersion = "5.12.0"
+          $VSVersion = "vs16"
           cd c:\tools\php\ext
-          $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip"
-          $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip"
+          $source = "https://downloads.php.net/~windows/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-$($VSVersion)-x64.zip"
+          $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-$($VSVersion)-x64.zip"
           Invoke-WebRequest $source -OutFile $destination
-          7z x -y php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip > $null
-          $source = "https://windows.php.net/downloads/pecl/releases/pdo_sqlsrv/$($DLLVersion)/php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip"
-          $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip"
+          7z x -y php_sqlsrv-$($DLLVersion)-$($env:php)-nts-$($VSVersion)-x64.zip > $null
+          $source = "https://downloads.php.net/~windows/pecl/releases/pdo_sqlsrv/$($DLLVersion)/php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-$($VSVersion)-x64.zip"
+          $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-$($VSVersion)-x64.zip"
           Invoke-WebRequest $source -OutFile $destination
-          7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vs16-x64.zip > $null
+          7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-$($VSVersion)-x64.zip > $null
           $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/pcov/stable.txt").Content
-          Invoke-WebRequest https://downloads.php.net/~windows/pecl/releases/pcov/$($DLLVersion)/php_pcov-$($DLLVersion)-$($env:php)-nts-vs16-$($env:platform).zip -OutFile pcov.zip
+          Invoke-WebRequest https://downloads.php.net/~windows/pecl/releases/pcov/$($DLLVersion)/php_pcov-$($DLLVersion)-$($env:php)-nts-$($VSVersion)-$($env:platform).zip -OutFile pcov.zip
           7z x -y pcov.zip > $null
           Remove-Item c:\tools\php\* -include .zip
           cd c:\tools\php

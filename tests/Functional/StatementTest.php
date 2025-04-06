@@ -20,6 +20,8 @@ use Error;
 
 use function base64_decode;
 use function get_debug_type;
+use function ini_restore;
+use function ini_set;
 use function sprintf;
 use function stream_get_contents;
 
@@ -31,6 +33,12 @@ class StatementTest extends FunctionalTestCase
         $table->addColumn('id', Types::INTEGER);
         $table->addColumn('name', Types::TEXT, ['notnull' => false]);
         $this->dropAndCreateTable($table);
+    }
+
+    protected function tearDown(): void
+    {
+        ini_restore('memory_limit');
+        ini_restore('error_reporting');
     }
 
     public function testStatementIsReusableAfterFreeingResult(): void
@@ -102,7 +110,7 @@ class StatementTest extends FunctionalTestCase
 
         // make sure memory limit is large enough to not cause false positives,
         // but is still not enough to store a LONGBLOB of the max possible size
-        $this->iniSet('memory_limit', '4G');
+        ini_set('memory_limit', '4G');
 
         $table = new Table('stmt_long_blob');
         $table->addColumn('contents', Types::BLOB, ['length' => 0xFFFFFFFF]);
@@ -286,7 +294,7 @@ EOF
         } else {
             // we want to make sure the exception is thrown by the DBAL code, not by PHPUnit due to a PHP-level error,
             // but the wrapper connection wraps everything in a DBAL exception
-            $this->iniSet('error_reporting', '0');
+            ini_set('error_reporting', '0');
 
             $this->expectException(Exception::class);
         }

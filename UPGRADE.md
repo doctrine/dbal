@@ -243,6 +243,34 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## Deprecated `Index` methods, properties and behavior
+
+The following `Index` methods and properties have been deprecated:
+
+- `Index::getColumns()`, `Index::getQuotedColumns()`, `Index::getUnquotedColumns()`,
+  `Index::$_columns` – use `Index::getIndexedColumns()` instead.
+- `Index::isSimpleIndex()`, `Index::isUnique()`, `Index::$_isUnique` – use `Index::getType()` and compare with
+  `IndexType::REGULAR` or `IndexType::UNIQUE` instead.
+- `Index::addFlag()`, `Index::removeFlag()`, `Index::getFlags()`, `Index::hasFlag()`, `Index::$_flags` – use
+  `IndexEditor::setType()`, `Index::getType()`, `IndexEditor::setIsClustered()` and `Index::isClustered()` instead.
+- `Index::getOption()`, `Index::hasOption()` and `Index::getOptions()` – use `Index::getIndexedColumns()` and
+  `Index::getPredicate()` instead.
+- `Index::overrules()`, `Index::hasColumnAtPosition()` – no replacement provided.
+- `AbstractPlatform::supportsColumnLengthIndexes()` – no replacement provided.
+
+Additionally,
+1. Instantiation of an index without columns is deprecated.
+2. The `Index::spansColumns()` method has been marked as internal.
+3. Passing an empty string as partial index predicate has been deprecated.
+4. The `Index` constructor has been marked as internal. Use `Index::editor()` to instantiate an editor and
+   `IndexEditor::create()` to create an index.
+
+The following conflicting index configurations have been deprecated:
+1. Spatial index with column lengths specified.
+2. Clustered fulltext or spatial index.
+3. Partial fulltext or spatial index.
+4. Clustered partial index.
+
 ## Deprecated features related to primary key constraints
 
 1. The `AbstractPlatform::getCreatePrimaryKeySQL()` method has been deprecated. Use the schema manager to create and
@@ -279,9 +307,12 @@ of the primary key constraint is deprecated. Instead, drop the auto-increment at
 Passing a non-empty `$modifiedIndexes` value to the `TableDiff` constructor is deprecated. Instead, pass dropped
 indexes via `$droppedIndexes` and added indexes via `$addedIndexes`.
 
-The `TableDiff::getModifiedIndexes()` method has been deprecated. The old version of the index is included in the return
-value of `TableDiff::getDroppedIndexes()`, the new version is included in the return value of
-`TableDiff::getAddedIndexes()`.
+Detection of modified indexes is deprecated. Please disable it by configuring the comparator using
+`ComparatorConfig::withReportModifiedIndexes(false)`. With this configuration, the old version of the index will be
+included in the return value of `TableDiff::getDroppedIndexes()`, and the new version will be included in the return
+value of `TableDiff::getAddedIndexes()`.
+
+The `TableDiff::getModifiedIndexes()` method has been deprecated.
 
 ## Deprecated handling of modified foreign keys in `TableDiff`
 
@@ -364,7 +395,7 @@ the `Schema` class itself.
 
 ## Deprecated `ForeignKeyConstraint` methods, properties and behavior
 
-The following `ForeignKeyConstraint` methods and property have been deprecated:
+The following `ForeignKeyConstraint` methods and properties have been deprecated:
 
 - `ForeignKeyConstraint::getForeignTableName()`, `ForeignKeyConstraint::getQuotedForeignTableName()`,
   `ForeignKeyConstraint::getUnqualifiedForeignTableName()`, `ForeignKeyConstraint::$_foreignTableName` – use

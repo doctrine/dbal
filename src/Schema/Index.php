@@ -7,11 +7,14 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Exception\InvalidState;
 use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\UnqualifiedNameParser;
 use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_filter;
 use function array_keys;
@@ -19,7 +22,9 @@ use function array_map;
 use function array_search;
 use function array_shift;
 use function count;
+use function implode;
 use function is_int;
+use function strlen;
 use function strtolower;
 
 /** @extends AbstractNamedObject<UnqualifiedName> */
@@ -28,14 +33,19 @@ final class Index extends AbstractNamedObject
     /**
      * Asset identifier instances of the column names the index is associated with.
      *
+     * @deprecated Use {@see getIndexedColumns()} instead.
+     *
      * @var non-empty-array<string, Identifier>
      */
     private readonly array $_columns;
 
+    /** @deprecated Use {@see getType()} and compare with {@see IndexType::UNIQUE} instead. */
     private readonly bool $_isUnique;
 
     /**
      * Platform specific flags for indexes.
+     *
+     * @deprecated
      *
      * @var array<string, true>
      */
@@ -49,6 +59,20 @@ final class Index extends AbstractNamedObject
     private readonly array $columns;
 
     /**
+     * Index type.
+     *
+     * A null value indicates that an attempt to parse the index type failed.
+     */
+    private ?IndexType $type = null;
+
+    private ?string $predicate = null;
+
+    private bool $failedToParsePredicate = false;
+
+    /**
+     * @internal Use {@link Index::editor()} to instantiate an editor and {@link IndexEditor::create()} to create an
+     *           index.
+     *
      * @param non-empty-list<string> $columns
      * @param array<int, string>     $flags
      * @param array<string, mixed>   $options
@@ -64,7 +88,7 @@ final class Index extends AbstractNamedObject
         parent::__construct($name ?? '');
 
         if (count($columns) < 1) {
-            throw InvalidIndexDefinition::columnNamesNotSet();
+            throw InvalidIndexDefinition::columnsNotSet();
         }
 
         if ($isPrimary) {
@@ -80,8 +104,28 @@ final class Index extends AbstractNamedObject
 
         $this->_columns = $identifiers;
 
+        if (isset($options['where'])) {
+            $predicate = $options['where'];
+
+            if (strlen($predicate) === 0) {
+                Deprecation::trigger(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/6886',
+                    'Passing an empty string as index predicate is deprecated.',
+                );
+
+                $this->failedToParsePredicate = true;
+            } else {
+                $this->predicate = $predicate;
+            }
+        }
+
         foreach ($flags as $flag) {
             $this->addFlag($flag);
+        }
+
+        if (count($flags) === 0) {
+            $this->type = $this->inferType();
         }
 
         $this->columns = $this->parseColumns($columns, $options['lengths'] ?? []);
@@ -90,6 +134,15 @@ final class Index extends AbstractNamedObject
     protected function getNameParser(): UnqualifiedNameParser
     {
         return Parsers::getUnqualifiedNameParser();
+    }
+
+    public function getType(): IndexType
+    {
+        if ($this->type === null) {
+            throw InvalidState::indexHasInvalidType($this->getName());
+        }
+
+        return $this->type;
     }
 
     /**
@@ -103,12 +156,46 @@ final class Index extends AbstractNamedObject
     }
 
     /**
+     * Returns whether the index is clustered.
+     */
+    public function isClustered(): bool
+    {
+        return $this->hasFlag('clustered');
+    }
+
+    /**
+     * Returns the index predicate.
+     *
+     * @return ?non-empty-string
+     */
+    public function getPredicate(): ?string
+    {
+        if ($this->failedToParsePredicate) {
+            throw InvalidState::indexHasInvalidPredicate($this->getName());
+        }
+
+        return $this->hasOption('where')
+            ? $this->getOption('where')
+            : null;
+    }
+
+    /**
      * Returns the names of the referencing table columns the constraint is associated with.
+     *
+     * @deprecated Use {@see getIndexedColumns()} instead.
      *
      * @return non-empty-list<string>
      */
     public function getColumns(): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getIndexedColumns() instead.',
+            __METHOD__,
+        );
+
+        /** @phpstan-ignore return.type */
         return array_keys($this->_columns);
     }
 
@@ -119,12 +206,21 @@ final class Index extends AbstractNamedObject
      * is a keyword reserved by the platform.
      * Otherwise, the plain unquoted value as inserted is returned.
      *
+     * @deprecated Use {@see getIndexedColumns()} instead.
+     *
      * @param AbstractPlatform $platform The platform to use for quotation.
      *
      * @return list<string>
      */
     public function getQuotedColumns(AbstractPlatform $platform): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getIndexedColumns() instead.',
+            __METHOD__,
+        );
+
         $subParts = $platform->supportsColumnLengthIndexes() && $this->hasOption('lengths')
             ? $this->getOption('lengths') : [];
 
@@ -145,27 +241,62 @@ final class Index extends AbstractNamedObject
         return $columns;
     }
 
-    /** @return non-empty-list<string> */
+    /**
+     * @deprecated Use {@see getIndexedColumns()} instead.
+     *
+     * @return non-empty-list<string>
+     */
     public function getUnquotedColumns(): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getIndexedColumns() instead.',
+            __METHOD__,
+        );
+
         return array_map($this->trimQuotes(...), $this->getColumns());
     }
 
     /**
      * Is the index neither unique nor primary key?
+     *
+     * @deprecated Use {@see getType()} and compare with {@see IndexType::REGULAR} instead.
      */
     public function isSimpleIndex(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getType() and compare with IndexType::REGULAR instead.',
+            __METHOD__,
+        );
+
         return ! $this->_isUnique;
     }
 
+    /** @deprecated Use {@see getType()} and compare with {@see IndexType::UNIQUE} instead. */
     public function isUnique(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getType() and compare with IndexType::UNIQUE instead.',
+            __METHOD__,
+        );
+
         return $this->_isUnique;
     }
 
     public function hasColumnAtPosition(string $name, int $pos = 0): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getIndexedColumns() instead.',
+            __METHOD__,
+        );
+
         $name         = $this->trimQuotes(strtolower($name));
         $indexColumns = array_map('strtolower', $this->getUnquotedColumns());
 
@@ -174,6 +305,8 @@ final class Index extends AbstractNamedObject
 
     /**
      * Checks if this index exactly spans the given column names in the correct order.
+     *
+     * @internal
      *
      * @param array<int, string> $columnNames
      */
@@ -235,9 +368,18 @@ final class Index extends AbstractNamedObject
 
     /**
      * Detects if the other index is a non-unique, non primary index that can be overwritten by this one.
+     *
+     * @deprecated
      */
     public function overrules(Index $other): bool
     {
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         if ($this->isSimpleIndex() && $other->isUnique()) {
             return false;
         }
@@ -250,55 +392,208 @@ final class Index extends AbstractNamedObject
     /**
      * Returns platform specific flags for indexes.
      *
+     * @deprecated Use {@see getType()} and {@see isClustered()} instead.
+     *
      * @return array<int, string>
      */
     public function getFlags(): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getType() and Index::isClustered() instead.',
+            __METHOD__,
+        );
+
         return array_keys($this->_flags);
     }
 
     /**
      * Adds Flag for an index that translates to platform specific handling.
      *
+     * @deprecated Use {@see edit()}, {@see IndexEditor::setType()} and {@see IndexEditor::setIsClustered()} instead.
+     *
      * @example $index->addFlag('CLUSTERED')
      */
     public function addFlag(string $flag): self
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::edit(), IndexEditor::setType() and IndexEditor::setIsClustered()'
+                . ' instead.',
+            __METHOD__,
+        );
+
         $this->_flags[strtolower($flag)] = true;
+
+        $this->validateFlags();
+
+        $this->type = $this->inferType();
 
         return $this;
     }
 
     /**
      * Does this index have a specific flag?
+     *
+     * @deprecated Use {@see getType()} and {@see isClustered()} instead.
      */
     public function hasFlag(string $flag): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getType() and Index::isClustered() instead.',
+            __METHOD__,
+        );
+
         return isset($this->_flags[strtolower($flag)]);
     }
 
     /**
-     * Removes a flag.
+     * @deprecated Use {@see edit()}, {@see IndexEditor::setType()} and {@see IndexEditor::setIsClustered()}
+     *             instead.
      */
     public function removeFlag(string $flag): void
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::edit(), IndexEditor::setType() and IndexEditor::setIsClustered()'
+            . ' instead.',
+            __METHOD__,
+        );
+
         unset($this->_flags[strtolower($flag)]);
+
+        $this->type = $this->inferType();
     }
 
+    /** @deprecated Use {@see getIndexedColumns()} and {@see getPredicate()} instead. */
     public function hasOption(string $name): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getIndexedColumns() and Index::getPredicate() instead.',
+            __METHOD__,
+        );
+
         return isset($this->options[strtolower($name)]);
     }
 
+    /** @deprecated Use {@see getIndexedColumns()} and {@see getPredicate()} instead. */
     public function getOption(string $name): mixed
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getIndexedColumns() and Index::getPredicate() instead.',
+            __METHOD__,
+        );
+
         return $this->options[strtolower($name)];
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @deprecated Use {@see getIndexedColumns()} and {@see getPredicate()} instead.
+     *
+     * @return array<string, mixed>
+     */
     public function getOptions(): array
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated. Use Index::getIndexedColumns() and Index::getPredicate() instead.',
+            __METHOD__,
+        );
+
         return $this->options;
+    }
+
+    private function validateFlags(): void
+    {
+        $unsupportedFlags = $this->_flags;
+        unset(
+            $unsupportedFlags['fulltext'],
+            $unsupportedFlags['spatial'],
+            $unsupportedFlags['clustered'],
+            $unsupportedFlags['nonclustered'],
+        );
+
+        if (count($unsupportedFlags) > 0) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6886',
+                'Configuring an index with non-standard flags is deprecated: %s',
+                implode(', ', array_keys($unsupportedFlags)),
+            );
+        }
+
+        if (
+            $this->hasFlag('clustered') && (
+                $this->hasFlag('nonclustered')
+                || $this->hasFlag('fulltext')
+                || $this->hasFlag('spatial')
+            )
+        ) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6886',
+                'A fulltext, spatial or non-clustered index cannot be clustered.',
+            );
+        }
+
+        if (
+            $this->predicate === null
+            || (! $this->hasFlag('fulltext')
+                && ! $this->hasFlag('spatial')
+                && ! $this->hasFlag('clustered'))
+        ) {
+            return;
+        }
+
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            'A fulltext, spatial or clustered index cannot be partial.',
+        );
+    }
+
+    private function inferType(): ?IndexType
+    {
+        $type    = IndexType::REGULAR;
+        $matches = [];
+
+        if ($this->_isUnique) {
+            $type      = IndexType::UNIQUE;
+            $matches[] = 'unique';
+        }
+
+        if ($this->hasFlag('fulltext')) {
+            $type      = IndexType::FULLTEXT;
+            $matches[] = 'fulltext';
+        }
+
+        if ($this->hasFlag('spatial')) {
+            $type      = IndexType::SPATIAL;
+            $matches[] = 'spatial';
+        }
+
+        if (count($matches) > 1) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6886',
+                'Configuring an index with mutually exclusive properties is deprecated: %s',
+                implode(', ', $matches),
+            );
+
+            return null;
+        }
+
+        return $type;
     }
 
     /**
@@ -359,5 +654,26 @@ final class Index extends AbstractNamedObject
 
         return array_filter($this->options['lengths'] ?? [], $filter)
             === array_filter($other->options['lengths'] ?? [], $filter);
+    }
+
+    /**
+     * Instantiates a new index editor.
+     */
+    public static function editor(): IndexEditor
+    {
+        return new IndexEditor();
+    }
+
+    /**
+     * Instantiates a new index editor and initializes it with the properties of the current index.
+     */
+    public function edit(): IndexEditor
+    {
+        return self::editor()
+            ->setName($this->getObjectName())
+            ->setType($this->getType())
+            ->setColumns(...$this->getIndexedColumns())
+            ->setIsClustered($this->isClustered())
+            ->setPredicate($this->getPredicate());
     }
 }

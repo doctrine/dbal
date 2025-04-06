@@ -11,8 +11,13 @@ use function sprintf;
 
 final class InvalidState extends LogicException implements SchemaException
 {
-    public static function tableHasInvalidPrimaryKeyConstraint(string $tableName): self
+    public static function indexHasInvalidType(string $indexName): self
     {
-        return new self(sprintf('Table "%s" has invalid primary key constraint.', $tableName));
+        return new self(sprintf('Index "%s" has invalid type.', $indexName));
+    }
+
+    public static function indexHasInvalidPredicate(string $indexName): self
+    {
+        return new self(sprintf('Index "%s" has invalid predicate.', $indexName));
     }
 }

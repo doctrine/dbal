@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Index;
@@ -687,6 +688,14 @@ class TableTest extends TestCase
 
         self::assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
         self::assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
+    }
+
+    public function testRenameNonExistingIndexToTheSameName(): void
+    {
+        $table = new Table('test');
+
+        $this->expectException(IndexDoesNotExist::class);
+        $table->renameIndex('test', 'test');
     }
 
     public function testKeepsIndexOptionsOnRenamingRegularIndex(): void

@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Deprecations\Deprecation;
 
 use function array_map;
 use function array_merge;
@@ -663,8 +664,16 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         return TransactionIsolationLevel::REPEATABLE_READ;
     }
 
+    /** @deprecated */
     public function supportsColumnLengthIndexes(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6886',
+            '%s is deprecated.',
+            __METHOD__,
+        );
+
         return true;
     }
 

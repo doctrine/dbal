@@ -13,6 +13,7 @@ use PDO;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 
 use function array_merge;
+use function array_replace;
 
 #[RequiresPhpExtension('pdo_sqlsrv')]
 class DriverTest extends AbstractDriverTestCase
@@ -44,7 +45,7 @@ class DriverTest extends AbstractDriverTestCase
         $params = TestUtil::getConnectionParams();
 
         if (isset($params['driverOptions'])) {
-            $driverOptions = array_merge($params['driverOptions'], $driverOptions);
+            $driverOptions = array_replace($params['driverOptions'], $driverOptions);
         }
 
         return (new Driver())->connect(

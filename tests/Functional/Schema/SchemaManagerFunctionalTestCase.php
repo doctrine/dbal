@@ -1223,11 +1223,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $table = new Table('table_with_comment');
         $table->addColumn('id', Types::INTEGER);
-        $table->setComment('Foo with control characters \'\\');
+        $table->setComment('\'\\ Foo with control characters \'\\');
         $this->dropAndCreateTable($table);
 
         $table = $this->schemaManager->introspectTable('table_with_comment');
-        self::assertSame('Foo with control characters \'\\', $table->getComment());
+        self::assertSame('\'\\ Foo with control characters \'\\', $table->getComment());
     }
 
     public function testIntrospectReservedKeywordTableViaListTableDetails(): void

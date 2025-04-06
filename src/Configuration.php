@@ -134,17 +134,12 @@ class Configuration
         return $this;
     }
 
-    /** @return true */
     public function getDisableTypeComments(): bool
     {
         return true;
     }
 
-    /**
-     * @param true $disableTypeComments
-     *
-     * @return $this
-     */
+    /** @return $this */
     public function setDisableTypeComments(bool $disableTypeComments): self
     {
         if (! $disableTypeComments) {
