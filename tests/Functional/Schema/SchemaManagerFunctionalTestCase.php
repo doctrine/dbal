@@ -1310,6 +1310,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                     )
                     ->create(),
         );
+        $artists->setComment('"Artists" table');
 
         $tracks = new Table('"Tracks"');
         $tracks->addColumn('"Id"', Types::INTEGER);
@@ -1329,6 +1330,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
                     )
                     ->create(),
         );
+        $tracks->setComment('"Tracks" table');
 
         $this->dropTableIfExists($tracks->getObjectName()->toSQL($platform));
         $this->dropTableIfExists($artists->getObjectName()->toSQL($platform));
@@ -1364,6 +1366,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::quoted('Id'),
         ], $primaryKey->getColumnNames());
+
+        self::assertSame('"Artists" table', $artists->getComment());
 
         // Foreign table assertions
         self::assertUnqualifiedNameEquals(
@@ -1401,6 +1405,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->assertUnqualifiedNameListEquals([
             UnqualifiedName::quoted('Id'),
         ], $constraint->getReferencedColumnNames());
+
+        self::assertSame('"Tracks" table', $tracks->getComment());
     }
 
     public function testChangeIndexWithForeignKeys(): void
