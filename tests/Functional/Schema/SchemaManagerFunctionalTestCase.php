@@ -61,6 +61,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     protected function setUp(): void
     {
+        $this->connect();
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $this->supportsPlatform($platform)) {
@@ -1234,10 +1235,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     {
         $this->createReservedKeywordTables();
 
-        $user = $this->schemaManager->introspectTable('user');
-        self::assertCount(2, $user->getColumns());
-        self::assertCount(1, $user->getIndexes());
-        self::assertCount(1, $user->getForeignKeys());
+        $select = $this->schemaManager->introspectTable('select');
+        self::assertCount(3, $select->getColumns());
+        self::assertCount(1, $select->getIndexes());
+        self::assertCount(1, $select->getForeignKeys());
+        self::assertSame('table comment', $select->getComment());
+        self::assertSame('column comment', $select->getColumn('select')->getComment());
     }
 
     public function testIntrospectReservedKeywordTableViaListTables(): void
@@ -1246,17 +1249,22 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $tables = $this->schemaManager->listTables();
 
-        $user = $this->findTableByName($tables, 'user');
-        self::assertNotNull($user);
-        self::assertCount(2, $user->getColumns());
-        self::assertCount(1, $user->getIndexes());
-        self::assertCount(1, $user->getForeignKeys());
+        $select = $this->findTableByName($tables, 'select');
+        self::assertNotNull($select);
+        self::assertCount(3, $select->getColumns());
+        self::assertCount(1, $select->getIndexes());
+        self::assertCount(1, $select->getForeignKeys());
+        self::assertSame('table comment', $select->getComment());
+        self::assertSame('column comment', $select->getColumn('select')->getComment());
     }
 
     private function createReservedKeywordTables(): void
     {
-        $user = new Table('user');
+        $user = new Table('select'); // A clearly reserved keyword table name
+        $user->setComment('table comment');
         $user->addColumn('id', Types::INTEGER);
+        $user->addColumn('select', Types::INTEGER) // A clearly reserved keyword column name
+            ->setComment('column comment');
         $user->addColumn('group_id', Types::INTEGER);
         $user->addPrimaryKeyConstraint(
             PrimaryKeyConstraint::editor()

@@ -79,7 +79,7 @@ then run the following command:
 
 .. code-block:: console
 
-    $ phpunit -c ci/github/pdo_mysql.xml
+    $ phpunit -c ci/github/phpunit/pdo_mysql.xml
 
 We do not currently have specific instructions on how to run a Database
 server, but we do recommend Docker as a convenient way to do so.
