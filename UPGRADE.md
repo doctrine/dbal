@@ -38,6 +38,9 @@ The following auto-increment column definitions are no longer supported on SQLit
 
 The `TableDiff::getModifiedForeignKeys()` and `TableDiff::getModifiedIndexes()` methods have been removed.
 
+The comparator can be no longer configured to report modified indexes.
+The `ComparatorConfig::withReportModifiedIndexes()` method only accepts `false` as the argument and has been deprecated.
+
 ## BC BREAK: changes in `AbstractPlatform` constructor
 
 The `AbstractPlatform` class constructor is now `protected` and requires an `UnquotedIdentifierFolding` instance as its

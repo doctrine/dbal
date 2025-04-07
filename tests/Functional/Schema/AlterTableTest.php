@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
-use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
@@ -159,7 +158,7 @@ class AlterTableTest extends FunctionalTestCase
                     )
                     ->create(),
             );
-        }, (new ComparatorConfig())->withReportModifiedIndexes(false));
+        });
     }
 
     public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn(): void
@@ -193,7 +192,7 @@ class AlterTableTest extends FunctionalTestCase
                     )
                     ->create(),
             );
-        }, (new ComparatorConfig())->withReportModifiedIndexes(false));
+        });
     }
 
     public function testAddNewColumnToPrimaryKey(): void
@@ -270,7 +269,7 @@ class AlterTableTest extends FunctionalTestCase
         });
     }
 
-    private function testMigration(Table $oldTable, callable $migration, ?ComparatorConfig $config = null): void
+    private function testMigration(Table $oldTable, callable $migration): void
     {
         $this->dropAndCreateTable($oldTable);
 
@@ -281,7 +280,7 @@ class AlterTableTest extends FunctionalTestCase
 
         $migration($newTable);
 
-        $diff = $schemaManager->createComparator($config ?? new ComparatorConfig())
+        $diff = $schemaManager->createComparator()
             ->compareTables($oldTable, $newTable);
 
         self::assertFalse($diff->isEmpty());
