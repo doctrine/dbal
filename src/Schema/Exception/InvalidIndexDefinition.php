@@ -23,7 +23,7 @@ final class InvalidIndexDefinition extends LogicException implements SchemaExcep
         return new self('Index column names are not set.');
     }
 
-    public static function invalidColumnLength(mixed $length): self
+    public static function fromInvalidColumnLengthType(mixed $length): self
     {
         return new self(sprintf(
             'Indexed column length must be an integer, %s given.',

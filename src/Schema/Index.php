@@ -617,8 +617,14 @@ final class Index extends AbstractNamedObject
 
             $length = array_shift($lengths);
 
-            if ($length !== null && (! is_int($length) || $length < 1)) {
-                throw InvalidIndexDefinition::invalidColumnLength($length);
+            if ($length !== null) {
+                if (! is_int($length)) {
+                    throw InvalidIndexDefinition::fromInvalidColumnLengthType($length);
+                }
+
+                if ($length < 1) {
+                    throw InvalidIndexDefinition::fromNonPositiveColumnLength($length);
+                }
             }
 
             $columns[] = new IndexedColumn($parsedName, $length);
