@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\Deprecations\Deprecation;
+
 final class ComparatorConfig
 {
     public function __construct(
         private readonly bool $detectRenamedColumns = true,
         private readonly bool $detectRenamedIndexes = true,
-        private readonly bool $reportModifiedIndexes = true,
     ) {
     }
 
@@ -18,7 +20,6 @@ final class ComparatorConfig
         return new self(
             $detectRenamedColumns,
             $this->detectRenamedIndexes,
-            $this->reportModifiedIndexes,
         );
     }
 
@@ -32,7 +33,6 @@ final class ComparatorConfig
         return new self(
             $this->detectRenamedColumns,
             $detectRenamedIndexes,
-            $this->reportModifiedIndexes,
         );
     }
 
@@ -41,17 +41,20 @@ final class ComparatorConfig
         return $this->detectRenamedIndexes;
     }
 
+    /** @deprecated Reporting of modified indexes cannot be enabled anymore. */
     public function withReportModifiedIndexes(bool $reportModifiedIndexes): self
     {
-        return new self(
-            $this->detectRenamedColumns,
-            $this->detectRenamedIndexes,
-            $reportModifiedIndexes,
-        );
-    }
+        if ($reportModifiedIndexes) {
+            throw new InvalidArgumentException('Reporting of modified indexes cannot be enabled anymore.');
+        }
 
-    public function getReportModifiedIndexes(): bool
-    {
-        return $this->reportModifiedIndexes;
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6898',
+            '%s is deprecated and has no effect on the comparator behavior.',
+            __METHOD__,
+        );
+
+        return $this;
     }
 }
