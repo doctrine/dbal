@@ -342,6 +342,17 @@ class OraclePlatform extends AbstractPlatform
         return $sql;
     }
 
+    public function getCreateIndexSQL(Index $index, string $table): string
+    {
+        $this->ensureIndexHasNoColumnLengths($index);
+        $this->ensureIndexIsNotFulltext($index);
+        $this->ensureIndexIsNotSpatial($index);
+        $this->ensureIndexIsNotClustered($index);
+        $this->ensureIndexIsNotPartial($index);
+
+        return parent::getCreateIndexSQL($index, $table);
+    }
+
     /** @internal The method should be only used from within the {@see AbstractSchemaManager} class hierarchy. */
     public function getListViewsSQL(string $database): string
     {

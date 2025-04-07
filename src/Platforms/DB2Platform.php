@@ -255,6 +255,17 @@ class DB2Platform extends AbstractPlatform
         return $sql;
     }
 
+    public function getCreateIndexSQL(Index $index, string $table): string
+    {
+        $this->ensureIndexHasNoColumnLengths($index);
+        $this->ensureIndexIsNotFulltext($index);
+        $this->ensureIndexIsNotSpatial($index);
+        $this->ensureIndexIsNotClustered($index);
+        $this->ensureIndexIsNotPartial($index);
+
+        return parent::getCreateIndexSQL($index, $table);
+    }
+
     /**
      * {@inheritDoc}
      */

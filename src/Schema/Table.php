@@ -9,8 +9,8 @@ use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\IndexAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\IndexDoesNotExist;
-use Doctrine\DBAL\Schema\Exception\IndexNameInvalid;
 use Doctrine\DBAL\Schema\Exception\InvalidForeignKeyConstraintDefinition;
+use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Exception\PrimaryKeyAlreadyExists;
@@ -18,6 +18,8 @@ use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\MatchType;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
@@ -28,13 +30,15 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Deprecations\Deprecation;
 use LogicException;
 
+use function array_keys;
 use function array_map;
 use function array_merge;
+use function array_shift;
 use function array_values;
 use function count;
 use function implode;
 use function in_array;
-use function preg_match;
+use function is_int;
 use function sprintf;
 use function strtolower;
 use function strtoupper;
@@ -236,6 +240,8 @@ class Table extends AbstractNamedObject
 
         $normalizedOldName = $this->normalizeIdentifier($oldName);
 
+        $index = $this->getIndex($oldName);
+
         if ($newName !== null) {
             $normalizedNewName = $this->normalizeIdentifier($newName);
 
@@ -246,17 +252,27 @@ class Table extends AbstractNamedObject
             if ($this->hasIndex($newName)) {
                 throw IndexAlreadyExists::new($newName, $this->_name);
             }
+
+            $name = $this->parseUnqualifiedName($newName);
+        } else {
+            $name = UnqualifiedName::unquoted(
+                $this->generateName(
+                    $index->getType() === IndexType::UNIQUE ? 'uniq' : 'idx',
+                    array_map(
+                        static fn (IndexedColumn $indexedColumn): UnqualifiedName => $indexedColumn->getColumnName(),
+                        $index->getIndexedColumns(),
+                    ),
+                ),
+            );
         }
 
-        $oldIndex = $this->_indexes[$normalizedOldName];
+        $index = $index->edit()
+            ->setName($name)
+            ->create();
 
         unset($this->_indexes[$normalizedOldName]);
 
-        if ($oldIndex->isUnique()) {
-            return $this->addUniqueIndex($oldIndex->getColumns(), $newName, $oldIndex->getOptions());
-        }
-
-        return $this->addIndex($oldIndex->getColumns(), $newName, $oldIndex->getFlags(), $oldIndex->getOptions());
+        return $this->_addIndex($index);
     }
 
     /**
@@ -775,10 +791,11 @@ class Table extends AbstractNamedObject
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
         $indexName = $this->generateName('idx', $columnNames);
 
-        $indexCandidate = $this->_createIndex(array_map(
-            static fn (UnqualifiedName $columnName): string => $columnName->toString(),
-            $columnNames,
-        ), $indexName, true);
+        $indexCandidate = Index::editor()
+            ->setName(UnqualifiedName::unquoted($indexName))
+            ->setType(IndexType::UNIQUE)
+            ->setColumnNames(...$columnNames)
+            ->create();
 
         foreach ($this->_indexes as $existingIndex) {
             if ($indexCandidate->isFulfilledBy($existingIndex)) {
@@ -807,10 +824,10 @@ class Table extends AbstractNamedObject
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
         $indexName = $this->generateName('idx', $constraint->getReferencingColumnNames());
 
-        $indexCandidate = $this->_createIndex(array_map(
-            static fn (UnqualifiedName $columnName): string => $columnName->toString(),
-            $constraint->getReferencingColumnNames(),
-        ), $indexName, false);
+        $indexCandidate = Index::editor()
+            ->setName(UnqualifiedName::unquoted($indexName))
+            ->setColumnNames(...$constraint->getReferencingColumnNames())
+            ->create();
 
         foreach ($this->_indexes as $existingIndex) {
             if ($indexCandidate->isFulfilledBy($existingIndex)) {
@@ -907,8 +924,68 @@ class Table extends AbstractNamedObject
         array $flags = [],
         array $options = [],
     ): Index {
-        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
-            throw IndexNameInvalid::new($indexName);
+        $parsedName = $this->parseUnqualifiedName($indexName);
+
+        $flagIndex = [];
+        foreach ($flags as $flag) {
+            $flagIndex[strtolower($flag)] = true;
+        }
+
+        $invalidFlags = $flagIndex;
+        unset(
+            $invalidFlags['fulltext'],
+            $invalidFlags['spatial'],
+            $invalidFlags['clustered'],
+            $invalidFlags['nonclustered'],
+        );
+
+        if (count($invalidFlags) > 0) {
+            throw InvalidIndexDefinition::fromInvalidFlags($parsedName, array_keys($invalidFlags));
+        }
+
+        $invalidOptions = $options;
+        unset(
+            $invalidOptions['lengths'],
+            $invalidOptions['where'],
+        );
+
+        if (count($invalidOptions) > 0) {
+            throw InvalidIndexDefinition::fromInvalidOptions($parsedName, array_keys($invalidOptions));
+        }
+
+        if (isset($flagIndex['clustered']) && isset($flagIndex['nonclustered'])) {
+            throw InvalidIndexDefinition::fromNonClusteredClustered($parsedName);
+        }
+
+        $editor = Index::editor()
+            ->setName($parsedName);
+
+        if ($isUnique) {
+            $editor->setType(IndexType::UNIQUE);
+        }
+
+        $matches = [];
+
+        if (isset($flagIndex['fulltext'])) {
+            $editor->setType(IndexType::FULLTEXT);
+            $matches[] = 'fulltext';
+        }
+
+        if (isset($flagIndex['spatial'])) {
+            $editor->setType(IndexType::SPATIAL);
+            $matches[] = 'spatial';
+        }
+
+        if (count($matches) > 1) {
+            throw InvalidIndexDefinition::fromMutuallyExclusiveFlags($parsedName, $matches);
+        }
+
+        if (isset($flagIndex['clustered'])) {
+            $editor->setIsClustered(true);
+        }
+
+        if (isset($options['where'])) {
+            $editor->setPredicate($options['where']);
         }
 
         foreach ($columns as $columnName) {
@@ -917,7 +994,41 @@ class Table extends AbstractNamedObject
             }
         }
 
-        return new Index($indexName, $columns, $isUnique, false, $flags, $options);
+        return $editor->setColumns(
+            ...$this->parseIndexColumns($columns, $options['lengths'] ?? []),
+        )
+            ->create();
+    }
+
+    /**
+     * @param non-empty-array<int, string> $columnNames
+     * @param array<int>                   $lengths
+     *
+     * @return non-empty-list<IndexedColumn>
+     */
+    private function parseIndexColumns(array $columnNames, array $lengths): array
+    {
+        $columns = [];
+
+        foreach ($columnNames as $columnName) {
+            $parsedName = $this->parseUnqualifiedName($columnName);
+
+            $length = array_shift($lengths);
+
+            if ($length !== null) {
+                if (! is_int($length)) {
+                    throw InvalidIndexDefinition::fromInvalidColumnLengthType($length);
+                }
+
+                if ($length < 1) {
+                    throw InvalidIndexDefinition::fromNonPositiveColumnLength($length);
+                }
+            }
+
+            $columns[] = new IndexedColumn($parsedName, $length);
+        }
+
+        return $columns;
     }
 
     /**
@@ -939,14 +1050,15 @@ class Table extends AbstractNamedObject
     private function renameColumnInIndexes(string $oldName, string $newName): void
     {
         foreach ($this->_indexes as $key => $index) {
-            $modified = false;
-            $columns  = [];
-            foreach ($index->getColumns() as $columnName) {
-                if ($columnName === $oldName) {
-                    $columns[] = $newName;
-                    $modified  = true;
+            $modified    = false;
+            $columnNames = [];
+            foreach ($index->getIndexedColumns() as $indexedColumn) {
+                $columnName = $indexedColumn->getColumnName();
+                if ($columnName->getIdentifier()->getValue() === $oldName) {
+                    $columnNames[] = UnqualifiedName::unquoted($newName);
+                    $modified      = true;
                 } else {
-                    $columns[] = $columnName;
+                    $columnNames[] = $columnName;
                 }
             }
 
@@ -954,14 +1066,9 @@ class Table extends AbstractNamedObject
                 continue;
             }
 
-            $this->_indexes[$key] = new Index(
-                $index->getName(),
-                $columns,
-                $index->isUnique(),
-                false,
-                $index->getFlags(),
-                $index->getOptions(),
-            );
+            $this->_indexes[$key] = $index->edit()
+                ->setColumnNames(...$columnNames)
+                ->create();
         }
     }
 

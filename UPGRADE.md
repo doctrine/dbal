@@ -8,6 +8,39 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Changes in `Index` methods, properties and behavior
+
+The following `Index` methods and properties have been removed:
+
+- `Index::addFlag()`
+- `Index::getColumns()`
+- `Index::getFlags()`
+- `Index::getOption()`
+- `Index::getOptions()`
+- `Index::getQuotedColumns()`
+- `Index::getUnquotedColumns()`
+- `Index::hasColumnAtPosition()`
+- `Index::hasFlag()`
+- `Index::hasOption()`
+- `Index::isSimpleIndex()`
+- `Index::isUnique()`
+- `Index::overrules()`
+- `Index::removeFlag()`
+- `Index::$_columns`
+- `Index::$_flags`
+- `Index::$_isUnique`
+- `AbstractPlatform::supportsColumnLengthIndexes()`
+
+Additionally,
+1. Instantiation of an index without columns is no longer allowed.
+2. Passing an empty string as partial index predicate is no longer allowed.
+
+The following conflicting index configurations are no longer allowed:
+1. Spatial index with column lengths specified.
+2. Clustered fulltext or spatial index.
+3. Partial fulltext or spatial index.
+4. Clustered partial index.
+
 ## BC BREAK: Changes in features related to primary key constraints
 
 1. The `Index` class can no longer represent a primary key constraint. As a result:

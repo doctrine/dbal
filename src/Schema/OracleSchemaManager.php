@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Exception\InvalidName;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\Parser;
 use Doctrine\DBAL\Schema\Name\Parsers;
@@ -16,6 +17,7 @@ use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function array_key_exists;
+use function array_map;
 use function assert;
 use function implode;
 use function is_string;
@@ -51,20 +53,19 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexesList(array $rows): array
     {
-        $indexBuffer = [];
-        foreach ($rows as $row) {
-            $row = array_change_key_case($row, CASE_LOWER);
+        return parent::_getPortableTableIndexesList(array_map(
+            /** @param array<string, mixed> $row */
+            static function (array $row): array {
+                $row = array_change_key_case($row);
 
-            $buffer = [];
-
-            $buffer['key_name']    = strtolower($row['index_name']);
-            $buffer['primary']     = false;
-            $buffer['non_unique']  = $row['uniqueness'] !== 'UNIQUE';
-            $buffer['column_name'] = $this->getQuotedIdentifierName($row['column_name']);
-            $indexBuffer[]         = $buffer;
-        }
-
-        return parent::_getPortableTableIndexesList($indexBuffer);
+                return [
+                    'key_name' => $row['index_name'],
+                    'type' => $row['uniqueness'] === 'UNIQUE' ? IndexType::UNIQUE : IndexType::REGULAR,
+                    'column_name' => $row['column_name'],
+                ];
+            },
+            $rows,
+        ));
     }
 
     /**

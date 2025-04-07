@@ -558,11 +558,17 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function testCreateClusteredIndex(): void
     {
-        $idx = new Index('idx', ['id']);
-        $idx->addFlag('clustered');
+        $index = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx'))
+            ->setColumnNames(
+                UnqualifiedName::unquoted('id'),
+            )
+            ->setIsClustered(true)
+            ->create();
+
         self::assertEquals(
             'CREATE CLUSTERED INDEX [idx] ON tbl ([id])',
-            $this->platform->getCreateIndexSQL($idx, 'tbl'),
+            $this->platform->getCreateIndexSQL($index, 'tbl'),
         );
     }
 

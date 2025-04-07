@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\Deferrability;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
@@ -24,7 +25,6 @@ use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
-use InvalidArgumentException;
 
 use function array_combine;
 use function array_keys;
@@ -35,6 +35,7 @@ use function count;
 use function explode;
 use function implode;
 use function sprintf;
+use function str_contains;
 use function str_replace;
 use function strpos;
 use function strtolower;
@@ -541,29 +542,43 @@ class SQLitePlatform extends AbstractPlatform
         return $sql;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * Unlike other database platforms, SQLite requires the schema name to be specified as part of the index name, not
+     * the table name.
+     *
+     * @link https://www.sqlite.org/lang_createindex.html
+     */
     public function getCreateIndexSQL(Index $index, string $table): string
     {
-        $name    = $index->getObjectName()->toSQL($this);
-        $columns = $index->getColumns();
+        $this->ensureIndexHasNoColumnLengths($index);
+        $this->ensureIndexIsNotFulltext($index);
+        $this->ensureIndexIsNotSpatial($index);
+        $this->ensureIndexIsNotClustered($index);
+        $this->ensureIndexIsNotPartial($index);
 
-        if (count($columns) === 0) {
-            throw new InvalidArgumentException(sprintf(
-                'Incomplete or invalid index definition %s on table %s',
-                $name,
-                $table,
-            ));
-        }
+        $name = $index->getObjectName()->toSQL($this);
 
-        if (strpos($table, '.') !== false) {
+        if (str_contains($table, '.')) {
             [$schema, $table] = explode('.', $table);
             $name             = $schema . '.' . $name;
         }
 
-        $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
+        $chunks = ['CREATE'];
+        $type   = $index->getType();
 
-        return $query;
+        if ($type === IndexType::UNIQUE) {
+            $chunks[] = 'UNIQUE';
+        }
+
+        $chunks[] = 'INDEX';
+        $chunks[] = $name;
+        $chunks[] = 'ON';
+        $chunks[] = $table;
+        $chunks[] = $this->buildIndexedColumnListSQL($index->getIndexedColumns());
+
+        return implode(' ', $chunks);
     }
 
     /**
@@ -771,22 +786,28 @@ class SQLitePlatform extends AbstractPlatform
         $map = [];
 
         foreach ($oldTable->getColumns() as $column) {
-            $columnName                   = $column->getName();
-            $map[strtolower($columnName)] = $columnName;
+            $name = $column->getObjectName()->getIdentifier()->getValue();
+
+            $map[$name] = $name;
         }
 
         foreach ($diff->getDroppedColumns() as $column) {
-            unset($map[strtolower($column->getName())]);
+            $name = $column->getObjectName()->getIdentifier()->getValue();
+
+            unset($map[$name]);
         }
 
         foreach ($diff->getChangedColumns() as $columnDiff) {
-            $columnName                   = $columnDiff->getOldColumn()->getName();
-            $map[strtolower($columnName)] = $columnDiff->getNewColumn()->getName();
+            $oldName = $columnDiff->getOldColumn()->getObjectName()->getIdentifier()->getValue();
+            $newName = $columnDiff->getNewColumn()->getObjectName()->getIdentifier()->getValue();
+
+            $map[$oldName] = $newName;
         }
 
         foreach ($diff->getAddedColumns() as $column) {
-            $columnName                   = $column->getName();
-            $map[strtolower($columnName)] = $columnName;
+            $name = $column->getObjectName()->getIdentifier()->getValue();
+
+            $map[$name] = $name;
         }
 
         return $map;
@@ -808,17 +829,17 @@ class SQLitePlatform extends AbstractPlatform
                 unset($indexes[$key]);
             }
 
-            $changed      = false;
-            $indexColumns = [];
-            foreach ($index->getUnquotedColumns() as $columnName) {
-                $normalizedColumnName = strtolower($columnName);
-                if (! isset($nameMap[$normalizedColumnName])) {
+            $changed     = false;
+            $columnNames = [];
+            foreach ($index->getIndexedColumns() as $column) {
+                $name = $column->getColumnName()->getIdentifier()->getValue();
+                if (! isset($nameMap[$name])) {
                     unset($indexes[$key]);
                     continue 2;
                 }
 
-                $indexColumns[] = $nameMap[$normalizedColumnName];
-                if ($columnName === $nameMap[$normalizedColumnName]) {
+                $columnNames[] = UnqualifiedName::quoted($nameMap[$name]);
+                if ($name === $nameMap[$name]) {
                     continue;
                 }
 
@@ -829,13 +850,9 @@ class SQLitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $indexes[$key] = new Index(
-                $index->getName(),
-                $indexColumns,
-                $index->isUnique(),
-                false,
-                $index->getFlags(),
-            );
+            $indexes[$key] = $index->edit()
+                ->setColumnNames(...$columnNames)
+                ->create();
         }
 
         foreach ($diff->getDroppedIndexes() as $index) {

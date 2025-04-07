@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\CachingCollationMeta
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Types\Type;
 
@@ -78,9 +79,13 @@ class MySQLSchemaManager extends AbstractSchemaManager
         foreach ($rows as $i => $row) {
             $row = array_change_key_case($row, CASE_LOWER);
             if (str_contains($row['index_type'], 'FULLTEXT')) {
-                $row['flags'] = ['FULLTEXT'];
+                $row['type'] = IndexType::FULLTEXT;
             } elseif (str_contains($row['index_type'], 'SPATIAL')) {
-                $row['flags'] = ['SPATIAL'];
+                $row['type'] = IndexType::SPATIAL;
+            } elseif ($row['non_unique']) {
+                $row['type'] = IndexType::REGULAR;
+            } else {
+                $row['type'] = IndexType::UNIQUE;
             }
 
             // Ignore prohibited prefix `length` for spatial index

@@ -16,6 +16,7 @@ use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
+use Doctrine\DBAL\Platforms\Exception\UnsupportedIndexDefinition;
 use Doctrine\DBAL\Platforms\Exception\UnsupportedPrimaryKeyConstraintDefinition;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -24,6 +25,8 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
@@ -44,7 +47,6 @@ use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Deprecations\Deprecation;
 
 use function addcslashes;
 use function array_map;
@@ -1093,41 +1095,34 @@ abstract class AbstractPlatform
      */
     public function getCreateIndexSQL(Index $index, string $table): string
     {
-        $name    = $index->getObjectName()->toSQL($this);
-        $columns = $index->getColumns();
+        $chunks = ['CREATE'];
+        $type   = $index->getType();
 
-        if (count($columns) === 0) {
-            throw new InvalidArgumentException(sprintf(
-                'Incomplete or invalid index definition %s on table %s',
-                $name,
-                $table,
-            ));
+        if ($type === IndexType::UNIQUE) {
+            $chunks[] = 'UNIQUE';
+        } elseif ($type === IndexType::FULLTEXT) {
+            $chunks[] = 'FULLTEXT';
+        } elseif ($type === IndexType::SPATIAL) {
+            $chunks[] = 'SPATIAL';
         }
 
-        $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . implode(', ', $index->getQuotedColumns($this)) . ')' . $this->getPartialIndexSQL($index);
-
-        return $query;
-    }
-
-    /**
-     * Adds condition for partial index.
-     */
-    protected function getPartialIndexSQL(Index $index): string
-    {
-        if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
-            return ' WHERE ' . $index->getOption('where');
+        if ($index->isClustered()) {
+            $chunks[] = 'CLUSTERED';
         }
 
-        return '';
-    }
+        $chunks[] = 'INDEX';
+        $chunks[] = $index->getObjectName()->toSQL($this);
+        $chunks[] = 'ON';
+        $chunks[] = $table;
+        $chunks[] = $this->buildIndexedColumnListSQL($index->getIndexedColumns());
 
-    /**
-     * Adds additional flags for index generation.
-     */
-    protected function getCreateIndexSQLFlags(Index $index): string
-    {
-        return $index->isUnique() ? 'UNIQUE ' : '';
+        $predicate = $index->getPredicate();
+        if ($predicate !== null) {
+            $chunks[] = 'WHERE';
+            $chunks[] = $predicate;
+        }
+
+        return implode(' ', $chunks);
     }
 
     /**
@@ -1494,6 +1489,51 @@ abstract class AbstractPlatform
         throw UnsupportedPrimaryKeyConstraintDefinition::fromNonClusteredConstraint(static::class);
     }
 
+    final protected function ensureIndexHasNoColumnLengths(Index $index): void
+    {
+        foreach ($index->getIndexedColumns() as $column) {
+            if ($column->getLength() !== null) {
+                throw UnsupportedIndexDefinition::fromIndexWithColumnLengths(static::class);
+            }
+        }
+    }
+
+    final protected function ensureIndexIsNotFulltext(Index $index): void
+    {
+        if ($index->getType() !== IndexType::FULLTEXT) {
+            return;
+        }
+
+        throw UnsupportedIndexDefinition::fromFulltextIndex(static::class);
+    }
+
+    final protected function ensureIndexIsNotSpatial(Index $index): void
+    {
+        if ($index->getType() !== IndexType::SPATIAL) {
+            return;
+        }
+
+        throw UnsupportedIndexDefinition::fromSpatialIndex(static::class);
+    }
+
+    final protected function ensureIndexIsNotClustered(Index $index): void
+    {
+        if (! $index->isClustered()) {
+            return;
+        }
+
+        throw UnsupportedIndexDefinition::fromClusteredIndex(static::class);
+    }
+
+    final protected function ensureIndexIsNotPartial(Index $index): void
+    {
+        if ($index->getPredicate() === null) {
+            return;
+        }
+
+        throw UnsupportedIndexDefinition::fromPartialIndex(static::class);
+    }
+
     /**
      * Obtain DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      * of a column declaration to be used in statements like CREATE TABLE.
@@ -1599,6 +1639,24 @@ abstract class AbstractPlatform
         return sprintf('(%s)', implode(', ', array_map(
             fn (UnqualifiedName $columnName) => $columnName->toSQL($this),
             $names,
+        )));
+    }
+
+    /** @param non-empty-list<IndexedColumn> $indexedColumns */
+    protected function buildIndexedColumnListSQL(array $indexedColumns): string
+    {
+        return sprintf('(%s)', implode(', ', array_map(
+            function (IndexedColumn $indexedColumn): string {
+                $sql = $indexedColumn->getColumnName()->toSQL($this);
+
+                $length = $indexedColumn->getLength();
+                if ($length !== null) {
+                    $sql .= sprintf('(%s)', $length);
+                }
+
+                return $sql;
+            },
+            $indexedColumns,
         )));
     }
 
@@ -1838,31 +1896,6 @@ abstract class AbstractPlatform
      */
     public function supportsIdentityColumns(): bool
     {
-        return false;
-    }
-
-    /**
-     * Whether the platform supports partial indexes.
-     */
-    protected function supportsPartialIndexes(): bool
-    {
-        return false;
-    }
-
-    /**
-     * Whether the platform supports indexes with column length definitions.
-     *
-     * @deprecated
-     */
-    public function supportsColumnLengthIndexes(): bool
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6886',
-            '%s is deprecated.',
-            __METHOD__,
-        );
-
         return false;
     }
 

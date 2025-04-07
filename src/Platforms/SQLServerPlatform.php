@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Exception\UnspecifiedConstraintName;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
@@ -296,43 +297,27 @@ class SQLServerPlatform extends AbstractPlatform
 
     public function getCreateIndexSQL(Index $index, string $table): string
     {
-        $constraint = parent::getCreateIndexSQL($index, $table);
+        $this->ensureIndexHasNoColumnLengths($index);
+        $this->ensureIndexIsNotFulltext($index);
+        $this->ensureIndexIsNotSpatial($index);
+        $this->ensureIndexIsNotPartial($index);
 
-        if ($index->isUnique()) {
-            $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
+        if ($index->getType() === IndexType::UNIQUE) {
+            // Redefine the index as a partial index that excludes NULL values. This compensates for SQL Server's
+            // handling of NULLs, where they are considered equal in unique indexes. According to the SQL standard,
+            // NULL values should be treated as distinct.
+            $columnPredicates = [];
+
+            foreach ($index->getIndexedColumns() as $indexedColumn) {
+                $columnPredicates[] = $indexedColumn->getColumnName()->toSQL($this) . ' IS NOT NULL';
+            }
+
+            $index = $index->edit()
+                ->setPredicate(implode(' AND ', $columnPredicates))
+                ->create();
         }
 
-        return $constraint;
-    }
-
-    protected function getCreateIndexSQLFlags(Index $index): string
-    {
-        $type = '';
-        if ($index->isUnique()) {
-            $type .= 'UNIQUE ';
-        }
-
-        if ($index->hasFlag('clustered')) {
-            $type .= 'CLUSTERED ';
-        } elseif ($index->hasFlag('nonclustered')) {
-            $type .= 'NONCLUSTERED ';
-        }
-
-        return $type;
-    }
-
-    /**
-     * Extend unique key constraint with required filters
-     */
-    private function _appendUniqueConstraintDefinition(string $sql, Index $index): string
-    {
-        $fields = [];
-
-        foreach ($index->getQuotedColumns($this) as $field) {
-            $fields[] = $field . ' IS NOT NULL';
-        }
-
-        return $sql . ' WHERE ' . implode(' AND ', $fields);
+        return parent::getCreateIndexSQL($index, $table);
     }
 
     /**

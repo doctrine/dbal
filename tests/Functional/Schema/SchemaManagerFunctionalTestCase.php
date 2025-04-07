@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -14,6 +15,9 @@ use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -46,7 +50,6 @@ use function array_map;
 use function array_search;
 use function array_values;
 use function count;
-use function current;
 use function get_debug_type;
 use function sprintf;
 use function str_starts_with;
@@ -397,17 +400,20 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->dropAndCreateTable($table);
 
-        $tableIndexes = $this->schemaManager->listTableIndexes('list_table_indexes_test');
-
-        self::assertCount(2, $tableIndexes);
-
-        self::assertEquals('test_index_name', strtolower($tableIndexes['test_index_name']->getName()));
-        self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test_index_name']->getColumns()));
-        self::assertTrue($tableIndexes['test_index_name']->isUnique());
-
-        self::assertEquals('test_composite_idx', strtolower($tableIndexes['test_composite_idx']->getName()));
-        self::assertEquals(['id', 'test'], array_map('strtolower', $tableIndexes['test_composite_idx']->getColumns()));
-        self::assertFalse($tableIndexes['test_composite_idx']->isUnique());
+        $this->assertIndexListEquals([
+            Index::editor()
+                ->setName(UnqualifiedName::unquoted('test_index_name'))
+                ->setColumnNames(UnqualifiedName::unquoted('test'))
+                ->setType(IndexType::UNIQUE)
+                ->create(),
+            Index::editor()
+                ->setName(UnqualifiedName::unquoted('test_composite_idx'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                    UnqualifiedName::unquoted('test'),
+                )
+                ->create(),
+        ], $this->schemaManager->listTableIndexes('list_table_indexes_test'));
     }
 
     public function testDropAndCreateIndex(): void
@@ -419,11 +425,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $index = $table->getIndex('test');
         $this->schemaManager->dropIndex($index->getName(), $table->getName());
         $this->schemaManager->createIndex($index, $table->getName());
-        $tableIndexes = $this->schemaManager->listTableIndexes('test_create_index');
 
-        self::assertEquals('test', strtolower($tableIndexes['test']->getName()));
-        self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test']->getColumns()));
-        self::assertTrue($tableIndexes['test']->isUnique());
+        $this->assertIndexListEquals([
+            Index::editor()
+                ->setName(UnqualifiedName::unquoted('test'))
+                ->setColumnNames(UnqualifiedName::unquoted('test'))
+                ->setType(IndexType::UNIQUE)
+                ->create(),
+        ], $this->schemaManager->listTableIndexes('test_create_index'));
     }
 
     public function testDropAndCreateUniqueConstraint(): void
@@ -449,14 +458,20 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         // there's currently no API for introspecting unique constraints,
         // so introspect the underlying indexes instead
-        $indexes = $this->schemaManager->listTableIndexes('test_unique_constraint');
-        self::assertCount(1, $indexes);
-
-        $index = current($indexes);
-        self::assertNotFalse($index);
-
-        self::assertEqualsIgnoringCase('uniq_id', $index->getName());
-        self::assertTrue($index->isUnique());
+        $this->assertIndexListEquals(
+            [
+                Index::editor()
+                    ->setName(
+                        UnqualifiedName::unquoted('uniq_id'),
+                    )
+                    ->setColumnNames(
+                        UnqualifiedName::unquoted('id'),
+                    )
+                    ->setType(IndexType::UNIQUE)
+                    ->create(),
+            ],
+            $this->schemaManager->listTableIndexes('test_unique_constraint'),
+        );
 
         $this->schemaManager->dropUniqueConstraint($uniqueConstraint->getName(), $table->getName());
 
@@ -543,8 +558,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table = $this->schemaManager->introspectTable('alter_table');
         self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
-        self::assertEquals(['foo'], array_map('strtolower', $table->getIndex('foo_idx')->getColumns()));
-        self::assertFalse($table->getIndex('foo_idx')->isUnique());
+
+        $this->assertIndexEquals(
+            Index::editor()
+                ->setName(UnqualifiedName::unquoted('foo_idx'))
+                ->setColumnNames(UnqualifiedName::unquoted('foo'))
+                ->create(),
+            $table->getIndex('foo_idx'),
+        );
 
         $newTable = clone $table;
         $newTable->dropIndex('foo_idx');
@@ -557,9 +578,16 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table = $this->schemaManager->introspectTable('alter_table');
         self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('foo_idx'));
-        self::assertEquals(
-            ['foo', 'foreign_key_test'],
-            array_map('strtolower', $table->getIndex('foo_idx')->getColumns()),
+
+        $this->assertIndexEquals(
+            Index::editor()
+                ->setName(UnqualifiedName::unquoted('foo_idx'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('foo'),
+                    UnqualifiedName::unquoted('foreign_key_test'),
+                )
+                ->create(),
+            $table->getIndex('foo_idx'),
         );
 
         $newTable = clone $table;
@@ -574,11 +602,17 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('foo_idx'));
-        self::assertEquals(
-            ['foo', 'foreign_key_test'],
-            array_map('strtolower', $table->getIndex('bar_idx')->getColumns()),
+
+        $this->assertIndexEquals(
+            Index::editor()
+                ->setName(UnqualifiedName::unquoted('bar_idx'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('foo'),
+                    UnqualifiedName::unquoted('foreign_key_test'),
+                )
+                ->create(),
+            $table->getIndex('bar_idx'),
         );
-        self::assertFalse($table->getIndex('bar_idx')->isUnique());
 
         $newTable = clone $table;
         $newTable->dropIndex('bar_idx');
@@ -1199,7 +1233,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     public function testGenerateAnIndexWithPartialColumnLength(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsColumnLengthIndexes()) {
+        if (! $this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
             self::markTestSkipped(
                 'This test is only supported on platforms that support indexes with column length definitions.',
             );
@@ -1211,12 +1245,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table->addIndex(['long_column'], 'partial_long_column_idx', [], ['lengths' => [4]]);
         $table->addIndex(['standard_column', 'long_column'], 'standard_and_partial_idx', [], ['lengths' => [null, 2]]);
 
-        $expected = $table->getIndexes();
-
         $this->dropAndCreateTable($table);
 
         $onlineTable = $this->schemaManager->introspectTable('test_partial_column_index');
-        self::assertEquals($expected, $onlineTable->getIndexes());
+        $this->assertIndexListEquals($table->getIndexes(), $onlineTable->getIndexes());
     }
 
     public function testCommentInTable(): void
@@ -1357,9 +1389,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $artists->getColumn('"Name"')->getObjectName(),
         );
 
-        self::assertSame([
-            $platform->quoteSingleIdentifier('Name'),
-        ], $artists->getIndex('"Idx_Artist_Name"')->getQuotedColumns($platform));
+        $this->assertIndexListEquals([
+            Index::editor()
+                ->setName(UnqualifiedName::quoted('Idx_Artist_Name'))
+                ->setColumnNames(
+                    UnqualifiedName::quoted('Name'),
+                )
+                ->create(),
+        ], $artists->getIndexes());
 
         $primaryKey = $artists->getPrimaryKeyConstraint();
         self::assertNotNull($primaryKey);
@@ -1387,9 +1424,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         );
 
         self::assertTrue($tracks->hasIndex('"Idx_Artist_Id"'));
-        self::assertSame([
-            $platform->quoteSingleIdentifier('Artist_Id'),
-        ], $tracks->getIndex('"Idx_Artist_Id"')->getQuotedColumns($platform));
+        $this->assertIndexedColumnListEquals([
+            new IndexedColumn(UnqualifiedName::quoted('Artist_Id'), null),
+        ], $tracks->getIndex('"Idx_Artist_Id"')->getIndexedColumns());
 
         $constraint = $tracks->getForeignKey('"Artists_Fk"');
 

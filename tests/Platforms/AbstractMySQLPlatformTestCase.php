@@ -231,10 +231,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table = new Table('fulltext_table');
         $table->addOption('engine', 'MyISAM');
         $table->addColumn('text', Types::TEXT);
-        $table->addIndex(['text'], 'fulltext_text');
-
-        $index = $table->getIndex('fulltext_text');
-        $index->addFlag('fulltext');
+        $table->addIndex(['text'], 'fulltext_text', ['fulltext']);
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals(
@@ -252,10 +249,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table = new Table('spatial_table');
         $table->addOption('engine', 'MyISAM');
         $table->addColumn('point', Types::TEXT); // This should be a point type
-        $table->addIndex(['point'], 'spatial_text');
-
-        $index = $table->getIndex('spatial_text');
-        $index->addFlag('spatial');
+        $table->addIndex(['point'], 'spatial_text', ['spatial']);
 
         $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals(

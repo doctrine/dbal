@@ -185,11 +185,17 @@ class SQLitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesIndexCreationSqlWithSchema(): void
     {
-        $indexDef = new Index('i', ['a', 'b']);
+        $index = Index::editor()
+            ->setName(UnqualifiedName::unquoted('i'))
+            ->setColumnNames(
+                UnqualifiedName::unquoted('a'),
+                UnqualifiedName::unquoted('b'),
+            )
+            ->create();
 
         self::assertSame(
             'CREATE INDEX main."i" ON mytable ("a", "b")',
-            $this->platform->getCreateIndexSQL($indexDef, 'main.mytable'),
+            $this->platform->getCreateIndexSQL($index, 'main.mytable'),
         );
     }
 

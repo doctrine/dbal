@@ -229,8 +229,11 @@ SQL;
         $schemaManager->alterTable($diff);
 
         $table = $schemaManager->introspectTable('nodes');
-        $index = $table->getIndex('idx_node_name');
-        self::assertSame(['name'], $index->getColumns());
+
+        $this->assertIndexEquals(
+            $table2->getIndex('idx_node_name'),
+            $table->getIndex('idx_node_name'),
+        );
     }
 
     public function testAlterTableWithSchema(): void

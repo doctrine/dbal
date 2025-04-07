@@ -7,9 +7,12 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidColumnDeclaration;
 use Doctrine\DBAL\Exception\InvalidColumnType\ColumnValuesRequired;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\UnsupportedIndexDefinition;
 use Doctrine\DBAL\Platforms\Exception\UnsupportedPrimaryKeyConstraintDefinition;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -18,6 +21,8 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
@@ -26,6 +31,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 use function implode;
@@ -156,11 +162,17 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesIndexCreationSql(): void
     {
-        $indexDef = new Index('my_idx', ['user_name', 'last_login']);
+        $index = Index::editor()
+            ->setName(UnqualifiedName::unquoted('my_idx'))
+            ->setColumnNames(
+                UnqualifiedName::unquoted('user_name'),
+                UnqualifiedName::unquoted('last_login'),
+            )
+            ->create();
 
         self::assertEquals(
             $this->getGenerateIndexSql(),
-            $this->platform->getCreateIndexSQL($indexDef, 'mytable'),
+            $this->platform->getCreateIndexSQL($index, 'mytable'),
         );
     }
 
@@ -168,9 +180,16 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesUniqueIndexCreationSql(): void
     {
-        $indexDef = new Index('index_name', ['test', 'test2'], true);
+        $index = Index::editor()
+            ->setName(UnqualifiedName::unquoted('index_name'))
+            ->setType(IndexType::UNIQUE)
+            ->setColumnNames(
+                UnqualifiedName::unquoted('test'),
+                UnqualifiedName::unquoted('test2'),
+            )
+            ->create();
 
-        $sql = $this->platform->getCreateIndexSQL($indexDef, 'test');
+        $sql = $this->platform->getCreateIndexSQL($index, 'test');
         self::assertEquals($this->getGenerateUniqueIndexSql(), $sql);
     }
 
@@ -543,7 +562,12 @@ abstract class AbstractPlatformTestCase extends TestCase
         );
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
-            'idx_foo' => new Index('idx_bar', ['id']),
+            'idx_foo' => Index::editor()
+                ->setName(UnqualifiedName::unquoted('idx_bar'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
         ]);
 
         self::assertSame(
@@ -572,8 +596,18 @@ abstract class AbstractPlatformTestCase extends TestCase
         );
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
-            'create' => new Index('select', ['id']),
-            'foo' => new Index('bar', ['id']),
+            'create' => Index::editor()
+                ->setName(UnqualifiedName::unquoted('select'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+            'foo' => Index::editor()
+                ->setName(UnqualifiedName::unquoted('bar'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
         ]);
 
         self::assertSame(
@@ -603,7 +637,14 @@ abstract class AbstractPlatformTestCase extends TestCase
                 ->create(),
         );
 
-        $tableDiff = new TableDiff($table, renamedIndexes: ['idx_foo' => new Index('idx_bar', ['id'])]);
+        $tableDiff = new TableDiff($table, renamedIndexes: [
+            'idx_foo' => Index::editor()
+                ->setName(UnqualifiedName::unquoted('idx_bar'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+        ]);
 
         self::assertSame(
             $this->getAlterTableRenameIndexInSchemaSQL(),
@@ -631,8 +672,18 @@ abstract class AbstractPlatformTestCase extends TestCase
         );
 
         $tableDiff = new TableDiff($table, renamedIndexes: [
-            'create' => new Index('select', ['id']),
-            'foo' => new Index('bar', ['id']),
+            'create' => Index::editor()
+                ->setName(UnqualifiedName::unquoted('select'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
+            'foo' => Index::editor()
+                ->setName(UnqualifiedName::unquoted('bar'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('id'),
+                )
+                ->create(),
         ]);
 
         self::assertSame(
@@ -765,7 +816,12 @@ abstract class AbstractPlatformTestCase extends TestCase
         $primaryTable->addForeignKeyConstraint($foreignTable->getName(), ['bar'], ['id'], [], 'fk_bar');
 
         $tableDiff = new TableDiff($primaryTable, renamedIndexes: [
-            'idx_foo' => new Index('idx_foo_renamed', ['foo']),
+            'idx_foo' => Index::editor()
+                ->setName(UnqualifiedName::unquoted('idx_foo_renamed'))
+                ->setColumnNames(
+                    UnqualifiedName::unquoted('foo'),
+                )
+                ->create(),
         ]);
 
         self::assertSame(
@@ -946,5 +1002,80 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $this->expectException(UnsupportedPrimaryKeyConstraintDefinition::class);
         $this->platform->getCreateTableSQL($table);
+    }
+
+    public function testIndexWithColumnLengthsIsReportedAsUnsupported(): void
+    {
+        if ($this->platform instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped('This current database platform supports indexes with column lengths.');
+        }
+
+        $index = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_username'))
+            ->setColumns(
+                new IndexedColumn(UnqualifiedName::unquoted('username'), 32),
+            )
+            ->create();
+
+        $this->expectException(UnsupportedIndexDefinition::class);
+        $this->platform->getCreateIndexSQL($index, 'table');
+    }
+
+    #[TestWith([IndexType::FULLTEXT])]
+    #[TestWith([IndexType::SPATIAL])]
+    public function testIndexTypeIsReportedAsUnsupported(IndexType $type): void
+    {
+        if ($this->platform instanceof AbstractMySQLPlatform) {
+            self::markTestSkipped(
+                sprintf('This current database platform supports indexes with type %s.', $type->name),
+            );
+        }
+
+        $index = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_test'))
+            ->setType($type)
+            ->setColumnNames(
+                UnqualifiedName::unquoted('test'),
+            )
+            ->create();
+
+        $this->expectException(UnsupportedIndexDefinition::class);
+        $this->platform->getCreateIndexSQL($index, 'table');
+    }
+
+    public function testClusteredIndexIsReportedAsUnsupported(): void
+    {
+        if ($this->platform instanceof SQLServerPlatform) {
+            self::markTestSkipped('This current database platform supports clustered indexes.');
+        }
+
+        $index = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_sku'))
+            ->setColumnNames(
+                UnqualifiedName::unquoted('sku'),
+            )
+            ->setIsClustered(true)
+            ->create();
+
+        $this->expectException(UnsupportedIndexDefinition::class);
+        $this->platform->getCreateIndexSQL($index, 'table');
+    }
+
+    public function testPartialIndexIsReportedAsUnsupported(): void
+    {
+        if ($this->platform instanceof PostgreSQLPlatform) {
+            self::markTestSkipped('This current database platform supports partial indexes.');
+        }
+
+        $index = Index::editor()
+            ->setName(UnqualifiedName::unquoted('idx_username'))
+            ->setColumnNames(
+                UnqualifiedName::unquoted('username'),
+            )
+            ->setPredicate('is_active = 1')
+            ->create();
+
+        $this->expectException(UnsupportedIndexDefinition::class);
+        $this->platform->getCreateIndexSQL($index, 'table');
     }
 }

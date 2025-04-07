@@ -134,11 +134,6 @@ class PostgreSQLPlatform extends AbstractPlatform
         return true;
     }
 
-    protected function supportsPartialIndexes(): bool
-    {
-        return true;
-    }
-
     protected function supportsCommentOnStatement(): bool
     {
         return true;
@@ -424,6 +419,16 @@ class PostgreSQLPlatform extends AbstractPlatform
         }
 
         return $sql;
+    }
+
+    public function getCreateIndexSQL(Index $index, string $table): string
+    {
+        $this->ensureIndexHasNoColumnLengths($index);
+        $this->ensureIndexIsNotFulltext($index);
+        $this->ensureIndexIsNotSpatial($index);
+        $this->ensureIndexIsNotClustered($index);
+
+        return parent::getCreateIndexSQL($index, $table);
     }
 
     /**

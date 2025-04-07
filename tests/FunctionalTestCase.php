@@ -9,6 +9,8 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexedColumn;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
@@ -20,7 +22,9 @@ use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
+use function array_values;
 use function count;
+use function usort;
 
 abstract class FunctionalTestCase extends TestCase
 {
@@ -253,6 +257,109 @@ abstract class FunctionalTestCase extends TestCase
         return array_map(
             fn (UnqualifiedName $name): UnqualifiedName => $this->toQuotedUnqualifiedName($name),
             $names,
+        );
+    }
+
+    /** @throws Exception */
+    protected function assertIndexedColumnEquals(
+        IndexedColumn $expected,
+        IndexedColumn $actual,
+    ): void {
+        self::assertEquals(
+            $this->toQuotedIndexedColumn($expected),
+            $this->toQuotedIndexedColumn($actual),
+        );
+    }
+
+    /** @throws Exception */
+    protected function toQuotedIndexedColumn(IndexedColumn $column): IndexedColumn
+    {
+        return new IndexedColumn(
+            $this->toQuotedUnqualifiedName($column->getColumnName()),
+            $column->getLength(),
+        );
+    }
+
+    /**
+     * @param non-empty-list<IndexedColumn> $expected
+     * @param non-empty-list<IndexedColumn> $actual
+     *
+     * @throws Exception
+     */
+    protected function assertIndexedColumnListEquals(array $expected, array $actual): void
+    {
+        self::assertEquals(
+            $this->toQuotedIndexedColumnList($expected),
+            $this->toQuotedIndexedColumnList($actual),
+        );
+    }
+
+    /**
+     * @param list<IndexedColumn> $indexedColumns
+     *
+     * @return ($indexedColumns is non-empty-list ? non-empty-list<IndexedColumn> : list<IndexedColumn>)
+     *
+     * @throws Exception
+     */
+    protected function toQuotedIndexedColumnList(array $indexedColumns): array
+    {
+        return array_map(
+            fn (IndexedColumn $indexedColumn): IndexedColumn => $this->toQuotedIndexedColumn($indexedColumn),
+            $indexedColumns,
+        );
+    }
+
+    /** @throws Exception */
+    protected function assertIndexEquals(Index $expected, Index $actual): void
+    {
+        self::assertEquals($this->toQuotedIndex($expected), $this->toQuotedIndex($actual));
+    }
+
+    /** @throws Exception */
+    protected function toQuotedIndex(Index $index): Index
+    {
+        return $index->edit()
+            ->setName($this->toQuotedUnqualifiedName($index->getObjectName()))
+            ->setColumns(...$this->toQuotedIndexedColumnList($index->getIndexedColumns()))
+            ->create();
+    }
+
+    /**
+     * @param array<Index> $expected
+     * @param array<Index> $actual
+     *
+     * @throws Exception
+     */
+    protected function assertIndexListEquals(array $expected, array $actual): void
+    {
+        $quotedExpected = $this->toQuotedIndexList(array_values($expected));
+        $quotedActual   = $this->toQuotedIndexList(array_values($actual));
+
+        // PHPUnit's implementation of assertEqualsCanonicalizing() sorts object properties and may trigger notices
+        // while comparing an integer IndexedColumn::$length with an object IndexedColumn::$columnName
+        $comparator = static function (Index $a, Index $b): int {
+            return $a->getObjectName()->getIdentifier()->getValue()
+                <=> $b->getObjectName()->getIdentifier()->getValue();
+        };
+
+        usort($quotedExpected, $comparator);
+        usort($quotedActual, $comparator);
+
+        self::assertEquals($quotedExpected, $quotedActual);
+    }
+
+    /**
+     * @param list<Index> $indexes
+     *
+     * @return list<Index>
+     *
+     * @throws Exception
+     */
+    protected function toQuotedIndexList(array $indexes): array
+    {
+        return array_map(
+            fn (Index $index): Index => $this->toQuotedIndex($index),
+            $indexes,
         );
     }
 
