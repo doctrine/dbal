@@ -20,14 +20,11 @@ use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\SmallFloatType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Deprecations\PHPUnit\VerifyDeprecations;
 
 use function array_keys;
 
 class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    use VerifyDeprecations;
-
     public static function setUpBeforeClass(): void
     {
         Type::addType('point', PointType::class);
