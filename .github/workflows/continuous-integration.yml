@@ -37,6 +37,7 @@ jobs:
         os:
           - "ubuntu-22.04"
         php-version:
+          - "8.3"
           - "8.4"
           - "8.5"
         dependencies:
@@ -46,7 +47,7 @@ jobs:
           - "pdo_sqlite"
         include:
           - os: "ubuntu-20.04"
-            php-version: "8.3"
+            php-version: "8.2"
             dependencies: "lowest"
             extension: "pdo_sqlite"
           - os: "ubuntu-22.04"
@@ -106,7 +107,7 @@ jobs:
           - "21"
           - "23"
         include:
-          - php-version: "8.3"
+          - php-version: "8.2"
             oracle-version: "23"
           - php-version: "8.5"
             oracle-version: "23"
@@ -166,7 +167,7 @@ jobs:
           - "21"
           - "23"
         include:
-          - php-version: "8.3"
+          - php-version: "8.2"
             oracle-version: "23"
           - php-version: "8.5"
             oracle-version: "23"
@@ -220,6 +221,7 @@ jobs:
     strategy:
       matrix:
         php-version:
+          - "8.3"
           - "8.4"
         postgres-locale-provider:
             - "libc"
@@ -231,10 +233,10 @@ jobs:
           - "pgsql"
           - "pdo_pgsql"
         include:
-          - php-version: "8.3"
+          - php-version: "8.2"
             postgres-version: "17"
             extension: "pgsql"
-          - php-version: "8.3"
+          - php-version: "8.2"
             postgres-version: "17"
             extension: "pdo_pgsql"
           - php-version: "8.5"
@@ -297,6 +299,7 @@ jobs:
     strategy:
       matrix:
         php-version:
+          - "8.3"
           - "8.4"
         mariadb-version:
           # keep in sync with https://mariadb.org/about/#maintenance-policy
@@ -309,10 +312,10 @@ jobs:
           - "mysqli"
           - "pdo_mysql"
         include:
-          - php-version: "8.3"
+          - php-version: "8.2"
             mariadb-version: "11.4"
             extension: "mysqli"
-          - php-version: "8.3"
+          - php-version: "8.2"
             mariadb-version: "11.4"
             extension: "pdo_mysql"
           - php-version: "8.5"
@@ -371,6 +374,7 @@ jobs:
     strategy:
       matrix:
         php-version:
+          - "8.3"
           - "8.4"
         mysql-version:
           - "5.7"
@@ -383,10 +387,10 @@ jobs:
           - ""
         include:
           - config-file-suffix: "-tls"
-            php-version: "8.3"
+            php-version: "8.2"
             mysql-version: "9.1"
             extension: "mysqli"
-          - php-version: "8.3"
+          - php-version: "8.2"
             mysql-version: "9.1"
             extension: "mysqli"
           - php-version: "8.5"
@@ -449,6 +453,7 @@ jobs:
     strategy:
       matrix:
         php-version:
+          - "8.2"
           - "8.3"
           - "8.4"
           - "8.5"
@@ -459,10 +464,10 @@ jobs:
           - "Latin1_General_100_CI_AS_SC_UTF8"
         include:
           - collation: "Latin1_General_100_CS_AS_SC_UTF8"
-            php-version: "8.3"
+            php-version: "8.2"
             extension: "sqlsrv"
           - collation: "Latin1_General_100_CS_AS_SC_UTF8"
-            php-version: "8.3"
+            php-version: "8.2"
             extension: "pdo_sqlsrv"
 
     services:
@@ -516,6 +521,7 @@ jobs:
     strategy:
       matrix:
         php-version:
+          - "8.2"
           - "8.3"
           - "8.4"
           - "8.5"

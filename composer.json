@@ -31,7 +31,7 @@
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.2",
         "doctrine/deprecations": "^0.5.3|^1",
         "psr/cache": "^1|^2|^3",
         "psr/log": "^1|^2|^3"
