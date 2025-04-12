@@ -109,7 +109,11 @@ final class DsnParser
             return $params;
         }
 
-        $url['path'] = $this->normalizeDatabaseUrlPath($url['path']);
+        if (isset($params['host'])) {
+            // Only normalize the path if a host is also available. Otherwise we might trim leading slashes
+            // from a pure dbname.
+            $url['path'] = $this->normalizeDatabaseUrlPath($url['path']);
+        }
 
         // If we do not have a known DBAL driver, we do not know any connection URL path semantics to evaluate
         // and therefore treat the path as a regular DBAL connection URL path.
@@ -131,6 +135,8 @@ final class DsnParser
      */
     private function normalizeDatabaseUrlPath(string $urlPath): string
     {
+        assert($urlPath[0] === '/');
+
         // Trim leading slash from URL path.
         return substr($urlPath, 1);
     }

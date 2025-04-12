@@ -172,6 +172,14 @@ final class DsnParserTest extends TestCase
                     'dbname'   => 'baz',
                 ],
             ],
+            'quoted URL' => [
+                '"sqlite:////tmp/dbname.sqlite"',
+                ['dbname' => '"sqlite:////tmp/dbname.sqlite"'],
+            ],
+            'absolute path' => [
+                '/tmp/dbname.sqlite',
+                ['dbname' => '/tmp/dbname.sqlite'],
+            ],
         ];
     }
 

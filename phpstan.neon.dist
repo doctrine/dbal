@@ -54,16 +54,6 @@ parameters:
             paths:
                 - src/Schema/Column.php
 
-        # TODO: remove this once the support for PHP 7 is dropped
-        -
-            message: '~^Strict comparison using !== between int and false will always evaluate to true\.$~'
-            paths:
-                - src/Driver/OCI8/Result.php
-        -
-            message: '~^Unreachable statement - code above always terminates\.$~'
-            paths:
-                - src/Driver/OCI8/Result.php
-
         # https://github.com/phpstan/phpstan/issues/4679
         -
             message: '~^Cannot call method writeTemporary\(\) on OCILob\|null\.$~'

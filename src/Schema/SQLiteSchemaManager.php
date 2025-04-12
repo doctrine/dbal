@@ -452,6 +452,13 @@ SQL,
         return $this->connection->executeQuery($sql, $params);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @link https://www.sqlite.org/pragma.html#pragma_index_info
+     * @link https://www.sqlite.org/pragma.html#pragma_table_info
+     * @link https://www.sqlite.org/fileformat2.html#internal_schema_objects
+     */
     protected function selectIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): Result
     {
         $params = [];
@@ -460,11 +467,14 @@ SQL,
             <<<'SQL'
             SELECT t.name AS %s,
                    i.name,
-                   i."unique"
+                   i."unique",
+                   c.name AS column_name
               FROM sqlite_master t
               JOIN pragma_index_list(t.name) i
+              JOIN pragma_index_info(i.name) c
              WHERE %s
-          ORDER BY t.name, i.seq
+               AND i.name NOT LIKE 'sqlite_%%'
+          ORDER BY t.name, i.seq, c.seqno
 SQL,
             $this->platform->quoteSingleIdentifier(self::TABLE_NAME_COLUMN),
             $this->getWhereClause($tableName, $params),
@@ -526,9 +536,6 @@ SQL,
     }
 
     /**
-     * @link https://www.sqlite.org/pragma.html#pragma_index_info
-     * @link https://www.sqlite.org/pragma.html#pragma_table_info
-     *
      * {@inheritDoc}
      */
     protected function fetchIndexColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
@@ -538,30 +545,12 @@ SQL,
         $indexColumnRows = parent::fetchIndexColumns($databaseName, $tableName);
 
         foreach ($indexColumnRows as $indexColumnRow) {
-            $name = $indexColumnRow['name'];
-
-            // Ignore indexes with reserved names, e.g. auto-indexes
-            if (str_starts_with($name, 'sqlite_')) {
-                continue;
-            }
-
-            $keyName = $indexColumnRow['name'];
-
-            $row = [
+            $result[] = [
                 self::TABLE_NAME_COLUMN => $indexColumnRow[self::TABLE_NAME_COLUMN],
-                'key_name' => $name,
+                'key_name' => $indexColumnRow['name'],
                 'type' => $indexColumnRow['unique'] ? IndexType::UNIQUE : IndexType::REGULAR,
+                'column_name' => $indexColumnRow['column_name'],
             ];
-
-            $indexColumnNames = $this->connection->fetchFirstColumn(
-                'SELECT name FROM PRAGMA_INDEX_INFO (?)',
-                [$keyName],
-            );
-
-            foreach ($indexColumnNames as $indexColumnName) {
-                $row['column_name'] = $indexColumnName;
-                $result[]           = $row;
-            }
         }
 
         return $result;
