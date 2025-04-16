@@ -335,6 +335,8 @@ class QueryBuilder
      * </code>
      *
      * @return string The SQL query string.
+     *
+     * @throws Exception
      */
     public function getSQL(): string
     {
