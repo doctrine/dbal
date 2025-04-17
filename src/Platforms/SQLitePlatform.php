@@ -777,7 +777,7 @@ class SQLitePlatform extends AbstractPlatform
      * Based on the table diff, returns a map where the keys are the lower-case old column names and the values are the
      * new column names. If the column was dropped, it is not present in the map.
      *
-     * @return array<string, string>
+     * @return array<non-empty-string, non-empty-string>
      */
     private function getDiffColumnNameMap(TableDiff $diff): array
     {

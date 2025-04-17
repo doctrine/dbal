@@ -9,13 +9,19 @@ namespace Doctrine\DBAL\Schema;
  */
 final class TableConfiguration
 {
-    /** @internal The configuration can be only instantiated by a {@see SchemaConfig}. */
+    /**
+     * @internal The configuration can be only instantiated by a {@see SchemaConfig}.
+     *
+     * @param positive-int $maxIdentifierLength
+     */
     public function __construct(private readonly int $maxIdentifierLength)
     {
     }
 
     /**
      * Returns the maximum length of identifiers to be generated for the objects scoped to the table.
+     *
+     * @return positive-int
      */
     public function getMaxIdentifierLength(): int
     {

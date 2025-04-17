@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         os:
-          - "ubuntu-22.04"
+          - "ubuntu-24.04"
         php-version:
           - "8.3"
           - "8.4"
@@ -46,11 +46,11 @@ jobs:
           - "sqlite3"
           - "pdo_sqlite"
         include:
-          - os: "ubuntu-20.04"
+          - os: "ubuntu-22.04"
             php-version: "8.2"
             dependencies: "lowest"
             extension: "pdo_sqlite"
-          - os: "ubuntu-22.04"
+          - os: "ubuntu-24.04"
             php-version: "8.4"
             dependencies: "highest"
             extension: "sqlite3"
@@ -95,7 +95,7 @@ jobs:
 
   phpunit-oci8:
     name: "PHPUnit on OCI8"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
 
     strategy:
@@ -155,7 +155,7 @@ jobs:
 
   phpunit-pdo-oci:
     name: "PHPUnit on PDO_OCI"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
 
     strategy:
@@ -215,7 +215,7 @@ jobs:
 
   phpunit-postgres:
     name: "PHPUnit with PostgreSQL"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
 
     strategy:
@@ -293,7 +293,7 @@ jobs:
 
   phpunit-mariadb:
     name: "PHPUnit with MariaDB"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
 
     strategy:
@@ -367,7 +367,7 @@ jobs:
 
   phpunit-mysql:
     name: "PHPUnit with MySQL"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
 
     strategy:
@@ -445,7 +445,7 @@ jobs:
 
   phpunit-mssql:
     name: "PHPUnit with SQL Server"
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     needs: "phpunit-smoke-check"
 
     strategy:
@@ -513,7 +513,7 @@ jobs:
 
   phpunit-ibm-db2:
     name: "PHPUnit with IBM DB2"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     needs: "phpunit-smoke-check"
 
     strategy:
@@ -583,7 +583,7 @@ jobs:
 
   development-deps:
     name: "PHPUnit with PDO_SQLite and development dependencies"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
 
     strategy:
       matrix:
@@ -612,7 +612,7 @@ jobs:
 
   upload_coverage:
     name: "Upload coverage to Codecov"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     needs:
       - "phpunit-smoke-check"
       - "phpunit-oci8"

@@ -29,6 +29,10 @@ enum UnquotedIdentifierFolding
 
     /**
      * Applies case folding to an unquoted identifier as a database platform would when processing an SQL statement.
+     *
+     * @param non-empty-string $value
+     *
+     * @return non-empty-string
      */
     public function foldUnquotedIdentifier(string $value): string
     {

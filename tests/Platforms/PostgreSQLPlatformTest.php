@@ -725,10 +725,10 @@ class PostgreSQLPlatformTest extends AbstractPlatformTestCase
         $tableDiff = new TableDiff($table, changedColumns: [
             'payload' => new ColumnDiff(
                 $table->getColumn('payload'),
-                (new Column(
+                new Column(
                     'payload',
                     Type::getType(Types::JSON),
-                )),
+                ),
             ),
         ]);
 

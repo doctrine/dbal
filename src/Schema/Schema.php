@@ -75,6 +75,8 @@ class Schema
      * The default namespace name that the schema will use as a qualifier to resolve unqualified names.
      *
      * The name is assumed to be always set in its original case and thus will be represented as a quoted identifier.
+     *
+     * @var ?non-empty-string
      */
     private ?string $defaultNamespaceName;
 

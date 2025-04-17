@@ -9,18 +9,22 @@ namespace Doctrine\DBAL\Schema;
  */
 class SchemaConfig
 {
+    /** @var positive-int */
     protected int $maxIdentifierLength = 63;
 
+    /** @var ?non-empty-string */
     protected ?string $name = null;
 
     /** @var array<string, mixed> */
     protected array $defaultTableOptions = [];
 
+    /** @param positive-int $length */
     public function setMaxIdentifierLength(int $length): void
     {
         $this->maxIdentifierLength = $length;
     }
 
+    /** @return positive-int */
     public function getMaxIdentifierLength(): int
     {
         return $this->maxIdentifierLength;
@@ -28,6 +32,8 @@ class SchemaConfig
 
     /**
      * Gets the default namespace of schema objects.
+     *
+     * @return ?non-empty-string
      */
     public function getName(): ?string
     {
@@ -36,6 +42,8 @@ class SchemaConfig
 
     /**
      * Sets the default namespace name of schema objects.
+     *
+     * @param ?non-empty-string $name
      */
     public function setName(?string $name): void
     {

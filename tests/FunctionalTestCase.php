@@ -82,7 +82,7 @@ abstract class FunctionalTestCase extends TestCase
         // (e.g. to drop a table), and then this reopened connection will remain open and attached to the PHPUnit result
         // until the end of the suite leaking connection resources, while subsequent tests will use
         // the newly established shared connection.
-        unset($this->connection);
+        unset($this->connection); // @phpstan-ignore unset.possiblyHookedProperty
 
         $this->isConnectionReusable = true;
     }

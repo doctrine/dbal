@@ -48,25 +48,6 @@ use const CASE_LOWER;
  */
 class SQLiteSchemaManager extends AbstractSchemaManager
 {
-    /**
-     * {@inheritDoc}
-     */
-    protected function fetchForeignKeyColumnsByTable(string $databaseName): array
-    {
-        $columnsByTable = parent::fetchForeignKeyColumnsByTable($databaseName);
-
-        foreach ($columnsByTable as $schemaNameKey => $schemaTables) {
-            assert($schemaNameKey === self::NULL_SCHEMA_KEY);
-
-            foreach ($schemaTables as $tableName => $columns) {
-                $columnsByTable[$schemaNameKey][$tableName]
-                    = $this->addDetailsToTableForeignKeyColumns($tableName, $columns);
-            }
-        }
-
-        return $columnsByTable;
-    }
-
     public function createForeignKey(ForeignKeyConstraint $foreignKey, string $table): void
     {
         $table = $this->introspectTable($table);
@@ -81,29 +62,6 @@ class SQLiteSchemaManager extends AbstractSchemaManager
         $foreignKey = $table->getForeignKey($name);
 
         $this->alterTable(new TableDiff($table, droppedForeignKeys: [$foreignKey]));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function listTableForeignKeys(string $tableName): array
-    {
-        $tableName = $this->parseOptionallyQualifiedName($tableName);
-
-        $this->ensureUnqualifiedName($tableName, __METHOD__);
-
-        $columns = $this->fetchForeignKeyColumns('main', $tableName);
-
-        if (count($columns) > 0) {
-            $columns = $this->addDetailsToTableForeignKeyColumns(
-                $tableName->getUnqualifiedName()->toNormalizedValue(
-                    $this->platform->getUnquotedIdentifierFolding(),
-                ),
-                $columns,
-            );
-        }
-
-        return $this->_getPortableTableForeignKeysList($columns);
     }
 
     /**
@@ -332,26 +290,6 @@ SQL
         }
 
         return '';
-    }
-
-    /**
-     * @param list<array<string,mixed>> $columns
-     *
-     * @return list<array<string,mixed>>
-     *
-     * @throws Exception
-     */
-    private function addDetailsToTableForeignKeyColumns(string $tableName, array $columns): array
-    {
-        $foreignKeyDetails = $this->getForeignKeyDetails($tableName);
-        $foreignKeyCount   = count($foreignKeyDetails);
-
-        foreach ($columns as $i => $column) {
-            // SQLite identifies foreign keys in reverse order of appearance in SQL
-            $columns[$i] = array_merge($column, $foreignKeyDetails[$foreignKeyCount - $column['id'] - 1]);
-        }
-
-        return $columns;
     }
 
     /**
@@ -586,6 +524,30 @@ SQL,
         );
 
         return $this->connection->fetchAllAssociative($sql, $params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function fetchForeignKeyColumns(string $databaseName, ?OptionallyQualifiedName $tableName = null): array
+    {
+        $columnsByTable = [];
+        foreach (parent::fetchForeignKeyColumns($databaseName, $tableName) as $column) {
+            $columnsByTable[$column[self::TABLE_NAME_COLUMN]][] = $column;
+        }
+
+        $columns = [];
+        foreach ($columnsByTable as $table => $tableColumns) {
+            $foreignKeyDetails = $this->getForeignKeyDetails($table);
+            $foreignKeyCount   = count($foreignKeyDetails);
+
+            foreach ($tableColumns as $column) {
+                // SQLite identifies foreign keys in reverse order of appearance in SQL
+                $columns[] = array_merge($column, $foreignKeyDetails[$foreignKeyCount - $column['id'] - 1]);
+            }
+        }
+
+        return $columns;
     }
 
     /**

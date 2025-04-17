@@ -212,6 +212,8 @@ class SQLiteSchemaManagerTest extends TestCase
     public function testListTableForeignKeysDefaultDatabasePassing(): void
     {
         $conn = $this->createMock(Connection::class);
+        $conn->method('getDatabase')
+            ->willReturn('main');
 
         $manager = new class ($conn, new SQLitePlatform()) extends SQLiteSchemaManager {
             public static string $passedDatabaseName;

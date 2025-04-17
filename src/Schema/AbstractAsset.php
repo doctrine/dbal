@@ -144,6 +144,9 @@ abstract class AbstractAsset
      * very long names.
      *
      * @param array<int, string> $columnNames
+     * @param positive-int       $maxSize
+     *
+     * @return non-empty-string
      */
     protected function _generateIdentifierName(array $columnNames, string $prefix = '', int $maxSize = 30): string
     {

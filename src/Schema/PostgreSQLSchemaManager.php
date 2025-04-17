@@ -23,6 +23,7 @@ use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
+use function strlen;
 use function strtolower;
 
 use const CASE_LOWER;
@@ -66,6 +67,7 @@ SQL,
     {
         $currentSchema = $this->connection->fetchOne('SELECT current_schema()');
         assert($currentSchema !== false);
+        assert(strlen($currentSchema) > 0);
 
         return $currentSchema;
     }

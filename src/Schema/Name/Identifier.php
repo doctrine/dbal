@@ -16,6 +16,7 @@ use function strlen;
  */
 final class Identifier
 {
+    /** @param non-empty-string $value */
     private function __construct(
         private readonly string $value,
         private readonly bool $isQuoted,
@@ -25,6 +26,7 @@ final class Identifier
         }
     }
 
+    /** @return non-empty-string */
     public function getValue(): string
     {
         return $this->value;
@@ -58,6 +60,8 @@ final class Identifier
      * Returns the literal value of the identifier normalized according to the rules of the given database platform.
      *
      * Consumers should use the normalized value for schema comparison and referencing the objects to be introspected.
+     *
+     * @return non-empty-string
      */
     public function toNormalizedValue(UnquotedIdentifierFolding $folding): string
     {
@@ -79,6 +83,8 @@ final class Identifier
 
     /**
      * Creates a quoted identifier.
+     *
+     * @param non-empty-string $value
      */
     public static function quoted(string $value): self
     {
@@ -87,6 +93,8 @@ final class Identifier
 
     /**
      * Creates an unquoted identifier.
+     *
+     * @param non-empty-string $value
      */
     public static function unquoted(string $value): self
     {

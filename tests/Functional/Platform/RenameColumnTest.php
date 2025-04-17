@@ -14,6 +14,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class RenameColumnTest extends FunctionalTestCase
 {
+    /**
+     * @param non-empty-string $columnName
+     * @param non-empty-string $newColumnName
+     */
     #[DataProvider('columnNameProvider')]
     public function testColumnPositionRetainedAfterImplicitRenaming(string $columnName, string $newColumnName): void
     {
@@ -58,6 +62,10 @@ class RenameColumnTest extends FunctionalTestCase
         return $renamed;
     }
 
+    /**
+     * @param non-empty-string $columnName
+     * @param non-empty-string $newColumnName
+     */
     #[DataProvider('columnNameProvider')]
     public function testColumnPositionRetainedAfterExplicitRenaming(string $columnName, string $newColumnName): void
     {
@@ -87,7 +95,7 @@ class RenameColumnTest extends FunctionalTestCase
         self::assertEqualsIgnoringCase('c2', $columns[1]->getName());
     }
 
-    /** @return iterable<array{string,string}> */
+    /** @return iterable<array{non-empty-string,non-empty-string}> */
     public static function columnNameProvider(): iterable
     {
         yield ['c1', 'c1_x'];

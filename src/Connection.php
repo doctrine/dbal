@@ -40,7 +40,6 @@ use Traversable;
 
 use function array_key_exists;
 use function array_merge;
-use function assert;
 use function count;
 use function implode;
 use function is_array;
@@ -148,9 +147,9 @@ class Connection implements ServerVersionProvider
     /**
      * Gets the name of the currently selected database.
      *
-     * @return string|null The name of the database or NULL if a database is not selected.
-     *                     The platforms which don't support the concept of a database (e.g. embedded databases)
-     *                     must always return a string as an indicator of an implicitly selected database.
+     * @return ?non-empty-string The name of the database or NULL if a database is not selected.
+     *                           The platforms which don't support the concept of a database (e.g. embedded databases)
+     *                           must always return a string as an indicator of an implicitly selected database.
      *
      * @throws Exception
      */
@@ -158,11 +157,8 @@ class Connection implements ServerVersionProvider
     {
         $platform = $this->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL($platform->getCurrentDatabaseExpression());
-        $database = $this->fetchOne($query);
 
-        assert(is_string($database) || $database === null);
-
-        return $database;
+        return $this->fetchOne($query);
     }
 
     /**

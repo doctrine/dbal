@@ -67,6 +67,8 @@ abstract class AbstractSchemaManager
      *
      * The property is initialized only once. If the underlying connection switches to a different schema, a new schema
      * manager instance will have to be created to reflect this change.
+     *
+     * @var ?non-empty-string
      */
     private ?string $currentSchemaName;
 
@@ -209,7 +211,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of all tables in the current database.
      *
-     * @return array<int, string>
+     * @return array<int, non-empty-string>
      *
      * @throws Exception
      */
@@ -333,6 +335,8 @@ abstract class AbstractSchemaManager
      * The <code>null</code> value means that there is no schema currently selected within the connection or the
      * corresponding database platform doesn't support schemas.
      *
+     * @return ?non-empty-string
+     *
      * @throws Exception
      */
     final protected function getCurrentSchemaName(): ?string
@@ -353,6 +357,8 @@ abstract class AbstractSchemaManager
      * Determines the name of the current schema.
      *
      * If the corresponding database platform supports schemas, the schema manager must implement this method.
+     *
+     * @return ?non-empty-string
      *
      * @throws Exception
      */
@@ -477,7 +483,7 @@ abstract class AbstractSchemaManager
      * If the corresponding database platform doesn't support schemas, the schema name key will be the
      * {@see NULL_SCHEMA_KEY}.
      *
-     * @return array<string,array<string,list<array<string,mixed>>>>
+     * @return array<non-empty-string,array<non-empty-string,list<array<string,mixed>>>>
      *
      * @throws Exception
      */
@@ -493,7 +499,7 @@ abstract class AbstractSchemaManager
      * If the corresponding database platform doesn't support schemas, the schema name key will be the
      * {@see NULL_SCHEMA_KEY}.
      *
-     * @return array<string,array<string,list<array<string,mixed>>>>
+     * @return array<non-empty-string,array<non-empty-string,list<array<string,mixed>>>>
      *
      * @throws Exception
      */
@@ -509,7 +515,7 @@ abstract class AbstractSchemaManager
      * If the corresponding database platform doesn't support schemas, the schema name key will be the
      * {@see NULL_SCHEMA_KEY}.
      *
-     * @return array<string,array<string,list<array<string,mixed>>>>
+     * @return array<non-empty-string,array<string,list<array<string,mixed>>>>
      *
      * @throws Exception
      */
@@ -525,7 +531,7 @@ abstract class AbstractSchemaManager
      * If the corresponding database platform doesn't support schemas, the schema name key will be the
      * {@see NULL_SCHEMA_KEY}.
      *
-     * @return array<string,array<string,list<array<string,mixed>>>>
+     * @return array<non-empty-string,array<non-empty-string,list<array<string,mixed>>>>
      *
      * @throws Exception
      */
@@ -541,7 +547,7 @@ abstract class AbstractSchemaManager
      * If the corresponding database platform doesn't support schemas, the schema name key will be the
      * {@see NULL_SCHEMA_KEY}.
      *
-     * @return array<string,array<string,array<string,mixed>>>
+     * @return array<non-empty-string,array<non-empty-string, array<string,mixed>>>
      *
      * @throws Exception
      */
@@ -1039,6 +1045,7 @@ abstract class AbstractSchemaManager
 
             $columns = [];
             foreach ($data['columns'] as $name => $length) {
+                /** @phpstan-ignore argument.type */
                 $columns[] = new IndexedColumn(UnqualifiedName::quoted($name), $length);
             }
 
@@ -1089,10 +1096,12 @@ abstract class AbstractSchemaManager
                 OptionallyQualifiedName::quoted($properties['foreignTable'], $properties['foreignSchema'] ?? null),
             )
             ->setReferencingColumnNames(...array_map(
+                /** @phpstan-ignore argument.type */
                 static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
                 $properties['local'],
             ))
             ->setReferencedColumnNames(...array_map(
+                /** @phpstan-ignore argument.type */
                 static fn (string $name): UnqualifiedName => UnqualifiedName::quoted($name),
                 $properties['foreign'],
             ));
@@ -1183,7 +1192,11 @@ abstract class AbstractSchemaManager
         return $schemaConfig;
     }
 
-    /** @throws Exception */
+    /**
+     * @return non-empty-string
+     *
+     * @throws Exception
+     */
     private function getDatabase(string $methodName): string
     {
         $database = $this->connection->getDatabase();
@@ -1205,7 +1218,7 @@ abstract class AbstractSchemaManager
      *
      * @param list<array<string, mixed>> $rows
      *
-     * @return array<string,array<string,list<array<string,mixed>>>>
+     * @return array<non-empty-string,array<non-empty-string,list<array<string,mixed>>>>
      */
     private function groupByTable(array $rows): array
     {
