@@ -15,6 +15,7 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 use function array_shift;
+use function array_values;
 use function current;
 
 class TableTest extends TestCase
@@ -48,6 +49,26 @@ class TableTest extends TestCase
         self::assertInstanceOf(Column::class, $table->getColumn('bar'));
 
         self::assertCount(2, $table->getColumns());
+    }
+
+    /** @dataProvider getNormalizesAssetNames */
+    public function testColumnsOrder(string $assetName): void
+    {
+        $type      = Type::getType(Types::INTEGER);
+        $columns   = [];
+        $columns[] = new Column('bar', $type);
+        $columns[] = new Column('BAZ', $type);
+        $columns[] = new Column($assetName, $type);
+        $table     = new Table('foo', $columns, [], []);
+
+        $table->setPrimaryKey([$assetName]);
+        $table->addForeignKeyConstraint('bar', ['BAZ'], ['baz']);
+
+        $orderedColumns = array_values($table->getColumns());
+
+        self::assertSame($columns[2], $orderedColumns[0]);
+        self::assertSame($columns[1], $orderedColumns[1]);
+        self::assertSame($columns[0], $orderedColumns[2]);
     }
 
     public function testColumnsCaseInsensitive(): void
