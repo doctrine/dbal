@@ -10,11 +10,11 @@ use Doctrine\DBAL\Tools\Console\ConnectionProvider;
 
 use function sprintf;
 
-class SingleConnectionProvider implements ConnectionProvider
+final readonly class SingleConnectionProvider implements ConnectionProvider
 {
     public function __construct(
-        private readonly Connection $connection,
-        private readonly string $defaultConnectionName = 'default',
+        private Connection $connection,
+        private string $defaultConnectionName = 'default',
     ) {
     }
 

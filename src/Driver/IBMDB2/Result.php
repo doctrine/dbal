@@ -17,14 +17,14 @@ use function db2_num_fields;
 use function db2_num_rows;
 use function db2_stmt_error;
 
-final class Result implements ResultInterface
+final readonly class Result implements ResultInterface
 {
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
      *
      * @param resource $statement
      */
-    public function __construct(private readonly mixed $statement)
+    public function __construct(private mixed $statement)
     {
     }
 

@@ -11,10 +11,10 @@ use SQLite3;
 use function assert;
 use function sprintf;
 
-final class Connection implements ConnectionInterface
+final readonly class Connection implements ConnectionInterface
 {
     /** @internal The connection can be only instantiated by its driver. */
-    public function __construct(private readonly SQLite3 $connection)
+    public function __construct(private SQLite3 $connection)
     {
     }
 

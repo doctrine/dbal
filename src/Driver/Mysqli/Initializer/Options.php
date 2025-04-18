@@ -10,10 +10,10 @@ use mysqli;
 
 use function mysqli_options;
 
-final class Options implements Initializer
+final readonly class Options implements Initializer
 {
     /** @param array<int,mixed> $options */
-    public function __construct(private readonly array $options)
+    public function __construct(private array $options)
     {
     }
 

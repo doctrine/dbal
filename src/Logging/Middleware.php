@@ -8,9 +8,9 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Middleware as MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 
-final class Middleware implements MiddlewareInterface
+final readonly class Middleware implements MiddlewareInterface
 {
-    public function __construct(private readonly LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
     }
 

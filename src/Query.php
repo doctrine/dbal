@@ -9,16 +9,16 @@ namespace Doctrine\DBAL;
  *
  * @phpstan-import-type WrapperParameterType from Connection
  */
-final class Query
+final readonly class Query
 {
     /**
      * @param array<mixed> $params
      * @phpstan-param array<WrapperParameterType> $types
      */
     public function __construct(
-        private readonly string $sql,
-        private readonly array $params,
-        private readonly array $types,
+        private string $sql,
+        private array $params,
+        private array $types,
     ) {
     }
 

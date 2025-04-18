@@ -22,7 +22,7 @@ use const OCI_NO_AUTO_COMMIT;
 use const OCI_TEMP_BLOB;
 use const SQLT_CHR;
 
-final class Statement implements StatementInterface
+final readonly class Statement implements StatementInterface
 {
     /**
      * @internal The statement can be only instantiated by its driver connection.
@@ -32,10 +32,10 @@ final class Statement implements StatementInterface
      * @param array<int,string> $parameterMap
      */
     public function __construct(
-        private readonly mixed $connection,
-        private readonly mixed $statement,
-        private readonly array $parameterMap,
-        private readonly ExecutionMode $executionMode,
+        private mixed $connection,
+        private mixed $statement,
+        private array $parameterMap,
+        private ExecutionMode $executionMode,
     ) {
     }
 

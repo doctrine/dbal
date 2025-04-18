@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query;
 
 /** @internal */
-final class Limit
+final readonly class Limit
 {
     public function __construct(
-        private readonly ?int $maxResults,
-        private readonly int $firstResult,
+        private ?int $maxResults,
+        private int $firstResult,
     ) {
     }
 

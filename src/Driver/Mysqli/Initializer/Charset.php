@@ -9,9 +9,9 @@ use Doctrine\DBAL\Driver\Mysqli\Initializer;
 use mysqli;
 use mysqli_sql_exception;
 
-final class Charset implements Initializer
+final readonly class Charset implements Initializer
 {
-    public function __construct(private readonly string $charset)
+    public function __construct(private string $charset)
     {
     }
 

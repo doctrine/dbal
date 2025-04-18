@@ -8,6 +8,49 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Classes marked as read-only:
+
+The following classes have been marked as read-only:
+
+- `Doctrine\DBAL\Cache\QueryCacheProfile`
+- `Doctrine\DBAL\Connection\StaticServerVersionProvider`
+- `Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString`
+- `Doctrine\DBAL\Driver\IBMDB2\Connection`
+- `Doctrine\DBAL\Driver\IBMDB2\DataSourceName`
+- `Doctrine\DBAL\Driver\IBMDB2\Result`
+- `Doctrine\DBAL\Driver\Mysqli\Initializer\Charset`
+- `Doctrine\DBAL\Driver\Mysqli\Initializer\Options`
+- `Doctrine\DBAL\Driver\Mysqli\Initializer\Secure`
+- `Doctrine\DBAL\Driver\OCI8\Connection`
+- `Doctrine\DBAL\Driver\OCI8\Result`
+- `Doctrine\DBAL\Driver\OCI8\Statement`
+- `Doctrine\DBAL\Driver\PDO\Connection`
+- `Doctrine\DBAL\Driver\PDO\Result`
+- `Doctrine\DBAL\Driver\PDO\Statement`
+- `Doctrine\DBAL\Driver\PgSQL\Connection`
+- `Doctrine\DBAL\Driver\SQLSrv\Connection`
+- `Doctrine\DBAL\Driver\SQLSrv\Result`
+- `Doctrine\DBAL\Driver\SQLite3\Connection`
+- `Doctrine\DBAL\Logging\Middleware`
+- `Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider\ConnectionCharsetMetadataProvider`
+- `Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider\ConnectionCollationMetadataProvider`
+- `Doctrine\DBAL\Platforms\SQLServer\SQL\Builder\SQLServerSelectSQLBuilder`
+- `Doctrine\DBAL\Portability\Middleware`
+- `Doctrine\DBAL\Query`
+- `Doctrine\DBAL\Query\Limit`
+- `Doctrine\DBAL\Query\SelectQuery`
+- `Doctrine\DBAL\Query\UnionQuery`
+- `Doctrine\DBAL\Result`
+- `Doctrine\DBAL\SQL\Builder\CreateSchemaObjectsSQLBuilder`
+- `Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder`
+- `Doctrine\DBAL\SQL\Builder\DefaultUnionSQLBuilder`
+- `Doctrine\DBAL\SQL\Builder\DropSchemaObjectsSQLBuilder`
+- `Doctrine\DBAL\Schema\ColumnDiff`
+- `Doctrine\DBAL\Schema\ComparatorConfig`
+- `Doctrine\DBAL\Schema\SchemaDiff`
+- `Doctrine\DBAL\Tools\Console\ConnectionProvider\SingleConnectionProvider`
+- `Doctrine\DBAL\Tools\DsnParser`
+
 ## BC BREAK: Classes marked as final:
 
 The following classes have been marked as final:

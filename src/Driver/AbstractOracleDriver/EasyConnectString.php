@@ -13,9 +13,9 @@ use function sprintf;
  *
  * @link https://docs.oracle.com/database/121/NETAG/naming.htm
  */
-final class EasyConnectString
+final readonly class EasyConnectString
 {
-    private function __construct(private readonly string $string)
+    private function __construct(private string $string)
     {
     }
 

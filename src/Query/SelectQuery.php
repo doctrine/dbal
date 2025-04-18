@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Query;
 
-final class SelectQuery
+final readonly class SelectQuery
 {
     /**
      * @internal This class should be instantiated only by {@link QueryBuilder}.
@@ -15,15 +15,15 @@ final class SelectQuery
      * @param string[] $orderBy
      */
     public function __construct(
-        private readonly bool $distinct,
-        private readonly array $columns,
-        private readonly array $from,
-        private readonly ?string $where,
-        private readonly array $groupBy,
-        private readonly ?string $having,
-        private readonly array $orderBy,
-        private readonly Limit $limit,
-        private readonly ?ForUpdate $forUpdate,
+        private bool $distinct,
+        private array $columns,
+        private array $from,
+        private ?string $where,
+        private array $groupBy,
+        private ?string $having,
+        private array $orderBy,
+        private Limit $limit,
+        private ?ForUpdate $forUpdate,
     ) {
     }
 

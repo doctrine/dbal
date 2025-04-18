@@ -16,14 +16,14 @@ use function sqlsrv_rows_affected;
 use function sqlsrv_server_info;
 use function str_replace;
 
-final class Connection implements ConnectionInterface
+final readonly class Connection implements ConnectionInterface
 {
     /**
      * @internal The connection can be only instantiated by its driver.
      *
      * @param resource $connection
      */
-    public function __construct(private readonly mixed $connection)
+    public function __construct(private mixed $connection)
     {
     }
 

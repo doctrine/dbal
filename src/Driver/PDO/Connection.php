@@ -13,10 +13,10 @@ use PDOStatement;
 
 use function assert;
 
-final class Connection implements ConnectionInterface
+final readonly class Connection implements ConnectionInterface
 {
     /** @internal The connection can be only instantiated by its driver. */
-    public function __construct(private readonly PDO $connection)
+    public function __construct(private PDO $connection)
     {
         $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
