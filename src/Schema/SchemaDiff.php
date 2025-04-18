@@ -9,10 +9,8 @@ use function count;
 
 /**
  * Differences between two schemas.
- *
- * @final
  */
-class SchemaDiff
+final class SchemaDiff
 {
     /** @var array<TableDiff> */
     private readonly array $alteredTables;

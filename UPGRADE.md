@@ -8,6 +8,15 @@ awareness about deprecated code.
 
 # Upgrade to 5.0
 
+## BC BREAK: Classes marked as final:
+
+The following classes have been marked as final:
+
+- `StaticServerVersionProvider`
+- `ColumnDiff`
+- `TableDiff`
+- `SchemaDiff`
+
 ## BC BREAK: Changes in `Index` methods, properties and behavior
 
 The following `Index` methods and properties have been removed:
