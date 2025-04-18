@@ -279,6 +279,18 @@ all drivers and middleware.
 
 # Upgrade to 4.3
 
+## The `Doctrine\DBAL\Query\Limit` class has been marked as internal
+
+## Deprecated extension of some classes
+
+Extending the following classes has been deprecated. Use them directly.
+
+- `QueryCacheProfile`
+- `StaticServerVersionProvider`
+- `ColumnDiff`
+- `TableDiff`
+- `SchemaDiff`
+
 ## Deprecated `Index` methods, properties and behavior
 
 The following `Index` methods and properties have been deprecated:

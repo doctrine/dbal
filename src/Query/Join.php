@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query;
 
 /** @internal */
-final class Join
+final readonly class Join
 {
     private function __construct(
-        public readonly string $type,
-        public readonly string $table,
-        public readonly string $alias,
-        public readonly ?string $condition,
+        public string $type,
+        public string $table,
+        public string $alias,
+        public ?string $condition,
     ) {
     }
 

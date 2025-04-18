@@ -12,6 +12,8 @@ use function count;
 
 /**
  * Table Diff.
+ *
+ * @final
  */
 class TableDiff
 {

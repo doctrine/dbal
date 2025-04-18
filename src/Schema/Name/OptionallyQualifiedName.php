@@ -11,9 +11,9 @@ use Doctrine\DBAL\Schema\Name;
 /**
  * An optionally qualified {@see Name} consisting of an unqualified name and an optional unqualified qualifier.
  */
-final class OptionallyQualifiedName implements Name
+final readonly class OptionallyQualifiedName implements Name
 {
-    public function __construct(private readonly Identifier $unqualifiedName, private readonly ?Identifier $qualifier)
+    public function __construct(private Identifier $unqualifiedName, private ?Identifier $qualifier)
     {
     }
 

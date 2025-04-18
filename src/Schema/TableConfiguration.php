@@ -7,14 +7,14 @@ namespace Doctrine\DBAL\Schema;
 /**
  * Contains platform-specific parameters used for creating and managing objects scoped to a {@see Table}.
  */
-final class TableConfiguration
+final readonly class TableConfiguration
 {
     /**
      * @internal The configuration can be only instantiated by a {@see SchemaConfig}.
      *
      * @param positive-int $maxIdentifierLength
      */
-    public function __construct(private readonly int $maxIdentifierLength)
+    public function __construct(private int $maxIdentifierLength)
     {
     }
 

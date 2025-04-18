@@ -9,6 +9,8 @@ use function count;
 
 /**
  * Differences between two schemas.
+ *
+ * @final
  */
 class SchemaDiff
 {

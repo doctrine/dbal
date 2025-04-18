@@ -15,9 +15,9 @@ use function count;
  *
  * @implements Parser<UnqualifiedName>
  */
-final class UnqualifiedNameParser implements Parser
+final readonly class UnqualifiedNameParser implements Parser
 {
-    public function __construct(private readonly GenericNameParser $genericNameParser)
+    public function __construct(private GenericNameParser $genericNameParser)
     {
     }
 

@@ -14,12 +14,12 @@ use function strlen;
 /**
  * Represents an SQL identifier.
  */
-final class Identifier
+final readonly class Identifier
 {
     /** @param non-empty-string $value */
     private function __construct(
-        private readonly string $value,
-        private readonly bool $isQuoted,
+        private string $value,
+        private bool $isQuoted,
     ) {
         if (strlen($this->value) === 0) {
             throw InvalidIdentifier::fromEmpty();

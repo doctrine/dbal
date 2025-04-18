@@ -8,14 +8,14 @@ use Doctrine\DBAL\Schema\Exception\InvalidIndexDefinition;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\Name\UnquotedIdentifierFolding;
 
-final class IndexedColumn
+final readonly class IndexedColumn
 {
     /**
      * @internal
      *
      * @param ?positive-int $length
      */
-    public function __construct(private readonly UnqualifiedName $columnName, private readonly ?int $length)
+    public function __construct(private UnqualifiedName $columnName, private ?int $length)
     {
         if ($length !== null && $length <= 0) {
             throw InvalidIndexDefinition::fromNonPositiveColumnLength($length);

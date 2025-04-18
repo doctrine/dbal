@@ -17,10 +17,10 @@ use function implode;
  *
  * @internal
  */
-final class GenericName implements Name
+final readonly class GenericName implements Name
 {
     /** @var non-empty-list<Identifier> $identifiers */
-    private readonly array $identifiers;
+    private array $identifiers;
 
     public function __construct(Identifier $firstIdentifier, Identifier ...$otherIdentifiers)
     {

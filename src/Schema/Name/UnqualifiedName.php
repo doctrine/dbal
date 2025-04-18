@@ -10,9 +10,9 @@ use Doctrine\DBAL\Schema\Name;
 /**
  * An unqualified {@see Name} consisting of a single identifier.
  */
-final class UnqualifiedName implements Name
+final readonly class UnqualifiedName implements Name
 {
-    public function __construct(private readonly Identifier $identifier)
+    public function __construct(private Identifier $identifier)
     {
     }
 

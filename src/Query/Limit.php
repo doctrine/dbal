@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Query;
 
+/** @internal */
 final class Limit
 {
     public function __construct(

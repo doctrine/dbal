@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Connection;
 
 use Doctrine\DBAL\ServerVersionProvider;
 
+/** @final */
 class StaticServerVersionProvider implements ServerVersionProvider
 {
     public function __construct(private readonly string $version)
