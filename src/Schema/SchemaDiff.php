@@ -9,13 +9,11 @@ use function count;
 
 /**
  * Differences between two schemas.
- *
- * @final
  */
-class SchemaDiff
+final readonly class SchemaDiff
 {
     /** @var array<TableDiff> */
-    private readonly array $alteredTables;
+    private array $alteredTables;
 
     /**
      * Constructs an SchemaDiff object.
@@ -32,14 +30,14 @@ class SchemaDiff
      * @param array<Sequence>  $droppedSequences
      */
     public function __construct(
-        private readonly array $createdSchemas,
-        private readonly array $droppedSchemas,
-        private readonly array $createdTables,
+        private array $createdSchemas,
+        private array $droppedSchemas,
+        private array $createdTables,
         array $alteredTables,
-        private readonly array $droppedTables,
-        private readonly array $createdSequences,
-        private readonly array $alteredSequences,
-        private readonly array $droppedSequences,
+        private array $droppedTables,
+        private array $createdSequences,
+        private array $alteredSequences,
+        private array $droppedSequences,
     ) {
         $this->alteredTables = array_filter($alteredTables, static function (TableDiff $diff): bool {
             return ! $diff->isEmpty();

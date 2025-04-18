@@ -25,14 +25,14 @@ use const OCI_NUM;
 use const OCI_RETURN_LOBS;
 use const OCI_RETURN_NULLS;
 
-final class Result implements ResultInterface
+final readonly class Result implements ResultInterface
 {
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
      *
      * @param resource $statement
      */
-    public function __construct(private readonly mixed $statement)
+    public function __construct(private mixed $statement)
     {
     }
 

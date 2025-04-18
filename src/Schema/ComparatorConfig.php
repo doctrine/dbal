@@ -7,11 +7,11 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\Deprecations\Deprecation;
 
-final class ComparatorConfig
+final readonly class ComparatorConfig
 {
     public function __construct(
-        private readonly bool $detectRenamedColumns = true,
-        private readonly bool $detectRenamedIndexes = true,
+        private bool $detectRenamedColumns = true,
+        private bool $detectRenamedIndexes = true,
     ) {
     }
 

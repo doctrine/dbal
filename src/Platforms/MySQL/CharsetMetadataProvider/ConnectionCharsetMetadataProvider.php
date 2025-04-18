@@ -9,9 +9,9 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQL\CharsetMetadataProvider;
 
 /** @internal */
-final class ConnectionCharsetMetadataProvider implements CharsetMetadataProvider
+final readonly class ConnectionCharsetMetadataProvider implements CharsetMetadataProvider
 {
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private Connection $connection)
     {
     }
 

@@ -12,11 +12,11 @@ use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use function count;
 use function implode;
 
-final class SQLServerSelectSQLBuilder implements SelectSQLBuilder
+final readonly class SQLServerSelectSQLBuilder implements SelectSQLBuilder
 {
     /** @internal The SQL builder should be instantiated only by database platforms. */
     public function __construct(
-        private readonly SQLServerPlatform $platform,
+        private SQLServerPlatform $platform,
     ) {
     }
 

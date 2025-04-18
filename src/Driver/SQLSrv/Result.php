@@ -17,14 +17,14 @@ use function sqlsrv_rows_affected;
 use const SQLSRV_FETCH_ASSOC;
 use const SQLSRV_FETCH_NUMERIC;
 
-final class Result implements ResultInterface
+final readonly class Result implements ResultInterface
 {
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
      *
      * @param resource $statement
      */
-    public function __construct(private readonly mixed $statement)
+    public function __construct(private mixed $statement)
     {
     }
 

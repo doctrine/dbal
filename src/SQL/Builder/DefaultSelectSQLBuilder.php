@@ -13,13 +13,13 @@ use Doctrine\DBAL\Query\SelectQuery;
 use function count;
 use function implode;
 
-final class DefaultSelectSQLBuilder implements SelectSQLBuilder
+final readonly class DefaultSelectSQLBuilder implements SelectSQLBuilder
 {
     /** @internal The SQL builder should be instantiated only by database platforms. */
     public function __construct(
-        private readonly AbstractPlatform $platform,
-        private readonly ?string $forUpdateSQL,
-        private readonly ?string $skipLockedSQL,
+        private AbstractPlatform $platform,
+        private ?string $forUpdateSQL,
+        private ?string $skipLockedSQL,
     ) {
     }
 

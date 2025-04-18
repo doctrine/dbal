@@ -9,9 +9,9 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 
 /** @internal */
-final class ConnectionCollationMetadataProvider implements CollationMetadataProvider
+final readonly class ConnectionCollationMetadataProvider implements CollationMetadataProvider
 {
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private Connection $connection)
     {
     }
 

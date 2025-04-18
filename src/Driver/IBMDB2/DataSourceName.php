@@ -13,11 +13,11 @@ use function str_contains;
 /**
  * IBM DB2 DSN
  */
-final class DataSourceName
+final readonly class DataSourceName
 {
     private function __construct(
         #[SensitiveParameter]
-        private readonly string $string,
+        private string $string,
     ) {
     }
 

@@ -20,12 +20,12 @@ use function sha1;
  * @phpstan-import-type WrapperParameterType from Connection
  * @final
  */
-class QueryCacheProfile
+readonly class QueryCacheProfile
 {
     public function __construct(
-        private readonly int $lifetime = 0,
-        private readonly ?string $cacheKey = null,
-        private readonly ?CacheItemPoolInterface $resultCache = null,
+        private int $lifetime = 0,
+        private ?string $cacheKey = null,
+        private ?CacheItemPoolInterface $resultCache = null,
     ) {
     }
 

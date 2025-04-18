@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Query;
 
-final class UnionQuery
+final readonly class UnionQuery
 {
     /**
      * @internal This class should be instantiated only by {@link QueryBuilder}.
@@ -13,9 +13,9 @@ final class UnionQuery
      * @param string[] $orderBy
      */
     public function __construct(
-        private readonly array $unionParts,
-        private readonly array $orderBy,
-        private readonly Limit $limit,
+        private array $unionParts,
+        private array $orderBy,
+        private Limit $limit,
     ) {
     }
 

@@ -12,10 +12,8 @@ use function count;
 
 /**
  * Table Diff.
- *
- * @final
  */
-class TableDiff
+final class TableDiff
 {
     /**
      * Constructs a TableDiff object.

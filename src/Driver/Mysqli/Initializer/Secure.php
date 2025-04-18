@@ -8,15 +8,15 @@ use Doctrine\DBAL\Driver\Mysqli\Initializer;
 use mysqli;
 use SensitiveParameter;
 
-final class Secure implements Initializer
+final readonly class Secure implements Initializer
 {
     public function __construct(
         #[SensitiveParameter]
-        private readonly string $key,
-        private readonly string $cert,
-        private readonly string $ca,
-        private readonly string $capath,
-        private readonly string $cipher,
+        private string $key,
+        private string $cert,
+        private string $ca,
+        private string $capath,
+        private string $cipher,
     ) {
     }
 

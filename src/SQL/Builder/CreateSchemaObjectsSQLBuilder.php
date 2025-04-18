@@ -11,9 +11,9 @@ use Doctrine\DBAL\Schema\Table;
 
 use function array_merge;
 
-final class CreateSchemaObjectsSQLBuilder
+final readonly class CreateSchemaObjectsSQLBuilder
 {
-    public function __construct(private readonly AbstractPlatform $platform)
+    public function __construct(private AbstractPlatform $platform)
     {
     }
 

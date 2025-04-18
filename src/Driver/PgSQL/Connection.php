@@ -20,11 +20,11 @@ use function pg_send_query;
 use function pg_version;
 use function uniqid;
 
-final class Connection implements ConnectionInterface
+final readonly class Connection implements ConnectionInterface
 {
-    private readonly Parser $parser;
+    private Parser $parser;
 
-    public function __construct(private readonly PgSqlConnection $connection)
+    public function __construct(private PgSqlConnection $connection)
     {
         $this->parser = new Parser(false);
     }

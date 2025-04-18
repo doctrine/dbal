@@ -22,11 +22,11 @@ use function strpos;
 use function substr;
 
 /** @phpstan-import-type Params from DriverManager */
-final class DsnParser
+final readonly class DsnParser
 {
     /** @param array<string, string|class-string<Driver>> $schemeMapping An array used to map DSN schemes to DBAL drivers */
     public function __construct(
-        private readonly array $schemeMapping = [],
+        private array $schemeMapping = [],
     ) {
     }
 
